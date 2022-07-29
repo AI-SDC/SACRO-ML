@@ -143,12 +143,7 @@ def _run_attack(args, make_report=True):
     if make_report:
         pdf = report.create_mia_report(metadata, mia_metrics, dummy_metrics, dummy_metadata)
         pdf.output(f"{args.report_name}.pdf", 'F')
-        json_details = report.create_json_report(
-            metadata,
-            mia_metrics,
-            dummy_metrics,
-            dummy_metadata
-        )
+        json_details = report.create_json_report(mia_metrics, dummy_metrics)
         with open(f"{args.report_name}.json", 'w', encoding="utf-8") as json_file:
             json_file.write(json_details)
 

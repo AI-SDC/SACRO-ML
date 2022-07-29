@@ -1,8 +1,8 @@
+"""Code for automatic report generation"""
 import json
 import pylab as plt
 import numpy as np
 from fpdf import FPDF
-from json import JSONEncoder
 
 # Adds a border to all pdf cells of set to 1 -- useful for debugging
 BORDER = 0
@@ -72,39 +72,45 @@ GLOSSARY = {
     'ACC': 'The proportion of predictions that the attacker makes that are correct.'
 }
 
-class NumpyArrayEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return JSONEncoder.default(self, obj)
+class NumpyArrayEncoder(json.JSONEncoder):
+    """TODO"""
+    def default(self, o):
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return json.JSONEncoder.default(self, o)
 
-def write_dict(pdf, dict, indent=0, border=BORDER):
-    for key, value in dict.items():
+def _write_dict(pdf, input_dict, indent=0, border=BORDER):
+    """TODO"""
+    for key, value in input_dict.items():
         pdf.set_font('arial', 'B', 14)
-        pdf.cell(75, 5, key, BORDER, 1, 'L')
-        pdf.cell(10, 0)
+        pdf.cell(75, 5, key, border, 1, 'L')
+        pdf.cell(indent, 0)
         pdf.set_font('arial', '', 12)
-        pdf.multi_cell(150, 5, value, BORDER, 'L')
+        pdf.multi_cell(150, 5, value, border, 'L')
         pdf.ln(h=5)
 
-def title(pdf, text, border=BORDER, font_size=24, font_style='B'):
+def _title(pdf, text, border=BORDER, font_size=24, font_style='B'):
+    """TODO"""
     pdf.set_font('arial', font_style, font_size)
     pdf.ln(h=5)
     pdf.cell(0, 0, text, border, 1, 'C')
     pdf.ln(h=5)
 
-def subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style='B'):
+def _subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style='B'): # pylint: disable = too-many-arguments
+    """TODO"""
     pdf.cell(indent, border=border)
     pdf.set_font('arial', font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
 
-def line(pdf, text, indent=0, border=BORDER, font_size=11, font_style='', font='arial'):
+def _line(pdf, text, indent=0, border=BORDER, font_size=11, font_style='', font='arial'): # pylint: disable = too-many-arguments
+    """TODO"""
     if indent > 0:
         pdf.cell(indent, border=border)
     pdf.set_font(font, font_style, font_size)
     pdf.multi_cell(0, 5, text, border, 1)
 
 def roc_plot_single(metrics, save_name):
+    """TODO"""
     plt.figure()
     plt.plot([0, 1], [0, 1], 'k--')
     plt.plot(metrics['fpr'], metrics['tpr'], 'r', linewidth=2)
@@ -117,13 +123,14 @@ def roc_plot_single(metrics, save_name):
     plt.savefig(save_name)
 
 def roc_plot(metrics, dummy_metrics, save_name):
+    """TODO"""
     plt.figure()
     plt.plot([0, 1], [0, 1], 'k--')
     if dummy_metrics is None or len(dummy_metrics) == 0:
         do_dummy = False
     else:
         do_dummy = True
-    
+
     # Compute average ROC
     base_fpr = np.linspace(0, 1, 1000)
     # base_fpr = np.logspace(-4, 0, 1000)
@@ -137,18 +144,24 @@ def roc_plot(metrics, dummy_metrics, save_name):
             all_tpr_dummy[i, :] = np.interp(base_fpr, metric_set['fpr'], metric_set['tpr'])
 
         for _, metric_set in enumerate(dummy_metrics):
-            plt.plot(metric_set['fpr'], metric_set['tpr'], color='lightsteelblue', linewidth=0.5, alpha=0.5)
+            plt.plot(
+                metric_set['fpr'],
+                metric_set['tpr'],
+                color='lightsteelblue',
+                linewidth=0.5,
+                alpha=0.5
+            )
 
     for _, metric_set in enumerate(metrics):
         plt.plot(metric_set['fpr'], metric_set['tpr'], color='lightsalmon', linewidth=0.5)
-    
 
-    mu = all_tpr.mean(axis=0)
-    plt.plot(base_fpr, mu, 'r')
+
+    tpr_mu = all_tpr.mean(axis=0)
+    plt.plot(base_fpr, tpr_mu, 'r')
 
     if do_dummy:
-        mu = all_tpr_dummy.mean(axis=0)
-        plt.plot(base_fpr, mu, 'b')
+        dummy_mu = all_tpr_dummy.mean(axis=0)
+        plt.plot(base_fpr, dummy_mu, 'b')
 
     plt.xscale('log')
     plt.yscale('log')
@@ -167,58 +180,72 @@ def create_mia_report(metadata, mia_metrics, dummy_metrics, dummy_metadata):
         do_dummy = True
 
     roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
-    
+
 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
-    title(pdf, "WorstCase MIA attack result report")
-    subtitle(pdf, "Introduction")
-    line(pdf, INTRODUCTION)
-    subtitle(pdf, "Experiment summary")
+    _title(pdf, "WorstCase MIA attack result report")
+    _subtitle(pdf, "Introduction")
+    _line(pdf, INTRODUCTION)
+    _subtitle(pdf, "Experiment summary")
     for key, value in metadata['experiment_details'].items():
-        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    subtitle(pdf, "Global metrics")
+        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    _subtitle(pdf, "Global metrics")
     for key, value in metadata['global_metrics'].items():
-        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     if do_dummy:
-        subtitle(pdf, "Baseline global metrics")
+        _subtitle(pdf, "Baseline global metrics")
         for key, value in dummy_metadata['global_metrics'].items():
-            line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+            _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
-    subtitle(pdf, "Metrics")
-    line(pdf, f"The following show summaries of the attack metrics over the repetitions", font="arial")
+    _subtitle(pdf, "Metrics")
+    _line(
+        pdf,
+        "The following show summaries of the attack metrics over the repetitions",
+        font="arial"
+    )
     for metric in DISPLAY_METRICS:
         vals = np.array([m[metric] for m in mia_metrics])
         if metric in MAPPINGS:
             vals = np.array([MAPPINGS[metric](v) for v in vals])
-        text = f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, min = {vals.min():.2f}, max = {vals.max():.2f}"
-        line(pdf, text, font='courier')
+        text = (
+            f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, "
+            f"min = {vals.min():.2f}, max = {vals.max():.2f}"
+        )
+        _line(pdf, text, font='courier')
 
     if do_dummy:
-        subtitle(pdf, "Baseline metrics")
-        line(pdf, f"The following show summaries of the attack metrics over the repetitions where there is no statistical difference between predictions in the training and test sets. Simulation was done with training and test set sizes equal to the real ones", font="arial")
+        _subtitle(pdf, "Baseline metrics")
+        _line(pdf, (
+            'The following show summaries of the attack metrics over the repetitions where there '
+            'is no statistical difference between predictions in the training and test sets. '
+            'Simulation was done with training and test set sizes equal to the real ones'
+        ), font="arial")
         for metric in DISPLAY_METRICS:
             vals = np.array([m[metric] for m in dummy_metrics])
             if metric in MAPPINGS:
                 vals = np.array([MAPPINGS[metric](v) for v in vals])
-            text = f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, min = {vals.min():.2f}, max = {vals.max():.2f}"
-            line(pdf, text, font='courier')
-        
-    pdf.add_page()
-    subtitle(pdf, "Log ROC")
-    pdf.image('log_roc.png', x = None, y = None, w = 0, h = 140, type = '', link = '')
-    pdf.set_font('arial', '', 12)
-    line(pdf, LOGROC_CAPTION)
+            text = (
+                f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, "
+                f"min = {vals.min():.2f}, max = {vals.max():.2f}"
+            )
+            _line(pdf, text, font='courier')
 
     pdf.add_page()
-    title(pdf, "Glossary")
-    write_dict(pdf, GLOSSARY)
+    _subtitle(pdf, "Log ROC")
+    pdf.image('log_roc.png', x = None, y = None, w = 0, h = 140, type = '', link = '')
+    pdf.set_font('arial', '', 12)
+    _line(pdf, LOGROC_CAPTION)
+
+    pdf.add_page()
+    _title(pdf, "Glossary")
+    _write_dict(pdf, GLOSSARY)
 
 
     return pdf
 
-def create_json_report(metadata, mia_metrics, dummy_metrics, dummy_metadata):
+def create_json_report(mia_metrics, dummy_metrics):
     '''Create a report in json format for injestion by other tools
     '''
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
@@ -226,22 +253,23 @@ def create_json_report(metadata, mia_metrics, dummy_metrics, dummy_metadata):
     return json.dumps(json_payload, cls=NumpyArrayEncoder)
 
 def create_lr_report(metadata, mia_metrics):
+    """TODO"""
     roc_plot_single(mia_metrics, "log_roc.png")
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
-    title(pdf, "Likelihood Ratio Attack Report")
-    subtitle(pdf, "Introduction")
-    subtitle(pdf, "Metadata")
+    _title(pdf, "Likelihood Ratio Attack Report")
+    _subtitle(pdf, "Introduction")
+    _subtitle(pdf, "Metadata")
     for key, value in metadata.items():
-        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    subtitle(pdf, "Metrics")
+        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    _subtitle(pdf, "Metrics")
     sub_metrics_dict = {key: val for key, val in mia_metrics.items() if isinstance(val, float)}
     for key, value in sub_metrics_dict.items():
         if key in MAPPINGS:
             value = MAPPINGS[key](value)
-        line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
+        _line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
     pdf.add_page()
-    subtitle(pdf, "ROC Curve")
+    _subtitle(pdf, "ROC Curve")
     pdf.image('log_roc.png', x = None, y = None, w = 0, h = 140, type = '', link = '')
     return pdf
