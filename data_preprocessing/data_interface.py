@@ -47,14 +47,54 @@ def get_data_sklearn( # pylint: disable = too-many-branches
     dataset_name: str,
     data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    '''Main entry method to return data in format sensible for sklearn. User passes a name and that
+    """Main entry method to return data in format sensible for sklearn. User passes a name and that
     dataset is returned as a tuple of pandas DataFrames (data, labels).
 
-    @param dataset_name (str): the name of the dataset
-    @param data_folder (str; optional): the root folder to look for data. Defaults to
-        GRAIMatter/data
-    @returns Tuple[pd.DataFrame, pd.DataFrame]: tuple of dataframes correspnding to X and y
-    '''
+    Parameters
+    ----------
+    dataset_name: str
+        The name of the dataset to load
+    data_folder: str
+        The name of the local folder in which data is stored.
+
+    Returns
+    -------
+
+    X: pd.DataFrame
+        The input dataframe -- rows are examples, columns variables
+    y: pd.DataFrame
+        the target dataframe -- has a single column containing the target values
+
+    Notes
+    -----
+
+    The following datasets are available:
+    mimic2-iaccd (requires data download)
+    in-hospital-mortality (requires data download)
+    medical-mnist-ab-v-br-100 (requires data download)
+    medical-mnist-ab-v-br-500 (requires data download)
+    medical-mnist-all-100 (requires data download)
+    indian liver (requires data download)
+    texas hospitals 10 (requires data download)
+    synth-ae (requires data download)
+    synth-ae-small (requires data download)
+    nursery (downloads automatically)
+    iris (available out of the box via sklearn)
+
+    Datasets can be normalised by adding the following prefixes:
+    standard: standardises all columns to have zero mean and unit variance.
+    minmax: standardises all columns to have values between 0 and 1.
+    round: rounds continues features to have 3dp
+
+    These can be nested.
+
+    Examples
+    --------
+    >>> X, y = get_data_sklearn("mimic2-iaccd") # pull the mimic2-iaccd data
+    >>> X, y = get_data_sklearn("minmax iris") # pull the iris data and round continuous features
+
+
+    """
     logger.info("DATASET FOLDER = %s", data_folder)
 
     if dataset_name.startswith("standard"):
@@ -91,36 +131,36 @@ def get_data_sklearn( # pylint: disable = too-many-branches
 
 
     if dataset_name == 'mimic2-iaccd':
-        return mimic_iaccd(data_folder)
+        return _mimic_iaccd(data_folder)
     if dataset_name == 'in-hospital-mortality':
-        return in_hospital_mortality(data_folder)
+        return _in_hospital_mortality(data_folder)
     if dataset_name == 'medical-mnist-ab-v-br-100':
-        return medical_mnist_loader(data_folder, 100, ['AbdomenCT', 'BreastMRI'])
+        return _medical_mnist_loader(data_folder, 100, ['AbdomenCT', 'BreastMRI'])
     if dataset_name == 'medical-mnist-ab-v-br-500':
-        return medical_mnist_loader(data_folder, 500, ['AbdomenCT', 'BreastMRI'])
+        return _medical_mnist_loader(data_folder, 500, ['AbdomenCT', 'BreastMRI'])
     if dataset_name == 'medical-mnist-all-100':
-        return medical_mnist_loader(
+        return _medical_mnist_loader(
             data_folder,
             100,
             ['AbdomenCT', 'BreastMRI', 'CXR', 'ChestCT', 'Hand', 'HeadCT']
         )
     if dataset_name == 'indian liver':
-        return indian_liver(data_folder)
+        return _indian_liver(data_folder)
     if dataset_name == 'texas hospitals 10':
-        return texas_hospitals(data_folder)
+        return _texas_hospitals(data_folder)
     if dataset_name == 'synth-ae':
-        return synth_ae(data_folder)
+        return _synth_ae(data_folder)
     if dataset_name == 'synth-ae-small':
-        x, y = synth_ae(data_folder, 200)
+        x, y = _synth_ae(data_folder, 200)
         return x, y
     if dataset_name == 'nursery':
-        return nursery()
+        return _nursery()
     if dataset_name == 'iris':
-        return iris()
+        return _iris()
     raise UnknownDataset(dataset_name)
 
 
-def iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     sklearn iris data - just first two classes
     '''
@@ -129,7 +169,7 @@ def iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
     y = y[y < 2]
     return X, y
 
-def nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     The sklearn nursery dataset
     '''
@@ -150,7 +190,7 @@ def nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 # Patched to support non-flattened images. Same behaviour as before except if called with
 # flatten=False explicitly.
-def images_to_ndarray(
+def _images_to_ndarray(
     images_dir: str,
     number_to_load: int,
     label: int,
@@ -168,7 +208,7 @@ def images_to_ndarray(
     labels = np.ones((len(np_images), 1), int) * label
     return(np_images, labels)
 
-def medical_mnist_loader( #pylint: disable = too-many-locals
+def _medical_mnist_loader( #pylint: disable = too-many-locals
     data_folder: str,
     n_per_class: int,
     classes: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -223,7 +263,7 @@ and place it in the correct folder. It unzips the file first.
 
     for i, class_name in enumerate(classes):
         label = reverse_labels_dict[class_name]
-        x_images, y_images = images_to_ndarray(
+        x_images, y_images = _images_to_ndarray(
             os.path.join(base_folder, class_name),
             n_per_class,
             label
@@ -239,7 +279,7 @@ and place it in the correct folder. It unzips the file first.
     return (pd.DataFrame(all_x), pd.DataFrame(all_y))
 
 
-def synth_ae(data_folder: str, n_rows: int=5000) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _synth_ae(data_folder: str, n_rows: int=5000) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
     https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long
@@ -290,7 +330,7 @@ unzip it (7z) and then copy the .csv file into your data folder.
     return (X, y)
 
 
-def indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     Indian Liver Patient Dataset
     https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long
@@ -329,7 +369,7 @@ and place it in the correct folder.
     return (liver_data, liver_labels)
 
 
-def in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     In-hospital mortality data from this study:
         https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
@@ -365,7 +405,7 @@ and place it in the correct folder. It works with either the zip file or uncompr
 
 
 
-def mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     Loads the mimic_iaccd data and performs Alba's pre-processing
     '''
@@ -415,7 +455,7 @@ Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_
 
     return (X, y)
 
-def texas_hospitals(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]: # pylint: disable=too-many-statements, too-many-locals
+def _texas_hospitals(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]: # pylint: disable=too-many-statements, too-many-locals
     '''
     Texas Hospitals Dataset
     (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm)
