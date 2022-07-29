@@ -22,7 +22,8 @@ It uses the numpydoc format. Your code should be documented with numpydoc commen
 An example docstring from
 the safemodel source is below: 
 
-`  class SafeModel:
+```
+class SafeModel:
       """Privacy protected model base class.
       Attributes
       ----------
@@ -56,7 +57,7 @@ the safemodel source is below:
       Changed parameter min_samples_leaf = 5.
       Model parameters are within recommended ranges.
       """
-`
+```
 
 Static and Generated Content
 ============================
