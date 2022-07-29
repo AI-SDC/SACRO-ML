@@ -69,22 +69,25 @@ A short primer
 
 [Restructured Text Primer](https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#introduction)
 
-Automatic code documentation uses sphinx directives like this:
+Automatic code documentation from the docstrings uses sphinx directives in the .rst files like this:
 
+```
 .. automodule:: safemodel.classifiers.safedecisiontreeclassifier
    :members:
-
+```
 Images
 ------
- 
 
+It is possible to include images like this
+
+```
  
 .. image:: stars.jpg
     :width: 200px
     :align: center
     :height: 100px
     :alt: alternate text
-
+```
 
 
 
