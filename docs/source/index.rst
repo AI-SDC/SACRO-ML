@@ -21,7 +21,7 @@ This is the class and function reference for safemodel.
    safedecisiontree
    saferandomforest
    safekeras
-   safesvc
+   
 
 
 Indices and tables
