@@ -19,7 +19,6 @@ logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
 
-
 def generate_array(n_rows, beta):
     '''
     Generate a single array of predictions. Picks a class for
