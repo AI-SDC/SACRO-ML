@@ -1,5 +1,5 @@
 dictdiffer
-fdpf
+fpdf
 joblib
 numpy
 pandas
