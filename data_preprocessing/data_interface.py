@@ -3,11 +3,13 @@ data_interface.py
 A set of useful handlers to pull in datasets common to the project and perform the appropriate
 pre-processing
 '''
+
+# pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
+
 import os
 import logging
-from pkgutil import get_data
 from typing import Tuple, List
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 from collections import Counter
 import pandas as pd
 import numpy as np
@@ -41,7 +43,7 @@ class DataNotAvailable(Exception):
     some datasets require a .csv file to have been downloaded.
     '''
 
-def get_data_sklearn(
+def get_data_sklearn( # pylint: disable = too-many-branches
     dataset_name: str,
     data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -77,7 +79,7 @@ def get_data_sklearn(
 
     if dataset_name.startswith("round"):
         sub_name = dataset_name.split("round")[1].strip()
-        print(sub_name)
+        logger.debug(sub_name)
         feature_df, target_df = get_data_sklearn(sub_name)
         column_dtype = feature_df.dtypes # pylint: disable = no-member
 
@@ -90,33 +92,32 @@ def get_data_sklearn(
 
     if dataset_name == 'mimic2-iaccd':
         return mimic_iaccd(data_folder)
-    elif dataset_name == 'in-hospital-mortality':
+    if dataset_name == 'in-hospital-mortality':
         return in_hospital_mortality(data_folder)
-    elif dataset_name == 'medical-mnist-ab-v-br-100':
+    if dataset_name == 'medical-mnist-ab-v-br-100':
         return medical_mnist_loader(data_folder, 100, ['AbdomenCT', 'BreastMRI'])
-    elif dataset_name == 'medical-mnist-ab-v-br-500':
+    if dataset_name == 'medical-mnist-ab-v-br-500':
         return medical_mnist_loader(data_folder, 500, ['AbdomenCT', 'BreastMRI'])
-    elif dataset_name == 'medical-mnist-all-100':
+    if dataset_name == 'medical-mnist-all-100':
         return medical_mnist_loader(
             data_folder,
             100,
             ['AbdomenCT', 'BreastMRI', 'CXR', 'ChestCT', 'Hand', 'HeadCT']
         )
-    elif dataset_name == 'indian liver':
+    if dataset_name == 'indian liver':
         return indian_liver(data_folder)
-    elif dataset_name == 'texas hospitals 10':
+    if dataset_name == 'texas hospitals 10':
         return texas_hospitals(data_folder)
-    elif dataset_name == 'synth-ae':
+    if dataset_name == 'synth-ae':
         return synth_ae(data_folder)
-    elif dataset_name == 'synth-ae-small':
+    if dataset_name == 'synth-ae-small':
         x, y = synth_ae(data_folder, 200)
         return x, y
-    elif dataset_name == 'nursery':
+    if dataset_name == 'nursery':
         return nursery()
-    elif dataset_name == 'iris':
+    if dataset_name == 'iris':
         return iris()
-    else:
-        raise UnknownDataset(dataset_name)
+    raise UnknownDataset(dataset_name)
 
 
 def iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -147,8 +148,13 @@ def nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return feature_dataframe, target_dataframe
 
 
-# Patched to support non-flattened images. Same behaviour as before except if called with flatten=False explicitly.
-def images_to_ndarray(images_dir: str, number_to_load: int, label: int, flatten: bool = True) -> Tuple[np.array, np.array]:
+# Patched to support non-flattened images. Same behaviour as before except if called with
+# flatten=False explicitly.
+def images_to_ndarray(
+    images_dir: str,
+    number_to_load: int,
+    label: int,
+    flatten: bool = True) -> Tuple[np.array, np.array]:
     '''
     Grab number_to_load images from the images_dir and create a np array and label array
     '''
@@ -162,7 +168,10 @@ def images_to_ndarray(images_dir: str, number_to_load: int, label: int, flatten:
     labels = np.ones((len(np_images), 1), int) * label
     return(np_images, labels)
 
-def medical_mnist_loader(data_folder: str, n_per_class: int, classes: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def medical_mnist_loader( #pylint: disable = too-many-locals
+    data_folder: str,
+    n_per_class: int,
+    classes: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     Load Medical MNIST into pandas format
     borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
@@ -181,7 +190,7 @@ def medical_mnist_loader(data_folder: str, n_per_class: int, classes: List[str])
         "archive.zip"
     )
 
-    print(base_folder, data_folder)
+    logger.debug(base_folder, data_folder)
     if not any([os.path.exists(base_folder), os.path.exists(zip_file)]):
         help_message = f"""
 Data file {base_folder} does not exist. Please download fhe file from:
@@ -190,17 +199,16 @@ and place it in the correct folder. It unzips the file first.
         """
         raise DataNotAvailable(help_message)
 
-    elif os.path.exists(base_folder):
+    if os.path.exists(base_folder):
         pass
     elif os.path.exists(zip_file):
         try:
             with ZipFile(zip_file) as zip_handle:
                 zip_handle.extractall()
-                print("Extracted all")
-                #os.remove(zip_file)
-                #print("zip file removed")
-        except: # TODO: define exception type that this should catch
-            print("Invalid file")
+                logger.debug("Extracted all")
+        except BadZipFile:
+            logger.error("Encountered bad zip file")
+            raise
 
     labels_dict = {
         0 : 'AbdomenCT',
@@ -234,7 +242,7 @@ and place it in the correct folder. It unzips the file first.
 def synth_ae(data_folder: str, n_rows: int=5000) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
-    https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e
+    https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long
     '''
 
     file_path = os.path.join(
@@ -285,7 +293,7 @@ unzip it (7z) and then copy the .csv file into your data folder.
 def indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''
     Indian Liver Patient Dataset
-     https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv
+    https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long
     '''
     #(https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset)
     file_path = os.path.join(
@@ -331,7 +339,7 @@ def in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]
     files = ["data01.csv", "doi_10.5061_dryad.0p2ngf1zd__v5.zip"]
     file_path = [os.path.join(data_folder, f) for f in files]
 
-    if not any([os.path.exists(fp) for fp in file_path]):
+    if not any([os.path.exists(fp) for fp in file_path]): # pylint: disable=use-a-generator
         help_message = f"""
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
@@ -407,8 +415,7 @@ Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_
 
     return (X, y)
 
-
-def texas_hospitals(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def texas_hospitals(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]: # pylint: disable=too-many-statements, too-many-locals
     '''
     Texas Hospitals Dataset
     (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm)
@@ -448,19 +455,23 @@ and place it in the correct folder.
     {not_found}
         """
         raise DataNotAvailable(help_message)
-    elif not os.path.exists(os.path.join(data_folder,"TexasHospitals", processed_data_file)):
+
+    if not os.path.exists(os.path.join(data_folder,"TexasHospitals", processed_data_file)):
 
         logger.info("Processing Texas Hospitals data (2006-2009)")
 
         #Load data
         columns_names = [
-            'THCIC_ID',# Provider ID. Unique identifier assigned to the provider by DSHS. Hospitals with fewer than 50 discharges have been aggregated into the Provider ID '999999'
+            'THCIC_ID',# Provider ID. Unique identifier assigned to the provider by DSHS.
+            # Hospitals with fewer than 50 discharges have been aggregated into the
+            # Provider ID '999999'
             'DISCHARGE_QTR', #yyyyQm
             'TYPE_OF_ADMISSION',
             'SOURCE_OF_ADMISSION',
             'PAT_ZIP',#Patient’s five-digit ZIP code
             'PUBLIC_HEALTH_REGION', #Public Health Region of patient’s address
-            'PAT_STATUS', #Code indicating patient status as of the ending date of service for the period of care reported
+            'PAT_STATUS', #Code indicating patient status as of the ending date of service for
+            # the period of care reported
             'SEX_CODE',
             'RACE',
             'ETHNICITY',
@@ -468,9 +479,12 @@ and place it in the correct folder.
             'PAT_AGE', #Code indicating age of patient in days or years on date of discharge.
             'PRINC_DIAG_CODE', #diagnosis code for the principal diagnosis
             'E_CODE_1', #external cause of injury
-            'PRINC_SURG_PROC_CODE', #Code for the principal surgical or other procedure performed during the period covered by the bill
-            'RISK_MORTALITY', #Assignment of a risk of mortality score from the All Patient Refined (APR) Diagnosis Related Group (DRG)
-            'ILLNESS_SEVERITY',#Assignment of a severity of illness score from the All Patient Refined (APR) Diagnosis RelatedGroup (DRG
+            'PRINC_SURG_PROC_CODE', #Code for the principal surgical or other procedure performed
+            # during the period covered by the bill
+            'RISK_MORTALITY', #Assignment of a risk of mortality score from the All Patient
+            # Refined (APR) Diagnosis Related Group (DRG)
+            'ILLNESS_SEVERITY',#Assignment of a severity of illness score from the All Patient
+            # Refined (APR) Diagnosis RelatedGroup (DRG
             'RECORD_ID'
         ]
         # obtain the 100 most frequent procedures
@@ -525,11 +539,11 @@ and place it in the correct folder.
         cols=['PRINC_DIAG_CODE', 'SOURCE_OF_ADMISSION', 'E_CODE_1']
         for col in cols:
             tmp = list(
-                set([x for x in tx_data[col] if not str(x).isdigit() and not isinstance(x, float)])
+                set([x for x in tx_data[col] if not str(x).isdigit() and not isinstance(x, float)]) # pylint: disable=consider-using-set-comprehension
             )
             n = max(
                 list(
-                    set([int(x) for x in tx_data[col] if str(x).isdigit() or isinstance(x, float)])
+                    set([int(x) for x in tx_data[col] if str(x).isdigit() or isinstance(x, float)]) # pylint: disable=consider-using-set-comprehension
                 )
             )
             for i, x in enumerate(tmp):
