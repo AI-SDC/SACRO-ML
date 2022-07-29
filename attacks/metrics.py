@@ -8,6 +8,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from scipy.stats import norm
+from scipy import interpolate
 from .mia_extremecase import min_max_disc
 
 VAR_THRESH = 1e-2
@@ -33,13 +34,14 @@ def tpr_at_fpr(y_true: Iterable[float], y_score: Iterable[float], fpr: float=0.0
         fpr /= 100.
 
 
-    fpr_vals, tpr_vals, _ = roc_curve(y_true, y_score)
-    exact_pos = np.where(fpr_vals == fpr)[0]
-    if len(exact_pos) > 0:
-        return tpr_vals[exact_pos[-1]]
+    fpr_vals, tpr_vals, thresh_vals = roc_curve(y_true, y_score)
+    thresh_from_fpr = interpolate.interp1d(fpr_vals, thresh_vals)
+    tpr_from_thresh = interpolate.interp1d(thresh_vals, tpr_vals)
 
-    idx = np.where(fpr_vals >= fpr)[0][0]
-    return tpr_vals[idx]
+    thresh = thresh_from_fpr(fpr)
+    tpr = tpr_from_thresh(thresh)
+
+    return tpr
 
 def expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
     '''
