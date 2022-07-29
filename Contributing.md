@@ -18,7 +18,7 @@ occassionaly directories might need adding top the path. Please ensure to use ab
 Sphinx reads the docstrings in the python source.
 
 It uses the numpydoc format. Your code should be documented with numpydoc comments.
-NumpyDoc]https://numpydoc.readthedocs.io/en/latest/format.html) 
+[NumpyDoc]https://numpydoc.readthedocs.io/en/latest/format.html) 
 
 Static and Generated Content
 ============================
