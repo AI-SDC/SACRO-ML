@@ -77,7 +77,7 @@ def min_max_disc(
     if log_p:
         if pval< 1e-50:
             pval=-115.13
-        else: 
+        else:
             pval=np.log(pval)
 
     # Return
