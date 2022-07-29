@@ -11,24 +11,59 @@ from scipy.stats import norm
 from scipy import interpolate
 from .mia_extremecase import min_max_disc
 
+# pylint: disable = invalid-name
+
 VAR_THRESH = 1e-2
 
-def div(x,y, default):
-    '''
-    Solve the problem of division by 0 and round up.
-    '''
-    if y!=0:
-        return round(float(x/y),8)
-    else:
-        #print('Warning: division by 0', x,y)
-        return float(default)
+def div(x: float, y: float, default: float) -> float:
+    """Solve the problem of division by 0 and round up.
+    If y is non-zero, perform x/y and round to 8dp. If it is zero, return the default
 
-def tpr_at_fpr(y_true: Iterable[float], y_score: Iterable[float], fpr: float=0.001, fpr_perc: bool=False) -> float:
-    '''
-    Compute the TPR at a fixed FPR.
-    In particular, returns the TPR value at idx where idx is the first location
-    at which the FPR is >= the passsed value fpr. Does not use interpolation.
-    '''
+    Parameters
+    ----------
+    x: float
+        numerator
+    y: float
+        denominator
+    default: float
+        return value if y == 0
+
+    Returns
+    -------
+        division: float
+            x / y, or default if y == 0
+    """
+    if y != 0:
+        division = round(float(x / y), 8)
+    else:
+        division = float(default)
+    return division
+
+def tpr_at_fpr(
+    y_true: Iterable[float],
+    y_score: Iterable[float],
+    fpr: float=0.001,
+    fpr_perc: bool=False) -> float:
+    """Compute the TPR at a fixed FPR.
+    In particular, returns the TPR value corresponding to a particular FPR. Uses interpolation
+    to fill in gaps.
+
+    Parameters
+    ----------
+    y_true: Iterable[float]
+        actual class labels
+    y_score: Iterable[float]
+        predicted score
+    fpr: float
+        false positive rate at which to compute true positive rate
+    fpr_perc: bool
+        if the fpr is defined as a percentage
+
+    Returns
+    -------
+    tpr: float
+        true positive rate at fpr
+    """
 
     if fpr_perc:
         fpr /= 100.
@@ -44,33 +79,60 @@ def tpr_at_fpr(y_true: Iterable[float], y_score: Iterable[float], fpr: float=0.0
     return tpr
 
 def expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
-    '''
-    Compute variance of AUC under assumption of uniform probabilities
+    """"Compute variance of AUC under assumption of uniform probabilities
     uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf
-    '''
+
+    Parameters
+    ----------
+
+    auc: float
+        auc value at which to compute the variance
+    num_pos: int
+        number of positive examples
+    num_neg: int
+        number of negative examples
+
+    Returns
+    -------
+    var: float
+        null variance of AUC
+    """
     p_xxy = p_xyy = 1/3
     var = (auc * (1 - auc) + (num_pos - 1) * (p_xxy - auc**2) + (num_neg - 1) * (p_xyy - auc**2)) /\
         (num_pos * num_neg)
     return var
 
-def get_metrics(clf,
-                X_test:Iterable[float],
-                y_test:Iterable[float],
+def get_metrics(clf, # pylint: disable = too-many-locals
+                X_test:np.ndarray,
+                y_test:np.ndarray,
                 permute_rows:bool=True):
     """
     Calculate metrics, including attacker advantage for MIA binary.
     Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
     which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy
 
-    clf: fitted model.
-    X_test: test data.
-    y_test: test data labels.
+    Parameters
+    ----------
+    clf: sklearn.Model
+        trained model
+    X_test: np.ndarray
+        test data matrix
+    y_test: np.ndarray
+        test data labels
 
-    returns a dictionary with several metrics.
+    Returns
+    -------
+    metrics: dict
+        dictionary of metric values
+
+    Notes
+    -----
+    Includes the following metrics
 
     True positive rate or recall (TPR)
     False positive rate (FPR), proportion of negative examples incorrectly classified as positives
-    False alarm rate (FAR), proportion of objects classified as positives that are incorrect, also known as false discovery rate
+    False alarm rate (FAR), proportion of objects classified as positives that are incorrect,
+        also known as false discovery rate
     True neagative rate (TNR)
     Positive predictive value or precision (PPV)
     Negative predictive value (NPV)
@@ -82,23 +144,35 @@ def get_metrics(clf,
     metrics = {}
     if permute_rows:
         N, _ = X_test.shape
-        order = np.random.RandomState(seed=10).permutation(N)
+        order = np.random.RandomState(seed=10).permutation(N) # pylint: disable = no-member
         X_test = X_test[order, :]
         y_test = y_test[order]
     y_pred = clf.predict(X_test)
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     #print('tn', tn, 'fp',fp,'fn', fn,'tp', tp)
 
-    metrics['TPR'] = round(float(tp/(tp + fn)), 8) #true positive rate or recall
-    metrics['FPR'] = round(float(fp / (fp + tn)), 8) #false positive rate, proportion of negative examples incorrectly classified as positives
-    metrics['FAR'] = div(fp, (fp + tp), 0) #False alarm rate, proportion of things classified as positives that are incorrect, also known as false discovery rate
-    metrics['TNR'] = round(float(tn / (tn + fp)), 8) #true negative rate or specificity
-    metrics['PPV'] = div(tp, (tp + fp), 0) #precision or positive predictive value
-    metrics['NPV'] = div(tn, (tn + fn), 0) #negative predictive value
-    metrics['FNR'] = round(float(fn / (tp + fn)), 8) #false negative rate
-    metrics['ACC'] = round(float((tp + tn) / (tp + fp + fn + tn)), 8) #overall accuracy
-    metrics['F1score'] = div(2*metrics['PPV']*metrics['TPR'], metrics['PPV']+metrics['TPR'], 0)#harmonic mean of precision and sensitivity
+    # true positive rate or recall
+    metrics['TPR'] = round(float(tp/(tp + fn)), 8)
+    # false positive rate, proportion of negative examples incorrectly classified as positives
+    metrics['FPR'] = round(float(fp / (fp + tn)), 8)
+    # False alarm rate, proportion of things classified as positives that are incorrect,
+    # also known as false discovery rate
+    metrics['FAR'] = div(fp, (fp + tp), 0)
+    # true negative rate or specificity
+    metrics['TNR'] = round(float(tn / (tn + fp)), 8)
+    # precision or positive predictive value
+    metrics['PPV'] = div(tp, (tp + fp), 0)
+    # negative predictive value
+    metrics['NPV'] = div(tn, (tn + fn), 0)
+    # false negative rate
+    metrics['FNR'] = round(float(fn / (tp + fn)), 8)
+    # overall accuracy
+    metrics['ACC'] = round(float((tp + tn) / (tp + fp + fn + tn)), 8)
+    # harmonic mean of precision and sensitivity
+    metrics['F1score'] = div(2*metrics['PPV']*metrics['TPR'], metrics['PPV']+metrics['TPR'], 0)
+    # Advantage: TPR - FPR
     metrics['Advantage'] = float(abs(metrics['TPR']-metrics['FPR']))
+
     #calculate AUC of model
     y_pred_proba = clf.predict_proba(X_test)[:, 1]
     metrics['AUC'] = round(roc_auc_score(y_test, y_pred_proba),8)
@@ -132,7 +206,7 @@ def get_metrics(clf,
     metrics['pred_prob_var'] = y_pred_proba.var()
 
     # TPR at various FPR
-    fpr_vals = [0.5, 0.2, 0.1, 0.01, 0.001, 0.00001] # taken from https://arxiv.org/pdf/2112.03570.pdf
+    fpr_vals = [0.5, 0.2, 0.1, 0.01, 0.001, 0.00001]
     for fpr in fpr_vals:
         tpr = tpr_at_fpr(y_test, y_pred_proba, fpr=fpr)
         name = f'TPR@{fpr}'
