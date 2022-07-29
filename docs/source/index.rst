@@ -20,8 +20,8 @@ This is the class and function reference for safemodel.
    safemodel
    safedecisiontree
    saferandomforest
-   safesvc
    safekeras
+   safesvc
 
 
 Indices and tables
