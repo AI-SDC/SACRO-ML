@@ -33,22 +33,20 @@ logger.info("ROOT PROJECT FOLDER = %s", PROJECT_ROOT_FOLDER)
 
 
 class UnknownDataset(Exception):
-    '''
-    If the user passes a name that we don't recognise
+    '''Exception raised if the user passes a name that we don't recognise
     '''
 
 class DataNotAvailable(Exception):
-    '''
-    If the user asks for a dataset that they do not have the data for
+    '''Exception raised if the user asks for a dataset that they do not have the data for. I.e.
+    some datasets require a .csv file to have been downloaded.
     '''
 
 def get_data_sklearn(
     dataset_name: str,
     data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    '''
-    Main entry method for data in format sensible for sklearn. User passes a name and that dataset
-    is returned as a pandas DataFrame.
+    '''Main entry method to return data in format sensible for sklearn. User passes a name and that
+    dataset is returned as a tuple of pandas DataFrames (data, labels).
 
     @param dataset_name (str): the name of the dataset
     @param data_folder (str; optional): the root folder to look for data. Defaults to
