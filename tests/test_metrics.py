@@ -7,6 +7,8 @@ import numpy as np
 from attacks.metrics import get_metrics, tpr_at_fpr
 from attacks.mia_extremecase import min_max_disc
 
+# pylint: disable = invalid-name
+
 PREDICTED_CLASS = np.array([0, 1, 0, 0, 1, 1])
 TRUE_CLASS = np.array([0, 0, 0, 1, 1, 1])
 PREDICTED_PROBS = np.array([
@@ -22,12 +24,12 @@ class DummyClassifier:
     '''
     Mocks the predict and predict_proba methods
     '''
-    def predict(self, X):
+    def predict(self, _):
         '''
         return dummy predictions
         '''
         return PREDICTED_CLASS
-    def predict_proba(self, X):
+    def predict_proba(self, _):
         '''
         return dummy predicted probabilities
         '''
