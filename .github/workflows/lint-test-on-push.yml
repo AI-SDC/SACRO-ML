@@ -22,7 +22,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with pylint
         run: |
-          pylint **/*.py
+          pylint **/*.py --fail-under 7
       - name: Test with unittest
         run: |
           python -m unittest discover tests
