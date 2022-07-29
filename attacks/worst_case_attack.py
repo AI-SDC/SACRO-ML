@@ -20,10 +20,28 @@ logging.basicConfig(level=logging.INFO)
 P_THRESH = 0.05
 
 def generate_array(n_rows, beta):
-    '''
-    Generate a single array of predictions. Picks a class for
-    each observation and then picks a probability of chat class from a beta distribution.
-    '''
+    """Generate a single array of predictions, used when doing baseline experiments
+
+    Parameters
+    ----------
+    n_rows: int
+        the number of rows worth of data to generate
+    beta: float
+        the beta parameter for sampling probabilities
+
+    Returns
+    -------
+    preds: np.ndarray
+        Array of predictions. Two columns, n_rows rows
+
+    Notes
+    -----
+
+    Examples
+    --------
+
+    """
+
     preds = np.zeros((n_rows, 2), float)
     for n in range(n_rows):
         train_class = np.random.choice(2)
