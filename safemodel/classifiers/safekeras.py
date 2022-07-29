@@ -5,7 +5,7 @@
 import copy
 import os
 import sys
-from typing import Any
+from typing import Any,Tuple
 
 import numpy as np
 
@@ -22,7 +22,7 @@ from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 from safemodel.safemodel import SafeModel
 
 
-def same_configs(m1: Any, m2: Any) -> tuple[bool, str]:
+def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
     if len(m1.layers) != len(m2.layers):
         return False, "different numbers of layers"
     for layer in range(len(m1.layers)):
@@ -43,7 +43,7 @@ def same_configs(m1: Any, m2: Any) -> tuple[bool, str]:
     return True, "configurations match"
 
 
-def same_weights(m1: Any, m2: Any) -> tuple[bool, str]:
+def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
     if len(m1.layers) != len(m2.layers):
         return False, "different numbers of layers"
     numlayers = len(m1.layers)
@@ -61,7 +61,7 @@ def same_weights(m1: Any, m2: Any) -> tuple[bool, str]:
     return True, "weights match"
 
 
-def test_checkpoint_equality(v1: str, v2: str) -> tuple[bool, str]:
+def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     """compares two checkpoints saved with tensorflow save_model
     On the assumption that the optimiser is not going to be saved,
     and that the model is going to be saved in frozen form
@@ -151,7 +151,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
 
     def dp_epsilon_met(
         self, num_examples: int, batch_size: int = 0, epochs: int = 0
-    ) -> tuple[bool, str]:
+    ) -> Tuple[bool, str]:
         """Checks if epsilon is sufficient for Differential Privacy
         Provides feedback to user if epsilon is not sufficient"""
         privacy = compute_dp_sgd_privacy.compute_dp_sgd_privacy(
@@ -169,7 +169,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
 
     def check_epsilon(
         self, num_samples: int, batch_size: int, epochs: int
-    ) -> tuple[bool, str]:
+    ) -> Tuple[bool, str]:
         """Computes the level of privacy guarantee is within recommended limits,
         and produces feedback"
         """
@@ -202,7 +202,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
         print(msg)
         return ok, msg
 
-    def check_optimizer_is_DP(self, optimizer) -> tuple[bool, str]:
+    def check_optimizer_is_DP(self, optimizer) -> Tuple[bool, str]:
         DPused = False
         reason = "None"
         if "_was_dp_gradients_called" not in optimizer.__dict__:
@@ -219,7 +219,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
             DPused = True
         return DPused, reason
 
-    def check_DP_used(self, optimizer) -> tuple[bool, str]:
+    def check_DP_used(self, optimizer) -> Tuple[bool, str]:
         DPused = False
         reason = "None"
         if "_was_dp_gradients_called" not in optimizer.__dict__:
@@ -243,7 +243,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
 
         return DPused, reason
 
-    def check_optimizer_allowed(self, optimizer) -> tuple[bool, str]:
+    def check_optimizer_allowed(self, optimizer) -> Tuple[bool, str]:
         disclosive = True
         reason = "None"
         allowed_optimizers = [
@@ -358,7 +358,7 @@ class Safe_KerasModel(KerasModel, SafeModel):
             self.saved_epsilon = self.current_epsilon
             return returnval
 
-    def posthoc_check(self, verbose: bool = True) -> tuple[str, bool]:
+    def posthoc_check(self, verbose: bool = True) -> Tuple[str, bool]:
         """Checks whether model should be considered unsafe
         foer exanmple, has been changed since fit() was last run,
         or does not meet DP policy
