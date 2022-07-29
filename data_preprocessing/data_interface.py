@@ -167,7 +167,7 @@ def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
     X, y = load_iris(return_X_y=True, as_frame=True)
     X = X[y < 2]
     y = y[y < 2]
-    return X, y
+    return X, pd.DataFrame(y)
 
 def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
     '''

@@ -11,9 +11,9 @@ class TestLoaders(unittest.TestCase):
     '''
     Test the data loaders
     '''
-    def test_nursery(self):
+    def test_iris(self):
         '''Nursery data'''
-        feature_df, target_df = get_data_sklearn("nursery")
+        feature_df, target_df = get_data_sklearn("iris")
         self.assertIsInstance(feature_df, pd.DataFrame)
         self.assertIsInstance(target_df, pd.DataFrame)
 
