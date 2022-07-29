@@ -5,7 +5,7 @@
 Automatic Documentation
 =======================
 
-The documentation is automatically build using sphinx and github actions.
+The documentation is automatically built using sphinx and github actions.
 
 The source files in docs/source are parsed/compiled into HTML files in docs/_build.
 The contents of docs/_build is pushed to the gh-pages branch which is then automatically 
@@ -19,6 +19,48 @@ Sphinx reads the docstrings in the python source.
 
 It uses the numpydoc format. Your code should be documented with numpydoc comments.
 [NumpyDoc](https://numpydoc.readthedocs.io/en/latest/format.html). 
+
+Quick Start
+===========
+
+Need to get your documentation into the generated docs?
+If your DocStrings are in the right format, this method should work for most cases:
+
+1. Go to docs/source
+2. Make a copy of an rst file (E.g. (safedecisiontree.rst)
+3. edit the new file and change the title and automodule line.
+```
+Data Interface
+==============
+ 
+An example Python Notebook is available  `Here <https://github.com/jim-smith/GRAIMatter/blob/main/WP2/wrapper/wrapper-concept.ipynb>`_
+ 
+.. automodule:: data_preprocessing.datainterface
+   :members:
+```
+
+4. Save the new file
+5. Edit the index.rst and insert the new filename(without the .rst) into the correct position in the list.
+```
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+ 
+   introduction
+   attacks
+   safemodel
+   safedecisiontree
+   saferandomforest
+   safekeras
+   datainterface
+```
+
+6. Save index.rst
+7. Push your updates to main
+
+DocStrings
+==========
+
 An example docstring from
 the safemodel source is below: 
 
