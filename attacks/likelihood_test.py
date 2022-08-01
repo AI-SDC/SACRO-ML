@@ -23,17 +23,33 @@ EPS = 1e-16 # Used to avoid numerical issues in logit function
 P_THRESH = 0.05 # default significance threshold
 
 class DummyClassifier:
-    '''A Dummy Classifier to allow this code to work with get_metrics'''
+    """A Dummy Classifier to allow this code to work with get_metrics"""
     def predict(self, test_X):
-        '''Return an array of 1/0 depending on value in second column'''
+        """Return an array of 1/0 depending on value in second column"""
         return 1 * (test_X[:, 1] > 0.5)
 
     def predict_proba(self, test_X):
-        '''Simply return the test_X'''
+        """Simply return the test_X"""
         return test_X
 
 def _logit(p: float) -> float:
-    '''Standard logit function'''
+    """Standard logit function
+    
+    Parameters
+    ----------
+    p: float
+        value to evaluate logit at
+
+    Returns
+    -------
+    li: float
+        logit(p)
+
+    Notes
+    -----
+    If p is close to 0 or 1, evaluating the log will result in numerical instabilities.
+    This code thresholds p at EPS and 1 - EPS where EPS defaults at 1e-16.
+    """
     if p > 1 - EPS:
         p = 1 - EPS
     p = max(p, EPS)
@@ -51,10 +67,10 @@ def likelihood_scenario( # pylint: disable = too-many-locals, too-many-arguments
     shadow_train_preds: Iterable[float],
     n_shadow_models: int=N_SHADOW_MODELS
 ):
-    '''
+    """
     Implements the likelihood test, using the "offline" version
     See p.6 (top of second column) for details
-    '''
+    """
     logger = logging.getLogger("lr-scenario")
     n_train_rows, _ = X_target_train.shape
     n_shadow_rows, _ = X_shadow_train.shape
@@ -138,7 +154,7 @@ def likelihood_scenario( # pylint: disable = too-many-locals, too-many-arguments
     return np.array(mia_scores), np.array(mia_labels), mia_clf
 
 def _run_attack(args: dict) -> None: # pylint: disable = too-many-locals
-    '''Run attack'''
+    """Run attack"""
     logger = logging.getLogger("run-attack")
     logger.info("Reading config from %s", args.json_file)
     with open(args.json_file, 'r', encoding='utf-8') as f:
@@ -211,9 +227,8 @@ def _run_attack(args: dict) -> None: # pylint: disable = too-many-locals
 
 
 def _example(args: Dict) -> None: # pylint: disable = too-many-locals
-    '''
-    Runs an example attack using data from sklearn
-    '''
+    """Runs an example attack using data from sklearn
+    """
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(
         X, y, test_size=0.5, stratify=y
@@ -259,10 +274,9 @@ def _example(args: Dict) -> None: # pylint: disable = too-many-locals
 
 
 def _setup_example_data(_: Any):
-    '''
-    Method to create example data and save (including config). Intended to allow users
+    """Method to create example data and save (including config). Intended to allow users
     to see how they would need to setup their own data.
-    '''
+    """
     X, y = load_breast_cancer(return_X_y=True)
     train_X, test_X, train_y, test_y = train_test_split(
         X, y, test_size=0.5, stratify=y
@@ -297,7 +311,7 @@ def _setup_example_data(_: Any):
         f.write(json.dumps(config))
 
 def main():
-    '''Main method to parse args and invoke relevant code'''
+    """Main method to parse args and invoke relevant code"""
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-s', '--n-shadow-models',
         type=int,
