@@ -7,7 +7,7 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 import argparse
 import logging
 
-from typing import Tuple
+from typing import Tuple, List, Dict
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -81,7 +81,7 @@ def _generate_arrays(
     test_preds = _generate_array(n_rows_out, test_beta)
     return train_preds, test_preds
 
-def _make_dummy_data(args: dict) -> None:
+def _make_dummy_data(args: Dict) -> None:
     """Makes dummy data for testing functionality
 
     Parameters
@@ -168,7 +168,7 @@ def _get_n_significant(p_val_list, p_thresh, bh_fdr_correction=False):
 
 
 def _attack( # pylint: disable=too-many-locals
-    args: dict,
+    args: Dict,
     train_preds: np.ndarray,
     test_preds: np.ndarray) -> Tuple[dict, dict]:
     """Runs the attack based upon the predictions in train_preds and test_preds, and params

@@ -1,5 +1,6 @@
 """Code for automatic report generation"""
 import json
+from typing import List, Dict
 import pylab as plt
 import numpy as np
 from fpdf import FPDF
@@ -173,10 +174,10 @@ def _roc_plot(metrics, dummy_metrics, save_name):
     plt.savefig(save_name)
 
 def create_mia_report(
-    metadata: dict,
-    mia_metrics: list,
-    dummy_metrics: list,
-    dummy_metadata: dict) -> FPDF:
+    metadata: Dict,
+    mia_metrics: List,
+    dummy_metrics: List,
+    dummy_metadata: Dict) -> FPDF:
     '''make a worst case membership inference report
 
     Parameters
