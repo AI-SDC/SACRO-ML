@@ -73,14 +73,15 @@ GLOSSARY = {
 }
 
 class NumpyArrayEncoder(json.JSONEncoder):
-    """TODO"""
+    """Json encoder that can cope with numpy arrays"""
     def default(self, o):
+        """If an object is an np.ndarray, convert to list"""
         if isinstance(o, np.ndarray):
             return o.tolist()
         return json.JSONEncoder.default(self, o)
 
 def _write_dict(pdf, input_dict, indent=0, border=BORDER):
-    """TODO"""
+    """Write a dictionary to the pdf"""
     for key, value in input_dict.items():
         pdf.set_font('arial', 'B', 14)
         pdf.cell(75, 5, key, border, 1, 'L')
@@ -90,27 +91,27 @@ def _write_dict(pdf, input_dict, indent=0, border=BORDER):
         pdf.ln(h=5)
 
 def _title(pdf, text, border=BORDER, font_size=24, font_style='B'):
-    """TODO"""
+    """Write a title block"""
     pdf.set_font('arial', font_style, font_size)
     pdf.ln(h=5)
     pdf.cell(0, 0, text, border, 1, 'C')
     pdf.ln(h=5)
 
 def _subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style='B'): # pylint: disable = too-many-arguments
-    """TODO"""
+    """Write a subtitle block"""
     pdf.cell(indent, border=border)
     pdf.set_font('arial', font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
 
 def _line(pdf, text, indent=0, border=BORDER, font_size=11, font_style='', font='arial'): # pylint: disable = too-many-arguments
-    """TODO"""
+    """Write a standard block"""
     if indent > 0:
         pdf.cell(indent, border=border)
     pdf.set_font(font, font_style, font_size)
     pdf.multi_cell(0, 5, text, border, 1)
 
-def roc_plot_single(metrics, save_name):
-    """TODO"""
+def _roc_plot_single(metrics, save_name):
+    """Create a roc_plot for a single experiment"""
     plt.figure()
     plt.plot([0, 1], [0, 1], 'k--')
     plt.plot(metrics['fpr'], metrics['tpr'], 'r', linewidth=2)
@@ -122,8 +123,8 @@ def roc_plot_single(metrics, save_name):
     plt.tight_layout()
     plt.savefig(save_name)
 
-def roc_plot(metrics, dummy_metrics, save_name):
-    """TODO"""
+def _roc_plot(metrics, dummy_metrics, save_name):
+    """Create a roc plot for multiple repetitions"""
     plt.figure()
     plt.plot([0, 1], [0, 1], 'k--')
     if dummy_metrics is None or len(dummy_metrics) == 0:
@@ -171,15 +172,42 @@ def roc_plot(metrics, dummy_metrics, save_name):
     plt.grid()
     plt.savefig(save_name)
 
-def create_mia_report(metadata, mia_metrics, dummy_metrics, dummy_metadata):
-    '''make a report'''
+def create_mia_report(
+    metadata: dict,
+    mia_metrics: list,
+    dummy_metrics: list,
+    dummy_metadata: dict) -> FPDF:
+    '''make a worst case membership inference report
+
+    Parameters
+    ----------
+
+    metadata: dict
+        dictionary of metadata
+
+    mia_metrics: list
+        list of metrics dictionaries
+
+    dummy_metrics: list
+        list of metrics dictionaries
+
+    dummy_metadata: dict
+        metadata for dummy experiments
+
+    Returns
+    -------
+
+    pdf: fpdf.FPDF
+        fpdf document object
+
+    '''
 
     if dummy_metrics is None or len(dummy_metrics) == 0:
         do_dummy = False
     else:
         do_dummy = True
 
-    roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
+    _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
 
 
     pdf = FPDF()
@@ -254,7 +282,7 @@ def create_json_report(mia_metrics, dummy_metrics):
 
 def create_lr_report(metadata, mia_metrics):
     """TODO"""
-    roc_plot_single(mia_metrics, "log_roc.png")
+    _roc_plot_single(mia_metrics, "log_roc.png")
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
