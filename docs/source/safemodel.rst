@@ -1,4 +1,4 @@
-Base Class 
+Base Class
 ==========
 
 .. automodule:: safemodel.safemodel

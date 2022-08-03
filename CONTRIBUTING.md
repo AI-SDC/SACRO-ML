@@ -8,8 +8,8 @@ Automatic Documentation
 The documentation is automatically built using sphinx and github actions.
 
 The source files in docs/source are parsed/compiled into HTML files in docs/_build.
-The contents of docs/_build is pushed to the gh-pages branch which is then automatically 
-deployed to the github.io site. 
+The contents of docs/_build is pushed to the gh-pages branch which is then automatically
+deployed to the github.io site.
 
 The main configuration file is docs/source/conf.py
 Most commonly the path variable will pick up any source to document
@@ -18,7 +18,7 @@ occassionaly directories might need adding top the path. Please ensure to use ab
 Sphinx reads the docstrings in the python source.
 
 It uses the numpydoc format. Your code should be documented with numpydoc comments.
-[NumpyDoc](https://numpydoc.readthedocs.io/en/latest/format.html). 
+[NumpyDoc](https://numpydoc.readthedocs.io/en/latest/format.html).
 
 Quick Start
 ===========
@@ -32,9 +32,9 @@ If your DocStrings are in the right format, this method should work for most cas
 ```
 Data Interface
 ==============
- 
+
 An example Python Notebook is available  `Here <https://github.com/jim-smith/GRAIMatter/blob/main/WP2/wrapper/wrapper-concept.ipynb>`_
- 
+
 .. automodule:: preprocessing.loaders
    :members:
 ```
@@ -45,7 +45,7 @@ An example Python Notebook is available  `Here <https://github.com/jim-smith/GRA
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
- 
+
    introduction
    attacks
    safemodel
@@ -62,7 +62,7 @@ DocStrings
 ==========
 
 An example docstring from
-the safemodel source is below: 
+the safemodel source is below:
 
 ```
 class SafeModel:
@@ -72,19 +72,19 @@ class SafeModel:
       model_type: string
             A string describing the type of model. Default is "None".
       model:
-            The Machine Learning Model. 
+            The Machine Learning Model.
       saved_model:
             A saved copy of the Machine Learning Model used for comparisson.
       ignore_items: list
-            A list of items to ignore when comparing the model with the 
+            A list of items to ignore when comparing the model with the
             saved_model.
       examine_separately_items: list
-            A list of items to examine separately. These items are more 
+            A list of items to examine separately. These items are more
             complex datastructures that cannot be compared directly.
       filename: string
-            A filename to save the model. 
+            A filename to save the model.
       researcher: string
-            The researcher user-id used for logging 
+            The researcher user-id used for logging
       Notes
       -----
       Examples
@@ -107,7 +107,7 @@ Static and Generated Content
 The .rst files in docs/source/ are a mixture of static and generated content
 Static content should be written in ReStructuredText (.rst) format.
 
-A short primer  
+A short primer
 
 [Restructured Text Primer](https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#introduction)
 
@@ -123,7 +123,7 @@ Images
 It is possible to include images like this
 
 ```
- 
+
 .. image:: stars.jpg
     :width: 200px
     :align: center
