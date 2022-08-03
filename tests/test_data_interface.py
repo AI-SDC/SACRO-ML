@@ -4,7 +4,7 @@ Test the data interface code
 
 import unittest
 import pandas as pd
-from data_preprocessing.data_interface import get_data_sklearn, UnknownDataset  # pylint: disable = import-error
+from preprocessing.loaders import get_data_sklearn, UnknownDataset  # pylint: disable = import-error
 
 
 class TestLoaders(unittest.TestCase):
