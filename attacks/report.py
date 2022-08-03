@@ -29,7 +29,7 @@ INTRODUCTION = (
     'on the model outputs provided. An attack model is trained to attempt to distinguish '
     'between outputs from training (in-sample) and testing (out-of-sample) data. The metrics '
     'below describe the success of this classifier. A successful classifier indicates that the '
-    'original model is unsafe and should not be allowed to be relased from the TRE.\n'
+    'original model is unsafe and should not be allowed to be released from the TRE.\n'
     'In particular, the simulation splits the data provided into test and train sets (each will '
     'in- and out-of-sample examples). The classifier is trained on the train set and evaluated '
     'on the test set. This is repeated with different train/test splits a user-specified number '

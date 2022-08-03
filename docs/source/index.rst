@@ -14,7 +14,7 @@ This is the class and function reference for safemodel.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    introduction
    preprocessing
    attacks

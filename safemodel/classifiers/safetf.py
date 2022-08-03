@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow_privacy as tf_privacy
 
 from tensorflow.keras import Model as KerasModel
-from safemodel.safemodel import SafeModel  
+from safemodel.safemodel import SafeModel
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 
