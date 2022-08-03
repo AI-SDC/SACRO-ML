@@ -16,13 +16,13 @@ This is the class and function reference for safemodel.
    :caption: Contents:
    
    introduction
+   datainterface
    attacks
    safemodel
    safedecisiontree
    saferandomforest
    safekeras
-   
-
+=======
 
 Indices and tables
 ==================
