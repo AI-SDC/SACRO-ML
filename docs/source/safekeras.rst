@@ -5,5 +5,3 @@ An example Python Notebook is available  `Here <https://github.com/jim-smith/GRA
 
 .. automodule:: safemodel.classifiers.safekeras
    :members: 
-
-
