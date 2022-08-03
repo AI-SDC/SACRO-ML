@@ -12,6 +12,13 @@ The code can be called from the command line, or accessed programmatically. Exam
 are shown below.
 
 In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
+
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
+python -m examples.worst_case_attack_example
+
 """
 import os
 from types import SimpleNamespace
@@ -147,11 +154,11 @@ os.system(
         "--in-sample-preds train_preds.csv "
         "--out-of-sample-preds test_preds.csv "
         "--n-reps 10 "
-        "--report-name example_report "
+        "--report-name example_report_risky "
         "--dummy-reps 1 "
         "--test-prop 0.1"
     )
 )
 
-# [TRE] The code produces a .pdf report (example_report.pdf) and a .json file that can be
+# [TRE] The code produces a .pdf report (example_report_risky.pdf) and a .json file that can be
 # injesetd by the shiny app
