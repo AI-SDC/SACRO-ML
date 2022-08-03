@@ -52,11 +52,11 @@ def _generate_array(n_rows: int, beta: float) -> np.ndarray:
         preds[row_idx, 1 - train_class] = 1 - train_prob
     return preds
 
-def _generate_arrays(
+def generate_arrays(
     n_rows_in: int,
     n_rows_out: int,
-    train_beta: float,
-    test_beta: float) -> Tuple[np.ndarray, np.ndarray]:
+    train_beta: float=2,
+    test_beta: float=2) -> Tuple[np.ndarray, np.ndarray]:
     """Generate train and test prediction arrays, used when computing baseline
 
     Parameters
@@ -100,11 +100,11 @@ def _make_dummy_data(args: Dict) -> None:
     logger = logging.getLogger("dummy-data")
     logger.info("Making dummy data with %d rows in and %d out", args.n_rows_in, args.n_rows_out)
     logger.info("Generating rows")
-    train_preds, test_preds = _generate_arrays(
+    train_preds, test_preds = generate_arrays(
         args.n_rows_in,
         args.n_rows_out,
-        args.train_beta,
-        args.test_beta
+        train_beta=args.train_beta,
+        test_beta=args.test_beta
     )
     logger.info("Saving files")
     np.savetxt("train_preds.csv", train_preds, delimiter=",")
@@ -128,7 +128,7 @@ def _run_attack(args, make_report=True):
     dummy_metrics = []
     dummy_metadata = None
     for _ in range(args.dummy_reps):
-        dummy_train, dummy_test = _generate_arrays(len(train_preds), len(test_preds), 2, 2)
+        dummy_train, dummy_test = generate_arrays(len(train_preds), len(test_preds))
         temp_dummy_metrics, dummy_metadata = attack(args, dummy_train, dummy_test)
         dummy_metrics += temp_dummy_metrics
 

@@ -13,12 +13,15 @@ are shown below.
 
 In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
 """
+import os
 from types import SimpleNamespace
+
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.datasets import load_breast_cancer
 
-from attacks import worst_case_attack
+from attacks import worst_case_attack # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -42,7 +45,7 @@ test_preds = target_model.predict_proba(test_X)
 args_dict = {
     # How many attacks to run -- in each the attack model is trained on a different
     # subset of the data
-    'n_reps': 10,
+    'n_reps': 2,
     # Threshold to determine significance of things
     'p_thresh': 0.05,
     # Filename arguments needed by the code, meaningless if run programatically
@@ -84,6 +87,71 @@ print(
     f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
 )
 
+# [TRE] to compare the results obtained with those expected by chance, TRE staff can
+# also run dummy attacks
+# [TRE] Generate some fake model predictions in which there is no difference between the
+# distribution of probabilities over the training and testing data. The number of rows to
+# generate are set to match the real example
+dummy_train, dummy_test = worst_case_attack.generate_arrays(
+    len(train_preds),
+    len(test_preds)
+)
 
+# [TRE] runs the attacks on the dummy predictions
+dummy_metrics, dummy_metadata = worst_case_attack.attack(args, dummy_train, dummy_test)
+ 
+# [TRE] looks at the metric values to compare with those for the model
+print(
+    "(dummy) Number of significant AUC values (raw):",
+    f"{dummy_metadata['global_metrics']['n_sig_auc_p_vals']}/{args.n_reps}"
+)
 
-# Command line version
+print(
+    "(dummy) Number of significant AUC values (FDR corrected):",
+    f"{dummy_metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{args.n_reps}"
+)
+
+# Or the number of repetitions in which the PDIF (0.1) was significant
+print(
+    "(dummy) Number of significant PDIF values (proportion of 0.1), raw:",
+    f"{dummy_metadata['global_metrics']['n_sig_pdif_vals']}/{args.n_reps}"
+)
+
+print(
+    "(dummy) Number of significant PDIF values (proportion of 0.1), FDR corrected:",
+    f"{dummy_metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
+)
+
+print("Programatic example finished")
+print("****************************")
+
+print()
+print()
+print("Command line example starting")
+print("*****************************")
+# Command line version. The same functionality as above, but the attack is run from
+# the command line rather than programatically
+
+# [Researcher] Dump the training and test predictions to .csv files
+np.savetxt("train_preds.csv", train_preds, delimiter=",")
+np.savetxt("test_preds.csv", test_preds, delimiter=",")
+
+# [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
+# [TRE] First they access the help to work out which parameters they need to set
+os.system("python -m attacks.worst_case_attack run-attack --help")
+
+# [TRE] Then they run the attack
+os.system(
+    (
+        "python -m attacks.worst_case_attack run-attack "
+        "--in-sample-preds train_preds.csv "
+        "--out-of-sample-preds test_preds.csv "
+        "--n-reps 10 "
+        "--report-name example_report "
+        "--dummy-reps 1 "
+        "--test-prop 0.1"
+    )
+)
+
+# [TRE] The code produces a .pdf report (example_report.pdf) and a .json file that can be
+# injesetd by the shiny app
