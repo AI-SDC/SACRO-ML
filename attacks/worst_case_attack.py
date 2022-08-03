@@ -120,7 +120,7 @@ def _run_attack(args, make_report=True):
     logger.info("Loading test predictions form %s", args.in_sample_filename)
     test_preds = np.loadtxt(args.out_sample_filename, delimiter=",")
     logger.info("Loaded %d rows", len(test_preds))
-    mia_metrics, metadata = _attack(args, train_preds, test_preds)
+    mia_metrics, metadata = attack(args, train_preds, test_preds)
 
     # do some baseline attacks
     logger.info("Performing baseline attacks")
@@ -129,7 +129,7 @@ def _run_attack(args, make_report=True):
     dummy_metadata = None
     for _ in range(args.dummy_reps):
         dummy_train, dummy_test = _generate_arrays(len(train_preds), len(test_preds), 2, 2)
-        temp_dummy_metrics, dummy_metadata = _attack(args, dummy_train, dummy_test)
+        temp_dummy_metrics, dummy_metadata = attack(args, dummy_train, dummy_test)
         dummy_metrics += temp_dummy_metrics
 
     if args.dummy_reps > 0:
@@ -167,7 +167,7 @@ def _get_n_significant(p_val_list, p_thresh, bh_fdr_correction=False):
     return n_sig_bh
 
 
-def _attack( # pylint: disable=too-many-locals
+def attack( # pylint: disable=too-many-locals
     args: Dict,
     train_preds: np.ndarray,
     test_preds: np.ndarray) -> Tuple[dict, dict]:
