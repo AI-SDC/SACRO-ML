@@ -234,7 +234,7 @@ def _medical_mnist_loader( #pylint: disable = too-many-locals
     if not any([os.path.exists(base_folder), os.path.exists(zip_file)]):
         help_message = f"""
 Data file {base_folder} does not exist. Please download fhe file from:
-https://www.kaggle.com/andrewmvd/medical-mnist 
+https://www.kaggle.com/andrewmvd/medical-mnist
 and place it in the correct folder. It unzips the file first.
         """
         raise DataNotAvailable(help_message)
@@ -421,7 +421,7 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     if not os.path.exists(file_path):
         help_message = f"""
-The MIMIC2-iaccd data is not available in {data_folder}.  
+The MIMIC2-iaccd data is not available in {data_folder}.
 The following file should exist: {file_path}.
 Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
         """
@@ -537,7 +537,7 @@ and place it in the correct folder.
             df.dropna(inplace=True)
             tmp.extend(list(df.PRINC_SURG_PROC_CODE))
         princ_surg_proc_keep = [k for k,v in Counter(tmp).most_common(10)]
-        #remove unecessary variables
+        #remove unnecessary variables
         del tmp
 
         # Load the data

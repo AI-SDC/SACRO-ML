@@ -1,4 +1,4 @@
-Base Class 
+Base Class
 ==========
 
 .. automodule:: safemodel.safemodel
@@ -6,4 +6,3 @@ Base Class
    :special-members:
    :private-members:
    :inherited-members:
-
