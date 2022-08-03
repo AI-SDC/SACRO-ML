@@ -25,4 +25,4 @@ jobs:
           pylint **/*.py --fail-under 7
       - name: Test with unittest
         run: |
-          python -m unittest discover tests
+          pytest .
