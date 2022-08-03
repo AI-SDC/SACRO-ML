@@ -16,7 +16,7 @@ This is the class and function reference for safemodel.
    :caption: Contents:
    
    introduction
-   datainterface
+   preprocessing
    attacks
    safemodel
    safedecisiontree
