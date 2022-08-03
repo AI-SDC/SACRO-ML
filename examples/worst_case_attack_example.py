@@ -106,7 +106,7 @@ dummy_train, dummy_test = worst_case_attack.generate_arrays(
 
 # [TRE] runs the attacks on the dummy predictions
 dummy_metrics, dummy_metadata = worst_case_attack.attack(args, dummy_train, dummy_test)
- 
+
 # [TRE] looks at the metric values to compare with those for the model
 print(
     "(dummy) Number of significant AUC values (raw):",
