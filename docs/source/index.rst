@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to GRAIMATTER-TEST's documentation!
-===========================================
+Welcome to the GRAIMatter documentation!
+========================================
 
 API Reference
 #############
@@ -16,14 +16,13 @@ This is the class and function reference for safemodel.
    :caption: Contents:
    
    introduction
+   datainterface
    attacks
    safemodel
    safedecisiontree
    saferandomforest
-   safesvc
    safekeras
-   datainterface
-
+=======
 
 Indices and tables
 ==================
