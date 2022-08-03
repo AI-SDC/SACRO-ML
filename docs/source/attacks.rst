@@ -1,11 +1,13 @@
 Attacks
 =======
 
-.. automodule:: metrics.py
+.. automodule:: attacks.metrics
     :members:
-.. automodule:: mia_extremecase.py
-   :members:
-.. automodule:: worst_case_attack.py
-   :members:
-.. automodule:: report.py
-   :members:
+.. automodule:: attacks.mia_extremecase
+    :members:
+.. automodule:: attacks.worst_case_attack
+    :members:
+.. automodule:: attacks.report
+    :members:
+.. automodule:: attacks.likelihood_test
+    :members:
