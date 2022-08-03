@@ -118,7 +118,7 @@ def likelihood_scenario( # pylint: disable = too-many-locals, too-many-arguments
     >>>     test_y,
     >>>     rf.predict_proba(test_X),
     >>>     n_shadow_models=100
-    >>> ) 
+    >>> )
     """
     logger = logging.getLogger("lr-scenario")
     n_train_rows, _ = X_target_train.shape
