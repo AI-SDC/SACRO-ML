@@ -6,4 +6,3 @@ Base Class
    :special-members:
    :private-members:
    :inherited-members:
-
