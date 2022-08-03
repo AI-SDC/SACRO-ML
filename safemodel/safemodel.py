@@ -187,7 +187,7 @@ class SafeModel:
     model:
           The Machine Learning Model.
     saved_model:
-          A saved copy of the Machine Learning Model used for comparisson.
+          A saved copy of the Machine Learning Model used for comparison.
     ignore_items: list
           A list of items to ignore when comparing the model with the
           saved_model.
@@ -619,7 +619,7 @@ class SafeModel:
         msg: string
         A message string
         disclosive: bool
-        A boolean value to indicate whether the model is potentailly disclosive.
+        A boolean value to indicate whether the model is potentially disclosive.
 
 
         Notes

@@ -13,7 +13,7 @@ deployed to the github.io site.
 
 The main configuration file is docs/source/conf.py
 Most commonly the path variable will pick up any source to document
-occassionaly directories might need adding top the path. Please ensure to use abspath()
+occasionally directories might need adding top the path. Please ensure to use abspath()
 
 Sphinx reads the docstrings in the python source.
 
@@ -74,7 +74,7 @@ class SafeModel:
       model:
             The Machine Learning Model.
       saved_model:
-            A saved copy of the Machine Learning Model used for comparisson.
+            A saved copy of the Machine Learning Model used for comparison.
       ignore_items: list
             A list of items to ignore when comparing the model with the
             saved_model.

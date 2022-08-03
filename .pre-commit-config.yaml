@@ -12,16 +12,16 @@ repos:
       - id: check-json
       - id: pretty-format-json
         args: ["--autofix", "--no-sort-keys", "--indent=4"]
-#  - repo: https://github.com/codespell-project/codespell
-#    rev: v2.1.0
-#    hooks:
-#      - id: codespell
-#        args: ["-L", "fpr, tre, sav"]
-#        exclude: >
-#            (?x)^(
-#                .*\.svg|
-#                .*\.ipynb
-#            )$
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+        args: ["-L", "fpr, tre, sav"]
+        exclude: >
+            (?x)^(
+                .*\.svg|
+                .*\.ipynb
+            )$
 #  - repo: https://github.com/asottile/pyupgrade
 #    rev: v2.37.3
 #    hooks:

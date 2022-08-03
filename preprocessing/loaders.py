@@ -537,7 +537,7 @@ and place it in the correct folder.
             df.dropna(inplace=True)
             tmp.extend(list(df.PRINC_SURG_PROC_CODE))
         princ_surg_proc_keep = [k for k,v in Counter(tmp).most_common(10)]
-        #remove unecessary variables
+        #remove unnecessary variables
         del tmp
 
         # Load the data
