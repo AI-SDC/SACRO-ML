@@ -58,7 +58,7 @@ class RFNoiseOutput(RandomForestClassifier):
     def __init__(self, noise_var=0.01, **kwargs):
         super().__init__(**kwargs)
         self.noise_var = noise_var
-    
+
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         '''Wrap predict proba and add noise'''
         probs = super().predict_proba(X)
