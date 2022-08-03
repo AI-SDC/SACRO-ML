@@ -3,6 +3,6 @@ Data Interface
 ================
 
       
-.. automodule:: data_preprocessing.data_interface
+.. automodule:: preprocessing.loaders
    :members:
 

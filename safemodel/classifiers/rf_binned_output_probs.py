@@ -75,7 +75,7 @@ class RFNoiseOutput(RandomForestClassifier):
 
 if __name__ == '__main__':
     rr = RFNoiseOutput(noise_var=10)
-    from data_preprocessing.data_interface import get_data_sklearn
+    from preprocessing.loaders import get_data_sklearn
     X, y = get_data_sklearn('mimic2-iaccd')
     rr.fit(X.values, y.values.flatten())
 
