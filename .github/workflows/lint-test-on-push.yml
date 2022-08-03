@@ -24,6 +24,6 @@ jobs:
       - name: Lint with pylint
         run: |
           pylint **/*.py --fail-under 7
-      - name: Test with unittest
+      - name: Test with pytest
         run: |
           pytest .
