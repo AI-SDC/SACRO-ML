@@ -7,7 +7,7 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 import argparse
 import logging
 
-from typing import Tuple, List, Dict
+from typing import Tuple, Dict
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
