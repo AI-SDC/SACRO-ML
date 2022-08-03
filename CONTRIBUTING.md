@@ -131,6 +131,18 @@ It is possible to include images like this
     :alt: alternate text
 ```
 
+Generating docs locally
+=======================
+
+It is useful to be able to generate your docs locally (to check for bugs etc)
+
+In linux, navigate to the `docs` folder and then issue the command
+`make html`
+
+In windows, navigate to the `docs` folder than then issue the command
+`sphinx-build source _build`
+
+The generated html will be in the folder `docs/_build` and can be opened in any browser.
 
 
 
