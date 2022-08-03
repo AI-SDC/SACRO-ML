@@ -34,7 +34,7 @@ class DummyClassifier:
 
 def _logit(p: float) -> float:
     """Standard logit function
-    
+
     Parameters
     ----------
     p: float
@@ -67,9 +67,58 @@ def likelihood_scenario( # pylint: disable = too-many-locals, too-many-arguments
     shadow_train_preds: Iterable[float],
     n_shadow_models: int=N_SHADOW_MODELS
 ):
-    """
-    Implements the likelihood test, using the "offline" version
+    """Implements the likelihood test, using the "offline" version
     See p.6 (top of second column) for details
+
+    Parameters
+    ----------
+    shadow_clf: sklearn.Model
+        An sklearn classifier that will be trained to form the shadow model. All hyper-parameters
+        should have been set.
+    X_target_train: np.ndarray
+        Data that was used to train the target model
+    y_target_train: np.ndarray
+        Labels that were used to train the target model
+    target_train_preds: np.ndarray
+        Array of predictions produced by the target model on the training data
+    X_shadow_train: np.ndarray
+        Data that will be used to train the shadow models
+    y_shadow_train: np.ndarray
+        Labels that will be used to train the shadow model
+    shadow_train_preds: np.ndarray
+        Array of predictions produced by the target model on the shadow data
+    n_shadow_models: int
+        The number of shadow models to build
+
+    Returns
+    -------
+    mia_scores: np.ndarray
+        Attack probabilities of belonging to the training set or not
+    mia_labels: np.ndarray
+        True labels of belonging to the training set or not
+    mia_cls: DummyClassifier
+        A DummyClassifier that directly returns the scores for compatibility with code
+        in metrics.py
+
+    Examples
+    --------
+
+    >>> X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    >>> train_X, test_X, train_y, test_y = train_test_split(
+    >>>   X, y, test_size=0.5, stratify=y
+    >>> )
+    >>> rf = RandomForestClassifier(min_samples_leaf=1, min_samples_split=2)
+    >>> rf.fit(train_X, train_y)
+    >>> mia_test_probs, mia_test_labels, mia_clf = likelihood_scenario(
+    >>>     RandomForestClassifier(min_samples_leaf=1, min_samples_split=2, max_depth=10),
+    >>>     train_X,
+    >>>     train_y,
+    >>>     rf.predict_proba(train_X),
+    >>>     test_X,
+    >>>     test_y,
+    >>>     rf.predict_proba(test_X),
+    >>>     n_shadow_models=100
+    >>> ) 
     """
     logger = logging.getLogger("lr-scenario")
     n_train_rows, _ = X_target_train.shape
@@ -154,7 +203,8 @@ def likelihood_scenario( # pylint: disable = too-many-locals, too-many-arguments
     return np.array(mia_scores), np.array(mia_labels), mia_clf
 
 def _run_attack(args: dict) -> None: # pylint: disable = too-many-locals
-    """Run attack"""
+    """Runs an attack based on the args parsed from the command line
+    """
     logger = logging.getLogger("run-attack")
     logger.info("Reading config from %s", args.json_file)
     with open(args.json_file, 'r', encoding='utf-8') as f:
@@ -311,7 +361,8 @@ def _setup_example_data(_: Any):
         f.write(json.dumps(config))
 
 def main():
-    """Main method to parse args and invoke relevant code"""
+    """Main method to parse args and invoke relevant code
+    """
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-s', '--n-shadow-models',
         type=int,
