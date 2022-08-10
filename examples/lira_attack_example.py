@@ -12,7 +12,7 @@ The steps are as follows:
 1. The researcher partitions their data into training and testing subsets
 2. The researcher trains their model
 3. The TRE runs the attacks
-   *Programatically*
+   *Programmatically*
      1. The TRE calls the attack code.
      2. The TRE computes and inspects attack metrics.
    *Command line
