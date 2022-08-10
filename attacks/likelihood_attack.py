@@ -258,17 +258,15 @@ def _run_attack(args: dict) -> None: # pylint: disable = too-many-locals
     )
     # Check for significance of AUC and PDIF
     logger.info("Creating report")
-    pdif = np.exp(-mia_metrics['PDIF'])
+    pdif = np.exp(-mia_metrics['PDIF01'])
     metadata['PDIF_sig'] = f"Significant at p={args.p_thresh}" if pdif <= args.p_thresh \
         else f"Not significant at p={args.p_thresh}"
-    auc_std = np.sqrt(
-        metrics.expected_auc_var(
-            0.5,
-            mia_test_labels.sum(),
-            len(mia_test_labels) - mia_test_labels.sum()
-        )
+    auc_p, auc_std = metrics.auc_p_val(
+        mia_metrics['AUC'],
+        mia_test_labels.sum(),
+        len(mia_test_labels) - mia_test_labels.sum()
     )
-    auc_p = 1 - norm.cdf(mia_metrics['AUC'], loc=0.5, scale=auc_std)
+    metadata['AUC_p'] = auc_p
     metadata['AUC_sig'] = f"Significant at p={args.p_thresh}" if auc_p <= args.p_thresh \
         else f"Not significant at p={args.p_thresh}"
     metadata['AUC NULL 3sd range'] = f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
