@@ -2,7 +2,7 @@
 Calculate metrics.
 '''
 
-from typing import Iterable#, Optional, Any
+from typing import Iterable, Tuple
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_auc_score
@@ -101,6 +101,36 @@ def expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
     var = (auc * (1 - auc) + (num_pos - 1) * (p_xxy - auc**2) + (num_neg - 1) * (p_xyy - auc**2)) /\
         (num_pos * num_neg)
     return var
+
+def auc_p_val(auc: float, n_pos: int, n_neg: int) -> Tuple[float, float]:
+    """Compute the p-value for a given AUC
+
+    Parameters
+    ----------
+    auc: float
+        Observed AUC value
+    n_pos: int
+        Number of positive examples
+    n_neg: int
+        Number of negative examples
+
+    Returns
+    -------
+    auc_p: float
+        p-value of observing an AUC > auc by chance
+    auc_std: float
+        standard deviation of the NULL AUC diustribution (mean = 0.5)
+
+    """
+    auc_std = np.sqrt(
+        expected_auc_var(
+            0.5,
+            n_pos,
+            n_neg
+        )
+    )
+    auc_p = 1 - norm.cdf(auc, loc=0.5, scale=auc_std)
+    return auc_p, auc_std
 
 def get_metrics(clf, # pylint: disable = too-many-locals
                 X_test:np.ndarray,
