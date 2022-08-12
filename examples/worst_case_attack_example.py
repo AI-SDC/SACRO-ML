@@ -55,7 +55,7 @@ args_dict = {
     'n_reps': 2,
     # Threshold to determine significance of things
     'p_thresh': 0.05,
-    # Filename arguments needed by the code, meaningless if run programatically
+    # Filename arguments needed by the code, meaningless if run programmatically
     'in_sample_filename': None,
     'out_sample_filename': None,
     # Proportion of data to use as a test set for the attack model;
@@ -129,7 +129,7 @@ print(
     f"{dummy_metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
 )
 
-print("Programatic example finished")
+print("Programmatic example finished")
 print("****************************")
 
 print()
@@ -137,7 +137,7 @@ print()
 print("Command line example starting")
 print("*****************************")
 # Command line version. The same functionality as above, but the attack is run from
-# the command line rather than programatically
+# the command line rather than programmatically
 
 # [Researcher] Dump the training and test predictions to .csv files
 np.savetxt("train_preds.csv", train_preds, delimiter=",")

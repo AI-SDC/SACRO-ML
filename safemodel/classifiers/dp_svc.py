@@ -8,7 +8,6 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
-from attack_utilities.estimator_template import GenericEstimator
 
 local_logger = logging.getLogger(__file__)
 local_logger.setLevel(logging.WARNING)
@@ -17,7 +16,7 @@ local_logger.setLevel(logging.WARNING)
 # pylint: disable = invalid-name
 
 
-class DPSVC(GenericEstimator):
+class DPSVC():
     ## Wrapper for differentially private SVM
     ##
     ## James Liley

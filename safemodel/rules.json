@@ -58,12 +58,12 @@
     },
     "KerasModel": {
         "rules": [
-	    {
+            {
                 "keyword": "l2_norm_clip",
                 "operator": "min",
                 "value": 1.0
             },
-	    {
+            {
                 "keyword": "l2_norm_clip",
                 "operator": "max",
                 "value": 1.0
@@ -73,47 +73,47 @@
                 "operator": "min",
                 "value": 0.7
             },
-	                {
+            {
                 "keyword": "noise_multiplier",
                 "operator": "max",
                 "value": 0.9
             },
-	    {
+            {
                 "keyword": "min_epsilon",
                 "operator": "min",
                 "value": 5
             },
-	    {
+            {
                 "keyword": "min_epsilon",
                 "operator": "max",
                 "value": 10
             },
-	    {
+            {
                 "keyword": "delta",
                 "operator": "min",
-                "value": 1e-5
+                "value": 1e-05
             },
-	    {
+            {
                 "keyword": "delta",
                 "operator": "max",
-                "value": 1e-5
+                "value": 1e-05
             },
-	    {
+            {
                 "keyword": "batch_size",
                 "operator": "min",
                 "value": 1
             },
-	    	    {
+            {
                 "keyword": "batch_size",
                 "operator": "max",
                 "value": 32
             },
-	    {
+            {
                 "keyword": "learning_rate",
                 "operator": "min",
                 "value": 0.0001
             },
-	    {
+            {
                 "keyword": "learning_rate",
                 "operator": "min",
                 "value": 0.1

@@ -185,19 +185,19 @@ class SafeModel:
     model_type: string
           A string describing the type of model. Default is "None".
     model:
-          The Machine Learning Model. 
+          The Machine Learning Model.
     saved_model:
-          A saved copy of the Machine Learning Model used for comparisson.
+          A saved copy of the Machine Learning Model used for comparison.
     ignore_items: list
-          A list of items to ignore when comparing the model with the 
+          A list of items to ignore when comparing the model with the
           saved_model.
     examine_separately_items: list
-          A list of items to examine separately. These items are more 
+          A list of items to examine separately. These items are more
           complex datastructures that cannot be compared directly.
     filename: string
-          A filename to save the model. 
+          A filename to save the model.
     researcher: string
-          The researcher user-id used for logging 
+          The researcher user-id used for logging
 
 
 
@@ -245,16 +245,16 @@ class SafeModel:
 
         name: string
              The name of the file to save
-        
+
         Returns
         -------
 
         Notes
         -----
 
-        No return value 
+        No return value
 
-        
+
         Optimizer is deliberately excluded.
         To prevent possible to restart training and thus
         possible back door into attacks.
@@ -450,9 +450,9 @@ class SafeModel:
         msg: string
            A message string
         disclosive: bool
-           A boolean value indicating whether the model is potentially 
+           A boolean value indicating whether the model is potentially
            disclosive.
-        
+
 
         Notes
         -----
@@ -611,7 +611,7 @@ class SafeModel:
         curr_separate: python dictionary
 
         saved_separate: python dictionary
-           
+
 
         Returns
         -------
@@ -619,17 +619,17 @@ class SafeModel:
         msg: string
         A message string
         disclosive: bool
-        A boolean value to indicate whether the model is potentailly disclosive.
-        
+        A boolean value to indicate whether the model is potentially disclosive.
+
 
         Notes
         -----
 
         posthoc checking makes sure that the two dicts have the same set of
         keys as defined in the list self.examine_separately
-        
+
         """
-        
+
 
         msg = ""
         disclosive = False
@@ -668,7 +668,7 @@ class SafeModel:
         ----------
 
         filename: string
-        The filename used to save the model 
+        The filename used to save the model
 
         Returns
         -------

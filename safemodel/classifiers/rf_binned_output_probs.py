@@ -1,12 +1,11 @@
 '''
 A Random forest with discretised output probabilities
 '''
-from random import Random
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-def bin_probabilities(probs: np.ndarray, n_probability_bins: int) -> np.ndarray:
+def bin_probabilities(input_probs: np.ndarray, n_probability_bins: int) -> np.ndarray:
     '''Method to bin labels'''
     # Create the bins e.g. if self.n_probability_bins = 10 then the bins will be
     # (-0.01, 0.05]
@@ -21,11 +20,11 @@ def bin_probabilities(probs: np.ndarray, n_probability_bins: int) -> np.ndarray:
     bins = np.linspace(start_bin, end_bin, n_probability_bins)
     bins = [-0.01] + list(bins) + [1.01]
     labels = np.linspace(0., 1., n_probability_bins + 1)
-    binned_probs = np.zeros_like(probs, float)
-    _, n_probs = probs.shape
+    binned_probs = np.zeros_like(input_probs, float)
+    _, n_probs = input_probs.shape
     # Do the binning with pandas cut method
     for m in range(n_probs):
-        binned_probs[:, m] = pd.cut(probs[:, m], bins, labels=labels)
+        binned_probs[:, m] = pd.cut(input_probs[:, m], bins, labels=labels)
 
     # Re-normalise, just to be safe
     binned_probs /= binned_probs.sum(axis=1)[:, None]
@@ -58,7 +57,7 @@ class RFNoiseOutput(RandomForestClassifier):
     def __init__(self, noise_var=0.01, **kwargs):
         super().__init__(**kwargs)
         self.noise_var = noise_var
-    
+
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         '''Wrap predict proba and add noise'''
         probs = super().predict_proba(X)
