@@ -5,7 +5,6 @@ Test the various models we have defined
 import unittest
 from sklearn.svm import SVC
 from safemodel.classifiers import SafeSVC
-from data_preprocessing.data_interface import get_data_sklearn
 from sklearn import datasets
 import numpy as np
 
