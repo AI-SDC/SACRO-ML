@@ -192,7 +192,7 @@ def test_keras_unsafe_l2_norm():
     assert isDP, "failed check that optimizer is dP"
 
     model.l2_norm_clip = 0.9
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
@@ -223,7 +223,7 @@ def test_keras_unsafe_noise_multiplier():
     assert isDP, "failed check that optimizer is dP"
 
     model.noise_multiplier = 1.0
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
@@ -237,7 +237,7 @@ def test_keras_unsafe_noise_multiplier():
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter noise_multiplier = 1.0 identified as greater than the recommended max value of 0.9."
-    
+
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
 
@@ -254,7 +254,7 @@ def test_keras_unsafe_min_epsilon():
     assert isDP, "failed check that optimizer is dP"
 
     model.min_epsilon = 4
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
@@ -285,7 +285,7 @@ def test_keras_unsafe_delta():
     assert isDP, "failed check that optimizer is dP"
 
     model.delta = 1e-6
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
@@ -315,7 +315,7 @@ def test_keras_unsafe_batch_size():
     assert isDP, "failed check that optimizer is dP"
 
     model.batch_size = 34
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
@@ -346,7 +346,7 @@ def test_keras_unsafe_learning_rate():
     assert isDP, "failed check that optimizer is dP"
 
     model.learning_rate = 0.2
-    
+
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
     DPused, msg = model.check_DP_used(model.optimizer)
