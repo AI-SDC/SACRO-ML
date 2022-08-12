@@ -177,3 +177,189 @@ def test_keras_save_actions():
         assert os.path.exists(name) == False, f"Failed test NOT to save model as {name}"
         if os.path.exists(name):
             os.remove(name)
+
+
+def test_keras_unsafe_l2_norm():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.l2_norm_clip = 0.9
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter l2_norm_clip = 0.9 identified as less than the recommended min value of 1.0."
+    assert msg == correct_msg, "failed check correct warning message"
+    assert disclosive is True, "failed check disclosive is True"
+
+
+def test_keras_unsafe_noise_multiplier():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.noise_multiplier = 1.0
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter noise_multiplier = 1.0 identified as greater than the recommended max value of 0.9."
+    
+    assert msg == correct_msg, "failed check params are within range"
+    assert disclosive is True, "failed check disclosive is True"
+
+def test_keras_unsafe_min_epsilon():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.min_epsilon = 4
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter min_epsilon = 4 identified as less than the recommended min value of 5."
+
+    assert msg == correct_msg, "failed check correct warning message"
+    assert disclosive is True, "failed check disclosive is True"
+
+def test_keras_unsafe_delta():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.delta = 1e-6
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter delta = 1e-06 identified as less than the recommended min value of 1e-05."
+    assert msg == correct_msg, "failed check params are within range"
+    assert disclosive is True, "failed check disclosive is True"
+
+def test_keras_unsafe_batch_size():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.batch_size = 34
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "Model parameters are within recommended ranges.\n"
+    assert msg == correct_msg, "failed check params are within range"
+    assert disclosive is False, "failed check disclosive is false"
+
+
+def test_keras_unsafe_learning_rate():
+    """SafeKeras using unsafe values."""
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+
+    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    assert isDP, "failed check that optimizer is dP"
+
+    model.learning_rate = 0.2
+    
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    DPused, msg = model.check_DP_used(model.optimizer)
+    assert (
+        DPused
+    ), "Failed check that DP version of optimiser was actually used in training"
+
+    loss, acc = model.evaluate(X, y)
+    expected_accuracy = 0.3583333492279053
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+
+    msg, disclosive = model.preliminary_check()
+    correct_msg = "Model parameters are within recommended ranges.\n"
+
+    assert msg == correct_msg, "failed check warning message incorrect"
+    assert disclosive is False, "failed check disclosive is false"
