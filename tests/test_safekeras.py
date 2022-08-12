@@ -363,3 +363,58 @@ def test_keras_unsafe_learning_rate():
 
     assert msg == correct_msg, "failed check warning message incorrect"
     assert disclosive is False, "failed check disclosive is false"
+
+def test_create_checkfile():
+    # create, compile and train model
+    model, X, y, Xval, yval = make_model()
+
+    loss = tf.keras.losses.CategoricalCrossentropy(
+        from_logits=False, reduction=tf.losses.Reduction.NONE
+    )
+    model.compile(loss=loss, optimizer=None)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+
+    # start with .tf and .h5 which should work
+    names = ("safekeras.tf", "safekeras.h5")
+    for name in names:
+        # clear existing files
+        if os.path.exists(name) and os.path.isfile(name):  # h5
+            os.remove(name)
+        elif os.path.exists(name) and os.path.isdir(name):  # tf
+            shutil.rmtree(name)
+        # save file
+        model.save(name)
+        assert os.path.exists(name), f"Failed test to save model as {name}"
+
+        model.request_release(name)
+        assert os.path.exists(name), f"Failed test to save model as {name}"
+        
+        researcher = getpass.getuser()
+        outputfilename = researcher + "_checkfile.json"
+        assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outfputfilename}"
+
+        # Using readlines()
+        file1 = open(outputfilename, 'r')
+        Lines = file1.readlines()
+  
+        count = 0
+        # Strips the newline character
+        for line in Lines:
+            count += 1
+            print("Line{}: {}".format(count, line.strip()))
+        
+        # clean up
+        if os.path.isfile(name):  # h5
+            os.remove(name)
+        elif os.path.isdir(name):
+            shutil.rmtree(name)
+
+    # now other versions which should not
+    names = ("safekeras.sav", "safekeras.pkl", "randomfilename")
+    for name in names:
+        if os.path.exists(name):
+            os.remove(name)
+        model.save(name)
+        assert os.path.exists(name) == False, f"Failed test NOT to save model as {name}"
+        if os.path.exists(name):
+            os.remove(name)
