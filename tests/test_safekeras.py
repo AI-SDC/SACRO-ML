@@ -133,7 +133,7 @@ def test_keras_basic_fit():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = 0.3583333492279053
-    assert acc == expected_accuracy, "failed check that accuracy is as expected"
+    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
