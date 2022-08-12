@@ -388,7 +388,7 @@ def test_create_checkfile():
 
         model.request_release(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        
+
         researcher = getpass.getuser()
         outputfilename = researcher + "_checkfile.json"
         assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outfputfilename}"
@@ -396,13 +396,13 @@ def test_create_checkfile():
         # Using readlines()
         file1 = open(outputfilename, 'r')
         Lines = file1.readlines()
-  
+
         count = 0
         # Strips the newline character
         for line in Lines:
             count += 1
             print("Line{}: {}".format(count, line.strip()))
-        
+
         # clean up
         if os.path.isfile(name):  # h5
             os.remove(name)
