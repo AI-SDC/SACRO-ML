@@ -5,7 +5,7 @@
 import copy
 import os
 import sys
-from typing import Any,Tuple
+from typing import Any, Tuple
 
 import numpy as np
 
@@ -91,7 +91,7 @@ def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     return same, msg
 
 
-class Safe_KerasModel(KerasModel, SafeModel):
+class SafeKerasModel(KerasModel, SafeModel):
     """Privacy Protected Wrapper around  tf.keras.Model class from tensorflow 2.8"""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -491,13 +491,13 @@ class Safe_KerasModel(KerasModel, SafeModel):
         if self.model_load_file[-3:] == ".h5":
             # load from .h5
             f = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
+                self.model_load_file, custom_objects={"SafeKerasModel": self}
             )
 
         elif self.model_load_file[-3:] == ".tf":
             # load from tf
             f = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
+                self.model_load_file, custom_objects={"SafeKerasModel": self}
             )
 
         else:

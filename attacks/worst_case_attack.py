@@ -150,7 +150,7 @@ def _run_attack(args, make_report=True):
 def _get_n_significant(p_val_list, p_thresh, bh_fdr_correction=False):
     '''
     Helper method to determine if values within a list of p-values are significant at
-    p_thresh. Can peform multiple testing correction.
+    p_thresh. Can perform multiple testing correction.
     '''
     if not bh_fdr_correction:
         return sum([1 for p in p_val_list if p <= p_thresh]) # pylint: disable = consider-using-generator

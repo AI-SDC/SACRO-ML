@@ -31,7 +31,7 @@ release = '1.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = ["sphinx.ext.autodoc", 
+extensions = ["sphinx.ext.autodoc",
 "sphinx.ext.autodoc",
 "sphinx.ext.autosummary",
 "numpydoc",
@@ -48,7 +48,7 @@ extensions = ["sphinx.ext.autodoc",
 #"allow_nan_estimators",
 "matplotlib.sphinxext.plot_directive",
 "sphinx.ext.viewcode",
-#"sphinx.ext.autosummary", 
+#"sphinx.ext.autosummary",
 "sphinx_autopackagesummary",
 "sphinx_rtd_theme"
 
