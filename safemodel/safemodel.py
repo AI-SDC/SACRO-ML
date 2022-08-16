@@ -9,6 +9,7 @@ import logging
 import pathlib
 import pickle
 from typing import Any
+import datetime
 
 import joblib
 from dictdiffer import diff
@@ -702,6 +703,9 @@ class SafeModel:
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
+            
+            now = datetime.datetime.now()
+            output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
