@@ -497,9 +497,9 @@ class SafeModel:
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except Exception as t:
+                except Exception as key_type:
                     logger.warning(f"{key} cannot be copied")
-                    logger.warning(f"...{type(t)} error; {t}")
+                    logger.warning(f"...{type(key_type)} error; {key_type}")
             # logger.debug('...done')
         # logger.info('copied')
 
