@@ -278,10 +278,10 @@ class SafeModel:
                 with open(self.model_save_file, "wb") as file:
                     try:
                         pickle.dump(self, file)
-                    except Typerror as er:
+                    except TypeError as type_err:
                         print(
                             f"saving as a .pkl file is not supported for models of type {self.model_type}."
-                            f"Error message was {er}"
+                            f"Error message was {type_err}"
                         )
 
             elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
@@ -303,8 +303,8 @@ class SafeModel:
                         save_format=suffix,
                     )
 
-                except Exception as er:
-                    print(f"saving as a {suffix} file gave this error message:  {er}")
+                except Exception as exception_err:
+                    print(f"saving as a {suffix} file gave this error message:  {exception_err}")
             else:
                 print(
                     f"{suffix} file suffix currently not supported "
