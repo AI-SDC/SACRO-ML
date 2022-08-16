@@ -228,6 +228,7 @@ class SafeModel:
         self.model_type: str = "None"
         self.model = None
         self.saved_model = None
+        self.model_load_file: str = "None"
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
