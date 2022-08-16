@@ -327,18 +327,18 @@ class SafeModel:
             )
         if self.model_load_file[-4:] == ".pkl":  # load from pickle
             with open(self.model_load_file, "rb") as file:
-                f = pickle.loadf(self, file)
+                temp_file = pickle.load(self, file)
         elif self.model_load_file[-4:] == ".sav":  # load from joblib
-            f = joblib.load(self, self.model_save_file)
+            temp_file = joblib.load(self, self.model_save_file)
         elif self.model_load_file[-3:] == ".h5":
             # load from .h5
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
         elif self.model_load_file[-3:] == ".tf":
             # load from tf
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
@@ -346,7 +346,7 @@ class SafeModel:
             suffix = self.model_load_file.split(".")[-1]
             print(f"loading from a {suffix} file is currently not supported")
 
-        return f
+        return temp_file
 
     def __get_constraints(self) -> dict:
         """Gets constraints relevant to the model type from the master read-only file."""
