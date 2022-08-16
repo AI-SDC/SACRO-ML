@@ -280,7 +280,7 @@ class SafeModel:
                         pickle.dump(self, file)
                     except TypeError as type_err:
                         print(
-                            f"saving as a .pkl file is not supported for models of type {self.model_type}."
+                            f"saving a .pkl file is unsupported for model type: {self.model_type}."
                             f"Error message was {type_err}"
                         )
 
