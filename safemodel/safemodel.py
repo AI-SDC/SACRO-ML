@@ -657,7 +657,7 @@ class SafeModel:
                             disclosive = True
                             break
 
-        msg = msg  # + msg2
+
         return msg, disclosive
 
     def request_release(self, filename: str = "undefined") -> None:
