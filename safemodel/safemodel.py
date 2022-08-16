@@ -9,6 +9,7 @@ import logging
 import pathlib
 import pickle
 from typing import Any
+import tensorflow as tf
 
 import joblib
 from dictdiffer import diff
@@ -16,7 +17,7 @@ from dictdiffer import diff
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-import tensorflow as tf
+
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -287,11 +288,11 @@ class SafeModel:
             elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
                 try:
                     joblib.dump(self, self.model_save_file)
-                except Typerror as er:
+                except TypeError as type_err:
                     print(
                         "saving as a .sav (joblib) file is not supported "
                         f"for models of type {self.model_type}."
-                        f"Error message was {er}"
+                        f"Error message was {type_err}"
                     )
             elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
                 try:
