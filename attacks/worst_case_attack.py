@@ -12,7 +12,6 @@ from typing import Tuple, Dict
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from scipy.stats import norm
 
 from attacks import metrics
 from attacks import report
@@ -237,13 +236,19 @@ def attack( # pylint: disable=too-many-locals
         }
     }
 
-    # Compute NULL AUC
-    auc_std = np.sqrt(
-        metrics.expected_auc_var(0.5, mi_test_y.sum(), len(mi_test_y) - mi_test_y.sum())
+    auc_p_vals = [
+        metrics.auc_p_val(
+            m['AUC'],
+            mi_test_y.sum(),
+            len(mi_test_y) - mi_test_y.sum()
+        )[0] for m in mia_metrics
+    ]
+
+    _, auc_std = metrics.auc_p_val(
+        0.5,
+        mi_test_y.sum(),
+        len(mi_test_y) - mi_test_y.sum()
     )
-    # Assuming auc is normal, compute the probability of the NULL generating an AUC higher
-    # than the NULL
-    auc_p_vals = [1 - norm.cdf(m['AUC'], loc=0.5, scale=auc_std) for m in mia_metrics]
 
     metadata['global_metrics']['null_auc_3sd_range'] = \
         f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
