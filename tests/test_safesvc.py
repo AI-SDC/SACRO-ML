@@ -4,15 +4,15 @@ Test the various models we have defined
 
 import unittest
 from sklearn.svm import SVC
-from safemodel.classifiers import SafeSVC
 from sklearn import datasets
 import numpy as np
+from safemodel.classifiers import SafeSVC
 
 def get_data():
     """Returns data for testing."""
     cancer = datasets.load_breast_cancer()
-    x = np.asarray(cancer.data, dtype=np.float64)
-    y = np.asarray(cancer.target, dtype=np.float64)
+    x = np.asarray(cancer['data'], dtype=np.float64)
+    y = np.asarray(cancer['target'], dtype=np.float64)
 
     return x, y
 
