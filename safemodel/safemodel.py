@@ -177,7 +177,7 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     return msg, disclosive
 
 
-class SafeModel:
+class SafeModel: # pylint: disable = too-many-instance-attributes
     """Privacy protected model base class.
 
     Attributes
@@ -499,8 +499,8 @@ class SafeModel:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
                 except Exception as key_type:
-                    logger.warning(f"{key} cannot be copied")
-                    logger.warning(f"...{type(key_type)} error; {key_type}")
+                    logger.warning("%s cannot be copied", key)
+                    logger.warning("...%s error; %s", str(type(key_type)), str(key_type))
             # logger.debug('...done')
         # logger.info('copied')
 
@@ -582,12 +582,12 @@ class SafeModel:
             if len(match) > 0:
                 disclosive = True
                 msg += f"Warning: basic parameters differ in {len(match)} places:\n"
-                for i in range(len(match)):
-                    if match[i][0] == "change":
-                        msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
-                        msg += f"to {match[i][2][0]} after model was fitted.\n"
+                for this_match in match:
+                    if this_match[0] == "change":
+                        msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
+                        msg += f"to {this_match[2][0]} after model was fitted.\n"
                     else:
-                        msg += f"{match[i]}"
+                        msg += f"{this_match}"
 
             # comparison on model-specific attributes
             extra_msg, extra_disclosive = self.examine_seperate_items(
