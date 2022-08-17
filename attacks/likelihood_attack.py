@@ -303,10 +303,10 @@ def _example(args: Dict) -> None: # pylint: disable = too-many-locals
         mia_test_labels
     )
     # Check for significance of AUC and PDIF
-    pdif = np.exp(-mia_metrics['PDIF'])
+    pdif = np.exp(-mia_metrics['PDIF01'])
     metadata['PDIF_sig'] = f"Significant at p={args.p_thresh}" if pdif <= args.p_thresh \
         else f"Not significant at p={args.p_thresh}"
-    
+
     auc_p, auc_std = metrics.auc_p_val(
         mia_metrics['AUC'],
         mia_test_labels.sum(),
