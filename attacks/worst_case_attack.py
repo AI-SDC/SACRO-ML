@@ -12,7 +12,6 @@ from typing import Tuple, Dict
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from scipy.stats import norm
 
 from attacks import metrics
 from attacks import report
