@@ -34,9 +34,10 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Random Forest-specific checks"""
-
-        # call the super function to deal with any items that are lists
-        msg, disclosive = super().additional_checks(curr_separate, saved_separate)
+        msg=""
+        disclosive=False
+        ## call the super function to deal with any items that are lists
+        #msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         # now the relevant random-forest specific things
         for item in self.examine_seperately_items:
             if item == "base_estimator":
