@@ -4,7 +4,7 @@ Test the metrics
 
 import unittest
 import numpy as np
-from attacks.metrics import get_metrics, tpr_at_fpr
+from attacks.metrics import get_metrics, _tpr_at_fpr
 from attacks.mia_extremecase import min_max_disc
 
 # pylint: disable = invalid-name
@@ -68,15 +68,15 @@ class TestFPRatTPR(unittest.TestCase):
         y_true = TRUE_CLASS
         y_score = PREDICTED_PROBS[:, 1]
 
-        tpr = tpr_at_fpr(y_true, y_score, fpr=0)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0)
         self.assertAlmostEqual(tpr, 2/3)
-        tpr = tpr_at_fpr(y_true, y_score, fpr=0.001)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.001)
         self.assertAlmostEqual(tpr, 2/3)
-        tpr = tpr_at_fpr(y_true, y_score, fpr=0.1)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.1)
         self.assertAlmostEqual(tpr, 2/3)
-        tpr = tpr_at_fpr(y_true, y_score, fpr=0.4)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.4)
         self.assertAlmostEqual(tpr, 1)
-        tpr = tpr_at_fpr(y_true, y_score, fpr=1.0)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=1.0)
         self.assertAlmostEqual(tpr, 1)
 
 
