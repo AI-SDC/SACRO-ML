@@ -12,8 +12,8 @@ from safemodel.classifiers import SafeRandomForestClassifier
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
-    x = np.asarray(iris.data, dtype=np.float64)
-    y = np.asarray(iris.target, dtype=np.float64)
+    x = np.asarray(iris['data'], dtype=np.float64)
+    y = np.asarray(iris['target'], dtype=np.float64)
     x = np.vstack([x, (7, 2.0, 4.5, 1)])
     y = np.append(y, 4)
     return x, y
