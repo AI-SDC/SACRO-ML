@@ -209,8 +209,8 @@ def test_keras_unsafe_l2_norm():
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
-        "WARNING: model parameters may present a disclosure risk:",
-        "\n- parameter l2_norm_clip = 0.9 identified as less than the recommended ",
+        "WARNING: model parameters may present a disclosure risk:"
+        "\n- parameter l2_norm_clip = 0.9 identified as less than the recommended "
         "min value of 1.0."
     )
     assert msg == correct_msg, "failed check correct warning message"
@@ -244,8 +244,8 @@ def test_keras_unsafe_noise_multiplier():
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
-        "WARNING: model parameters may present a disclosure risk:",
-        "\n- parameter noise_multiplier = 1.0 identified as greater than the ",
+        "WARNING: model parameters may present a disclosure risk:"
+        "\n- parameter noise_multiplier = 1.0 identified as greater than the "
         "recommended max value of 0.9."
     )
 
@@ -279,7 +279,7 @@ def test_keras_unsafe_min_epsilon():
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
-        "WARNING: model parameters may present a disclosure risk:",
+        "WARNING: model parameters may present a disclosure risk:"
         "\n- parameter min_epsilon = 4 identified as less than the recommended min value of 5."
     )
 
@@ -313,7 +313,7 @@ def test_keras_unsafe_delta():
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
-        "WARNING: model parameters may present a disclosure risk:\n",
+        "WARNING: model parameters may present a disclosure risk:\n"
         "- parameter delta = 1e-06 identified as less than the recommended min value of 1e-05."
     )
     assert msg == correct_msg, "failed check params are within range"
