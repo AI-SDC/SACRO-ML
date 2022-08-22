@@ -236,7 +236,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
-        except BaseException:
+        except (ImportError, KeyError, OSError) as tupl_exeception:
             self.researcher = "unknown"
 
     def save(self, name: str = "undefined") -> None:
