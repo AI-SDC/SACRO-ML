@@ -538,10 +538,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 # not sure if this is necessarily disclosive
                 msg += f"Note that item {item} missing from both versions"
 
-            elif (curr_vals[item] == "Absent") and not (saved_vals[item] == "Absent"):
+            elif curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in  saved but not current model"
-            elif (saved_vals[item] == "Absent") and not (curr_vals[item] == "Absent"):
+            elif saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in current but not saved model"
             else:  # ok, so can call mode-specific extra checks
