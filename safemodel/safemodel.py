@@ -498,7 +498,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except Exception as key_type:
+                except copy.Error as key_type:
                     logger.warning("%s cannot be copied", key)
                     logger.warning("...%s error; %s", str(type(key_type)), str(key_type))
             # logger.debug('...done')
