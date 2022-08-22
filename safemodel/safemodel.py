@@ -305,7 +305,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                         save_format=suffix,
                     )
 
-                except Exception as exception_err:
+                except NotImplemented as exception_err:
                     print(f"saving as a {suffix} file gave this error message:  {exception_err}")
             else:
                 print(
