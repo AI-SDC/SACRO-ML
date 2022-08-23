@@ -9,6 +9,7 @@ import logging
 import pathlib
 import pickle
 from typing import Any
+import tensorflow as tf
 
 import joblib
 from dictdiffer import diff
@@ -16,7 +17,7 @@ from dictdiffer import diff
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-import tensorflow as tf
+
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -176,7 +177,7 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     return msg, disclosive
 
 
-class SafeModel:
+class SafeModel: # pylint: disable = too-many-instance-attributes
     """Privacy protected model base class.
 
     Attributes
@@ -227,6 +228,7 @@ class SafeModel:
         self.model_type: str = "None"
         self.model = None
         self.saved_model = None
+        self.model_load_file: str = "None"
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
@@ -234,7 +236,7 @@ class SafeModel:
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
-        except BaseException:
+        except (ImportError, KeyError, OSError):
             self.researcher = "unknown"
 
     def save(self, name: str = "undefined") -> None:
@@ -278,20 +280,20 @@ class SafeModel:
                 with open(self.model_save_file, "wb") as file:
                     try:
                         pickle.dump(self, file)
-                    except Typerror as er:
+                    except TypeError as type_err:
                         print(
-                            f"saving as a .pkl file is not supported for models of type {self.model_type}."
-                            f"Error message was {er}"
+                            f"saving a .pkl file is unsupported for model type: {self.model_type}."
+                            f"Error message was {type_err}"
                         )
 
             elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
                 try:
                     joblib.dump(self, self.model_save_file)
-                except Typerror as er:
+                except TypeError as type_err:
                     print(
                         "saving as a .sav (joblib) file is not supported "
                         f"for models of type {self.model_type}."
-                        f"Error message was {er}"
+                        f"Error message was {type_err}"
                     )
             elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
                 try:
@@ -303,8 +305,8 @@ class SafeModel:
                         save_format=suffix,
                     )
 
-                except Exception as er:
-                    print(f"saving as a {suffix} file gave this error message:  {er}")
+                except tf.keras.NotImplementedError as exception_err:
+                    print(f"saving as a {suffix} file gave this error message:  {exception_err}")
             else:
                 print(
                     f"{suffix} file suffix currently not supported "
@@ -326,18 +328,18 @@ class SafeModel:
             )
         if self.model_load_file[-4:] == ".pkl":  # load from pickle
             with open(self.model_load_file, "rb") as file:
-                f = pickle.loadf(self, file)
+                temp_file = pickle.load(self, file)
         elif self.model_load_file[-4:] == ".sav":  # load from joblib
-            f = joblib.load(self, self.model_save_file)
+            temp_file = joblib.load(self, self.model_save_file)
         elif self.model_load_file[-3:] == ".h5":
             # load from .h5
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
         elif self.model_load_file[-3:] == ".tf":
             # load from tf
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
@@ -345,7 +347,7 @@ class SafeModel:
             suffix = self.model_load_file.split(".")[-1]
             print(f"loading from a {suffix} file is currently not supported")
 
-        return f
+        return temp_file
 
     def __get_constraints(self) -> dict:
         """Gets constraints relevant to the model type from the master read-only file."""
@@ -410,9 +412,9 @@ class SafeModel:
         disclosive: bool = False
         msg: str = ""
         for arg in rule["subexpr"]:
-            m, d = self.__check_model_param(arg, apply_constraints)
-            msg += m
-            if d:
+            temp_msg, temp_disc = self.__check_model_param(arg, apply_constraints)
+            msg += temp_msg
+            if temp_disc:
                 disclosive = True
         return msg, disclosive
 
@@ -421,9 +423,9 @@ class SafeModel:
         disclosive: bool = True
         msg: str = ""
         for arg in rule["subexpr"]:
-            m, d = self.__check_model_param(arg, False)
-            msg += m
-            if not d:
+            temp_msg, temp_disc = self.__check_model_param(arg, False)
+            msg += temp_msg
+            if not temp_disc:
                 disclosive = False
         return msg, disclosive
 
@@ -465,13 +467,13 @@ class SafeModel:
         for rule in rules:
             operator = rule["operator"]
             if operator == "and":
-                m, d = self.__check_model_param_and(rule, apply_constraints)
+                temp_msg, temp_disc = self.__check_model_param_and(rule, apply_constraints)
             elif operator == "or":
-                m, d = self.__check_model_param_or(rule)
+                temp_msg, temp_disc = self.__check_model_param_or(rule)
             else:
-                m, d = self.__check_model_param(rule, apply_constraints)
-            msg += m
-            if d:
+                temp_msg, temp_disc = self.__check_model_param(rule, apply_constraints)
+            msg += temp_msg
+            if temp_disc:
                 disclosive = True
         if disclosive:
             msg = "WARNING: model parameters may present a disclosure risk:\n" + msg
@@ -496,9 +498,9 @@ class SafeModel:
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except Exception as t:
-                    logger.warning(f"{key} cannot be copied")
-                    logger.warning(f"...{type(t)} error; {t}")
+                except copy.Error as key_type:
+                    logger.warning("%s cannot be copied", key)
+                    logger.warning("...%s error; %s", str(type(key_type)), str(key_type))
             # logger.debug('...done')
         # logger.info('copied')
 
@@ -536,10 +538,10 @@ class SafeModel:
                 # not sure if this is necessarily disclosive
                 msg += f"Note that item {item} missing from both versions"
 
-            elif (curr_vals[item] == "Absent") and not (saved_vals[item] == "Absent"):
+            elif curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in  saved but not current model"
-            elif (saved_vals[item] == "Absent") and not (curr_vals[item] == "Absent"):
+            elif saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in current but not saved model"
             else:  # ok, so can call mode-specific extra checks
@@ -580,12 +582,12 @@ class SafeModel:
             if len(match) > 0:
                 disclosive = True
                 msg += f"Warning: basic parameters differ in {len(match)} places:\n"
-                for i in range(len(match)):
-                    if match[i][0] == "change":
-                        msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
-                        msg += f"to {match[i][2][0]} after model was fitted.\n"
+                for this_match in match:
+                    if this_match[0] == "change":
+                        msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
+                        msg += f"to {this_match[2][0]} after model was fitted.\n"
                     else:
-                        msg += f"{match[i]}"
+                        msg += f"{this_match}"
 
             # comparison on model-specific attributes
             extra_msg, extra_disclosive = self.examine_seperate_items(
@@ -657,7 +659,7 @@ class SafeModel:
                             disclosive = True
                             break
 
-        msg = msg  # + msg2
+
         return msg, disclosive
 
     def request_release(self, filename: str = "undefined") -> None:

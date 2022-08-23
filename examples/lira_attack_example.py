@@ -30,6 +30,8 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.lira_attack_example
 
 """
+# pylint: disable = duplicate-code
+
 import os
 import json
 
