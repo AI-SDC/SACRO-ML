@@ -24,7 +24,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with pylint
         run: |
-          pylint **/*.py --fail-under 7
+          pylint **/*.py --fail-under 10
       - name: Test with pytest
         run: |
           pytest .

@@ -1,17 +1,14 @@
 """This module contains unit tests for SafeKerasModel."""
 
 import os
-import pickle
 import shutil
 import getpass
 
-import joblib
 import numpy as np
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Input # pylint: disable = import-error, no-name-in-module
 
 from safemodel.classifiers import SafeKerasModel
 
@@ -21,8 +18,8 @@ n_classes = 4
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
-    xall = np.asarray(iris.data, dtype=np.float64)
-    yall = np.asarray(iris.target, dtype=np.float64)
+    xall = np.asarray(iris['data'], dtype=np.float64)
+    yall = np.asarray(iris['target'], dtype=np.float64)
     xall = np.vstack([xall, (7, 2.0, 4.5, 1)])
     yall = np.append(yall, n_classes)
     X, Xval, y, yval = train_test_split(
@@ -34,6 +31,7 @@ def get_data():
 
 
 def make_model():
+    "Make the keras model"
     # get data
     X, y, Xval, yval = get_data()
     # set seed and kernel initialisers for repeatability
@@ -57,7 +55,8 @@ def make_model():
 
 
 def test_keras_model_created():
-    model, X, y, Xval, yval = make_model()
+    "Test keras model"
+    model, _, _, _, _ = make_model()
     rightname = "KerasModel"
     assert (
         model.model_type == rightname
@@ -67,7 +66,8 @@ def test_keras_model_created():
 
 
 def test_second_keras_model_created():
-    X, y, Xval, yval = get_data()
+    "Test second keras model"
+    X, _, _, _ = get_data()
     tf.random.set_seed(12345)
     initializer = tf.keras.initializers.Zeros()
     input_data = Input(shape=X[0].shape)
@@ -75,7 +75,7 @@ def test_second_keras_model_created():
     xx = Dense(128, activation="relu", kernel_initializer=initializer)(xx)
     xx = Dense(64, activation="relu", kernel_initializer=initializer)(xx)
     output = Dense(n_classes, activation="softmax", kernel_initializer=initializer)(xx)
-    model = SafeKerasModel(
+    _ = SafeKerasModel(
         inputs=input_data,
         outputs=output,
         name="test",
@@ -98,12 +98,13 @@ def test_second_keras_model_created():
 
 
 def test_keras_model_compiled_as_DP():
-    model, X, y, Xval, yval = make_model()
+    "Test Compile DP"
+    model, X, _, _, _ = make_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, _ = model.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     right_epsilon = 20.363059561511612
@@ -143,6 +144,7 @@ def test_keras_basic_fit():
 
 
 def test_keras_save_actions():
+    "Test save action"
     # create, compile and train model
     model, X, y, Xval, yval = make_model()
 
@@ -175,7 +177,7 @@ def test_keras_save_actions():
         if os.path.exists(name):
             os.remove(name)
         model.save(name)
-        assert os.path.exists(name) == False, f"Failed test NOT to save model as {name}"
+        assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
         if os.path.exists(name):
             os.remove(name)
 
@@ -206,7 +208,11 @@ def test_keras_unsafe_l2_norm():
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
-    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter l2_norm_clip = 0.9 identified as less than the recommended min value of 1.0."
+    correct_msg = (
+        "WARNING: model parameters may present a disclosure risk:"
+        "\n- parameter l2_norm_clip = 0.9 identified as less than the recommended "
+        "min value of 1.0."
+    )
     assert msg == correct_msg, "failed check correct warning message"
     assert disclosive is True, "failed check disclosive is True"
 
@@ -237,7 +243,11 @@ def test_keras_unsafe_noise_multiplier():
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
-    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter noise_multiplier = 1.0 identified as greater than the recommended max value of 0.9."
+    correct_msg = (
+        "WARNING: model parameters may present a disclosure risk:"
+        "\n- parameter noise_multiplier = 1.0 identified as greater than the "
+        "recommended max value of 0.9."
+    )
 
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
@@ -268,7 +278,10 @@ def test_keras_unsafe_min_epsilon():
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
-    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter min_epsilon = 4 identified as less than the recommended min value of 5."
+    correct_msg = (
+        "WARNING: model parameters may present a disclosure risk:"
+        "\n- parameter min_epsilon = 4 identified as less than the recommended min value of 5."
+    )
 
     assert msg == correct_msg, "failed check correct warning message"
     assert disclosive is True, "failed check disclosive is True"
@@ -299,7 +312,10 @@ def test_keras_unsafe_delta():
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
-    correct_msg = "WARNING: model parameters may present a disclosure risk:\n- parameter delta = 1e-06 identified as less than the recommended min value of 1e-05."
+    correct_msg = (
+        "WARNING: model parameters may present a disclosure risk:\n"
+        "- parameter delta = 1e-06 identified as less than the recommended min value of 1e-05."
+    )
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
 
@@ -366,6 +382,7 @@ def test_keras_unsafe_learning_rate():
     assert disclosive is False, "failed check disclosive is false"
 
 def test_create_checkfile():
+    """Test create checkfile"""
     # create, compile and train model
     model, X, y, Xval, yval = make_model()
 
@@ -392,17 +409,17 @@ def test_create_checkfile():
 
         researcher = getpass.getuser()
         outputfilename = researcher + "_checkfile.json"
-        assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outfputfilename}"
+        assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outputfilename}"
 
         # Using readlines()
-        file1 = open(outputfilename, 'r')
-        Lines = file1.readlines()
+        with open(outputfilename, 'r', encoding='utf-8') as file1:
+            lines = file1.readlines()
 
         count = 0
         # Strips the newline character
-        for line in Lines:
+        for line in lines:
             count += 1
-            print("Line{}: {}".format(count, line.strip()))
+            print(f"Line{count}: {line.strip()}")
 
         # clean up
         if os.path.isfile(name):  # h5
@@ -416,6 +433,6 @@ def test_create_checkfile():
         if os.path.exists(name):
             os.remove(name)
         model.save(name)
-        assert os.path.exists(name) == False, f"Failed test NOT to save model as {name}"
+        assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
         if os.path.exists(name):
             os.remove(name)
