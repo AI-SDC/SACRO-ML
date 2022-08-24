@@ -248,4 +248,7 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     metrics['tpr'] = tpr
     metrics['roc_thresh'] = roc_thresh
 
+    metrics['n_pos_test_examples'] = y_test.sum()
+    metrics['n_neg_test_examples'] = (1 - y_test).sum()
+
     return metrics

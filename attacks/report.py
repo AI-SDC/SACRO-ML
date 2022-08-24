@@ -1,6 +1,6 @@
 """Code for automatic report generation"""
 import json
-from typing import List, Dict
+from typing import Dict
 import pylab as plt
 import numpy as np
 from fpdf import FPDF
@@ -79,7 +79,10 @@ class NumpyArrayEncoder(json.JSONEncoder):
         """If an object is an np.ndarray, convert to list"""
         if isinstance(o, np.ndarray):
             return o.tolist()
+        if isinstance(o, np.int64):
+            return int(o)
         return json.JSONEncoder.default(self, o)
+
 
 def _write_dict(pdf, input_dict, indent=0, border=BORDER):
     """Write a dictionary to the pdf"""
@@ -173,11 +176,7 @@ def _roc_plot(metrics, dummy_metrics, save_name):
     plt.grid()
     plt.savefig(save_name)
 
-def create_mia_report(
-    metadata: Dict,
-    mia_metrics: List,
-    dummy_metrics: List,
-    dummy_metadata: Dict) -> FPDF:
+def create_mia_report(attack_output: Dict) -> FPDF:
     '''make a worst case membership inference report
 
     Parameters
@@ -203,6 +202,9 @@ def create_mia_report(
 
     '''
 
+    dummy_metrics = attack_output['dummy_attack_metrics']
+    mia_metrics = attack_output['attack_metrics']
+    metadata = attack_output['metadata']
     if dummy_metrics is None or len(dummy_metrics) == 0:
         do_dummy = False
     else:
@@ -225,7 +227,7 @@ def create_mia_report(
         _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     if do_dummy:
         _subtitle(pdf, "Baseline global metrics")
-        for key, value in dummy_metadata['global_metrics'].items():
+        for key, value in metadata['baseline_global_metrics'].items():
             _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
     _subtitle(pdf, "Metrics")
@@ -274,12 +276,11 @@ def create_mia_report(
 
     return pdf
 
-def create_json_report(mia_metrics, dummy_metrics):
+def create_json_report(output):
     '''Create a report in json format for injestion by other tools
     '''
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
-    json_payload = {'metrics': mia_metrics, 'baseline_metrics': dummy_metrics}
-    return json.dumps(json_payload, cls=NumpyArrayEncoder)
+    return json.dumps(output, cls=NumpyArrayEncoder)
 
 def create_lr_report(metadata, mia_metrics):
     """TODO"""
