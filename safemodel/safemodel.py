@@ -704,6 +704,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
+                
+                
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
@@ -761,10 +763,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         attack_obj.attack(dataset=data_obj,target_model=self)
         output = attack_obj.make_report()
         metadata = output['metadata']
-        print(metadata)
+        #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
         with open(f'{filename}.json', 'w') as fp:
             json.dump(metadata, fp)
-        
+        return metadata
         
     def __str__(self) -> str:
         """Returns string with model description."""
