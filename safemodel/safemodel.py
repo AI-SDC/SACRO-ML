@@ -14,10 +14,14 @@ import tensorflow as tf
 import joblib
 from dictdiffer import diff
 
+from attacks import worst_case_attack, dataset
+
+
+
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-from attacks import worst_case_attack, dataset
+
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -746,7 +750,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
 
         """
-        if attack_name is not "worst_case":
+        if attack_name != "worst_case":
             metadata= {"outcome":"unrecognised attack type requested"}
         else:
             attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
@@ -767,7 +771,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output['metadata']
             #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
-        with open(f'{filename}.json', 'w') as fp:
+        with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
             json.dump(metadata, fp)
 
         return metadata
