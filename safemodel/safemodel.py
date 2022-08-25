@@ -704,8 +704,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
-                
-                
+
+
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
@@ -746,34 +746,33 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
 
         """
-        attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
-            # number of baseline (dummy) experiments to do
-            n_dummy_reps=1,
-            # Threshold to determine significance of things
-            p_thresh=0.05,
-            # Filename arguments needed by the code, meaningless if run programmatically
-            in_sample_filename=None,
-            out_sample_filename=None,
-            # Proportion of data to use as a test set for the attack model;
-            test_prop=0.5,
-            # Report name is None - don't make json or pdf files
-            report_name=None
-        )
-        attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-        attack_obj.attack(dataset=data_obj,target_model=self)
-        output = attack_obj.make_report()
-        metadata = output['metadata']
-        #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
+        if attack_name is not "worst_case":
+            metadata= {"outcome":"unrecognised attack type requested"}
+        else:
+            attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
+                # number of baseline (dummy) experiments to do
+                n_dummy_reps=1,
+                # Threshold to determine significance of things
+                p_thresh=0.05,
+                # Filename arguments needed by the code, meaningless if run programmatically
+                in_sample_filename=None,
+                out_sample_filename=None,
+                # Proportion of data to use as a test set for the attack model;
+                test_prop=0.5,
+                # Report name is None - don't make json or pdf files
+                report_name=None
+            )
+            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
+            attack_obj.attack(dataset=data_obj,target_model=self)
+            output = attack_obj.make_report()
+            metadata = output['metadata']
+            #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
         with open(f'{filename}.json', 'w') as fp:
             json.dump(metadata, fp)
 
         return metadata
-        
+
 
     def __str__(self) -> str:
         """Returns string with model description."""
         return self.model_type + " with parameters: " + str(self.__dict__)
-
-
-
-
