@@ -85,7 +85,7 @@ class WorstCaseAttack(Attack):
 
         To be used when only saved predictions are available.
 
-        Filenames for the saved prediction files to be specificed in the arguments provided
+        Filenames for the saved prediction files to be specified in the arguments provided
         in the constructor
         """
         train_preds = np.loadtxt(self.args.in_sample_filename, delimiter=",")
