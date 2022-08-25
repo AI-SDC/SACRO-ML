@@ -704,8 +704,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
-                
-                
+
+
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
@@ -768,12 +768,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             json.dump(metadata, fp)
 
         return metadata
-        
+
 
     def __str__(self) -> str:
         """Returns string with model description."""
         return self.model_type + " with parameters: " + str(self.__dict__)
-
-
-
-
