@@ -17,7 +17,7 @@ from dictdiffer import diff
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-from attacks import worst_case_attack, dataset 
+from attacks import worst_case_attack, dataset
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -711,27 +711,27 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
 
-                
-                
-    
-                
+
+
+
+
     def run_attack(self,
-                   data_obj:dataset.Data=None, 
+                   data_obj:dataset.Data=None,
                    attack_name:str="worst_case",
                    filename:str="undefined")->dict:
-       
-        """Runs a specified attack on the trained model and saves a report to file 
+
+        """Runs a specified attack on the trained model and saves a report to file
 
         Parameters
         ----------
         data_obj: Data
         the dataset in the form of a Data object
-        
+
         attack_name: string
- 
+
         filename: string
         Report will be saved to filename.json
-        
+
 
         Returns
         -------
@@ -740,7 +740,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         Notes
         -----
         Currently implement attack types are:
-        Likelihood Ratio: lira 
+        Likelihood Ratio: lira
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
 
@@ -766,12 +766,14 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
         with open(f'{filename}.json', 'w') as fp:
             json.dump(metadata, fp)
+
         return metadata
         
+
     def __str__(self) -> str:
         """Returns string with model description."""
         return self.model_type + " with parameters: " + str(self.__dict__)
 
-    
-    
-    
+
+
+
