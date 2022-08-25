@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
 
-"""Returns data for testing."""
+
 cancer = datasets.load_breast_cancer()
 x = np.asarray(cancer['data'], dtype=np.float64)
 y = np.asarray(cancer['target'], dtype=np.float64)
