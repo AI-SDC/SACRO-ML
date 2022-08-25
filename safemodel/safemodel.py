@@ -17,7 +17,7 @@ from dictdiffer import diff
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-
+from attacks import worst_case_attack, dataset 
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -709,6 +709,67 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
 
+                
+                
+    
+                
+    def run_attack(self,
+                   data_obj:dataset.Data=None, 
+                   attack_name:str="worst_case",
+                   filename:str="undefined")->dict:
+       
+        """Runs a specified attack on the trained model and saves a report to file 
+
+        Parameters
+        ----------
+        data_obj: Data
+        the dataset in the form of a Data object
+        
+        attack_name: string
+ 
+        filename: string
+        Report will be saved to filename.json
+        
+
+        Returns
+        -------
+        dict of meta data results
+
+        Notes
+        -----
+        Currently implement attack types are:
+        Likelihood Ratio: lira 
+        Worst_Case Membership inference: worst_case
+        Single Attribute Inference: attributes
+
+
+        """
+        attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
+            # number of baseline (dummy) experiments to do
+            n_dummy_reps=1,
+            # Threshold to determine significance of things
+            p_thresh=0.05,
+            # Filename arguments needed by the code, meaningless if run programmatically
+            in_sample_filename=None,
+            out_sample_filename=None,
+            # Proportion of data to use as a test set for the attack model;
+            test_prop=0.5,
+            # Report name is None - don't make json or pdf files
+            report_name=None
+        )
+        attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
+        attack_obj.attack(dataset=data_obj,target_model=self)
+        output = attack_obj.make_report()
+        metadata = output['metadata']
+        print(metadata)
+        with open(f'{filename}.json', 'w') as fp:
+            json.dump(metadata, fp)
+        
+        
     def __str__(self) -> str:
         """Returns string with model description."""
         return self.model_type + " with parameters: " + str(self.__dict__)
+
+    
+    
+    
