@@ -25,5 +25,5 @@ the_data = Data()
 
 the_data.add_processed_data(x_train,y_train,x_test,y_test)
 
-model.run_attack(the_data,"worst_case","anyoldfile")
-
+metadata= model.run_attack(the_data,"worst_case","anyoldfile")
+print(metadata)
