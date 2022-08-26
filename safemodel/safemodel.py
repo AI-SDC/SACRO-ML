@@ -14,6 +14,8 @@ import tensorflow as tf
 import joblib
 from dictdiffer import diff
 
+from reporting import REPORT_STRING
+
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
@@ -49,10 +51,11 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if cur_val < val:
         disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as less than the recommended min value of {val}."
-        )
+        msg = REPORT_STRING["less_than_min_value"]
+        #(
+        #    f"- parameter {key} = {cur_val}"
+        #    f" identified as less than the recommended min value of {val}."
+        #)
     else:
         disclosive = False
         msg = ""

@@ -54,4 +54,34 @@ REPORT_STRING = {
     'recommend_do_not_release':(
         "Recommendation: Do not release."
     )
+
+
+    'layer_configs_differ': (
+        f"Layer {layer} configs differ in {len(match)} places:\n"
+    )
+
+    'error_reloading_model_v1': (
+        f"Error re-loading  model from {v1}:  {e}"
+
+    )
+
+    
+    'error_reloading_model_v2': (
+        f"Error re-loading  model from {v2}: {e}"
+    )
+
+    'division_by_zero': (
+        "Division by zero setting batch_size =1"
+    )
+
+    'dp_requirements_met' : (
+        "The requirements for DP are met, "
+        f"current epsilon is: {self.current_epsilon}."
+    )
+    
+    'dp_requirements_not_met': (
+        f"The requirements for DP are not met, "
+        f"current epsilon is: {self.current_epsilon}.\n"
+    )
+
 }
