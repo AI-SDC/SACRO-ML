@@ -14,7 +14,7 @@ import tensorflow as tf
 import joblib
 from dictdiffer import diff
 
-from reporting import REPORT_STRING
+from .reporting import REPORT_STRING
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
