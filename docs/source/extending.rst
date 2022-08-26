@@ -6,7 +6,8 @@ Modular Design
 
 The safemodel package is an opensource wrapper for common machine learning
 models. It is designed to be modular and can be extended for use with other
-models.
+models. Code comments should be in the numpydoc format so that they are rendered
+by the automatic sphinx documentation 
 
 The main steps needed to implement a new model are:
 
@@ -15,7 +16,6 @@ The main steps needed to implement a new model are:
 # Update the __init__ method with ignore_items and examine_separately items
 # Add checks for any unusual data structures
 # Override the fit() function
-# Comment the code using numydoc format
 # Update Sphinx documentation
 # Write pytests to confirm core functionality 
 # Include any optional helper functions
@@ -43,6 +43,14 @@ Define the Safer Class
 	}
 
 ::
+
+
+Update rules.json file
+----------------------
+
+The rules.json file is used to define safe limits for pearameters.
+The file is written in JSON (JavaScript Object Notation) and can be extended.
+to define safe limits for parameters of newly implemented models.
 
    
 Update the __init__ method with ignore_items and examine_separately items
@@ -77,6 +85,15 @@ Add checks for any unusual data structures
 ------------------------------------------
 
 
+Some models may have unusual datastructures.
+Care should be taken to ensure that these are not changed after the fit() method
+is called.
+
+Examples of unusual datastructures are:
+Lists are handled in the safemodel base class. 
+Decision Trees handled in safedecisiontree.py and saferandomforest.py
+
+
 .. code-block:: python
 
 	{
@@ -91,53 +108,66 @@ Override the fit() function
 .. code-block:: python
 
 	{
-	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
-		"""Privacy protected GradientBoostingClassifier."""
-
+	def fit(self, x: np.ndarray, y: np.ndarray) -> None:
+		"""Do fit and then store model dict"""
+		super().fit(x, y)
+		self.k_anonymity = self.get_k_anonymity(x)
+		self.saved_model = copy.deepcopy(self.__dict__)
 	}
 
-Comment the code using numydoc format
---------------------------------------
-
-.. code-block:: python
-
-	{
-	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
-		"""Privacy protected GradientBoostingClassifier."""
-
-	}
 
 Update Sphinx documentation
 ----------------------------
 
+In the Sphinx docs/source directory make a copy of an existing .rst file
+it the .rst to reflect the newly implemented class. Then you must update the
+index.rst file by to include the new .rst file, although the extension is
+not required. E.g. saferandomforest links in saferandomforest.rst
 
-.. code-block:: python
+.. code-block:: shell
 
 	{
-	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
-		"""Privacy protected GradientBoostingClassifier."""
-
+	cd docs
+	cp saferandomforest.rst xgboost.rst
+	edit xgboost.rst
+	edit index.rst
+	
 	}
 	
 Write pytests to confirm core functionality 
 --------------------------------------------
 
+Write pytests to confirm the corefunctionality.
+Example test suites can be found in AI-SDC/tests/
 
-.. code-block:: python
-
-	{
-	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
-		"""Privacy protected GradientBoostingClassifier."""
-
-	}
 	
 Include any optional helper functions
 -------------------------------------
 
+Depending on the model being implemented one or more helper functions or
+methods may be required. For example there are may helpfunctions in
+safekeras.py that help with the the specifics of neural networks.
+
+
 .. code-block:: python
 
 	{
-	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
-		"""Privacy protected GradientBoostingClassifier."""
+	def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
+	if len(m1.layers) != len(m2.layers):
+		return False, "different numbers of layers"
+	numlayers = len(m1.layers)
+	for layer in range(numlayers):
+		m1layer = m1.layers[layer].get_weights()
+		m2layer = m2.layers[layer].get_weights()
+        if len(m1layer) != len(m2layer):
+            return False, f"layer {layer} not the same size."
+        for dim in range(len(m1layer)):
+            m1d = m2layer[dim]
+            m2d = m2layer[dim]
+            # print(type(m1d), m1d.shape)
+            if not np.array_equal(m1d, m2d):
+                return False, f"dimension {dim} of layer {layer} differs"
+	    return True, "weights match"
+
 
 	}
