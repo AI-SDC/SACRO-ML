@@ -29,6 +29,3 @@ SafeKeras Quick Start Notebook
 
 A quick start implementation guide for SafeKeras is detailed
 in this `notebook <https://github.com/AI-SDC/AI-SDC/blob/main/examplenotebooks/examplenotebook-keras.ipynb`_
-
-
-
