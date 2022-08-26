@@ -705,7 +705,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
-            
+
             now = datetime.datetime.now()
             output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
             json_str = json.dumps(output, indent=4)
