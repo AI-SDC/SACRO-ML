@@ -41,8 +41,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import load_breast_cancer
 
 from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
-from attacks import metrics # pylint: disable = import-error
-from attacks.dataset import Data # pylint: dsiable = import-error
+from attacks.dataset import Data # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
