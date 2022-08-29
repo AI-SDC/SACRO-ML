@@ -10,6 +10,8 @@ import pathlib
 import pickle
 from typing import Any
 import tensorflow as tf
+from sklearn.ensemble import RandomForestClassifier
+
 
 import joblib
 from dictdiffer import diff
@@ -666,7 +668,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def request_release(self, filename: str = "undefined") -> None:
+    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None:
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
@@ -676,12 +678,24 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         filename: string
         The filename used to save the model
 
+        dataobj: object of type Data 
+        Contains train/test data and encoding dictionary needed to run attacks
+
         Returns
         -------
+        
 
         Notes
         -----
-
+         1. The dataset object is saved in a file called filebase_data.json
+         (where filebase= filename without the extension)
+         for reference/use by the TRE.
+         Data should never be held or stored with the model.
+         Clearly filebase_data.json mst never leave the TRE.
+         2. If data_obj is not null, then worst case MIA and attribute inference
+         attacks are called via run_attack.
+         Outputs from the attacks will be stored in filebase_attack_res.json
+         
 
 
         """
@@ -709,7 +723,31 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
 
+            ###needs testing between these triple coments
+            if data_obj is not None: 
+                #make filenames
+                filebase= os.path.splitext(filename) 
+                data_file = filebase +"_data.json"
+                
+                attackresfile= filebase +"_attack_res"
+                #build up dict of attack results
+                attackdata= {}
+                for attack_name in ['worst_case','attribute']:
+                    ## do i want ot jard codde these here?
+                    this_data=  self.run_attack(data_obj,
+                                                attack_name,
+                                                attackresfile
+                                               )
+                    attackdata[attack_name]=this_data
+                
+                #save the dataset object to file
+                ## is there a method to save it already?
+                json_str = json.dumps(data_object, indent=4)
+                with open(data_file, "w", encoding="utf-8") as file:
+                    file.write(json_str)
 
+             ###       
+                    
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
@@ -733,8 +771,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         attack_name: string
 
-        filename: string
-        Report will be saved to filename.json
+        filebasename: string
+        Report will be saved to filebasename.json
 
 
         Returns
@@ -750,9 +788,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
 
         """
-        if attack_name != "worst_case":
-            metadata= {"outcome":"unrecognised attack type requested"}
-        else:
+        if attack_name == "worst_case":
             attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
                 # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
@@ -771,6 +807,46 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output['metadata']
             #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
+        
+        elif attack_name=="lira":
+            # [TRE] Compute the predictions on the training and test sets
+            train_preds = target_model.predict_proba(train_X)
+            test_preds = target_model.predict_proba(test_X)
+
+            # [TRE] Create a shadow model
+            shadow_clf = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
+
+            # [TRE] Call attack code
+            attack_scores, attack_labels, attack_classifier = likelihood_attack.likelihood_scenario(
+                shadow_clf,
+                train_X,
+                train_y,
+                train_preds,
+                test_X,
+                test_y,
+                test_preds,
+                n_shadow_models=50
+            )
+
+
+            # [TRE] Computes attack metrics
+            attack_metrics = metrics.get_metrics(
+                attack_classifier,
+                attack_scores,
+                attack_labels
+            )
+        
+        elif attack_name=="attribute":
+            metadata = {'outcomes':"attribute inference attack not implemented within safemodel yet"}
+            
+            
+        else:
+            metadata= {"outcome":"unrecognised attack type requested"}
+            
+            
+            
+            
+            
         with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
             json.dump(metadata, fp)
 
