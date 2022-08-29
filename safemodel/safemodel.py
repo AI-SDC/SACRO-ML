@@ -678,12 +678,12 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         filename: string
         The filename used to save the model
 
-        dataobj: object of type Data 
+        dataobj: object of type Data
         Contains train/test data and encoding dictionary needed to run attacks
 
         Returns
         -------
-        
+
 
         Notes
         -----
@@ -695,7 +695,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
          2. If data_obj is not null, then worst case MIA and attribute inference
          attacks are called via run_attack.
          Outputs from the attacks will be stored in filebase_attack_res.json
-         
+
 
 
         """
@@ -724,11 +724,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 output["reason"] = msg_prel + msg_post
 
             ###needs testing between these triple coments
-            if data_obj is not None: 
+            if data_obj is not None:
                 #make filenames
-                filebase= os.path.splitext(filename) 
+                filebase= os.path.splitext(filename)
                 data_file = filebase +"_data.json"
-                
+
                 attackresfile= filebase +"_attack_res"
                 #build up dict of attack results
                 attackdata= {}
@@ -739,15 +739,15 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                                                 attackresfile
                                                )
                     attackdata[attack_name]=this_data
-                
+
                 #save the dataset object to file
                 ## is there a method to save it already?
                 json_str = json.dumps(data_object, indent=4)
                 with open(data_file, "w", encoding="utf-8") as file:
                     file.write(json_str)
 
-             ###       
-                    
+             ###
+
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
@@ -807,7 +807,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output['metadata']
             #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
-        
+
         elif attack_name=="lira":
             args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
             attack_obj = LIRAAttack(args)
@@ -817,18 +817,18 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
 
 
-        
+
         elif attack_name=="attribute":
             metadata = {'outcomes':"attribute inference attack not implemented within safemodel yet"}
-            
-            
+
+
         else:
             metadata= {"outcome":"unrecognised attack type requested"}
-            
-            
-            
-            
-            
+
+
+
+
+
         with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
             json.dump(metadata, fp)
 
