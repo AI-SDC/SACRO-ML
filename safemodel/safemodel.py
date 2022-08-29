@@ -725,36 +725,25 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
             ###needs testing between these triple comments
             if data_obj is not None:
-                #make filenames
+                #make filenames and save a cpy of the data
                 filebase= os.path.splitext(filename)
-                data_file = filebase +"_data.json"
+                data_file = filebase +"_data.pickle"
+                with open('filename.pickle', 'wb') as handle:
+                    pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-                attackresfile= filebase +"_attack_res"
-                #build up dict of attack results
-                attack_res= {}
-                for attack_name in ['worst_case','lira','attribute']:
-                    this_res=  self.run_attack(data_obj,
+                for attack_name in ['worst_case','attribute']:
+                    keyname=f"{attack_name}_results"
+                    attackresfile= f"{filebase}_{attack_name}_res"
+                    ouptput[keyname]=  self.run_attack(data_obj,
                                                 attack_name,
                                                 attackresfile
                                                )
-                    keyname= f"Attack_results_{attack_name}"
-                    output[keyname]=this_res
-
-                #save the dataset object to file for future ref
-                ## is there a method to save it already?
-                ##pickle??
-                json_str = json.dumps(data_object, indent=4)
-                with open(data_file, "w", encoding="utf-8") as file:
-                    file.write(json_str)
              ###
 
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
-
-
-
 
 
     def run_attack(self,
@@ -785,8 +774,6 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         Likelihood Ratio: lira
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
-
-
         """
         if attack_name == "worst_case":
             attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
