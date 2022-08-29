@@ -17,7 +17,7 @@ import joblib
 from dictdiffer import diff
 
 from attacks import worst_case_attack, dataset
-
+from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
 
 logger = logging.getLogger(__file__)
@@ -809,32 +809,14 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
         
         elif attack_name=="lira":
-            # [TRE] Compute the predictions on the training and test sets
-            train_preds = target_model.predict_proba(train_X)
-            test_preds = target_model.predict_proba(test_X)
-
-            # [TRE] Create a shadow model
-            shadow_clf = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
-
-            # [TRE] Call attack code
-            attack_scores, attack_labels, attack_classifier = likelihood_attack.likelihood_scenario(
-                shadow_clf,
-                train_X,
-                train_y,
-                train_preds,
-                test_X,
-                test_y,
-                test_preds,
-                n_shadow_models=50
-            )
+            args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+            attack_obj = LIRAAttack(args)
+            attack_obj.attack(dataset, target_model)
+            output = attack_obj.make_report() # also makes .pdf and .json files
+            metadata = output['metadata']
 
 
-            # [TRE] Computes attack metrics
-            attack_metrics = metrics.get_metrics(
-                attack_classifier,
-                attack_scores,
-                attack_labels
-            )
+
         
         elif attack_name=="attribute":
             metadata = {'outcomes':"attribute inference attack not implemented within safemodel yet"}
