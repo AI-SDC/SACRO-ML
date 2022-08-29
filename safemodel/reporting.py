@@ -71,6 +71,36 @@ def get_reporting_string(**kwargs):
         attr = the_kwargs["attr"]
     else:
         attr = ""
+
+
+    if "num1" in kwargs.keys():
+        num1 = the_kwargs["num1"]
+    else:
+        num1 = 0
+
+    if "num2" in kwargs.keys():
+        num2 = the_kwargs["num2"]
+    else:
+        num2 = 0
+
+    if "idx" in kwargs.keys():
+        idx = the_kwargs["idx"]
+    else:
+        idx = 0
+
+
+    if "diffs_list" in kwargs.keys():
+        diffs_list = the_kwargs["diffs_list"]
+    else:
+        diffs_list = ""
+
+    if "item" in kwargs.keys():
+        item = the_kwargs["item"]
+    else:
+        item = ""
+
+        
+        
         
     REPORT_STRING = {
         'NULL': (
@@ -190,9 +220,42 @@ def get_reporting_string(**kwargs):
         'unexpected_item': (
             "unexpected item in curr_seperate dict "
             " passed by generic additional checks."
+        ),
+
+        'warn_fitted_different_base' : (
+            "Warning: model was fitted with different base estimator type.\n"
+        ),
+
+        'error_model_not_fitted' : (
+            "Error: model has not been fitted to data.\n"
+        ),
+
+        'trees_removed': (
+            "Error: current version of model has had trees removed after fitting.\n"
+        ),
+
+        'trees_edited' : (
+            "Error: current version of model has had trees manually edited.\n"
+        ),
+
+        'different_num_estimators' : (
+            f"Fitted model has {num2} estimators "
+            f"but requested version has {num1}.\n"
+        ),
+
+        'forest_estimators_differ': (
+            f"Forest base estimators {idx} differ."
+        ),
+
+        'unable_to_check_item' : (
+            "In SafeRandomForest.additional_checks: "
+            f"Unable to check {item} as an exception occurred: {error}.\n"
+        ),
+        
+        'structure_differences': (
+            f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
         )
         
-     
     }
 
 
