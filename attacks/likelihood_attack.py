@@ -293,7 +293,7 @@ class LIRAAttack(Attack):
             test_y,
             rf.predict_proba(test_X)
         )
-        
+
     def _construct_metadata(self):
         # Check for significance of AUC and PDIF
         self.metadata = {}
@@ -421,7 +421,7 @@ class LIRAAttack(Attack):
             test_preds
         )
         logger.info("Computing metrics")
-        
+
 
 # Methods invoked by command line script
 def _setup_example_data(args):
