@@ -59,7 +59,22 @@ def get_reporting_string(**kwargs):
         current_epsilon = the_kwargs["current_epsilon"]
     else:
         current_epsilon = 0
-        
+
+    if "num_samples" in kwargs.keys():
+        num_samples = the_kwargs["num_samples"]
+    else:
+        num_samples = 0
+
+    if "batch_size" in kwargs.keys():
+        batch_size = the_kwargs["batch_size"]
+    else:
+        batch_size = 0
+
+
+    if "epochs" in kwargs.keys():
+        epochs = the_kwargs["epochs"]
+    else:
+        epochs = 0
 
     if "error" in kwargs.keys():
         error = the_kwargs["error"]
@@ -181,11 +196,18 @@ def get_reporting_string(**kwargs):
         'dp_requirements_met' : (
             "The requirements for DP are met, "
             f"current epsilon is: {current_epsilon}."
+            "Calculated from the parameters:  "
+            f"Num Samples = {num_samples}, "
+            f"batch_size = {batch_size}, epochs = {epochs}.\n"
         ),
         
         'dp_requirements_not_met': (
             f"The requirements for DP are not met, "
             f"current epsilon is: {current_epsilon}.\n"
+            f"To attain recommended DP the following parameters can be changed:  "
+            f"Num Samples = {num_samples},"
+            f"batch_size = {batch_size},"
+            f"epochs = {epochs}.\n"
         ),
 
         'basic_params_differ': (

@@ -1,4 +1,4 @@
-# safekaeras.py:
+# safekeras.py:
 # UWE 2022
 
 # general imports
@@ -20,6 +20,7 @@ from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 
 # safemodel superclass
 from safemodel.safemodel import SafeModel
+from safemodel.reporting import get_reporting_string
 
 
 def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
@@ -31,7 +32,8 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
         match = list(diff(m1_layer_config, m2_layer_config, expand=True))
         if len(match) > 0:
             disclosive = True
-            msg = f"Layer {layer} configs differ in {len(match)} places:\n"
+            msg = get_reporting_string(name="layer_configs_differ", match=match)
+            #f"Layer {layer} configs differ in {len(match)} places:\n"
             for i in range(len(match)):
                 if match[i][0] == "change":
                     msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
@@ -73,12 +75,14 @@ def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     try:
         model1 = tf.keras.models.load_model(v1)
     except Exception as e:
-        msg = f"Error re-loading  model from {v1}:  {e}"
+        msg = get_reporting_string(name="error_reloading_model_v1", e=e)
+        #f"Error re-loading  model from {v1}:  {e}"
         return False, msg
     try:
         model2 = tf.keras.models.load_model(v2)
     except Exception as e:
-        msg = f"Error re-loading  model from {v2}: {e}"
+        msg = get_reporting_string(name="error_reloading_model_v2", e=e)
+        #f"Error re-loading  model from {v2}: {e}"
         return False, msg
 
     same_config, config_message = same_configs(model1, model2)
@@ -175,7 +179,8 @@ class SafeKerasModel(KerasModel, SafeModel):
         """
         msg = ""
         if batch_size == 0:
-            print("Division by zero setting batch_size =1")
+            print(get_reporting_string(name="division_by_zero"))
+            #("Division by zero setting batch_size =1")
             batch_size = 1
 
         ok, self.current_epsilon = self.dp_epsilon_met(
@@ -183,22 +188,32 @@ class SafeKerasModel(KerasModel, SafeModel):
         )
 
         if ok:
-            msg = (
-                "The requirements for DP are met, "
-                f"current epsilon is: {self.current_epsilon}."
-                "Calculated from the parameters:  "
-                f"Num Samples = {num_samples}, "
-                f"batch_size = {batch_size}, epochs = {epochs}.\n"
-            )
+            msg = get_reporting_string(name="dp_requirements_met", 
+                                       current_epsilon=self.current_epsilon,
+                                       num_samples=num_samples, batch_size=batch_size,
+                                       epochs=epochs)
+                                       
+            #(
+            #    "The requirements for DP are met, "
+            #    f"current epsilon is: {self.current_epsilon}."
+            #    "Calculated from the parameters:  "
+            #    f"Num Samples = {num_samples}, "
+            #    f"batch_size = {batch_size}, epochs = {epochs}.\n"
+            #)
         if not ok:
-            msg = (
-                f"The requirements for DP are not met, "
-                f"current epsilon is: {self.current_epsilon}.\n"
-                f"To attain recommended DP the following parameters can be changed:  "
-                f"Num Samples = {num_samples},"
-                f"batch_size = {batch_size},"
-                f"epochs = {epochs}.\n"
-            )
+            msg = get_reporting_string(name="dp_requirements_not_met",
+                                       current_epsilon=self.current_epsilon,
+                                       num_samples=num_samples,
+                                       batch_size=batch_size,
+                                       epochs=epochs)
+            #(
+            #    f"The requirements for DP are not met, "
+            #    f"current epsilon is: {self.current_epsilon}.\n"
+            #    f"To attain recommended DP the following parameters can be changed:  "
+            #    f"Num Samples = {num_samples},"
+            #    f"batch_size = {batch_size},"
+            #    f"epochs = {epochs}.\n"
+            #)
         print(msg)
         return ok, msg
 
