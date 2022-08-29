@@ -60,6 +60,18 @@ def get_reporting_string(**kwargs):
     else:
         current_epsilon = 0
         
+
+    if "error" in kwargs.keys():
+        error = the_kwargs["error"]
+    else:
+        error = ""
+
+
+    if "attr" in kwargs.keys():
+        attr = the_kwargs["attr"]
+    else:
+        attr = ""
+        
     REPORT_STRING = {
         'NULL': (
             ''
@@ -148,8 +160,37 @@ def get_reporting_string(**kwargs):
 
         'basic_params_differ': (
             "Warning: basic parameters differ in {len(match)} places:\n"
-        )
+        ),
+
+        'unable_to_check' : (
+            f"Unable to check as an exception occurred: {error}"
+        ),
+
         
+        'neither_tree_trained': (
+            f"neither tree trained"
+        ),
+
+        'tree1_not_trained': (
+            f"tree1 not trained"
+        ),
+
+        'tree2_not_trained': (
+            f"tree2 not trained"
+        ),
+
+        'internal_attribute_differs' : (
+            f"internal tree attribute {attr} differs\n"
+        ),
+
+        'exception_occurred' : (
+            f"An exception occurred: {error}"
+        ),
+
+        'unexpected_item': (
+            "unexpected item in curr_seperate dict "
+            " passed by generic additional checks."
+        )
         
      
     }

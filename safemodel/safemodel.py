@@ -365,7 +365,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         rule_path = pathlib.Path(__file__).with_name("rules.json")
         with open(rule_path, "r", encoding="utf-8") as json_file:
             parsed = json.load(json_file)
-            rules = parsed[self.model_type]`
+            rules = parsed[self.model_type]
         return rules["rules"]
 
     def __apply_constraints(
