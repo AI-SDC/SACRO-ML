@@ -81,6 +81,8 @@ class NumpyArrayEncoder(json.JSONEncoder):
             return o.tolist()
         if isinstance(o, np.int64):
             return int(o)
+        if isinstance(o, np.int32):
+            return int(o)
         return json.JSONEncoder.default(self, o)
 
 
@@ -282,8 +284,10 @@ def create_json_report(output):
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
     return json.dumps(output, cls=NumpyArrayEncoder)
 
-def create_lr_report(metadata, mia_metrics):
+def create_lr_report(output):
     """TODO"""
+    mia_metrics = output['attack_metrics'][0]
+    metadata = output['metadata']
     _roc_plot_single(mia_metrics, "log_roc.png")
     pdf = FPDF()
     pdf.add_page()
@@ -291,7 +295,9 @@ def create_lr_report(metadata, mia_metrics):
     _title(pdf, "Likelihood Ratio Attack Report")
     _subtitle(pdf, "Introduction")
     _subtitle(pdf, "Metadata")
-    for key, value in metadata.items():
+    for key, value in metadata['experiment_details'].items():
+        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    for key, value in metadata['global_metrics'].items():
         _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     _subtitle(pdf, "Metrics")
     sub_metrics_dict = {key: val for key, val in mia_metrics.items() if isinstance(val, float)}
