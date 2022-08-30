@@ -238,12 +238,27 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
+        self.basemodel_paramnames=[]
         self.filename: str = "None"
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
         except (ImportError, KeyError, OSError):
             self.researcher = "unknown"
+
+
+
+    def get_params(self,deep=True):
+        """gets dictionary of parameter values
+        restricted to those expected by base classifier.
+        """
+        the_params=dict()
+        for key,val in self.__dict__.items():
+            if key  in self.basemodel_paramnames:
+                the_params[key]=val
+        return the_params
+
+
 
     def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
@@ -740,8 +755,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                                                 attack_name,
                                                 attackresfile
                                                )
-                    for key,val in output[keyname]:
-                        print(f'{key}: {val}')
+                    for key,val in output[keyname].items():
+                        print(f'  {key}: {val}')
              ###
 
             json_str = json.dumps(output, indent=4)
@@ -797,7 +812,6 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             attack_obj.attack(dataset=data_obj,target_model=self)
             output = attack_obj.make_report()
             metadata = output['metadata']
-            #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
 
         elif attack_name=="lira":
             args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
@@ -807,10 +821,15 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             metadata = output['metadata']
 
         elif attack_name=="attribute":
-            metadata = {'outcomes':"attribute inference attack not implemented within safemodel yet"}
+            metadata = dict()
+            metadata["outcome"] = "attribute inference attack not implemented within safemodel yet"
 
         else:
-            metadata= {"outcome":"unrecognised attack type requested"}
+            metadata= dict()
+            metadata["outcome"] = "unrecognised attack type requested"
+
+        print(f'attack {attack_name}, metadata {metadata}')
+
 
         try:
             with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
