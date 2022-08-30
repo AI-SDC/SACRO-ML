@@ -20,7 +20,18 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params"""
         SafeModel.__init__(self)
-        RandomForestClassifier.__init__(self, **kwargs)
+        self.basemodel_paramnames=[
+            'n_estimators','criterion','max_depth','min_samples_split',
+            'min_samples_leaf','min_weight_fraction_leaf','max_features',
+            'max_leaf_nodes','min_impurity_decrease','bootstrap',
+            'oob_score','n_jobs','random_state','verbose'
+            'warm_start','class_weight','ccp_alpha','max_samples']
+
+        the_kwds=dict()
+        for key,val in kwargs.items():
+            if key in self.basemodel_paramnames:
+                the_kwds[key]=val
+        RandomForestClassifier.__init__(self, **the_kwds)
         self.model_type: str = "RandomForestClassifier"
         super().preliminary_check(apply_constraints=True, verbose=True)
         self.ignore_items = [

@@ -116,7 +116,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
         """Creates model and applies constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames=[
-            'criterion','splitter','max_depth','min-samples_split',
+            'criterion','splitter','max_depth','min_samples_split',
             'min_samples_leaf','min_weight_fraction_leaf','max_features',
             'random_state','max_leaf_nodes','min_impurity_decrease',
             'class_weight','ccp_alpha']
