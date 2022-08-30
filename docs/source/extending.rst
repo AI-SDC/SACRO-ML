@@ -25,9 +25,9 @@ Copy The Template
 
 .. code-block:: shell
 
-	{
+	
 		cp new_model_template xgboost.py
-	}
+	
 
 ::
 
@@ -36,11 +36,11 @@ Define the Safer Class
 
 .. code-block:: python
 
-	{
+	
 	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
 		"""Privacy protected GradientBoostingClassifier."""
 
-	}
+	
 
 ::
 
@@ -58,7 +58,7 @@ Update the __init__ method with ignore_items and examine_separately items
 
 .. code-block:: python
 
-	{
+	
 	class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
 	"""Privacy protected XGBoost."""
 
@@ -76,7 +76,7 @@ Update the __init__ method with ignore_items and examine_separately items
 		self.examine_seperately_items = ["base_estimator", "estimators_"]
 
 
-	}
+	
 
 ::
 
@@ -96,24 +96,24 @@ Decision Trees handled in safedecisiontree.py and saferandomforest.py
 
 .. code-block:: python
 
-	{
+	
 	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
 		"""Privacy protected GradientBoostingClassifier."""
 
-	}
+	
 
 Override the fit() function
 ---------------------------
 
 .. code-block:: python
 
-	{
+	
 	def fit(self, x: np.ndarray, y: np.ndarray) -> None:
 		"""Do fit and then store model dict"""
 		super().fit(x, y)
 		self.k_anonymity = self.get_k_anonymity(x)
 		self.saved_model = copy.deepcopy(self.__dict__)
-	}
+	
 
 
 Update Sphinx documentation
@@ -126,13 +126,13 @@ not required. E.g. saferandomforest links in saferandomforest.rst
 
 .. code-block:: shell
 
-	{
+	
 	cd docs
 	cp saferandomforest.rst xgboost.rst
 	edit xgboost.rst
 	edit index.rst
 	
-	}
+	
 	
 Write pytests to confirm core functionality 
 --------------------------------------------
@@ -151,7 +151,7 @@ safekeras.py that help with the the specifics of neural networks.
 
 .. code-block:: python
 
-	{
+	
 	def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
 	if len(m1.layers) != len(m2.layers):
 		return False, "different numbers of layers"
@@ -170,4 +170,4 @@ safekeras.py that help with the the specifics of neural networks.
 	    return True, "weights match"
 
 
-	}
+	
