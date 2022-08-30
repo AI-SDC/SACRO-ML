@@ -7,7 +7,7 @@ Modular Design
 The safemodel package is an opensource wrapper for common machine learning
 models. It is designed to be modular and can be extended for use with other
 models. Code comments should be in the numpydoc format so that they are rendered
-by the automatic sphinx documentation 
+by the automatic sphinx documentation
 
 The main steps needed to implement a new model are:
 
@@ -17,7 +17,7 @@ The main steps needed to implement a new model are:
 # Add checks for any unusual data structures
 # Override the fit() function
 # Update Sphinx documentation
-# Write pytests to confirm core functionality 
+# Write pytests to confirm core functionality
 # Include any optional helper functions
 
 Copy The Template
@@ -25,9 +25,9 @@ Copy The Template
 
 .. code-block:: shell
 
-	
+
 		cp new_model_template xgboost.py
-	
+
 
 ::
 
@@ -36,11 +36,11 @@ Define the Safer Class
 
 .. code-block:: python
 
-	
+
 	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
 		"""Privacy protected GradientBoostingClassifier."""
 
-	
+
 
 ::
 
@@ -52,13 +52,13 @@ The rules.json file is used to define safe limits for pearameters.
 The file is written in JSON (JavaScript Object Notation) and can be extended.
 to define safe limits for parameters of newly implemented models.
 
-   
+
 Update the __init__ method with ignore_items and examine_separately items
 -------------------------------------------------------------------------
 
 .. code-block:: python
 
-	
+
 	class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
 	"""Privacy protected XGBoost."""
 
@@ -76,7 +76,7 @@ Update the __init__ method with ignore_items and examine_separately items
 		self.examine_seperately_items = ["base_estimator", "estimators_"]
 
 
-	
+
 
 ::
 
@@ -90,30 +90,30 @@ Care should be taken to ensure that these are not changed after the fit() method
 is called.
 
 Examples of unusual datastructures are:
-Lists are handled in the safemodel base class. 
+Lists are handled in the safemodel base class.
 Decision Trees handled in safedecisiontree.py and saferandomforest.py
 
 
 .. code-block:: python
 
-	
+
 	class SafeGradientBoosting(SafeModel, GradientBoostingClassifier):
 		"""Privacy protected GradientBoostingClassifier."""
 
-	
+
 
 Override the fit() function
 ---------------------------
 
 .. code-block:: python
 
-	
+
 	def fit(self, x: np.ndarray, y: np.ndarray) -> None:
 		"""Do fit and then store model dict"""
 		super().fit(x, y)
 		self.k_anonymity = self.get_k_anonymity(x)
 		self.saved_model = copy.deepcopy(self.__dict__)
-	
+
 
 
 Update Sphinx documentation
@@ -126,21 +126,21 @@ not required. E.g. saferandomforest links in saferandomforest.rst
 
 .. code-block:: shell
 
-	
+
 	cd docs
 	cp saferandomforest.rst xgboost.rst
 	edit xgboost.rst
 	edit index.rst
-	
-	
-	
-Write pytests to confirm core functionality 
+
+
+
+Write pytests to confirm core functionality
 --------------------------------------------
 
 Write pytests to confirm the corefunctionality.
 Example test suites can be found in AI-SDC/tests/
 
-	
+
 Include any optional helper functions
 -------------------------------------
 
@@ -151,7 +151,7 @@ safekeras.py that help with the the specifics of neural networks.
 
 .. code-block:: python
 
-	
+
 	def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
 	if len(m1.layers) != len(m2.layers):
 		return False, "different numbers of layers"
@@ -170,4 +170,4 @@ safekeras.py that help with the the specifics of neural networks.
 	    return True, "weights match"
 
 
-	
+
