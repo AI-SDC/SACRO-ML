@@ -190,8 +190,6 @@ class LIRAAttack(Attack):
         >>>     n_shadow_models=100
         >>> )
         """
-        keys = shadow_clf.get_params().keys()
-
 
         logger = logging.getLogger("lr-scenario")
         n_train_rows, _ = X_target_train.shape

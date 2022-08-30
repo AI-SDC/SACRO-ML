@@ -11,7 +11,7 @@ import pickle
 from typing import Any
 import tensorflow as tf
 from sklearn.ensemble import RandomForestClassifier
-
+import os
 
 import joblib
 from dictdiffer import diff
@@ -726,18 +726,22 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             ###needs testing between these triple comments
             if data_obj is not None:
                 #make filenames and save a cpy of the data
-                filebase= os.path.splitext(filename)
+                filebase= os.path.splitext(filename)[0]
+                print(f'filebase is {filebase}')
                 data_file = filebase +"_data.pickle"
-                with open('filename.pickle', 'wb') as handle:
+                with open(data_file, 'wb') as handle:
                     pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-                for attack_name in ['worst_case','attribute']:
+                for attack_name in ['worst_case','lira','attribute']:
+                    print(f'running {attack_name} attack')
                     keyname=f"{attack_name}_results"
                     attackresfile= f"{filebase}_{attack_name}_res"
-                    ouptput[keyname]=  self.run_attack(data_obj,
+                    output[keyname]=  self.run_attack(data_obj,
                                                 attack_name,
                                                 attackresfile
                                                )
+                    for key,val in output[keyname]:
+                        print(f'{key}: {val}')
              ###
 
             json_str = json.dumps(output, indent=4)
@@ -798,7 +802,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         elif attack_name=="lira":
             args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
             attack_obj = LIRAAttack(args)
-            attack_obj.attack(dataset, target_model)
+            attack_obj.attack(data_obj,self)
             output = attack_obj.make_report() # also makes .pdf and .json files
             metadata = output['metadata']
 
@@ -808,8 +812,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         else:
             metadata= {"outcome":"unrecognised attack type requested"}
 
-        with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
-            json.dump(metadata, fp)
+        try:
+            with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
+                json.dump(metadata, fp)
+        except:
+            print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
 
         return metadata
 

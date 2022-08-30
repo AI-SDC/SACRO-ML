@@ -115,11 +115,32 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
     def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params."""
         SafeModel.__init__(self)
-        DecisionTreeClassifier.__init__(self, **kwargs)
+        allowed_kwds=['criterion','splitter','max_depth','min-samples_split',
+                     'min_samples_leaf','min_weight_fraction_leaf','max_features',
+                      'random_state','max_leaf_nodes','min_impurity_decrease',
+                     'class_weight','ccp_alpha']
+        the_kwds=dict()
+        for key,val in kwargs.items():
+            if key in allowed_kwds:
+                the_kwds[key]=val
+        DecisionTreeClassifier.__init__(self, **the_kwds)#**kwargs)
         self.model_type: str = "DecisionTreeClassifier"
         super().preliminary_check(apply_constraints=True, verbose=True)
         self.ignore_items = ["model_save_file", "ignore_items"]
         self.examine_seperately_items = ["tree_"]
+
+    def get_params(self,deep=True):
+        the_params=dict()
+        allowed_kwds=['criterion','splitter','max_depth','min-samples_split',
+                     'min_samples_leaf','min_weight_fraction_leaf','max_features',
+                      'random_state','max_leaf_nodes','min_impurity_decrease',
+                     'class_weight','ccp_alpha']
+        for key,val in self.__dict__.items():
+            if key  in allowed_kwds:
+                the_params[key]=val
+        return the_params
+
+
 
     def additional_checks(
         self, curr_separate: dict, saved_separate: dict
