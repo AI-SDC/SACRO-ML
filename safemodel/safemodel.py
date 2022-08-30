@@ -8,10 +8,10 @@ import json
 import logging
 import pathlib
 import pickle
+import os
 from typing import Any
 import tensorflow as tf
-from sklearn.ensemble import RandomForestClassifier
-import os
+
 
 import joblib
 from dictdiffer import diff
@@ -252,10 +252,12 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         """gets dictionary of parameter values
         restricted to those expected by base classifier.
         """
-        the_params=dict()
+        the_params={}
         for key,val in self.__dict__.items():
             if key  in self.basemodel_paramnames:
                 the_params[key]=val
+        if deep:
+            pass #not implemented yet
         return the_params
 
 
@@ -738,26 +740,19 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
 
-            ###needs testing between these triple comments
+
+            ##Run attacks programmatically if possible
             if data_obj is not None:
-                #make filenames and save a cpy of the data
-                filebase= os.path.splitext(filename)[0]
-                print(f'filebase is {filebase}')
-                data_file = filebase +"_data.pickle"
-                with open(data_file, 'wb') as handle:
+                #make filenames and save a copy of the data
+                with open(os.path.splitext(filename)[0] +"_data.pickle", 'wb') as handle:
                     pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
                 for attack_name in ['worst_case','lira','attribute']:
-                    print(f'running {attack_name} attack')
-                    keyname=f"{attack_name}_results"
-                    attackresfile= f"{filebase}_{attack_name}_res"
-                    output[keyname]=  self.run_attack(data_obj,
-                                                attack_name,
-                                                attackresfile
-                                               )
-                    for key,val in output[keyname].items():
-                        print(f'  {key}: {val}')
-             ###
+                    output[f"{attack_name}_results"]=  self.run_attack(data_obj,
+                                      attack_name,
+                                      f"{os.path.splitext(filename)[0]}_{attack_name}_res"
+                                      )
+
 
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
@@ -821,11 +816,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             metadata = output['metadata']
 
         elif attack_name=="attribute":
-            metadata = dict()
+            metadata = {}
             metadata["outcome"] = "attribute inference attack not implemented within safemodel yet"
 
         else:
-            metadata= dict()
+            metadata= {}
             metadata["outcome"] = "unrecognised attack type requested"
 
         print(f'attack {attack_name}, metadata {metadata}')
@@ -834,7 +829,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         try:
             with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
                 json.dump(metadata, fp)
-        except:
+        except TypeError:
             print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
 
         return metadata

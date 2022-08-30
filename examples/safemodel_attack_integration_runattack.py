@@ -27,19 +27,17 @@ the_data = Data()
 
 the_data.add_processed_data(x_train,y_train,x_test,y_test)
 
-direct=True
-if(direct):
-    ##check direct method
-    print('==========> first running direct attacks')
-    for attack_name in ['lira','worst_case','attribute']:
-        print(f'===> running {attack_name} attack directly')
-        fname=f"modelDOTrun_attack_output_{attack_name}"
-        metadata= model.run_attack(the_data,attack_name,fname)
-        print(f'metadata is:')
-        for key,val in metadata.items():
-            if  isinstance(val,dict):
-                print(f" {key}")
-                for key1,val2 in val.items():
-                    print(f'   {key1} : {val2}')
-            else:
-                print(f' {key} : {val}')
+##check direct method
+print('==========> first running direct attacks')
+for attack_name in ['lira','worst_case','attribute']:
+    print(f'===> running {attack_name} attack directly')
+    fname=f"modelDOTrun_attack_output_{attack_name}"
+    metadata= model.run_attack(the_data,attack_name,fname)
+    print('metadata is:')
+    for key,val in metadata.items():
+        if  isinstance(val,dict):
+            print(f" {key}")
+            for key1,val2 in val.items():
+                print(f'   {key1} : {val2}')
+        else:
+            print(f' {key} : {val}')
