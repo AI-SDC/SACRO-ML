@@ -168,6 +168,3 @@ safekeras.py that help with the the specifics of neural networks.
             if not np.array_equal(m1d, m2d):
                 return False, f"dimension {dim} of layer {layer} differs"
 	    return True, "weights match"
-
-
-
