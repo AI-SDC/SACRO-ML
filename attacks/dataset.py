@@ -23,9 +23,9 @@ class Data:
         y_test:np.ndarray) -> None:
         """Add a processed and split dataset"""
         self.x_train = x_train
-        self.y_train = y_train
+        self.y_train = np.array(y_train, int)
         self.x_test = x_test
-        self.y_test = y_test
+        self.y_test = np.array(y_test, int)
         self.n_samples = len(x_train) + len(y_train)
 
     def __str__(self):
