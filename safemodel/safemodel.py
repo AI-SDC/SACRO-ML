@@ -496,10 +496,12 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if temp_disc:
                 disclosive = True
         if disclosive:
-            msg = (get_reporting_string(name="warn_possible_disclosure_risk") + temp_msg)
+            start_msg = get_reporting_string(name="warn_possible_disclosure_risk")
+            msg = start_msg + msg
             #"WARNING: model parameters may present a disclosure risk:\n" + msg
         else:
-            msg = (get_reporting_string(name="within_recommended_ranges") + temp_msg)
+            msg = get_reporting_string(name="within_recommended_ranges")
+            msg += temp_msg
             #"Model parameters are within recommended ranges.\n" + msg
         if verbose:
             print(msg)
@@ -605,7 +607,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             match = list(diff(current_model, saved_model, expand=True))
             if len(match) > 0:
                 disclosive = True
-                msg += get_reporting_string(name="basic_params_differ", match=match)
+
+                msg += get_reporting_string(name="basic_params_differ",
+                                            match=match, length=(len(match)))
+
                 #f"Warning: basic parameters differ in {len(match)} places:\n"
                 for this_match in match:
                     if this_match[0] == "change":
