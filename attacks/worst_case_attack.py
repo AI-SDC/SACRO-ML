@@ -52,7 +52,7 @@ class WorstCaseAttackArgs:
 
 class WorstCaseAttack(Attack):
     """Class to wrap the worst case attack code"""
-    def __init__(self, args: WorstCaseAttackArgs=WorstCaseAttackArgs):
+    def __init__(self, args: WorstCaseAttackArgs=WorstCaseAttackArgs()):
         self.attack_metrics = None
         self.dummy_attack_metrics = None
         self.metadata = None
