@@ -53,32 +53,63 @@ The file is written in JSON (JavaScript Object Notation) and can be extended.
 to define safe limits for parameters of newly implemented models.
 
 
-Update the __init__ method with ignore_items and examine_separately items
--------------------------------------------------------------------------
+Update the __init__ method with paramnames, ignore_items, and examine_separately items
+--------------------------------------------------------------------------------------
+
+Code for a new class needs to reflect is the contents of the list self.basemodel_paramnames*. 
+
 
 .. code-block:: python
 
 
-	class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
+class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
 	"""Privacy protected XGBoost."""
 
-	def __init__(self, **kwargs: Any) -> None:
-		"""Creates model and applies constraints to params"""
-		SafeModel.__init__(self)
-		GradientBoostingClassifier.__init__(self, **kwargs)
-		self.model_type: str = "GradientBoostingClassifier"
-		super().preliminary_check(apply_constraints=True, verbose=True)
-		self.ignore_items = [
-		    "model_save_file",
-                    "ignore_items",
-                    "base_estimator_",
-		]
-		self.examine_seperately_items = ["base_estimator", "estimators_"]
+    def __init__(self, **kwargs: Any) -> None:
+        """Creates model and applies constraints to params"""
+        SafeModel.__init__(self)
+
+        self.basemodel_paramnames=[
+            'edit','this','list','to',
+            'contain','just','the','valid','parameters',
+            'for','the','class',
+            'you ','are','creating','a'
+            'safe','wrapper','version','of']
+
+        the_kwds=dict()
+        for key,val in kwargs.items():
+            if key in self.basemodel_paramnames:
+                the_kwds[key]=val
+        ModelToMakeSafer.__init__(self, **the_kwds)
+        self.model_type: str = "ModelToMakeSafer"
+        super().preliminary_check(apply_constraints=True, verbose=True)
+        self.ignore_items = [
+            "model_save_file",
+            "ignore_items",
+            "base_estimator_",
+        ]
+        self.examine_seperately_items = ["base_estimator", "estimators_"]
 
 
 
 
 ::
+
+For sklearn models this list can be extracted from the sklearn man page for the new model. For example, 
+Saferandomforest defines the valid paramnames as:
+
+.. code-block:: python
+
+def __init__(self, **kwargs: Any) -> None:
+        """Creates model and applies constraints to params"""
+        SafeModel.__init__(self)
+        self.basemodel_paramnames=[
+            'n_estimators','criterion','max_depth','min_samples_split',
+            'min_samples_leaf','min_weight_fraction_leaf','max_features',
+            'max_leaf_nodes','min_impurity_decrease','bootstrap',
+            'oob_score','n_jobs','random_state','verbose'
+            'warm_start','class_weight','ccp_alpha','max_samples']
+..
 
 
 Add checks for any unusual data structures
