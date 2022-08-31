@@ -61,33 +61,33 @@ Code for a new class needs to reflect is the contents of the list self.basemodel
 
 .. code-block:: python
 
-class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
-	"""Privacy protected XGBoost."""
+	class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
+		"""Privacy protected XGBoost."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params"""
-        SafeModel.__init__(self)
+    	def __init__(self, **kwargs: Any) -> None:
+        	"""Creates model and applies constraints to params"""
+        	SafeModel.__init__(self)
 
-        self.basemodel_paramnames=[
-            'edit','this','list','to',
-            'contain','just','the','valid','parameters',
-            'for','the','class',
-            'you ','are','creating','a'
-            'safe','wrapper','version','of']
+        	self.basemodel_paramnames=[
+            	'edit','this','list','to',
+            	'contain','just','the','valid','parameters',
+            	'for','the','class',
+            	'you ','are','creating','a'
+            	'safe','wrapper','version','of']
 
-        the_kwds=dict()
-        for key,val in kwargs.items():
-            if key in self.basemodel_paramnames:
-                the_kwds[key]=val
-        ModelToMakeSafer.__init__(self, **the_kwds)
-        self.model_type: str = "ModelToMakeSafer"
-        super().preliminary_check(apply_constraints=True, verbose=True)
-        self.ignore_items = [
-            "model_save_file",
-            "ignore_items",
-            "base_estimator_",
-        ]
-        self.examine_seperately_items = ["base_estimator", "estimators_"]
+        	the_kwds=dict()
+        	for key,val in kwargs.items():
+            	if key in self.basemodel_paramnames:
+                	the_kwds[key]=val
+        	ModelToMakeSafer.__init__(self, **the_kwds)
+        	self.model_type: str = "ModelToMakeSafer"
+        	super().preliminary_check(apply_constraints=True, verbose=True)
+        	self.ignore_items = [
+            	"model_save_file",
+            	"ignore_items",
+            	"base_estimator_",
+        	]
+        	self.examine_seperately_items = ["base_estimator", "estimators_"]
 
 ::
 
@@ -96,15 +96,15 @@ Saferandomforest defines the valid paramnames as:
 
 .. code-block:: python
 
-def __init__(self, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params"""
-        SafeModel.__init__(self)
-        self.basemodel_paramnames=[
-            'n_estimators','criterion','max_depth','min_samples_split',
-            'min_samples_leaf','min_weight_fraction_leaf','max_features',
-            'max_leaf_nodes','min_impurity_decrease','bootstrap',
-            'oob_score','n_jobs','random_state','verbose'
-            'warm_start','class_weight','ccp_alpha','max_samples']
+	def __init__(self, **kwargs: Any) -> None:
+        	"""Creates model and applies constraints to params"""
+        	SafeModel.__init__(self)
+        	self.basemodel_paramnames=[
+            	'n_estimators','criterion','max_depth','min_samples_split',
+            	'min_samples_leaf','min_weight_fraction_leaf','max_features',
+            	'max_leaf_nodes','min_impurity_decrease','bootstrap',
+            	'oob_score','n_jobs','random_state','verbose'
+            	'warm_start','class_weight','ccp_alpha','max_samples']
 ::
 
 
