@@ -103,12 +103,16 @@ class LIRAAttack(Attack):
         dataset: attacks.dataset.Data
             Dataset as an instance of the Data class. Needs to have x_train, x_test, y_train
             and y_test set.
-        target_mode: sklearn.base.baseEstimator
-            Trained target model. Any class that implements the sklearn.base.baseEstimator
+        target_mode: sklearn.base.BaseEstimator
+            Trained target model. Any class that implements the sklearn.base.BaseEstimator
             interface (i.e. has fit, predict and predict_proba methods)
         """
+
+        shadow_clf = sklearn.base.clone(target_model)
+        
+
         self.run_scenario_from_preds(
-            sklearn.base.clone(target_model),
+            shadow_clf,
             dataset.x_train,
             dataset.y_train,
             target_model.predict_proba(dataset.x_train),
