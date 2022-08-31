@@ -30,7 +30,7 @@ def get_reporting_string(**kwargs):
     if "name" in kwargs.keys():
         name = the_kwargs["name"]
     else:
-        return("Error - get_reporting_string: No 'name' given")
+        return "Error - get_reporting_string: No 'name' given"
 
 
     # initialise all the values from the keyword parameters
