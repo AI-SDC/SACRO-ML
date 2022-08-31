@@ -17,7 +17,19 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
     def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params"""
         SafeModel.__init__(self)
-        ModelToMakeSafer.__init__(self, **kwargs)
+       
+        self.basemodel_paramnames=[
+            'edit','this','list','to',
+            'contain','just','the','valid','parameters',
+            'for','the','class',
+            'you ','are','creating','a'
+            'safe','wrapper','version','of']
+
+        the_kwds=dict()
+        for key,val in kwargs.items():
+            if key in self.basemodel_paramnames:
+                the_kwds[key]=val
+        ModelToMakeSafer.__init__(self, **the_kwds)
         self.model_type: str = "ModelToMakeSafer"
         super().preliminary_check(apply_constraints=True, verbose=True)
         self.ignore_items = [
