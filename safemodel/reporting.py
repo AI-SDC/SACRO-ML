@@ -294,15 +294,15 @@ def get_reporting_string(**kwargs):
 
 
         'neither_tree_trained': (
-            f"neither tree trained"
+            "neither tree trained"
         ),
 
         'tree1_not_trained': (
-            f"tree1 not trained"
+            "tree1 not trained"
         ),
 
         'tree2_not_trained': (
-            f"tree2 not trained"
+            "tree2 not trained"
         ),
 
         'internal_attribute_differs' : (
