@@ -56,7 +56,7 @@ def get_reporting_string(**kwargs):
         key = None
     #--------------------------------------------
     if "operator" in kwargs.keys():
-        operator = thekwargs["operator"]
+        operator = the_kwargs["operator"]
     else:
         operator = None
     #--------------------------------------------
