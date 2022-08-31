@@ -8,14 +8,16 @@ import json
 import logging
 import pathlib
 import pickle
+import os
 from typing import Any
 import tensorflow as tf
+
 
 import joblib
 from dictdiffer import diff
 
 from attacks import worst_case_attack, dataset
-
+from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
 
 logger = logging.getLogger(__file__)
@@ -236,12 +238,29 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
+        self.basemodel_paramnames=[]
         self.filename: str = "None"
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
         except (ImportError, KeyError, OSError):
             self.researcher = "unknown"
+
+
+
+    def get_params(self,deep=True):
+        """gets dictionary of parameter values
+        restricted to those expected by base classifier.
+        """
+        the_params={}
+        for key,val in self.__dict__.items():
+            if key  in self.basemodel_paramnames:
+                the_params[key]=val
+        if deep:
+            pass #not implemented yet
+        return the_params
+
+
 
     def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
@@ -666,7 +685,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def request_release(self, filename: str = "undefined") -> None:
+    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None:
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
@@ -676,11 +695,23 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         filename: string
         The filename used to save the model
 
+        dataobj: object of type Data
+        Contains train/test data and encoding dictionary needed to run attacks
+
         Returns
         -------
 
+
         Notes
         -----
+         1. The dataset object is saved in a file called filebase_data.json
+         (where filebase= filename without the extension)
+         for reference/use by the TRE.
+         Data should never be held or stored with the model.
+         Clearly filebase_data.json mst never leave the TRE.
+         2. If data_obj is not null, then worst case MIA and attribute inference
+         attacks are called via run_attack.
+         Outputs from the attacks will be stored in filebase_attack_res.json
 
 
 
@@ -710,13 +741,23 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 output["reason"] = msg_prel + msg_post
 
 
+            ##Run attacks programmatically if possible
+            if data_obj is not None:
+                #make filenames and save a copy of the data
+                with open(os.path.splitext(filename)[0] +"_data.pickle", 'wb') as handle:
+                    pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+                for attack_name in ['worst_case','lira','attribute']:
+                    output[f"{attack_name}_results"]=  self.run_attack(data_obj,
+                                      attack_name,
+                                      f"{os.path.splitext(filename)[0]}_{attack_name}_res"
+                                      )
+
+
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
-
-
-
 
 
     def run_attack(self,
@@ -733,8 +774,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         attack_name: string
 
-        filename: string
-        Report will be saved to filename.json
+        filebasename: string
+        Report will be saved to filebasename.json
 
 
         Returns
@@ -747,12 +788,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         Likelihood Ratio: lira
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
-
-
         """
-        if attack_name != "worst_case":
-            metadata= {"outcome":"unrecognised attack type requested"}
-        else:
+        if attack_name == "worst_case":
             attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
                 # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
@@ -770,9 +807,30 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             attack_obj.attack(dataset=data_obj,target_model=self)
             output = attack_obj.make_report()
             metadata = output['metadata']
-            #print(f'metadata is a {type(metadata)}\n with contents {metadata}')
-        with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
-            json.dump(metadata, fp)
+
+        elif attack_name=="lira":
+            args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+            attack_obj = LIRAAttack(args)
+            attack_obj.attack(data_obj,self)
+            output = attack_obj.make_report() # also makes .pdf and .json files
+            metadata = output['metadata']
+
+        elif attack_name=="attribute":
+            metadata = {}
+            metadata["outcome"] = "attribute inference attack not implemented within safemodel yet"
+
+        else:
+            metadata= {}
+            metadata["outcome"] = "unrecognised attack type requested"
+
+        print(f'attack {attack_name}, metadata {metadata}')
+
+
+        try:
+            with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
+                json.dump(metadata, fp)
+        except TypeError:
+            print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
 
         return metadata
 

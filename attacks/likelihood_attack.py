@@ -106,7 +106,6 @@ class LIRAAttack(Attack):
 
         # Create an estimator identical to the original that is untrained
         shadow_clf = sklearn.base.clone(target_model)
-
         self.run_scenario_from_preds(
             shadow_clf,
             X_target_train,
@@ -191,6 +190,7 @@ class LIRAAttack(Attack):
         >>>     n_shadow_models=100
         >>> )
         """
+
         logger = logging.getLogger("lr-scenario")
         n_train_rows, _ = X_target_train.shape
         n_shadow_rows, _ = X_shadow_train.shape
@@ -233,7 +233,7 @@ class LIRAAttack(Attack):
                     # being correct - TODO: should we just be taking max??
                     train_row_to_confidence[i].append(
                         _logit(
-                            confidences[i, y_target_train[i]]
+                            confidences[i, int(y_target_train[i])]##jim added explicit cast to int
                         )
                     )
             # Same process for shadow data
@@ -242,7 +242,7 @@ class LIRAAttack(Attack):
                 if i + n_train_rows not in these_idx:
                     shadow_row_to_confidence[i].append(
                         _logit(
-                            shadow_confidences[i, y_shadow_train[i]]
+                            shadow_confidences[i, int(y_shadow_train[i])]##jim added  cast
                         )
                     )
 
@@ -251,7 +251,7 @@ class LIRAAttack(Attack):
         mia_labels = []
         logger.info("Computing scores for train rows")
         for i in range(n_train_rows):
-            true_score = _logit(target_train_preds[i, y_target_train[i]])
+            true_score = _logit(target_train_preds[i, int(y_target_train[i])])##jim added cast
             null_scores = np.array(train_row_to_confidence[i])
             mean_null = null_scores.mean()
             var_null = max(null_scores.var(), EPS) # var can be zero in some cases
@@ -261,7 +261,7 @@ class LIRAAttack(Attack):
 
         logger.info("Computing scores for shadow rows")
         for i in range(n_shadow_rows):
-            true_score = _logit(shadow_train_preds[i, y_shadow_train[i]])
+            true_score = _logit(shadow_train_preds[i, int(y_shadow_train[i])])##jim added cast
             null_scores = np.array(shadow_row_to_confidence[i])
             mean_null = null_scores.mean()
             var_null = max(null_scores.var(), EPS) # var can be zeros in some cases
