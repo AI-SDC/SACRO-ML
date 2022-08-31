@@ -233,7 +233,7 @@ class LIRAAttack(Attack):
                     # being correct - TODO: should we just be taking max??
                     train_row_to_confidence[i].append(
                         _logit(
-                            confidences[i, y_target_train[i])#
+                            confidences[i, y_target_train[i]]
                         )
                     )
             # Same process for shadow data
