@@ -233,7 +233,7 @@ class LIRAAttack(Attack):
                     # being correct - TODO: should we just be taking max??
                     train_row_to_confidence[i].append(
                         _logit(
-                            confidences[i, int(y_target_train[i])]##jim added explicit cast to int
+                            confidences[i, y_target_train[i])#
                         )
                     )
             # Same process for shadow data
@@ -242,7 +242,7 @@ class LIRAAttack(Attack):
                 if i + n_train_rows not in these_idx:
                     shadow_row_to_confidence[i].append(
                         _logit(
-                            shadow_confidences[i, int(y_shadow_train[i])]##jim added  cast
+                            shadow_confidences[i, y_shadow_train[i]]
                         )
                     )
 
@@ -251,7 +251,7 @@ class LIRAAttack(Attack):
         mia_labels = []
         logger.info("Computing scores for train rows")
         for i in range(n_train_rows):
-            true_score = _logit(target_train_preds[i, int(y_target_train[i])])##jim added cast
+            true_score = _logit(target_train_preds[i, y_target_train[i]])
             null_scores = np.array(train_row_to_confidence[i])
             mean_null = null_scores.mean()
             var_null = max(null_scores.var(), EPS) # var can be zero in some cases
@@ -261,7 +261,7 @@ class LIRAAttack(Attack):
 
         logger.info("Computing scores for shadow rows")
         for i in range(n_shadow_rows):
-            true_score = _logit(shadow_train_preds[i, int(y_shadow_train[i])])##jim added cast
+            true_score = _logit(shadow_train_preds[i, y_shadow_train[i]])
             null_scores = np.array(shadow_row_to_confidence[i])
             mean_null = null_scores.mean()
             var_null = max(null_scores.var(), EPS) # var can be zeros in some cases
