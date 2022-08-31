@@ -49,7 +49,7 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if type(cur_val) == int or type(cur_val) == float:
+    if (cur_val) isinstance(int) or cur_val isinstance(float):
         if cur_val < val:
             disclosive = True
             print(f'key = {key}')
@@ -93,7 +93,7 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if type(cur_val) == int or type(cur_val) == float:
+    if (cur_val) isinstance(int) or cur_val isinstance(float):
         if cur_val > val:
             disclosive = True
             msg = get_reporting_string(name="greater_than_max_value", key=key,
@@ -105,6 +105,10 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         else:
             disclosive = False
             msg = ""
+        return msg, disclosive
+    else:
+        disclosive = False
+        msg = ""
         return msg, disclosive
 
 
