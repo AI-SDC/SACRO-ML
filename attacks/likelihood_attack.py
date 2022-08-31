@@ -6,7 +6,6 @@ import argparse
 import json
 import logging
 import importlib
-from sqlite3.dbapi2 import _Parameters
 from typing import Iterable, Any, Dict, Hashable, Tuple
 import numpy as np
 from scipy.stats import norm
@@ -328,7 +327,7 @@ class LIRAAttack(Attack):
 
     def make_report(self) -> Dict:
         """Create the report
-        
+
         Creates the output report. If self.args.report_name is not None, it will also save the
         information in json and pdf formats
 
