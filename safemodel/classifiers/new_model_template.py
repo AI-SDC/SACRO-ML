@@ -17,7 +17,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
     def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params"""
         SafeModel.__init__(self)
-       
+
         self.basemodel_paramnames=[
             'edit','this','list','to',
             'contain','just','the','valid','parameters',
