@@ -61,7 +61,6 @@ Code for a new class needs to reflect is the contents of the list self.basemodel
 
 .. code-block:: python
 
-
 class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
 	"""Privacy protected XGBoost."""
 
@@ -90,9 +89,6 @@ class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
 
-
-
-
 ::
 
 For sklearn models this list can be extracted from the sklearn man page for the new model. For example,
@@ -109,7 +105,7 @@ def __init__(self, **kwargs: Any) -> None:
             'max_leaf_nodes','min_impurity_decrease','bootstrap',
             'oob_score','n_jobs','random_state','verbose'
             'warm_start','class_weight','ccp_alpha','max_samples']
-..
+::
 
 
 Add checks for any unusual data structures
