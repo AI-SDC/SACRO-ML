@@ -458,4 +458,4 @@ def get_reporting_string(**kwargs):
     # return the correct formatted string
 
 
-    return (REPORT_STRING[name])
+    return REPORT_STRING[name]
