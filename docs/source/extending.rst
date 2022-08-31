@@ -56,7 +56,7 @@ to define safe limits for parameters of newly implemented models.
 Update the __init__ method with paramnames, ignore_items, and examine_separately items
 --------------------------------------------------------------------------------------
 
-Code for a new class needs to reflect is the contents of the list self.basemodel_paramnames*. 
+Code for a new class needs to reflect is the contents of the list self.basemodel_paramnames*.
 
 
 .. code-block:: python
@@ -95,7 +95,7 @@ class SafeModelToMakeSafe(SafeModel, GradientBoostingClassifier):
 
 ::
 
-For sklearn models this list can be extracted from the sklearn man page for the new model. For example, 
+For sklearn models this list can be extracted from the sklearn man page for the new model. For example,
 Saferandomforest defines the valid paramnames as:
 
 .. code-block:: python
