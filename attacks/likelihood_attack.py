@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import importlib
+from sqlite3.dbapi2 import _Parameters
 from typing import Iterable, Any, Dict, Hashable, Tuple
 import numpy as np
 from scipy.stats import norm
@@ -95,25 +96,27 @@ class LIRAAttack(Attack):
         self,
         dataset: Data,
         target_model: sklearn.base.BaseEstimator) -> None:
-        """Programmatic attack running"""
+        """Programmatic attack running
+        Runs a LIRA attack from a dataset object and a target model
 
-        X_target_train = dataset.x_train
-        X_shadow_train = dataset.x_test
-        y_target_train = dataset.y_train
-        y_shadow_train = dataset.y_test
-        target_train_preds = target_model.predict_proba(X_target_train)
-        shadow_train_preds = target_model.predict_proba(X_shadow_train)
-
-        # Create an estimator identical to the original that is untrained
-        shadow_clf = sklearn.base.clone(target_model)
+        Parameters
+        ----------
+        dataset: attacks.dataset.Data
+            Dataset as an instance of the Data class. Needs to have x_train, x_test, y_train
+            and y_test set.
+        target_mode: sklearn.base.baseEstimator
+            Trained target model. Any class that implements the sklearn.base.baseEstimator
+            interface (i.e. has fit, predict and predict_proba methods)
+        """
         self.run_scenario_from_preds(
-            shadow_clf,
-            X_target_train,
-            y_target_train,
-            target_train_preds,
-            X_shadow_train,
-            y_shadow_train,
-            shadow_train_preds)
+            sklearn.base.clone(target_model),
+            dataset.x_train,
+            dataset.y_train,
+            target_model.predict_proba(dataset.x_train),
+            dataset.x_test,
+            dataset.y_test,
+            target_model.predict_proba(dataset.x_test)
+        )
 
     def run_scenario_from_preds(
         self,
@@ -277,6 +280,8 @@ class LIRAAttack(Attack):
 
     def example(self) -> None: # pylint: disable = too-many-locals
         """Runs an example attack using data from sklearn
+
+        Generates example data, trains a classifier and tuns the attack
         """
         X, y = load_breast_cancer(return_X_y=True, as_frame=False)
         train_X, test_X, train_y, test_y = train_test_split(
@@ -294,8 +299,8 @@ class LIRAAttack(Attack):
             rf.predict_proba(test_X)
         )
 
-    def _construct_metadata(self):
-        # Check for significance of AUC and PDIF
+    def _construct_metadata(self) -> None:
+        """Constructs the metadata object. Called by the reporting method"""
         self.metadata = {}
         self.metadata['experiment_details'] = {}
         self.metadata['experiment_details'].update(self.args.__dict__)
@@ -321,8 +326,18 @@ class LIRAAttack(Attack):
 
         self.metadata['attack'] = str(self)
 
-    def make_report(self):
-        """Create the report"""
+    def make_report(self) -> Dict:
+        """Create the report
+        
+        Creates the output report. If self.args.report_name is not None, it will also save the
+        information in json and pdf formats
+
+        Returns
+        -------
+
+        output: Dict
+            Dictionary containing all attack output
+        """
         logger = logging.getLogger("reporting")
         output = {}
         logger.info("Starting report, report_name = %s", self.args.report_name)
@@ -340,9 +355,12 @@ class LIRAAttack(Attack):
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
         return output
 
-    def setup_example_data(self):
+    def setup_example_data(self) -> None:
         """Method to create example data and save (including config). Intended to allow users
         to see how they would need to setup their own data.
+
+        Generates train and test data .csv files, train and test predictions .csv files and
+        a config.json file that can be used to run the attack from the command line.
         """
         X, y = load_breast_cancer(return_X_y=True)
         train_X, test_X, train_y, test_y = train_test_split(
@@ -425,17 +443,20 @@ class LIRAAttack(Attack):
 
 # Methods invoked by command line script
 def _setup_example_data(args):
+    """Call the methods to setup some example data"""
     lira_args = LIRAAttackArgs(**args.__dict__)
     attack_obj = LIRAAttack(lira_args)
     attack_obj.setup_example_data()
 
 def _example(args):
+    """Call the methods to run an example"""
     lira_args = LIRAAttackArgs(**args.__dict__)
     attack_obj = LIRAAttack(lira_args)
     attack_obj.example()
     attack_obj.make_report()
 
 def _run_attack(args):
+    """Run a command line attack based on saved files described in .json file"""
     lira_args = LIRAAttackArgs(**args.__dict__)
     attack_obj = LIRAAttack(lira_args)
     attack_obj.attack_from_config()
