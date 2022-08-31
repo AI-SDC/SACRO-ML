@@ -1,3 +1,4 @@
+"""methods to producte standard reporting strings"""
 def get_reporting_string(**kwargs):
     """returns a standard formatted string from a diction of f-strings.
 
