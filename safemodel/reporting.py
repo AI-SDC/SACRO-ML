@@ -184,6 +184,11 @@ def get_reporting_string(**kwargs):
         suffix = None
     #--------------------------------------------
 
+    if "length" in kwargs.keys():
+        length = the_kwargs["length"]
+    else:
+        length = None
+
     # A dictionary of f-strings follows
 
     REPORT_STRING = {
@@ -245,7 +250,7 @@ def get_reporting_string(**kwargs):
 
 
         'layer_configs_differ': (
-            f"Layer {layer} configs differ in {len(match)} places:\n"
+            f"Layer {layer} configs differ in {length} places:\n"
         ),
 
         'error_reloading_model_v1': (
@@ -280,7 +285,7 @@ def get_reporting_string(**kwargs):
         ),
 
         'basic_params_differ': (
-            "Warning: basic parameters differ in {len(match)} places:\n"
+            f"Warning: basic parameters differ in {length} places:\n"
         ),
 
         'unable_to_check' : (
