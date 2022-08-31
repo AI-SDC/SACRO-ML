@@ -82,7 +82,7 @@ class LIRAAttackArgs:
 
 class LIRAAttack(Attack):
     """The main LIRA Attack class"""
-    def __init__(self, args: LIRAAttackArgs) -> None:
+    def __init__(self, args: LIRAAttackArgs=LIRAAttackArgs()) -> None:
         self.attack_metrics = None
         self.dummy_attack_metrics = None
         self.metadata = None
