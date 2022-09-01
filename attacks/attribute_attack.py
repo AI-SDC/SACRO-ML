@@ -378,18 +378,34 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
     protection_limit: float = 0.1,
     feat_n: int = 100,
 ) -> bool:
-    """Returns bool based on conditions surrounding upper and lower bounds of
+    """Returns a bool based on conditions surrounding upper and lower bounds of
     guesses that would lead to the same model confidence.
 
-    target_model: trained target model.
-    feat_id: index of missing feature.
-    feat_min: minimum value of missing feature.
-    feat_max: maximum value of missing feature.
-    sample: original known feature vector.
-    c_min: defines the confidence threshold below which we say we don't care.
-    protection_limit: lower [upper] bound on estimated value must not be
-    above[below] lower[upper] bounds e.g. 10% of value.
-    feat_n: number of attribute values to test per sample.
+    Parameters
+    ----------
+
+    target_model: BaseEstimator
+        Trained target model.
+    feat_id: int
+        Index of missing feature.
+    feat_min: float
+        Minimum value of missing feature.
+    feat_max: float
+        Maximum value of missing feature.
+    sample: np.ndarray
+        Original known feature vector.
+    c_min: float
+        Defines the confidence threshold below which we say we don't care.
+    protection_limit: float
+        Lower [upper] bound on estimated value must not be
+        above[below] lower[upper] bounds e.g. 10% of value.
+    feat_n: int
+        Number of attribute values to test per sample.
+
+    Returns
+    -------
+    A bool representing whether the quantitative feature is at risk for the sample.
+
     """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
