@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 import pickle
-from typing import Any, Hashable
+from typing import Any
 
 import matplotlib.pyplot as plt
 import multiprocess as mp
@@ -38,7 +38,7 @@ class AttributeAttackArgs:
             [f"{str(key)}: {str(value)}" for key, value in self.__dict__.items()]
         )
 
-    def set_param(self, key: Hashable, value: Any) -> None:
+    def set_param(self, key: str, value: Any) -> None:
         """Set a parameter"""
         self.__dict__[key] = value
 
@@ -51,7 +51,7 @@ class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
     def __init__(self, args: AttributeAttackArgs = AttributeAttackArgs()):
-        self.attack_metrics = None
+        self.attack_metrics: dict = {}
         self.args = args
 
     def __str__(self):
@@ -101,10 +101,10 @@ def _get_inference_data(  # pylint: disable=too-many-locals
         values = onehot_enc.fit_transform(unique.reshape(-1, 1)).toarray()
     else:
         values = unique
-    samples: np.ndarray = dataset.x_train  # samples after encoding (e.g. one-hot)
-    samples_orig: np.ndarray = (
-        dataset.x_train_orig
-    )  # samples before encoding (e.g. str)
+    # samples after encoding (e.g. one-hot)
+    samples: np.ndarray = dataset.x_train
+    # samples before encoding (e.g. str)
+    samples_orig: np.ndarray = dataset.x_train_orig
     if not memberset:
         samples = dataset.x_test
         samples_orig = dataset.x_test_orig
@@ -351,7 +351,7 @@ def plot_from_file(filename: str, savefile: str = "") -> None:
 def _infer_categorical(
     target_model: BaseEstimator, dataset: Data, feature_id: int, threshold: float
 ) -> dict:
-    """Returns a the training and test set risks of a categorical feature."""
+    """Returns the training and test set risks of a categorical feature."""
     result: dict = {
         "name": dataset.features[feature_id]["name"],
         "train": _infer(target_model, dataset, feature_id, threshold, True),
