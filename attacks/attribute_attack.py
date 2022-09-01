@@ -144,35 +144,28 @@ def _infer(  # pylint: disable=too-many-locals
         target_model, dataset, feature_id, memberset
     )
     n_unique: int = len(x_values[1])
-    samples = dataset.x_train
-    if not memberset:
-        samples = dataset.x_test
-    n_samples: int = len(samples)
-
+    samples = dataset.x_train if memberset else dataset.x_test
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
         confidence = target_model.predict_proba(x)
-        # get known target model predicted label for the original sample
-        label = y_values[i]
         conf = []  # confidences for each possible value with correct label
         attr = []  # features for each possible value with correct label
         # for each possible attribute value,
-        # if the label matches the target model label
+        # if the label matches the known target model label
         # then store the confidence score and the tested feature vector
         for j in range(n_unique):
             this_label = np.argmax(confidence[j])
             scores = confidence[j][this_label]
-            if this_label == label:
+            if this_label == y_values[i]:
                 conf.append(scores)
                 attr.append(x[j])
         # is there is a unique maximum confidence score above threshold?
         if _unique_max(conf, threshold):
             total += 1
-            inf = attr[np.argmax(conf)]  # inferred feature vector
-            if (inf == samples[i]).all():
+            if (attr[np.argmax(conf)] == samples[i]).all():
                 correct += 1
     logger.debug("Finished attacking feature %d", feature_id)
-    return correct, total, baseline, n_unique, n_samples
+    return correct, total, baseline, n_unique, len(samples)
 
 
 def report_categorical(results: dict) -> str:
@@ -215,7 +208,6 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     results = res["quantitative"]
     if len(results) < 1:
         return
-    dataset_name = res["name"]
     x = np.arange(len(results))
     ya = []
     yb = []
@@ -231,7 +223,7 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
     ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
     title = "Percentage of Set at Risk for Quantitative Attributes"
-    ax.set_title(f"{dataset_name}\n{title}")
+    ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
     ax.grid(linestyle="dotted", linewidth=1)
@@ -240,8 +232,7 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     plt.tight_layout()
     plt.show()
     if savefile != "":
-        postfix = "_quantitative_risk.png"
-        fig.savefig(savefile + postfix, pad_inches=0, bbox_inches="tight")
+        fig.savefig(savefile + "_quant_risk.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved quantitative risk plot: %s", savefile)
 
 
@@ -253,7 +244,6 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     results: list[dict] = res["categorical"]
     if len(results) < 1:
         return
-    dataset_name: str = res["name"]
     x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
@@ -266,23 +256,14 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
         b = ((correct_b / total_b) * 100) - baseline_b if total_b > 0 else 0
         ya.append(a)
         yb.append(b)
-    horizontal: bool = False
-    if horizontal:
-        fig, ax = plt.subplots(1, 1, figsize=(5, 8))
-        ax.set_yticks(x)
-        ax.set_yticklabels(names)
-        ax.set_xlim([-100, 100])
-        ax.barh(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
-        ax.barh(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
-    else:
-        fig, ax = plt.subplots(1, 1, figsize=(8, 5))
-        ax.set_xticks(x)
-        ax.set_xticklabels(names, rotation=90)
-        ax.set_ylim([-100, 100])
-        ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
-        ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
+    fig, ax = plt.subplots(1, 1, figsize=(8, 5))
+    ax.set_xticks(x)
+    ax.set_xticklabels(names, rotation=90)
+    ax.set_ylim([-100, 100])
+    ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
+    ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
     title: str = "Improvement Over Most Common Value Estimate"
-    ax.set_title(f"{dataset_name}\n{title}")
+    ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
     ax.grid(linestyle="dotted", linewidth=1)
@@ -291,8 +272,7 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     plt.tight_layout()
     plt.show()
     if savefile != "":
-        postfix = "_categorical_risk.png"
-        fig.savefig(savefile + postfix, pad_inches=0, bbox_inches="tight")
+        fig.savefig(savefile + "_cat_risk.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved categorical risk plot: %s", savefile)
 
 
@@ -304,7 +284,6 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     results: list[dict] = res["categorical"]
     if len(results) < 1:
         return
-    dataset_name: str = res["name"]
     x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
@@ -324,7 +303,7 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
     ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
     title: str = "Percentage of Set at Risk"
-    ax.set_title(f"{dataset_name}\n{title}")
+    ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
     ax.grid(linestyle="dotted", linewidth=1)
@@ -333,8 +312,7 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     plt.tight_layout()
     plt.show()
     if savefile != "":
-        postfix = "_categorical_fraction.png"
-        fig.savefig(savefile + postfix, pad_inches=0, bbox_inches="tight")
+        fig.savefig(savefile + "_cat_frac.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved categorical fraction plot: %s", savefile)
 
 
