@@ -23,6 +23,7 @@ This is the class and function reference for safemodel.
    saferandomforest
    safekeras
    examples
+   extending
 
 Indices and tables
 ==================
