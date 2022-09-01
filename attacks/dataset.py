@@ -3,7 +3,7 @@
 import numpy as np
 
 
-class Data:  #pylint: disable=too-many-instance-attributes
+class Data:  # pylint: disable=too-many-instance-attributes
     """Stripped down Data class"""
 
     def __init__(self) -> None:
@@ -20,6 +20,8 @@ class Data:  #pylint: disable=too-many-instance-attributes
         self.y_orig: np.ndarray
         self.x_train_orig: np.ndarray
         self.y_train_orig: np.ndarray
+        self.x_test_orig: np.ndarray
+        self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
 
     def add_processed_data(
@@ -46,7 +48,7 @@ class Data:  #pylint: disable=too-many-instance-attributes
         }
         self.n_features = len(self.features)
 
-    def add_raw_data(
+    def add_raw_data(  # pylint: disable=too-many-arguments
         self,
         x_orig: np.ndarray,
         y_orig: np.ndarray,
