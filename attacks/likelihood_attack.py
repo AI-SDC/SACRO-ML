@@ -109,7 +109,7 @@ class LIRAAttack(Attack):
         """
 
         shadow_clf = sklearn.base.clone(target_model)
-        
+
 
         self.run_scenario_from_preds(
             shadow_clf,
