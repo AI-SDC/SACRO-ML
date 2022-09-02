@@ -270,7 +270,7 @@ class LIRAAttack(Attack):
 
             # map a class to a column
             class_map = {
-                c: i for i, c in enumerate(shadow_clf.classes_) # pylint: disable = protected-member
+                c: i for i, c in enumerate(shadow_clf.classes_)
             }
 
 
@@ -287,7 +287,7 @@ class LIRAAttack(Attack):
                     if cl_pos >= 0:
                         train_row_to_confidence[i].append(
                             _logit(
-                                confidences[i, y_target_train[cl_pos]]#was i?
+                                confidences[i, y_target_train[cl_pos]]
                             )
                         )
                     else:
@@ -300,7 +300,7 @@ class LIRAAttack(Attack):
                     if cl_pos >= 0:
                         shadow_row_to_confidence[i].append(
                             _logit(
-                                shadow_confidences[i, y_shadow_train[cl_pos]]#was i
+                                shadow_confidences[i, y_shadow_train[cl_pos]]
                             )
                         )
                     else:
