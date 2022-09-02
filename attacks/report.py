@@ -95,20 +95,20 @@ def _write_dict(pdf, input_dict, indent=0, border=BORDER):
         pdf.multi_cell(150, 5, value, border, 'L')
         pdf.ln(h=5)
 
-def _title(pdf, text, border=BORDER, font_size=24, font_style='B'):
+def title(pdf, text, border=BORDER, font_size=24, font_style='B'):
     """Write a title block"""
     pdf.set_font('arial', font_style, font_size)
     pdf.ln(h=5)
     pdf.cell(0, 0, text, border, 1, 'C')
     pdf.ln(h=5)
 
-def _subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style='B'): # pylint: disable = too-many-arguments
+def subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style='B'): # pylint: disable = too-many-arguments
     """Write a subtitle block"""
     pdf.cell(indent, border=border)
     pdf.set_font('arial', font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
 
-def _line(pdf, text, indent=0, border=BORDER, font_size=11, font_style='', font='arial'): # pylint: disable = too-many-arguments
+def line(pdf, text, indent=0, border=BORDER, font_size=11, font_style='', font='arial'): # pylint: disable = too-many-arguments
     """Write a standard block"""
     if indent > 0:
         pdf.cell(indent, border=border)
@@ -217,22 +217,22 @@ def create_mia_report(attack_output: dict) -> FPDF:
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
-    _title(pdf, "WorstCase MIA attack result report")
-    _subtitle(pdf, "Introduction")
-    _line(pdf, INTRODUCTION)
-    _subtitle(pdf, "Experiment summary")
+    title(pdf, "WorstCase MIA attack result report")
+    subtitle(pdf, "Introduction")
+    line(pdf, INTRODUCTION)
+    subtitle(pdf, "Experiment summary")
     for key, value in metadata['experiment_details'].items():
-        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    _subtitle(pdf, "Global metrics")
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    subtitle(pdf, "Global metrics")
     for key, value in metadata['global_metrics'].items():
-        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     if do_dummy:
-        _subtitle(pdf, "Baseline global metrics")
+        subtitle(pdf, "Baseline global metrics")
         for key, value in metadata['baseline_global_metrics'].items():
-            _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+            line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
-    _subtitle(pdf, "Metrics")
-    _line(
+    subtitle(pdf, "Metrics")
+    line(
         pdf,
         "The following show summaries of the attack metrics over the repetitions",
         font="arial"
@@ -245,11 +245,11 @@ def create_mia_report(attack_output: dict) -> FPDF:
             f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, "
             f"min = {vals.min():.2f}, max = {vals.max():.2f}"
         )
-        _line(pdf, text, font='courier')
+        line(pdf, text, font='courier')
 
     if do_dummy:
-        _subtitle(pdf, "Baseline metrics")
-        _line(pdf, (
+        subtitle(pdf, "Baseline metrics")
+        line(pdf, (
             'The following show summaries of the attack metrics over the repetitions where there '
             'is no statistical difference between predictions in the training and test sets. '
             'Simulation was done with training and test set sizes equal to the real ones'
@@ -262,16 +262,16 @@ def create_mia_report(attack_output: dict) -> FPDF:
                 f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, "
                 f"min = {vals.min():.2f}, max = {vals.max():.2f}"
             )
-            _line(pdf, text, font='courier')
+            line(pdf, text, font='courier')
 
     pdf.add_page()
-    _subtitle(pdf, "Log ROC")
+    subtitle(pdf, "Log ROC")
     pdf.image('log_roc.png', x = None, y = None, w = 0, h = 140, type = '', link = '')
     pdf.set_font('arial', '', 12)
-    _line(pdf, LOGROC_CAPTION)
+    line(pdf, LOGROC_CAPTION)
 
     pdf.add_page()
-    _title(pdf, "Glossary")
+    title(pdf, "Glossary")
     _write_dict(pdf, GLOSSARY)
 
 
@@ -291,20 +291,20 @@ def create_lr_report(output):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
-    _title(pdf, "Likelihood Ratio Attack Report")
-    _subtitle(pdf, "Introduction")
-    _subtitle(pdf, "Metadata")
+    title(pdf, "Likelihood Ratio Attack Report")
+    subtitle(pdf, "Introduction")
+    subtitle(pdf, "Metadata")
     for key, value in metadata['experiment_details'].items():
-        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     for key, value in metadata['global_metrics'].items():
-        _line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    _subtitle(pdf, "Metrics")
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    subtitle(pdf, "Metrics")
     sub_metrics_dict = {key: val for key, val in mia_metrics.items() if isinstance(val, float)}
     for key, value in sub_metrics_dict.items():
         if key in MAPPINGS:
             value = MAPPINGS[key](value)
-        _line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
+        line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
     pdf.add_page()
-    _subtitle(pdf, "ROC Curve")
+    subtitle(pdf, "ROC Curve")
     pdf.image('log_roc.png', x = None, y = None, w = 0, h = 140, type = '', link = '')
     return pdf

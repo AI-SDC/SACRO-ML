@@ -4,6 +4,7 @@ Attribute inference attacks.
 
 from __future__ import annotations
 
+import json
 import logging
 import pickle
 from typing import Any
@@ -11,9 +12,11 @@ from typing import Any
 import matplotlib.pyplot as plt
 import multiprocess as mp
 import numpy as np
+from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
 
+from attacks import report
 from attacks.attack import Attack
 from attacks.dataset import Data
 
@@ -28,7 +31,6 @@ class AttributeAttackArgs:
     """Arguments for attribute inference."""
 
     def __init__(self, **kwargs):
-        self.__dict__["report"] = False
         self.__dict__["report_name"] = None
         self.__dict__["n_cpu"] = max(1, mp.cpu_count() - 1)
         self.__dict__.update(kwargs)
@@ -52,6 +54,7 @@ class AttributeAttack(Attack):
 
     def __init__(self, args: AttributeAttackArgs = AttributeAttackArgs()):
         self.attack_metrics: dict = {}
+        self.metadata: dict = {}
         self.args = args
 
     def __str__(self):
@@ -72,6 +75,41 @@ class AttributeAttack(Attack):
         self.attack_metrics = _attribute_inference(
             target_model, dataset, self.args.n_cpu
         )
+
+    def _construct_metadata(self) -> None:
+        """Constructs the metadata object. Called by the reporting method."""
+        self.metadata = {}
+        self.metadata["experiment_details"] = {}
+        self.metadata["experiment_details"].update(self.args.__dict__)
+        self.metadata["attack"] = str(self)
+
+    def make_report(self) -> dict:
+        """Create the report.
+
+        Creates the output report. If self.args.report_name is not None, it will also save the
+        information in json and pdf formats.
+
+        Returns
+        -------
+
+        output: dict
+            Dictionary containing all attack output.
+        """
+        output = {}
+        logger.info("Starting report, report_name = %s", self.args.report_name)
+        output["attack_metrics"] = self.attack_metrics
+        self._construct_metadata()
+        output["metadata"] = self.metadata
+        if self.args.report_name is not None:
+            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
+            with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
+                f.write(json_report)
+            logger.info("Wrote report to %s", f"{self.args.report_name}.json")
+
+            pdf = create_aia_report(output)
+            pdf.output(f"{self.args.report_name}.pdf", "F")
+            logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
+        return output
 
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
@@ -230,10 +268,11 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    plt.show()
     if savefile != "":
         fig.savefig(savefile + "_quant_risk.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved quantitative risk plot: %s", savefile)
+    else:
+        plt.show()
 
 
 def plot_categorical_risk(  # pylint: disable=too-many-locals
@@ -270,10 +309,11 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    plt.show()
     if savefile != "":
         fig.savefig(savefile + "_cat_risk.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved categorical risk plot: %s", savefile)
+    else:
+        plt.show()
 
 
 def plot_categorical_fraction(  # pylint: disable=too-many-locals
@@ -310,10 +350,11 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    plt.show()
     if savefile != "":
         fig.savefig(savefile + "_cat_frac.png", pad_inches=0, bbox_inches="tight")
         logger.debug("Saved categorical fraction plot: %s", savefile)
+    else:
+        plt.show()
 
 
 def plot_from_file(filename: str, savefile: str = "") -> None:
@@ -504,7 +545,6 @@ def _attribute_inference(
     target_model: BaseEstimator,
     dataset: Data,
     n_cpu: int,
-    report: bool = False,
 ) -> dict:
     """
     Execute attribute inference attacks on a dataset given a trained model.
@@ -534,8 +574,40 @@ def _attribute_inference(
         "categorical": results_a,
         "quantitative": results_b,
     }
-    # display report output
-    if report:
-        print(report_categorical(results))
-        print(report_quantitative(results))
     return results
+
+
+def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
+    """Creates PDF report."""
+    aia_metrics = output["attack_metrics"]
+    metadata = output["metadata"]
+    plot_categorical_risk(aia_metrics, name)
+    plot_categorical_fraction(aia_metrics, name)
+    plot_quantitative_risk(aia_metrics, name)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_xy(0, 0)
+    report.title(pdf, "Attribute Inference Attack Report")
+    report.subtitle(pdf, "Introduction")
+    report.subtitle(pdf, "Metadata")
+    for key, value in metadata["experiment_details"].items():
+        report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    report.subtitle(pdf, "Metrics")
+    categ_rep = report_categorical(aia_metrics).split("\n")
+    quant_rep = report_categorical(aia_metrics).split("\n")
+    report.line(pdf, "Categorical Features:", font="courier")
+    for line in categ_rep:
+        report.line(pdf, line, font="courier")
+    report.line(pdf, "Quantitative Features:", font="courier")
+    for line in quant_rep:
+        report.line(pdf, line, font="courier")
+    pdf.add_page()
+    report.subtitle(pdf, "Plots")
+    if len(aia_metrics["categorical"]) > 0:
+        pdf.image(name + "_cat_risk.png", x=None, y=None, w=150, h=0, type="", link="")
+        pdf.image(name + "_cat_frac.png", x=None, y=None, w=150, h=0, type="", link="")
+    if len(aia_metrics["quantitative"]) > 0:
+        pdf.image(
+            name + "_quant_risk.png", x=None, y=None, w=150, h=0, type="", link=""
+        )
+    return pdf
