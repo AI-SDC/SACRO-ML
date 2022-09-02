@@ -14,7 +14,6 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
 
-
 if __name__ == "__main__":
 
     # [Researcher] Access a dataset
@@ -22,9 +21,11 @@ if __name__ == "__main__":
     x = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
         #relabel tiny class
-    for i in range (y.shape[0]):
-        if y[i] == 'recommend':
-            y[i]='not_recom'
+    #for i in range (y.shape[0]):
+    #    if y[i] == 'recommend':
+    #        y[i]='not_recom'
+
+
 
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
@@ -81,7 +82,7 @@ if __name__ == "__main__":
 
 
     ##check direct method
-    print('==========> first running direct attacks')
+    print('==========> first running attacks explicitly via run_attack()')
     for attack_name in ['worst_case','attribute','lira']:
         print(f'===> running {attack_name} attack directly')
         fname=f"modelDOTrun_attack_output_{attack_name}"
@@ -94,3 +95,7 @@ if __name__ == "__main__":
                     print(f'   {key1} : {val2}')
             else:
                 print(f' {key} : {val}')
+
+    ## now via request_release()
+    print('===>now running attacks implicitly via request_release()')
+    model.request_release("test.sav",the_data)

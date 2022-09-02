@@ -17,7 +17,7 @@ import tensorflow as tf
 import joblib
 from dictdiffer import diff
 
-from attacks import attribute_attack, worst_case_attack, dataset
+from attacks import attribute_attack, worst_case_attack, dataset,report
 from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
 
@@ -759,7 +759,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             now = datetime.datetime.now()
             output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-            json_str = json.dumps(output, indent=4)
+            json_str = json.dumps(output, indent=4,cls=report.NumpyArrayEncoder)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
@@ -839,7 +839,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         try:
             with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
-                json.dump(metadata, fp)
+                json.dump(metadata, fp,cls=report.NumpyArrayEncoder)
         except TypeError:
             print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
 
