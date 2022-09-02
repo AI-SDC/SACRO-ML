@@ -17,7 +17,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from attacks import attribute_attack, dataset  # pylint: disable = import-error
 
-if __name__ ==  '__main__':
+if __name__ == "__main__":
 
     # [Researcher] Access a dataset
     nursery_data = fetch_openml(data_id=26, as_frame=True)
