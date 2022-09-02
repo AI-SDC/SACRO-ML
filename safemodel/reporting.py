@@ -69,7 +69,7 @@ def get_reporting_string(**kwargs):
     for param, value in the_kwargs.items():
         inter_params[param] = value
 
-    if inter_params["name"] isNone:
+    if inter_params["name"] is None:
         return "Error - get_reporting_string: No 'name' given"
 
     # A dictionary of f-strings follows
