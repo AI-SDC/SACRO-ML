@@ -22,12 +22,10 @@ if __name__ == "__main__":
     nursery_data = fetch_openml(data_id=26, as_frame=True)
     x = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
-    #cast to a binary problem 
+        #relabel tiny class
     for i in range (y.shape[0]):
-        if y[i]=='not_recom':
-            y[i]= 0
-        else :
-            y[i]=1
+        if y[i] == 'recommend':
+            y[i]='not_recom'
         
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
