@@ -271,7 +271,7 @@ class LIRAAttack(Attack):
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
             print(f'shadow clf returned confidences with shape {confidences.shape}')
-            
+
             these_idx = set(these_idx)
             for i in range(n_train_rows):
                 if i not in these_idx:
