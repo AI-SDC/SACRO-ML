@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print(f"Base model test accuracy: {acc_test}")
 
     # [TRE] Define some attack parameters
-    attack_args = attribute_attack.AttributeAttackArgs(n_cpu=7)
+    attack_args = attribute_attack.AttributeAttackArgs(n_cpu=7, report_name="aia_report")
 
     # [TRE] Create the attack object
     attack_obj = attribute_attack.AttributeAttack(attack_args)
@@ -89,10 +89,9 @@ if __name__ == "__main__":
     attack_obj.attack(data, model)
 
     # [TRE] Grab the output
-    attack_metrics = attack_obj.attack_metrics
+    output = attack_obj.make_report() # also makes .pdf and .json files
+    output = output["attack_metrics"]
 
     # [TRE] explore the metrics
-    print(attribute_attack.report_categorical(attack_metrics))
-    print(attribute_attack.report_quantitative(attack_metrics))
-    attribute_attack.plot_categorical_risk(attack_metrics, savefile=data.name)
-    attribute_attack.plot_categorical_fraction(attack_metrics, savefile=data.name)
+    print(attribute_attack.report_categorical(output))
+    print(attribute_attack.report_quantitative(output))

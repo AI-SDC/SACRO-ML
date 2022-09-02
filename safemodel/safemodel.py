@@ -821,14 +821,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             metadata = output['metadata']
 
         elif attack_name == "attribute":
-            attack_args = attribute_attack.AttributeAttackArgs()
+            attack_args = attribute_attack.AttributeAttackArgs(report_name="aia_example")
             attack_obj = attribute_attack.AttributeAttack(attack_args)
             attack_obj.attack(data_obj, self)
-            res_categ = attribute_attack.report_categorical(attack_obj.attack_metrics)
-            res_quant = attribute_attack.report_quantitative(attack_obj.attack_metrics)
-            output = res_categ + "\n" + res_quant
-            metadata = {}
-            metadata["metrics"] = attack_obj.attack_metrics
+            output = attack_obj.make_report()
+            metadata = output["metadata"]
 
         else:
             metadata= {}
