@@ -112,6 +112,7 @@ class LIRAAttack(Attack):
 
         shadow_clf = sklearn.base.clone(target_model)
 
+        dataset = self._check_and_update_dataset(dataset, target_model)
 
         self.run_scenario_from_preds(
             shadow_clf,
@@ -122,6 +123,38 @@ class LIRAAttack(Attack):
             dataset.y_test,
             target_model.predict_proba(dataset.x_test)
         )
+
+    def _check_and_update_dataset(
+        self,
+        dataset: Data,
+        target_model: sklearn.base.BaseEstimator) -> tuple[np.npdarray, np.ndarray]:
+        """Makes sure that it is ok to use the class variables to index the prediction
+        arrays. This has two steps:
+        1. Replacing the values in y_train with their position in target_model.classes (will
+           normally result in no change)
+        2. Removing from the test set any rows corresponding to classes that are not in the
+           training set.
+        """
+
+        y_train_new = []
+        classes = list(target_model._classes) # pylint: disable = protected-access
+        for y in dataset.y_train:
+            y_train_new.append(classes.index(y))
+
+        dataset.y_train = np.array(y_train_new, int)
+
+        ok_pos = []
+        y_test_new = []
+        for i, y in enumerate(dataset.y_test):
+            if y in classes:
+                ok_pos.append(i)
+                y_test_new.append(classes.index(y))
+
+        if len(y_test_new) != dataset.x_test:
+            dataset.x_test = dataset.x_test[ok_pos, :]
+        dataset.y_test = np.array(y_test_new, int)
+
+        return dataset
 
     def run_scenario_from_preds(
         self,
@@ -200,6 +233,7 @@ class LIRAAttack(Attack):
         """
 
         logger = logging.getLogger("lr-scenario")
+
         n_train_rows, _ = X_target_train.shape
         n_shadow_rows, _ = X_shadow_train.shape
         indices = np.arange(0, n_train_rows + n_shadow_rows, 1)
