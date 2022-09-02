@@ -17,6 +17,8 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from attacks import attribute_attack, dataset  # pylint: disable = import-error
 
+# pylint: disable = duplicate-code
+
 if __name__ == "__main__":
 
     # [Researcher] Access a dataset
