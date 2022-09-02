@@ -127,7 +127,7 @@ class LIRAAttack(Attack):
     def _check_and_update_dataset(
         self,
         dataset: Data,
-        target_model: sklearn.base.BaseEstimator) -> tuple[np.npdarray, np.ndarray]:
+        target_model: sklearn.base.BaseEstimator) -> tuple[np.ndarray, np.ndarray]:
         """Makes sure that it is ok to use the class variables to index the prediction
         arrays. This has two steps:
         1. Replacing the values in y_train with their position in target_model.classes (will
@@ -137,12 +137,12 @@ class LIRAAttack(Attack):
         """
 
         y_train_new = []
-        classes = list(target_model._classes) # pylint: disable = protected-access
+        classes = list(target_model.classes_) # pylint: disable = protected-access
         for y in dataset.y_train:
             y_train_new.append(classes.index(y))
 
         dataset.y_train = np.array(y_train_new, int)
-
+        print(f'new ytrain has values and counts: {np.unique(dataset.y_train,return_counts=True)}')
         ok_pos = []
         y_test_new = []
         for i, y in enumerate(dataset.y_test):
@@ -150,9 +150,11 @@ class LIRAAttack(Attack):
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
 
-        if len(y_test_new) != dataset.x_test:
+        if len(y_test_new) != len(dataset.x_test):
             dataset.x_test = dataset.x_test[ok_pos, :]
         dataset.y_test = np.array(y_test_new, int)
+        print(f'new ytest has values and counts: {np.unique(dataset.y_test,return_counts=True)}')
+
 
         return dataset
 
@@ -268,6 +270,8 @@ class LIRAAttack(Attack):
 
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
+            print(f'shadow clf returned confidences with shape {confidences.shape}')
+            
             these_idx = set(these_idx)
             for i in range(n_train_rows):
                 if i not in these_idx:
