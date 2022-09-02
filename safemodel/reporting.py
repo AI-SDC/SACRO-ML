@@ -69,7 +69,7 @@ def get_reporting_string(**kwargs):
     for param, value in the_kwargs.items():
         inter_params[param] = value
 
-    if inter_params["name"] == None:
+    if inter_params["name"] isNone:
         return "Error - get_reporting_string: No 'name' given"
 
     # A dictionary of f-strings follows
@@ -234,7 +234,9 @@ def get_reporting_string(**kwargs):
         ),
 
         'structure_differences': (
-            f"structure {inter_params['item']} has {len(inter_params['diffs_list'])} differences: {inter_params['diffs_list']}"
+            f"structure {inter_params['item']} has "
+            f"{len(inter_params['diffs_list'])} differences: "
+            f"{inter_params['diffs_list']}"
         ),
 
         'no_dp_gradients_key' : (
