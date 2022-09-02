@@ -7,7 +7,9 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 import argparse
 import logging
 
-from typing import Tuple, Dict, List, Hashable, Any
+from typing import Any
+
+from collections.abc import Hashable
 
 import numpy as np
 import sklearn
@@ -46,7 +48,7 @@ class WorstCaseAttackArgs:
         """Set a parameter"""
         self.__dict__[key] = value
 
-    def get_args(self) -> Dict:
+    def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
 
@@ -129,7 +131,7 @@ class WorstCaseAttack(Attack):
         logger.info("Finished running attacks")
 
 
-    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> List:
+    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
         """
         Run actual attack reps from train and test predictions
 
@@ -184,7 +186,7 @@ class WorstCaseAttack(Attack):
 
 
 
-    def _get_global_metrics(self, attack_metrics: List) -> Dict:
+    def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list
 
         Arguments
@@ -240,7 +242,7 @@ class WorstCaseAttack(Attack):
         p_thresh. Can perform multiple testing correction.
         '''
         if not bh_fdr_correction:
-            return sum([1 for p in p_val_list if p <= p_thresh]) # pylint: disable = consider-using-generator
+            return sum(1 for p in p_val_list if p <= p_thresh) # pylint: disable = consider-using-generator
         p_val_list = np.asarray(sorted(p_val_list))
         n_vals = len(p_val_list)
         hoch_vals = np.array(
@@ -290,7 +292,7 @@ class WorstCaseAttack(Attack):
         n_rows_in: int,
         n_rows_out: int,
         train_beta: float=2,
-        test_beta: float=2) -> Tuple[np.ndarray, np.ndarray]:
+        test_beta: float=2) -> tuple[np.ndarray, np.ndarray]:
         """Generate train and test prediction arrays, used when computing baseline
 
         Parameters
@@ -367,7 +369,7 @@ class WorstCaseAttack(Attack):
         )
 
 
-    def make_report(self) -> Dict:
+    def make_report(self) -> dict:
         """Creates output dictionary structure"""
         output = {}
         output['attack_metrics'] = self.attack_metrics

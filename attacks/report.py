@@ -1,6 +1,5 @@
 """Code for automatic report generation"""
 import json
-from typing import Dict
 import pylab as plt
 import numpy as np
 from fpdf import FPDF
@@ -178,7 +177,7 @@ def _roc_plot(metrics, dummy_metrics, save_name):
     plt.grid()
     plt.savefig(save_name)
 
-def create_mia_report(attack_output: Dict) -> FPDF:
+def create_mia_report(attack_output: dict) -> FPDF:
     '''make a worst case membership inference report
 
     Parameters
