@@ -34,203 +34,86 @@ def get_reporting_string(**kwargs):
         return "Error - get_reporting_string: No 'name' given"
 
 
+    inter_params = {
+        'attr'            : None,
+        'batch_size'      : None,
+        'current_epsilon' : None,
+        'cur_val'         : None,
+        'diffs_list'      : "",
+        'e'               : None,
+        'epochs'          : None,
+        'er'              : None,
+        'error'           : None,
+        'idx'             : None,
+        'item'            : None,
+        'key'             : None,
+        'layer'           : None,
+        'length'          : None,
+        'match'           : "",
+        'num1'            : None,
+        'num2'            : None,
+        'num_samples'     : None,
+        'model_type'      : None,
+        'msg'             : None,
+        'operator'        : None,
+        'optimizer'       : None,
+        'opt_msg'         : None,
+        'suffix'          : None,
+        'v1'              : None,
+        'v2'              : None,
+        'val'             : None
+
+    }
     # initialise all the values from the keyword parameters
     #check for parameters in keyword arguments.
-    #if keyword is found set variable to that provided by the keyword
-    #if keyword is not found set variable to None
+    #if keyword is found set dictionary item value to that
+    #provided by the keyword
+    #if keyword is not found dictionary item value remains None.
 
-    if "cur_val" in kwargs.keys():
-        cur_val = the_kwargs["cur_val"]
-    else:
-        cur_val = None
-
-    #--------------------------------------------
-    if "val" in kwargs.keys():
-        val = the_kwargs["val"]
-    else:
-        val = None
-
-    #--------------------------------------------
-    if "key" in kwargs.keys():
-        key = the_kwargs["key"]
-    else:
-        key = None
-    #--------------------------------------------
-    if "operator" in kwargs.keys():
-        operator = the_kwargs["operator"]
-    else:
-        operator = None
-    #--------------------------------------------
-    if "layer" in kwargs.keys():
-        layer = the_kwargs["layer"]
-    else:
-        layer = None
-    #--------------------------------------------
-    if "match" in kwargs.keys():
-        match = the_kwargs["match"]
-    else:
-        match = ""
-    #--------------------------------------------
-
-    if "v1" in kwargs.keys():
-        v1 = the_kwargs["v1"]
-    else:
-        v1 = None
-    #--------------------------------------------
-    if "v2" in kwargs.keys():
-        v2 = the_kwargs["v2"]
-    else:
-        v2 = None
-    #--------------------------------------------
-    if "e" in kwargs.keys():
-        e = the_kwargs["e"]
-    else:
-        e = None
-    #--------------------------------------------
-    if "current_epsilon" in kwargs.keys():
-        current_epsilon = the_kwargs["current_epsilon"]
-    else:
-        current_epsilon = None
-    #--------------------------------------------
-    if "num_samples" in kwargs.keys():
-        num_samples = the_kwargs["num_samples"]
-    else:
-        num_samples = None
-    #--------------------------------------------
-    if "batch_size" in kwargs.keys():
-        batch_size = the_kwargs["batch_size"]
-    else:
-        batch_size = None
-    #--------------------------------------------
-
-    if "epochs" in kwargs.keys():
-        epochs = the_kwargs["epochs"]
-    else:
-        epochs = None
-    #--------------------------------------------
-    if "error" in kwargs.keys():
-        error = the_kwargs["error"]
-    else:
-        error = None
-    #--------------------------------------------
-    if "er" in kwargs.keys():
-        er = the_kwargs["er"]
-    else:
-        er = None
-    #--------------------------------------------
-
-    if "attr" in kwargs.keys():
-        attr = the_kwargs["attr"]
-    else:
-        attr = None
-    #--------------------------------------------
-
-    if "num1" in kwargs.keys():
-        num1 = the_kwargs["num1"]
-    else:
-        num1 = None
-    #--------------------------------------------
-    if "num2" in kwargs.keys():
-        num2 = the_kwargs["num2"]
-    else:
-        num2 = None
-    #--------------------------------------------
-    if "idx" in kwargs.keys():
-        idx = the_kwargs["idx"]
-    else:
-        idx = None
-    #--------------------------------------------
-
-    if "diffs_list" in kwargs.keys():
-        diffs_list = the_kwargs["diffs_list"]
-    else:
-        diffs_list = ""
-    #--------------------------------------------
-    if "item" in kwargs.keys():
-        item = the_kwargs["item"]
-    else:
-        item = None
-    #--------------------------------------------
-    if "optimizer" in kwargs.keys():
-        optimizer = the_kwargs["optimizer"]
-    else:
-        optimizer = None
-    #--------------------------------------------
-    if "opt_msg" in kwargs.keys():
-        opt_msg = the_kwargs["opt_msg"]
-    else:
-        opt_msg = None
-
-    #--------------------------------------------
-    if "msg" in kwargs.keys():
-        msg = the_kwargs["msg"]
-    else:
-        msg = None
-    #--------------------------------------------
-    if "model_type" in kwargs.keys():
-        model_type = the_kwargs["model_type"]
-    else:
-        model_type = None
-    #--------------------------------------------
-
-    if "model_type" in kwargs.keys():
-        model_type = the_kwargs["model_type"]
-    else:
-        model_type = None
-
-    #--------------------------------------------
-    if "suffix" in kwargs.keys():
-        suffix = the_kwargs["suffix"]
-    else:
-        suffix = None
-    #--------------------------------------------
-
-    if "length" in kwargs.keys():
-        length = the_kwargs["length"]
-    else:
-        length = None
+    for param in the_kwargs:
+        inter_params[param] = the_kwargs[param]
 
     # A dictionary of f-strings follows
 
-    REPORT_STRING = {
+    report_string = {
         'NULL': (
             ''
         ),
 
         'less_than_min_value' :(
-            f"- parameter {key} = {cur_val}"
-            f" identified as less than the recommended min value of {val}."
+            f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
+            f" identified as less than the recommended min value of {inter_params['val']}."
         ),
 
         'greater_than_max_value': (
-            f"- parameter {key} = {cur_val}"
-            f" identified as greater than the recommended max value of {val}."
+            f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
+            f" identified as greater than the recommended max value of {inter_params['val']}."
         ),
 
         'different_than_fixed_value': (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different than the recommended fixed value of {val}."
+            f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
+            f" identified as different than the recommended fixed value of {inter_params['val']}."
         ),
 
         'different_than_reccomended_type': (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different type to recommendation of {val}."
+            f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
+            f" identified as different type to recommendation of {inter_params['val']}."
         ),
 
         'change_param_type': (
-            f"\nChanged parameter type for {key} to {val}.\n"
+            f"\nChanged parameter type for {inter_params['key']} to {inter_params['val']}.\n"
         ),
 
         'not_implemented_for_change': (
-            f"Nothing currently implemented to change type of parameter {key} "
-            f"from {type(cur_val).__name__} to {val}.\n"
+            f"Nothing currently implemented to change type of parameter {inter_params['key']} "
+            f"from {type(inter_params['cur_val']).__name__} to {inter_params['val']}.\n"
         ),
 
 
-        'changed_param_equal': f"\nChanged parameter {key} = {val}.\n",
+        'changed_param_equal': f"\nChanged parameter {inter_params['key']} = {inter_params['val']}.\n",
 
         'unknown_operator' : (
-            f"- unknown operator in parameter specification {operator}"
+            f"- unknown operator in parameter specification {inter_params['operator']}"
         ),
 
         'warn_possible_disclosure_risk': (
@@ -251,17 +134,17 @@ def get_reporting_string(**kwargs):
 
 
         'layer_configs_differ': (
-            f"Layer {layer} configs differ in {length} places:\n"
+            f"Layer {inter_params['layer']} configs differ in {inter_params['length']} places:\n"
         ),
 
         'error_reloading_model_v1': (
-            f"Error re-loading  model from {v1}:  {e}"
+            f"Error re-loading  model from {inter_params['v1']}:  {inter_params['e']}"
 
         ),
 
 
         'error_reloading_model_v2': (
-            f"Error re-loading  model from {v2}: {e}"
+            f"Error re-loading  model from {inter_params['v2']}: {inter_params['e']}"
         ),
 
         'division_by_zero': (
@@ -270,27 +153,27 @@ def get_reporting_string(**kwargs):
 
         'dp_requirements_met' : (
             "The requirements for DP are met, "
-            f"current epsilon is: {current_epsilon}."
+            f"current epsilon is: {inter_params['current_epsilon']}."
             "Calculated from the parameters:  "
-            f"Num Samples = {num_samples}, "
-            f"batch_size = {batch_size}, epochs = {epochs}.\n"
+            f"Num Samples = {inter_params['num_samples']}, "
+            f"batch_size = {inter_params['batch_size']}, epochs = {inter_params['epochs']}.\n"
         ),
 
         'dp_requirements_not_met': (
             f"The requirements for DP are not met, "
-            f"current epsilon is: {current_epsilon}.\n"
+            f"current epsilon is: {inter_params['current_epsilon']}.\n"
             f"To attain recommended DP the following parameters can be changed:  "
-            f"Num Samples = {num_samples},"
-            f"batch_size = {batch_size},"
-            f"epochs = {epochs}.\n"
+            f"Num Samples = {inter_params['num_samples']},"
+            f"batch_size = {inter_params['batch_size']},"
+            f"epochs = {inter_params['epochs']}.\n"
         ),
 
         'basic_params_differ': (
-            f"Warning: basic parameters differ in {length} places:\n"
+            f"Warning: basic parameters differ in {inter_params['length']} places:\n"
         ),
 
         'unable_to_check' : (
-            f"Unable to check as an exception occurred: {error}"
+            f"Unable to check as an exception occurred: {inter_params['error']}"
         ),
 
 
@@ -307,11 +190,11 @@ def get_reporting_string(**kwargs):
         ),
 
         'internal_attribute_differs' : (
-            f"internal tree attribute {attr} differs\n"
+            f"internal tree attribute {inter_params['attr']} differs\n"
         ),
 
         'exception_occurred' : (
-            f"An exception occurred: {error}"
+            f"An exception occurred: {inter_params['error']}"
         ),
 
         'unexpected_item': (
@@ -336,21 +219,21 @@ def get_reporting_string(**kwargs):
         ),
 
         'different_num_estimators' : (
-            f"Fitted model has {num2} estimators "
-            f"but requested version has {num1}.\n"
+            f"Fitted model has {inter_params['num2']} estimators "
+            f"but requested version has {inter_params['num1']}.\n"
         ),
 
         'forest_estimators_differ': (
-            f"Forest base estimators {idx} differ."
+            f"Forest base estimators {inter_params['idx']} differ."
         ),
 
         'unable_to_check_item' : (
             "In SafeRandomForest.additional_checks: "
-            f"Unable to check {item} as an exception occurred: {error}.\n"
+            f"Unable to check {inter_params['item']} as an exception occurred: {inter_params['error']}.\n"
         ),
 
         'structure_differences': (
-            f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
+            f"structure {inter_params['item']} has {len(inter_params['diffs_list'])} differences: {inter_params['diffs_list']}"
         ),
 
         'no_dp_gradients_key' : (
@@ -377,11 +260,11 @@ def get_reporting_string(**kwargs):
         ),
 
         'optimizer_allowed' : (
-            f"optimizer {optimizer} allowed"
+            f"optimizer {inter_params['optimizer']} allowed"
         ),
 
         'optimizer_not_allowed' : (
-            f"optimizer {optimizer} is not allowed"
+            f"optimizer {inter_params['optimizer']} is not allowed"
         ),
 
         'using_dp_sgd' : (
@@ -397,19 +280,19 @@ def get_reporting_string(**kwargs):
         ),
 
         'during_compilation' : (
-            f"During compilation: {opt_msg}"
+            f"During compilation: {inter_params['opt_msg']}"
         ),
 
         'recommend_not_release' : (
-            f"Recommendation is not to release because {msg}.\n"
+            f"Recommendation is not to release because {inter_params['msg']}.\n"
         ),
 
         'error_saving_file' : (
-            f"saving as a {suffix} file gave this error message:  {er}"
+            f"saving as a {inter_params['suffix']} file gave this error message:  {inter_params['er']}"
         ),
 
         'loading_from_unsupported': (
-            f"loading from a {suffix} file is currently not supported"
+            f"loading from a {inter_params['suffix']} file is currently not supported"
         ),
 
         'opt_config_changed' : (
@@ -417,14 +300,14 @@ def get_reporting_string(**kwargs):
         ),
 
         'epsilon_above_normal' : (
-            f"WARNING: epsilon {current_epsilon} "
+            f"WARNING: epsilon {inter_params['current_epsilon']} "
             "is above normal max recommended value.\n"
             "Discussion with researcher needed.\n"
         ),
 
         'recommend_further_discussion' : (
             f"Recommendation is further discussion needed "
-            f"{msg}.\n"
+            f"{inter_params['msg']}.\n"
         ),
 
         'recommend_allow_release' : (
@@ -433,7 +316,7 @@ def get_reporting_string(**kwargs):
 
         'allow_release_eps_below_max' : (
             "Recommendation: Allow release.\n"
-            f"Epsilon vale of model {current_epsilon} "
+            f"Epsilon vale of model {inter_params['current_epsilon']} "
             "is below normal max recommended value.\n"
         ),
 
@@ -446,8 +329,8 @@ def get_reporting_string(**kwargs):
         ),
 
         'suffix_not_supported_for_type' : (
-            f"{suffix} file suffix  not supported "
-            f"for models of type {model_type}.\n"
+            f"{inter_params['suffix']} file suffix  not supported "
+            f"for models of type {inter_params['model_type']}.\n"
         )
 
 
@@ -458,4 +341,4 @@ def get_reporting_string(**kwargs):
     # return the correct formatted string
 
 
-    return REPORT_STRING[name]
+    return report_string[name]
