@@ -21,14 +21,13 @@ python -m examples.worst_case_attack_example
 
 """
 import os
-from types import SimpleNamespace
 
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.datasets import load_breast_cancer
 
-from attacks import worst_case_attack # pylint: disable = import-error
+from attacks import worst_case_attack, dataset # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -49,25 +48,36 @@ train_preds = target_model.predict_proba(train_X)
 test_preds = target_model.predict_proba(test_X)
 
 # [TRE] Define some attack parameters
-args_dict = {
+args = worst_case_attack.WorstCaseAttackArgs(
     # How many attacks to run -- in each the attack model is trained on a different
     # subset of the data
-    'n_reps': 2,
+    n_reps=10,
+    # number of baseline (dummy) experiments to do
+    n_dummy_reps=1,
     # Threshold to determine significance of things
-    'p_thresh': 0.05,
+    p_thresh=0.05,
     # Filename arguments needed by the code, meaningless if run programmatically
-    'in_sample_filename': None,
-    'out_sample_filename': None,
+    in_sample_filename=None,
+    out_sample_filename=None,
     # Proportion of data to use as a test set for the attack model;
-    'test_prop': 0.5
-}
+    test_prop=0.5,
+    # Report name is None - don't make json or pdf files
+    report_name=None
+)
 
-# Convert into a namespace so that the code can access attributes with dot ('.') syntax
-args = SimpleNamespace(**args_dict)
+# [TRE / Researcher] Wrap the data in a dataset object
+dataset_obj = dataset.Data()
+dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
-# [TRE] Call attack code
-metrics, metadata = worst_case_attack.attack(args, train_preds, test_preds)
+# [TRE] Create the attack object
+attack_obj = worst_case_attack.WorstCaseAttack(args)
 
+# [TRE] Run the attack
+attack_obj.attack(dataset_obj, target_model)
+
+# [TRE] Grab the output
+output = attack_obj.make_report()
+metadata = output['metadata']
 # [TRE] explore the metrics
 # For how many of the reps is the AUC p-value significant, with and without FDR correction. A
 # significant P-value means that the attack was statistically successful at predicting rows at
@@ -94,39 +104,29 @@ print(
     f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
 )
 
-# [TRE] to compare the results obtained with those expected by chance, TRE staff can
-# also run dummy attacks
-# [TRE] Generate some fake model predictions in which there is no difference between the
-# distribution of probabilities over the training and testing data. The number of rows to
-# generate are set to match the real example
-dummy_train, dummy_test = worst_case_attack.generate_arrays(
-    len(train_preds),
-    len(test_preds)
-)
-
-# [TRE] runs the attacks on the dummy predictions
-dummy_metrics, dummy_metadata = worst_case_attack.attack(args, dummy_train, dummy_test)
+# [TRE] to compare the results obtained with those expected by chance, the attack runs some
+# Baseline experiments too
 
 # [TRE] looks at the metric values to compare with those for the model
 print(
     "(dummy) Number of significant AUC values (raw):",
-    f"{dummy_metadata['global_metrics']['n_sig_auc_p_vals']}/{args.n_reps}"
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals']}/{args.n_reps}"
 )
 
 print(
     "(dummy) Number of significant AUC values (FDR corrected):",
-    f"{dummy_metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{args.n_reps}"
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals_corrected']}/{args.n_reps}"
 )
 
 # Or the number of repetitions in which the PDIF (0.1) was significant
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), raw:",
-    f"{dummy_metadata['global_metrics']['n_sig_pdif_vals']}/{args.n_reps}"
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals']}/{args.n_reps}"
 )
 
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), FDR corrected:",
-    f"{dummy_metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals_corrected']}/{args.n_reps}"
 )
 
 print("Programmatic example finished")
@@ -155,10 +155,11 @@ os.system(
         "--out-of-sample-preds test_preds.csv "
         "--n-reps 10 "
         "--report-name example_report_risky "
-        "--dummy-reps 1 "
+        "--n-dummy-reps 1 "
         "--test-prop 0.1"
+        "--report-name example_report"
     )
 )
 
-# [TRE] The code produces a .pdf report (example_report_risky.pdf) and a .json file that can be
-# injesetd by the shiny app
+# [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
+# that can be injesetd by the shiny app

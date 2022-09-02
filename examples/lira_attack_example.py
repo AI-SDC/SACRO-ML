@@ -40,8 +40,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import load_breast_cancer
 
-from attacks import likelihood_attack # pylint: disable = import-error
-from attacks import metrics # pylint: disable = import-error
+from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
+from attacks.dataset import Data # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -55,44 +55,35 @@ target_model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
 target_model.fit(train_X, train_y)
 
 # [Researcher] Provide the model and the train and test data to the TRE
+dataset = Data()
+dataset.add_processed_data(train_X, train_y, test_X, test_y)
 
-# [TRE] Compute the predictions on the training and test sets
-train_preds = target_model.predict_proba(train_X)
-test_preds = target_model.predict_proba(test_X)
+# [TRE] sets up the attack
+args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+attack_obj = LIRAAttack(args)
 
-# [TRE] Create a shadow model
-shadow_clf = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
+# [TRE] runs the attack
+attack_obj.attack(dataset, target_model)
 
-# [TRE] Call attack code
-attack_scores, attack_labels, attack_classifier = likelihood_attack.likelihood_scenario(
-    shadow_clf,
-    train_X,
-    train_y,
-    train_preds,
-    test_X,
-    test_y,
-    test_preds,
-    n_shadow_models=50
-)
+# [TRE] Get the output
+output = attack_obj.make_report() # also makes .pdf and .json files
 
-
-# [TRE] Computes attack metrics
-attack_metrics = metrics.get_metrics(
-    attack_classifier,
-    attack_scores,
-    attack_labels
-)
+# [TRE] Accesses attack metrics and metadata
+attack_metrics = output['attack_metrics'][0]
+metadata = output['metadata']
 
 # [TRE] Looks at the metric values
-print(f"AUC: {attack_metrics['AUC']:.3f}")
-auc_p, _ = metrics.auc_p_val(
-    attack_metrics['AUC'],
-    attack_labels.sum(),
-    len(attack_labels) - attack_labels.sum()
-)
-print(f"AUC p value: {auc_p:.3f}")
-print(f"FDIF01: {attack_metrics['FDIF01']:.3f}")
-print(f"PDIF01: {np.exp(-attack_metrics['PDIF01']):.3f}")
+print("Attack metrics:")
+for key, value in attack_metrics.items():
+    try:
+        print(key, f"{value:.3f}")
+    except TypeError:
+        print(f"Cannot print {key}")
+
+print("Global metrics")
+for key, value in metadata['global_metrics'].items():
+    print(key, value)
+
 
 print("Programmatic example finished")
 print("****************************")
@@ -105,8 +96,8 @@ print("*****************************")
 # the command line rather than programmatically
 
 # [Researcher] Dump the training and test predictions to .csv files
-np.savetxt("train_preds.csv", train_preds, delimiter=",")
-np.savetxt("test_preds.csv", test_preds, delimiter=",")
+np.savetxt("train_preds.csv", target_model.predict_proba(train_X), delimiter=",")
+np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
 
 # [Researcher] Dump the training and test data to a .csv file
 np.savetxt(
@@ -146,8 +137,8 @@ os.system(
     (
         "python -m attacks.likelihood_attack run-attack "
         "--json-file config.json "
-        "--report-name example_lira_report.pdf "
-        "--n-shadow-models 50"
+        "--report-name example_lira_report "
+        "--n-shadow-models 100"
     )
 )
 
