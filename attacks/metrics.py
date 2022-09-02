@@ -2,7 +2,7 @@
 Calculate metrics.
 '''
 
-from typing import Iterable, Tuple
+from collections.abc import Iterable
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_auc_score
@@ -102,7 +102,7 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
         (num_pos * num_neg)
     return var
 
-def auc_p_val(auc: float, n_pos: int, n_neg: int) -> Tuple[float, float]:
+def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     """Compute the p-value for a given AUC
 
     Parameters
@@ -247,5 +247,8 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     metrics['fpr'] = fpr
     metrics['tpr'] = tpr
     metrics['roc_thresh'] = roc_thresh
+
+    metrics['n_pos_test_examples'] = y_test.sum()
+    metrics['n_neg_test_examples'] = (1 - y_test).sum()
 
     return metrics
