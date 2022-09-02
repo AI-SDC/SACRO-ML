@@ -270,13 +270,13 @@ class LIRAAttack(Attack):
 
             # map a class to a column
             class_map = {
-                c: i for i, c in enumerate(shadow_clf._classes) # pylint: disable = protected-member
+                c: i for i, c in enumerate(shadow_clf.classes_) # pylint: disable = protected-member
             }
 
 
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
-            print(f'shadow clf returned confidences with shape {confidences.shape}')
+            #print(f'shadow clf returned confidences with shape {confidences.shape}')
 
             these_idx = set(these_idx)
             for i in range(n_train_rows):
@@ -287,7 +287,7 @@ class LIRAAttack(Attack):
                     if cl_pos >= 0:
                         train_row_to_confidence[i].append(
                             _logit(
-                                confidences[i, y_target_train[i]]
+                                confidences[i, y_target_train[cl_pos]]#was i?
                             )
                         )
                     else:
@@ -300,7 +300,7 @@ class LIRAAttack(Attack):
                     if cl_pos >= 0:
                         shadow_row_to_confidence[i].append(
                             _logit(
-                                shadow_confidences[i, y_shadow_train[i]]
+                                shadow_confidences[i, y_shadow_train[cl_pos]]#was i
                             )
                         )
                     else:
