@@ -29,8 +29,8 @@ if __name__ == "__main__":
     for i in range (y.shape[0]):
         if y[i] == 'recommend':
             y[i]='not_recom'
- 
-    
+
+
 =======
     #cast to a binary problem
     for i in range (y.shape[0]):
