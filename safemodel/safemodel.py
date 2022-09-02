@@ -16,7 +16,7 @@ import tensorflow as tf
 import joblib
 from dictdiffer import diff
 
-from attacks import worst_case_attack, dataset
+from attacks import attribute_attack, worst_case_attack, dataset
 from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
 
@@ -815,9 +815,15 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report() # also makes .pdf and .json files
             metadata = output['metadata']
 
-        elif attack_name=="attribute":
+        elif attack_name == "attribute":
+            attack_args = attribute_attack.AttributeAttackArgs()
+            attack_obj = attribute_attack.AttributeAttack(attack_args)
+            attack_obj.attack(data_obj, self)
+            res_categ = attribute_attack.report_categorical(attack_obj.attack_metrics)
+            res_quant = attribute_attack.report_quantitative(attack_obj.attack_metrics)
+            output = res_categ + "\n" + res_quant
             metadata = {}
-            metadata["outcome"] = "attribute inference attack not implemented within safemodel yet"
+            metadata["metrics"] = attack_obj.attack_metrics
 
         else:
             metadata= {}
