@@ -28,12 +28,6 @@ def get_reporting_string(**kwargs):
     # check for the name used to reference the diction ary of f-strings
     # if no name is found return an error string
 
-    if "name" in kwargs.keys():
-        name = the_kwargs["name"]
-    else:
-        return "Error - get_reporting_string: No 'name' given"
-
-
     inter_params = {
         'attr'            : None,
         'batch_size'      : None,
@@ -50,6 +44,7 @@ def get_reporting_string(**kwargs):
         'layer'           : None,
         'length'          : None,
         'match'           : "",
+        'name'            : None,
         'num1'            : None,
         'num2'            : None,
         'num_samples'     : None,
@@ -68,10 +63,14 @@ def get_reporting_string(**kwargs):
     #check for parameters in keyword arguments.
     #if keyword is found set dictionary item value to that
     #provided by the keyword
-    #if keyword is not found dictionary item value remains None.
+    #if keyword is not found dictionary item value remains None,
+    #and an error message is returned.
 
-    for param in the_kwargs:
-        inter_params[param] = the_kwargs[param]
+    for param, value in the_kwargs.items():
+        inter_params[param] = value
+
+    if inter_params["name"] == None:
+        return "Error - get_reporting_string: No 'name' given"
 
     # A dictionary of f-strings follows
 
@@ -110,8 +109,9 @@ def get_reporting_string(**kwargs):
         ),
 
 
-        'changed_param_equal': f"\nChanged parameter {inter_params['key']} = {inter_params['val']}.\n",
-
+        'changed_param_equal': (
+            f"\nChanged parameter {inter_params['key']} = {inter_params['val']}.\n"
+        ),
         'unknown_operator' : (
             f"- unknown operator in parameter specification {inter_params['operator']}"
         ),
@@ -229,7 +229,8 @@ def get_reporting_string(**kwargs):
 
         'unable_to_check_item' : (
             "In SafeRandomForest.additional_checks: "
-            f"Unable to check {inter_params['item']} as an exception occurred: {inter_params['error']}.\n"
+            f"Unable to check {inter_params['item']} as an exception occurred:"
+            f"{inter_params['error']}.\n"
         ),
 
         'structure_differences': (
@@ -288,11 +289,13 @@ def get_reporting_string(**kwargs):
         ),
 
         'error_saving_file' : (
-            f"saving as a {inter_params['suffix']} file gave this error message:  {inter_params['er']}"
+            f"saving as a {inter_params['suffix']} "
+            f"file gave this error message:  {inter_params['er']}"
         ),
 
         'loading_from_unsupported': (
-            f"loading from a {inter_params['suffix']} file is currently not supported"
+            f"loading from a {inter_params['suffix']} "
+            "file is currently not supported"
         ),
 
         'opt_config_changed' : (
@@ -333,12 +336,10 @@ def get_reporting_string(**kwargs):
             f"for models of type {inter_params['model_type']}.\n"
         )
 
-
-
     }
 
 
     # return the correct formatted string
 
 
-    return report_string[name]
+    return report_string[inter_params['name']]
