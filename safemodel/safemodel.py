@@ -10,6 +10,7 @@ import pathlib
 import pickle
 import os
 from typing import Any
+import datetime
 import tensorflow as tf
 
 
@@ -753,6 +754,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                                       f"{os.path.splitext(filename)[0]}_{attack_name}_res"
                                       )
 
+
+
+            now = datetime.datetime.now()
+            output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
             json_str = json.dumps(output, indent=4)
             outputfilename = self.researcher + "_checkfile.json"

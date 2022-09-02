@@ -23,6 +23,7 @@ if __name__ == "__main__":
     nursery_data = fetch_openml(data_id=26, as_frame=True)
     x = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
+<<<<<<< HEAD
     print(np.unique(y,return_counts=True))
     #relabel tiny class
     for i in range (y.shape[0]):
@@ -30,6 +31,15 @@ if __name__ == "__main__":
             y[i]='not_recom'
  
     
+=======
+    #cast to a binary problem
+    for i in range (y.shape[0]):
+        if y[i]=='not_recom':
+            y[i]= 0
+        else :
+            y[i]=1
+
+>>>>>>> d5f3c966ea5ca5ef6cc463c08aaa966ff3bd0fd8
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
         [0, 1, 2],  # parents
