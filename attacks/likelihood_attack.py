@@ -268,6 +268,12 @@ class LIRAAttack(Attack):
             shadow_clf.set_params(random_state=model_idx)
             shadow_clf.fit(temp_X_train, temp_y_train)
 
+            # map a class to a column
+            class_map = {
+                c: i for i, c in enumerate(shadow_clf._classes) # pylint: disable = protected-member
+            }
+            
+
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
             print(f'shadow clf returned confidences with shape {confidences.shape}')
@@ -277,20 +283,28 @@ class LIRAAttack(Attack):
                 if i not in these_idx:
                     # If i was _not_ used for training, incorporate the logit of its confidence of
                     # being correct - TODO: should we just be taking max??
-                    train_row_to_confidence[i].append(
-                        _logit(
-                            confidences[i, y_target_train[i]]
+                    cl_pos = class_map.get(y_target_train[i], -1)
+                    if cl_pos >= 0:
+                        train_row_to_confidence[i].append(
+                            _logit(
+                                confidences[i, y_target_train[i]]
+                            )
                         )
-                    )
+                    else:
+                        train_row_to_confidence[i].append(_logit(0))
             # Same process for shadow data
             shadow_confidences = shadow_clf.predict_proba(X_shadow_train)
             for i in range(n_shadow_rows):
                 if i + n_train_rows not in these_idx:
-                    shadow_row_to_confidence[i].append(
-                        _logit(
-                            shadow_confidences[i, y_shadow_train[i]]
+                    cl_pos = class_map.get(y_shadow_train[i], -1)
+                    if cl_pos >= 0:
+                        shadow_row_to_confidence[i].append(
+                            _logit(
+                                shadow_confidences[i, y_shadow_train[i]]
+                            )
                         )
-                    )
+                    else:
+                        shadow_row_to_confidence[i].append(_logit(0))
 
         # Do the test described in the paper in each case
         mia_scores = []
