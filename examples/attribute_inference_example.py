@@ -17,80 +17,82 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from attacks import attribute_attack, dataset  # pylint: disable = import-error
 
-# [Researcher] Access a dataset
-nursery_data = fetch_openml(data_id=26, as_frame=True)
-x = np.asarray(nursery_data.data, dtype=str)
-y = np.asarray(nursery_data.target, dtype=str)
-n_features = np.shape(x)[1]
-indices: list[list[int]] = [
-    [0, 1, 2],  # parents
-    [3, 4, 5, 6, 7],  # has_nurs
-    [8, 9, 10, 11],  # form
-    [12, 13, 14, 15],  # children
-    [16, 17, 18],  # housing
-    [19, 20],  # finance
-    [21, 22, 23],  # social
-    [24, 25, 26],  # health
-]
+if __name__ ==  '__main__':
 
-# [Researcher] Split into training and test sets
-# target model train / test split - these are strings
-(x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
-    x,
-    y,
-    test_size=0.5,
-    stratify=y,
-    shuffle=True,
-)
+    # [Researcher] Access a dataset
+    nursery_data = fetch_openml(data_id=26, as_frame=True)
+    x = np.asarray(nursery_data.data, dtype=str)
+    y = np.asarray(nursery_data.target, dtype=str)
+    n_features = np.shape(x)[1]
+    indices: list[list[int]] = [
+        [0, 1, 2],  # parents
+        [3, 4, 5, 6, 7],  # has_nurs
+        [8, 9, 10, 11],  # form
+        [12, 13, 14, 15],  # children
+        [16, 17, 18],  # housing
+        [19, 20],  # finance
+        [21, 22, 23],  # social
+        [24, 25, 26],  # health
+    ]
 
-# [Researcher] Preprocess dataset
-# one-hot encoding of features and integer encoding of labels
-label_enc = LabelEncoder()
-feature_enc = OneHotEncoder()
-x_train = feature_enc.fit_transform(x_train_orig).toarray()
-y_train = label_enc.fit_transform(y_train_orig)
-x_test = feature_enc.transform(x_test_orig).toarray()
-y_test = label_enc.transform(y_test_orig)
+    # [Researcher] Split into training and test sets
+    # target model train / test split - these are strings
+    (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
+        x,
+        y,
+        test_size=0.5,
+        stratify=y,
+        shuffle=True,
+    )
 
-# [TRE / Researcher] Wrap the data in a dataset object
-data = dataset.Data()
-data.name = "nursery"
-data.add_processed_data(x_train, y_train, x_test, y_test)
-data.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
-for i in range(n_features):
-    data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+    # [Researcher] Preprocess dataset
+    # one-hot encoding of features and integer encoding of labels
+    label_enc = LabelEncoder()
+    feature_enc = OneHotEncoder()
+    x_train = feature_enc.fit_transform(x_train_orig).toarray()
+    y_train = label_enc.fit_transform(y_train_orig)
+    x_test = feature_enc.transform(x_test_orig).toarray()
+    y_test = label_enc.transform(y_test_orig)
 
-print(f"Dataset: {data.name}")
-print(f"Features: {data.features}")
-print(f"x_train shape = {np.shape(data.x_train)}")
-print(f"y_train shape = {np.shape(data.y_train)}")
-print(f"x_test shape = {np.shape(data.x_test)}")
-print(f"y_test shape = {np.shape(data.y_test)}")
+    # [TRE / Researcher] Wrap the data in a dataset object
+    data = dataset.Data()
+    data.name = "nursery"
+    data.add_processed_data(x_train, y_train, x_test, y_test)
+    data.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    for i in range(n_features):
+        data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
-# [Researcher] Define the classifier
-model = RandomForestClassifier(bootstrap=False)
+    print(f"Dataset: {data.name}")
+    print(f"Features: {data.features}")
+    print(f"x_train shape = {np.shape(data.x_train)}")
+    print(f"y_train shape = {np.shape(data.y_train)}")
+    print(f"x_test shape = {np.shape(data.x_test)}")
+    print(f"y_test shape = {np.shape(data.y_test)}")
 
-# [Researcher] Train the classifier
-model.fit(data.x_train, data.y_train)
-acc_train = model.score(data.x_train, data.y_train)
-acc_test = model.score(data.x_test, data.y_test)
-print(f"Base model train accuracy: {acc_train}")
-print(f"Base model test accuracy: {acc_test}")
+    # [Researcher] Define the classifier
+    model = RandomForestClassifier(bootstrap=False)
 
-# [TRE] Define some attack parameters
-attack_args = attribute_attack.AttributeAttackArgs(n_cpu=8)
+    # [Researcher] Train the classifier
+    model.fit(data.x_train, data.y_train)
+    acc_train = model.score(data.x_train, data.y_train)
+    acc_test = model.score(data.x_test, data.y_test)
+    print(f"Base model train accuracy: {acc_train}")
+    print(f"Base model test accuracy: {acc_test}")
 
-# [TRE] Create the attack object
-attack_obj = attribute_attack.AttributeAttack(attack_args)
+    # [TRE] Define some attack parameters
+    attack_args = attribute_attack.AttributeAttackArgs(n_cpu=8)
 
-# [TRE] Run the attack
-attack_obj.attack(data, model)
+    # [TRE] Create the attack object
+    attack_obj = attribute_attack.AttributeAttack(attack_args)
 
-# [TRE] Grab the output
-attack_metrics = attack_obj.attack_metrics
+    # [TRE] Run the attack
+    attack_obj.attack(data, model)
 
-# [TRE] explore the metrics
-print(attribute_attack.report_categorical(attack_metrics))
-print(attribute_attack.report_quantitative(attack_metrics))
-attribute_attack.plot_categorical_risk(attack_metrics, savefile=data.name)
-attribute_attack.plot_categorical_fraction(attack_metrics, savefile=data.name)
+    # [TRE] Grab the output
+    attack_metrics = attack_obj.attack_metrics
+
+    # [TRE] explore the metrics
+    print(attribute_attack.report_categorical(attack_metrics))
+    print(attribute_attack.report_quantitative(attack_metrics))
+    attribute_attack.plot_categorical_risk(attack_metrics, savefile=data.name)
+    attribute_attack.plot_categorical_fraction(attack_metrics, savefile=data.name)
