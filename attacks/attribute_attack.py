@@ -594,7 +594,7 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
         report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     report.subtitle(pdf, "Metrics")
     categ_rep = report_categorical(aia_metrics).split("\n")
-    quant_rep = report_categorical(aia_metrics).split("\n")
+    quant_rep = report_quantitative(aia_metrics).split("\n")
     report.line(pdf, "Categorical Features:", font="courier")
     for line in categ_rep:
         report.line(pdf, line, font="courier")
