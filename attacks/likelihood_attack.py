@@ -272,7 +272,7 @@ class LIRAAttack(Attack):
             class_map = {
                 c: i for i, c in enumerate(shadow_clf._classes) # pylint: disable = protected-member
             }
-            
+
 
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
