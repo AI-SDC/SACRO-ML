@@ -6,7 +6,9 @@ import argparse
 import json
 import logging
 import importlib
-from typing import Iterable, Any, Dict, Hashable, Tuple
+from typing import Any
+
+from collections.abc import Iterable, Hashable
 import numpy as np
 from scipy.stats import norm
 import sklearn
@@ -76,7 +78,7 @@ class LIRAAttackArgs:
         """Set a parameter"""
         self.__dict__[key] = value
 
-    def get_args(self) -> Dict:
+    def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
 
@@ -129,7 +131,7 @@ class LIRAAttack(Attack):
         target_train_preds: Iterable[float],
         X_shadow_train: Iterable[float],
         y_shadow_train: Iterable[float],
-        shadow_train_preds: Iterable[float]) -> Tuple[
+        shadow_train_preds: Iterable[float]) -> tuple[
             np.ndarray,
             np.ndarray,
             sklearn.base.BaseEstimator
@@ -329,7 +331,7 @@ class LIRAAttack(Attack):
 
         self.metadata['attack'] = str(self)
 
-    def make_report(self) -> Dict:
+    def make_report(self) -> dict:
         """Create the report
 
         Creates the output report. If self.args.report_name is not None, it will also save the
@@ -403,7 +405,7 @@ class LIRAAttack(Attack):
         """
         logger = logging.getLogger("run-attack")
         logger.info("Reading config from %s", self.args.json_file)
-        with open(self.args.json_file, 'r', encoding='utf-8') as f:
+        with open(self.args.json_file, encoding='utf-8') as f:
             config = json.loads(f.read())
 
         logger.info("Loading training data csv from %s", config['training_data_file'])
