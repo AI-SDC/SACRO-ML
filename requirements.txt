@@ -1,6 +1,7 @@
 dictdiffer
 fpdf
 joblib
+multiprocess
 numpy
 pandas
 pylint
