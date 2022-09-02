@@ -30,7 +30,7 @@ class AttributeAttackArgs:
     def __init__(self, **kwargs):
         self.__dict__["report"] = False
         self.__dict__["report_name"] = None
-        self.__dict__["n_cpu"] = mp.cpu_count()
+        self.__dict__["n_cpu"] = max(1, mp.cpu_count() - 1)
         self.__dict__.update(kwargs)
 
     def __str__(self):

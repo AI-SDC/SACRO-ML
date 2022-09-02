@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print(f"Base model test accuracy: {acc_test}")
 
     # [TRE] Define some attack parameters
-    attack_args = attribute_attack.AttributeAttackArgs(n_cpu=8)
+    attack_args = attribute_attack.AttributeAttackArgs(n_cpu=7)
 
     # [TRE] Create the attack object
     attack_obj = attribute_attack.AttributeAttack(attack_args)
