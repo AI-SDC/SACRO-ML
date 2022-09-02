@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-
+from sklearn.tree import DecisionTreeClassifier
 
 from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
@@ -78,8 +78,6 @@ if __name__ == "__main__":
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
     msg, disclosive = model.preliminary_check()
-
-
 
     ##check direct method
     print('==========> first running attacks explicitly via run_attack()')
