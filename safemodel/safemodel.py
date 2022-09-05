@@ -72,7 +72,8 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         return msg, disclosive
 
     disclosive = True
-    msg = get_reporting_string()
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
     return msg, disclosive
 
 def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -117,7 +118,8 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         return msg, disclosive
 
     disclosive = True
-    msg = get_reporting_string()
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
     return msg, disclosive
 
 
