@@ -40,7 +40,7 @@ This work was funded by UK Research and Innovation Grant Number MC_PC_21033 as p
    :width: 200
 
 .. image:: images/health-data-research-uk-hdr-uk-logo-vector.png
-   :width: 200
+   :width: 100
 
 .. image:: images/logo_print.png
-   :width: 200
+   :width: 150
