@@ -20,6 +20,7 @@ from dictdiffer import diff
 from attacks import attribute_attack, worst_case_attack, dataset,report
 from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
+from .reporting import get_reporting_string
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
@@ -54,17 +55,26 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if cur_val < val:
-        disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as less than the recommended min value of {val}."
-        )
-    else:
-        disclosive = False
-        msg = ""
-    return msg, disclosive
+    if isinstance(cur_val,(int,float)):
+        if cur_val < val:
+            disclosive = True
+            print(f'key = {key}')
+            msg = get_reporting_string(name="less_than_min_value",
+                                       key=key, cur_val=cur_val, val=val)
+            print(msg)
+            #(
+            #    f"- parameter {key} = {cur_val}"
+            #    f" identified as less than the recommended min value of {val}."
+            #)
+        else:
+            disclosive = False
+            msg = ""
+        return msg, disclosive
 
+    disclosive = True
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
+    return msg, disclosive
 
 def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """Checks maximum value constraint.
@@ -93,15 +103,23 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if cur_val > val:
-        disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as greater than the recommended max value of {val}."
-        )
-    else:
-        disclosive = False
-        msg = ""
+    if isinstance(cur_val,(int,float)):
+        if cur_val > val:
+            disclosive = True
+            msg = get_reporting_string(name="greater_than_max_value", key=key,
+                                       cur_val=cur_val, val=val)
+            #(
+            #f"- parameter {key} = {cur_val}"
+            #f" identified as greater than the recommended max value of {val}."
+            #)
+        else:
+            disclosive = False
+            msg = ""
+        return msg, disclosive
+
+    disclosive = True
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
     return msg, disclosive
 
 
@@ -136,10 +154,12 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if cur_val != val:
         disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different than the recommended fixed value of {val}."
-        )
+        msg = get_reporting_string(name="different_than_fixed_value", key=key, cur_val=cur_val,
+                                   val=val)
+        #(
+        #    f"- parameter {key} = {cur_val}"
+        #    f" identified as different than the recommended fixed value of {val}."
+        #)
     else:
         disclosive = False
         msg = ""
@@ -174,10 +194,12 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if type(cur_val).__name__ != val:
         disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different type to recommendation of {val}."
-        )
+        msg = get_reporting_string(name="different_than_recommended_type",
+                                   key=key, cur_val=cur_val, val=val)
+        #(
+        #    f"- parameter {key} = {cur_val}"
+        #    f" identified as different type to recommendation of {val}."
+        #)
     else:
         disclosive = False
         msg = ""
@@ -389,18 +411,23 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         if operator == "is_type":
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
-                msg = f"\nChanged parameter type for {key} to {val}.\n"
+                msg = get_reporting_string(name="change_param_type", key=key, val=val)
+                #f"\nChanged parameter type for {key} to {val}.\n"
             elif (val == "float") and (type(cur_val).__name__ == "int"):
                 self.__dict__[key] = float(self.__dict__[key])
-                msg = f"\nChanged parameter type for {key} to {val}.\n"
+                msg = get_reporting_string(name="change_param_type", key=key, val=val)
+                #f"\nChanged parameter type for {key} to {val}.\n"
             else:
-                msg = (
-                    f"Nothing currently implemented to change type of parameter {key} "
-                    f"from {type(cur_val).__name__} to {val}.\n"
-                )
+                msg = get_reporting_string(name="not_implemented_for_change", key=key,
+                                           cur_val=cur_val, val=val)
+                #(
+                #    f"Nothing currently implemented to change type of parameter {key} "
+                #    f"from {type(cur_val).__name__} to {val}.\n"
+                #)
         else:
             setattr(self, key, val)
-            msg = f"\nChanged parameter {key} = {val}.\n"
+            msg = get_reporting_string(name="changed_param_equal", key=key, val=val)
+            #f"\nChanged parameter {key} = {val}.\n"
         return msg
 
     def __check_model_param(
@@ -423,7 +450,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         elif operator == "is_type":
             msg, disclosive = check_type(key, val, cur_val)
         else:
-            msg = f"- unknown operator in parameter specification {operator}"
+            msg = get_reporting_string(name="unknown_operator", key=key, val=val, cur_val=cur_val)
+            #f"- unknown operator in parameter specification {operator}"
         if apply_constraints and disclosive:
             msg += self.__apply_constraints(operator, key, val, cur_val)
         return msg, disclosive
@@ -500,9 +528,13 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if temp_disc:
                 disclosive = True
         if disclosive:
-            msg = "WARNING: model parameters may present a disclosure risk:\n" + msg
+            start_msg = get_reporting_string(name="warn_possible_disclosure_risk")
+            msg = start_msg + msg
+            #"WARNING: model parameters may present a disclosure risk:\n" + msg
         else:
-            msg = "Model parameters are within recommended ranges.\n" + msg
+            msg = get_reporting_string(name="within_recommended_ranges")
+            msg += temp_msg
+            #"Model parameters are within recommended ranges.\n" + msg
         if verbose:
             print(msg)
         return msg, disclosive
@@ -584,8 +616,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         current_model, saved_model = self.get_current_and_saved_models()
         if len(saved_model) == 0:
-            msg = "Error: user has not called fit() method or has deleted saved values."
-            msg += "Recommendation: Do not release."
+            msg = get_reporting_string(name="error_not_called_fit")
+            #"Error: user has not called fit() method or has deleted saved values."
+            msg += get_reporting_string(name="recommend_do_not_release")
+            #"Recommendation: Do not release."
             disclosive = True
 
         else:
@@ -605,7 +639,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             match = list(diff(current_model, saved_model, expand=True))
             if len(match) > 0:
                 disclosive = True
-                msg += f"Warning: basic parameters differ in {len(match)} places:\n"
+
+                msg += get_reporting_string(name="basic_params_differ",
+                                            match=match, length=(len(match)))
+
+                #f"Warning: basic parameters differ in {len(match)} places:\n"
                 for this_match in match:
                     if this_match[0] == "change":
                         msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
