@@ -11,7 +11,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.tree._tree import Tree
 
 from ..safemodel import SafeModel
-
+from ..reporting import get_reporting_string
 
 def decision_trees_are_equal(
     tree1: sklearn.tree, tree2: sklearn.tree
@@ -32,7 +32,8 @@ def decision_trees_are_equal(
         match = list(diff(tree1_dict, tree2_dict, expand=True))
         if len(match) > 0:
             same = False
-            msg += f"Warning: basic parameters differ in {len(match)} places:\n"
+            msg += get_reporting_string(name="basic_params_differ", match=match)
+            #f"Warning: basic parameters differ in {len(match)} places:\n"
             for i in range(len(match)):
                 if match[i][0] == "change":
                     msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
@@ -47,7 +48,8 @@ def decision_trees_are_equal(
             msg += msg2
 
     except BaseException as error:
-        msg += f"Unable to check as an exception occurred: {error}"
+        msg += get_reporting_string(name="unable_to_check", error=error)
+        #f"Unable to check as an exception occurred: {error}"
         same = False
 
     return same, msg
@@ -77,12 +79,15 @@ def decision_tree_internal_trees_are_equal(
 
     try:
         if tree1_tree == "Absent" and tree2_tree == "Absent":
-            msg += "neither tree trained"
+            msg += get_reporting_string(name="neither_tree_trained")
+            #"neither tree trained"
         elif tree1_tree == "Absent":
-            msg += "tree1 not trained"
+            msg += get_reporting_string(name="tree1_not_trained")
+            #"tree1 not trained"
             same = False
         elif tree2_tree == "Absent":
-            msg += "tree2 not trained"
+            msg += get_reporting_string(name="tree2_not_trained")
+            #"tree2 not trained"
             same = False
         else:
             for attr in tree_internal_att_names:
@@ -90,14 +95,19 @@ def decision_tree_internal_trees_are_equal(
                 t2val = getattr(tree2_tree, attr)
                 if isinstance(t1val, np.ndarray):
                     if not np.array_equal(t1val, t2val):
-                        msg += f"internal tree attribute {attr} differs\n"
+                        msg += get_reporting_string(name="internal_attribute_differs",
+                                                    attr=attr)
+                        #f"internal tree attribute {attr} differs\n"
                         same = False
                 else:
                     if t1val != t2val:
-                        msg += f"internal tree attribute {attr} differs\n"
+                        msg += get_reporting_string(name="internal_attribute_differs",
+                                                    attr=attr)
+                        #f"internal tree attribute {attr} differs\n"
                         same = False
     except BaseException as error:
-        msg += f"An exception occurred: {error}"
+        msg += get_reporting_string(name="exception_occurred", error=error)
+        #f"An exception occurred: {error}"
     return same, msg
 
 
@@ -147,10 +157,11 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
         if not same:
             disclosive = True
         if len(curr_separate) > 1:
-            msg += (
-                "unexpected item in curr_seperate dict "
-                " passed by generic additional checks."
-            )
+            msg += get_reporting_string(name="unexpected_item")
+            #(
+            #    "unexpected item in curr_seperate dict "
+            #    " passed by generic additional checks."
+            #)
 
         return msg, disclosive
 

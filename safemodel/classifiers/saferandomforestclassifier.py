@@ -11,7 +11,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 from ..safemodel import SafeModel
+from ..reporting import get_reporting_string
 from .safedecisiontreeclassifier import decision_trees_are_equal
+
 
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
@@ -55,35 +57,41 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                 try:
                     the_type = type(self.base_estimator)
                     if not isinstance(self.saved_model["base_estimator_"], the_type):
-                        msg += "Warning: model was fitted with different base estimator type.\n"
+                        msg += get_reporting_string(name="warn_fitted_fitted_different_base")
+                        #"Warning: model was fitted with different base estimator type.\n"
                         disclosive = True
                 except AttributeError:
-                    msg += "Error: model has not been fitted to data.\n"
+                    msg += get_reporting_string(name="error_model_not_fitted")
+                    #"Error: model has not been fitted to data.\n"
                     disclosive = True
 
             elif item == "estimators_":
 
                 if curr_separate[item] == "Absent" and saved_separate[item] == "Absent":
                     disclosive = True
-                    msg += "Error: model has not been fitted to data.\n"
+                    msg += get_reporting_string(name="error_model_not_fitted")
+                    #"Error: model has not been fitted to data.\n"
 
                 elif curr_separate[item] == "Absent":
                     disclosive = True
-                    msg += "Error: current version of model has had trees removed after fitting.\n"
+                    msg += get_reporting_string(name="trees_removed")
+                    "Error: current version of model has had trees removed after fitting.\n"
 
                 elif saved_separate[item] == "Absent":
                     disclosive = True
-                    msg += "Error: current version of model has had trees manually edited.\n"
+                    msg += get_reporting_string(name="trees_edited")
+                    #"Error: current version of model has had trees manually edited.\n"
 
                 else:
                     try:
                         num1 = len(curr_separate[item])
                         num2 = len(saved_separate[item])
                         if num1 != num2:
-                            msg += (
-                                f"Fitted model has {num2} estimators "
-                                f"but requested version has {num1}.\n"
-                            )
+                            msg += get_reporting_string(name="different_num_estimators", num1=num1, num2=num2)
+                            #(
+                            #    f"Fitted model has {num2} estimators "
+                            #    f"but requested version has {num1}.\n"
+                            #)
                             disclosive = False
                         else:
                             for idx in range(num1):
@@ -92,21 +100,24 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                                 )
                                 if not same:
                                     disclosive = True
-                                    msg += f"Forest base estimators {idx} differ."
+                                    msg += get_reporting_string(name="forest_estimators_differ", idx=idx)
+                                    #f"Forest base estimators {idx} differ."
                                     msg += msg2
 
                     except BaseException as error:
-                        msg += (
-                            "In SafeRandomForest.additional_checks: "
-                            f"Unable to check {item} as an exception occurred: {error}.\n"
-                        )
+                        msg += get_reporting_string(name="unable_to_check_item", item=item)
+                        #(
+                        #    "In SafeRandomForest.additional_checks: "
+                        #    f"Unable to check {item} as an exception occurred: {error}.\n"
+                        #)
                         same = False
 
             elif isinstance(curr_separate[item], DecisionTreeClassifier):
                 diffs_list = list(diff(curr_separate[item], saved_separate[item]))
                 if len(diffs_list) > 0:
                     disclosive = True
-                    msg += f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
+                    msg += get_reporting_string(name="structure_differences", item=item, diffs_list=diffs_list)
+                    #f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
         return msg, disclosive
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:

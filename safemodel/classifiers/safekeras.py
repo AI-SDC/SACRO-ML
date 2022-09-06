@@ -1,4 +1,4 @@
-# safekaeras.py:
+# safekeras.py:
 # UWE 2022
 
 # general imports
@@ -20,6 +20,7 @@ from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 
 # safemodel superclass
 from safemodel.safemodel import SafeModel
+from safemodel.reporting import get_reporting_string
 
 
 def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
@@ -31,7 +32,8 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
         match = list(diff(m1_layer_config, m2_layer_config, expand=True))
         if len(match) > 0:
             disclosive = True
-            msg = f"Layer {layer} configs differ in {len(match)} places:\n"
+            msg = get_reporting_string(name="layer_configs_differ", match=match)
+            #f"Layer {layer} configs differ in {len(match)} places:\n"
             for i in range(len(match)):
                 if match[i][0] == "change":
                     msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
@@ -73,12 +75,14 @@ def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     try:
         model1 = tf.keras.models.load_model(v1)
     except Exception as e:
-        msg = f"Error re-loading  model from {v1}:  {e}"
+        msg = get_reporting_string(name="error_reloading_model_v1", e=e)
+        #f"Error re-loading  model from {v1}:  {e}"
         return False, msg
     try:
         model2 = tf.keras.models.load_model(v2)
     except Exception as e:
-        msg = f"Error re-loading  model from {v2}: {e}"
+        msg = get_reporting_string(name="error_reloading_model_v2", e=e)
+        #f"Error re-loading  model from {v2}: {e}"
         return False, msg
 
     same_config, config_message = same_configs(model1, model2)
@@ -175,7 +179,8 @@ class SafeKerasModel(KerasModel, SafeModel):
         """
         msg = ""
         if batch_size == 0:
-            print("Division by zero setting batch_size =1")
+            print(get_reporting_string(name="division_by_zero"))
+            #("Division by zero setting batch_size =1")
             batch_size = 1
 
         ok, self.current_epsilon = self.dp_epsilon_met(
@@ -183,22 +188,32 @@ class SafeKerasModel(KerasModel, SafeModel):
         )
 
         if ok:
-            msg = (
-                "The requirements for DP are met, "
-                f"current epsilon is: {self.current_epsilon}."
-                "Calculated from the parameters:  "
-                f"Num Samples = {num_samples}, "
-                f"batch_size = {batch_size}, epochs = {epochs}.\n"
-            )
+            msg = get_reporting_string(name="dp_requirements_met",
+                                       current_epsilon=self.current_epsilon,
+                                       num_samples=num_samples, batch_size=batch_size,
+                                       epochs=epochs)
+
+            #(
+            #    "The requirements for DP are met, "
+            #    f"current epsilon is: {self.current_epsilon}."
+            #    "Calculated from the parameters:  "
+            #    f"Num Samples = {num_samples}, "
+            #    f"batch_size = {batch_size}, epochs = {epochs}.\n"
+            #)
         if not ok:
-            msg = (
-                f"The requirements for DP are not met, "
-                f"current epsilon is: {self.current_epsilon}.\n"
-                f"To attain recommended DP the following parameters can be changed:  "
-                f"Num Samples = {num_samples},"
-                f"batch_size = {batch_size},"
-                f"epochs = {epochs}.\n"
-            )
+            msg = get_reporting_string(name="dp_requirements_not_met",
+                                       current_epsilon=self.current_epsilon,
+                                       num_samples=num_samples,
+                                       batch_size=batch_size,
+                                       epochs=epochs)
+            #(
+            #    f"The requirements for DP are not met, "
+            #    f"current epsilon is: {self.current_epsilon}.\n"
+            #    f"To attain recommended DP the following parameters can be changed:  "
+            #    f"Num Samples = {num_samples},"
+            #    f"batch_size = {batch_size},"
+            #    f"epochs = {epochs}.\n"
+            #)
         print(msg)
         return ok, msg
 
@@ -206,16 +221,18 @@ class SafeKerasModel(KerasModel, SafeModel):
         DPused = False
         reason = "None"
         if "_was_dp_gradients_called" not in optimizer.__dict__:
-            reason = (
-                "optimizer does not contain key _was_dp_gradients_called"
-                " so is not DP."
-            )
+            reason = get_reporting_string(name="no_dp_gradients_key")
+            #(
+            #    "optimizer does not contain key _was_dp_gradients_called"
+            #    " so is not DP."
+            #)
             DPused = False
         else:
-            reason = (
-                "optimizer does  contain key _was_dp_gradients_called"
-                " so should be DP."
-            )
+            reason = get_reporting_string(name="found_dp_gradients_key")
+            #(
+            #    "optimizer does  contain key _was_dp_gradients_called"
+            #    " so should be DP."
+            #)
             DPused = True
         return DPused, reason
 
@@ -223,22 +240,26 @@ class SafeKerasModel(KerasModel, SafeModel):
         DPused = False
         reason = "None"
         if "_was_dp_gradients_called" not in optimizer.__dict__:
-            reason = (
-                "optimizer does not contain key _was_dp_gradients_called "
-                "so is not DP."
-            )
+            reason = get_reporting_string(name="no_dp_gradients_key")
+            #(
+            #    "optimizer does not contain key _was_dp_gradients_called "
+            #    "so is not DP."
+            #)
             DPused = False
         elif optimizer._was_dp_gradients_called == False:
-            reason = "optimizer has been changed but fit() has not been rerun."
+            reason = get_reporting_string(name="changed_opt_no_fit")
+            #"optimizer has been changed but fit() has not been rerun."
             DPused = False
         elif optimizer._was_dp_gradients_called == True:
-            reason = (
-                " value of optimizer._was_dp_gradients_called is True, "
-                "so DP variant of optimizer has been run"
-            )
+            reason = get_reporting_string(name="dp_optimizer_run")
+            #(
+            #    " value of optimizer._was_dp_gradients_called is True, "
+            #    "so DP variant of optimizer has been run"
+            #)
             DPused = True
         else:
-            reason = "unrecognised combination"
+            reason = get_reporting_string(name="unrecognised_combination")
+            #"unrecognised combination"
             DPused = False
 
         return DPused, reason
@@ -254,10 +275,14 @@ class SafeKerasModel(KerasModel, SafeModel):
         print(f"{str(self.optimizer)}")
         if self.optimizer in allowed_optimizers:
             disclosive = False
-            reason = f"optimizer {self.optimizer} allowed"
+            reason = get_reporting_string(name="optimizer_allowed",
+                                          optimizer=self.optimizer)
+            #f"optimizer {self.optimizer} allowed"
         else:
             disclosive = True
-            reason = f"optimizer {self.optimizer} is not allowed"
+            reason = get_reporting_string(name="optimizer_not_allowed",
+                                          optimizer=self.optimizer)
+            #f"optimizer {self.optimizer} is not allowed"
 
         return reason, disclosive
 
@@ -265,10 +290,14 @@ class SafeKerasModel(KerasModel, SafeModel):
         self, optimizer=None, loss="categorical_crossentropy", metrics=["accuracy"]
     ):
 
-        replace_message = "WARNING: model parameters may present a disclosure risk"
-        using_DP_SGD = "Changed parameter optimizer = 'DPKerasSGDOptimizer'"
-        Using_DP_Adagrad = "Changed parameter optimizer = 'DPKerasAdagradOptimizer'"
-        using_DP_Adam = "Changed parameter optimizer = 'DPKerasAdamOptimizer'"
+        replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
+        #"WARNING: model parameters may present a disclosure risk"
+        using_DP_SGD = get_reporting_string(name="using_dp_sgd")
+        #"Changed parameter optimizer = 'DPKerasSGDOptimizer'"
+        Using_DP_Adagrad = get_reporting_string(name="using_dp_adagrad")
+        #"Changed parameter optimizer = 'DPKerasAdagradOptimizer'"
+        using_DP_Adam = get_reporting_string(name="using_dp_adam")
+        #"Changed parameter optimizer = 'DPKerasAdamOptimizer'"
 
         optimizer_dict = {
             None: (using_DP_SGD, tf_privacy.DPKerasSGDOptimizer),
@@ -302,7 +331,9 @@ class SafeKerasModel(KerasModel, SafeModel):
         )
 
         if len(opt_msg) > 0:
-            print(f"During compilation: {opt_msg}")
+            print(get_reporting_string(name="during_compilation",
+                                       opt_msg=opt_msg))
+                #f"During compilation: {opt_msg}")
 
         super().compile(opt, loss, metrics)
 
@@ -371,19 +402,25 @@ class SafeKerasModel(KerasModel, SafeModel):
             "tfsaves/requested_model.tf",
         )
         if not models_same:
-            print(f"Recommendation is not to release because {same_msg}.\n")
+            print(get_report_string(name="recommend_not_release",
+                                    msg=same_msg))
+            #f"Recommendation is not to release because {same_msg}.\n")
             return same_msg, True
 
         # was a dp-enbled optimiser provided?
         allowed, allowedmessage = self.check_optimizer_allowed(self.optimizer)
         if not allowed:
-            print(f"Recommendation is not to release because {allowedmessage}.\n")
+            print(get_report_string(name="recommend_not_release",
+                                    msg=allowedmessage))
+                #f"Recommendation is not to release because {allowedmessage}.\n")
             return allowedmessage, True
 
         # was the dp-optimiser used during fit()
         dpused, dpusedmessage = self.check_DP_used(self.optimizer)
         if not dpused:
-            print(f"Recommendation is not to release because {dpusedmessage}.\n")
+            print(get_report_string(name="recommend_not_release",
+                                    msg=dpusedmessage))
+                #f"Recommendation is not to release because {dpusedmessage}.\n")
             return dpusedmessage, True
 
         # is this the same as the values immediately after fit()?
@@ -392,7 +429,8 @@ class SafeKerasModel(KerasModel, SafeModel):
             or dpusedmessage != self.saved_reason
             or self.saved_epsilon != self.current_epsilon
         ):
-            return "Optimizer config has been changed since training.", True
+                  return get_reporting_string(name="opt_config_changed"), True
+            #"Optimizer config has been changed since training.", True
 
         # if so what was the value of epsilon achieved
         eps_met, current_epsilon = self.dp_epsilon_met(
@@ -401,22 +439,25 @@ class SafeKerasModel(KerasModel, SafeModel):
             epochs=self.epochs,
         )
         if not eps_met:
-            dpepsilonmessage = (
-                f"WARNING: epsilon {current_epsilon} "
-                "is above normal max recommended value.\n"
-                "Discussion with researcher needed.\n"
-            )
-            print(
-                f"Recommendation is further discussion needed " f"{dpepsilonmessage}.\n"
-            )
-            return dpepsilonmessage, True
+                dpepsilonmessage = get_reporting_string(name="epsilon_above_normal")
+                #(
+                #  f"WARNING: epsilon {current_epsilon} "
+                #"is above normal max recommended value.\n"
+                #"Discussion with researcher needed.\n"
+                #)
+                print(get_reporting_string(name="recommend_further_discussion",
+                                       msg=dpepsilonmessage))
+                #f"Recommendation is further discussion needed " f"{dpepsilonmessage}.\n"
+                return dpepsilonmessage, True
         else:
-            print("Recommendation is to allow release.\n")
-            dpepsilonmessage = (
-                "Recommendation: Allow release.\n"
-                f"Epsilon vale of model {current_epsilon} "
-                "is below normal max recommended value.\n"
-            )
+            print(get_reporting_string(name="recommend_allow_release"))
+            #"Recommendation is to allow release.\n")
+            dpepsilonmessage = get_reporting_string(name="allow_release_eps_below_max")
+            #(
+            #"Recommendation: Allow release.\n"
+            #f"Epsilon vale of model {current_epsilon} "
+            #"is below normal max recommended value.\n"
+            #)
 
             return dpepsilonmessage, False
 
@@ -446,13 +487,15 @@ class SafeKerasModel(KerasModel, SafeModel):
         self.model_save_file = name
         while self.model_save_file == "undefined":
             self.model_save_file = input(
-                "Please input a name with extension for the model to be saved."
+                get_reporting_string(name="input_filename_with_extension")
+                #"Please input a name with extension for the model to be saved."
             )
 
         thename = self.model_save_file.split(".")
         # print(f'in save(), parsed filename is {thename}')
         if len(thename) == 1:
-            print("file name must indicate type as a suffix")
+            print(get_reporting_string(name="filename_must_indicate_type"))
+            #"file name must indicate type as a suffix")
         else:
             suffix = self.model_save_file.split(".")[-1]
 
@@ -467,12 +510,15 @@ class SafeKerasModel(KerasModel, SafeModel):
                     )
 
                 except Exception as er:
-                    print(f"saving as a {suffix} file gave this error message:  {er}")
+                    print(get_reporting_string(name="error_saving_file",
+                    suffix=suffix, er=er))
+                    #f"saving as a {suffix} file gave this error message:  {er}")
             else:
-                print(
-                    f"{suffix} file suffix  not supported "
-                    f"for models of type {self.model_type}.\n"
-                )
+                print(get_reporting_string(name="suffix_not_supported_for_type",
+                                           model_type=self.model_type))
+                    #f"{suffix} file suffix  not supported "
+                    #f"for models of type {self.model_type}.\n"
+
 
     def load(self, name: str = "undefined") -> None:
         """
