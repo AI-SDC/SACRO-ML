@@ -1,0 +1,242 @@
+---
+title: "Membership Inference Attacks"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kernlab)
+
+# save the built-in output hook
+hook_output <- knitr::knit_hooks$get("output")
+
+# set a new output hook to truncate text output
+knitr::knit_hooks$set(output = function(x, options) {
+  if (!is.null(n <- options$out.lines)) {
+    x <- xfun::split_lines(x)
+    if (length(x) > n) {
+      # truncate the output
+      x <- c(head(x, n), "....\n")
+    }
+    x <- paste(x, collapse = "\n")
+  }
+  hook_output(x, options)
+})
+```
+
+```{css,echo=FALSE}
+.redCode {
+background-color: pink;
+}
+```
+
+```{css,echo=FALSE}
+.blueCode {
+background-color: lightblue;
+}
+```
+
+
+## Example of Membership Inference Attack on a study on IV drug users
+
+In this notebook, we describe some of the potential consequences if we fail to ensure security on TRE releases.
+
+We will look at a particular problem which can arise _without_ malicious actions by researchers or TRE staff. In other words, our scenario is one which can happen even if all researchers and TRE staff are well-intentioned.
+
+In order to illustrate the point in a setting which makes sense, we will use only a simulated data set: all `patients`, `samples` and so on are fictional.
+
+We will consider a scenario in which we recruit a group of drug users, with the intent of trying to predict bad financial outcomes in order to help other drug users avoid these. We presume that we recruit a range of people with the assurance that their participation is anonymous. We will show that we may inadvertently give away the details of the people who participated, even without directly releasing their data.
+
+This example is extreme; technically, it uses a very _overfitted_ model. This is largel just to make the effects obvious; the same effects can occur in less extreme settings.
+
+Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publically available. We will show that using only publically available data we can work out some data that was only privately available.
+
+### Problem overview
+
+Intravenous (IV) drug users in the community often face financial difficulties, due to a range of factors. These financial difficulties can make it harder to address drug related problems and have serious effects on quality of life. In order to help IV drug users avoid severe financial difficulties, we are interested in answering the following research question:
+
+> Given a particular IV drug user, what is the probability they are financially insolvent?
+
+In order to do this we recruit 50 IV drug users *with the promise that their participation in the study will be anonymous*. We record whether they are financially solvent, along with their age, sex, level of education, housing status, number of previous periods of rehabilitation, and number of previous drug convictions.
+
+Here are the first ten rows of the our private data:
+
+```{r generate, echo=FALSE}
+make_data=function(N,seed) {
+  set.seed(seed)
+  age=round(rchisq(N,df = 30))
+  edx=c("None","Some_secondary","Secondary","University","Professional")
+  education=factor(sample(edx,N,rep=T,prob=c(3,5,4,2,1)),levels=edx)
+  sex=factor(sample(c("M","F"),N,rep=T),levels=c("M","F"))
+  prev_convictions=sample(0:5,N,rep=T,prob=(6:1))
+  hx=c("Own","Rent","Supported","Other","No_fixed")
+  housing=factor(sample(hx,N,rep=T,prob=c(1,4,4,4,3)),levels=hx)
+  prev_rehab=sample(0:5,N,rep=T,prob=(6:1))
+  solvent=sample(0:1,N,rep=T)
+  namelist=c("Christopher", "Jessica", "Matthew", "Ashley", "Jennifer",
+             "Joshua", "Amanda", "Daniel", "David", "James", "Robert", "John",
+             "Joseph", "Andrew", "Ryan", "Brandon", "Jason", "Justin", "Sarah",
+             "William", "Jonathan", "Stephanie", "Brian", "Nicole", "Nicholas",
+             "Anthony", "Heather", "Eric", "Elizabeth", "Adam", "Megan", "Melissa",
+             "Kevin", "Steven", "Thomas", "Timothy", "Christina", "Kyle",
+             "Rachel", "Laura", "Lauren", "Amber", "Brittany", "Danielle",
+             "Richard", "Kimberly", "Jeffrey", "Amy", "Crystal", "Michelle",
+             "Tiffany", "Jeremy", "Benjamin", "Mark", "Emily", "Aaron", "Charles",
+             "Rebecca", "Jacob", "Stephen", "Patrick", "Sean", "Erin", "Zachary",
+             "Jamie", "Kelly", "Samantha", "Nathan", "Sara", "Dustin", "Paul",
+             "Angela", "Tyler", "Scott", "Katherine", "Andrea", "Gregory",
+             "Erica", "Mary", "Travis", "Lisa", "Kenneth", "Bryan", "Lindsey",
+             "Kristen", "Jose", "Alexander", "Jesse", "Katie", "Lindsay",
+             "Shannon", "Vanessa", "Courtney", "Christine", "Alicia", "Cody",
+             "Allison", "Bradley", "Samuel", "Shawn")
+  if (N<length(namelist)) names=sample(namelist,N,rep=F) else names=sample(namelist,N,rep=T)
+  data=data.frame(names,age,education,sex,prev_convictions,housing,prev_rehab,solvent)
+  return(data)
+}
+
+N=50;
+seed=382741
+data_matrix=make_data(N,seed)
+new_data=make_data(50,seed+1)
+
+in_study=data.frame(name=data_matrix$name,age=data_matrix$age,in_study=rep("In study",N))
+```
+
+```{r data,echo=TRUE,class.source="redCode",class.output="redCode"}
+print(head(data_matrix),row.names=FALSE)
+```
+
+Importantly, the status of these individuals as being **included in the study or not** is private:
+
+```{r private_data,echo=TRUE,class.source="redCode",class.output="redCode"}
+print(head(in_study),row.names=FALSE)
+```
+
+We plan to learn a rule to predict the variable `solvent` on the basis of the  other variables. The details will not matter much, but in this case we will use technical tool called a Gaussian Process classifier.
+
+
+### Data analysis (on safe haven)
+
+We now try and learn our rule from the data. It will turn out that the rule we learn is not very good (it is 'overfitted', meaning that it works well on the data we already have, but would not work well if we were to try and use it on new people).
+
+```{r analysis, echo=TRUE,class.source="redCode",class.output="redCode"}
+mod1=gausspr(solvent~.,data=data_matrix[,-1],kpar=list(sigma=3))
+```
+
+We release this rule (in the form of a model called `mod1`) to the public (now we are blue):
+
+```{r output, echo=TRUE,class.source="blueCode",class.output="blueCode"}
+mod1
+```
+
+Looking a bit more closely at what we released, _we haven't released anyone's data directly_: the command `dput` shows us exactly what is released verbatim, and it's clear that nobody's data is directly included in this:
+
+```{r out.lines=10,echo=TRUE,class.source="redCode",class.output="redCode"}
+dput(mod1)
+```
+
+Now someone outside of the TRE (for instance, a GP or social worker) can use the model `mod1` to make predictions for their patients, and hopefully help them avoid financial insolvency.
+
+
+### Attacker - what we know
+
+Let's change tack now and suppose that we are an unscrupulous individual interviewing candidates for a job. We wonder if some of our candidates are IV drug users. We know that the study above was done and have access to the publically released `mod1`.
+
+One way of finding out if our potential candidates are IV drug users is working out _whether they were in the study above_.
+
+Let's say that some people have made public that they were part of the study. We know these individual's information exactly (e.g. they themselves have made it public) and their information is as follows:
+
+```{r adversary_info, echo=TRUE,class.source="blueCode",class.output="blueCode"}
+some_people_in_study=data_matrix[sample(3:30,20),]
+some_people_NOT_in_study=new_data[sample(3:30,20),]
+```
+
+```{r adversary_info2, echo=TRUE,class.source="blueCode",class.output="blueCode"}
+print(head(some_people_in_study),row.names=FALSE)
+```
+
+We also know the details of some people who were **not** in the study:
+
+```{r adversary_info3, echo=TRUE,class.source="blueCode",class.output="blueCode"}
+print(head(some_people_NOT_in_study),row.names=FALSE)
+```
+
+
+### Attacker - what we can do
+
+Lets say we have four potential candidates from a job interview, and we know their information, as follows:
+
+```{r adversary_query,echo=FALSE}
+candidates=rbind(data_matrix[1:2,],new_data[1:2,])
+```
+
+```{r adversary_query2,echo=TRUE,class.source="blueCode",class.output="blueCode"}
+print(candidates,row.names=FALSE)
+```
+
+The job interview candidates will not tell us if they are IV drug users. We will try and use the released model `mod1` to find out if they were in the study
+
+
+### Attack procedure
+
+Let's say we use the model released from the TRE to make predictions on the people we _know_ were in the dataset:
+
+```{r test_query,echo=TRUE,class.source="blueCode",class.output="blueCode"}
+p1=predict(mod1,newdata=some_people_in_study,type="response")
+head(data.frame(name=some_people_in_study$names,
+                age=some_people_in_study$age,
+                in_study=rep("In study",nrow(some_people_in_study)),
+                model_output=p1))
+```
+
+and the people we know were _not_ in the study
+
+
+```{r test_query2,echo=TRUE,class.source="blueCode",class.output="blueCode"}
+p2=predict(mod1,newdata=some_people_NOT_in_study,type="response")
+head(data.frame(name=some_people_NOT_in_study$names,
+                age=some_people_NOT_in_study$age,
+                in_study=rep("NOT in study",nrow(some_people_NOT_in_study)),
+                model_output=p2))
+```
+
+A pattern is suddenly obvious! People in the study have predictions which are very close to 25% or 75%. People who were not have predictions close to 50%.
+
+This means that `mod1` has very different outputs for people who were actually included in the study than for people who were not (this is 'overfitting', as mentioned before). We can use this to work out if our job interview candidates were in the study or not.
+
+Predictions on our job interview candidates are now:
+
+```{r test_query3,echo=TRUE,class.source="blueCode",class.output="blueCode"}
+p3=predict(mod1,newdata=candidates,type="response")
+head(data.frame(name=candidates$names,
+                age=candidates$age,
+                in_study=rep("??",nrow(candidates)),
+                model_output=p3))
+```
+
+It's immediately obvious who was in the study (Michelle and Lindsay) and who was not (Zachary and Sean):
+
+```{r candidate_status,echo=FALSE}
+candidate_status=candidates[,1:2];
+candidate_status$status=c(rep("In study; drug user",2), rep("Not in study",2))
+```
+
+```{r discovery, echo=TRUE,class.source="blueCode",class.output="blueCode"}
+print(candidate_status,row.names=FALSE)
+```
+
+This allows us (as an unscrupulous employer) to unfairly discriminate on this information. This is a *violation of the privacy* of the individuals (Michelle and Lindsay) who volunteered to be in the study.
+
+### Summary
+
+We have demonstrated that it is possible to retrieve private information about individuals from only a publically-released prediction rule. This is essentially possible because prediction rules in machine learning can be very complicated, taking a lot of information to specify, and it is difficult to police what private data this information contains.
+
+As researchers intending to predict insolvency amongst drug users, we were _entirely well-intentioned_ - there was no deliberate attempt to leak data.
+
+We also did not directly release any patient data in `mod1`: we could not simply look at what was released and read off private data.
+
+This example is quite extreme in that it the behaviour of `mod1` on people who were in the study is very different to the behaviour when people were not in the study (e.g., it always returns about 25% or 75% for people who are in the study, and 50% for people who were not). A prediction rule (model) which behaved more similarly on people in the study or not in the study would be less liable to disclose private information.
+
+This also highlights that an important way to _test_ whether a model (like `mod1`) potentially releases private information is to check how it behaves on people who were in the study and people who were not. In general, this is best done **inside the TRE** - since that is where the information on people who were in the study is kept. In particular, it should be done **before the model is released in public**.
