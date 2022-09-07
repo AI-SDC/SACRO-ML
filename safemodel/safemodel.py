@@ -351,7 +351,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                         save_format=suffix,
                     )
 
-                except tf.keras.NotImplementedError as exception_err:
+                except (ImportError, NotImplementedError) as exception_err:
                     print(f"saving as a {suffix} file gave this error message:  {exception_err}")
             else:
                 print(
