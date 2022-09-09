@@ -42,7 +42,7 @@ In this document, we provide a simple example showing that in some circumstances
 
 The implication of this is that **no models are always safe**, and safety depends on the dataset and the context.
 
-Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publically available.
+Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publicly available.
 
 ## Example
 
