@@ -51,7 +51,7 @@ We will consider a scenario in which we recruit a group of drug users, with the 
 
 This example is extreme; technically, it uses a very _overfitted_ model. This is largel just to make the effects obvious; the same effects can occur in less extreme settings.
 
-Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publically available. We will show that using only publically available data we can work out some data that was only privately available.
+Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publicly available. We will show that using only publicly available data we can work out some data that was only privately available.
 
 ### Problem overview
 
@@ -142,7 +142,7 @@ Now someone outside of the TRE (for instance, a GP or social worker) can use the
 
 ### Attacker - what we know
 
-Let's change tack now and suppose that we are an unscrupulous individual interviewing candidates for a job. We wonder if some of our candidates are IV drug users. We know that the study above was done and have access to the publically released `mod1`.
+Let's change tack now and suppose that we are an unscrupulous individual interviewing candidates for a job. We wonder if some of our candidates are IV drug users. We know that the study above was done and have access to the publicly released `mod1`.
 
 One way of finding out if our potential candidates are IV drug users is working out _whether they were in the study above_.
 
@@ -231,7 +231,7 @@ This allows us (as an unscrupulous employer) to unfairly discriminate on this in
 
 ### Summary
 
-We have demonstrated that it is possible to retrieve private information about individuals from only a publically-released prediction rule. This is essentially possible because prediction rules in machine learning can be very complicated, taking a lot of information to specify, and it is difficult to police what private data this information contains.
+We have demonstrated that it is possible to retrieve private information about individuals from only a publicly-released prediction rule. This is essentially possible because prediction rules in machine learning can be very complicated, taking a lot of information to specify, and it is difficult to police what private data this information contains.
 
 As researchers intending to predict insolvency amongst drug users, we were _entirely well-intentioned_ - there was no deliberate attempt to leak data.
 
