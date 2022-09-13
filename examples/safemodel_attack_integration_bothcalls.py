@@ -3,6 +3,7 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.test_sagfemodel_attack_integration
 
 """
+import logging
 
 import numpy as np
 
@@ -12,9 +13,6 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
-
-import logging
-
 
 
 if __name__ == "__main__":
