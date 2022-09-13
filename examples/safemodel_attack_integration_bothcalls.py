@@ -13,6 +13,10 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
 
+import logging
+
+
+
 if __name__ == "__main__":
 
     # [Researcher] Access a dataset
@@ -59,12 +63,12 @@ if __name__ == "__main__":
     for i in range(n_features):
         the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
-    print(f"Dataset: {the_data.name}")
-    print(f"Features: {the_data.features}")
-    print(f"x_train shape = {np.shape(the_data.x_train)}")
-    print(f"y_train shape = {np.shape(the_data.y_train)}")
-    print(f"x_test shape = {np.shape(the_data.x_test)}")
-    print(f"y_test shape = {np.shape(the_data.y_test)}")
+    logging.info(f"Dataset: {the_data.name}")
+    logging.info(f"Features: {the_data.features}")
+    logging.info(f"x_train shape = {np.shape(the_data.x_train)}")
+    logging.info(f"y_train shape = {np.shape(the_data.y_train)}")
+    logging.info(f"x_test shape = {np.shape(the_data.x_test)}")
+    logging.info(f"y_test shape = {np.shape(the_data.y_test)}")
 
 
     #build a model
@@ -78,14 +82,14 @@ if __name__ == "__main__":
         print(f'===> running {attack_name} attack directly')
         fname=f"modelDOTrun_attack_output_{attack_name}"
         metadata= model.run_attack(the_data,attack_name,fname)
-        print('metadata is:')
+        logging.info('metadata is:')
         for key,val in metadata.items():
             if  isinstance(val,dict):
-                print(f" {key}")
+                logging.info(f" {key}")
                 for key1,val2 in val.items():
-                    print(f'   {key1} : {val2}')
+                    logging.info(f'   {key1} : {val2}')
             else:
-                print(f' {key} : {val}')
+                logging.info(f' {key} : {val}')
 
     ## now via request_release()
     print('===>now running attacks implicitly via request_release()')
