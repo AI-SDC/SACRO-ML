@@ -61,12 +61,12 @@ if __name__ == "__main__":
     for i in range(n_features):
         the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
-    logging.info(f"Dataset: {the_data.name}")
-    logging.info(f"Features: {the_data.features}")
-    logging.info(f"x_train shape = {np.shape(the_data.x_train)}")
-    logging.info(f"y_train shape = {np.shape(the_data.y_train)}")
-    logging.info(f"x_test shape = {np.shape(the_data.x_test)}")
-    logging.info(f"y_test shape = {np.shape(the_data.y_test)}")
+    logging.info('Dataset: %s',the_data.name)
+    logging.info('Features: %s',the_data.features)
+    logging.info('x_train shape = %s',np.shape(the_data.x_train))
+    logging.info('y_train shape = %s',np.shape(the_data.y_train))
+    logging.info('x_test shape = %s',np.shape(the_data.x_test))
+    logging.info('y_test shape = %s',np.shape(the_data.y_test))
 
 
     #build a model
@@ -83,11 +83,11 @@ if __name__ == "__main__":
         logging.info('metadata is:')
         for key,val in metadata.items():
             if  isinstance(val,dict):
-                logging.info(f" {key}")
+                logging.info(' %s ',key)
                 for key1,val2 in val.items():
-                    logging.info(f'   {key1} : {val2}')
+                    logging.info('  %s : %s', key1 , val2)
             else:
-                logging.info(f' {key} : {val}')
+                logging.info(' %s : %s',key ,val)
 
     ## now via request_release()
     print('===>now running attacks implicitly via request_release()')
