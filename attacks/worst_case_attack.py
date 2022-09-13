@@ -360,7 +360,7 @@ class WorstCaseAttack(Attack):
         if 'func' in self.metadata['experiment_details']:
             del self.metadata['experiment_details']['func']
 
-        self.metadata['experiment_details']['attack'] = str(self)
+        self.metadata['attack'] = str(self)
 
         # Global metrics
         self.metadata['global_metrics'] = self._get_global_metrics(self.attack_metrics)
