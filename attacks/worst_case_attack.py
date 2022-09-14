@@ -7,267 +7,404 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 import argparse
 import logging
 
-from typing import Tuple, Dict
+from typing import Any
+
+from collections.abc import Hashable
 
 import numpy as np
+import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from scipy.stats import norm
 
 from attacks import metrics
 from attacks import report
+from attacks.attack import Attack
+from attacks.dataset import Data
 
 logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
 
-def _generate_array(n_rows: int, beta: float) -> np.ndarray:
-    """Generate a single array of predictions, used when doing baseline experiments
+class WorstCaseAttackArgs:
+    """Arguments for worst case"""
+    def __init__(self, **kwargs):
+        self.__dict__['n_reps'] = 10
+        self.__dict__['p_thresh'] = 0.05
+        self.__dict__['n_dummy_reps'] = 1
+        self.__dict__['train_beta'] = 2
+        self.__dict__['test_beta'] = 2
+        self.__dict__['test_prop'] = 0.3
+        self.__dict__['n_rows_in'] = 1000
+        self.__dict__['n_rows_out'] = 1000
+        self.__dict__['in_sample_filename'] = None
+        self.__dict__['out_sample_filename'] = None
+        self.__dict__['report_name'] = None
+        self.__dict__.update(kwargs)
 
-    Parameters
-    ----------
-    n_rows: int
-        the number of rows worth of data to generate
-    beta: float
-        the beta parameter for sampling probabilities
+    def __str__(self):
+        return ",".join([f"{str(key)}: {str(value)}" for key, value in self.__dict__.items()])
 
-    Returns
-    -------
-    preds: np.ndarray
-        Array of predictions. Two columns, n_rows rows
+    def set_param(self, key: Hashable, value: Any) -> None:
+        """Set a parameter"""
+        self.__dict__[key] = value
 
-    Notes
-    -----
+    def get_args(self) -> dict:
+        """Return arguments"""
+        return self.__dict__
 
-    Examples
-    --------
+class WorstCaseAttack(Attack):
+    """Class to wrap the worst case attack code"""
+    def __init__(self, args: WorstCaseAttackArgs=WorstCaseAttackArgs()):
+        self.attack_metrics = None
+        self.dummy_attack_metrics = None
+        self.metadata = None
+        self.args = args
 
-    """
+    def __str__(self):
+        return "WorstCase attack"
 
-    preds = np.zeros((n_rows, 2), float)
-    for row_idx in range(n_rows):
-        train_class = np.random.choice(2)
-        train_prob = np.random.beta(1, beta)
-        preds[row_idx, train_class] = train_prob
-        preds[row_idx, 1 - train_class] = 1 - train_prob
-    return preds
+    def attack(
+        self,
+        dataset: Data,
+        target_model: sklearn.base.BaseEstimator) -> None:
+        """Programmatic attack entry point
 
-def generate_arrays(
-    n_rows_in: int,
-    n_rows_out: int,
-    train_beta: float=2,
-    test_beta: float=2) -> Tuple[np.ndarray, np.ndarray]:
-    """Generate train and test prediction arrays, used when computing baseline
+        To be used when code has access to data class and trained target model
 
-    Parameters
-    ----------
-    n_rows_in: int
-        number of rows of in-sample (training) probabilities
-    n_rows_out: int
-        number of rows of out-of-sample (testing) probabilities
-    train_beta: float
-        beta value for generating train probabilities
-    test_beta: float:
-        beta_value for generating test probabilities
+        Parameters
+        ----------
+        dataset: attacks.dataset.Data
+            dataset as a Data class object
+        target_model: sklearn.base.BaseEstimator
+            target model that inherits from an sklearn BaseEstimator
+        """
+        train_preds = target_model.predict_proba(dataset.x_train)
+        test_preds = target_model.predict_proba(dataset.x_test)
+        self.attack_from_preds(train_preds, test_preds)
 
-    Returns
-    -------
-    train_preds: np.ndarray
-        Array of train predictions (n_rows x 2 columns)
-    test_preds: np.ndarray
-        Array of test predictions (n_rows x 2 columns)
-    """
-    train_preds = _generate_array(n_rows_in, train_beta)
-    test_preds = _generate_array(n_rows_out, test_beta)
-    return train_preds, test_preds
+    def attack_from_prediction_files(self):
+        """Start an attack from saved prediction files
 
-def _make_dummy_data(args: Dict) -> None:
-    """Makes dummy data for testing functionality
+        To be used when only saved predictions are available.
 
-    Parameters
-    ----------
-    args: dict
-        Command line arguments
+        Filenames for the saved prediction files to be specified in the arguments provided
+        in the constructor
+        """
+        train_preds = np.loadtxt(self.args.in_sample_filename, delimiter=",")
+        test_preds = np.loadtxt(self.args.out_sample_filename, delimiter=",")
+        self.attack_from_preds(train_preds, test_preds)
 
-    Returns
-    -------
+    def attack_from_preds( # pylint: disable=too-many-locals
+        self,
+        train_preds: np.ndarray,
+        test_preds: np.ndarray) -> None:
+        """
+        Runs the attack based upon the predictions in train_preds and test_preds, and the params
+        stored in self.args
 
-    Notes
-    -----
+        Parameters
+        ----------
 
-    Returns nothing but saves two .csv files
-    """
-    logger = logging.getLogger("dummy-data")
-    logger.info("Making dummy data with %d rows in and %d out", args.n_rows_in, args.n_rows_out)
-    logger.info("Generating rows")
-    train_preds, test_preds = generate_arrays(
-        args.n_rows_in,
-        args.n_rows_out,
-        train_beta=args.train_beta,
-        test_beta=args.test_beta
-    )
-    logger.info("Saving files")
-    np.savetxt("train_preds.csv", train_preds, delimiter=",")
-    np.savetxt("test_preds.csv", test_preds, delimiter=",")
+        train_preds: np.ndarray
+            Array of train predictions. One row per example, one column per class (i.e. 2)
+        test_preds:  np.ndarray
+            Array of test predictions. One row per example, one column per class (i.e. 2)
 
-def _run_attack(args, make_report=True):
-    """Method that runs a worst case attack
-    """
-    logger = logging.getLogger("run-attack")
-    logger.info("Loading train predictions form %s", args.in_sample_filename)
-    train_preds = np.loadtxt(args.in_sample_filename, delimiter=",")
-    logger.info("Loaded %d rows", len(train_preds))
-    logger.info("Loading test predictions form %s", args.in_sample_filename)
-    test_preds = np.loadtxt(args.out_sample_filename, delimiter=",")
-    logger.info("Loaded %d rows", len(test_preds))
-    mia_metrics, metadata = attack(args, train_preds, test_preds)
-
-    # do some baseline attacks
-    logger.info("Performing baseline attacks")
-
-    dummy_metrics = []
-    dummy_metadata = None
-    for _ in range(args.dummy_reps):
-        dummy_train, dummy_test = generate_arrays(len(train_preds), len(test_preds))
-        temp_dummy_metrics, dummy_metadata = attack(args, dummy_train, dummy_test)
-        dummy_metrics += temp_dummy_metrics
-
-    if args.dummy_reps > 0:
-        metadata['experiment_details']['n_baseline_experiments_done'] = (
-            f'Done {args.n_reps} reps for {args.dummy_reps} splits of synthetic '
-            f'data (total = {len(dummy_metrics)})'
-        )
-    else:
-        metadata['experiment_details']['n_baseline_experiments_done'] = "None"
-
-    if make_report:
-        pdf = report.create_mia_report(metadata, mia_metrics, dummy_metrics, dummy_metadata)
-        pdf.output(f"{args.report_name}.pdf", 'F')
-        json_details = report.create_json_report(mia_metrics, dummy_metrics)
-        with open(f"{args.report_name}.json", 'w', encoding="utf-8") as json_file:
-            json_file.write(json_details)
-
-def _get_n_significant(p_val_list, p_thresh, bh_fdr_correction=False):
-    '''
-    Helper method to determine if values within a list of p-values are significant at
-    p_thresh. Can perform multiple testing correction.
-    '''
-    if not bh_fdr_correction:
-        return sum([1 for p in p_val_list if p <= p_thresh]) # pylint: disable = consider-using-generator
-    p_val_list = np.asarray(sorted(p_val_list))
-    n_vals = len(p_val_list)
-    hoch_vals = np.array(
-        [(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)]
-    )
-    bh_sig_list = p_val_list <= hoch_vals
-    if any(bh_sig_list):
-        n_sig_bh = (np.where(bh_sig_list)[0]).max() + 1
-    else:
-        n_sig_bh = 0
-    return n_sig_bh
+        """
+        logger = logging.getLogger("attack-from-preds")
+        logger.info("Running main attack repetitions")
+        self.attack_metrics = self.run_attack_reps(train_preds, test_preds)
+        if self.args.n_dummy_reps > 0:
+            logger.info("Running dummy attack reps")
+            self.dummy_attack_metrics = []
+            n_train_rows = len(train_preds)
+            n_test_rows = len(test_preds)
+            for _ in range(self.args.n_dummy_reps):
+                d_train_preds, d_test_preds = self.generate_arrays(
+                    n_train_rows,
+                    n_test_rows,
+                    self.args.train_beta,
+                    self.args.test_beta
+                )
+                temp_metrics = self.run_attack_reps(d_train_preds, d_test_preds)
+                self.dummy_attack_metrics += temp_metrics
+        logger.info("Finished running attacks")
 
 
-def attack( # pylint: disable=too-many-locals
-    args: Dict,
-    train_preds: np.ndarray,
-    test_preds: np.ndarray) -> Tuple[dict, dict]:
-    """Runs the attack based upon the predictions in train_preds and test_preds, and params
-    in args
+    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
+        """
+        Run actual attack reps from train and test predictions
 
-    Parameters
-    ----------
+        Parameters
+        ----------
+        train_preds: np.ndarray
+            predictions from the model on training (in-sample) data
+        test_preds: np.ndarray
+            predictions from the model on testing (out-of-sample) data
 
-    args: dict
-        Command line arguments
-    train_preds: np.ndarray
-        Array of train predictions. One row per example, one column per class (i.e. 2)
-    test_preds:  np.ndarray
-        Array of test predictions. One row per example, one column per class (i.e. 2)
+        Returns
+        -------
+        mia_metrics: List
+            List of attack metrics dictionaries, one for each repetition
+        """
+        self.args.set_param('n_rows_in', len(train_preds))
+        self.args.set_param('n_rows_out', len(test_preds))
+        logger = logging.getLogger("attack-reps")
+        logger.info("Sorting probabilities to leave highest value in first column")
+        train_preds = -np.sort(-train_preds, axis=1)
+        test_preds = -np.sort(-test_preds, axis=1)
 
-    Returns
-    -------
-    mia_metrics: dict
-        dictionary of metrics
-    metadata: dict
-        dictionary of metadata
-
-    """
-    logger = logging.getLogger("attack")
-    logger.info("Sorting probabilities to leave highest value in first column")
-    train_preds = -np.sort(-train_preds, axis=1)
-    test_preds = -np.sort(-test_preds, axis=1)
-
-    logger.info("Creating MIA data")
-    mi_x = np.vstack((train_preds, test_preds))
-    mi_y = np.hstack(
-        (
-            np.ones(len(train_preds)),
-            np.zeros(len(test_preds))
-        )
-    )
-
-    mia_metrics = []
-    for rep in range(args.n_reps):
-        logger.info("Rep %d of %d", rep, args.n_reps)
-        mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-            mi_x, mi_y, test_size=args.test_prop, stratify=mi_y
-        )
-        attack_classifier = RandomForestClassifier()
-        attack_classifier.fit(mi_train_x, mi_train_y)
-
-        mia_metrics.append(
-            metrics.get_metrics(
-                attack_classifier,
-                mi_test_x,
-                mi_test_y
+        logger.info("Creating MIA data")
+        mi_x = np.vstack((train_preds, test_preds))
+        mi_y = np.hstack(
+            (
+                np.ones(len(train_preds)),
+                np.zeros(len(test_preds))
             )
         )
 
-    logger.info("Finished simulating attacks")
-    metadata = {
-        'global_metrics': {},
-        'experiment_details': {
-            'n_reps': args.n_reps,
-            'n_in_sample': len(train_preds),
-            'n_out_sample': len(test_preds),
-            'attack model': "Random Forest",
-            'in_sample_filename': args.in_sample_filename,
-            'out_sample_filename': args.out_sample_filename,
-            'p_val_thresh': args.p_thresh
-        }
-    }
+        mia_metrics = []
+        for rep in range(self.args.n_reps):
+            logger.info("Rep %d of %d", rep, self.args.n_reps)
+            mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
+                mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
+            )
+            attack_classifier = RandomForestClassifier()
+            attack_classifier.fit(mi_train_x, mi_train_y)
 
-    # Compute NULL AUC
-    auc_std = np.sqrt(
-        metrics.expected_auc_var(0.5, mi_test_y.sum(), len(mi_test_y) - mi_test_y.sum())
-    )
-    # Assuming auc is normal, compute the probability of the NULL generating an AUC higher
-    # than the NULL
-    auc_p_vals = [1 - norm.cdf(m['AUC'], loc=0.5, scale=auc_std) for m in mia_metrics]
+            mia_metrics.append(
+                metrics.get_metrics(
+                    attack_classifier,
+                    mi_test_x,
+                    mi_test_y
+                )
+            )
 
-    metadata['global_metrics']['null_auc_3sd_range'] = \
-        f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
-    metadata['global_metrics']['n_sig_auc_p_vals'] = _get_n_significant(auc_p_vals, args.p_thresh)
-    metadata['global_metrics']['n_sig_auc_p_vals_corrected'] = _get_n_significant(
-        auc_p_vals,
-        args.p_thresh,
-        bh_fdr_correction=True
-    )
+        logger.info("Finished simulating attacks")
 
-    pdif_vals = [np.exp(-m['PDIF01']) for m in mia_metrics]
-    metadata['global_metrics']['n_sig_pdif_vals'] = _get_n_significant(pdif_vals, args.p_thresh)
-    metadata['global_metrics']['n_sig_pdif_vals_corrected'] = _get_n_significant(
-        pdif_vals,
-        args.p_thresh,
-        bh_fdr_correction=True
-    )
+        return mia_metrics
 
-    return mia_metrics, metadata
+
+
+    def _get_global_metrics(self, attack_metrics: list) -> dict:
+        """Summarise metrics from a metric list
+
+        Arguments
+        ---------
+        attack_metrics: List
+            list of attack metrics dictionaries
+
+        Returns
+        -------
+        global_metrics: Dict
+            Dictionary of summary metrics
+
+        """
+        global_metrics = {}
+        auc_p_vals = [
+            metrics.auc_p_val(
+                m['AUC'],
+                m['n_pos_test_examples'],
+                m['n_neg_test_examples']
+            )[0] for m in attack_metrics
+        ]
+
+        m = attack_metrics[0]
+        _, auc_std = metrics.auc_p_val(
+            0.5,
+            m['n_pos_test_examples'],
+            m['n_neg_test_examples']
+        )
+
+        global_metrics['null_auc_3sd_range'] = \
+            f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+        global_metrics['n_sig_auc_p_vals'] = self._get_n_significant(auc_p_vals, self.args.p_thresh)
+        global_metrics['n_sig_auc_p_vals_corrected'] = self._get_n_significant(
+            auc_p_vals,
+            self.args.p_thresh,
+            bh_fdr_correction=True
+        )
+
+        pdif_vals = [np.exp(-m['PDIF01']) for m in attack_metrics]
+        global_metrics['n_sig_pdif_vals'] = self._get_n_significant(pdif_vals, self.args.p_thresh)
+        global_metrics['n_sig_pdif_vals_corrected'] = self._get_n_significant(
+            pdif_vals,
+            self.args.p_thresh,
+            bh_fdr_correction=True
+        )
+
+        return global_metrics
+
+
+    def _get_n_significant(self, p_val_list, p_thresh, bh_fdr_correction=False):
+        '''
+        Helper method to determine if values within a list of p-values are significant at
+        p_thresh. Can perform multiple testing correction.
+        '''
+        if not bh_fdr_correction:
+            return sum(1 for p in p_val_list if p <= p_thresh) # pylint: disable = consider-using-generator
+        p_val_list = np.asarray(sorted(p_val_list))
+        n_vals = len(p_val_list)
+        hoch_vals = np.array(
+            [(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)]
+        )
+        bh_sig_list = p_val_list <= hoch_vals
+        if any(bh_sig_list):
+            n_sig_bh = (np.where(bh_sig_list)[0]).max() + 1
+        else:
+            n_sig_bh = 0
+        return n_sig_bh
+
+
+    def _generate_array(self, n_rows: int, beta: float) -> np.ndarray:
+        """Generate a single array of predictions, used when doing baseline experiments
+
+        Parameters
+        ----------
+        n_rows: int
+            the number of rows worth of data to generate
+        beta: float
+            the beta parameter for sampling probabilities
+
+        Returns
+        -------
+        preds: np.ndarray
+            Array of predictions. Two columns, n_rows rows
+
+        Notes
+        -----
+
+        Examples
+        --------
+
+        """
+
+        preds = np.zeros((n_rows, 2), float)
+        for row_idx in range(n_rows):
+            train_class = np.random.choice(2)
+            train_prob = np.random.beta(1, beta)
+            preds[row_idx, train_class] = train_prob
+            preds[row_idx, 1 - train_class] = 1 - train_prob
+        return preds
+
+    def generate_arrays(
+        self,
+        n_rows_in: int,
+        n_rows_out: int,
+        train_beta: float=2,
+        test_beta: float=2) -> tuple[np.ndarray, np.ndarray]:
+        """Generate train and test prediction arrays, used when computing baseline
+
+        Parameters
+        ----------
+        n_rows_in: int
+            number of rows of in-sample (training) probabilities
+        n_rows_out: int
+            number of rows of out-of-sample (testing) probabilities
+        train_beta: float
+            beta value for generating train probabilities
+        test_beta: float:
+            beta_value for generating test probabilities
+
+        Returns
+        -------
+        train_preds: np.ndarray
+            Array of train predictions (n_rows x 2 columns)
+        test_preds: np.ndarray
+            Array of test predictions (n_rows x 2 columns)
+        """
+        train_preds = self._generate_array(n_rows_in, train_beta)
+        test_preds = self._generate_array(n_rows_out, test_beta)
+        return train_preds, test_preds
+
+    def make_dummy_data(self) -> None:
+        """Makes dummy data for testing functionality
+
+        Parameters
+        ----------
+        args: dict
+            Command line arguments
+
+        Returns
+        -------
+
+        Notes
+        -----
+
+        Returns nothing but saves two .csv files
+        """
+        logger = logging.getLogger("dummy-data")
+        logger.info(
+            "Making dummy data with %d rows in and %d out",
+            self.args.n_rows_in,
+            self.args.n_rows_out
+        )
+        logger.info("Generating rows")
+        train_preds, test_preds = self.generate_arrays(
+            self.args.n_rows_in,
+            self.args.n_rows_out,
+            train_beta=self.args.train_beta,
+            test_beta=self.args.test_beta
+        )
+        logger.info("Saving files")
+        np.savetxt(self.args.in_sample_filename, train_preds, delimiter=",")
+        np.savetxt(self.args.out_sample_filename, test_preds, delimiter=",")
+
+
+    def _construct_metadata(self):
+        """Constructs the metadata object, after attacks"""
+        self.metadata = {}
+        # Store all args
+        self.metadata['experiment_details'] = {}
+        self.metadata['experiment_details'].update(self.args.__dict__)
+        if 'func' in self.metadata['experiment_details']:
+            del self.metadata['experiment_details']['func']
+
+        self.metadata['attack'] = str(self)
+
+        # Global metrics
+        self.metadata['global_metrics'] = self._get_global_metrics(self.attack_metrics)
+        self.metadata['baseline_global_metrics'] = self._get_global_metrics(
+            self.dummy_attack_metrics
+        )
+
+
+    def make_report(self) -> dict:
+        """Creates output dictionary structure"""
+        output = {}
+        output['attack_metrics'] = self.attack_metrics
+        output['dummy_attack_metrics'] = self.dummy_attack_metrics
+        self._construct_metadata()
+        output['metadata'] = self.metadata
+        if self.args.report_name is not None:
+            json_report = report.create_json_report(output)
+            with open(f"{self.args.report_name}.json", 'w', encoding='utf-8') as f:
+                f.write(json_report)
+
+            pdf = report.create_mia_report(output)
+            pdf.output(f"{self.args.report_name}.pdf", 'F')
+
+        return output
+
+def _make_dummy_data(args):
+    """Initialise class and run dummy data creation"""
+    wc_args = WorstCaseAttackArgs(**args.__dict__)
+    wc_args.set_param("in_sample_filename", "train_preds.csv")
+    wc_args.set_param("out_sample_filename", "test_preds.csv")
+    attack_obj = WorstCaseAttack(wc_args)
+    attack_obj.make_dummy_data()
+
+def _run_attack(args):
+    """Initialise class and run attack from prediction files"""
+    wc_args = WorstCaseAttackArgs(**args.__dict__)
+    attack_obj = WorstCaseAttack(wc_args)
+    attack_obj.attack_from_prediction_files()
+    _ = attack_obj.make_report()
 
 
 def main():
     '''main method to parse arguments and invoke relevant method'''
-
+    logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(description=(
         'Perform a worst case attack from saved model predictions'
         )
@@ -280,7 +417,7 @@ def main():
         dest='n_rows_in',
         type=int,
         required=False,
-        default=100,
+        default=1000,
         help=(
             'How many rows to generate in the in-sample file. Default = %(default)d'
         )
@@ -291,7 +428,7 @@ def main():
         dest='n_rows_out',
         type=int,
         required=False,
-        default=100,
+        default=1000,
         help=(
             'How many rows to generate in the out-of-sample file. Default = %(default)d'
         )
@@ -379,17 +516,17 @@ def main():
         type=str,
         action='store',
         dest='report_name',
-        default='mia_report',
+        default='worstcase_report',
         required=False,
         help=(
             'Filename for the report output. Default = %(default)s. Code will append .pdf and .json'
         )
     )
 
-    attack_parser.add_argument('--dummy-reps',
+    attack_parser.add_argument('--n-dummy-reps',
         type=int,
         action='store',
-        dest='dummy_reps',
+        dest='n_dummy_reps',
         default=1,
         required=False,
         help=(
@@ -413,11 +550,12 @@ def main():
 
 
     args = parser.parse_args()
-    print(args)
+
     try:
         args.func(args)
-    except AttributeError:
-        print("Invalid command. Try --help to get more details")
+    except AttributeError as e:
+        logger.error("Invalid command. Try --help to get more details")
+        logger.error(e)
 
 if __name__ == '__main__':
     main()

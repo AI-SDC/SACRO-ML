@@ -1,0 +1,130 @@
+---
+title: "All models are potentially disclosive"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kernlab)
+
+# save the built-in output hook
+hook_output <- knitr::knit_hooks$get("output")
+
+# set a new output hook to truncate text output
+knitr::knit_hooks$set(output = function(x, options) {
+  if (!is.null(n <- options$out.lines)) {
+    x <- xfun::split_lines(x)
+    if (length(x) > n) {
+      # truncate the output
+      x <- c(head(x, n), "....\n")
+    }
+    x <- paste(x, collapse = "\n")
+  }
+  hook_output(x, options)
+})
+```
+
+```{css,echo=FALSE}
+.redCode {
+background-color: pink;
+}
+```
+
+```{css,echo=FALSE}
+.blueCode {
+background-color: lightblue;
+}
+```
+
+## Overview
+
+In this document, we provide a simple example showing that in some circumstances even very simple models - for example, ordinary least squares (OLS)- can be disclosive of personal data. We will do this by showing that _attribute inference_ is possible in this case. Attribute inference is when by knowing _something_ about a person who was in the study, we can use the TRE release to find out _other_ things.
+
+The implication of this is that **no models are always safe**, and safety depends on the dataset and the context.
+
+Throughout this document, text and output in <span style="color: red;">red</span> will indicate _private data_ which is protected on a TRE. Text and output in <span style="color: blue;">blue</span> will indicate data that is publicly available.
+
+## Example
+
+### Setup
+
+Lets suppose we want to predict whether someone has type 2 diabetes (we will not be making a serious attempt at this, and will make egregious statistical errors, but use standard methods).
+
+We recruit twenty individuals who wish to keep their type-2-diabetes-status private. We put their data on a TRE. We record their birthdays, whether they smoke or not, their diabetes status, and their HbA1C (a biochemical measure). HbA1C above 50 millimoles per litre indicates type 2 diabetes. Their data is as follows:
+
+```{r generate, echo=FALSE}
+make_data=function(N,seed) {
+  smoker=factor(sample(c("Yes","No"),N,rep=T),levels=c("Yes","No"))
+  HbA1C=sample(10:90,N,rep=T)
+  diabetes=HbA1C>50
+  birthday=as.factor(as.Date(sample(500:15000,N), origin = "1970-01-01"))
+  namelist=c("Christopher", "Jessica", "Matthew", "Ashley", "Jennifer",
+             "Joshua", "Amanda", "Daniel", "David", "James", "Robert", "John",
+             "Joseph", "Andrew", "Ryan", "Brandon", "Jason", "Justin", "Sarah",
+             "William", "Jonathan", "Stephanie", "Brian", "Nicole", "Nicholas",
+             "Anthony", "Heather", "Eric", "Elizabeth", "Adam", "Megan", "Melissa",
+             "Kevin", "Steven", "Thomas", "Timothy", "Christina", "Kyle",
+             "Rachel", "Laura", "Lauren", "Amber", "Brittany", "Danielle",
+             "Richard", "Kimberly", "Jeffrey", "Amy", "Crystal", "Michelle",
+             "Tiffany", "Jeremy", "Benjamin", "Mark", "Emily", "Aaron", "Charles",
+             "Rebecca", "Jacob", "Stephen", "Patrick", "Sean", "Erin", "Zachary",
+             "Jamie", "Kelly", "Samantha", "Nathan", "Sara", "Dustin", "Paul",
+             "Angela", "Tyler", "Scott", "Katherine", "Andrea", "Gregory",
+             "Erica", "Mary", "Travis", "Lisa", "Kenneth", "Bryan", "Lindsey",
+             "Kristen", "Jose", "Alexander", "Jesse", "Katie", "Lindsay",
+             "Shannon", "Vanessa", "Courtney", "Christine", "Alicia", "Cody",
+             "Allison", "Bradley", "Samuel", "Shawn")
+  if (N<length(namelist))
+    names=sample(namelist,N,rep=F) else
+      names=sample(namelist,N,rep=T)
+  data=data.frame(names,smoker,birthday,HbA1C,diabetes)
+  return(data)
+}
+
+N=20;
+seed=382741
+data_matrix=make_data(N,seed)
+```
+
+```{r data,echo=TRUE,class.source="redCode",class.output="redCode"}
+print(head(data_matrix),row.names=FALSE)
+```
+
+### Model fitting
+
+We now fit an ordinary least squares model to this data, to predict HbA1C. We happen to use some sort of variable reduction which suggests that the only predictor model we should include in the model is `birthday`. We fix the intercept at 50, since that is the typical HbA1C cutoff. We coded `birthday` as a factor.
+
+```{r modelfit,echo=TRUE,class.source="redCode",class.output="redCode"}
+m1=lm(I(HbA1C-50)~0+birthday,data=data_matrix)
+```
+
+We now release this model from the TRE...
+
+```{r release,echo=TRUE,class.source="blueCode",class.output="blueCode"}
+m1
+```
+
+### Attack
+
+Something immediately looks suspicious about these coefficients! Each birthday corresponds to a coefficient, so lets put the coefficients next to people's HbA1C values (which are private), and in particular the difference from 50:
+
+```{r summary,echo=FALSE}
+ox=order(data_matrix$birthday)
+name=data_matrix$names[ox]
+HbA1C=data_matrix$HbA1C[ox]
+coefficient=m1$coefficients
+difference_from_50=HbA1C-50
+out_matrix=data.frame(name,HbA1C,difference_from_50,coefficient)
+```
+
+```{r output,echo=TRUE,class.source="redCode",class.output="redCode"}
+head(out_matrix)
+```
+
+Oh dear - the coefficients are exactly the same as the HbA1C values (when we subtract 50).
+
+### Interpretation
+
+Now if we know that a person was in the study and we know their birthday, _we can infer whether they have type 2 diabetes or not_ (and in fact infer their exact HbA1C level). This is a violation of the privacy of the individuals in the study.
+
+This is a contrived example, as the ordinary least squares is egregiously overfitted (it has as many predictors as outcomes). However, the fitting procedure raises no errors in R, and such a model could be released if a catch-all rule such as 'OLS models are safe' were applied.

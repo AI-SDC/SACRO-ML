@@ -8,15 +8,24 @@ import json
 import logging
 import pathlib
 import pickle
+import os
 from typing import Any
+import datetime
+import tensorflow as tf
+
 
 import joblib
 from dictdiffer import diff
 
+from attacks import attribute_attack, worst_case_attack, dataset,report
+from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
+
+from .reporting import get_reporting_string
+
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
-import tensorflow as tf
+
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -46,17 +55,26 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if cur_val < val:
-        disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as less than the recommended min value of {val}."
-        )
-    else:
-        disclosive = False
-        msg = ""
-    return msg, disclosive
+    if isinstance(cur_val,(int,float)):
+        if cur_val < val:
+            disclosive = True
+            print(f'key = {key}')
+            msg = get_reporting_string(name="less_than_min_value",
+                                       key=key, cur_val=cur_val, val=val)
+            print(msg)
+            #(
+            #    f"- parameter {key} = {cur_val}"
+            #    f" identified as less than the recommended min value of {val}."
+            #)
+        else:
+            disclosive = False
+            msg = ""
+        return msg, disclosive
 
+    disclosive = True
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
+    return msg, disclosive
 
 def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """Checks maximum value constraint.
@@ -85,15 +103,23 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if cur_val > val:
-        disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as greater than the recommended max value of {val}."
-        )
-    else:
-        disclosive = False
-        msg = ""
+    if isinstance(cur_val,(int,float)):
+        if cur_val > val:
+            disclosive = True
+            msg = get_reporting_string(name="greater_than_max_value", key=key,
+                                       cur_val=cur_val, val=val)
+            #(
+            #f"- parameter {key} = {cur_val}"
+            #f" identified as greater than the recommended max value of {val}."
+            #)
+        else:
+            disclosive = False
+            msg = ""
+        return msg, disclosive
+
+    disclosive = True
+    msg = get_reporting_string(name="different_than_recommended_type",
+                               key=key, cur_val=cur_val, val=val)
     return msg, disclosive
 
 
@@ -128,10 +154,12 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if cur_val != val:
         disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different than the recommended fixed value of {val}."
-        )
+        msg = get_reporting_string(name="different_than_fixed_value", key=key, cur_val=cur_val,
+                                   val=val)
+        #(
+        #    f"- parameter {key} = {cur_val}"
+        #    f" identified as different than the recommended fixed value of {val}."
+        #)
     else:
         disclosive = False
         msg = ""
@@ -166,17 +194,19 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if type(cur_val).__name__ != val:
         disclosive = True
-        msg = (
-            f"- parameter {key} = {cur_val}"
-            f" identified as different type to recommendation of {val}."
-        )
+        msg = get_reporting_string(name="different_than_recommended_type",
+                                   key=key, cur_val=cur_val, val=val)
+        #(
+        #    f"- parameter {key} = {cur_val}"
+        #    f" identified as different type to recommendation of {val}."
+        #)
     else:
         disclosive = False
         msg = ""
     return msg, disclosive
 
 
-class SafeModel:
+class SafeModel: # pylint: disable = too-many-instance-attributes
     """Privacy protected model base class.
 
     Attributes
@@ -227,15 +257,33 @@ class SafeModel:
         self.model_type: str = "None"
         self.model = None
         self.saved_model = None
+        self.model_load_file: str = "None"
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
+        self.basemodel_paramnames=[]
         self.filename: str = "None"
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
-        except BaseException:
+        except (ImportError, KeyError, OSError):
             self.researcher = "unknown"
+
+
+
+    def get_params(self,deep=True):
+        """gets dictionary of parameter values
+        restricted to those expected by base classifier.
+        """
+        the_params={}
+        for key,val in self.__dict__.items():
+            if key  in self.basemodel_paramnames:
+                the_params[key]=val
+        if deep:
+            pass #not implemented yet
+        return the_params
+
+
 
     def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
@@ -278,20 +326,20 @@ class SafeModel:
                 with open(self.model_save_file, "wb") as file:
                     try:
                         pickle.dump(self, file)
-                    except Typerror as er:
+                    except TypeError as type_err:
                         print(
-                            f"saving as a .pkl file is not supported for models of type {self.model_type}."
-                            f"Error message was {er}"
+                            f"saving a .pkl file is unsupported for model type: {self.model_type}."
+                            f"Error message was {type_err}"
                         )
 
             elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
                 try:
                     joblib.dump(self, self.model_save_file)
-                except Typerror as er:
+                except TypeError as type_err:
                     print(
                         "saving as a .sav (joblib) file is not supported "
                         f"for models of type {self.model_type}."
-                        f"Error message was {er}"
+                        f"Error message was {type_err}"
                     )
             elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
                 try:
@@ -303,8 +351,8 @@ class SafeModel:
                         save_format=suffix,
                     )
 
-                except Exception as er:
-                    print(f"saving as a {suffix} file gave this error message:  {er}")
+                except (ImportError, NotImplementedError) as exception_err:
+                    print(f"saving as a {suffix} file gave this error message:  {exception_err}")
             else:
                 print(
                     f"{suffix} file suffix currently not supported "
@@ -326,18 +374,18 @@ class SafeModel:
             )
         if self.model_load_file[-4:] == ".pkl":  # load from pickle
             with open(self.model_load_file, "rb") as file:
-                f = pickle.loadf(self, file)
+                temp_file = pickle.load(self, file)
         elif self.model_load_file[-4:] == ".sav":  # load from joblib
-            f = joblib.load(self, self.model_save_file)
+            temp_file = joblib.load(self, self.model_save_file)
         elif self.model_load_file[-3:] == ".h5":
             # load from .h5
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
         elif self.model_load_file[-3:] == ".tf":
             # load from tf
-            f = tf.keras.models.load_model(
+            temp_file = tf.keras.models.load_model(
                 self.model_load_file, custom_objects={"Safe_KerasModel": self}
             )
 
@@ -345,7 +393,7 @@ class SafeModel:
             suffix = self.model_load_file.split(".")[-1]
             print(f"loading from a {suffix} file is currently not supported")
 
-        return f
+        return temp_file
 
     def __get_constraints(self) -> dict:
         """Gets constraints relevant to the model type from the master read-only file."""
@@ -363,18 +411,23 @@ class SafeModel:
         if operator == "is_type":
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
-                msg = f"\nChanged parameter type for {key} to {val}.\n"
+                msg = get_reporting_string(name="change_param_type", key=key, val=val)
+                #f"\nChanged parameter type for {key} to {val}.\n"
             elif (val == "float") and (type(cur_val).__name__ == "int"):
                 self.__dict__[key] = float(self.__dict__[key])
-                msg = f"\nChanged parameter type for {key} to {val}.\n"
+                msg = get_reporting_string(name="change_param_type", key=key, val=val)
+                #f"\nChanged parameter type for {key} to {val}.\n"
             else:
-                msg = (
-                    f"Nothing currently implemented to change type of parameter {key} "
-                    f"from {type(cur_val).__name__} to {val}.\n"
-                )
+                msg = get_reporting_string(name="not_implemented_for_change", key=key,
+                                           cur_val=cur_val, val=val)
+                #(
+                #    f"Nothing currently implemented to change type of parameter {key} "
+                #    f"from {type(cur_val).__name__} to {val}.\n"
+                #)
         else:
             setattr(self, key, val)
-            msg = f"\nChanged parameter {key} = {val}.\n"
+            msg = get_reporting_string(name="changed_param_equal", key=key, val=val)
+            #f"\nChanged parameter {key} = {val}.\n"
         return msg
 
     def __check_model_param(
@@ -397,7 +450,8 @@ class SafeModel:
         elif operator == "is_type":
             msg, disclosive = check_type(key, val, cur_val)
         else:
-            msg = f"- unknown operator in parameter specification {operator}"
+            msg = get_reporting_string(name="unknown_operator", key=key, val=val, cur_val=cur_val)
+            #f"- unknown operator in parameter specification {operator}"
         if apply_constraints and disclosive:
             msg += self.__apply_constraints(operator, key, val, cur_val)
         return msg, disclosive
@@ -410,9 +464,9 @@ class SafeModel:
         disclosive: bool = False
         msg: str = ""
         for arg in rule["subexpr"]:
-            m, d = self.__check_model_param(arg, apply_constraints)
-            msg += m
-            if d:
+            temp_msg, temp_disc = self.__check_model_param(arg, apply_constraints)
+            msg += temp_msg
+            if temp_disc:
                 disclosive = True
         return msg, disclosive
 
@@ -421,9 +475,9 @@ class SafeModel:
         disclosive: bool = True
         msg: str = ""
         for arg in rule["subexpr"]:
-            m, d = self.__check_model_param(arg, False)
-            msg += m
-            if not d:
+            temp_msg, temp_disc = self.__check_model_param(arg, False)
+            msg += temp_msg
+            if not temp_disc:
                 disclosive = False
         return msg, disclosive
 
@@ -465,18 +519,22 @@ class SafeModel:
         for rule in rules:
             operator = rule["operator"]
             if operator == "and":
-                m, d = self.__check_model_param_and(rule, apply_constraints)
+                temp_msg, temp_disc = self.__check_model_param_and(rule, apply_constraints)
             elif operator == "or":
-                m, d = self.__check_model_param_or(rule)
+                temp_msg, temp_disc = self.__check_model_param_or(rule)
             else:
-                m, d = self.__check_model_param(rule, apply_constraints)
-            msg += m
-            if d:
+                temp_msg, temp_disc = self.__check_model_param(rule, apply_constraints)
+            msg += temp_msg
+            if temp_disc:
                 disclosive = True
         if disclosive:
-            msg = "WARNING: model parameters may present a disclosure risk:\n" + msg
+            start_msg = get_reporting_string(name="warn_possible_disclosure_risk")
+            msg = start_msg + msg
+            #"WARNING: model parameters may present a disclosure risk:\n" + msg
         else:
-            msg = "Model parameters are within recommended ranges.\n" + msg
+            msg = get_reporting_string(name="within_recommended_ranges")
+            msg += temp_msg
+            #"Model parameters are within recommended ranges.\n" + msg
         if verbose:
             print(msg)
         return msg, disclosive
@@ -496,9 +554,9 @@ class SafeModel:
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except Exception as t:
-                    logger.warning(f"{key} cannot be copied")
-                    logger.warning(f"...{type(t)} error; {t}")
+                except copy.Error as key_type:
+                    logger.warning("%s cannot be copied", key)
+                    logger.warning("...%s error; %s", str(type(key_type)), str(key_type))
             # logger.debug('...done')
         # logger.info('copied')
 
@@ -536,10 +594,10 @@ class SafeModel:
                 # not sure if this is necessarily disclosive
                 msg += f"Note that item {item} missing from both versions"
 
-            elif (curr_vals[item] == "Absent") and not (saved_vals[item] == "Absent"):
+            elif curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in  saved but not current model"
-            elif (saved_vals[item] == "Absent") and not (curr_vals[item] == "Absent"):
+            elif saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
                 disclosive = True
                 msg += f"Error, item {item} present in current but not saved model"
             else:  # ok, so can call mode-specific extra checks
@@ -558,8 +616,10 @@ class SafeModel:
 
         current_model, saved_model = self.get_current_and_saved_models()
         if len(saved_model) == 0:
-            msg = "Error: user has not called fit() method or has deleted saved values."
-            msg += "Recommendation: Do not release."
+            msg = get_reporting_string(name="error_not_called_fit")
+            #"Error: user has not called fit() method or has deleted saved values."
+            msg += get_reporting_string(name="recommend_do_not_release")
+            #"Recommendation: Do not release."
             disclosive = True
 
         else:
@@ -579,13 +639,17 @@ class SafeModel:
             match = list(diff(current_model, saved_model, expand=True))
             if len(match) > 0:
                 disclosive = True
-                msg += f"Warning: basic parameters differ in {len(match)} places:\n"
-                for i in range(len(match)):
-                    if match[i][0] == "change":
-                        msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
-                        msg += f"to {match[i][2][0]} after model was fitted.\n"
+
+                msg += get_reporting_string(name="basic_params_differ",
+                                            match=match, length=(len(match)))
+
+                #f"Warning: basic parameters differ in {len(match)} places:\n"
+                for this_match in match:
+                    if this_match[0] == "change":
+                        msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
+                        msg += f"to {this_match[2][0]} after model was fitted.\n"
                     else:
-                        msg += f"{match[i]}"
+                        msg += f"{this_match}"
 
             # comparison on model-specific attributes
             extra_msg, extra_disclosive = self.examine_seperate_items(
@@ -657,10 +721,10 @@ class SafeModel:
                             disclosive = True
                             break
 
-        msg = msg  # + msg2
+
         return msg, disclosive
 
-    def request_release(self, filename: str = "undefined") -> None:
+    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None:
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
@@ -670,11 +734,23 @@ class SafeModel:
         filename: string
         The filename used to save the model
 
+        dataobj: object of type Data
+        Contains train/test data and encoding dictionary needed to run attacks
+
         Returns
         -------
 
+
         Notes
         -----
+         1. The dataset object is saved in a file called filebase_data.json
+         (where filebase= filename without the extension)
+         for reference/use by the TRE.
+         Data should never be held or stored with the model.
+         Clearly filebase_data.json mst never leave the TRE.
+         2. If data_obj is not null, then worst case MIA and attribute inference
+         attacks are called via run_attack.
+         Outputs from the attacks will be stored in filebase_attack_res.json
 
 
 
@@ -702,10 +778,108 @@ class SafeModel:
             else:
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
-            json_str = json.dumps(output, indent=4)
+
+
+            ##Run attacks programmatically if possible
+            if data_obj is not None:
+                #make filenames and save a copy of the data
+                with open(os.path.splitext(filename)[0] +"_data.pickle", 'wb') as handle:
+                    pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+                for attack_name in ['worst_case','lira','attribute']:
+                    output[f"{attack_name}_results"]=  self.run_attack(data_obj,
+                                      attack_name,
+                                      f"{os.path.splitext(filename)[0]}_{attack_name}_res"
+                                      )
+
+
+
+            now = datetime.datetime.now()
+            output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+
+            json_str = json.dumps(output, indent=4,cls=report.NumpyArrayEncoder)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
+
+
+    def run_attack(self,
+                   data_obj:dataset.Data=None,
+                   attack_name:str="worst_case",
+                   filename:str="undefined")->dict:
+
+        """Runs a specified attack on the trained model and saves a report to file
+
+        Parameters
+        ----------
+        data_obj: Data
+        the dataset in the form of a Data object
+
+        attack_name: string
+
+        filebasename: string
+        Report will be saved to filebasename.json
+
+
+        Returns
+        -------
+        dict of meta data results
+
+        Notes
+        -----
+        Currently implement attack types are:
+        Likelihood Ratio: lira
+        Worst_Case Membership inference: worst_case
+        Single Attribute Inference: attributes
+        """
+        if attack_name == "worst_case":
+            attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
+                # number of baseline (dummy) experiments to do
+                n_dummy_reps=1,
+                # Threshold to determine significance of things
+                p_thresh=0.05,
+                # Filename arguments needed by the code, meaningless if run programmatically
+                in_sample_filename=None,
+                out_sample_filename=None,
+                # Proportion of data to use as a test set for the attack model;
+                test_prop=0.5,
+                # Report name is None - don't make json or pdf files
+                report_name=None
+            )
+            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
+            attack_obj.attack(dataset=data_obj,target_model=self)
+            output = attack_obj.make_report()
+            metadata = output['metadata']
+
+        elif attack_name=="lira":
+            args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+            attack_obj = LIRAAttack(args)
+            attack_obj.attack(data_obj,self)
+            output = attack_obj.make_report() # also makes .pdf and .json files
+            metadata = output['metadata']
+
+        elif attack_name == "attribute":
+            attack_args = attribute_attack.AttributeAttackArgs(report_name="aia_example")
+            attack_obj = attribute_attack.AttributeAttack(attack_args)
+            attack_obj.attack(data_obj, self)
+            output = attack_obj.make_report()
+            metadata = output["metadata"]
+
+        else:
+            metadata= {}
+            metadata["outcome"] = "unrecognised attack type requested"
+
+        print(f'attack {attack_name}, metadata {metadata}')
+
+
+        try:
+            with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
+                json.dump(metadata, fp,cls=report.NumpyArrayEncoder)
+        except TypeError:
+            print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
+
+        return metadata
+
 
     def __str__(self) -> str:
         """Returns string with model description."""
