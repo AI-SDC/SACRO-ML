@@ -13,7 +13,7 @@ repos:
       - id: pretty-format-json
         args: ["--autofix", "--no-sort-keys", "--indent=4"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.1.0
+    rev: v2.2.1
     hooks:
       - id: codespell
         args: ["-L", "fpr, tre, sav"]

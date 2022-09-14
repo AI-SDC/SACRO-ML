@@ -2,7 +2,7 @@
 Calculate metrics.
 '''
 
-from typing import Iterable, Tuple
+from collections.abc import Iterable
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_auc_score
@@ -15,7 +15,7 @@ from .mia_extremecase import min_max_disc
 
 VAR_THRESH = 1e-2
 
-def div(x: float, y: float, default: float) -> float:
+def _div(x: float, y: float, default: float) -> float:
     """Solve the problem of division by 0 and round up.
     If y is non-zero, perform x/y and round to 8dp. If it is zero, return the default
 
@@ -39,7 +39,7 @@ def div(x: float, y: float, default: float) -> float:
         division = float(default)
     return division
 
-def tpr_at_fpr(
+def _tpr_at_fpr(
     y_true: Iterable[float],
     y_score: Iterable[float],
     fpr: float=0.001,
@@ -78,7 +78,7 @@ def tpr_at_fpr(
 
     return tpr
 
-def expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
+def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
     """"Compute variance of AUC under assumption of uniform probabilities
     uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf
 
@@ -102,7 +102,7 @@ def expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
         (num_pos * num_neg)
     return var
 
-def auc_p_val(auc: float, n_pos: int, n_neg: int) -> Tuple[float, float]:
+def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     """Compute the p-value for a given AUC
 
     Parameters
@@ -123,7 +123,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> Tuple[float, float]:
 
     """
     auc_std = np.sqrt(
-        expected_auc_var(
+        _expected_auc_var(
             0.5,
             n_pos,
             n_neg
@@ -187,19 +187,19 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     metrics['FPR'] = round(float(fp / (fp + tn)), 8)
     # False alarm rate, proportion of things classified as positives that are incorrect,
     # also known as false discovery rate
-    metrics['FAR'] = div(fp, (fp + tp), 0)
+    metrics['FAR'] = _div(fp, (fp + tp), 0)
     # true negative rate or specificity
     metrics['TNR'] = round(float(tn / (tn + fp)), 8)
     # precision or positive predictive value
-    metrics['PPV'] = div(tp, (tp + fp), 0)
+    metrics['PPV'] = _div(tp, (tp + fp), 0)
     # negative predictive value
-    metrics['NPV'] = div(tn, (tn + fn), 0)
+    metrics['NPV'] = _div(tn, (tn + fn), 0)
     # false negative rate
     metrics['FNR'] = round(float(fn / (tp + fn)), 8)
     # overall accuracy
     metrics['ACC'] = round(float((tp + tn) / (tp + fp + fn + tn)), 8)
     # harmonic mean of precision and sensitivity
-    metrics['F1score'] = div(2*metrics['PPV']*metrics['TPR'], metrics['PPV']+metrics['TPR'], 0)
+    metrics['F1score'] = _div(2*metrics['PPV']*metrics['TPR'], metrics['PPV']+metrics['TPR'], 0)
     # Advantage: TPR - FPR
     metrics['Advantage'] = float(abs(metrics['TPR']-metrics['FPR']))
 
@@ -208,10 +208,11 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     metrics['AUC'] = round(roc_auc_score(y_test, y_pred_proba),8)
 
     # Calculate AUC p-val
-    auc_null_var = expected_auc_var(0.5, y_test.sum(), len(y_test) - y_test.sum())
-    # Probability of getting an AUC higher than that observed
-    prob_higher_auc = 1 - norm.cdf(metrics['AUC'], loc=0.5, scale=np.sqrt(auc_null_var))
-    metrics['P_HIGHER_AUC'] = prob_higher_auc
+    metrics['P_HIGHER_AUC'], _ = auc_p_val(
+        metrics['AUC'],
+        y_test.sum(),
+        len(y_test) - y_test.sum()
+    )
 
     fmax, fmin, fdif, pdif = min_max_disc(y_test, y_pred_proba)
     metrics['FMAX01'] = fmax
@@ -238,7 +239,7 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     # TPR at various FPR
     fpr_vals = [0.5, 0.2, 0.1, 0.01, 0.001, 0.00001]
     for fpr in fpr_vals:
-        tpr = tpr_at_fpr(y_test, y_pred_proba, fpr=fpr)
+        tpr = _tpr_at_fpr(y_test, y_pred_proba, fpr=fpr)
         name = f'TPR@{fpr}'
         metrics[name] = tpr
 
@@ -246,5 +247,8 @@ def get_metrics(clf, # pylint: disable = too-many-locals
     metrics['fpr'] = fpr
     metrics['tpr'] = tpr
     metrics['roc_thresh'] = roc_thresh
+
+    metrics['n_pos_test_examples'] = y_test.sum()
+    metrics['n_neg_test_examples'] = (1 - y_test).sum()
 
     return metrics

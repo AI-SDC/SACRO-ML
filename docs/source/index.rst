@@ -22,7 +22,8 @@ This is the class and function reference for safemodel.
    safedecisiontree
    saferandomforest
    safekeras
-=======
+   examples
+   extending
 
 Indices and tables
 ==================

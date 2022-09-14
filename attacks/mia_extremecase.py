@@ -1,5 +1,4 @@
 """Method for computing extreme case metrics"""
-from typing import Tuple
 import numpy as np
 from scipy.stats import norm
 
@@ -7,7 +6,7 @@ def min_max_disc(
     y_true: np.ndarray,
     pred_probs: np.ndarray,
     x_prop: float=0.1,
-    log_p: bool=True) -> Tuple[float, float, float, float]: #pylint: disable = line-too-long
+    log_p: bool=True) -> tuple[float, float, float, float]: #pylint: disable = line-too-long
     """
     Non-average-case methods for MIA attacks. Considers actual frequency of membership
     amongst samples with highest- and lowest- assessed probability of membership. If an
