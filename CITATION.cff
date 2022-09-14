@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+title: AI-SDC
+version: 1.0.0
+doi: 
+date-released: 2022-09-14
+license: MIT
+repository-code: https://github.com/AI-SDC/AI-SDC
+languages:
+  - English
+keywords:
+  - machine learning
+  - statistical disclosure control
+authors:
+  - family-names: Smith
+    given-names: Jim
+    orcid: https://orcid.org/0000-0001-7908-1859
+    affiliation: University of the West of England
+  - family-names: Preen
+    given-names: Richard John
+    orcid: https://orcid.org/0000-0003-3351-8132
+    affiliation: University of the West of England
+  - family-names: McCarthy 
+    given-names: Andrew
+    affiliation: University of the West of England
+  - family-names: Rogers 
+    given-names: Simon
+    orcid: https://orcid.org/0000-0003-3578-4477
+    affiliation: NHS National Services Scotland
+  - family-names: Crespi Boixader
+    given-names: Alba
+    affiliation: University of Dundee
+  - family-names: Liley
+    given-names: James
+    orcid: https://orcid.org/0000-0002-0049-8238
+    affiliation: University of Durham
