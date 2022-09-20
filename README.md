@@ -8,6 +8,29 @@ Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
 
 ---
+# Content
+
+The two main elements are contained in "attacks" and "safemodels".
+
+## example_notebooks
+
+Contain short tutorials on how to run safer models and to their basic concepts.
+
+## risk_examples
+
+Contain hypotetical examples of data leakeage through machine learning models as described in the Green Paper [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6896214.svg)](https://doi.org/10.5281/zenodo.6896214)
+
+## Examples
+
+Contain examples of code on how to run the code contained in this repository:
+- How to simulate attribute inference attacks (attribute_inference_example.py).
+- How to simulate membership inference attacks:
+  - Worst case scenario attack (worst_case_attack_example.py)
+  - LIRA scenario attack (lira_attack_example.py).
+- Integration of attacks into safemodel classes (safemodel_attack_integration_bothcalls.py).
+
+
+---
 
 This work was funded by UK Research and Innovation Grant Number MC_PC_21033 as part of Phase 1 of the DARE UK (Data and Analytics Research Environments UK) programme (https://dareuk.org.uk/), delivered in partnership with HDR UK and ADRUK. The specific project was Guidelines and Resources for AI Model Access from TrusTEd Research environments (GRAIMATTER).­ This project has also been supported by MRC and EPSRC [grant number MR/S010351/1]: PICTURES.
 
