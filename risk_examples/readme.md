@@ -6,14 +6,14 @@ This area in the AI-SDC repository holds some notebooks that illustrate the _ris
 
 ### `python`
 
-- **Finding out unknown information about a famous person (Attribute Inference)** 
+- **Finding out unknown information about a famous person (Attribute Inference)**
 
 `attribute_inference_cancer.ipynb` - An example of attribute inference that demonstrates how access to the model, plus some information about one of the participants (perhaps they are famous) can allow the inference of other, sensitive attributes.
 - **Identifying if someone famous has suffered from cancer (Membership Inference)**
- 
+
 `membership_inference_cancer.ipynb` - An example (using the same dataset as in the attribute inference example) in which it is possible to infer someone's presence in the training data and therefore learn something sensitive about them (that they had cancer).
 - **Hospital admission survival (instance-based model vulnerability)**
- 
+
 `instance_based_mimic.ipynb` - Demonstrating how an instance-based classifier (in this case a Support Vector Machine) stores exact copies of some rows from the training data.
 
 ### `R`
