@@ -14,11 +14,11 @@ The two main elements are contained in "attacks" and "safemodels".
 
 ## example_notebooks
 
-Contain short tutorials on how to run safer models and to their basic concepts.
+Contains short tutorials on  the basic concept of 'safe_XX' versions of Machine Learning algorithms, and examples of some specific algorithms.
 
 ## risk_examples
 
-Contain hypotetical examples of data leakeage through machine learning models as described in the Green Paper [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6896214.svg)](https://doi.org/10.5281/zenodo.6896214)
+Contain hypothetical examples of data leakage through machine learning models as described in the Green Paper [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6896214.svg)](https://doi.org/10.5281/zenodo.6896214)
 
 ## Examples
 
