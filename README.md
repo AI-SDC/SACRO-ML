@@ -20,7 +20,7 @@ Contains short tutorials on  the basic concept of 'safe_XX' versions of Machine 
 
 Contain hypothetical examples of data leakage through machine learning models as described in the Green Paper [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6896214.svg)](https://doi.org/10.5281/zenodo.6896214)
 
-## Examples
+## examples
 
 Contain examples of code on how to run the code contained in this repository:
 - How to simulate attribute inference attacks (attribute_inference_example.py).
