@@ -44,3 +44,14 @@ class TestDPSVC(unittest.TestCase):
 
         # Check that the two models have equal shape
         self.assertTupleEqual(dp_predprob.shape, sv_predprob.shape)
+
+    def test_svc_recommended(self):
+        """SafeSupportVectorClassifier using recommended values."""
+        x, y = get_data()
+        model = SafeSVC(gamma=1.0)
+        model.fit(x, y)
+
+        msg, disclosive = model.preliminary_check()
+        correct_msg = "Model parameters are within recommended ranges.\n"
+        assert msg == correct_msg
+        assert disclosive is False

@@ -1,6 +1,7 @@
 """This module contains unit tests for SafeKerasModel."""
 
 import os
+import platform
 import shutil
 import getpass
 
@@ -13,7 +14,14 @@ from tensorflow.keras.layers import Dense, Input # pylint: disable = import-erro
 from safemodel.classifiers import SafeKerasModel
 
 n_classes = 4
+#expected accuracy
+ACC = 0.6750 if platform.system()== "Darwin" else  0.3583333492279053
 
+def cleanup_file(name:str):
+    if os.path.exists(name) and os.path.isfile(name):  # h5
+        os.remove(name)
+    elif os.path.exists(name) and os.path.isdir(name):  # tf
+            shutil.rmtree(name)
 
 def get_data():
     """Returns data for testing."""
@@ -134,7 +142,7 @@ def test_keras_basic_fit():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -158,28 +166,20 @@ def test_keras_save_actions():
     names = ("safekeras.tf", "safekeras.h5")
     for name in names:
         # clear existing files
-        if os.path.exists(name) and os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
+        cleanup_file(name)
         # save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
         # clean up
-        if os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+        cleanup_file(name)
 
     # now other versions which should not
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename")
     for name in names:
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
 
 
 def test_keras_unsafe_l2_norm():
@@ -204,7 +204,7 @@ def test_keras_unsafe_l2_norm():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -239,7 +239,7 @@ def test_keras_unsafe_noise_multiplier():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -274,7 +274,7 @@ def test_keras_unsafe_min_epsilon():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -308,7 +308,7 @@ def test_keras_unsafe_delta():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -341,7 +341,7 @@ def test_keras_unsafe_batch_size():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -372,7 +372,7 @@ def test_keras_unsafe_learning_rate():
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
+    expected_accuracy = ACC
     assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
@@ -396,10 +396,7 @@ def test_create_checkfile():
     names = ("safekeras.tf", "safekeras.h5")
     for name in names:
         # clear existing files
-        if os.path.exists(name) and os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
+        cleanup_file(name)
         # save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
@@ -422,17 +419,12 @@ def test_create_checkfile():
             print(f"Line{count}: {line.strip()}")
 
         # clean up
-        if os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+        cleanup_file(name)
 
     # now other versions which should not
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename")
     for name in names:
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
