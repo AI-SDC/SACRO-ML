@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense, Input # pylint: disable = import-error, no-name-in-module
 
 from safemodel.classifiers import SafeKerasModel
+import safemodel.classifiers.safekeras as safekeras
 
 n_classes = 4
 #expected accuracy
@@ -113,7 +114,7 @@ def test_keras_model_compiled_as_DP():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    isDP, _ = model.check_optimizer_is_DP(model.optimizer)
+    isDP, _ = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     right_epsilon = 20.363059561511612
@@ -132,12 +133,12 @@ def test_keras_basic_fit():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -192,14 +193,14 @@ def test_keras_unsafe_l2_norm():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.l2_norm_clip = 0.9
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -227,14 +228,14 @@ def test_keras_unsafe_noise_multiplier():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.noise_multiplier = 1.0
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -262,14 +263,14 @@ def test_keras_unsafe_min_epsilon():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.min_epsilon = 4
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -296,14 +297,14 @@ def test_keras_unsafe_delta():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.delta = 1e-6
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -329,14 +330,14 @@ def test_keras_unsafe_batch_size():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.batch_size = 34
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
@@ -360,14 +361,14 @@ def test_keras_unsafe_learning_rate():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.learning_rate = 0.2
 
     model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
