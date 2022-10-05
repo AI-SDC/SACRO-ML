@@ -160,7 +160,7 @@ class SafeKerasModel(KerasModel, SafeModel):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Creates model and applies constraints to params"""
 
-        the_args = args
+        #the_args = args
         the_kwargs = kwargs
 
         # initialise all the values that get provided as options to keras
@@ -168,7 +168,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         ##inputs = kwargs.get("inputs","notFound")
         ##if inputs=="notFound":
         ##    inputs = args[0] if len(args) == 3 else None
-        if "inputs" in kwargs.keys():
+        if "inputs" in kwargs.keys(): #pylint: disable=consider-iterating-dictionary
             inputs = the_kwargs["inputs"]
         elif len(args) == 3:  # defaults is for Model(input,outputs,names)
             inputs = args[0]
@@ -176,7 +176,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         ##outputs = kwargs.get("outputs","notFound")
         ##if outputs=="notFound":
         ##    outputs = args[1] if len(args) == 3 else None
-        if "outputs" in kwargs.keys():
+        if "outputs" in kwargs.keys():#pylint: disable=consider-iterating-dictionary
             outputs = the_kwargs["outputs"]
         elif len(args) == 3:
             # self.outputs = args[1]
