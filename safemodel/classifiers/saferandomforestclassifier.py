@@ -15,6 +15,7 @@ from ..reporting import get_reporting_string
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
 
+#pylint: disable=too-many-ancestors
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
@@ -29,7 +30,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
             'oob_score','n_jobs','random_state','verbose'
             'warm_start','class_weight','ccp_alpha','max_samples']
 
-        the_kwds=dict()
+        the_kwds={}
         for key,val in kwargs.items():
             if key in self.basemodel_paramnames:
                 the_kwds[key]=val
@@ -42,15 +43,16 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
             "base_estimator_",
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
+        self.k_anonymity=0
 
-    def additional_checks(
+    def additional_checks(#pylint: disable=too-many-nested-blocks,too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """Random Forest-specific checks"""
+        """Random Forest-specific checks
+           would benefit from refactoring into simpler blocks perhaps
+        """
         msg=""
         disclosive=False
-        ## call the super function to deal with any items that are lists
-        #msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         # now the relevant random-forest specific things
         for item in self.examine_seperately_items:
             if item == "base_estimator":
@@ -75,7 +77,6 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                 elif curr_separate[item] == "Absent":
                     disclosive = True
                     msg += get_reporting_string(name="trees_removed")
-                    "Error: current version of model has had trees removed after fitting.\n"
 
                 elif saved_separate[item] == "Absent":
                     disclosive = True
@@ -87,7 +88,9 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                         num1 = len(curr_separate[item])
                         num2 = len(saved_separate[item])
                         if num1 != num2:
-                            msg += get_reporting_string(name="different_num_estimators", num1=num1, num2=num2)
+                            msg += get_reporting_string(name="different_num_estimators",
+                                                        num1=num1,
+                                                        num2=num2)
                             #(
                             #    f"Fitted model has {num2} estimators "
                             #    f"but requested version has {num1}.\n"
@@ -100,26 +103,27 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                                 )
                                 if not same:
                                     disclosive = True
-                                    msg += get_reporting_string(name="forest_estimators_differ", idx=idx)
+                                    msg += get_reporting_string(name="forest_estimators_differ",
+                                                                idx=idx)
                                     #f"Forest base estimators {idx} differ."
                                     msg += msg2
 
-                    except BaseException as error:
-                        msg += get_reporting_string(name="unable_to_check_item", item=item)
-                        #(
-                        #    "In SafeRandomForest.additional_checks: "
-                        #    f"Unable to check {item} as an exception occurred: {error}.\n"
-                        #)
+                    except BaseException as error : # pylint: disable=broad-except
+                        msg += get_reporting_string(name="unable_to_check_item",
+                                                    item=item,error=error)
                         same = False
 
             elif isinstance(curr_separate[item], DecisionTreeClassifier):
                 diffs_list = list(diff(curr_separate[item], saved_separate[item]))
                 if len(diffs_list) > 0:
                     disclosive = True
-                    msg += get_reporting_string(name="structure_differences", item=item, diffs_list=diffs_list)
+                    msg += get_reporting_string(name="structure_differences",
+                                                item=item,
+                                                diffs_list=diffs_list)
                     #f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
         return msg, disclosive
 
+    #pylint: disable=arguments-differ
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """Do fit and then store model dict"""
         super().fit(x, y)
