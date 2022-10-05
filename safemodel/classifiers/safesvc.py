@@ -34,9 +34,9 @@ class SafeSVC(SafeModel, DPSVC):
                         "svc"
         ]
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> None:
+    def fit(self, train_features: np.ndarray, train_labels: np.ndarray) -> None:
         """Do fit and then store model dict"""
-        super().fit(x, y)
+        super().fit(train_features, train_labels)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def additional_checks(
