@@ -1,4 +1,7 @@
-"""This is a template for implementing supplementary models"""
+"""This is a template for implementing supplementary models
+   Obviously we have invented an sklearn ensemble called ModelToMakeSafer
+   Replace this with details of the model you wish to create a wrapper for
+   and then remove the comment which disables the pylint warning"""
 
 from __future__ import annotations
 
@@ -7,17 +10,43 @@ from typing import Any
 
 import numpy as np
 from dictdiffer import diff
-from sklearn.ensemble import ModelToMakeSafer
+from sklearn.ensemble import ModelToMakeSafer # pylint: disable=E0611
+from sklearn.tree import DecisionTreeClassifier
 
 from ..safemodel import SafeModel
+from .safedecisiontreeclassifier import decision_trees_are_equal
 
-class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
+
+
+def check_present(item:str,
+                  curr_separate:dict,
+                  saved_separate:dict) -> tuple[str,bool]:
+    """checks item is present in both dicts and reports suitably"""
+    disclosive=False
+    msg=""
+    if curr_separate[item] == "Absent" and saved_separate[item] == "Absent":
+        disclosive = True
+        msg += "Error: model has not been fitted to data.\n"
+
+    elif curr_separate[item] == "Absent":
+        disclosive = True
+        msg += "Error: current version of model has had trees removed after fitting.\n"
+
+    elif saved_separate[item] == "Absent":
+        disclosive = True
+        msg += "Error: current version of model has had trees manually edited.\n"
+    return msg,disclosive
+
+
+
+
+class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
     """Privacy protected ModelToMakeSafer."""
 
     def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params"""
         SafeModel.__init__(self)
-
+        self.k_anonymity=0
         self.basemodel_paramnames=[
             'edit','this','list','to',
             'contain','just','the','valid','parameters',
@@ -25,7 +54,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
             'you ','are','creating','a'
             'safe','wrapper','version','of']
 
-        the_kwds=dict()
+        the_kwds={}
         for key,val in kwargs.items():
             if key in self.basemodel_paramnames:
                 the_kwds[key]=val
@@ -39,10 +68,14 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
 
-    def additional_checks(
+    def additional_checks( # pylint: disable=too-many-nested-blocks,too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """ModelToMakeSafer specific checks"""
+        """ModelToMakeSafer specific checks
+          This example shows how to deal with instances of sklearn's tree class
+          as base estimators in a forest (line 99)
+          or as single estimators (lines 114-118)
+        """
         msg=""
         disclosive=False
         ## call the super function to deal with any items that are lists
@@ -60,19 +93,10 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
                     disclosive = True
 
             elif item == "estimators_":
-
-                if curr_separate[item] == "Absent" and saved_separate[item] == "Absent":
-                    disclosive = True
-                    msg += "Error: model has not been fitted to data.\n"
-
-                elif curr_separate[item] == "Absent":
-                    disclosive = True
-                    msg += "Error: current version of model has had trees removed after fitting.\n"
-
-                elif saved_separate[item] == "Absent":
-                    disclosive = True
-                    msg += "Error: current version of model has had trees manually edited.\n"
-
+                msg2,disclosive2=check_present(item,curr_separate,saved_separate)
+                msg+=msg2
+                if disclosive2:
+                    disclosive=True
                 else:
                     try:
                         num1 = len(curr_separate[item])
@@ -93,7 +117,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafe):
                                     msg += f"Forest base estimators {idx} differ."
                                     msg += msg2
 
-                    except BaseException as error:
+                    except BaseException as error: # pylint:disable=broad-except
                         msg += (
                             "In Safe ModelToMakeSafer.additional_checks: "
                             f"Unable to check {item} as an exception occurred: {error}.\n"

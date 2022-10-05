@@ -1,5 +1,7 @@
 """
 Differentially private SVC
+James Liley
+21/03/22
 """
 import logging
 from typing import Any
@@ -14,14 +16,10 @@ local_logger.setLevel(logging.WARNING)
 
 
 # pylint: disable = invalid-name
-
+# pylint: disable=R0902: too-many-instance-attributes
+# pylint:disable = fixme
 
 class DPSVC():
-    ## Wrapper for differentially private SVM
-    ##
-    ## James Liley
-    ## 21/03/22
-
     """
     Wrapper for differentially private SVM, implemented according to the method in
 
@@ -69,6 +67,7 @@ class DPSVC():
         self.classes_ = [0, 1]
         self.intercept = None
         self.noisy_weights = None
+        # TODO: handle kwargs or delete as param?
 
     def phi_hat(self, input_vector):
         """Project a single feature"""
@@ -87,11 +86,12 @@ class DPSVC():
             phi_hat[i, :] = self.phi_hat(input_features[i, :])
         return phi_hat
 
-    def k_hat_svm(self, x, y=None): ##James: only you call this code, and do it without y, so can we lose the y param then lose 96,98,99
+    def k_hat_svm(self, x, y=None):
         """
         Define the version which is sent to sklearn.svm. AFAICT python/numpy
         doesn't have an 'outer' for arbitrary functions.
         """
+        # TODO: remove  param y which is never provided by fit()
         phi_hat_x = self.phi_hat_multi(x)
         if y is None:
             phi_hat_y = phi_hat_x
