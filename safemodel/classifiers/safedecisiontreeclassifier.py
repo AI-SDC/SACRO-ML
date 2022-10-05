@@ -8,13 +8,13 @@ from typing import Any
 import numpy as np
 from dictdiffer import diff
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree._tree import Tree
+#from sklearn.tree._tree import Tree
 
 from ..safemodel import SafeModel
 from ..reporting import get_reporting_string
 
 def decision_trees_are_equal(
-    tree1: sklearn.tree, tree2: sklearn.tree
+    tree1: DecisionTreeClassifier, tree2: DecisionTreeClassifier
 ) -> tuple[bool, str]:
     """Compares two estimators of type sklearn.tree
     e.g. two decisionTreeClassifiers
@@ -30,11 +30,12 @@ def decision_trees_are_equal(
 
         # comparison on list of "simple" parameters
         match = list(diff(tree1_dict, tree2_dict, expand=True))
-        if len(match) > 0:
+        num_differences=len(match)
+        if num_differences > 0:
             same = False
             msg += get_reporting_string(name="basic_params_differ", match=match)
             #f"Warning: basic parameters differ in {len(match)} places:\n"
-            for i in range(len(match)):
+            for i in range(num_differences):
                 if match[i][0] == "change":
                     msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
                     msg += f"to {match[i][2][0]}\n"
@@ -43,11 +44,11 @@ def decision_trees_are_equal(
 
         # now internal tree params
         same2, msg2 = decision_tree_internal_trees_are_equal(tree1_tree, tree2_tree)
-        if same2 == False:
+        if same2 is False:
             same = False
             msg += msg2
 
-    except BaseException as error:
+    except BaseException as error: #pylint:disable=broad-except
         msg += get_reporting_string(name="unable_to_check", error=error)
         #f"Unable to check as an exception occurred: {error}"
         same = False
@@ -56,7 +57,7 @@ def decision_trees_are_equal(
 
 
 def decision_tree_internal_trees_are_equal(
-    tree1_tree: Tree, tree2_tree: Tree
+    tree1_tree: Any, tree2_tree: Any
 ) -> tuple[bool, str]:
     """Tests for equality of the internal structures in a sklearn.tree._tree
     e.g. the structure, feature and threshold in each internal node etc."""
@@ -105,17 +106,19 @@ def decision_tree_internal_trees_are_equal(
                                                     attr=attr)
                         #f"internal tree attribute {attr} differs\n"
                         same = False
-    except BaseException as error:
+    except BaseException as error:#pylint:disable=broad-except
         msg += get_reporting_string(name="exception_occurred", error=error)
         #f"An exception occurred: {error}"
     return same, msg
 
 
-def get_tree_k_anonymity(thetree: sklearn.tree) -> int:
+def get_tree_k_anonymity(thetree: DecisionTreeClassifier,X:Any) -> int:
+    """returns the smallest number of data items in any leaf"""
     leaves = thetree.apply(X)
     uniqs_counts = np.unique(leaves, return_counts=True)
     k_anonymity = np.min(uniqs_counts[1])
-    # print(f' leaf ids {uniqs_counts[0]} and counts {uniqs_counts[1]} the  k-anonymity of the tree is {k_anonymity}')
+    # print(f' leaf ids {uniqs_counts[0]} and counts {uniqs_counts[1]}'
+    #        f'the  k-anonymity of the tree is {k_anonymity}')
     return k_anonymity
 
 
@@ -131,7 +134,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
             'random_state','max_leaf_nodes','min_impurity_decrease',
             'class_weight','ccp_alpha']
 
-        the_kwds=dict()
+        the_kwds={}
         for key,val in kwargs.items():
             if key in self.basemodel_paramnames:
                 the_kwds[key]=val
@@ -140,7 +143,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
         super().preliminary_check(apply_constraints=True, verbose=True)
         self.ignore_items = ["model_save_file","basemodel_paramnames", "ignore_items"]
         self.examine_seperately_items = ["tree_"]
-
+        self.k_anonymity=0
 
     def additional_checks(
         self, curr_separate: dict, saved_separate: dict
@@ -165,7 +168,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
 
         return msg, disclosive
 
-    def fit(self, x: np.ndarray, y: np.ndarray):
+    def fit(self, x: np.ndarray, y: np.ndarray)->None:  #pylint: disable=arguments-differ
         """Do fit and then store k-anonymity and  model dict"""
         super().fit(x, y)
         # calculate k-anonymity her since we have the tainigf data
