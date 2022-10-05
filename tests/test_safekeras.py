@@ -11,8 +11,7 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense, Input # pylint: disable = import-error, no-name-in-module
 
-from safemodel.classifiers import SafeKerasModel
-import safemodel.classifiers.safekeras as safekeras
+from safemodel.classifiers import safekeras, SafeKerasModel
 
 n_classes = 4
 #expected accuracy
