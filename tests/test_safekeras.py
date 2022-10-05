@@ -18,10 +18,11 @@ n_classes = 4
 ACC = 0.6750 if platform.system()== "Darwin" else  0.3583333492279053
 
 def cleanup_file(name:str):
+    """removes unwanted files or directory"""
     if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
     elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
+        shutil.rmtree(name)
 
 def get_data():
     """Returns data for testing."""

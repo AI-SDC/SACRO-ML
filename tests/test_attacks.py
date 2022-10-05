@@ -1,13 +1,15 @@
-from attacks import attack,dataset
+"""Jim Smith October 2022"""
 import pytest
+from attacks import attack,dataset
+
 from safemodel.classifiers import SafeDecisionTreeClassifier
 
-#test that superclass cannot be called
 def test_superclass():
+    """Test that the exceptions are raised if the superclass is called in error"""
     my_attack = attack.Attack()
     dataset_obj = dataset.Data()
     target_obj=SafeDecisionTreeClassifier()
     with pytest.raises(NotImplementedError) :
-        my_attack.attack(dataset_obj,dataset_obj)
+        my_attack.attack(target_obj,dataset_obj)
     with pytest.raises(NotImplementedError) :
-        my_attack.__str__()
+        print(str(my_attack))#.__str__()

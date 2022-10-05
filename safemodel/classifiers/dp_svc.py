@@ -87,7 +87,7 @@ class DPSVC():
             phi_hat[i, :] = self.phi_hat(input_features[i, :])
         return phi_hat
 
-    def k_hat_svm(self, x, y=None):
+    def k_hat_svm(self, x, y=None): ##James: only you call this code, and do it without y, so can we lose the y param then lose 96,98,99
         """
         Define the version which is sent to sklearn.svm. AFAICT python/numpy
         doesn't have an 'outer' for arbitrary functions.
@@ -96,7 +96,7 @@ class DPSVC():
         if y is None:
             phi_hat_y = phi_hat_x
         else:
-            phi_hat_y = self.phi_hat_multi(y)
+            phi_hat_y = self.phi_hat_multi(y) ##TEST
         return np.dot(phi_hat_x, phi_hat_y.T)
 
     def fit(self, train_features: Any, train_labels: Any) -> None:
