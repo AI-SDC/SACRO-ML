@@ -52,11 +52,20 @@ class TestDPSVC(unittest.TestCase):
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
-
         msg, disclosive = model.preliminary_check()
         correct_msg = "Model parameters are within recommended ranges.\n"
         assert msg == correct_msg
         assert disclosive is False
+
+    def test_svc_khat(self):
+        """SafeSupportVectorClassifier khat method."""
+        x, y = get_data()
+        model = SafeSVC(gamma=1.0)
+        model.fit(x, y)
+        y_matrix = np.ones((len(y),30))
+        assert len( y_matrix.shape)==2
+        _ = model.k_hat_svm(x,y_matrix)
+
 
     def test_svc_wrongdata(self):
         """SafeSupportVectorClassifier with wrong datatypes."""

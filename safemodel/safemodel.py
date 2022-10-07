@@ -851,7 +851,13 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output['metadata']
 
-        elif attack_name=="lira":
+        elif attack_name=="lira-n10":
+            args = LIRAAttackArgs(n_shadow_models=10, report_name="lira_example_report")
+            attack_obj = LIRAAttack(args)
+            attack_obj.attack(data_obj,self)
+            output = attack_obj.make_report() # also makes .pdf and .json files
+            metadata = output['metadata']
+        elif attack_name=="lira-n100":
             args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
             attack_obj = LIRAAttack(args)
             attack_obj.attack(data_obj,self)
