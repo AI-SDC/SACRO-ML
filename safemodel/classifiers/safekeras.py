@@ -260,11 +260,12 @@ class SafeKerasModel(KerasModel, SafeModel):
     def compile(
         self, optimizer=None, loss="categorical_crossentropy", metrics=["accuracy"]
     ): #pylint:disable=dangerous-default-value)
-        """replaces the optimiser with a DP variant if needed
-           and creates the necessary DP params in the opt and loss dict,
-           then calls tf compile
-           Allow None as default value for optimizer param because we explicitly deal with it
-           """
+        """
+        Replaces the optimiser with a DP variant if needed and creates the
+        necessary DP params in the opt and loss dict, then calls tf compile.
+        Allow None as default value for optimizer param because we explicitly
+        deal with it.
+        """
         replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
         #"WARNING: model parameters may present a disclosure risk"
         using_DP_SGD = get_reporting_string(name="using_dp_sgd")
@@ -316,13 +317,13 @@ class SafeKerasModel(KerasModel, SafeModel):
         batch_size: int,
         refine_epsilon: bool = False,
     ) -> Any:
-        """Over-rides the tensorflow fit() method with some
-        extra functionality:
-         (i) records number of samples for checking DP epsilon values
-         (ii) does an automatic epsilon check and reports
-         (iia) if user sets refine_epsilon = true, retiurn w ithout fitting the model
-         (iii) then calls the tensorflow fit() function
-         (iv) finally makes a saved copy of the newly fitted model
+        """
+        Overrides the tensorflow fit() method with some extra functionality:
+        (i) records number of samples for checking DP epsilon values.
+        (ii) does an automatic epsilon check and reports.
+        (iia) if user sets refine_epsilon = true, return without fitting the model.
+        (iii) then calls the tensorflow fit() function.
+        (iv) finally makes a saved copy of the newly fitted model.
         """
 
         # pylint can't cope whoe we first declared these via a dict :(
