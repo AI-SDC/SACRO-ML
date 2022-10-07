@@ -14,7 +14,7 @@ tensorflow-datasets==4.5.2
 tensorflow-estimator==2.8.0
 tensorflow-io-gcs-filesystem==0.25.0
 tensorflow-metadata==1.7.0
-tensorflow-privacy==0.8.0
+tensorflow-privacy==0.8.2
 tensorflow-probability==0.15.0
 scikit-image==0.19.3
 scikit_learn==1.1.2
