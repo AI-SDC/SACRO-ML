@@ -21,7 +21,6 @@ extensions = [
     "numpydoc",
     "sphinx-prompt",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.imgconverter",
     "sphinx.ext.intersphinx",
