@@ -157,19 +157,20 @@ def get_metrics(clf, # pylint: disable = too-many-locals
 
     Notes
     -----
-    Includes the following metrics
+    Includes the following metrics:
 
-    True positive rate or recall (TPR)
-    False positive rate (FPR), proportion of negative examples incorrectly classified as positives
-    False alarm rate (FAR), proportion of objects classified as positives that are incorrect,
-        also known as false discovery rate
-    True neagative rate (TNR)
-    Positive predictive value or precision (PPV)
-    Negative predictive value (NPV)
-    False neagative rate (FNR)
-    Accuracy (ACC)
-    F1 Score - harmonic mean of precision and recall.
-    Advantage
+    * True positive rate or recall (TPR).
+    * False positive rate (FPR), proportion of negative examples incorrectly \
+    classified as positives.
+    * False alarm rate (FAR), proportion of objects classified as positives \
+    that are incorrect, also known as false discovery rate.
+    * True neagative rate (TNR).
+    * Positive predictive value or precision (PPV).
+    * Negative predictive value (NPV).
+    * False neagative rate (FNR).
+    * Accuracy (ACC).
+    * F1 Score - harmonic mean of precision and recall.
+    * Advantage.
     """
     metrics = {}
     if permute_rows:
