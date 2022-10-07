@@ -2,6 +2,7 @@
 Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf
 '''
 # pylint: disable = invalid-name
+# pylint: disable = too-many-branches
 import argparse
 import json
 import logging
