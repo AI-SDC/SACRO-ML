@@ -313,8 +313,12 @@ class LIRAAttack(Attack):
         for i in range(n_train_rows):
             true_score = _logit(target_train_preds[i, y_target_train[i]])
             null_scores = np.array(train_row_to_confidence[i])
-            mean_null = null_scores.mean()
-            var_null = max(null_scores.var(), EPS) # var can be zero in some cases
+            mean_null=0.0
+            var_null=0.0
+            if not np.isnan(null_scores).all():
+                mean_null = np.nanmean(null_scores)#null_scores.mean()
+                var_null= np.nanvar(null_scores)#
+            var_null = max(var_null, EPS) # var can be zero in some cases
             prob = norm.cdf(true_score, loc=mean_null, scale=np.sqrt(var_null))
             mia_scores.append([1 - prob, prob])
             mia_labels.append(1)
