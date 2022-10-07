@@ -1,9 +1,8 @@
 ---
-name: lint and test
+name: test
 
 on:
   push:
-  pull_request:
 
 jobs:
   build:
@@ -19,10 +18,6 @@ jobs:
           pip install pylint pytest pytest-cov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: pylint
-        run: |
-          pylint safemodel **/*.py --fail-under 10
-
       - name: pytest and report coverage
         run: |
           pytest --cov=./ --cov-report=xml
@@ -30,3 +25,4 @@ jobs:
           chmod +x codecov
           ./codecov
 ...
+
