@@ -3,11 +3,11 @@ Tests attacks called via safemodel classes
 uses a saubsmapled nursery dataset as this tests more of the attack code
 currently using random forests
 """
-import logging
+import os
+
 import pickle
 from pathlib import Path
 import numpy as np
-import os
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -16,12 +16,13 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from safemodel.classifiers import SafeRandomForestClassifier
 from attacks.dataset import Data
 
+# pylint: disable=too-many-locals,bare-except
+
 def cleanup_file(name:str):
     """removes unwanted files or directory"""
     if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
-    elif os.path.exists(name) and os.path.isdir(name):  # tf
-        shutil.rmtree(name)
+
 
 def get_nursery_dataset()->Data:
     """ returns a randomly sampled 10+10% of
@@ -36,7 +37,7 @@ def get_nursery_dataset()->Data:
 
     if Path(the_file).is_file():
         try:
-            with open(the_file) as f:
+            with open(the_file,encoding="utf-8") as f:
                 the_data = pickle.load(f)
             need_download=False
         except:
@@ -48,7 +49,8 @@ def get_nursery_dataset()->Data:
         x = np.asarray(nursery_data.data, dtype=str)
         y = np.asarray(nursery_data.target, dtype=str)
         #change labels from recommend to priority for the two odd cases
-        for i in range (len(y)):
+        num=len(y)
+        for i in range (num):
             if y[i]== 'recommend':
                 y[i]='priority'
 
@@ -120,18 +122,19 @@ def get_nursery_dataset()->Data:
         #make directory if needed then save
         output_file = Path(the_file)
         output_file.parent.mkdir(exist_ok=True, parents=True)
-        with open(the_file, 'wb') as f:
+        with open(the_file, 'wb',encoding="utf-8") as f:
             pickle.dump(the_data, f)
 
     return the_data
 
 def test_run_attack_lira():
+    """ calls the lira attack via safemodel"""
     the_data = get_nursery_dataset()
 
     #build a model
     model = SafeRandomForestClassifier(random_state=1)
     model.fit(the_data.x_train, the_data.y_train)
-    msg, disclosive = model.preliminary_check()
+    _, disclosive = model.preliminary_check()
     assert not disclosive
 
     print(np.unique(the_data.y_test, return_counts=True))
@@ -146,12 +149,13 @@ def test_run_attack_lira():
 
 
 def test_run_attack_worstcase():
+    """ calls the worst case attack via safemodel"""
     the_data = get_nursery_dataset()
 
     #build a model
     model = SafeRandomForestClassifier(random_state=1)
     model.fit(the_data.x_train, the_data.y_train)
-    msg, disclosive = model.preliminary_check()
+    _, disclosive = model.preliminary_check()
     assert not disclosive
 
     fname="delete-me"
@@ -161,12 +165,13 @@ def test_run_attack_worstcase():
     assert len(metadata) >0 #something has been added
 
 def test_run_attack_attribute():
+    """ calls the attribute  attack via safemodel"""
     the_data = get_nursery_dataset()
 
     #build a model
     model = SafeRandomForestClassifier(random_state=1)
     model.fit(the_data.x_train, the_data.y_train)
-    msg, disclosive = model.preliminary_check()
+    _, disclosive = model.preliminary_check()
     assert not disclosive
 
     fname="delete-me"
