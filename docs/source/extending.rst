@@ -4,21 +4,21 @@ Extending SafeModel
 Modular Design
 --------------
 
-The safemodel package is an opensource wrapper for common machine learning
+The safemodel package is an open source wrapper for common machine learning
 models. It is designed to be modular and can be extended for use with other
 models. Code comments should be in the numpydoc format so that they are rendered
 by the automatic sphinx documentation
 
 The main steps needed to implement a new model are:
 
-# Copy the new_model_template.py
-# Define a safer class inheriting SafeModel and the Basic (SkLearn) model
-# Update the __init__ method with ignore_items and examine_separately items
-# Add checks for any unusual data structures
-# Override the fit() function
-# Update Sphinx documentation
-# Write pytests to confirm core functionality
-# Include any optional helper functions
+#. Copy the new_model_template.py
+#. Define a safer class inheriting SafeModel and the Basic (SkLearn) model
+#. Update the __init__ method with ignore_items and examine_separately items
+#. Add checks for any unusual data structures
+#. Override the fit() function
+#. Update Sphinx documentation
+#. Write pytests to confirm core functionality
+#. Include any optional helper functions
 
 Copy The Template
 -----------------
