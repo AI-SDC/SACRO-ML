@@ -36,3 +36,7 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {"navigation_depth": 2}
+
+# -- -------------------------------------------------------------------------
+
+numpydoc_class_members_toctree = False
