@@ -34,9 +34,9 @@ class SafeSVC(SafeModel, DPSVC):
                         "svc"
         ]
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> None:
+    def fit(self, train_features: np.ndarray, train_labels: np.ndarray) -> None:
         """Do fit and then store model dict"""
-        super().fit(x, y)
+        super().fit(train_features, train_labels)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def additional_checks(
@@ -49,5 +49,9 @@ class SafeSVC(SafeModel, DPSVC):
             diffs_list = list(diff(curr_separate[item].__dict__, saved_separate[item].__dict__))
             if len(diffs_list) > 0:
                 disclosive = True
-                msg += f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
+                if len(diffs_list) ==1 :
+                    msg += f"structure {item} has one difference.\n"#: {diffs_list}"
+                else:
+                    msg += f"structure {item} has several differences.\n"#: {diffs_list}"
+
         return msg, disclosive

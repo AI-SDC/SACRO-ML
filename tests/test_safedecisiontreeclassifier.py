@@ -7,7 +7,7 @@ import numpy as np
 from sklearn import datasets
 
 from safemodel.classifiers import SafeDecisionTreeClassifier
-
+from safemodel import reporting
 
 def get_data():
     """Returns data for testing."""
@@ -17,6 +17,12 @@ def get_data():
     x = np.vstack([x, (7, 2.0, 4.5, 1)])
     y = np.append(y, 4)
     return x, y
+
+def test_reporting():
+    """ Check that getting report name requires name"""
+    correct_msg="Error - get_reporting_string: No 'name' given"
+    msg=reporting.get_reporting_string()
+    assert msg==correct_msg
 
 
 def test_decisiontree_unchanged():
