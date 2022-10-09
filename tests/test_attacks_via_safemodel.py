@@ -37,7 +37,7 @@ def get_nursery_dataset()->Data:
 
     if Path(the_file).is_file():
         try:
-            with open(the_file,encoding="utf-8") as f:
+            with open(the_file,"rb") as f:
                 the_data = pickle.load(f)
             need_download=False
         except:
@@ -122,7 +122,7 @@ def get_nursery_dataset()->Data:
         #make directory if needed then save
         output_file = Path(the_file)
         output_file.parent.mkdir(exist_ok=True, parents=True)
-        with open(the_file, 'wb',encoding="utf-8") as f:
+        with open(the_file, 'wb') as f:
             pickle.dump(the_data, f)
 
     return the_data
