@@ -16,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from safemodel.classifiers import SafeRandomForestClassifier
 from attacks.dataset import Data
 
-# pylint: disable=too-many-locals,bare-except
+# pylint: disable=too-many-locals,bare-except,duplicate-code
 
 def cleanup_file(name:str):
     """removes unwanted files or directory"""
