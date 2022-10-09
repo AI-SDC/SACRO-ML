@@ -13,7 +13,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_privacy as tf_privacy
 from dictdiffer import diff
-from tensorflow.keras import Model as KerasModel
+from tensorflow.keras import Model as KerasModel # pylint: disable = import-error
 from tensorflow_privacy import DPModel
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
