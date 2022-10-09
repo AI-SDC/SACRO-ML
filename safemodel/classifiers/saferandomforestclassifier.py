@@ -19,7 +19,7 @@ from .safedecisiontreeclassifier import decision_trees_are_equal
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None: #pylint: disable=too-many-instance-attributes
         """Creates model and applies constraints to params"""
         SafeModel.__init__(self)
         self.basemodel_paramnames=[
