@@ -3,6 +3,8 @@
    Replace this with details of the model you wish to create a wrapper for
    and then remove the comment which disables the pylint warning"""
 
+#pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import copy
