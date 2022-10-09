@@ -20,6 +20,7 @@ from dictdiffer import diff
 from attacks import attribute_attack, worst_case_attack, dataset,report
 from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
 
+#pylint : disable=too-many-branches
 from .reporting import get_reporting_string
 
 logger = logging.getLogger(__file__)
