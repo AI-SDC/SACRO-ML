@@ -2,8 +2,6 @@
 
 A collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
 
-Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
-
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
 [![Latest Version](https://img.shields.io/github/v/release/AI-SDC/AI-SDC?style=flat)](https://github.com/AI-SDC/AI-SDC/releases)
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
@@ -26,6 +24,10 @@ Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 * `risk_examples` : Contains hypothetical examples of data leakage through machine learning models as described in the [Green Paper](https://doi.org/10.5281/zenodo.6896214).
 * `safemodel` : The safemodel package is an open source wrapper for common machine learning models. It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
 * `tests` : Contains unit tests.
+
+## Documentation
+
+Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 
 ---
 
