@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Dense, Input # pylint: disable = import-erro
 
 from safemodel.classifiers import safekeras, SafeKerasModel
 
+EPOCHS = 1
 n_classes = 4
 #expected accuracy
 ACC = 0.6750 if platform.system()== "Darwin" else  0.3583333492279053
@@ -57,7 +58,7 @@ def make_model():
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
 
     return model, X, y, Xval, yval
@@ -89,14 +90,14 @@ def test_second_keras_model_created():
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
     model2 = SafeKerasModel(
         inputs=input_data,
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
     rightname = "KerasModel"
     assert (
@@ -135,7 +136,7 @@ def test_keras_basic_fit():
     isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -161,7 +162,7 @@ def test_keras_save_actions():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
@@ -197,7 +198,7 @@ def test_keras_unsafe_l2_norm():
 
     model.l2_norm_clip = 0.9
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -232,7 +233,7 @@ def test_keras_unsafe_noise_multiplier():
 
     model.noise_multiplier = 1.0
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -267,7 +268,7 @@ def test_keras_unsafe_min_epsilon():
 
     model.min_epsilon = 4
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -301,7 +302,7 @@ def test_keras_unsafe_delta():
 
     model.delta = 1e-6
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -334,7 +335,7 @@ def test_keras_unsafe_batch_size():
 
     model.batch_size = 34
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -365,7 +366,7 @@ def test_keras_unsafe_learning_rate():
 
     model.learning_rate = 0.2
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
@@ -391,7 +392,7 @@ def test_create_checkfile():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
