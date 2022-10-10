@@ -404,7 +404,7 @@ def _attack_brute_force(
     args = [
         (target_model, dataset, feature_id, attack_threshold) for feature_id in features
     ]
-    with mp.Pool(processes=n_cpu) as pool: #pylint:disable=not-callable
+    with mp.Pool(processes=n_cpu) as pool:  # pylint:disable=not-callable
         results = pool.starmap(_infer_categorical, args)
     return results
 
@@ -536,7 +536,7 @@ def _get_bounds_risks(
         )
         for feature_id in features
     ]
-    with mp.Pool(processes=n_cpu) as pool:#pylint:disable=not-callable
+    with mp.Pool(processes=n_cpu) as pool:  # pylint:disable=not-callable
         results = pool.starmap(_get_bounds_risk, args)
     return results
 

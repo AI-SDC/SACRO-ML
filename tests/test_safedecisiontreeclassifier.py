@@ -6,23 +6,25 @@ import joblib
 import numpy as np
 from sklearn import datasets
 
-from safemodel.classifiers import SafeDecisionTreeClassifier
 from safemodel import reporting
+from safemodel.classifiers import SafeDecisionTreeClassifier
+
 
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
-    x = np.asarray(iris['data'], dtype=np.float64)
-    y = np.asarray(iris['target'], dtype=np.float64)
+    x = np.asarray(iris["data"], dtype=np.float64)
+    y = np.asarray(iris["target"], dtype=np.float64)
     x = np.vstack([x, (7, 2.0, 4.5, 1)])
     y = np.append(y, 4)
     return x, y
 
+
 def test_reporting():
-    """ Check that getting report name requires name"""
-    correct_msg="Error - get_reporting_string: No 'name' given"
-    msg=reporting.get_reporting_string()
-    assert msg==correct_msg
+    """Check that getting report name requires name"""
+    correct_msg = "Error - get_reporting_string: No 'name' given"
+    msg = reporting.get_reporting_string()
+    assert msg == correct_msg
 
 
 def test_decisiontree_unchanged():
