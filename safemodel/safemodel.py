@@ -3,30 +3,30 @@
 from __future__ import annotations
 
 import copy
+import datetime
 import getpass
 import json
 import logging
+import os
 import pathlib
 import pickle
-import os
 from typing import Any
-import datetime
-import tensorflow as tf
-
 
 import joblib
+import tensorflow as tf
 from dictdiffer import diff
 
-from attacks import attribute_attack, worst_case_attack, dataset,report
-from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
+from attacks import attribute_attack, dataset, report, worst_case_attack
+from attacks.likelihood_attack import (  # pylint: disable = import-error
+    LIRAAttack,
+    LIRAAttackArgs,
+)
 
-#pylint : disable=too-many-branches
+# pylint : disable=too-many-branches
 from .reporting import get_reporting_string
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
-
-
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
@@ -56,26 +56,29 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if isinstance(cur_val,(int,float)):
+    if isinstance(cur_val, (int, float)):
         if cur_val < val:
             disclosive = True
-            print(f'key = {key}')
-            msg = get_reporting_string(name="less_than_min_value",
-                                       key=key, cur_val=cur_val, val=val)
+            print(f"key = {key}")
+            msg = get_reporting_string(
+                name="less_than_min_value", key=key, cur_val=cur_val, val=val
+            )
             print(msg)
-            #(
+            # (
             #    f"- parameter {key} = {cur_val}"
             #    f" identified as less than the recommended min value of {val}."
-            #)
+            # )
         else:
             disclosive = False
             msg = ""
         return msg, disclosive
 
     disclosive = True
-    msg = get_reporting_string(name="different_than_recommended_type",
-                               key=key, cur_val=cur_val, val=val)
+    msg = get_reporting_string(
+        name="different_than_recommended_type", key=key, cur_val=cur_val, val=val
+    )
     return msg, disclosive
+
 
 def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """Checks maximum value constraint.
@@ -104,23 +107,25 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
     """
-    if isinstance(cur_val,(int,float)):
+    if isinstance(cur_val, (int, float)):
         if cur_val > val:
             disclosive = True
-            msg = get_reporting_string(name="greater_than_max_value", key=key,
-                                       cur_val=cur_val, val=val)
-            #(
-            #f"- parameter {key} = {cur_val}"
-            #f" identified as greater than the recommended max value of {val}."
-            #)
+            msg = get_reporting_string(
+                name="greater_than_max_value", key=key, cur_val=cur_val, val=val
+            )
+            # (
+            # f"- parameter {key} = {cur_val}"
+            # f" identified as greater than the recommended max value of {val}."
+            # )
         else:
             disclosive = False
             msg = ""
         return msg, disclosive
 
     disclosive = True
-    msg = get_reporting_string(name="different_than_recommended_type",
-                               key=key, cur_val=cur_val, val=val)
+    msg = get_reporting_string(
+        name="different_than_recommended_type", key=key, cur_val=cur_val, val=val
+    )
     return msg, disclosive
 
 
@@ -155,12 +160,13 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if cur_val != val:
         disclosive = True
-        msg = get_reporting_string(name="different_than_fixed_value", key=key, cur_val=cur_val,
-                                   val=val)
-        #(
+        msg = get_reporting_string(
+            name="different_than_fixed_value", key=key, cur_val=cur_val, val=val
+        )
+        # (
         #    f"- parameter {key} = {cur_val}"
         #    f" identified as different than the recommended fixed value of {val}."
-        #)
+        # )
     else:
         disclosive = False
         msg = ""
@@ -195,19 +201,20 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """
     if type(cur_val).__name__ != val:
         disclosive = True
-        msg = get_reporting_string(name="different_than_recommended_type",
-                                   key=key, cur_val=cur_val, val=val)
-        #(
+        msg = get_reporting_string(
+            name="different_than_recommended_type", key=key, cur_val=cur_val, val=val
+        )
+        # (
         #    f"- parameter {key} = {cur_val}"
         #    f" identified as different type to recommendation of {val}."
-        #)
+        # )
     else:
         disclosive = False
         msg = ""
     return msg, disclosive
 
 
-class SafeModel: # pylint: disable = too-many-instance-attributes
+class SafeModel:  # pylint: disable = too-many-instance-attributes
     """Privacy protected model base class.
 
     Attributes
@@ -262,7 +269,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         self.model_save_file: str = "None"
         self.ignore_items: list[str] = []
         self.examine_seperately_items: list[str] = []
-        self.basemodel_paramnames=[]
+        self.basemodel_paramnames = []
         self.filename: str = "None"
         self.researcher: str = "None"
         try:
@@ -270,23 +277,21 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         except (ImportError, KeyError, OSError):
             self.researcher = "unknown"
 
-
-
-    def get_params(self,deep=True):
+    def get_params(self, deep=True):
         """gets dictionary of parameter values
         restricted to those expected by base classifier.
         """
-        the_params={}
-        for key,val in self.__dict__.items():
-            if key  in self.basemodel_paramnames:
-                the_params[key]=val
+        the_params = {}
+        for key, val in self.__dict__.items():
+            if key in self.basemodel_paramnames:
+                the_params[key] = val
         if deep:
-            pass #not implemented yet
+            pass  # not implemented yet
         return the_params
 
-
-
-    def save(self, name: str = "undefined") -> None: #pylint: disable=too-many-branches
+    def save(
+        self, name: str = "undefined"
+    ) -> None:  # pylint: disable=too-many-branches
         """Writes model to file in appropriate format.
 
         Parameters
@@ -308,7 +313,6 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         To prevent possible to restart training and thus
         possible back door into attacks.
         """
-
 
         self.model_save_file = name
         while self.model_save_file == "undefined":
@@ -353,7 +357,9 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                     )
 
                 except (ImportError, NotImplementedError) as exception_err:
-                    print(f"saving as a {suffix} file gave this error message:  {exception_err}")
+                    print(
+                        f"saving as a {suffix} file gave this error message:  {exception_err}"
+                    )
             else:
                 print(
                     f"{suffix} file suffix currently not supported "
@@ -413,22 +419,23 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                #f"\nChanged parameter type for {key} to {val}.\n"
+                # f"\nChanged parameter type for {key} to {val}.\n"
             elif (val == "float") and (type(cur_val).__name__ == "int"):
                 self.__dict__[key] = float(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                #f"\nChanged parameter type for {key} to {val}.\n"
+                # f"\nChanged parameter type for {key} to {val}.\n"
             else:
-                msg = get_reporting_string(name="not_implemented_for_change", key=key,
-                                           cur_val=cur_val, val=val)
-                #(
+                msg = get_reporting_string(
+                    name="not_implemented_for_change", key=key, cur_val=cur_val, val=val
+                )
+                # (
                 #    f"Nothing currently implemented to change type of parameter {key} "
                 #    f"from {type(cur_val).__name__} to {val}.\n"
-                #)
+                # )
         else:
             setattr(self, key, val)
             msg = get_reporting_string(name="changed_param_equal", key=key, val=val)
-            #f"\nChanged parameter {key} = {val}.\n"
+            # f"\nChanged parameter {key} = {val}.\n"
         return msg
 
     def __check_model_param(
@@ -451,8 +458,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         elif operator == "is_type":
             msg, disclosive = check_type(key, val, cur_val)
         else:
-            msg = get_reporting_string(name="unknown_operator", key=key, val=val, cur_val=cur_val)
-            #f"- unknown operator in parameter specification {operator}"
+            msg = get_reporting_string(
+                name="unknown_operator", key=key, val=val, cur_val=cur_val
+            )
+            # f"- unknown operator in parameter specification {operator}"
         if apply_constraints and disclosive:
             msg += self.__apply_constraints(operator, key, val, cur_val)
         return msg, disclosive
@@ -517,13 +526,14 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         disclosive: bool = False
         msg: str = ""
         notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
-        ok_start= get_reporting_string(name="within_recommended_ranges")
+        ok_start = get_reporting_string(name="within_recommended_ranges")
         rules: dict = self.__get_constraints()
         for rule in rules:
             operator = rule["operator"]
             if operator == "and":
-                temp_msg, temp_disc = self.__check_model_param_and(rule,
-                                                                   apply_constraints)
+                temp_msg, temp_disc = self.__check_model_param_and(
+                    rule, apply_constraints
+                )
             elif operator == "or":
                 temp_msg, temp_disc = self.__check_model_param_or(rule)
             else:
@@ -532,8 +542,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if temp_disc:
                 disclosive = True
 
-        start_msg= notok_start   if disclosive else ok_start
-        msg=msg+start_msg
+        start_msg = notok_start if disclosive else ok_start
+        msg = msg + start_msg
 
         if verbose:
             print(msg)
@@ -556,7 +566,9 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                     current_model[key] = copy.deepcopy(value)
                 except copy.Error as key_type:
                     logger.warning("%s cannot be copied", key)
-                    logger.warning("...%s error; %s", str(type(key_type)), str(key_type))
+                    logger.warning(
+                        "...%s error; %s", str(type(key_type)), str(key_type)
+                    )
             # logger.debug('...done')
         # logger.info('copied')
 
@@ -591,15 +603,15 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         for item in self.examine_seperately_items:
             if curr_vals[item] == "Absent" and saved_vals[item] == "Absent":
-                disclosive=True
+                disclosive = True
                 msg += f"Note that item {item} missing from both versions"
 
             if curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
                 msg += f"Error, item {item} present in  saved but not current model"
-                disclosive=True
+                disclosive = True
 
             if saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
-                disclosive=True
+                disclosive = True
                 msg += f"Error, item {item} present in current but not saved model"
 
         if not disclosive:  # ok, so can call mode-specific extra checks
@@ -607,7 +619,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def posthoc_check(self) -> tuple[str, bool]:#pylint: disable=too-many-branches
+    def posthoc_check(self) -> tuple[str, bool]:  # pylint: disable=too-many-branches
         """Checks whether model has been interfered with since fit() was last run"""
 
         disclosive = False
@@ -616,9 +628,9 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         current_model, saved_model = self.get_current_and_saved_models()
         if len(saved_model) == 0:
             msg = get_reporting_string(name="error_not_called_fit")
-            #"Error: user has not called fit() method or has deleted saved values."
+            # "Error: user has not called fit() method or has deleted saved values."
             msg += get_reporting_string(name="recommend_do_not_release")
-            #"Recommendation: Do not release."
+            # "Recommendation: Do not release."
             disclosive = True
 
         else:
@@ -639,10 +651,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if len(match) > 0:
                 disclosive = True
 
-                msg += get_reporting_string(name="basic_params_differ",
-                                            match=match, length=(len(match)))
+                msg += get_reporting_string(
+                    name="basic_params_differ", match=match, length=(len(match))
+                )
 
-                #f"Warning: basic parameters differ in {len(match)} places:\n"
+                # f"Warning: basic parameters differ in {len(match)} places:\n"
                 for this_match in match:
                     if this_match[0] == "change":
                         msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
@@ -660,7 +673,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def additional_checks(#pylint: disable=too-many-branches
+    def additional_checks(  # pylint: disable=too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
 
@@ -693,7 +706,6 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         """
 
-
         msg = ""
         disclosive = False
         for item in self.examine_seperately_items:
@@ -720,10 +732,11 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                             disclosive = True
                             break
 
-
         return msg, disclosive
 
-    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None: #pylint: disable=too-many-branches
+    def request_release(
+        self, filename: str = "undefined", data_obj: dataset.Data = None
+    ) -> None:  # pylint: disable=too-many-branches
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
@@ -778,34 +791,35 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 output["recommendation"] = "Do not allow release"
                 output["reason"] = msg_prel + msg_post
 
-
             ##Run attacks programmatically if possible
             if data_obj is not None:
-                #make filenames and save a copy of the data
-                with open(os.path.splitext(filename)[0] +"_data.pickle", 'wb') as handle:
+                # make filenames and save a copy of the data
+                with open(
+                    os.path.splitext(filename)[0] + "_data.pickle", "wb"
+                ) as handle:
                     pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-                for attack_name in ['worst_case','lira','attribute']:
-                    output[f"{attack_name}_results"]=  self.run_attack(data_obj,
-                                      attack_name,
-                                      f"{os.path.splitext(filename)[0]}_{attack_name}_res"
-                                      )
-
-
+                for attack_name in ["worst_case", "lira", "attribute"]:
+                    output[f"{attack_name}_results"] = self.run_attack(
+                        data_obj,
+                        attack_name,
+                        f"{os.path.splitext(filename)[0]}_{attack_name}_res",
+                    )
 
             now = datetime.datetime.now()
             output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-            json_str = json.dumps(output, indent=4,cls=report.NumpyArrayEncoder)
+            json_str = json.dumps(output, indent=4, cls=report.NumpyArrayEncoder)
             outputfilename = self.researcher + "_checkfile.json"
             with open(outputfilename, "a", encoding="utf-8") as file:
                 file.write(json_str)
 
-
-    def run_attack(self,
-                   data_obj:dataset.Data=None,
-                   attack_name:str="worst_case",
-                   filename:str="undefined")->dict:
+    def run_attack(
+        self,
+        data_obj: dataset.Data = None,
+        attack_name: str = "worst_case",
+        filename: str = "undefined",
+    ) -> dict:
 
         """Runs a specified attack on the trained model and saves a report to file
 
@@ -832,7 +846,8 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         Single Attribute Inference: attributes
         """
         if attack_name == "worst_case":
-            attack_args = worst_case_attack.WorstCaseAttackArgs(n_reps=10,
+            attack_args = worst_case_attack.WorstCaseAttackArgs(
+                n_reps=10,
                 # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
                 # Threshold to determine significance of things
@@ -843,48 +858,50 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
                 # Proportion of data to use as a test set for the attack model;
                 test_prop=0.5,
                 # Report name is None - don't make json or pdf files
-                report_name=None
+                report_name=None,
             )
             attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-            attack_obj.attack(dataset=data_obj,target_model=self)
+            attack_obj.attack(dataset=data_obj, target_model=self)
             output = attack_obj.make_report()
-            metadata = output['metadata']
+            metadata = output["metadata"]
 
-        elif attack_name=="lira-n10":
+        elif attack_name == "lira-n10":
             args = LIRAAttackArgs(n_shadow_models=10, report_name="lira_example_report")
             attack_obj = LIRAAttack(args)
-            attack_obj.attack(data_obj,self)
-            output = attack_obj.make_report() # also makes .pdf and .json files
-            metadata = output['metadata']
-        elif attack_name=="lira-n100":
-            args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+            attack_obj.attack(data_obj, self)
+            output = attack_obj.make_report()  # also makes .pdf and .json files
+            metadata = output["metadata"]
+        elif attack_name == "lira-n100":
+            args = LIRAAttackArgs(
+                n_shadow_models=100, report_name="lira_example_report"
+            )
             attack_obj = LIRAAttack(args)
-            attack_obj.attack(data_obj,self)
-            output = attack_obj.make_report() # also makes .pdf and .json files
-            metadata = output['metadata']
+            attack_obj.attack(data_obj, self)
+            output = attack_obj.make_report()  # also makes .pdf and .json files
+            metadata = output["metadata"]
 
         elif attack_name == "attribute":
-            attack_args = attribute_attack.AttributeAttackArgs(report_name="aia_example")
+            attack_args = attribute_attack.AttributeAttackArgs(
+                report_name="aia_example"
+            )
             attack_obj = attribute_attack.AttributeAttack(attack_args)
             attack_obj.attack(data_obj, self)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
         else:
-            metadata= {}
+            metadata = {}
             metadata["outcome"] = "unrecognised attack type requested"
 
-        print(f'attack {attack_name}, metadata {metadata}')
-
+        print(f"attack {attack_name}, metadata {metadata}")
 
         try:
-            with open(f'{filename}.json', 'w',encoding='utf-8') as fp:
-                json.dump(metadata, fp,cls=report.NumpyArrayEncoder)
+            with open(f"{filename}.json", "w", encoding="utf-8") as fp:
+                json.dump(metadata, fp, cls=report.NumpyArrayEncoder)
         except TypeError:
-            print(f'couldnt serialise metadata {metadata} for attack {attack_name}')
+            print(f"couldn't serialise metadata {metadata} for attack {attack_name}")
 
         return metadata
-
 
     def __str__(self) -> str:
         """Returns string with model description."""

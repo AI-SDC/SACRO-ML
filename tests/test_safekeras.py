@@ -1,34 +1,39 @@
 """This module contains unit tests for SafeKerasModel."""
 
+import getpass
 import os
 import platform
 import shutil
-import getpass
 
 import numpy as np
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Dense, Input # pylint: disable = import-error, no-name-in-module
+from tensorflow.keras.layers import (  # pylint: disable = import-error, no-name-in-module
+    Dense,
+    Input,
+)
 
-from safemodel.classifiers import safekeras, SafeKerasModel
+from safemodel.classifiers import SafeKerasModel, safekeras
 
 n_classes = 4
-#expected accuracy
-ACC = 0.6750 if platform.system()== "Darwin" else  0.3583333492279053
+# expected accuracy
+ACC = 0.6750 if platform.system() == "Darwin" else 0.3583333492279053
 
-def cleanup_file(name:str):
+
+def cleanup_file(name: str):
     """removes unwanted files or directory"""
     if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
     elif os.path.exists(name) and os.path.isdir(name):  # tf
         shutil.rmtree(name)
 
+
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
-    xall = np.asarray(iris['data'], dtype=np.float64)
-    yall = np.asarray(iris['target'], dtype=np.float64)
+    xall = np.asarray(iris["data"], dtype=np.float64)
+    yall = np.asarray(iris["target"], dtype=np.float64)
     xall = np.vstack([xall, (7, 2.0, 4.5, 1)])
     yall = np.append(yall, n_classes)
     X, Xval, y, yval = train_test_split(
@@ -144,7 +149,9 @@ def test_keras_basic_fit():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -206,7 +213,9 @@ def test_keras_unsafe_l2_norm():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -241,7 +250,9 @@ def test_keras_unsafe_noise_multiplier():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -252,6 +263,7 @@ def test_keras_unsafe_noise_multiplier():
 
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
+
 
 def test_keras_unsafe_min_epsilon():
     """SafeKeras using unsafe values."""
@@ -276,7 +288,9 @@ def test_keras_unsafe_min_epsilon():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -286,6 +300,7 @@ def test_keras_unsafe_min_epsilon():
 
     assert msg == correct_msg, "failed check correct warning message"
     assert disclosive is True, "failed check disclosive is True"
+
 
 def test_keras_unsafe_delta():
     """SafeKeras using unsafe values."""
@@ -310,7 +325,9 @@ def test_keras_unsafe_delta():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -319,6 +336,7 @@ def test_keras_unsafe_delta():
     )
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
+
 
 def test_keras_unsafe_batch_size():
     """SafeKeras using unsafe values."""
@@ -343,7 +361,9 @@ def test_keras_unsafe_batch_size():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -374,13 +394,16 @@ def test_keras_unsafe_learning_rate():
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = ACC
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
 
     assert msg == correct_msg, "failed check warning message incorrect"
     assert disclosive is False, "failed check disclosive is false"
+
 
 def test_create_checkfile():
     """Test create checkfile"""
@@ -407,10 +430,12 @@ def test_create_checkfile():
 
         researcher = getpass.getuser()
         outputfilename = researcher + "_checkfile.json"
-        assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outputfilename}"
+        assert os.path.exists(
+            outputfilename
+        ), f"Failed test to save checkfile as {outputfilename}"
 
         # Using readlines()
-        with open(outputfilename, 'r', encoding='utf-8') as file1:
+        with open(outputfilename, "r", encoding="utf-8") as file1:
             lines = file1.readlines()
 
         count = 0

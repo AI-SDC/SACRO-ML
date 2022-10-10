@@ -32,16 +32,19 @@ python -m examples.lira_attack_example
 """
 # pylint: disable = duplicate-code
 
-import os
 import json
+import os
 
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
-from attacks.likelihood_attack import LIRAAttackArgs, LIRAAttack # pylint: disable = import-error
-from attacks.dataset import Data # pylint: disable = import-error
+from attacks.dataset import Data  # pylint: disable = import-error
+from attacks.likelihood_attack import (  # pylint: disable = import-error
+    LIRAAttack,
+    LIRAAttackArgs,
+)
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -66,11 +69,11 @@ attack_obj = LIRAAttack(args)
 attack_obj.attack(dataset, target_model)
 
 # [TRE] Get the output
-output = attack_obj.make_report() # also makes .pdf and .json files
+output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
-attack_metrics = output['attack_metrics'][0]
-metadata = output['metadata']
+attack_metrics = output["attack_metrics"][0]
+metadata = output["metadata"]
 
 # [TRE] Looks at the metric values
 print("Attack metrics:")
@@ -81,7 +84,7 @@ for key, value in attack_metrics.items():
         print(f"Cannot print {key}")
 
 print("Global metrics")
-for key, value in metadata['global_metrics'].items():
+for key, value in metadata["global_metrics"].items():
     print(key, value)
 
 
@@ -100,16 +103,8 @@ np.savetxt("train_preds.csv", target_model.predict_proba(train_X), delimiter=","
 np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
 
 # [Researcher] Dump the training and test data to a .csv file
-np.savetxt(
-    "train_data.csv",
-    np.hstack((train_X, train_y[:, None])),
-    delimiter=","
-)
-np.savetxt(
-    "test_data.csv",
-    np.hstack((test_X, test_y[:, None])),
-    delimiter=","
-)
+np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter=",")
+np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 
 # [TRE] Creates a config file for the likelihood attack
 config = {
@@ -118,13 +113,10 @@ config = {
     "training_preds_file": "train_preds.csv",
     "testing_preds_file": "test_preds.csv",
     "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-    "target_hyppars": {
-        "min_samples_split": 2,
-        "min_samples_leaf": 1
-    }
+    "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
 
-with open('config.json', 'w', encoding='utf-8') as f:
+with open("config.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 
@@ -134,12 +126,10 @@ os.system("python -m attacks.likelihood_attack run-attack --help")
 
 # [TRE] Then they run the attack
 os.system(
-    (
-        "python -m attacks.likelihood_attack run-attack "
-        "--json-file config.json "
-        "--report-name example_lira_report "
-        "--n-shadow-models 100"
-    )
+    "python -m attacks.likelihood_attack run-attack "
+    "--json-file config.json "
+    "--report-name example_lira_report "
+    "--n-shadow-models 100"
 )
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)
