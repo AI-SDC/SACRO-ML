@@ -1,5 +1,7 @@
 """
 Differentially private SVC
+James Liley
+21/03/22
 """
 import logging
 from typing import Any
@@ -8,20 +10,16 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
-
 local_logger = logging.getLogger(__file__)
 local_logger.setLevel(logging.WARNING)
 
 
 # pylint: disable = invalid-name
+# pylint: disable=R0902: too-many-instance-attributes
+# pylint:disable = fixme
 
 
-class DPSVC():
-    ## Wrapper for differentially private SVM
-    ##
-    ## James Liley
-    ## 21/03/22
-
+class DPSVC:
     """
     Wrapper for differentially private SVM, implemented according to the method in
 
@@ -69,6 +67,7 @@ class DPSVC():
         self.classes_ = [0, 1]
         self.intercept = None
         self.noisy_weights = None
+        self.set_params(**kwargs)
 
     def phi_hat(self, input_vector):
         """Project a single feature"""

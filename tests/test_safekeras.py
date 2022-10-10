@@ -1,25 +1,40 @@
 """This module contains unit tests for SafeKerasModel."""
 
-import os
-import shutil
 import getpass
+import os
+import platform
+import shutil
 
 import numpy as np
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Dense, Input # pylint: disable = import-error, no-name-in-module
+from tensorflow.keras.layers import (  # pylint: disable = import-error, no-name-in-module
+    Dense,
+    Input,
+)
 
-from safemodel.classifiers import SafeKerasModel
+from safemodel.classifiers import SafeKerasModel, safekeras
 
+EPOCHS = 1
 n_classes = 4
+# expected accuracy
+ACC = 0.3250 if platform.system() == "Darwin" else 0.3583333492279053
+
+
+def cleanup_file(name: str):
+    """removes unwanted files or directory"""
+    if os.path.exists(name) and os.path.isfile(name):  # h5
+        os.remove(name)
+    elif os.path.exists(name) and os.path.isdir(name):  # tf
+        shutil.rmtree(name)
 
 
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
-    xall = np.asarray(iris['data'], dtype=np.float64)
-    yall = np.asarray(iris['target'], dtype=np.float64)
+    xall = np.asarray(iris["data"], dtype=np.float64)
+    yall = np.asarray(iris["target"], dtype=np.float64)
     xall = np.vstack([xall, (7, 2.0, 4.5, 1)])
     yall = np.append(yall, n_classes)
     X, Xval, y, yval = train_test_split(
@@ -48,7 +63,7 @@ def make_model():
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
 
     return model, X, y, Xval, yval
@@ -80,14 +95,14 @@ def test_second_keras_model_created():
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
     model2 = SafeKerasModel(
         inputs=input_data,
         outputs=output,
         name="test",
         num_samples=X.shape[0],
-        epochs=10,
+        epochs=EPOCHS,
     )
     rightname = "KerasModel"
     assert (
@@ -104,7 +119,7 @@ def test_keras_model_compiled_as_DP():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    isDP, _ = model.check_optimizer_is_DP(model.optimizer)
+    isDP, _ = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     right_epsilon = 20.363059561511612
@@ -123,19 +138,21 @@ def test_keras_basic_fit():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -152,34 +169,26 @@ def test_keras_save_actions():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
     for name in names:
         # clear existing files
-        if os.path.exists(name) and os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
+        cleanup_file(name)
         # save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
         # clean up
-        if os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+        cleanup_file(name)
 
     # now other versions which should not
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename")
     for name in names:
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
 
 
 def test_keras_unsafe_l2_norm():
@@ -191,21 +200,23 @@ def test_keras_unsafe_l2_norm():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.l2_norm_clip = 0.9
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -226,21 +237,23 @@ def test_keras_unsafe_noise_multiplier():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.noise_multiplier = 1.0
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -252,6 +265,7 @@ def test_keras_unsafe_noise_multiplier():
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
 
+
 def test_keras_unsafe_min_epsilon():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_model()
@@ -261,21 +275,23 @@ def test_keras_unsafe_min_epsilon():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.min_epsilon = 4
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -286,6 +302,7 @@ def test_keras_unsafe_min_epsilon():
     assert msg == correct_msg, "failed check correct warning message"
     assert disclosive is True, "failed check disclosive is True"
 
+
 def test_keras_unsafe_delta():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_model()
@@ -295,21 +312,23 @@ def test_keras_unsafe_delta():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.delta = 1e-6
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -318,6 +337,7 @@ def test_keras_unsafe_delta():
     )
     assert msg == correct_msg, "failed check params are within range"
     assert disclosive is True, "failed check disclosive is True"
+
 
 def test_keras_unsafe_batch_size():
     """SafeKeras using unsafe values."""
@@ -328,21 +348,23 @@ def test_keras_unsafe_batch_size():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.batch_size = 34
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -359,27 +381,30 @@ def test_keras_unsafe_learning_rate():
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = model.check_optimizer_is_DP(model.optimizer)
+    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
     assert isDP, "failed check that optimizer is dP"
 
     model.learning_rate = 0.2
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = model.check_DP_used(model.optimizer)
+    DPused, msg = safekeras.check_DP_used(model.optimizer)
     assert (
         DPused
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
-    expected_accuracy = 0.3583333492279053
-    assert round(acc,6) == round(expected_accuracy,6), "failed check that accuracy is as expected"
+    expected_accuracy = ACC
+    assert round(acc, 6) == round(
+        expected_accuracy, 6
+    ), "failed check that accuracy is as expected"
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
 
     assert msg == correct_msg, "failed check warning message incorrect"
     assert disclosive is False, "failed check disclosive is false"
+
 
 def test_create_checkfile():
     """Test create checkfile"""
@@ -390,16 +415,13 @@ def test_create_checkfile():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=10, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
     for name in names:
         # clear existing files
-        if os.path.exists(name) and os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
+        cleanup_file(name)
         # save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
@@ -409,10 +431,12 @@ def test_create_checkfile():
 
         researcher = getpass.getuser()
         outputfilename = researcher + "_checkfile.json"
-        assert os.path.exists(outputfilename), f"Failed test to save checkfile as {outputfilename}"
+        assert os.path.exists(
+            outputfilename
+        ), f"Failed test to save checkfile as {outputfilename}"
 
         # Using readlines()
-        with open(outputfilename, 'r', encoding='utf-8') as file1:
+        with open(outputfilename, "r", encoding="utf-8") as file1:
             lines = file1.readlines()
 
         count = 0
@@ -422,17 +446,12 @@ def test_create_checkfile():
             print(f"Line{count}: {line.strip()}")
 
         # clean up
-        if os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+        cleanup_file(name)
 
     # now other versions which should not
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename")
     for name in names:
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        if os.path.exists(name):
-            os.remove(name)
+        cleanup_file(name)
