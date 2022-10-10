@@ -286,7 +286,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
 
 
-    def save(self, name: str = "undefined") -> None:
+    def save(self, name: str = "undefined") -> None: #pylint: disable=too-many-branches
         """Writes model to file in appropriate format.
 
         Parameters
@@ -516,11 +516,14 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         """
         disclosive: bool = False
         msg: str = ""
+        notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
+        ok_start= get_reporting_string(name="within_recommended_ranges")
         rules: dict = self.__get_constraints()
         for rule in rules:
             operator = rule["operator"]
             if operator == "and":
-                temp_msg, temp_disc = self.__check_model_param_and(rule, apply_constraints)
+                temp_msg, temp_disc = self.__check_model_param_and(rule,
+                                                                   apply_constraints)
             elif operator == "or":
                 temp_msg, temp_disc = self.__check_model_param_or(rule)
             else:
@@ -528,14 +531,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             msg += temp_msg
             if temp_disc:
                 disclosive = True
-        if disclosive:
-            start_msg = get_reporting_string(name="warn_possible_disclosure_risk")
-            msg = start_msg + msg
-            #"WARNING: model parameters may present a disclosure risk:\n" + msg
-        else:
-            msg = get_reporting_string(name="within_recommended_ranges")
-            msg += temp_msg
-            #"Model parameters are within recommended ranges.\n" + msg
+
+        start_msg= notok_start   if disclosive else ok_start
+        msg=msg+start_msg
+
         if verbose:
             print(msg)
         return msg, disclosive
@@ -589,27 +588,26 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         in the super class we just check these model-specific items exist
         in both current and saved copies"""
         msg = ""
-        disclosive = False
+
         for item in self.examine_seperately_items:
             if curr_vals[item] == "Absent" and saved_vals[item] == "Absent":
-                # not sure if this is necessarily disclosive
+                disclosive=True
                 msg += f"Note that item {item} missing from both versions"
 
-            elif curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
-                disclosive = True
+            if curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
                 msg += f"Error, item {item} present in  saved but not current model"
-            elif saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
-                disclosive = True
+                disclosive=True
+
+            if saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
+                disclosive=True
                 msg += f"Error, item {item} present in current but not saved model"
-            else:  # ok, so can call mode-specific extra checks
-                msg2, disclosive2 = self.additional_checks(curr_vals, saved_vals)
-                if len(msg2) > 0:
-                    msg += msg2
-                if disclosive2:
-                    disclosive = True
+
+        if not disclosive:  # ok, so can call mode-specific extra checks
+            msg, disclosive = self.additional_checks(curr_vals, saved_vals)
+
         return msg, disclosive
 
-    def posthoc_check(self) -> tuple[str, bool]:
+    def posthoc_check(self) -> tuple[str, bool]:#pylint: disable=too-many-branches
         """Checks whether model has been interfered with since fit() was last run"""
 
         disclosive = False
@@ -662,7 +660,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def additional_checks(
+    def additional_checks(#pylint: disable=too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
 
@@ -725,7 +723,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None:
+    def request_release(self, filename: str = "undefined",data_obj:dataset.Data=None) -> None: #pylint: disable=too-many-branches
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 

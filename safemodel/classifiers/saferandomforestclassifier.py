@@ -15,7 +15,7 @@ from ..reporting import get_reporting_string
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
 
-#pylint: disable=too-many-ancestors
+#pylint: disable=too-many-ancestors,too-many-instance-attributes
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
