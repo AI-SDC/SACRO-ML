@@ -1,14 +1,12 @@
-# AI-SDC
-
-A collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
-
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
 [![Latest Version](https://img.shields.io/github/v/release/AI-SDC/AI-SDC?style=flat)](https://github.com/AI-SDC/AI-SDC/releases)
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/63d31eeb27ec445f9fa9c5866d8bec0e)](https://www.codacy.com/gh/AI-SDC/AI-SDC/dashboard)
 [![codecov](https://codecov.io/gh/AI-SDC/AI-SDC/branch/development/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/AI-SDC)
 
----
+# AI-SDC
+
+A collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
 
 ## Content
 
