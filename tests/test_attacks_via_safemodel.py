@@ -13,7 +13,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from safemodel.classifiers import SafeRandomForestClassifier
+from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
 
 # pylint: disable=too-many-locals,bare-except,duplicate-code
@@ -73,7 +73,7 @@ def get_nursery_dataset()->Data:
         (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
             x,
             y,
-            test_size=0.25,
+            test_size=0.05,
             stratify=y,
             shuffle=True,
         )
@@ -88,7 +88,7 @@ def get_nursery_dataset()->Data:
         _,x_train_orig,_, y_train_orig = train_test_split(
                                             x_train_orig,
                                             y_train_orig,
-                                            test_size=0.33,
+                                            test_size=0.05,
                                             stratify=y_train_orig,
                                             shuffle=True,
                                             )
@@ -132,7 +132,8 @@ def test_run_attack_lira():
     the_data = get_nursery_dataset()
 
     #build a model
-    model = SafeRandomForestClassifier(random_state=1)
+#    model = SafeRandomForestClassifier(random_state=1,max_depth=5,n_estimators=25)
+    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
@@ -153,7 +154,7 @@ def test_run_attack_worstcase():
     the_data = get_nursery_dataset()
 
     #build a model
-    model = SafeRandomForestClassifier(random_state=1)
+    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
@@ -169,7 +170,8 @@ def test_run_attack_attribute():
     the_data = get_nursery_dataset()
 
     #build a model
-    model = SafeRandomForestClassifier(random_state=1)
+#    model = SafeRandomForestClassifier(random_state=1,max_depth=5,n_estimators=25)
+    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
