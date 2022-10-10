@@ -19,7 +19,7 @@ from safemodel.classifiers import SafeKerasModel, safekeras
 EPOCHS = 1
 n_classes = 4
 # expected accuracy
-ACC = 0.6750 if platform.system() == "Darwin" else 0.3583333492279053
+ACC = 0.3250 if platform.system() == "Darwin" else 0.3583333492279053
 
 
 def cleanup_file(name: str):
