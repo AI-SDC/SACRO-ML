@@ -4,7 +4,7 @@
 
 Python code should be linted with [pylint](https://github.com/PyCQA/pylint).
 
-A [pre-commit](https://pre-commit.com) configuration [file](../tree/main/.pre-commit-config.yaml) is provided to automatically:
+A [pre-commit](https://pre-commit.com) configuration [file](../main/.pre-commit-config.yaml) is provided to automatically:
 * Trim trailing whitespace and fix line endings;
 * Check for spelling errors with [codespell](https://github.com/codespell-project/codespell);
 * Check and format JSON files;
