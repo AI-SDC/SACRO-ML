@@ -76,14 +76,14 @@ def get_nursery_dataset() -> Data:
             shuffle=True,
         )
 
-        #now resample the training data reduce number of examples
-        _,x_train_orig,_, y_train_orig = train_test_split(
-                                            x_train_orig,
-                                            y_train_orig,
-                                            test_size=0.05,
-                                            stratify=y_train_orig,
-                                            shuffle=True,
-                                            )
+        # now resample the training data reduce number of examples
+        _, x_train_orig, _, y_train_orig = train_test_split(
+            x_train_orig,
+            y_train_orig,
+            test_size=0.05,
+            stratify=y_train_orig,
+            shuffle=True,
+        )
 
         # [Researcher] Preprocess dataset
         # one-hot encoding of features and integer encoding of labels
@@ -118,8 +118,8 @@ def test_run_attack_lira():
     """calls the lira attack via safemodel"""
     the_data = get_nursery_dataset()
 
-    #build a model
-    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
+    # build a model
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
@@ -138,7 +138,7 @@ def test_run_attack_worstcase():
     """calls the worst case attack via safemodel"""
     the_data = get_nursery_dataset()
 
-    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
@@ -154,7 +154,7 @@ def test_run_attack_attribute():
     """calls the attribute  attack via safemodel"""
     the_data = get_nursery_dataset()
 
-    model = SafeDecisionTreeClassifier(random_state=1,max_depth=5)
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
