@@ -129,7 +129,7 @@ def test_run_attack_lira():
     print(np.unique(model.predict(the_data.x_test), return_counts=True))
 
     fname = "delete-me"
-    metadata = model.run_attack(the_data, "lira-n10", fname)
+    metadata = model.run_attack(the_data, "lira", fname)
     cleanup_file("delete-me.json")
     assert len(metadata) > 0  # something has been added
 
