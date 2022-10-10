@@ -20,5 +20,5 @@ jobs:
 
       - name: pylint
         run: |
-          pylint safemodel **/*.py --fail-under 10
+          pylint -v --recursive=True safemodel attacks tests --fail-under 10
 ...
