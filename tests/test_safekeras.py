@@ -436,7 +436,7 @@ def test_create_checkfile():
         ), f"Failed test to save checkfile as {outputfilename}"
 
         # Using readlines()
-        with open(outputfilename, "r", encoding="utf-8") as file1:
+        with open(outputfilename, encoding="utf-8") as file1:
             lines = file1.readlines()
 
         count = 0
