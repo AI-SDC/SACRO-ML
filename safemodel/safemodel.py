@@ -532,8 +532,10 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
             if temp_disc:
                 disclosive = True
 
-        start_msg= notok_start   if disclosive else ok_start
-        msg=msg+start_msg
+        if disclosive:
+            msg = notok_start +msg
+        else:
+            msg=ok_start + msg
 
         if verbose:
             print(msg)
@@ -588,6 +590,7 @@ class SafeModel: # pylint: disable = too-many-instance-attributes
         in the super class we just check these model-specific items exist
         in both current and saved copies"""
         msg = ""
+        disclosive=False
 
         for item in self.examine_seperately_items:
             if curr_vals[item] == "Absent" and saved_vals[item] == "Absent":

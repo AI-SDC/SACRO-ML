@@ -148,8 +148,6 @@ class TestDPSVC(unittest.TestCase):
         correct_msg = ("structure platt_transform has one difference.\n"
                        "structure svc has several differences.\n"
                       )
-        #fixes additional_checks() getting called twice in safemodel
-        correct_msg = correct_msg + correct_msg
 
 
         assert msg == correct_msg

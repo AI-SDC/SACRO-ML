@@ -73,7 +73,7 @@ def get_nursery_dataset()->Data:
         (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
             x,
             y,
-            test_size=0.2,
+            test_size=0.25,
             stratify=y,
             shuffle=True,
         )
@@ -88,7 +88,7 @@ def get_nursery_dataset()->Data:
         _,x_train_orig,_, y_train_orig = train_test_split(
                                             x_train_orig,
                                             y_train_orig,
-                                            test_size=0.25,
+                                            test_size=0.33,
                                             stratify=y_train_orig,
                                             shuffle=True,
                                             )
