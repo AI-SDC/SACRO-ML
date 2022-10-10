@@ -6,14 +6,12 @@ python -m examples.test_sagfemodel_attack_integration
 import logging
 
 import numpy as np
-
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from safemodel.classifiers import SafeDecisionTreeClassifier
 from attacks.dataset import Data
-
+from safemodel.classifiers import SafeDecisionTreeClassifier
 
 if __name__ == "__main__":
 
@@ -61,34 +59,33 @@ if __name__ == "__main__":
     for i in range(n_features):
         the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
-    logging.info('Dataset: %s',the_data.name)
-    logging.info('Features: %s',the_data.features)
-    logging.info('x_train shape = %s',np.shape(the_data.x_train))
-    logging.info('y_train shape = %s',np.shape(the_data.y_train))
-    logging.info('x_test shape = %s',np.shape(the_data.x_test))
-    logging.info('y_test shape = %s',np.shape(the_data.y_test))
+    logging.info("Dataset: %s", the_data.name)
+    logging.info("Features: %s", the_data.features)
+    logging.info("x_train shape = %s", np.shape(the_data.x_train))
+    logging.info("y_train shape = %s", np.shape(the_data.y_train))
+    logging.info("x_test shape = %s", np.shape(the_data.x_test))
+    logging.info("y_test shape = %s", np.shape(the_data.y_test))
 
-
-    #build a model
+    # build a model
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
     msg, disclosive = model.preliminary_check()
 
     ##check direct method
-    print('==========> first running attacks explicitly via run_attack()')
-    for attack_name in ['worst_case','attribute','lira']:
-        print(f'===> running {attack_name} attack directly')
-        fname=f"modelDOTrun_attack_output_{attack_name}"
-        metadata= model.run_attack(the_data,attack_name,fname)
-        logging.info('metadata is:')
-        for key,val in metadata.items():
-            if  isinstance(val,dict):
-                logging.info(' %s ',key)
-                for key1,val2 in val.items():
-                    logging.info('  %s : %s', key1 , val2)
+    print("==========> first running attacks explicitly via run_attack()")
+    for attack_name in ["worst_case", "attribute", "lira"]:
+        print(f"===> running {attack_name} attack directly")
+        fname = f"modelDOTrun_attack_output_{attack_name}"
+        metadata = model.run_attack(the_data, attack_name, fname)
+        logging.info("metadata is:")
+        for key, val in metadata.items():
+            if isinstance(val, dict):
+                logging.info(" %s ", key)
+                for key1, val2 in val.items():
+                    logging.info("  %s : %s", key1, val2)
             else:
-                logging.info(' %s : %s',key ,val)
+                logging.info(" %s : %s", key, val)
 
     ## now via request_release()
-    print('===>now running attacks implicitly via request_release()')
-    model.request_release("test.sav",the_data)
+    print("===>now running attacks implicitly via request_release()")
+    model.request_release("test.sav", the_data)

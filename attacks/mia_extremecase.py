@@ -2,11 +2,10 @@
 import numpy as np
 from scipy.stats import norm
 
+
 def min_max_disc(
-    y_true: np.ndarray,
-    pred_probs: np.ndarray,
-    x_prop: float=0.1,
-    log_p: bool=True) -> tuple[float, float, float, float]: #pylint: disable = line-too-long
+    y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
+) -> tuple[float, float, float, float]:  # pylint: disable = line-too-long
     """
     Non-average-case methods for MIA attacks. Considers actual frequency of membership
     amongst samples with highest- and lowest- assessed probability of membership. If an
@@ -57,8 +56,8 @@ def min_max_disc(
     """
 
     n_examples = int(np.ceil(len(y_true) * x_prop))
-    pos_frequency = np.mean(y_true) # average frequency
-    y_order = np.argsort(pred_probs) # ordering permutation
+    pos_frequency = np.mean(y_true)  # average frequency
+    y_order = np.argsort(pred_probs)  # ordering permutation
 
     # Frequencies
     # y values corresponding to lowest k values of yp
@@ -72,12 +71,12 @@ def min_max_disc(
     # P-value
     # mmd is asymptotically distributed as N(0,sdm^2) under null.
     sdm = np.sqrt(2 * pos_frequency * (1 - pos_frequency) / n_examples)
-    pval = 1 - norm.cdf(mmd, loc=0, scale=sdm) # normal CDF
+    pval = 1 - norm.cdf(mmd, loc=0, scale=sdm)  # normal CDF
     if log_p:
-        if pval< 1e-50:
-            pval=-115.13
+        if pval < 1e-50:
+            pval = -115.13
         else:
-            pval=np.log(pval)
+            pval = np.log(pval)
 
     # Return
     return maxd, mind, mmd, pval
