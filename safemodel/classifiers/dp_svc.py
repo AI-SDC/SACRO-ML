@@ -67,7 +67,7 @@ class DPSVC():
         self.classes_ = [0, 1]
         self.intercept = None
         self.noisy_weights = None
-        # TODO: handle kwargs or delete as param?
+        self.set_params(**kwargs)
 
     def phi_hat(self, input_vector):
         """Project a single feature"""

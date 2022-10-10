@@ -1,6 +1,7 @@
 """Jim Smith 2022
-    Not currently imple,emnted
+    Not currently implemented
     """
+
 import pytest
 from safemodel.classifiers import safetf
 
