@@ -89,7 +89,7 @@ def get_reporting_string(**kwargs):
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
             f" identified as different than the recommended fixed value of {inter_params['val']}."
         ),
-        "different_than_reccomended_type": (
+        "different_than_recommended_type": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
             f" identified as different type to recommendation of {inter_params['val']}."
         ),
