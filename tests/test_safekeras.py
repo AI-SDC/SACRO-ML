@@ -189,8 +189,9 @@ def test_keras_save_actions():
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
         cleanup_file(name)
-    #cleeanup
+    # cleeanup
     cleanup_file("tfsaves")
+
 
 def test_keras_unsafe_l2_norm():
     """SafeKeras using unsafe values."""
