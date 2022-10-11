@@ -35,7 +35,7 @@ def decision_trees_are_equal(
         num_differences = len(match)
         if num_differences > 0:
             same = False
-            msg += get_reporting_string(name="basic_params_differ", match=match)
+            msg += get_reporting_string(name="basic_params_differ", length=num_differences)
             # f"Warning: basic parameters differ in {len(match)} places:\n"
             for i in range(num_differences):
                 if match[i][0] == "change":

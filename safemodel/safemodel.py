@@ -59,15 +59,9 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     if isinstance(cur_val, (int, float)):
         if cur_val < val:
             disclosive = True
-            print(f"key = {key}")
             msg = get_reporting_string(
                 name="less_than_min_value", key=key, cur_val=cur_val, val=val
             )
-            print(msg)
-            # (
-            #    f"- parameter {key} = {cur_val}"
-            #    f" identified as less than the recommended min value of {val}."
-            # )
         else:
             disclosive = False
             msg = ""
@@ -113,10 +107,6 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
             msg = get_reporting_string(
                 name="greater_than_max_value", key=key, cur_val=cur_val, val=val
             )
-            # (
-            # f"- parameter {key} = {cur_val}"
-            # f" identified as greater than the recommended max value of {val}."
-            # )
         else:
             disclosive = False
             msg = ""
@@ -163,10 +153,6 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         msg = get_reporting_string(
             name="different_than_fixed_value", key=key, cur_val=cur_val, val=val
         )
-        # (
-        #    f"- parameter {key} = {cur_val}"
-        #    f" identified as different than the recommended fixed value of {val}."
-        # )
     else:
         disclosive = False
         msg = ""
@@ -204,10 +190,6 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         msg = get_reporting_string(
             name="different_than_recommended_type", key=key, cur_val=cur_val, val=val
         )
-        # (
-        #    f"- parameter {key} = {cur_val}"
-        #    f" identified as different type to recommendation of {val}."
-        # )
     else:
         disclosive = False
         msg = ""
@@ -548,7 +530,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             msg = ok_start + msg
 
         if verbose:
-            print(msg)
+            print("Preliminary checks: " + msg)
         return msg, disclosive
 
     def get_current_and_saved_models(self) -> tuple[dict, dict]:
