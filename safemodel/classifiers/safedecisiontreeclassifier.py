@@ -12,8 +12,6 @@ from sklearn.tree import DecisionTreeClassifier
 from ..reporting import get_reporting_string
 from ..safemodel import SafeModel
 
-# from sklearn.tree._tree import Tree
-
 
 def decision_trees_are_equal(
     tree1: DecisionTreeClassifier, tree2: DecisionTreeClassifier
@@ -35,7 +33,9 @@ def decision_trees_are_equal(
         num_differences = len(match)
         if num_differences > 0:
             same = False
-            msg += get_reporting_string(name="basic_params_differ", length=num_differences)
+            msg += get_reporting_string(
+                name="basic_params_differ", length=num_differences
+            )
             # f"Warning: basic parameters differ in {len(match)} places:\n"
             for i in range(num_differences):
                 if match[i][0] == "change":
