@@ -1,23 +1,30 @@
 """This module contains unit tests for the SafeRandomForestClassifier."""
 
-import pickle
 import os
+import pickle
+
 import joblib
 import numpy as np
 from sklearn import datasets
 
 from safemodel.classifiers import SafeRandomForestClassifier
-from safemodel import reporting
+from safemodel.reporting import get_reporting_string
 
-class DummyClassifier():
-    """Dummy Classifer that always returns predictions of zero"""
-    def __init__():
-        pass
-    def fit(x:np.ndarray,y:np.ndarray):
-        pass
-    def predict(x:np.ndarray):
+
+class DummyClassifier:
+    """Dummy Classifier that always returns predictions of zero"""
+
+    def __init__(self):
+        """empty init"""
+
+    def fit(self, x: np.ndarray, y: np.ndarray):
+        """empty fit"""
+
+    def predict(self, x: np.ndarray):
+        """predict all ones"""
         return np.ones(x.shape[0])
-        
+
+
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
@@ -35,7 +42,7 @@ def test_randomforest_unchanged():
     model.fit(x, y)
     assert model.score(x, y) == 0.9668874172185431
     msg, disclosive = model.preliminary_check()
-    correct_msg = "Model parameters are within recommended ranges.\n"
+    correct_msg = get_reporting_string(name="within_recommended_ranges")
     assert msg == correct_msg
     assert disclosive is False
 
@@ -120,10 +127,11 @@ def test_randomforest_save():
         sav_model = joblib.load(file)
     assert sav_model.score(x, y) == 0.6622516556291391
 
-    #cleanup
-    for name in ("rf_test.pkl","rf_test.sav"):
-        if os.path.exists(name) and os.path.isfile(name):  
+    # cleanup
+    for name in ("rf_test.pkl", "rf_test.sav"):
+        if os.path.exists(name) and os.path.isfile(name):
             os.remove(name)
+
 
 def test_randomforest_hacked_postfit():
     """SafeRandomForestClassifier changes made to parameters after fit() called."""
@@ -145,17 +153,17 @@ def test_randomforest_hacked_postfit():
     assert msg2 == correct_msg2
     assert disclosive2 is True
 
-    
+
 # def test_randomforest_additional_checks()"
 #     x, y = get_data()
 #     model = SafeRandomForestClassifier(random_state=1)
 #     #not fitted
 #     msg,_ = model.additional_checks()
 #     assert msg == get_reporting_string(name="error_model_not_fitted")
-    
+
 #     #base type changed
 #     model.base_estimator = DummyClassifer
 #     msg,_ = model.additional_checks()
 #     assert msg == get_reporting_string(name="warn_fitted_fitted_different_base")
-    
+
 #     #trees missing / removed/ edited
