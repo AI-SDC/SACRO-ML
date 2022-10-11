@@ -1,23 +1,28 @@
+""" tests for fnctionality in super class"""
 import numpy as np
 from sklearn import datasets
 
 from safemodel.reporting import get_reporting_string
 from safemodel.safemodel import SafeModel
 
-class DummyClassifier( ):
-    """Dummy Classifer that always returns predictions of zero"""
-    def __init__(self,at_least_5=5,
-                       at_most_5=5,
-                       exactly_5=5):
-        self.at_least_5= at_least_5
+
+class DummyClassifier:
+    """Dummy Classifier that always returns predictions of zero"""
+
+    def __init__(self, at_least_5=5, at_most_5=5, exactly_5=5):
+        """dummy init"""
+        self.at_least_5 = at_least_5
         self.at_most_5 = at_most_5
         self.exactly_5 = exactly_5
-        
-    def fit(x:np.ndarray,y:np.ndarray):
-        pass
-    def predict(x:np.ndarray):
+
+    def fit(self, x: np.ndarray, y: np.ndarray):
+        """dummy fit"""
+
+    def predict(self, x: np.ndarray):
+        """predict all ones"""
         return np.ones(x.shape[0])
-        
+
+
 def get_data():
     """Returns data for testing."""
     iris = datasets.load_iris()
@@ -27,7 +32,10 @@ def get_data():
     y = np.append(y, 4)
     return x, y
 
-class SafeDummyClassifier(SafeModel, DummyClassifier):
+
+class SafeDummyClassifier(
+    SafeModel, DummyClassifier
+):  # pylint:disable=too-many-instance-attributes
     """Privacy protected dummy classifier."""
 
     def __init__(self, **kwargs) -> None:
@@ -46,92 +54,84 @@ class SafeDummyClassifier(SafeModel, DummyClassifier):
         DummyClassifier.__init__(self, **the_kwds)
         self.model_type: str = "DummyClassifier"
         self.ignore_items = ["model_save_file", "basemodel_paramnames", "ignore_items"]
-        #create an item to test additional_checks()
+        # create an item to test additional_checks()
         self.examine_seperately_items = ["newthing"]
-        self.newthing = {"myStringKey":"aString","myIntKey":42}
-        
-    def set_params(self,**kwargs):
-        for key,val in kwargs.items():
-            self.key = val
-    def get_params(self):
-        return self.__dict__
+        self.newthing = {"myStringKey": "aString", "myIntKey": 42}
+
+    def set_params(self, **kwargs):
+        """sets params"""
+        for key, val in kwargs.items():  # pylint:disable=unused-variable
+            self.key = val  # pylint:disable=attribute-defined-outside-init
+
 
 def test_params_checks():
     """test parameter  checks"""
-    model=SafeDummyClassifier()
-    
+    model = SafeDummyClassifier()
+
     notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
-    ok_start    = get_reporting_string(name="within_recommended_ranges")
-    
-    #1.0 ok
+    ok_start = get_reporting_string(name="within_recommended_ranges")
+
+    # 1.0 ok
     print("1.0")
-    msg,disclosive = model.preliminary_check()
-    assert disclosive==False
-    assert msg ==ok_start
+    msg, disclosive = model.preliminary_check()
+    assert disclosive is False
+    assert msg == ok_start
 
-    #1.1not ok- too low
-    print ("1.1")
-    model.at_least_5= 4
-    msg,disclosive = model.preliminary_check()
-    assert disclosive==True
+    # 1.1not ok- too low
+    print("1.1")
+    model.at_least_5 = 4
+    msg, disclosive = model.preliminary_check()
+    assert disclosive is True
     correct_msg = notok_start + get_reporting_string(
-                                   name="less_than_min_value",
-                                   key="at_least_5",
-                                   cur_val=model.at_least_5 ,val=5)
-    print(
-          f'Correct msg:{correct_msg}\n'
-          f'Actual  msg:{msg}\n'
-         )
-    assert msg==correct_msg 
+        name="less_than_min_value", key="at_least_5", cur_val=model.at_least_5, val=5
+    )
+    print(f"Correct msg:{correct_msg}\n" f"Actual  msg:{msg}\n")
+    assert msg == correct_msg
 
-    #1.2 not ok too high
+    # 1.2 not ok too high
     print("1.2")
     model.at_least_5 = 5
     model.at_most_5 = 6
-    msg,disclosive = model.preliminary_check()
-    assert disclosive==True
-    correct_msg= notok_start +get_reporting_string(
-                                    name="greater_than_max_value",
-                                    key="at_most_5",
-                                    cur_val=model.at_most_5 ,val=5)
-    print(
-          f'Correct msg:{correct_msg}\n'
-          f'Actual  msg:{msg}\n'
-         )
-    assert msg==correct_msg 
+    msg, disclosive = model.preliminary_check()
+    assert disclosive is True
+    correct_msg = notok_start + get_reporting_string(
+        name="greater_than_max_value", key="at_most_5", cur_val=model.at_most_5, val=5
+    )
+    print(f"Correct msg:{correct_msg}\n" f"Actual  msg:{msg}\n")
+    assert msg == correct_msg
 
-    #1.3 not ok - not equal
+    # 1.3 not ok - not equal
     print("1.3")
     model.at_most_5 = 5
     model.exactly_5 = 6
-    msg,disclosive = model.preliminary_check()
-    assert disclosive==True
+    msg, disclosive = model.preliminary_check()
+    assert disclosive is True
     correct_msg = notok_start + get_reporting_string(
-                                    name="different_than_fixed_value",
-                                    key="exactly_5",
-                                    cur_val=model.exactly_5 ,val=5)       
-    print(
-          f'Correct msg:{correct_msg}\n'
-          f'Actual  msg:{msg}\n'
-         )
-    assert msg==correct_msg 
+        name="different_than_fixed_value",
+        key="exactly_5",
+        cur_val=model.exactly_5,
+        val=5,
+    )
+    print(f"Correct msg:{correct_msg}\n" f"Actual  msg:{msg}\n")
+    assert msg == correct_msg
 
-    #1.4 not ok - wrong type
+    # 1.4 not ok - wrong type
     print("1.4")
     model.exactly_5 = "five"
-    msg,disclosive = model.preliminary_check()
-    assert disclosive==True
+    msg, disclosive = model.preliminary_check()
+    assert disclosive is True
     correct_msg = notok_start + get_reporting_string(
-                                    name="different_than_recommended_type",
-                                    key="exactly_5",
-                                    cur_val=model.exactly_5,val="int")
+        name="different_than_recommended_type",
+        key="exactly_5",
+        cur_val=model.exactly_5,
+        val="int",
+    )
     correct_msg = correct_msg + get_reporting_string(
-                                    name="different_than_fixed_value",
-                                    key="exactly_5",
-                                    cur_val=model.exactly_5 ,val=5)  
+        name="different_than_fixed_value",
+        key="exactly_5",
+        cur_val=model.exactly_5,
+        val=5,
+    )
 
-    print(
-          f'Correct msg:{correct_msg}\n'
-          f'Actual  msg:{msg}\n'
-         )
-    assert msg==correct_msg 
+    print(f"Correct msg:{correct_msg}\n" f"Actual  msg:{msg}\n")
+    assert msg == correct_msg

@@ -12,13 +12,11 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
+from attacks import attribute_attack, likelihood_attack, worst_case_attack
 from attacks.dataset import Data
 from safemodel.classifiers import SafeDecisionTreeClassifier
-import  attacks.attribute_attack as attribute_attack
-import  attacks.likelihood_attack as likelihood_attack
-import  attacks.worst_case_attack as worst_case_attack
 
-# pylint: disable=too-many-locals,bare-except,duplicate-code
+# pylint: disable=too-many-locals,bare-except,duplicate-code,unnecessary-dunder-call
 
 
 def cleanup_file(name: str):
@@ -56,8 +54,7 @@ def get_nursery_dataset() -> Data:
         for i in range(num):
             if y[i] == "recommend":
                 y[i] = "priority"
-                
-        
+
         indices: list[list[int]] = [
             [0, 1, 2],  # parents
             [3, 4, 5, 6, 7],  # has_nurs
@@ -67,7 +64,7 @@ def get_nursery_dataset() -> Data:
             [19, 20],  # finance
             [21, 22, 23],  # social
             [24, 25, 26],  # health
-            [27],#dummy
+            [27],  # dummy
         ]
 
         # [Researcher] Split into training and test sets
@@ -97,14 +94,14 @@ def get_nursery_dataset() -> Data:
         y_train = label_enc.fit_transform(y_train_orig)
         x_test = feature_enc.transform(x_test_orig).toarray()
         y_test = label_enc.transform(y_test_orig)
-        
-        # add dummy continuous valued atribute
-        dummy_tr=  np.random.rand(x_train.shape[0],1)
-        dummy_te=  np.random.rand(x_test.shape[0],1)
-        x_train = np.hstack((x_train,dummy_tr ))
-        x_train_orig = np.hstack((x_train_orig,dummy_tr ))
-        x_test = np.hstack((x_test,dummy_te ))
-        x_test_orig = np.hstack((x_test_orig,dummy_te ))
+
+        # add dummy continuous valued attribute
+        dummy_tr = np.random.rand(x_train.shape[0], 1)
+        dummy_te = np.random.rand(x_test.shape[0], 1)
+        x_train = np.hstack((x_train, dummy_tr))
+        x_train_orig = np.hstack((x_train_orig, dummy_tr))
+        x_test = np.hstack((x_test, dummy_te))
+        x_test_orig = np.hstack((x_test_orig, dummy_te))
 
         n_features = np.shape(x_train_orig)[1]
 
@@ -115,9 +112,9 @@ def get_nursery_dataset() -> Data:
         the_data.add_raw_data(
             x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig
         )
-        for i in range(n_features -1):
+        for i in range(n_features - 1):
             the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
-        the_data.add_feature("dummy", indices[n_features-1], "float")
+        the_data.add_feature("dummy", indices[n_features - 1], "float")
 
     if need_download and save_locally:
         # make directory if needed then save
@@ -132,8 +129,8 @@ def get_nursery_dataset() -> Data:
 def test_run_attack_lira():
     """calls the lira attack via safemodel"""
     the_data = get_nursery_dataset()
-    assert the_data.__str__()=="nursery"
-    
+    assert the_data.__str__() == "nursery"
+
     # build a model
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
@@ -146,10 +143,12 @@ def test_run_attack_lira():
 
     fname = "delete-me"
     metadata = model.run_attack(the_data, "lira", fname)
-    files_made = ("delete-me.json",
-                  "lira_example_report.json",
-                  "lira_example_report.pdf",
-                 "log_roc.png")
+    files_made = (
+        "delete-me.json",
+        "lira_example_report.json",
+        "lira_example_report.pdf",
+        "log_roc.png",
+    )
     for fname in files_made:
         cleanup_file(fname)
     assert len(metadata) > 0  # something has been added
@@ -158,7 +157,7 @@ def test_run_attack_lira():
 def test_run_attack_worstcase():
     """calls the worst case attack via safemodel"""
     the_data = get_nursery_dataset()
-    assert the_data.__str__()=="nursery"
+    assert the_data.__str__() == "nursery"
 
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
@@ -167,8 +166,7 @@ def test_run_attack_worstcase():
 
     fname = "delete-me"
     metadata = model.run_attack(the_data, "worst_case", fname)
-    files_made = ("delete-me.json",
-                 "log_roc.png")
+    files_made = ("delete-me.json", "log_roc.png")
     for fname in files_made:
         cleanup_file(fname)
     assert len(metadata) > 0  # something has been added
@@ -177,8 +175,7 @@ def test_run_attack_worstcase():
 def test_run_attack_attribute():
     """calls the attribute  attack via safemodel"""
     the_data = get_nursery_dataset()
-    assert the_data.__str__()=="nursery"
-
+    assert the_data.__str__() == "nursery"
 
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     model.fit(the_data.x_train, the_data.y_train)
@@ -187,36 +184,35 @@ def test_run_attack_attribute():
 
     fname = "delete-me"
     metadata = model.run_attack(the_data, "attribute", fname)
-    files_made = ("delete-me.json",
-                  "aia_example.json",
-                  "aia_example.pdf",
-                  "aia_report_cat_frac.png",
-                  "aia_report_cat_risk.png",
-                  "aia_report_quant_risk.png"
-                 )
+    files_made = (
+        "delete-me.json",
+        "aia_example.json",
+        "aia_example.pdf",
+        "aia_report_cat_frac.png",
+        "aia_report_cat_risk.png",
+        "aia_report_quant_risk.png",
+    )
     for fname in files_made:
         cleanup_file(fname)
     assert len(metadata) > 0  # something has been added
 
-    
+
 def test_attack_args():
-    fname= "aia_example"
-    attack_args = attribute_attack.AttributeAttackArgs(
-        report_name=fname)
-    attack_args.set_param('foo','boo')
-    assert attack_args.get_args()['foo']=='boo'
+    """tests the attack arguments class"""
+    fname = "aia_example"
+    attack_args = attribute_attack.AttributeAttackArgs(report_name=fname)
+    attack_args.set_param("foo", "boo")
+    assert attack_args.get_args()["foo"] == "boo"
     assert fname in attack_args.__str__()
-    
-    fname= "liraa"
-    attack_args = likelihood_attack.LIRAAttackArgs(
-        report_name=fname)
-    attack_args.set_param('foo','boo')
-    assert attack_args.get_args()['foo']=='boo'
+
+    fname = "liraa"
+    attack_args = likelihood_attack.LIRAAttackArgs(report_name=fname)
+    attack_args.set_param("foo", "boo")
+    assert attack_args.get_args()["foo"] == "boo"
     assert fname in attack_args.__str__()
-    
-    fname= "wca"
-    attack_args = worst_case_attack.WorstCaseAttackArgs(
-        report_name=fname)
-    attack_args.set_param('foo','boo')
-    assert attack_args.get_args()['foo']=='boo'
+
+    fname = "wca"
+    attack_args = worst_case_attack.WorstCaseAttackArgs(report_name=fname)
+    attack_args.set_param("foo", "boo")
+    assert attack_args.get_args()["foo"] == "boo"
     assert fname in attack_args.__str__()
