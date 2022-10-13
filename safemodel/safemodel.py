@@ -553,8 +553,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                     logger.warning(
                         "...%s error; %s", str(type(key_type)), str(key_type)
                     )
-            # logger.debug('...done')
-        # logger.info('copied')
 
         saved_model = current_model.pop("saved_model", "Absent")
 
@@ -569,12 +567,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             # final check in case fit has been called twice
             _ = saved_model.pop("saved_model", "Absent")
 
-            # rename keys to get rid of the "a_" suffix
-        #             keyscopy= copy(saved_model.keys())
-        #             for oldkey in keyscopy:
-        #                 newkey=oldkey[2:]
-        #                 print(f' {oldkey} -> {newkey}')
-        #                 saved_model[newkey]= saved_model.pop(oldkey)
         return current_model, saved_model
 
     def examine_seperate_items(
@@ -589,15 +581,15 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         for item in self.examine_seperately_items:
             if curr_vals[item] == "Absent" and saved_vals[item] == "Absent":
                 disclosive = True
-                msg += f"Note that item {item} missing from both versions"
+                msg += get_reporting_string(name="both_item_removed", item=item)
 
             if curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
-                msg += f"Error, item {item} present in  saved but not current model"
+                msg += get_reporting_string(name="current_item_removed", item=item)
                 disclosive = True
 
             if saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
                 disclosive = True
-                msg += f"Error, item {item} present in current but not saved model"
+                msg += get_reporting_string(name="saved_item_removed", item=item)
 
         if not disclosive:  # ok, so can call mode-specific extra checks
             msg, disclosive = self.additional_checks(curr_vals, saved_vals)
@@ -613,9 +605,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         current_model, saved_model = self.get_current_and_saved_models()
         if len(saved_model) == 0:
             msg = get_reporting_string(name="error_not_called_fit")
-            # "Error: user has not called fit() method or has deleted saved values."
             msg += get_reporting_string(name="recommend_do_not_release")
-            # "Recommendation: Do not release."
             disclosive = True
 
         else:
@@ -633,18 +623,20 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
             # comparison on list of "simple" parameters
             match = list(diff(current_model, saved_model, expand=True))
-            if len(match) > 0:
+            num_differences = len(match)
+            if num_differences > 0:
                 disclosive = True
-
                 msg += get_reporting_string(
-                    name="basic_params_differ", match=match, length=(len(match))
+                    name="basic_params_differ", length=num_differences
                 )
-
-                # f"Warning: basic parameters differ in {len(match)} places:\n"
                 for this_match in match:
                     if this_match[0] == "change":
-                        msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
-                        msg += f"to {this_match[2][0]} after model was fitted.\n"
+                        msg += get_reporting_string(
+                            name="param_changed_from_to",
+                            key=this_match[1],
+                            val=this_match[2][1],
+                            cur_val=this_match[2][0],
+                        )
                     else:
                         msg += f"{this_match}"
 

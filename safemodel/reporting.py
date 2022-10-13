@@ -142,7 +142,11 @@ def get_reporting_string(**kwargs):
             f"epochs = {inter_params['epochs']}.\n"
         ),
         "basic_params_differ": (
-            f"Warning: basic parameters differ in {inter_params['length']} places:\n"
+            "Warning: basic parameters differ in " f"{inter_params['length']} places:\n"
+        ),
+        "param_changed_from_to": (
+            f"parameter {inter_params['key']} changed from {inter_params['val']} "
+            f"to {inter_params['cur_val']} after model was fitted.\n"
         ),
         "unable_to_check": (
             f"Unable to check as an exception occurred: {inter_params['error']}"
@@ -162,9 +166,15 @@ def get_reporting_string(**kwargs):
             "Warning: model was fitted with different base estimator type.\n"
         ),
         "error_model_not_fitted": ("Error: model has not been fitted to data.\n"),
-        "trees_removed": (
-            "Error: current version of model has had trees removed after fitting.\n"
+        "current_item_removed": (
+            f"Error, item  {inter_params['item']} "
+            "present in  saved but not current model.\n"
         ),
+        "saved_item_removed": (
+            f"Error, item  {inter_params['item']} "
+            "present in  current but not saved model.\n"
+        ),
+        "both_item_removed": f"Note that item {inter_params['item']} missing from both versions.\n",
         "trees_edited": (
             "Error: current version of model has had trees manually edited.\n"
         ),
@@ -173,7 +183,7 @@ def get_reporting_string(**kwargs):
             f"but requested version has {inter_params['num1']}.\n"
         ),
         "forest_estimators_differ": (
-            f"Forest base estimators {inter_params['idx']} differ."
+            f"{inter_params['idx']} forest base estimators have been changed.\n"
         ),
         "unable_to_check_item": (
             "In SafeRandomForest.additional_checks: "
