@@ -6,9 +6,7 @@ import copy
 from typing import Any
 
 import numpy as np
-from dictdiffer import diff
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
 
 from ..reporting import get_reporting_string
 from ..safemodel import SafeModel
@@ -56,91 +54,64 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         self.ignore_items = [
             "model_save_file",
             "ignore_items",
-            "base_estimator_",
+            "base_estimator_",  # this is an object
         ]
-        self.examine_seperately_items = ["base_estimator", "estimators_"]
+        self.examine_seperately_items = ["estimators_", "base_estimator"]
         self.k_anonymity = 0
 
     def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Random Forest-specific checks
-        would benefit from refactoring into simpler blocks perhaps
+        would benefit from refactoring into simpler blocks perhaps.
+        NOTE that this is never called if the model has not been fitted
         """
         msg = ""
         disclosive = False
         # now the relevant random-forest specific things
         for item in self.examine_seperately_items:
+            # template for class of things that make up forest
             if item == "base_estimator":
-                try:
-                    the_type = type(self.base_estimator)
-                    if not isinstance(self.saved_model["base_estimator_"], the_type):
-                        msg += get_reporting_string(
-                            name="warn_fitted_fitted_different_base"
-                        )
-                        # "Warning: model was fitted with different base estimator type.\n"
-                        disclosive = True
-                except AttributeError:
-                    msg += get_reporting_string(name="error_model_not_fitted")
-                    # "Error: model has not been fitted to data.\n"
-                    disclosive = True
-
-            elif item == "estimators_":
-
-                if curr_separate[item] == "Absent" and saved_separate[item] == "Absent":
-                    disclosive = True
-                    msg += get_reporting_string(name="error_model_not_fitted")
-                    # "Error: model has not been fitted to data.\n"
-
-                elif curr_separate[item] == "Absent":
-                    disclosive = True
-                    msg += get_reporting_string(name="trees_removed")
-
-                elif saved_separate[item] == "Absent":
-                    disclosive = True
-                    msg += get_reporting_string(name="trees_edited")
-                    # "Error: current version of model has had trees manually edited.\n"
-
-                else:
-                    try:
-                        num1 = len(curr_separate[item])
-                        num2 = len(saved_separate[item])
-                        if num1 != num2:
-                            msg += get_reporting_string(
-                                name="different_num_estimators", num1=num1, num2=num2
-                            )
-                            # (
-                            #    f"Fitted model has {num2} estimators "
-                            #    f"but requested version has {num1}.\n"
-                            # )
-                            disclosive = False
-                        else:
-                            for idx in range(num1):
-                                same, msg2, = decision_trees_are_equal(
-                                    curr_separate[item][idx], saved_separate[item][idx]
-                                )
-                                if not same:
-                                    disclosive = True
-                                    msg += get_reporting_string(
-                                        name="forest_estimators_differ", idx=idx
-                                    )
-                                    # f"Forest base estimators {idx} differ."
-                                    msg += msg2
-
-                    except BaseException as error:  # pylint: disable=broad-except
-                        msg += get_reporting_string(
-                            name="unable_to_check_item", item=item, error=error
-                        )
-                        same = False
-
-            elif isinstance(curr_separate[item], DecisionTreeClassifier):
-                diffs_list = list(diff(curr_separate[item], saved_separate[item]))
-                if len(diffs_list) > 0:
-                    disclosive = True
+                if curr_separate[item] != saved_separate[item]:
+                    # msg += get_reporting_string(name="basic_params_differ",length=1)
                     msg += get_reporting_string(
-                        name="structure_differences", item=item, diffs_list=diffs_list
+                        name="param_changed_from_to",
+                        key="base_estimator",
+                        val=saved_separate[item],
+                        cur_val=curr_separate[item],
                     )
-                    # f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
+                    disclosive = True
+            # the forest itself
+            elif item == "estimators_":
+                try:
+                    num1 = len(curr_separate[item])
+                    num2 = len(saved_separate[item])
+                    if num1 != num2:
+                        msg += get_reporting_string(
+                            name="different_num_estimators", num1=num1, num2=num2
+                        )
+                        disclosive = True
+                    else:
+                        changed = False
+                        num_diff_trees = 0
+                        for idx in range(num1):
+                            same, _ = decision_trees_are_equal(
+                                curr_separate[item][idx], saved_separate[item][idx]
+                            )
+                            if not same:
+                                changed = True
+                                num_diff_trees += 1
+                        if changed:
+                            msg += get_reporting_string(
+                                name="forest_estimators_differ", idx=num_diff_trees
+                            )
+                            disclosive = True
+                except BaseException as error:  # pylint: disable=broad-except #pragma:no cover
+                    msg += get_reporting_string(
+                        name="unable_to_check_item", item=item, error=error
+                    )
+                    same = False
+
         return msg, disclosive
 
     # pylint: disable=arguments-differ
