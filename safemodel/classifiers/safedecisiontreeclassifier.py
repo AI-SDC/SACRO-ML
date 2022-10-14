@@ -50,7 +50,7 @@ def decision_trees_are_equal(
             same = False
             msg += msg2
 
-    except BaseException as error:  # pylint:disable=broad-except
+    except BaseException as error:  # pylint:disable=broad-except  #pragma:no cover
         msg += get_reporting_string(name="unable_to_check", error=error)
         # f"Unable to check as an exception occurred: {error}"
         same = False
@@ -110,7 +110,7 @@ def decision_tree_internal_trees_are_equal(
                         )
                         # f"internal tree attribute {attr} differs\n"
                         same = False
-    except BaseException as error:  # pylint:disable=broad-except
+    except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
         # f"An exception occurred: {error}"
     return same, msg
