@@ -10,10 +10,12 @@ import logging
 import os
 import pathlib
 import pickle
+from pickle import PicklingError
 from typing import Any
 
 import joblib
-import tensorflow as tf
+
+# import tensorflow as tf
 from dictdiffer import diff
 
 from attacks import attribute_attack, dataset, report, worst_case_attack
@@ -256,7 +258,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
-        except (ImportError, KeyError, OSError):
+        except (ImportError, KeyError, OSError):  # pragma: no cover
             self.researcher = "unknown"
 
     def get_params(self, deep=True):
@@ -275,6 +277,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, name: str = "undefined"
     ) -> None:  # pylint: disable=too-many-branches
         """Writes model to file in appropriate format.
+
+        Note this is overloaded in SafeKerasClassifer
+        to deal with tensorflow specifics.
 
         Parameters
         ----------
@@ -297,92 +302,96 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         """
 
         self.model_save_file = name
-        while self.model_save_file == "undefined":
-            self.model_save_file = input(
-                "Please input a name with extension for the model to be saved."
-            )
-
-        thename = self.model_save_file.split(".")
-        # print(f'in save(), parsed filename is {thename}')
-        if len(thename) == 1:
-            print("file name must indicate type as a suffix")
+        if self.model_save_file == "undefined":
+            print("You must input a name with extension to save the model.")
         else:
-            suffix = self.model_save_file.split(".")[-1]
+            thename = self.model_save_file.split(".")
+            # print(f'in save(), parsed filename is {thename}')
+            if len(thename) == 1:
+                print("file name must indicate type as a suffix")
+            else:
+                suffix = self.model_save_file.split(".")[-1]
 
-            if suffix == "pkl" and self.model_type != "KerasModel":  # save to pickle
-                with open(self.model_save_file, "wb") as file:
+                if (
+                    suffix == "pkl" and self.model_type != "KerasModel"
+                ):  # save to pickle
+                    with open(self.model_save_file, "wb") as file:
+                        try:
+                            pickle.dump(self, file)
+                        except (TypeError, AttributeError, PicklingError) as type_err:
+                            print(
+                                "saving a .pkl file is unsupported for model type:"
+                                f"{self.model_type}."
+                                f"Error message was {type_err}"
+                            )
+
+                elif (
+                    suffix == "sav" and self.model_type != "KerasModel"
+                ):  # save to joblib
                     try:
-                        pickle.dump(self, file)
-                    except TypeError as type_err:
+                        joblib.dump(self, self.model_save_file)
+                    except (TypeError, AttributeError, PicklingError) as type_err:
                         print(
-                            f"saving a .pkl file is unsupported for model type: {self.model_type}."
+                            "saving as a .sav (joblib) file is not supported "
+                            f"for models of type {self.model_type}."
                             f"Error message was {type_err}"
                         )
+                #                  Overloaded in safekeras
+                #                 elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
+                #                     try:
+                #                         tf.keras.models.save_model(
+                #                             self,
+                #                             self.model_save_file,
+                #                             include_optimizer=False,
+                #                             # save_traces=False,
+                #                             save_format=suffix,
+                #                         )
 
-            elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
-                try:
-                    joblib.dump(self, self.model_save_file)
-                except TypeError as type_err:
+                #                     except (ImportError, NotImplementedError) as exception_err:
+                #                         print(
+                #                             f"saving as a {suffix} file gave this error message:  {exception_err}"
+                #                         )
+                else:
                     print(
-                        "saving as a .sav (joblib) file is not supported "
-                        f"for models of type {self.model_type}."
-                        f"Error message was {type_err}"
-                    )
-            elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
-                try:
-                    tf.keras.models.save_model(
-                        self,
-                        self.model_save_file,
-                        include_optimizer=False,
-                        # save_traces=False,
-                        save_format=suffix,
+                        f"{suffix} file suffix currently not supported "
+                        f"for models of type {self.model_type}.\n"
                     )
 
-                except (ImportError, NotImplementedError) as exception_err:
-                    print(
-                        f"saving as a {suffix} file gave this error message:  {exception_err}"
-                    )
-            else:
-                print(
-                    f"{suffix} file suffix currently not supported "
-                    f"for models of type {self.model_type}.\n"
-                )
+    ## Load functionality not needed
+    # - provide directly by underlying pickle/joblib mechanisms
+    # and safekeras provides its own to deal with tensorflow
 
-    def load(self, name: str = "undefined") -> None:
-        """reads model from file in appropriate format.
-        Optimizer is deliberately excluded in the save
-        To prevent possible to restart training and thus
-        possible back door into attacks.
-        Thus optimizer cannot be loaded.
-        """
+    #     def load(self, name: str = "undefined") -> None:
+    #         """reads model from file in appropriate format.
+    #         Note that safekeras overloads this function.
 
-        self.model_load_file = name
-        while self.model_load_file == "undefined":
-            self.model_save_file = input(
-                "Please input a name with extension for the model to load."
-            )
-        if self.model_load_file[-4:] == ".pkl":  # load from pickle
-            with open(self.model_load_file, "rb") as file:
-                temp_file = pickle.load(self, file)
-        elif self.model_load_file[-4:] == ".sav":  # load from joblib
-            temp_file = joblib.load(self, self.model_save_file)
-        elif self.model_load_file[-3:] == ".h5":
-            # load from .h5
-            temp_file = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
-            )
+    #         Optimizer is deliberately excluded in the save
+    #         To prevent possible to restart training and thus
+    #         possible back door into attacks.
+    #         Thus optimizer cannot be loaded.
+    #         """
+    #         temp_file=None
+    #         self.model_load_file = name
+    #         if self.model_load_file == "undefined":
+    #             print("You must input a file name with extension to load a model.")
+    #         else:
+    #             thename = self.model_save_file.split(".")
+    #             suffix = self.model_save_file.split(".")[-1]
 
-        elif self.model_load_file[-3:] == ".tf":
-            # load from tf
-            temp_file = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
-            )
+    #             if suffix == ".pkl":  # load from pickle
+    #                 with open(self.model_load_file, "rb") as file:
+    #                     temp_file = pickle.load(self, file)
+    #             elif suffix == ".sav":  # load from joblib
+    #                 temp_file = joblib.load(self, self.model_save_file)
+    #             #safekeras overloads loads
+    #             elif suffix in ("h5","tf")  and self.model_type != "KerasModel":
+    #                 print("tensorflow objects saved as h5 or tf"
+    #                       "can only be loaded into models of type SafeKerasClassifier"
+    #                      )
+    #             else:
+    #                 print(f"loading from a {suffix} file is currently not supported")
 
-        else:
-            suffix = self.model_load_file.split(".")[-1]
-            print(f"loading from a {suffix} file is currently not supported")
-
-        return temp_file
+    #         return temp_file
 
     def __get_constraints(self) -> dict:
         """Gets constraints relevant to the model type from the master read-only file."""
@@ -401,23 +410,16 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                # f"\nChanged parameter type for {key} to {val}.\n"
             elif (val == "float") and (type(cur_val).__name__ == "int"):
                 self.__dict__[key] = float(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                # f"\nChanged parameter type for {key} to {val}.\n"
             else:
                 msg = get_reporting_string(
                     name="not_implemented_for_change", key=key, cur_val=cur_val, val=val
                 )
-                # (
-                #    f"Nothing currently implemented to change type of parameter {key} "
-                #    f"from {type(cur_val).__name__} to {val}.\n"
-                # )
         else:
             setattr(self, key, val)
             msg = get_reporting_string(name="changed_param_equal", key=key, val=val)
-            # f"\nChanged parameter {key} = {val}.\n"
         return msg
 
     def __check_model_param(
@@ -443,7 +445,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             msg = get_reporting_string(
                 name="unknown_operator", key=key, val=val, cur_val=cur_val
             )
-            # f"- unknown operator in parameter specification {operator}"
         if apply_constraints and disclosive:
             msg += self.__apply_constraints(operator, key, val, cur_val)
         return msg, disclosive
