@@ -349,7 +349,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
                 #                     except (ImportError, NotImplementedError) as exception_err:
                 #                         print(
-                #                             f"saving as a {suffix} file gave this error message:  {exception_err}"
+                #                             "saving as a {suffix} file gave this error message:"
+                #                             f"{exception_err}"
                 #                         )
                 else:
                     print(
