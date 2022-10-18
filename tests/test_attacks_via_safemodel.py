@@ -126,6 +126,27 @@ def get_nursery_dataset() -> Data:
     return the_data
 
 
+def test_attacks_via_request_release():
+    """make vulnerable,hacked model then call request_release"""
+    the_data = get_nursery_dataset()
+    assert the_data.__str__() == "nursery"
+
+    # build a broken model and hack it so lots of reasons to fail and be vulnerable
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=10, min_samples_leaf=1)
+    model.fit(the_data.x_train, the_data.y_train)
+    model.min_samples_leaf = 10
+    model.request_release(filename="vulnerable_hacked.pkl", data_obj=the_data)
+    files_made = (
+        "vulnerable_hacked_attribute_res.json",
+        "vulnerable_hacked_lira_res.json",
+        "vulnerable_hacked_worst_case_res.json",
+        "vulnerable_hacked_data.pkl",
+        "vulnerable_hacked.pkl",
+    )
+    for fname in files_made:
+        cleanup_file(fname)
+
+
 def test_run_attack_lira():
     """calls the lira attack via safemodel"""
     the_data = get_nursery_dataset()
@@ -216,3 +237,20 @@ def test_attack_args():
     attack_args.set_param("foo", "boo")
     assert attack_args.get_args()["foo"] == "boo"
     assert fname in attack_args.__str__()
+
+
+def test_run_attack_unknown():
+    """calls an unknown attack via safemodel"""
+    the_data = get_nursery_dataset()
+    assert the_data.__str__() == "nursery"
+
+    # build a model
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
+    model.fit(the_data.x_train, the_data.y_train)
+
+    fname = "delete-me"
+    metadata = model.run_attack(the_data, "unknown", fname)
+    files_made = ("delete-me.json",)
+    for fname in files_made:
+        cleanup_file(fname)
+    assert metadata["outcome"] == "unrecognised attack type requested"

@@ -30,6 +30,21 @@
                 "keyword": "exactly_boo",
                 "operator": "equals",
                 "value": "boo"
+            },
+            {
+                "operator": "or",
+                "subexpr": [
+                    {
+                        "keyword": "keyA",
+                        "operator": "equals",
+                        "value": true
+                    },
+                    {
+                        "keyword": "keyB",
+                        "operator": "equals",
+                        "value": true
+                    }
+                ]
             }
         ]
     },
