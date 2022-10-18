@@ -550,7 +550,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except copy.Error as key_type:
+                except (copy.Error, TypeError) as key_type:
                     logger.warning("%s cannot be copied", key)
                     logger.warning(
                         "...%s error; %s", str(type(key_type)), str(key_type)
@@ -689,11 +689,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         disclosive = False
         for item in self.examine_seperately_items:
             if isinstance(curr_separate[item], list):
-                if saved_separate[item] == "Absent":
-                    msg += f"Error: Saved copy is missing attribute {item}"
-                    disclosive = True
-
-                elif len(curr_separate[item]) != len(saved_separate[item]):
+                if len(curr_separate[item]) != len(saved_separate[item]):
                     msg += (
                         f"Warning: different counts of values for parameter {item}.\n"
                     )
@@ -871,11 +867,14 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         try:
             with open(f"{filename}.json", "w", encoding="utf-8") as fp:
                 json.dump(metadata, fp, cls=report.NumpyArrayEncoder)
-        except TypeError:
+        except TypeError:  # pragma: no cover
+            # not covered in tests as all atttacks prodice simple json so far
             print(f"couldn't serialise metadata {metadata} for attack {attack_name}")
 
         return metadata
 
-    def __str__(self) -> str:
-        """Returns string with model description."""
+    def __str__(self) -> str:  # pragma: no cover
+        """Returns string with model description.
+        No point writing a test, especially as it depends on username
+        """
         return self.model_type + " with parameters: " + str(self.__dict__)

@@ -1,4 +1,5 @@
 """ tests for fnctionality in super class"""
+import copy
 import os
 import pickle
 
@@ -16,11 +17,16 @@ ok_start = get_reporting_string(name="within_recommended_ranges")
 class DummyClassifier:
     """Dummy Classifier that always returns predictions of zero"""
 
-    def __init__(self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo"):
+    # pylint: disable=too-many-arguments
+    def __init__(
+        self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", keyA=True, keyB=True
+    ):
         """dummy init"""
         self.at_least_5f = at_least_5f
         self.at_most_5i = at_most_5i
         self.exactly_boo = exactly_boo
+        self.keyA = keyA
+        self.keyB = keyB
 
     def fit(self, x: np.ndarray, y: np.ndarray):
         """dummy fit"""
@@ -48,7 +54,13 @@ class SafeDummyClassifier(
     def __init__(self, **kwargs) -> None:
         """Creates model and applies constraints to params."""
         SafeModel.__init__(self)
-        self.basemodel_paramnames = ("at_least_5f", "at_most_5i", "exactly_boo")
+        self.basemodel_paramnames = (
+            "at_least_5f",
+            "at_most_5i",
+            "exactly_boo",
+            "keyA",
+            "keyB",
+        )
         the_kwds = {}
         for key, val in kwargs.items():
             if key in self.basemodel_paramnames:
@@ -58,12 +70,16 @@ class SafeDummyClassifier(
         self.ignore_items = ["model_save_file", "basemodel_paramnames", "ignore_items"]
         # create an item to test additional_checks()
         self.examine_seperately_items = ["newthing"]
-        self.newthing = {"myStringKey": "aString", "myIntKey": 42}
+        self.newthing = ["myStringKey", "aString", "myIntKey", "42"]
 
     def set_params(self, **kwargs):
         """sets params"""
         for key, val in kwargs.items():  # pylint:disable=unused-variable
             self.key = val  # pylint:disable=attribute-defined-outside-init
+
+    def fit(self, x: np.ndarray, y: np.ndarray):
+        """dummy fit"""
+        self.saved_model = copy.deepcopy(self.__dict__)
 
 
 def test_params_checks_ok():
@@ -219,6 +235,69 @@ def test_params_checks_wrong_type_int():
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
 
 
+def test_check_unknown_param():
+    """checks handling of malformed json rule"""
+    # pylint:disable=protected-access,no-member
+    model = SafeDummyClassifier()
+    _, _ = model.preliminary_check()
+    odd_rule = {"operator": "unknown", "keyword": "exactly_boo", "value": "some_val"}
+    msg, disclosive = model._SafeModel__check_model_param(odd_rule, False)
+    correct_msg = get_reporting_string(
+        name="unknown_operator",
+        key=odd_rule["keyword"],
+        val=odd_rule["value"],
+        cur_val="boo",
+    )
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is False
+
+
+def test_check_model_param_or():
+    """tests or conditions in rules.json
+    the and condition is tested by the decision tree tests
+    """
+    # ok
+    model = SafeDummyClassifier()
+    msg, disclosive = model.preliminary_check()
+    correct_msg = ok_start
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is False
+
+    part1 = get_reporting_string(
+        name="different_than_fixed_value",
+        key="keyA",
+        cur_val=False,
+        val="True",
+    )
+    part2 = get_reporting_string(
+        name="different_than_fixed_value",
+        key="keyB",
+        cur_val=False,
+        val="True",
+    )
+
+    # or - branch 1
+    model = SafeDummyClassifier(keyA=False)
+    correct_msg = ok_start + part1
+    msg, disclosive = model.preliminary_check()
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is False
+
+    # or  branch 2
+    model = SafeDummyClassifier(keyB=False)
+    correct_msg = ok_start + part2
+    msg, disclosive = model.preliminary_check()
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is False
+
+    # fail or
+    model = SafeDummyClassifier(keyA=False, keyB=False)
+    correct_msg = notok_start + part1 + part2
+    msg, disclosive = model.preliminary_check()
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is True
+
+
 def test_saves():
     """checks that save functions as expected"""
     model = SafeDummyClassifier()
@@ -235,11 +314,11 @@ def test_saves():
     model.save("mymodel.unsupported")
 
     # cannot be pickled
-    model.square = lambda x: x * x #pylint: disable=attribute-defined-outside-init
+    model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
     model.save("unpicklable.pkl")
 
     # cannot be joblibbed
-    model.square = lambda x: x * x#pylint: disable=attribute-defined-outside-init
+    model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
     model.save("unpicklable.sav")
 
     # cleanup
@@ -254,20 +333,25 @@ def test_loads():
     x, y = get_data()
     model.fit(x, y)
     # change something in model
-    model.newthing["myStringKey"] = "this_should_be_present"
-    assert model.newthing["myStringKey"] == "this_should_be_present"
+    model.exactly_boo = "this_should_be_present"
+    assert model.exactly_boo == "this_should_be_present"
 
     # pkl
     model.save("dummy.pkl")
     with open("dummy.pkl", "rb") as file:
         model2 = pickle.load(file)
-    assert model2.newthing["myStringKey"] == "this_should_be_present"
+    assert model2.exactly_boo == "this_should_be_present"
 
     # joblib
     model.save("dummy.sav")
     with open("dummy.sav", "rb") as file:
         model2 = joblib.load(file)
-    assert model2.newthing["myStringKey"] == "this_should_be_present"
+    assert model2.exactly_boo == "this_should_be_present"
+
+    # cleanup
+    for name in ("dummy.pkl", "dummy.sav"):
+        if os.path.exists(name) and os.path.isfile(name):
+            os.remove(name)
 
 
 def test__apply_constraints():
@@ -359,3 +443,75 @@ def test__apply_constraints():
         name="changed_param_equal", key="exactly_boo", val="boo"
     )
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+
+
+def test_get_saved_model_exception():
+    """tests the exception handling
+    in get_current_and_saved_models()
+    """
+    model = SafeDummyClassifier()
+    # add generator which can't be pickled or copied
+    model.a_generator = (
+        i for i in [1, 2, 3]
+    )  # pylint: disable=attribute-defined-outside-init
+    current, saved = model.get_current_and_saved_models()
+    assert saved == {}  # since we haven;t called fit()
+    assert (
+        "a_generator" not in current.keys()
+    )  # pylint: disable=consider-iterating-dictionary
+
+
+def test_generic_additional_tests():
+    """checks the class generic additional tests
+    for this purpose SafeDummyClassifier()
+    defines
+    self.newthing = {"myStringKey": "aString", "myIntKey": 42}
+    """
+    model = SafeDummyClassifier()
+    x, y = get_data()
+    model.fit(x, y)
+
+    # ok
+    msg, disclosive = model.posthoc_check()
+    correct_msg = ""
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is False
+
+    # different lengths
+    model.saved_model["newthing"] += ("extraA",)
+    msg, disclosive = model.posthoc_check()
+    print(
+        "contents of new then saved\n"
+        f"{model.newthing}\n"
+        f'{model.saved_model["newthing"]}'
+    )
+
+    correct_msg = "Warning: different counts of values for parameter newthing.\n"
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is True
+
+    # different thing in list
+    model.newthing += ("extraB",)
+    msg, disclosive = model.posthoc_check()
+    correct_msg = (
+        "Warning: at least one non-matching value " "for parameter list newthing.\n"
+    )
+    print(
+        "contents of new then saved\n"
+        f"{model.newthing}\n"
+        f'{model.saved_model["newthing"]}'
+    )
+    assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
+    assert disclosive is True
+
+
+def test_request_release():
+    """checks requestrelease code works"""
+    model = SafeDummyClassifier()
+    x, y = get_data()
+    model.fit(x, y)
+    # give it k_anonymity
+    model.k_anonymity = 5  # pylint: disable=attribute-defined-outside-init
+
+    # no file provided, has k_anonymity
+    model.request_release()
