@@ -451,14 +451,15 @@ def test_get_saved_model_exception():
     """
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
-    model.a_generator = (
+
+    model.a_generator = (  # pylint: disable=attribute-defined-outside-init
         i for i in [1, 2, 3]
-    )  # pylint: disable=attribute-defined-outside-init
+    )
     current, saved = model.get_current_and_saved_models()
     assert saved == {}  # since we haven;t called fit()
-    assert (
+    assert (  # pylint: disable=consider-iterating-dictionary
         "a_generator" not in current.keys()
-    )  # pylint: disable=consider-iterating-dictionary
+    )
 
 
 def test_generic_additional_tests():
@@ -494,7 +495,7 @@ def test_generic_additional_tests():
     model.newthing += ("extraB",)
     msg, disclosive = model.posthoc_check()
     correct_msg = (
-        "Warning: at least one non-matching value " "for parameter list newthing.\n"
+        "Warning: at least one non-matching value for parameter list newthing.\n"
     )
     print(
         "contents of new then saved\n"
