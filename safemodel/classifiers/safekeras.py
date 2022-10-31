@@ -4,7 +4,7 @@
 """
 # general imports
 
-import logging
+
 import os
 import warnings
 
@@ -82,7 +82,7 @@ def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
         m2layer = m2.layers[layer].get_weights()
         if len(m1layer[0][0]) != len(m2layer[0][0]):
             return False, f"layer {layer} not the same size."
-        for dim in range(len(m1layer)):
+        for dim in range(len(m1layer)):  # pylint: disable=consider-using-enumerate
             m1d = m1layer[dim]
             m2d = m2layer[dim]
             # print(type(m1d), m1d.shape)
@@ -209,8 +209,8 @@ def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
 
     if the_model is not None:
         return (True, the_model)
-    else:
-        return (False, msg)
+    # else
+    return (False, msg)
 
 
 class SafeKerasModel(KerasModel, SafeModel):
@@ -275,6 +275,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         if self.batch_size == 0:
             msg = get_reporting_string(name="batch_size_zero")
+            print(msg)
             self.batch_size = 32
 
         SafeModel.__init__(self)
@@ -497,13 +498,12 @@ class SafeKerasModel(KerasModel, SafeModel):
             return msg, True
 
         # passed all the tests!!
-        else:
-            if verbose:
-                msg = get_reporting_string(name="recommend_allow_release")
-                msg += get_reporting_string(
-                    name="allow_release_eps_below_max", current_epsilon=cur_eps
-                )
-            return msg, False
+        if verbose:
+            msg = get_reporting_string(name="recommend_allow_release")
+            msg += get_reporting_string(
+                name="allow_release_eps_below_max", current_epsilon=cur_eps
+            )
+        return msg, False
 
     def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
