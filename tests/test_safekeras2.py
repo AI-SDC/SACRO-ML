@@ -772,7 +772,7 @@ def test_posthoc_check():
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(Xval, yval), epochs=1, batch_size=20)
 
     # should be ok
     _, disclosive = model.posthoc_check()
