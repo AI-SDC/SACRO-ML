@@ -37,6 +37,11 @@ DP_CLASS_STRING = (
     "make_keras_optimizer_class.<locals>.DPOptimizerClass"
 )
 
+DP_CLASS_STRING2 = (
+    "tensorflow_privacy.privacy.optimizers.dp_optimizer_keras."
+    "make_keras_generic_optimizer_class.<locals>.DPOptimizerClass"
+)
+
 
 def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
     """Checks if two models havethe same architecture"""
@@ -162,7 +167,7 @@ def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
     allowed = False
     opt_type = str(type(optimizer))
     reason = get_reporting_string(name="optimizer_not_allowed", optimizer=opt_type)
-    if DP_CLASS_STRING in opt_type:
+    if (DP_CLASS_STRING in opt_type) or (DP_CLASS_STRING2 in opt_type):
         allowed = True
         reason = get_reporting_string(name="optimizer_allowed", optimizer=opt_type)
 
