@@ -117,13 +117,20 @@ def get_reporting_string(**kwargs):
         ),
         "recommend_do_not_release": ("Recommendation: Do not release."),
         "layer_configs_differ": (
-            f"Layer {inter_params['layer']} configs differ in {inter_params['length']} places:\n"
+            f"Layer {inter_params['layer']} configs "
+            f"differ in {inter_params['length']} places:\n"
         ),
         "error_reloading_model_v1": (
             f"Error re-loading  model from {inter_params['v1']}:  {inter_params['e']}"
         ),
         "error_reloading_model_v2": (
             f"Error re-loading  model from {inter_params['v2']}: {inter_params['e']}"
+        ),
+        "same_ann_config": ("configurations match"),
+        "different_layer_count": ("models have different numbers of layers"),
+        "batch_size_zero": (
+            "Batch size of 0 not allowed",
+            "setting batch_size =32.\n" "Alter self.batch_sizer manually if required.",
         ),
         "division_by_zero": ("Division by zero setting batch_size =1"),
         "dp_requirements_met": (

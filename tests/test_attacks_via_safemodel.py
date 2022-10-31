@@ -1,6 +1,6 @@
 """
 Tests attacks called via safemodel classes
-uses a saubsmapled nursery dataset as this tests more of the attack code
+uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests
 """
 import os
@@ -140,7 +140,7 @@ def test_attacks_via_request_release():
         "vulnerable_hacked_attribute_res.json",
         "vulnerable_hacked_lira_res.json",
         "vulnerable_hacked_worst_case_res.json",
-        "vulnerable_hacked_data.pkl",
+        "vulnerable_hacked_data.pickle",
         "vulnerable_hacked.pkl",
     )
     for fname in files_made:
