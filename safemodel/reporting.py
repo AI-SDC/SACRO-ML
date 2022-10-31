@@ -129,8 +129,9 @@ def get_reporting_string(**kwargs):
         "same_ann_config": ("configurations match"),
         "different_layer_count": ("models have different numbers of layers"),
         "batch_size_zero": (
-            "Batch size of 0 not allowed",
-            "setting batch_size =32.\n" "Alter self.batch_sizer manually if required.",
+            "Batch size of 0 not allowed"
+            "setting batch_size =32.\n"
+            "Alter self.batch_size manually if required."
         ),
         "division_by_zero": ("Division by zero setting batch_size =1"),
         "dp_requirements_met": (
