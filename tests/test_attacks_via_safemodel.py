@@ -95,26 +95,28 @@ def get_nursery_dataset() -> Data:
         x_test = feature_enc.transform(x_test_orig).toarray()
         y_test = label_enc.transform(y_test_orig)
 
-        # add dummy continuous valued attribute
-        dummy_tr = np.random.rand(x_train.shape[0], 1)
-        dummy_te = np.random.rand(x_test.shape[0], 1)
+        # add dummy continuous valued attribute from N(0.5,0.05)
+        dummy_tr = 0.5 + 0.05 * np.random.randn(x_train.shape[0], 1)
+        dummy_te = 0.5 + 0.05 * np.random.randn(x_test.shape[0], 1)
+        dummy_all = np.hstack((dummy_tr, dummy_te))
+
         x_train = np.hstack((x_train, dummy_tr))
         x_train_orig = np.hstack((x_train_orig, dummy_tr))
         x_test = np.hstack((x_test, dummy_te))
         x_test_orig = np.hstack((x_test_orig, dummy_te))
-
+        xmore = np.hstack((x, dummy_all))
         n_features = np.shape(x_train_orig)[1]
 
         # [TRE / Researcher] Wrap the data in a dataset object
         the_data = Data()
         the_data.name = "nursery"
         the_data.add_processed_data(x_train, y_train, x_test, y_test)
-        the_data.add_raw_data(
-            x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig
-        )
         for i in range(n_features - 1):
             the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
         the_data.add_feature("dummy", indices[n_features - 1], "float")
+        the_data.add_raw_data(
+            xmore, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig
+        )
 
     if need_download and save_locally:
         # make directory if needed then save
