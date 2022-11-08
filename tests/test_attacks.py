@@ -1,11 +1,17 @@
-"""Jim Smith October 2022"""
+"""Jim Smith October 2022
+tests to pick up odd cases not otherwise covered
+in code in the attacks folder
+"""
 import math
 
 import numpy as np
 import pytest
+from fpdf import FPDF
 
-from attacks import attack, dataset, mia_extremecase
+from attacks import attack, dataset, mia_extremecase, report
 from safemodel.classifiers import SafeDecisionTreeClassifier
+
+BORDER = 0
 
 
 def test_superclass():
@@ -37,3 +43,31 @@ def test_mia_extremecase():
     # wrong predictions - probaility very close to 1 so logp=0
     _, _, _, pval = mia_extremecase.min_max_disc(y, wrong)
     assert math.isclose(pval, 0.0)
+
+
+def test_NumpyArrayEncoder():
+    """conversion routine
+    from reports.py
+    """
+
+    i32 = np.int32(2)
+    i64 = np.int64(2)
+    twoDarray = np.zeros((2, 2))
+    my_encoder = report.NumpyArrayEncoder()
+
+    retval = my_encoder.default(i32)
+    assert isinstance(retval, int)
+
+    retval = my_encoder.default(i64)
+    assert isinstance(retval, int)
+
+    retval = my_encoder.default(twoDarray)
+    assert isinstance(retval, list)
+
+
+def test_line():
+    """code from report.py"""
+    pdf = FPDF()
+    pdf.add_page()
+    report.line(pdf, "foo")
+    pdf.close()
