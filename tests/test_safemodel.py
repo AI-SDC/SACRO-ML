@@ -31,7 +31,7 @@ class DummyClassifier:
     def fit(self, x: np.ndarray, y: np.ndarray):
         """dummy fit"""
 
-    def predict(self, x: np.ndarray):
+    def predict(self, x: np.ndarray):  # pragma: no cover
         """predict all ones"""
         return np.ones(x.shape[0])
 
@@ -72,7 +72,7 @@ class SafeDummyClassifier(
         self.examine_seperately_items = ["newthing"]
         self.newthing = ["myStringKey", "aString", "myIntKey", "42"]
 
-    def set_params(self, **kwargs):
+    def set_params(self, **kwargs):  # pragma: no cover
         """sets params"""
         for key, val in kwargs.items():  # pylint:disable=unused-variable
             self.key = val  # pylint:disable=attribute-defined-outside-init

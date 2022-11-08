@@ -41,10 +41,10 @@ def get_nursery_dataset() -> Data:
             with open(the_file, "rb") as f:
                 the_data = pickle.load(f)
             need_download = False
-        except:
+        except:  # pragma: no cover
             need_download = True
 
-    if need_download:
+    if need_download:  # pragma: no cover
 
         nursery_data = fetch_openml(data_id=26, as_frame=True)
         x = np.asarray(nursery_data.data, dtype=str)
