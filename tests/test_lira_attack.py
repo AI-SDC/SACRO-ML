@@ -33,13 +33,15 @@ python -m examples.lira_attack_example
 # pylint: disable = duplicate-code
 
 # import json
-# import os
+import os
+import sys
 
 # import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
+from attacks import likelihood_attack
 from attacks.dataset import Data  # pylint: disable = import-error
 from attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
@@ -73,3 +75,18 @@ def test_lira_attack():
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
     _ = output2["attack_metrics"][0]
+
+
+def test_main():
+    """test invocation via command line"""
+    from unittest.mock import patch
+
+    # option 1
+    testargs = ["prog", "run-example"]
+    with patch.object(sys, "argv", testargs):
+        likelihood_attack.main()
+
+    # option 2
+    testargs = ["prog", "run-attack", "--j", "lrconfig.json"]
+    with patch.object(sys, "argv", testargs):
+        likelihood_attack.main()
