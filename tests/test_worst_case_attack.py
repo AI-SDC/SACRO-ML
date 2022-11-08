@@ -1,27 +1,8 @@
-"""Examples for using the 'worst case' attack code.
-
-This code simulates a MIA attack providing the attacker with as much information as possible.
-i.e. they have a subset of rows that they _know_ were used for training. And a subset that they
-know were not. They also have query access to the target model.
-
-They pass the training and non-training rows through the target model to get the predictive
-probabilities. These are then used to train an _attack model_. And the attack model is evaluated
-to see how well it can predict whether or not other examples were in the training set or not.
-
-The code can be called from the command line, or accessed programmatically. Examples of both
-are shown below.
-
-In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
-
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.worst_case_attack_example
-
+"""test_worst_case_attack.py
+Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
-import os
 import sys
+from unittest.mock import patch
 
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -132,7 +113,6 @@ def test_dummy_data():
 
 def test_main():
     """test invocation via command line"""
-    from unittest.mock import patch
 
     # option 1
     testargs = ["prog", "make-dummy-data"]

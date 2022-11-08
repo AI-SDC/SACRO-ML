@@ -1,39 +1,10 @@
-"""Examples for using the likelihood ratio attack code.
-
-This code simulates a MIA attack providing the attacker with as much information as possible.
-i.e. they have a subset of rows that they _know_ were used for training. And a subset that they
-know were not. They also have query access to the target model.
-
-The attack proceeds as described in this paper:
-https://arxiv.org/pdf/2112.03570.pdf
-
-The steps are as follows:
-
-1. The researcher partitions their data into training and testing subsets
-2. The researcher trains their model
-3. The TRE runs the attacks
-   *Programmatically*
-     1. The TRE calls the attack code.
-     2. The TRE computes and inspects attack metrics.
-   *Command line
-     3. The researcher writes out their training and testing data, as well as the predictions
-        that their target model makes on this data.
-     4. The TRE create a config file for the attack, specifying the file names for the files created
-        in the previous two steps, as well as specifications for the shadow models.
-     5. The attack is run with a command line command, creating a report.
-
-
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.lira_attack_example
-
+"""test_lira_attack.py
+Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>
 """
 # pylint: disable = duplicate-code
 
 # import json
-import os
+from unittest.mock import patch
 import sys
 
 # import numpy as np
@@ -79,7 +50,6 @@ def test_lira_attack():
 
 def test_main():
     """test invocation via command line"""
-    from unittest.mock import patch
 
     # option 1
     testargs = ["prog", "run-example"]
