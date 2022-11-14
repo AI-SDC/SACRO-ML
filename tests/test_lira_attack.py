@@ -3,9 +3,10 @@ Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>
 """
 # pylint: disable = duplicate-code
 
+import sys
+
 # import json
 from unittest.mock import patch
-import sys
 
 # import numpy as np
 from sklearn.datasets import load_breast_cancer
