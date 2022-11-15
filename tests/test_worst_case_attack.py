@@ -100,6 +100,40 @@ def test_attack_from_predictions():
     attack_obj.attack_from_prediction_files()
 
 
+def test_attack_from_predictions_no_dummy():
+    """checks code that runs attacks from predictions"""
+
+    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    dataset_obj = dataset.Data()
+    dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+
+    target_model = SVC(gamma=0.1, probability=True)
+    target_model.fit(train_X, train_y)
+    ytr_pred = target_model.predict_proba(train_X)
+    yte_pred = target_model.predict_proba(test_X)
+    np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
+    np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
+
+    args = worst_case_attack.WorstCaseAttackArgs(
+        # How many attacks to run -- in each the attack model is trained on a different
+        # subset of the data
+        n_reps=10,
+        n_dummy_reps=0,
+        p_thresh=0.05,
+        in_sample_filename="ypred_train.csv",
+        out_sample_filename="ypred_test.csv",
+        test_prop=0.5,
+        report_name="test-10reps",
+    )
+
+    assert args.get_args()["in_sample_filename"] == "ypred_train.csv"
+    print(args)
+
+    # with multiple reps
+    attack_obj = worst_case_attack.WorstCaseAttack(args)
+    attack_obj.attack_from_prediction_files()
+
 def test_dummy_data():
     """test functionality around creating dummy data"""
     args = worst_case_attack.WorstCaseAttackArgs(
