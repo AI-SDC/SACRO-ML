@@ -25,7 +25,8 @@ class DummyClassifier:
 
     def predict(self, x: np.ndarray):
         """predict all ones"""
-        return np.ones(x.shape[0])
+
+    #     return np.ones(x.shape[0])
 
 
 def get_data():

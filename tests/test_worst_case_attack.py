@@ -1,6 +1,7 @@
 """test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
+import os
 import sys
 from unittest.mock import patch
 
@@ -10,6 +11,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 from attacks import dataset, worst_case_attack  # pylint: disable = import-error
+
+
+def clean_up(name):
+    """removes unwanted files or directory"""
+    if os.path.exists(name) and os.path.isfile(name):
+        os.remove(name)
 
 
 def test_report_worstcase():
@@ -129,3 +136,22 @@ def test_main():
     # testargs = ["prog", "run-attack","--no-such-arg"]
     # with patch.object(sys, 'argv', testargs):
     #    worst_case_attack.main()
+
+
+def test_cleanup():
+    """gets rid of files created during tests"""
+    names = [
+        "worstcase_report.pdf",
+        "log_roc.png",
+        "worstcase_report.json",
+        "test_preds.csv",
+        "train_preds.csv",
+        "ypred_test.csv",
+        "ypred_train.csv",
+        "test-1rep.pdf",
+        "test-1rep.json",
+        "test-10reps.pdf",
+        "test-10reps.json",
+    ]
+    for name in names:
+        clean_up(name)

@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from attacks.metrics import _tpr_at_fpr, get_metrics
+from attacks.metrics import _div, _tpr_at_fpr, get_metrics
 from attacks.mia_extremecase import min_max_disc
 
 # pylint: disable = invalid-name
@@ -82,6 +82,19 @@ class TestFPRatTPR(unittest.TestCase):
         self.assertAlmostEqual(tpr, 1)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=1.0)
         self.assertAlmostEqual(tpr, 1)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr_perc=True, fpr=100.0)
+        self.assertAlmostEqual(tpr, 1)
+
+
+class Test_Div(unittest.TestCase):
+    """tests the _div functionality"""
+
+    def test_div(self):
+        """test div for y=1 and 0"""
+        result = _div(8.0, 1.0, 99.0)
+        self.assertAlmostEqual(result, 8.0)
+        result2 = _div(8.0, 0.0, 99.0)
+        self.assertAlmostEqual(result2, 99.0)
 
 
 class TestExtreme(unittest.TestCase):
