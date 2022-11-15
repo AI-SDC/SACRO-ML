@@ -279,6 +279,9 @@ class LIRAAttack(Attack):
                     # If i was _not_ used for training, incorporate the logit of its confidence of
                     # being correct - TODO: should we just be taking max??
                     cl_pos = class_map.get(y_target_train[i], -1)
+                    # Occasionally, the random data split will result in classes being
+                    # absent from the training set. In these cases cl_pos will be -1 and
+                    # we include logit(0) instead of discarding (also for the shadow data below)
                     if cl_pos >= 0:
                         train_row_to_confidence[i].append(
                             _logit(confidences[i, cl_pos])

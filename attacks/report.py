@@ -20,7 +20,7 @@ DISPLAY_METRICS = [
     "TPR@1e-05",
 ]
 
-MAPPINGS = {"PDIF": lambda x: np.exp(-x)}
+MAPPINGS = {"PDIF01": lambda x: np.exp(-x)}
 
 INTRODUCTION = (
     "This report provides a summary of a series of simulated attack experiments performed "
