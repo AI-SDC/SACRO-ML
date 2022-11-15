@@ -1,0 +1,10 @@
+
+IMD_Decile_From_LSOA,Age_Band,Sex,AE_Arrive_Date,AE_Arrive_HourOfDay,AE_Time_Mins,AE_HRG,AE_Num_Diagnoses,AE_Num_Investigations,AE_Num_Treatments,AE_Arrival_Mode,Provider_Patient_Distance_Miles,ProvID,Admitted_Flag,Admission_Method,ICD10_Chapter_Code,Treatment_Function_Code,Length_Of_Stay_Days
+2,65-84,1,2015-07-02 00:00:00,17-20,210,High,1,5,3,2,1,15207,1,21,XVIII,180,1
+6,18-24,1,2017-05-31 00:00:00,17-20,20,Low,0,1,1,2,5,15321,0,,,,
+2,65-84,2,2015-10-25 00:00:00,13-16,280,Nothing,1,0,1,1,2,15269,0,,,,
+4,25-44,1,2014-06-16 00:00:00,21-24,150,Low,1,2,2,2,1,15239,0,,,,
+7,18-24,2,2017-11-18 00:00:00,13-16,180,Low,1,1,2,2,1,15286,0,,,,
+4,85+,2,2015-09-30 00:00:00,13-16,240,Low,1,10,10,1,2,15310,1,21,IX,OTHER,16
+8,65-84,2,2015-02-04 00:00:00,09-12,160,Nothing,0,1,1,1,2,15260,1,21,XVIII,300,1
+2,45-64,2,2015-01-11 00:00:00,09-12,210,Low,2,2,1,2,13,15312,0,,,,
