@@ -10,10 +10,12 @@ import logging
 import os
 import pathlib
 import pickle
+from pickle import PicklingError
 from typing import Any
 
 import joblib
-import tensorflow as tf
+
+# import tensorflow as tf
 from dictdiffer import diff
 
 from attacks import attribute_attack, dataset, report, worst_case_attack
@@ -59,15 +61,9 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     if isinstance(cur_val, (int, float)):
         if cur_val < val:
             disclosive = True
-            print(f"key = {key}")
             msg = get_reporting_string(
                 name="less_than_min_value", key=key, cur_val=cur_val, val=val
             )
-            print(msg)
-            # (
-            #    f"- parameter {key} = {cur_val}"
-            #    f" identified as less than the recommended min value of {val}."
-            # )
         else:
             disclosive = False
             msg = ""
@@ -113,10 +109,6 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
             msg = get_reporting_string(
                 name="greater_than_max_value", key=key, cur_val=cur_val, val=val
             )
-            # (
-            # f"- parameter {key} = {cur_val}"
-            # f" identified as greater than the recommended max value of {val}."
-            # )
         else:
             disclosive = False
             msg = ""
@@ -163,10 +155,6 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         msg = get_reporting_string(
             name="different_than_fixed_value", key=key, cur_val=cur_val, val=val
         )
-        # (
-        #    f"- parameter {key} = {cur_val}"
-        #    f" identified as different than the recommended fixed value of {val}."
-        # )
     else:
         disclosive = False
         msg = ""
@@ -204,10 +192,6 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
         msg = get_reporting_string(
             name="different_than_recommended_type", key=key, cur_val=cur_val, val=val
         )
-        # (
-        #    f"- parameter {key} = {cur_val}"
-        #    f" identified as different type to recommendation of {val}."
-        # )
     else:
         disclosive = False
         msg = ""
@@ -274,7 +258,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self.researcher: str = "None"
         try:
             self.researcher = getpass.getuser()
-        except (ImportError, KeyError, OSError):
+        except (ImportError, KeyError, OSError):  # pragma: no cover
             self.researcher = "unknown"
 
     def get_params(self, deep=True):
@@ -293,6 +277,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, name: str = "undefined"
     ) -> None:  # pylint: disable=too-many-branches
         """Writes model to file in appropriate format.
+
+        Note this is overloaded in SafeKerasClassifer
+        to deal with tensorflow specifics.
 
         Parameters
         ----------
@@ -315,98 +302,103 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         """
 
         self.model_save_file = name
-        while self.model_save_file == "undefined":
-            self.model_save_file = input(
-                "Please input a name with extension for the model to be saved."
-            )
-
-        thename = self.model_save_file.split(".")
-        # print(f'in save(), parsed filename is {thename}')
-        if len(thename) == 1:
-            print("file name must indicate type as a suffix")
+        if self.model_save_file == "undefined":
+            print("You must input a name with extension to save the model.")
         else:
-            suffix = self.model_save_file.split(".")[-1]
+            thename = self.model_save_file.split(".")
+            # print(f'in save(), parsed filename is {thename}')
+            if len(thename) == 1:
+                print("file name must indicate type as a suffix")
+            else:
+                suffix = self.model_save_file.split(".")[-1]
 
-            if suffix == "pkl" and self.model_type != "KerasModel":  # save to pickle
-                with open(self.model_save_file, "wb") as file:
+                if (
+                    suffix == "pkl" and self.model_type != "KerasModel"
+                ):  # save to pickle
+                    with open(self.model_save_file, "wb") as file:
+                        try:
+                            pickle.dump(self, file)
+                        except (TypeError, AttributeError, PicklingError) as type_err:
+                            print(
+                                "saving a .pkl file is unsupported for model type:"
+                                f"{self.model_type}."
+                                f"Error message was {type_err}"
+                            )
+
+                elif (
+                    suffix == "sav" and self.model_type != "KerasModel"
+                ):  # save to joblib
                     try:
-                        pickle.dump(self, file)
-                    except TypeError as type_err:
+                        joblib.dump(self, self.model_save_file)
+                    except (TypeError, AttributeError, PicklingError) as type_err:
                         print(
-                            f"saving a .pkl file is unsupported for model type: {self.model_type}."
+                            "saving as a .sav (joblib) file is not supported "
+                            f"for models of type {self.model_type}."
                             f"Error message was {type_err}"
                         )
+                #                  Overloaded in safekeras
+                #                 elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
+                #                     try:
+                #                         tf.keras.models.save_model(
+                #                             self,
+                #                             self.model_save_file,
+                #                             include_optimizer=False,
+                #                             # save_traces=False,
+                #                             save_format=suffix,
+                #                         )
 
-            elif suffix == "sav" and self.model_type != "KerasModel":  # save to joblib
-                try:
-                    joblib.dump(self, self.model_save_file)
-                except TypeError as type_err:
+                #                     except (ImportError, NotImplementedError) as exception_err:
+                #                         print(
+                #                             "saving as a {suffix} file gave this error message:"
+                #                             f"{exception_err}"
+                #                         )
+                else:
                     print(
-                        "saving as a .sav (joblib) file is not supported "
-                        f"for models of type {self.model_type}."
-                        f"Error message was {type_err}"
-                    )
-            elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
-                try:
-                    tf.keras.models.save_model(
-                        self,
-                        self.model_save_file,
-                        include_optimizer=False,
-                        # save_traces=False,
-                        save_format=suffix,
+                        f"{suffix} file suffix currently not supported "
+                        f"for models of type {self.model_type}.\n"
                     )
 
-                except (ImportError, NotImplementedError) as exception_err:
-                    print(
-                        f"saving as a {suffix} file gave this error message:  {exception_err}"
-                    )
-            else:
-                print(
-                    f"{suffix} file suffix currently not supported "
-                    f"for models of type {self.model_type}.\n"
-                )
+    ## Load functionality not needed
+    # - provide directly by underlying pickle/joblib mechanisms
+    # and safekeras provides its own to deal with tensorflow
 
-    def load(self, name: str = "undefined") -> None:
-        """reads model from file in appropriate format.
-        Optimizer is deliberately excluded in the save
-        To prevent possible to restart training and thus
-        possible back door into attacks.
-        Thus optimizer cannot be loaded.
-        """
+    #     def load(self, name: str = "undefined") -> None:
+    #         """reads model from file in appropriate format.
+    #         Note that safekeras overloads this function.
 
-        self.model_load_file = name
-        while self.model_load_file == "undefined":
-            self.model_save_file = input(
-                "Please input a name with extension for the model to load."
-            )
-        if self.model_load_file[-4:] == ".pkl":  # load from pickle
-            with open(self.model_load_file, "rb") as file:
-                temp_file = pickle.load(self, file)
-        elif self.model_load_file[-4:] == ".sav":  # load from joblib
-            temp_file = joblib.load(self, self.model_save_file)
-        elif self.model_load_file[-3:] == ".h5":
-            # load from .h5
-            temp_file = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
-            )
+    #         Optimizer is deliberately excluded in the save
+    #         To prevent possible to restart training and thus
+    #         possible back door into attacks.
+    #         Thus optimizer cannot be loaded.
+    #         """
+    #         temp_file=None
+    #         self.model_load_file = name
+    #         if self.model_load_file == "undefined":
+    #             print("You must input a file name with extension to load a model.")
+    #         else:
+    #             thename = self.model_save_file.split(".")
+    #             suffix = self.model_save_file.split(".")[-1]
 
-        elif self.model_load_file[-3:] == ".tf":
-            # load from tf
-            temp_file = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"Safe_KerasModel": self}
-            )
+    #             if suffix == ".pkl":  # load from pickle
+    #                 with open(self.model_load_file, "rb") as file:
+    #                     temp_file = pickle.load(self, file)
+    #             elif suffix == ".sav":  # load from joblib
+    #                 temp_file = joblib.load(self, self.model_save_file)
+    #             #safekeras overloads loads
+    #             elif suffix in ("h5","tf")  and self.model_type != "KerasModel":
+    #                 print("tensorflow objects saved as h5 or tf"
+    #                       "can only be loaded into models of type SafeKerasClassifier"
+    #                      )
+    #             else:
+    #                 print(f"loading from a {suffix} file is currently not supported")
 
-        else:
-            suffix = self.model_load_file.split(".")[-1]
-            print(f"loading from a {suffix} file is currently not supported")
-
-        return temp_file
+    #         return temp_file
 
     def __get_constraints(self) -> dict:
         """Gets constraints relevant to the model type from the master read-only file."""
         rules: dict = {}
         rule_path = pathlib.Path(__file__).with_name("rules.json")
-        with open(rule_path, "r", encoding="utf-8") as json_file:
+        with open(rule_path, encoding="utf-8") as json_file:
             parsed = json.load(json_file)
             rules = parsed[self.model_type]
         return rules["rules"]
@@ -419,23 +411,16 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                # f"\nChanged parameter type for {key} to {val}.\n"
             elif (val == "float") and (type(cur_val).__name__ == "int"):
                 self.__dict__[key] = float(self.__dict__[key])
                 msg = get_reporting_string(name="change_param_type", key=key, val=val)
-                # f"\nChanged parameter type for {key} to {val}.\n"
             else:
                 msg = get_reporting_string(
                     name="not_implemented_for_change", key=key, cur_val=cur_val, val=val
                 )
-                # (
-                #    f"Nothing currently implemented to change type of parameter {key} "
-                #    f"from {type(cur_val).__name__} to {val}.\n"
-                # )
         else:
             setattr(self, key, val)
             msg = get_reporting_string(name="changed_param_equal", key=key, val=val)
-            # f"\nChanged parameter {key} = {val}.\n"
         return msg
 
     def __check_model_param(
@@ -461,7 +446,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             msg = get_reporting_string(
                 name="unknown_operator", key=key, val=val, cur_val=cur_val
             )
-            # f"- unknown operator in parameter specification {operator}"
         if apply_constraints and disclosive:
             msg += self.__apply_constraints(operator, key, val, cur_val)
         return msg, disclosive
@@ -548,7 +532,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             msg = ok_start + msg
 
         if verbose:
-            print(msg)
+            print("Preliminary checks: " + msg)
         return msg, disclosive
 
     def get_current_and_saved_models(self) -> tuple[dict, dict]:
@@ -566,13 +550,11 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
-                except copy.Error as key_type:
+                except (copy.Error, TypeError) as key_type:
                     logger.warning("%s cannot be copied", key)
                     logger.warning(
                         "...%s error; %s", str(type(key_type)), str(key_type)
                     )
-            # logger.debug('...done')
-        # logger.info('copied')
 
         saved_model = current_model.pop("saved_model", "Absent")
 
@@ -587,12 +569,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             # final check in case fit has been called twice
             _ = saved_model.pop("saved_model", "Absent")
 
-            # rename keys to get rid of the "a_" suffix
-        #             keyscopy= copy(saved_model.keys())
-        #             for oldkey in keyscopy:
-        #                 newkey=oldkey[2:]
-        #                 print(f' {oldkey} -> {newkey}')
-        #                 saved_model[newkey]= saved_model.pop(oldkey)
         return current_model, saved_model
 
     def examine_seperate_items(
@@ -607,15 +583,15 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         for item in self.examine_seperately_items:
             if curr_vals[item] == "Absent" and saved_vals[item] == "Absent":
                 disclosive = True
-                msg += f"Note that item {item} missing from both versions"
+                msg += get_reporting_string(name="both_item_removed", item=item)
 
             if curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
-                msg += f"Error, item {item} present in  saved but not current model"
+                msg += get_reporting_string(name="current_item_removed", item=item)
                 disclosive = True
 
             if saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
                 disclosive = True
-                msg += f"Error, item {item} present in current but not saved model"
+                msg += get_reporting_string(name="saved_item_removed", item=item)
 
         if not disclosive:  # ok, so can call mode-specific extra checks
             msg, disclosive = self.additional_checks(curr_vals, saved_vals)
@@ -631,9 +607,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         current_model, saved_model = self.get_current_and_saved_models()
         if len(saved_model) == 0:
             msg = get_reporting_string(name="error_not_called_fit")
-            # "Error: user has not called fit() method or has deleted saved values."
             msg += get_reporting_string(name="recommend_do_not_release")
-            # "Recommendation: Do not release."
             disclosive = True
 
         else:
@@ -651,18 +625,20 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
             # comparison on list of "simple" parameters
             match = list(diff(current_model, saved_model, expand=True))
-            if len(match) > 0:
+            num_differences = len(match)
+            if num_differences > 0:
                 disclosive = True
-
                 msg += get_reporting_string(
-                    name="basic_params_differ", match=match, length=(len(match))
+                    name="basic_params_differ", length=num_differences
                 )
-
-                # f"Warning: basic parameters differ in {len(match)} places:\n"
                 for this_match in match:
                     if this_match[0] == "change":
-                        msg += f"parameter {this_match[1]} changed from {this_match[2][1]} "
-                        msg += f"to {this_match[2][0]} after model was fitted.\n"
+                        msg += get_reporting_string(
+                            name="param_changed_from_to",
+                            key=this_match[1],
+                            val=this_match[2][1],
+                            cur_val=this_match[2][0],
+                        )
                     else:
                         msg += f"{this_match}"
 
@@ -713,11 +689,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         disclosive = False
         for item in self.examine_seperately_items:
             if isinstance(curr_separate[item], list):
-                if saved_separate[item] == "Absent":
-                    msg += f"Error: Saved copy is missing attribute {item}"
-                    disclosive = True
-
-                elif len(curr_separate[item]) != len(saved_separate[item]):
+                if len(curr_separate[item]) != len(saved_separate[item]):
                     msg += (
                         f"Warning: different counts of values for parameter {item}.\n"
                     )
@@ -895,11 +867,14 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         try:
             with open(f"{filename}.json", "w", encoding="utf-8") as fp:
                 json.dump(metadata, fp, cls=report.NumpyArrayEncoder)
-        except TypeError:
+        except TypeError:  # pragma: no cover
+            # not covered in tests as all atttacks prodice simple json so far
             print(f"couldn't serialise metadata {metadata} for attack {attack_name}")
 
         return metadata
 
-    def __str__(self) -> str:
-        """Returns string with model description."""
+    def __str__(self) -> str:  # pragma: no cover
+        """Returns string with model description.
+        No point writing a test, especially as it depends on username
+        """
         return self.model_type + " with parameters: " + str(self.__dict__)

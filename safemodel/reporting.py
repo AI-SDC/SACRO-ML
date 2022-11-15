@@ -89,9 +89,9 @@ def get_reporting_string(**kwargs):
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
             f" identified as different than the recommended fixed value of {inter_params['val']}."
         ),
-        "different_than_reccomended_type": (
+        "different_than_recommended_type": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
-            f" identified as different type to recommendation of {inter_params['val']}."
+            f" identified as different type to recommendation of {inter_params['val']}.\n"
         ),
         "change_param_type": (
             f"\nChanged parameter type for {inter_params['key']} to {inter_params['val']}.\n"
@@ -117,13 +117,21 @@ def get_reporting_string(**kwargs):
         ),
         "recommend_do_not_release": ("Recommendation: Do not release."),
         "layer_configs_differ": (
-            f"Layer {inter_params['layer']} configs differ in {inter_params['length']} places:\n"
+            f"Layer {inter_params['layer']} configs "
+            f"differ in {inter_params['length']} places:\n"
         ),
         "error_reloading_model_v1": (
             f"Error re-loading  model from {inter_params['v1']}:  {inter_params['e']}"
         ),
         "error_reloading_model_v2": (
             f"Error re-loading  model from {inter_params['v2']}: {inter_params['e']}"
+        ),
+        "same_ann_config": ("configurations match"),
+        "different_layer_count": ("models have different numbers of layers"),
+        "batch_size_zero": (
+            "Batch size of 0 not allowed"
+            "setting batch_size =32.\n"
+            "Alter self.batch_size manually if required."
         ),
         "division_by_zero": ("Division by zero setting batch_size =1"),
         "dp_requirements_met": (
@@ -142,7 +150,11 @@ def get_reporting_string(**kwargs):
             f"epochs = {inter_params['epochs']}.\n"
         ),
         "basic_params_differ": (
-            f"Warning: basic parameters differ in {inter_params['length']} places:\n"
+            "Warning: basic parameters differ in " f"{inter_params['length']} places:\n"
+        ),
+        "param_changed_from_to": (
+            f"parameter {inter_params['key']} changed from {inter_params['val']} "
+            f"to {inter_params['cur_val']} after model was fitted.\n"
         ),
         "unable_to_check": (
             f"Unable to check as an exception occurred: {inter_params['error']}"
@@ -162,9 +174,15 @@ def get_reporting_string(**kwargs):
             "Warning: model was fitted with different base estimator type.\n"
         ),
         "error_model_not_fitted": ("Error: model has not been fitted to data.\n"),
-        "trees_removed": (
-            "Error: current version of model has had trees removed after fitting.\n"
+        "current_item_removed": (
+            f"Error, item  {inter_params['item']} "
+            "present in  saved but not current model.\n"
         ),
+        "saved_item_removed": (
+            f"Error, item  {inter_params['item']} "
+            "present in  current but not saved model.\n"
+        ),
+        "both_item_removed": f"Note that item {inter_params['item']} missing from both versions.\n",
         "trees_edited": (
             "Error: current version of model has had trees manually edited.\n"
         ),
@@ -173,7 +191,7 @@ def get_reporting_string(**kwargs):
             f"but requested version has {inter_params['num1']}.\n"
         ),
         "forest_estimators_differ": (
-            f"Forest base estimators {inter_params['idx']} differ."
+            f"{inter_params['idx']} forest base estimators have been changed.\n"
         ),
         "unable_to_check_item": (
             "In SafeRandomForest.additional_checks: "

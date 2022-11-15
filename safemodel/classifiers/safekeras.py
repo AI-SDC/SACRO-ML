@@ -1,10 +1,12 @@
 """ safekeras.py:
- Jim Smith, Andrew McCarty and Richjard Preen
+ Jim Smith, Andrew McCarty and Richard Preen
  UWE 2022
 """
 # general imports
-# import copy
+
+
 import os
+import warnings
 
 # import sys
 from typing import Any, Tuple
@@ -23,31 +25,55 @@ from safemodel.reporting import get_reporting_string
 # safemodel superclass
 from safemodel.safemodel import SafeModel
 
-# from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
+# suppress numerous deprecatino warnings
+# shut tensorflow up
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# this is the current class that dpvarians of optimizers come from
+# may change in later versions of tensorflow_privacy
+DP_CLASS_STRING = (
+    "tensorflow_privacy.privacy.optimizers.dp_optimizer_keras."
+    "make_keras_optimizer_class.<locals>.DPOptimizerClass"
+)
+
+DP_CLASS_STRING2 = (
+    "tensorflow_privacy.privacy.optimizers.dp_optimizer_keras."
+    "make_keras_generic_optimizer_class.<locals>.DPOptimizerClass"
+)
 
 
 def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
     """Checks if two models havethe same architecture"""
     num_layers = len(m1.layers)
     if len(m2.layers) != num_layers:
-        return False, "different numbers of layers"
+        errstr = get_reporting_string(name="different_layer_count")
+        return False, errstr
     for layer in range(num_layers):
         m1_layer_config = m1.layers[layer].get_config()
+        _ = m1_layer_config.pop("name")
         m2_layer_config = m2.layers[layer].get_config()
+        _ = m2_layer_config.pop("name")
         match = list(diff(m1_layer_config, m2_layer_config, expand=True))
         num_diffs = len(match)
         if num_diffs > 0:
-            msg = get_reporting_string(name="layer_configs_differ", match=match)
+            msg = get_reporting_string(
+                name="layer_configs_differ", layer=layer, length=num_diffs
+            )
             # f"Layer {layer} configs differ in {len(match)} places:\n"
             for i in range(num_diffs):
                 if match[i][0] == "change":
-                    msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
-                    msg += f"to {match[i][2][0]} after model was fitted.\n"
-                else:
-                    msg += f"{match[i]}"
+                    msg += get_reporting_string(
+                        name="param_changed_from_to",
+                        key=match[i][1],
+                        val=match[i][2][0],
+                        cur_val=match[i][2][1],
+                    )
+                else:  # should not be reachable as dense objects cannot be modified
+                    msg += f"{match[i]}"  # pragma: no cover
             return False, msg
 
-    return True, "configurations match"
+    return True, get_reporting_string(name="same_ann_config")
 
 
 def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
@@ -55,21 +81,22 @@ def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
     num_layers = len(m1.layers)
     if num_layers != len(m2.layers):
         return False, "different numbers of layers"
-    for layer in range(num_layers):
+    # layer 0 is input layer determined by data size
+    for layer in range(1, num_layers):
         m1layer = m1.layers[layer].get_weights()
         m2layer = m2.layers[layer].get_weights()
-        if len(m1layer) != len(m2layer):
+        if len(m1layer[0][0]) != len(m2layer[0][0]):
             return False, f"layer {layer} not the same size."
-        for dim in range(len(m1layer)):
-            m1d = m2layer[dim]
+        for dim in range(len(m1layer)):  # pylint: disable=consider-using-enumerate
+            m1d = m1layer[dim]
             m2d = m2layer[dim]
             # print(type(m1d), m1d.shape)
-            if not np.array_equal(m1d, m2d):
+            if not np.array_equal(m1d, m2d):  # pragma: no cover
                 return False, f"dimension {dim} of layer {layer} differs"
     return True, "weights match"
 
 
-def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
+def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     """compares two checkpoints saved with tensorflow save_model
     On the assumption that the optimiser is not going to be saved,
     and that the model is going to be saved in frozen form
@@ -93,18 +120,21 @@ def test_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
 
     same_config, config_message = same_configs(model1, model2)
     if not same_config:
+        print("different config")
         msg += config_message
+        same = False
+
     same_weight, weights_message = same_weights(model1, model2)
     if not same_weight:
+        print("different weights")
         msg += weights_message
+        same = False
 
     return same, msg
 
 
 def check_DP_used(optimizer) -> Tuple[bool, str]:
     """checks whether the DP optimizer was actually the one used"""
-    DPused = False
-    reason = "None"
 
     key_needed = "_was_dp_gradients_called"
     critical_val = optimizer.__dict__.get(key_needed, "missing")
@@ -114,10 +144,18 @@ def check_DP_used(optimizer) -> Tuple[bool, str]:
         DPused = True
     elif critical_val == "missing":
         reason = get_reporting_string(name="no_dp_gradients_key")
+        DPused = False
     elif critical_val is False:
         reason = get_reporting_string(name="changed_opt_no_fit")
-    else:
-        reason = get_reporting_string(name="unrecognised_combination")
+        DPused = False
+    else:  # pragma: no cover
+        # not currently reachable because optimizer class does
+        # not support assignment
+        # but leave in to future-proof
+        reason = get_reporting_string(
+            name="unrecognised_combination"
+        )  # pragma: no cover
+        DPused = False  # pragma: no cover
 
     return DPused, reason
 
@@ -127,17 +165,13 @@ def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
     default setting is not allowed
     """
     allowed = False
-    reason = get_reporting_string(name="optimizer_not_allowed", optimizer=optimizer)
-    allowed_optimizers = [
-        "tensorflow_privacy.DPKerasAdagradOptimizer",
-        "tensorflow_privacy.DPKerasAdamOptimizer",
-        "tensorflow_privacy.DPKerasSGDOptimizer",
-    ]
-    if optimizer in allowed_optimizers:
+    opt_type = str(type(optimizer))
+    reason = get_reporting_string(name="optimizer_not_allowed", optimizer=opt_type)
+    if (DP_CLASS_STRING in opt_type) or (DP_CLASS_STRING2 in opt_type):
         allowed = True
-        reason = get_reporting_string(name="optimizer_allowed", optimizer=optimizer)
+        reason = get_reporting_string(name="optimizer_allowed", optimizer=opt_type)
 
-    return reason, allowed
+    return allowed, reason
 
 
 def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
@@ -150,6 +184,38 @@ def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
         reason = get_reporting_string(name="found_dp_gradients_key")
         DPused = True
     return DPused, reason
+
+
+def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
+    """
+    reads model from file in appropriate format.
+    Optimizer is deliberately excluded in the save.
+    This is to prevent possibility of restarting training,
+    which could offer possible back door into attacks.
+    Thus optimizer cannot be loaded.
+    """
+    the_model = None
+    model_load_file = name
+    msg = ""
+    if model_load_file == "undefined":
+        msg = "Please input a name with extension for the model to load."
+
+    elif model_load_file[-3:] == ".tf":
+        # load from tf
+        the_model = tf.keras.models.load_model(
+            model_load_file  # , custom_objects={"SafeKerasModel"}
+        )
+        load = tf.keras.models.load_model(model_load_file, compile="False")
+        the_model.set_weights(load.get_weights())
+
+    else:
+        suffix = model_load_file.split(".")[-1]
+        msg = f"loading from a {suffix} file is currently not supported"
+
+    if the_model is not None:
+        return (True, the_model)
+    # else
+    return (False, msg)
 
 
 class SafeKerasModel(KerasModel, SafeModel):
@@ -213,7 +279,9 @@ class SafeKerasModel(KerasModel, SafeModel):
                 setattr(self, key, val)
 
         if self.batch_size == 0:
-            print("batch_size should not be 0 - division by zero")
+            msg = get_reporting_string(name="batch_size_zero")
+            print(msg)
+            self.batch_size = 32
 
         SafeModel.__init__(self)
 
@@ -244,8 +312,9 @@ class SafeKerasModel(KerasModel, SafeModel):
         and produces feedback"
         """
         msg = ""
+        ok = False
         if batch_size == 0:
-            print(get_reporting_string(name="division_by_zero"))
+            msg += get_reporting_string(name="division_by_zero")
             batch_size = 1
         (
             ok,
@@ -335,7 +404,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         (iv) finally makes a saved copy of the newly fitted model.
         """
 
-        # pylint can't cope whoe we first declared these via a dict :(
+        # pylint can't cope that we first declared these via a dict :(
         self.num_samples = X.shape[0]  # pylint: disable=attribute-defined-outside-init
         self.epochs = epochs  # pylint: disable=attribute-defined-outside-init
         self.batch_size = batch_size  # pylint: disable=attribute-defined-outside-init
@@ -350,7 +419,7 @@ class SafeKerasModel(KerasModel, SafeModel):
                 "as return epsilon was above max recommended value, "
                 "and user set refine_epsilon= True"
             )
-            return None
+            return False, None
 
         returnval = super().fit(
             X,
@@ -371,36 +440,34 @@ class SafeKerasModel(KerasModel, SafeModel):
 
     def posthoc_check(self, verbose: bool = True) -> Tuple[str, bool]:
         """Checks whether model should be considered unsafe
-        foer example, has been changed since fit() was last run,
+        for example, has been changed since fit() was last run,
         or does not meet DP policy
         """
 
+        disclosive = False
+        msg = ""
+
         # have the model architecture or weights been changed?
         self.save("tfsaves/requested_model.tf")
-        models_same, same_msg = test_checkpoint_equality(
+        models_same, same_msg = check_checkpoint_equality(
             "tfsaves/fit_model.tf",
             "tfsaves/requested_model.tf",
         )
         if not models_same:
-            print(get_reporting_string(name="recommend_not_release", msg=same_msg))
-            # f"Recommendation is not to release because {same_msg}.\n")
-            return same_msg, True
+            msg += same_msg
+            disclosive = True
 
         # was a dp-enbled optimiser provided?
         allowed, allowedmessage = check_optimizer_allowed(self.optimizer)
         if not allowed:
-            print(
-                get_reporting_string(name="recommend_not_release", msg=allowedmessage)
-            )
-            # f"Recommendation is not to release because {allowedmessage}.\n")
-            return allowedmessage, True
+            msg += allowedmessage
+            disclosive = True
 
         # was the dp-optimiser used during fit()
         dpused, dpusedmessage = check_DP_used(self.optimizer)
         if not dpused:
-            print(get_reporting_string(name="recommend_not_release", msg=dpusedmessage))
-            # f"Recommendation is not to release because {dpusedmessage}.\n")
-            return dpusedmessage, True
+            msg += dpusedmessage
+            disclosive = True
 
         # have values been changed since saved  immediately after fit()?
         if (
@@ -408,7 +475,8 @@ class SafeKerasModel(KerasModel, SafeModel):
             or dpusedmessage != self.saved_reason
             or self.saved_epsilon != self.current_epsilon
         ):
-            return get_reporting_string(name="opt_config_changed"), True
+            msg += get_reporting_string(name="opt_config_changed")
+            disclosive = True
 
         # if not what was the value of epsilon achieved
         eps_met, cur_eps = self.dp_epsilon_met(
@@ -427,17 +495,20 @@ class SafeKerasModel(KerasModel, SafeModel):
                         name="recommend_further_discussion", msg=dpepsilonmessage
                     )
                 )
-            return dpepsilonmessage, True
+            msg += dpepsilonmessage
+            disclosive = True
+
+        if disclosive:
+            msg = get_reporting_string(name="recommend_not_release") + msg
+            return msg, True
 
         # passed all the tests!!
         if verbose:
-            print(get_reporting_string(name="recommend_allow_release"))
-
-        dpepsilonmessage = get_reporting_string(
-            name="allow_release_eps_below_max", current_epsilon=cur_eps
-        )
-
-        return dpepsilonmessage, False
+            msg = get_reporting_string(name="recommend_allow_release")
+            msg += get_reporting_string(
+                name="allow_release_eps_below_max", current_epsilon=cur_eps
+            )
+        return msg, False
 
     def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
@@ -464,10 +535,8 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         self.model_save_file = name
         while self.model_save_file == "undefined":
-            self.model_save_file = input(
-                get_reporting_string(name="input_filename_with_extension")
-                # "Please input a name with extension for the model to be saved."
-            )
+            print(get_reporting_string(name="input_filename_with_extension"))
+            return
 
         thename = self.model_save_file.split(".")
         # print(f'in save(), parsed filename is {thename}')
@@ -486,9 +555,9 @@ class SafeKerasModel(KerasModel, SafeModel):
                         # save_traces=False,
                         save_format=suffix,
                     )
-
-                except Exception as er:  # pylint:disable=broad-except
-                    print(
+                # pragma:no cover
+                except Exception as er:  # pylint:disable=broad-except # pragma:no cover
+                    print(  # pragma:no cover
                         get_reporting_string(
                             name="error_saving_file", suffix=suffix, er=er
                         )
@@ -502,35 +571,3 @@ class SafeKerasModel(KerasModel, SafeModel):
                 )
                 # f"{suffix} file suffix  not supported "
                 # f"for models of type {self.model_type}.\n"
-
-    def load(self, name: str = "undefined") -> None:
-        """
-        reads model from file in appropriate format.
-        Optimizer is deliberately excluded in the save.
-        This is to prevent possibility of restarting training,
-        which could offer possible back door into attacks.
-        Thus optimizer cannot be loaded.
-        """
-
-        self.model_load_file = name
-        while self.model_load_file == "undefined":
-            self.model_save_file = input(
-                "Please input a name with extension for the model to load."
-            )
-        if self.model_load_file[-3:] == ".h5":
-            # load from .h5
-            f = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"SafeKerasModel": self}
-            )
-
-        elif self.model_load_file[-3:] == ".tf":
-            # load from tf
-            f = tf.keras.models.load_model(
-                self.model_load_file, custom_objects={"SafeKerasModel": self}
-            )
-
-        else:
-            suffix = self.model_load_file.split(".")[-1]
-            print(f"loading from a {suffix} file is currently not supported")
-
-        return f

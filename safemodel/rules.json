@@ -1,4 +1,53 @@
 {
+    "DummyClassifier": {
+        "rules": [
+            {
+                "keyword": "at_least_5f",
+                "operator": "min",
+                "value": 5.0
+            },
+            {
+                "keyword": "at_least_5f",
+                "operator": "is_type",
+                "value": "float"
+            },
+            {
+                "keyword": "at_most_5i",
+                "operator": "max",
+                "value": 5
+            },
+            {
+                "keyword": "at_most_5i",
+                "operator": "is_type",
+                "value": "int"
+            },
+            {
+                "keyword": "exactly_boo",
+                "operator": "is_type",
+                "value": "str"
+            },
+            {
+                "keyword": "exactly_boo",
+                "operator": "equals",
+                "value": "boo"
+            },
+            {
+                "operator": "or",
+                "subexpr": [
+                    {
+                        "keyword": "keyA",
+                        "operator": "equals",
+                        "value": true
+                    },
+                    {
+                        "keyword": "keyB",
+                        "operator": "equals",
+                        "value": true
+                    }
+                ]
+            }
+        ]
+    },
     "DecisionTreeClassifier": {
         "rules": [
             {

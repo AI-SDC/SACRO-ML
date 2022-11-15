@@ -1,35 +1,32 @@
-# AI-SDC
-Collection of tools and resources for managing the statistical disclosure control of trained machine learning models
-
-Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
-
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
 [![Latest Version](https://img.shields.io/github/v/release/AI-SDC/AI-SDC?style=flat)](https://github.com/AI-SDC/AI-SDC/releases)
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/63d31eeb27ec445f9fa9c5866d8bec0e)](https://www.codacy.com/gh/AI-SDC/AI-SDC/dashboard)
 [![codecov](https://codecov.io/gh/AI-SDC/AI-SDC/branch/development/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/AI-SDC)
 
----
-# Content
+# AI-SDC
 
-The two main elements are contained in "attacks" and "safemodels".
+A collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
 
-## example_notebooks
+## Content
 
-Contains short tutorials on  the basic concept of 'safe_XX' versions of Machine Learning algorithms, and examples of some specific algorithms.
+* `attacks` : Contains a variety of privacy attacks on machine learning models, including membership and attribute inference.
+* `docs` : Contains Sphinx documentation files.
+* `example_notebooks` : Contains short tutorials on the basic concept of "safe_XX" versions of machine learning algorithms, and examples of some specific algorithms.
+* `examples` : Contains examples of how to run the code contained in this repository:
+  - How to simulate attribute inference attacks `attribute_inference_example.py`.
+  - How to simulate membership inference attacks:
+    + Worst case scenario attack `worst_case_attack_example.py`.
+    + LIRA scenario attack `lira_attack_example.py`.
+  - Integration of attacks into safemodel classes `safemodel_attack_integration_bothcalls.py`.
+* `preprocessing` : Contains preprocessing modules for test datasets.
+* `risk_examples` : Contains hypothetical examples of data leakage through machine learning models as described in the [Green Paper](https://doi.org/10.5281/zenodo.6896214).
+* `safemodel` : The safemodel package is an open source wrapper for common machine learning models. It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
+* `tests` : Contains unit tests.
 
-## risk_examples
+## Documentation
 
-Contain hypothetical examples of data leakage through machine learning models as described in the Green Paper [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6896214.svg)](https://doi.org/10.5281/zenodo.6896214)
-
-## examples
-
-Contain examples of code on how to run the code contained in this repository:
-- How to simulate attribute inference attacks (attribute_inference_example.py).
-- How to simulate membership inference attacks:
-  - Worst case scenario attack (worst_case_attack_example.py)
-  - LIRA scenario attack (lira_attack_example.py).
-- Integration of attacks into safemodel classes (safemodel_attack_integration_bothcalls.py).
-
+Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 
 ---
 

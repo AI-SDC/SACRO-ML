@@ -279,11 +279,15 @@ class LIRAAttack(Attack):
                     # If i was _not_ used for training, incorporate the logit of its confidence of
                     # being correct - TODO: should we just be taking max??
                     cl_pos = class_map.get(y_target_train[i], -1)
+                    # Occasionally, the random data split will result in classes being
+                    # absent from the training set. In these cases cl_pos will be -1 and
+                    # we include logit(0) instead of discarding (also for the shadow data below)
                     if cl_pos >= 0:
                         train_row_to_confidence[i].append(
-                            _logit(confidences[i, y_target_train[cl_pos]])
+                            _logit(confidences[i, cl_pos])
                         )
-                    else:
+                    else:  # pragma: no cover
+                        # catch-all
                         train_row_to_confidence[i].append(_logit(0))
             # Same process for shadow data
             shadow_confidences = shadow_clf.predict_proba(X_shadow_train)
@@ -292,9 +296,10 @@ class LIRAAttack(Attack):
                     cl_pos = class_map.get(y_shadow_train[i], -1)
                     if cl_pos >= 0:
                         shadow_row_to_confidence[i].append(
-                            _logit(shadow_confidences[i, y_shadow_train[cl_pos]])
+                            _logit(shadow_confidences[i, cl_pos])
                         )
-                    else:
+                    else:  # pragma: no cover
+                        # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
 
         # Do the test described in the paper in each case
@@ -569,10 +574,10 @@ def main():
     args = parser.parse_args()
     try:
         args.func(args)
-    except AttributeError as e:
+    except AttributeError as e:  # pragma:no cover
         print(e)
         print("Invalid command. Try --help to get more details")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma:no cover
     main()

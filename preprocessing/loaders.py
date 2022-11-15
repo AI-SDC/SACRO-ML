@@ -146,8 +146,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name == "synth-ae":
         return _synth_ae(data_folder)
     if dataset_name == "synth-ae-small":
-        x, y = _synth_ae(data_folder, 200)
-        return x, y
+        return _synth_ae(data_folder, 200)
     if dataset_name == "nursery":
         return _nursery()
     if dataset_name == "iris":
@@ -196,6 +195,10 @@ def _images_to_ndarray(
     folder_path = images_dir + os.sep
     images_names = sorted(os.listdir(folder_path))
     images_names = images_names[:number_to_load]
+    # fix f or macosx
+    if ".DS_Store" in images_names:  # pragma: no cover
+        images_names.remove(".DS_Store")
+
     if flatten:
         np_images = np.array(
             [plt.imread(folder_path + img).flatten() for img in images_names]
@@ -237,9 +240,9 @@ and place it in the correct folder. It unzips the file first.
     elif os.path.exists(zip_file):
         try:
             with ZipFile(zip_file) as zip_handle:
-                zip_handle.extractall()
+                zip_handle.extractall(base_folder)
                 logger.debug("Extracted all")
-        except BadZipFile:
+        except BadZipFile:  # pragma: no cover
             logger.error("Encountered bad zip file")
             raise
 
@@ -381,7 +384,7 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
     files = ["data01.csv", "doi_10.5061_dryad.0p2ngf1zd__v5.zip"]
     file_path = [os.path.join(data_folder, f) for f in files]
 
-    if not any(
+    if not any(  # pylint: disable=use-a-generator
         [os.path.exists(fp) for fp in file_path]
     ):  # pylint: disable=use-a-generator
         help_message = f"""
@@ -418,9 +421,9 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     if not os.path.exists(file_path):
         help_message = f"""
-The MIMIC2-iaccd data is not available in {data_folder}.
-The following file should exist: {file_path}.
-Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
+        The MIMIC2-iaccd data is not available in {data_folder}.
+        The following file should exist: {file_path}.
+        Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
         """
         raise DataNotAvailable(help_message)
 
@@ -441,8 +444,10 @@ Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_
     # day_icu_intime_num is the numerical version of day_icu_intime
     # the other columns are to do with death and are somewhat repetitive with censor_flg
     input_data.drop(col, axis=1, inplace=True)
+
     # drop columns with only 1 value
     input_data.drop("sepsis_flg", axis=1, inplace=True)
+
     # drop NA by row
     input_data.dropna(axis=0, inplace=True)
 
@@ -460,12 +465,16 @@ Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_
 
 def _texas_hospitals(
     data_folder: str,
-) -> Tuple[
-    pd.DataFrame, pd.DataFrame
-]:  # pylint: disable=too-many-statements, too-many-locals
+) -> Tuple[pd.DataFrame, pd.DataFrame]:  # pragma: no cover
+    # pylint: disable=too-many-statements, too-many-locals
     """
     Texas Hospitals Dataset
     (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm)
+
+    Note: this has been tested repeated in the GRAIMatter project.
+    However, for licensing reasons we cannot redistribute the data.
+    Therefore it is omitted from CI test coverage and metrics.
+
     """
     file_list = [
         "PUDF-1Q2006-tab-delimited.zip",

@@ -12,8 +12,6 @@ from sklearn.tree import DecisionTreeClassifier
 from ..reporting import get_reporting_string
 from ..safemodel import SafeModel
 
-# from sklearn.tree._tree import Tree
-
 
 def decision_trees_are_equal(
     tree1: DecisionTreeClassifier, tree2: DecisionTreeClassifier
@@ -35,7 +33,9 @@ def decision_trees_are_equal(
         num_differences = len(match)
         if num_differences > 0:
             same = False
-            msg += get_reporting_string(name="basic_params_differ", match=match)
+            msg += get_reporting_string(
+                name="basic_params_differ", length=num_differences
+            )
             # f"Warning: basic parameters differ in {len(match)} places:\n"
             for i in range(num_differences):
                 if match[i][0] == "change":
@@ -50,7 +50,7 @@ def decision_trees_are_equal(
             same = False
             msg += msg2
 
-    except BaseException as error:  # pylint:disable=broad-except
+    except BaseException as error:  # pylint:disable=broad-except  #pragma:no cover
         msg += get_reporting_string(name="unable_to_check", error=error)
         # f"Unable to check as an exception occurred: {error}"
         same = False
@@ -110,7 +110,7 @@ def decision_tree_internal_trees_are_equal(
                         )
                         # f"internal tree attribute {attr} differs\n"
                         same = False
-    except BaseException as error:  # pylint:disable=broad-except
+    except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
         # f"An exception occurred: {error}"
     return same, msg
@@ -126,7 +126,9 @@ def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
     return k_anonymity
 
 
-class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
+class SafeDecisionTreeClassifier(
+    SafeModel, DecisionTreeClassifier
+):  # pylint: disable=too-many-instance-attributes
     """Privacy protected Decision Tree classifier."""
 
     def __init__(self, **kwargs: Any) -> None:
