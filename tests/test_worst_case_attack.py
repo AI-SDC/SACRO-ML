@@ -134,6 +134,7 @@ def test_attack_from_predictions_no_dummy():
     attack_obj = worst_case_attack.WorstCaseAttack(args)
     attack_obj.attack_from_prediction_files()
 
+
 def test_dummy_data():
     """test functionality around creating dummy data"""
     args = worst_case_attack.WorstCaseAttackArgs(
