@@ -283,7 +283,8 @@ class LIRAAttack(Attack):
                         train_row_to_confidence[i].append(
                             _logit(confidences[i, y_target_train[cl_pos]])
                         )
-                    else:
+                    else:  # pragma: no cover
+                        # catch-all
                         train_row_to_confidence[i].append(_logit(0))
             # Same process for shadow data
             shadow_confidences = shadow_clf.predict_proba(X_shadow_train)
@@ -294,7 +295,8 @@ class LIRAAttack(Attack):
                         shadow_row_to_confidence[i].append(
                             _logit(shadow_confidences[i, y_shadow_train[cl_pos]])
                         )
-                    else:
+                    else:  # pragma: no cover
+                        # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
 
         # Do the test described in the paper in each case
@@ -569,10 +571,10 @@ def main():
     args = parser.parse_args()
     try:
         args.func(args)
-    except AttributeError as e:
+    except AttributeError as e:  # pragma:no cover
         print(e)
         print("Invalid command. Try --help to get more details")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma:no cover
     main()

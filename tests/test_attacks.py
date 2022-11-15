@@ -64,10 +64,24 @@ def test_NumpyArrayEncoder():
     retval = my_encoder.default(twoDarray)
     assert isinstance(retval, list)
 
+    with pytest.raises(TypeError):
+        retval = my_encoder.default("a string")
+
 
 def test_line():
     """code from report.py"""
     pdf = FPDF()
     pdf.add_page()
     report.line(pdf, "foo")
+    pdf.close()
+
+
+def test_dict():
+    """code from report.py"""
+    pdf = FPDF()
+    pdf.add_page()
+    mydict = {"a": "hello", "b": "world"}
+    report._write_dict(  # pylint:disable=protected-access
+        pdf, mydict, indent=0, border=BORDER
+    )
     pdf.close()

@@ -118,8 +118,9 @@ def get_nursery_dataset() -> Data:
             xmore, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig
         )
 
-    if need_download and save_locally:
+    if need_download and save_locally:  # pragma:no cover
         # make directory if needed then save
+        # tested in local versions but don't want this in CI testing
         output_file = Path(the_file)
         output_file.parent.mkdir(exist_ok=True, parents=True)
         with open(the_file, "wb") as f:

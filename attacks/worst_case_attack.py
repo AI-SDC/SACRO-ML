@@ -543,10 +543,10 @@ def main():
 
     try:
         args.func(args)
-    except AttributeError as e:
+    except AttributeError as e:  # pragma:no cover
         logger.error("Invalid command. Try --help to get more details")
         logger.error(e)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma:no cover
     main()
