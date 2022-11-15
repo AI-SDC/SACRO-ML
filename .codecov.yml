@@ -1,5 +1,4 @@
 
 
 ignore:
-  - "tests/*"
   - "safemodel/classifiers/new_model_template.py"
