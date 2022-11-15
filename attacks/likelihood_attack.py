@@ -281,7 +281,7 @@ class LIRAAttack(Attack):
                     cl_pos = class_map.get(y_target_train[i], -1)
                     if cl_pos >= 0:
                         train_row_to_confidence[i].append(
-                            _logit(confidences[i, y_target_train[cl_pos]])
+                            _logit(confidences[i, cl_pos])
                         )
                     else:  # pragma: no cover
                         # catch-all
@@ -293,7 +293,7 @@ class LIRAAttack(Attack):
                     cl_pos = class_map.get(y_shadow_train[i], -1)
                     if cl_pos >= 0:
                         shadow_row_to_confidence[i].append(
-                            _logit(shadow_confidences[i, y_shadow_train[cl_pos]])
+                            _logit(shadow_confidences[i, cl_pos])
                         )
                     else:  # pragma: no cover
                         # catch-all
