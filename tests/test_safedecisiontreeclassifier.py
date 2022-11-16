@@ -7,9 +7,9 @@ import joblib
 import numpy as np
 from sklearn import datasets
 
-from safemodel import reporting
-from safemodel.classifiers import SafeDecisionTreeClassifier
-from safemodel.classifiers.safedecisiontreeclassifier import (
+from aisdc.safemodel import reporting
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
+from aisdc.safemodel.classifiers.safedecisiontreeclassifier import (
     decision_trees_are_equal,
     get_tree_k_anonymity,
 )

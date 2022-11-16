@@ -3,6 +3,8 @@ name: test
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:

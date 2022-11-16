@@ -1,7 +1,7 @@
 Base Class
 ==========
 
-.. automodule:: safemodel.safemodel
+.. automodule:: aisdc.safemodel.safemodel
    :members:
    :special-members:
    :private-members:

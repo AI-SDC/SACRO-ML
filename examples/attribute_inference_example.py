@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from attacks import attribute_attack, dataset  # pylint: disable = import-error
+from aisdc.attacks import attribute_attack, dataset  # pylint: disable = import-error
 
 # pylint: disable = duplicate-code
 

@@ -2,7 +2,7 @@
 
 This directory contains some example python notebooks.
 We hope they are constructive to help you understand the
-core concepts and functionanlity provided by safe models.
+core concepts and functionality provided by safe models.
 
 The main notebook is the example-notebook-safedecisiontree which can be considered
 as a tutorial that talks through the different concepts and functionality provided

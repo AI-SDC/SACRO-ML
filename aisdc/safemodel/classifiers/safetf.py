@@ -15,7 +15,7 @@ from tensorflow_privacy import DPModel
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 
-from safemodel.safemodel import SafeModel
+from ..safemodel import SafeModel
 
 
 class Safe_tf_DPModel(SafeModel, DPModel):

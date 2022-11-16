@@ -14,7 +14,7 @@ from tensorflow.keras.layers import (  # pylint: disable = import-error, no-name
     Input,
 )
 
-from safemodel.classifiers import SafeKerasModel, safekeras
+from aisdc.safemodel.classifiers import SafeKerasModel, safekeras
 
 EPOCHS = 1
 n_classes = 4

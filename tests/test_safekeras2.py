@@ -17,8 +17,8 @@ from tensorflow.keras.layers import (  # pylint: disable = import-error, no-name
     Input,
 )
 
-from safemodel.classifiers import SafeKerasModel, safekeras
-from safemodel.reporting import get_reporting_string
+from aisdc.safemodel.classifiers import SafeKerasModel, safekeras
+from aisdc.safemodel.reporting import get_reporting_string
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
