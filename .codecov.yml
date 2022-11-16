@@ -2,5 +2,5 @@
 # configuration for https://codecov.io
 ignore:
   - "setup.py"
-  - "safemodel/classifiers/new_model_template.py"
+  - "aisdc/safemodel/classifiers/new_model_template.py"
 ...
