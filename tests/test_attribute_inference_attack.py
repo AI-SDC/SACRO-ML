@@ -18,8 +18,12 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
     OneHotEncoder,
 )
 
-from attacks import attribute_attack  # pylint: disable = import-error
-from attacks.attribute_attack import _get_bounds_risk, _infer_categorical, _unique_max
+from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks.attribute_attack import (
+    _get_bounds_risk,
+    _infer_categorical,
+    _unique_max,
+)
 from tests.test_attacks_via_safemodel import get_nursery_dataset
 
 # pylint: disable = duplicate-code

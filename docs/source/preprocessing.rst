@@ -3,5 +3,5 @@ Preprocessing
 ================
 
 
-.. automodule:: preprocessing.loaders
+.. automodule:: aisdc.preprocessing.loaders
    :members:

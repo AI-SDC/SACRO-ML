@@ -27,7 +27,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from attacks import dataset, worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks import dataset, worst_case_attack  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)

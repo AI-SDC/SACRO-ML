@@ -20,10 +20,9 @@ from dictdiffer import diff
 from tensorflow.keras import Model as KerasModel  # pylint: disable = import-error
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 
-from safemodel.reporting import get_reporting_string
-
 # safemodel superclass
-from safemodel.safemodel import SafeModel
+from ..reporting import get_reporting_string
+from ..safemodel import SafeModel
 
 # suppress numerous deprecatino warnings
 # shut tensorflow up

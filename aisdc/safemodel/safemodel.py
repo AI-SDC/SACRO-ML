@@ -18,8 +18,8 @@ import joblib
 # import tensorflow as tf
 from dictdiffer import diff
 
-from attacks import attribute_attack, dataset, report, worst_case_attack
-from attacks.likelihood_attack import (  # pylint: disable = import-error
+from aisdc.attacks import attribute_attack, dataset, report, worst_case_attack
+from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )

@@ -4,7 +4,7 @@
 
 import pytest
 
-from safemodel.classifiers import safetf
+from aisdc.safemodel.classifiers import safetf
 
 
 def test_Safe_tf_DPModel_l2_and_noise():

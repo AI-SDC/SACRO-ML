@@ -10,7 +10,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from attacks import dataset, worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks import dataset, worst_case_attack  # pylint: disable = import-error
 
 
 def clean_up(name):

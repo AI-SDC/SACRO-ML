@@ -12,9 +12,9 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from attacks import attribute_attack, likelihood_attack, worst_case_attack
-from attacks.dataset import Data
-from safemodel.classifiers import SafeDecisionTreeClassifier
+from aisdc.attacks import attribute_attack, likelihood_attack, worst_case_attack
+from aisdc.attacks.dataset import Data
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 # pylint: disable=too-many-locals,bare-except,duplicate-code,unnecessary-dunder-call
 
@@ -32,7 +32,7 @@ def get_nursery_dataset() -> Data:
 
     """
 
-    the_file = "tests/datasets/nursery_as_dataset.pickle"
+    the_file = os.path.normpath("tests/datasets/nursery_as_dataset.pickle")
     save_locally = True
     need_download = True
 
@@ -96,15 +96,17 @@ def get_nursery_dataset() -> Data:
         y_test = label_enc.transform(y_test_orig)
 
         # add dummy continuous valued attribute from N(0.5,0.05)
-        dummy_tr = 0.5 + 0.05 * np.random.randn(x_train.shape[0], 1)
-        dummy_te = 0.5 + 0.05 * np.random.randn(x_test.shape[0], 1)
-        dummy_all = np.hstack((dummy_tr, dummy_te))
+        dummy_tr = 0.5 + 0.05 * np.random.randn(x_train.shape[0])
+        dummy_te = 0.5 + 0.05 * np.random.randn(x_test.shape[0])
+        dummy_all = np.hstack((dummy_tr, dummy_te)).reshape(-1, 1)
+        dummy_tr = dummy_tr.reshape(-1, 1)
+        dummy_te = dummy_te.reshape(-1, 1)
 
         x_train = np.hstack((x_train, dummy_tr))
         x_train_orig = np.hstack((x_train_orig, dummy_tr))
         x_test = np.hstack((x_test, dummy_te))
         x_test_orig = np.hstack((x_test_orig, dummy_te))
-        xmore = np.hstack((x, dummy_all))
+        xmore = np.concatenate((x_train_orig, x_test_orig))
         n_features = np.shape(x_train_orig)[1]
 
         # [TRE / Researcher] Wrap the data in a dataset object
