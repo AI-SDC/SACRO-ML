@@ -14,9 +14,9 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from attacks import likelihood_attack
-from attacks.dataset import Data  # pylint: disable = import-error
-from attacks.likelihood_attack import (  # pylint: disable = import-error
+from aisdc.attacks import likelihood_attack
+from aisdc.attacks.dataset import Data  # pylint: disable = import-error
+from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )

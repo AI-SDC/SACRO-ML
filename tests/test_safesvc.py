@@ -9,7 +9,7 @@ from sklearn import datasets
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
-from safemodel.classifiers import SafeSVC
+from aisdc.safemodel.classifiers import SafeSVC
 
 
 def get_data():

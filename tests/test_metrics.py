@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from attacks.metrics import _div, _tpr_at_fpr, get_metrics
-from attacks.mia_extremecase import min_max_disc
+from aisdc.attacks.metrics import _div, _tpr_at_fpr, get_metrics
+from aisdc.attacks.mia_extremecase import min_max_disc
 
 # pylint: disable = invalid-name
 

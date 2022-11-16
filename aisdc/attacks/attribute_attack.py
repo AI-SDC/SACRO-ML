@@ -17,9 +17,9 @@ from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
 
-from attacks import report
-from attacks.attack import Attack
-from attacks.dataset import Data
+from aisdc.attacks import report
+from aisdc.attacks.attack import Attack
+from aisdc.attacks.dataset import Data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("aia")

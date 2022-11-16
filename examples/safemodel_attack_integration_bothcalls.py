@@ -10,8 +10,8 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from attacks.dataset import Data
-from safemodel.classifiers import SafeDecisionTreeClassifier
+from aisdc.attacks.dataset import Data
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 if __name__ == "__main__":
 

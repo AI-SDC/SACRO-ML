@@ -2,7 +2,7 @@
 
 import sklearn
 
-from attacks.dataset import Data
+from aisdc.attacks.dataset import Data
 
 
 class Attack:

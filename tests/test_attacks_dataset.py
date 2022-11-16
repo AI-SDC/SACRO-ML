@@ -6,7 +6,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from attacks.dataset import Data
+from aisdc.attacks.dataset import Data
 
 
 def test_dataset():  # pylint:disable=too-many-locals

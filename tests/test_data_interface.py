@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from preprocessing.loaders import (  # pylint: disable = import-error
+from aisdc.preprocessing.loaders import (  # pylint: disable = import-error
     UnknownDataset,
     get_data_sklearn,
 )
