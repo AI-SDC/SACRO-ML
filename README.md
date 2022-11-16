@@ -10,19 +10,20 @@ A collection of tools and resources for managing the statistical disclosure cont
 
 ## Content
 
-* `attacks` : Contains a variety of privacy attacks on machine learning models, including membership and attribute inference.
-* `docs` : Contains Sphinx documentation files.
-* `example_notebooks` : Contains short tutorials on the basic concept of "safe_XX" versions of machine learning algorithms, and examples of some specific algorithms.
-* `examples` : Contains examples of how to run the code contained in this repository:
+* `aisdc`
+    - `attacks` Contains a variety of privacy attacks on machine learning models, including membership and attribute inference.
+    - `preprocessing` Contains preprocessing modules for test datasets.
+    - `safemodel` The safemodel package is an open source wrapper for common machine learning models. It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
+* `docs` Contains Sphinx documentation files.
+* `example_notebooks` Contains short tutorials on the basic concept of "safe_XX" versions of machine learning algorithms, and examples of some specific algorithms.
+* `examples` Contains examples of how to run the code contained in this repository:
   - How to simulate attribute inference attacks `attribute_inference_example.py`.
   - How to simulate membership inference attacks:
     + Worst case scenario attack `worst_case_attack_example.py`.
     + LIRA scenario attack `lira_attack_example.py`.
   - Integration of attacks into safemodel classes `safemodel_attack_integration_bothcalls.py`.
-* `preprocessing` : Contains preprocessing modules for test datasets.
-* `risk_examples` : Contains hypothetical examples of data leakage through machine learning models as described in the [Green Paper](https://doi.org/10.5281/zenodo.6896214).
-* `safemodel` : The safemodel package is an open source wrapper for common machine learning models. It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
-* `tests` : Contains unit tests.
+* `risk_examples` Contains hypothetical examples of data leakage through machine learning models as described in the [Green Paper](https://doi.org/10.5281/zenodo.6896214).
+* `tests` Contains unit tests.
 
 ## Documentation
 
