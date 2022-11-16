@@ -4,7 +4,7 @@ name: lint
 on:
   push:
     paths-ignore:
-      - '**/**.md'
+      - '**.md'
 
 jobs:
   build:
