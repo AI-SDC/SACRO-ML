@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from fpdf import FPDF
 
-from attacks import attack, dataset, mia_extremecase, report
-from safemodel.classifiers import SafeDecisionTreeClassifier
+from aisdc.attacks import attack, dataset, mia_extremecase, report
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 BORDER = 0
 

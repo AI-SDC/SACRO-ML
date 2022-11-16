@@ -14,9 +14,9 @@ import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from attacks import metrics, report
-from attacks.attack import Attack
-from attacks.dataset import Data
+from aisdc.attacks import metrics, report
+from aisdc.attacks.attack import Attack
+from aisdc.attacks.dataset import Data
 
 logging.basicConfig(level=logging.INFO)
 
