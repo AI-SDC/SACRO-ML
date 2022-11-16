@@ -7,8 +7,8 @@ import joblib
 import numpy as np
 from sklearn import datasets
 
-from safemodel.reporting import get_reporting_string
-from safemodel.safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
 
 notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")

@@ -3,6 +3,8 @@ name: lint
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
@@ -20,5 +22,5 @@ jobs:
 
       - name: pylint
         run: |
-          pylint -v --recursive=True safemodel attacks tests --fail-under 10
+          pylint -v --recursive=True aisdc.safemodel aisdc.attacks tests --fail-under 10
 ...
