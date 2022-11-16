@@ -1,4 +1,6 @@
-
-
+---
+# configuration for https://codecov.io
 ignore:
+  - "setup.py"
   - "safemodel/classifiers/new_model_template.py"
+...
