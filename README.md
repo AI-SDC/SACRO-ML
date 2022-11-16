@@ -3,6 +3,8 @@
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/63d31eeb27ec445f9fa9c5866d8bec0e)](https://www.codacy.com/gh/AI-SDC/AI-SDC/dashboard)
 [![codecov](https://codecov.io/gh/AI-SDC/AI-SDC/branch/development/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/AI-SDC)
+[![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
+[![Python versions](https://img.shields.io/pypi/pyversions/aisdc.svg)](https://pypi.org/project/aisdc)
 
 # AI-SDC
 
