@@ -8,7 +8,7 @@
 
 # AI-SDC
 
-A collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
+A collection of tools and resources for managing the statistical disclosure control of trained machine learning models. For a brief introduction, see [Smith et al. (2022)](https://doi.org/10.48550/arXiv.2212.01233).
 
 ## Content
 
