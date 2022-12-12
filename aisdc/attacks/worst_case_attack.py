@@ -4,6 +4,8 @@ worst_case_attack.py
 Runs a worst case attack based upon predictive probabilities stored in two .csv files
 """
 
+from __future__ import annotations
+
 import argparse
 import logging
 from collections.abc import Hashable
