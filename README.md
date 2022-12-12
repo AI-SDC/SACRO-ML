@@ -68,7 +68,7 @@ $ pip install aisdc
 Then to run an example:
 
 ```
-$ python -m attribute_inference_example.py
+$ python attribute_inference_example.py
 ```
 
 Or start up `jupyter notebook` and run an example.
