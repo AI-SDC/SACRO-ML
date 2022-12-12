@@ -1,4 +1,7 @@
 """Method for computing extreme case metrics"""
+
+from __future__ import annotations
+
 import numpy as np
 from scipy.stats import norm
 
