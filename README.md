@@ -3,8 +3,9 @@
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/63d31eeb27ec445f9fa9c5866d8bec0e)](https://www.codacy.com/gh/AI-SDC/AI-SDC/dashboard)
 [![codecov](https://codecov.io/gh/AI-SDC/AI-SDC/branch/development/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/AI-SDC)
-[![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
 [![Python versions](https://img.shields.io/pypi/pyversions/aisdc.svg)](https://pypi.org/project/aisdc)
+
+[![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
 
 # AI-SDC
 
@@ -30,6 +31,55 @@ A collection of tools and resources for managing the statistical disclosure cont
 ## Documentation
 
 Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
+
+## Quick Start
+
+### Development
+
+Clone the repository and install the dependencies (safest in a virtual env):
+
+```
+$ git clone --recurse-submodules https://github.com/AI-SDC/AI-SDC.git
+$ cd AI-SDC
+$ pip install -r requirements.txt
+```
+
+Then run the tests:
+
+```
+$ pip install pytest
+$ pytest .
+```
+
+Or run an example:
+
+```
+$ python -m examples.lira_attack_example
+```
+
+### Installation / End-user
+
+Install `aisdc` (safest in a virtual env) and manually copy the `examples` and `example_notebooks`.
+
+```
+$ pip install aisdc
+```
+
+Then to run an example:
+
+```
+$ python -m attribute_inference_example.py
+```
+
+Or start up `jupyter notebook` and run an example.
+
+Alternatively, you can clone the repo and install:
+
+```
+$ git clone --recurse-submodules https://github.com/AI-SDC/AI-SDC.git
+$ cd AI-SDC
+$ pip install .
+```
 
 ---
 
