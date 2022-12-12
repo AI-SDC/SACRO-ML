@@ -5,8 +5,6 @@
 [![codecov](https://codecov.io/gh/AI-SDC/AI-SDC/branch/development/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/AI-SDC)
 [![Python versions](https://img.shields.io/pypi/pyversions/aisdc.svg)](https://pypi.org/project/aisdc)
 
-[![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
-
 # AI-SDC
 
 A collection of tools and resources for managing the statistical disclosure control of trained machine learning models. For a brief introduction, see [Smith et al. (2022)](https://doi.org/10.48550/arXiv.2212.01233).
@@ -58,6 +56,8 @@ $ python -m examples.lira_attack_example
 ```
 
 ### Installation / End-user
+
+[![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
 
 Install `aisdc` (safest in a virtual env) and manually copy the `examples` and `example_notebooks`.
 
