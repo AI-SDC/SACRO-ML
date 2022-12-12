@@ -9,7 +9,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="aisdc",
-    version="1.0.1.post1",
+    version="1.0.1.post2",
     license="MIT",
     maintainer="Jim Smith",
     maintainer_email="james.smith@uwe.ac.uk",
@@ -19,7 +19,7 @@ setup(
     url="https://github.com/AI-SDC/AI-SDC",
     packages=find_packages(exclude=["tests"]),
     package_data={"aisdc.safemodel": ["rules.json"]},
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.9,<3.11",
     install_requires=[
         "dictdiffer~=0.9.0",
         "fpdf~=1.7.2",
