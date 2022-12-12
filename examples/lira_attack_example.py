@@ -122,11 +122,11 @@ with open("config.json", "w", encoding="utf-8") as f:
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
-os.system("python -m attacks.likelihood_attack run-attack --help")
+os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
 
 # [TRE] Then they run the attack
 os.system(
-    "python -m attacks.likelihood_attack run-attack "
+    "python -m aisdc.attacks.likelihood_attack run-attack "
     "--json-file config.json "
     "--report-name example_lira_report "
     "--n-shadow-models 100"

@@ -145,11 +145,11 @@ np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
-os.system("python -m attacks.worst_case_attack run-attack --help")
+os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 
 # [TRE] Then they run the attack
 os.system(
-    "python -m attacks.worst_case_attack run-attack "
+    "python -m aisdc.attacks.worst_case_attack run-attack "
     "--in-sample-preds train_preds.csv "
     "--out-of-sample-preds test_preds.csv "
     "--n-reps 10 "
