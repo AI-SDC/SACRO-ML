@@ -152,6 +152,7 @@ def test_dummy_data():
     attack_obj = worst_case_attack.WorstCaseAttack(args)
     attack_obj.make_dummy_data()
 
+
 def test_attack_data_prep():
     """test the method that prepares the attack data"""
     args = worst_case_attack.WorstCaseAttackArgs()
