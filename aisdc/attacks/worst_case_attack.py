@@ -130,9 +130,8 @@ class WorstCaseAttack(Attack):
         logger.info("Finished running attacks")
 
     def _prepare_attack_data(
-        self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        self, train_preds: np.ndarray, test_preds: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data and labels for attack model
         Combines the train and test preds into a single numpy array (optionally) sorting each
         row to have the highest probabilities in the first column. Constructs a label array that
@@ -142,15 +141,12 @@ class WorstCaseAttack(Attack):
             logger.info("Sorting probabilities to leave highest value in first column")
             train_preds = -np.sort(-train_preds, axis=1)
             test_preds = -np.sort(-test_preds, axis=1)
-        
+
         logger.info("Creating MIA data")
         mi_x = np.vstack((train_preds, test_preds))
         mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
 
         return (mi_x, mi_y)
-
-        
-
 
     def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
         """
@@ -568,8 +564,7 @@ def main():
         help=(
             "Whether or not to sort the output probabilities (per row) before "
             "using them to train the attack model. Default = %(default)f"
-        )
-
+        ),
     )
 
     attack_parser.set_defaults(func=_run_attack)
