@@ -129,7 +129,10 @@ class WorstCaseAttack(Attack):
                 self.dummy_attack_metrics += temp_metrics
         logger.info("Finished running attacks")
 
-    def _prepare_attack_data(self, train_preds: np.ndarray, test_preds: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def _prepare_attack_data(
+        self,
+        train_preds: np.ndarray,
+        test_preds: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data and labels for attack model
         Combines the train and test preds into a single numpy array (optionally) sorting each
         row to have the highest probabilities in the first column. Constructs a label array that
