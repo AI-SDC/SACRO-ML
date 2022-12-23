@@ -160,7 +160,7 @@ def test_attack_data_prep():
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
 
-    mi_x, mi_y = attack_obj._prepare_attack_data( # pylint: disable=protected-access
+    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
         train_preds, test_preds
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
@@ -170,7 +170,7 @@ def test_attack_data_prep():
     # With sort_probs = False, the rows of x should not be sorted
     args = worst_case_attack.WorstCaseAttackArgs(sort_probs=False)
     attack_obj = worst_case_attack.WorstCaseAttack(args)
-    mi_x, mi_y = attack_obj._prepare_attack_data( # pylint: disable=protected-access
+    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
         train_preds, test_preds
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
