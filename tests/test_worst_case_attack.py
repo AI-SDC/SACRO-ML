@@ -153,6 +153,30 @@ def test_dummy_data():
     attack_obj.make_dummy_data()
 
 
+def test_attack_data_prep():
+    """test the method that prepares the attack data"""
+    args = worst_case_attack.WorstCaseAttackArgs()
+    attack_obj = worst_case_attack.WorstCaseAttack(args)
+    train_preds = np.array([[1, 0], [0, 1]], int)
+    test_preds = np.array([[2, 0], [0, 2]], int)
+
+    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
+        train_preds, test_preds
+    )
+    np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
+    # Test the x data produced. Each row should be sorted in descending order
+    np.testing.assert_array_equal(mi_x, np.array([[1, 0], [1, 0], [2, 0], [2, 0]]))
+
+    # With sort_probs = False, the rows of x should not be sorted
+    args = worst_case_attack.WorstCaseAttackArgs(sort_probs=False)
+    attack_obj = worst_case_attack.WorstCaseAttack(args)
+    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
+        train_preds, test_preds
+    )
+    np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
+    np.testing.assert_array_equal(mi_x, np.array([[1, 0], [0, 1], [2, 0], [0, 2]]))
+
+
 def test_main():
     """test invocation via command line"""
 
