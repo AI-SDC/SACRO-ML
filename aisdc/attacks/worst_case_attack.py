@@ -138,7 +138,13 @@ class WorstCaseAttack(Attack):
         """
         logger = logging.getLogger("attack-from-preds")
         logger.info("Running main attack repetitions")
-        self.attack_metrics = self.run_attack_reps(train_preds, test_preds)
+        self.attack_metrics = self.run_attack_reps(
+            train_preds,
+            test_preds,
+            train_correct=train_correct,
+            test_correct=test_correct
+        )
+
         if self.args.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
             self.dummy_attack_metrics = []
@@ -168,7 +174,7 @@ class WorstCaseAttack(Attack):
 
         logger.info("Creating MIA data")
 
-        if self.args.include_model_correct_feature:
+        if self.args.include_model_correct_feature and train_correct is not None:
             train_preds = np.hstack((train_preds, train_correct[:, None]))
             test_preds = np.hstack((test_preds, test_correct[:, None]))
             
@@ -200,7 +206,6 @@ class WorstCaseAttack(Attack):
         self.args.set_param("n_rows_in", len(train_preds))
         self.args.set_param("n_rows_out", len(test_preds))
         logger = logging.getLogger("attack-reps")
-
         mi_x, mi_y = self._prepare_attack_data(
             train_preds,
             test_preds,

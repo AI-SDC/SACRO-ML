@@ -65,6 +65,32 @@ def test_report_worstcase():
     attack_obj.attack(dataset_obj, target_model)
     _ = attack_obj.make_report()
 
+def test_attack_with_correct_feature():
+    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    dataset_obj = dataset.Data()
+    dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+
+    target_model = SVC(gamma=0.1, probability=True)
+    target_model.fit(train_X, train_y)
+
+    args = worst_case_attack.WorstCaseAttackArgs(
+        # How many attacks to run -- in each the attack model is trained on a different
+        # subset of the data
+        n_reps=1,
+        n_dummy_reps=1,
+        p_thresh=0.05,
+        in_sample_filename=None,
+        out_sample_filename=None,
+        test_prop=0.5,
+        report_name="test-10reps",
+        include_model_correct_feature=True
+    )
+
+    # with multiple reps
+    attack_obj = worst_case_attack.WorstCaseAttack(args)
+    attack_obj.attack(dataset_obj, target_model)
+
 
 def test_attack_from_predictions():
     """checks code that runs attacks from predictions"""
