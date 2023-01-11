@@ -172,7 +172,10 @@ class WorstCaseAttack(Attack):
 
         return (mi_x, mi_y)
 
-    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray, train_correct: np.ndarray=None, test_correct: np.ndarray=None) -> list:
+    def run_attack_reps(
+        self, train_preds: np.ndarray, test_preds: np.ndarray,
+        train_correct: np.ndarray=None, test_correct: np.ndarray=None
+    ) -> list:
         """
         Run actual attack reps from train and test predictions
 
@@ -192,7 +195,12 @@ class WorstCaseAttack(Attack):
         self.args.set_param("n_rows_out", len(test_preds))
         logger = logging.getLogger("attack-reps")
 
-        mi_x, mi_y = self._prepare_attack_data(train_preds, test_preds, train_correct, test_correct)
+        mi_x, mi_y = self._prepare_attack_data(
+            train_preds,
+            test_preds,
+            train_correct,
+            test_correct
+        )
 
         mia_metrics = []
         for rep in range(self.args.n_reps):
