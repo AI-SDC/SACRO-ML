@@ -15,6 +15,7 @@ import numpy as np
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 from aisdc.attacks import metrics, report
 from aisdc.attacks.attack import Attack
@@ -225,6 +226,17 @@ class WorstCaseAttack(Attack):
             mia_metrics.append(
                 metrics.get_metrics(attack_classifier, mi_test_x, mi_test_y)
             )
+
+            if self.args.include_model_correct_feature and train_correct is not None:
+                # Compute the Yeom TPR and FPR
+                yeom_preds = mi_test_x[:, -1]
+                tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
+                yeom_tpr = tp / (tp + fn)
+                yeom_fpr = fp / (fp + tn)
+                yeom_advantage = yeom_tpr - yeom_fpr
+                mia_metrics[-1]['yeom_tpr'] = yeom_tpr
+                mia_metrics[-1]['yeom_fpr'] = yeom_fpr
+                mia_metrics[-1]['yeom_advantage'] = yeom_advantage
 
         logger.info("Finished simulating attacks")
 

@@ -91,6 +91,12 @@ def test_attack_with_correct_feature():
     attack_obj = worst_case_attack.WorstCaseAttack(args)
     attack_obj.attack(dataset_obj, target_model)
 
+    # Check that attack_metrics has the Yeom metrics
+    assert 'yeom_tpr' in attack_obj.attack_metrics[0]
+    assert 'yeom_fpr' in attack_obj.attack_metrics[0]
+    assert 'yeom_advantage' in attack_obj.attack_metrics[0]
+
+
 
 def test_attack_from_predictions():
     """checks code that runs attacks from predictions"""
