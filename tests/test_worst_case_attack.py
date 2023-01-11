@@ -4,9 +4,9 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 import os
 import sys
 from unittest.mock import patch
-import pytest
 
 import numpy as np
+import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
@@ -65,6 +65,7 @@ def test_report_worstcase():
     attack_obj.attack(dataset_obj, target_model)
     _ = attack_obj.make_report()
 
+
 def test_attack_with_correct_feature():
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
@@ -84,7 +85,7 @@ def test_attack_with_correct_feature():
         out_sample_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
-        include_model_correct_feature=True
+        include_model_correct_feature=True,
     )
 
     # with multiple reps
@@ -92,10 +93,9 @@ def test_attack_with_correct_feature():
     attack_obj.attack(dataset_obj, target_model)
 
     # Check that attack_metrics has the Yeom metrics
-    assert 'yeom_tpr' in attack_obj.attack_metrics[0]
-    assert 'yeom_fpr' in attack_obj.attack_metrics[0]
-    assert 'yeom_advantage' in attack_obj.attack_metrics[0]
-
+    assert "yeom_tpr" in attack_obj.attack_metrics[0]
+    assert "yeom_fpr" in attack_obj.attack_metrics[0]
+    assert "yeom_advantage" in attack_obj.attack_metrics[0]
 
 
 def test_attack_from_predictions():
@@ -209,6 +209,7 @@ def test_attack_data_prep():
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
     np.testing.assert_array_equal(mi_x, np.array([[1, 0], [0, 1], [2, 0], [0, 2]]))
 
+
 def test_attack_data_prep_with_correct_feature():
     """test the method that prepares the attack data.
     This time, testing that the model correctness values are added, are always
@@ -225,30 +226,35 @@ def test_attack_data_prep_with_correct_feature():
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
     # Test the x data produced. Each row should be sorted in descending order
-    np.testing.assert_array_equal(mi_x, np.array([[1, 0, 1], [1, 0, 0], [2, 0, 0], [2, 0, 1]]))
+    np.testing.assert_array_equal(
+        mi_x, np.array([[1, 0, 1], [1, 0, 0], [2, 0, 0], [2, 0, 1]])
+    )
 
     # With sort_probs = False, the rows of x should not be sorted
     args = worst_case_attack.WorstCaseAttackArgs(
-        sort_probs=False,
-        include_model_correct_feature=True
+        sort_probs=False, include_model_correct_feature=True
     )
     attack_obj = worst_case_attack.WorstCaseAttack(args)
     mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
         train_preds, test_preds, train_correct=train_correct, test_correct=test_correct
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
-    np.testing.assert_array_equal(mi_x, np.array([[1, 0, 1], [0, 1, 0], [2, 0, 0], [0, 2, 1]]))
+    np.testing.assert_array_equal(
+        mi_x, np.array([[1, 0, 1], [0, 1, 0], [2, 0, 0], [0, 2, 1]])
+    )
+
 
 def test_non_rf_mia():
-    '''Tests that it is possible to set the attack model via the args
+    """Tests that it is possible to set the attack model via the args
     In this case, we set as a SVC. But we set probability to false. If the code does
     indeed try and use the SVC (as we want) it will fail as it will try and access
     the predict_proba which won't work if probability=False. Hence, if the code throws
-    an AttributeError we now it *is* trying to use the SVC'''
+    an AttributeError we now it *is* trying to use the SVC"""
     from sklearn.svm import SVC
+
     args = worst_case_attack.WorstCaseAttackArgs(
         mia_attack_model=SVC,
-        mia_attack_model_hyp={'kernel': 'rbf', 'probability': False}
+        mia_attack_model_hyp={"kernel": "rbf", "probability": False},
     )
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -264,8 +270,6 @@ def test_non_rf_mia():
     attack_obj = worst_case_attack.WorstCaseAttack(args)
     with pytest.raises(AttributeError):
         attack_obj.attack_from_preds(ytr_pred, yte_pred)
-
-
 
 
 def test_main():
