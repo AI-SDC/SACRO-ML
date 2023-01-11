@@ -67,6 +67,7 @@ def test_report_worstcase():
 
 
 def test_attack_with_correct_feature():
+    '''Test the attack when the model correctness feature is used'''
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
     dataset_obj = dataset.Data()
@@ -250,7 +251,6 @@ def test_non_rf_mia():
     indeed try and use the SVC (as we want) it will fail as it will try and access
     the predict_proba which won't work if probability=False. Hence, if the code throws
     an AttributeError we now it *is* trying to use the SVC"""
-    from sklearn.svm import SVC
 
     args = worst_case_attack.WorstCaseAttackArgs(
         mia_attack_model=SVC,
