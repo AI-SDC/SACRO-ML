@@ -592,18 +592,20 @@ def main():
         help=("P-value threshold for significance testing. Default = %(default)f")
     )
 
-    attack_parser.add_argument(
-        "--include-correct",
-        action="store",
-        type=bool,
-        required=False,
-        default=False,
-        dest='include_model_correct_feature',
-        help=(
-            "Whether or not to include an additional feature into the MIA attack model that "
-            "holds whether or not the target model made a correct predicion for each example."
-        ),
-    )
+    # Not currently possible from the command line as we cannot compute the correctness
+    # of predictions. Possibly to be added in the future
+    # attack_parser.add_argument(
+    #     "--include-correct",
+    #     action="store",
+    #     type=bool,
+    #     required=False,
+    #     default=False,
+    #     dest='include_model_correct_feature',
+    #     help=(
+    #         "Whether or not to include an additional feature into the MIA attack model that "
+    #         "holds whether or not the target model made a correct predicion for each example."
+    #     ),
+    # )
     
     attack_parser.add_argument(
         "--sort-probs",
