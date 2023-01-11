@@ -147,7 +147,8 @@ class WorstCaseAttack(Attack):
         logger.info("Finished running attacks")
 
     def _prepare_attack_data(
-        self, train_preds: np.ndarray, test_preds: np.ndarray
+        self, train_preds: np.ndarray, test_preds: np.ndarray,
+        train_correct: np.ndarray=None, test_correct: np.ndarray=None
     ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data and labels for attack model
         Combines the train and test preds into a single numpy array (optionally) sorting each
@@ -160,12 +161,18 @@ class WorstCaseAttack(Attack):
             test_preds = -np.sort(-test_preds, axis=1)
 
         logger.info("Creating MIA data")
+
+        if self.args.include_model_correct_feature:
+            train_preds = np.hstack((train_preds, train_correct[:, None]))
+            test_preds = np.hstack((test_preds, test_correct[:, None]))
+            
+
         mi_x = np.vstack((train_preds, test_preds))
         mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
 
         return (mi_x, mi_y)
 
-    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
+    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray, train_correct: np.ndarray=None, test_correct: np.ndarray=None) -> list:
         """
         Run actual attack reps from train and test predictions
 
@@ -185,7 +192,7 @@ class WorstCaseAttack(Attack):
         self.args.set_param("n_rows_out", len(test_preds))
         logger = logging.getLogger("attack-reps")
 
-        mi_x, mi_y = self._prepare_attack_data(train_preds, test_preds)
+        mi_x, mi_y = self._prepare_attack_data(train_preds, test_preds, train_correct, test_correct)
 
         mia_metrics = []
         for rep in range(self.args.n_reps):
@@ -568,19 +575,21 @@ def main():
         default=P_THRESH,
         required=False,
         dest="p_thresh",
-        help=("P-value threshold for significance testing. Default = %(default)f"),
+        help=("P-value threshold for significance testing. Default = %(default)f")
     )
 
     attack_parser.add_argument(
         "--include-correct",
-        action="store_true",
+        action="store",
         type=bool,
         required=False,
+        default=False,
         dest='include_model_correct_feature',
         help=(
             "Whether or not to include an additional feature into the MIA attack model that "
             "holds whether or not the target model made a correct predicion for each example."
-        )
+        ),
+    )
     
     attack_parser.add_argument(
         "--sort-probs",
