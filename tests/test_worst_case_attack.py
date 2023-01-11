@@ -83,7 +83,7 @@ def test_attack_with_correct_feature():
         in_sample_filename=None,
         out_sample_filename=None,
         test_prop=0.5,
-        report_name="test-10reps",
+        report_name="test-1rep",
         include_model_correct_feature=True
     )
 
