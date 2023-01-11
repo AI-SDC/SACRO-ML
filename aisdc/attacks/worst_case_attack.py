@@ -188,7 +188,7 @@ class WorstCaseAttack(Attack):
 
         return (mi_x, mi_y)
 
-    def run_attack_reps( # pylint: disable = too-many-locals
+    def run_attack_reps(  # pylint: disable = too-many-locals
         self,
         train_preds: np.ndarray,
         test_preds: np.ndarray,
@@ -238,8 +238,9 @@ class WorstCaseAttack(Attack):
                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
                 mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
                 mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
-                mia_metrics[-1]["yeom_advantage"] = mia_metrics[-1]["yeom_tpr"] -\
-                     mia_metrics[-1]["yeom_fpr"]
+                mia_metrics[-1]["yeom_advantage"] = (
+                    mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
+                )
 
         logger.info("Finished simulating attacks")
 

@@ -67,7 +67,7 @@ def test_report_worstcase():
 
 
 def test_attack_with_correct_feature():
-    '''Test the attack when the model correctness feature is used'''
+    """Test the attack when the model correctness feature is used"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
     dataset_obj = dataset.Data()
