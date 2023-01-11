@@ -41,6 +41,7 @@ class WorstCaseAttackArgs:
         self.__dict__["out_sample_filename"] = None
         self.__dict__["report_name"] = None
         self.__dict__["include_model_correct_feature"] = False
+        self.__dict__["sort_probs"] = True
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -145,6 +146,25 @@ class WorstCaseAttack(Attack):
                 self.dummy_attack_metrics += temp_metrics
         logger.info("Finished running attacks")
 
+    def _prepare_attack_data(
+        self, train_preds: np.ndarray, test_preds: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Prepare training data and labels for attack model
+        Combines the train and test preds into a single numpy array (optionally) sorting each
+        row to have the highest probabilities in the first column. Constructs a label array that
+        has ones corresponding to training rows and zeros to testing rows."""
+        logger = logging.getLogger("prep-attack-data")
+        if self.args.sort_probs:
+            logger.info("Sorting probabilities to leave highest value in first column")
+            train_preds = -np.sort(-train_preds, axis=1)
+            test_preds = -np.sort(-test_preds, axis=1)
+
+        logger.info("Creating MIA data")
+        mi_x = np.vstack((train_preds, test_preds))
+        mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
+
+        return (mi_x, mi_y)
+
     def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
         """
         Run actual attack reps from train and test predictions
@@ -164,13 +184,8 @@ class WorstCaseAttack(Attack):
         self.args.set_param("n_rows_in", len(train_preds))
         self.args.set_param("n_rows_out", len(test_preds))
         logger = logging.getLogger("attack-reps")
-        logger.info("Sorting probabilities to leave highest value in first column")
-        train_preds = -np.sort(-train_preds, axis=1)
-        test_preds = -np.sort(-test_preds, axis=1)
 
-        logger.info("Creating MIA data")
-        mi_x = np.vstack((train_preds, test_preds))
-        mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
+        mi_x, mi_y = self._prepare_attack_data(train_preds, test_preds)
 
         mia_metrics = []
         for rep in range(self.args.n_reps):
@@ -566,6 +581,18 @@ def main():
             "Whether or not to include an additional feature into the MIA attack model that "
             "holds whether or not the target model made a correct predicion for each example."
         )
+    
+    attack_parser.add_argument(
+        "--sort-probs",
+        action="store",
+        type=bool,
+        default=True,
+        required=False,
+        dest="sort_probs",
+        help=(
+            "Whether or not to sort the output probabilities (per row) before "
+            "using them to train the attack model. Default = %(default)f"
+        ),
     )
 
     attack_parser.set_defaults(func=_run_attack)
