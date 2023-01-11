@@ -40,6 +40,7 @@ class WorstCaseAttackArgs:
         self.__dict__["in_sample_filename"] = None
         self.__dict__["out_sample_filename"] = None
         self.__dict__["report_name"] = None
+        self.__dict__["include_model_correct_feature"] = False
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -82,7 +83,22 @@ class WorstCaseAttack(Attack):
         """
         train_preds = target_model.predict_proba(dataset.x_train)
         test_preds = target_model.predict_proba(dataset.x_test)
-        self.attack_from_preds(train_preds, test_preds)
+        train_correct = None
+        test_correct = None
+        if self.args.include_model_correct_feature:
+            train_correct = 1 * (
+                dataset.y_train == target_model.predict(dataset.x_train)
+            )
+            test_correct = 1 * (
+                dataset.y_test == target_model.predict(dataset.x_test)
+            )
+
+        self.attack_from_preds(
+            train_preds,
+            test_preds,
+            train_correct=train_correct,
+            test_correct=test_correct
+        )
 
     def attack_from_prediction_files(self):
         """Start an attack from saved prediction files
@@ -97,7 +113,8 @@ class WorstCaseAttack(Attack):
         self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(  # pylint: disable=too-many-locals
-        self, train_preds: np.ndarray, test_preds: np.ndarray
+        self, train_preds: np.ndarray, test_preds: np.ndarray,
+        train_correct: np.ndarray=None, test_correct: np.ndarray=None
     ) -> None:
         """
         Runs the attack based upon the predictions in train_preds and test_preds, and the params
@@ -537,6 +554,18 @@ def main():
         required=False,
         dest="p_thresh",
         help=("P-value threshold for significance testing. Default = %(default)f"),
+    )
+
+    attack_parser.add_argument(
+        "--include-correct",
+        action="store_true",
+        type=bool,
+        required=False,
+        dest='include_model_correct_feature',
+        help=(
+            "Whether or not to include an additional feature into the MIA attack model that "
+            "holds whether or not the target model made a correct predicion for each example."
+        )
     )
 
     attack_parser.set_defaults(func=_run_attack)
