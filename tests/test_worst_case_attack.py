@@ -4,6 +4,7 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 import os
 import sys
 from unittest.mock import patch
+import pytest
 
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -205,6 +206,32 @@ def test_attack_data_prep_with_correct_feature():
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
     np.testing.assert_array_equal(mi_x, np.array([[1, 0, 1], [0, 1, 0], [2, 0, 0], [0, 2, 1]]))
+
+def test_non_rf_mia():
+    '''Tests that it is possible to set the attack model via the args
+    In this case, we set as a SVC. But we set probability to false. If the code does
+    indeed try and use the SVC (as we want) it will fail as it will try and access
+    the predict_proba which won't work if probability=False. Hence, if the code throws
+    an AttributeError we now it *is* trying to use the SVC'''
+    from sklearn.svm import SVC
+    args = worst_case_attack.WorstCaseAttackArgs(
+        mia_attack_model=SVC,
+        mia_attack_model_hyp={'kernel': 'rbf', 'probability': False}
+    )
+
+    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    dataset_obj = dataset.Data()
+    dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+
+    target_model = SVC(gamma=0.1, probability=True)
+    target_model.fit(train_X, train_y)
+    ytr_pred = target_model.predict_proba(train_X)
+    yte_pred = target_model.predict_proba(test_X)
+
+    attack_obj = worst_case_attack.WorstCaseAttack(args)
+    with pytest.raises(AttributeError):
+        attack_obj.attack_from_preds(ytr_pred, yte_pred)
 
 
 

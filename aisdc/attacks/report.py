@@ -1,6 +1,6 @@
 """Code for automatic report generation"""
 import json
-
+import abc
 import numpy as np
 import pylab as plt
 from fpdf import FPDF
@@ -83,6 +83,8 @@ class NumpyArrayEncoder(json.JSONEncoder):
             return int(o)
         if isinstance(o, np.int32):
             return int(o)
+        if isinstance(o, abc.ABCMeta):
+            return str(o)
         return json.JSONEncoder.default(self, o)
 
 

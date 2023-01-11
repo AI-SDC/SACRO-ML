@@ -42,6 +42,12 @@ class WorstCaseAttackArgs:
         self.__dict__["report_name"] = None
         self.__dict__["include_model_correct_feature"] = False
         self.__dict__["sort_probs"] = True
+        self.__dict__["mia_attack_model"] = RandomForestClassifier
+        self.__dict__["mia_attack_model_hyp"] = {
+            'min_samples_split': 20,
+            'min_samples_leaf': 10,
+            'max_depth': 5
+        }
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -208,7 +214,7 @@ class WorstCaseAttack(Attack):
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
             )
-            attack_classifier = RandomForestClassifier()
+            attack_classifier = self.args.mia_attack_model(**self.args.mia_attack_model_hyp)
             attack_classifier.fit(mi_train_x, mi_train_y)
 
             mia_metrics.append(
