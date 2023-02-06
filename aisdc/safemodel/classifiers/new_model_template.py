@@ -124,7 +124,10 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
                             disclosive = False
                         else:
                             for idx in range(num1):
-                                same, msg2, = decision_trees_are_equal(
+                                (
+                                    same,
+                                    msg2,
+                                ) = decision_trees_are_equal(
                                     curr_separate[item][idx], saved_separate[item][idx]
                                 )
                                 if not same:

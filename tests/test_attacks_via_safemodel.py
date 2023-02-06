@@ -45,7 +45,6 @@ def get_nursery_dataset() -> Data:
             need_download = True
 
     if need_download:  # pragma: no cover
-
         nursery_data = fetch_openml(data_id=26, as_frame=True)
         x = np.asarray(nursery_data.data, dtype=str)
         y = np.asarray(nursery_data.target, dtype=str)
@@ -69,7 +68,12 @@ def get_nursery_dataset() -> Data:
 
         # [Researcher] Split into training and test sets
         # target model train / test split - these are strings
-        (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
+        (
+            x_train_orig,
+            x_test_orig,
+            y_train_orig,
+            y_test_orig,
+        ) = train_test_split(
             x,
             y,
             test_size=0.05,
