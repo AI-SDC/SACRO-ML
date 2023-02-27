@@ -14,6 +14,7 @@ from typing import Any
 import numpy as np
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks import metrics, report
@@ -40,7 +41,14 @@ class WorstCaseAttackArgs:
         self.__dict__["in_sample_filename"] = None
         self.__dict__["out_sample_filename"] = None
         self.__dict__["report_name"] = None
+        self.__dict__["include_model_correct_feature"] = False
         self.__dict__["sort_probs"] = True
+        self.__dict__["mia_attack_model"] = RandomForestClassifier
+        self.__dict__["mia_attack_model_hyp"] = {
+            "min_samples_split": 20,
+            "min_samples_leaf": 10,
+            "max_depth": 5,
+        }
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -83,7 +91,20 @@ class WorstCaseAttack(Attack):
         """
         train_preds = target_model.predict_proba(dataset.x_train)
         test_preds = target_model.predict_proba(dataset.x_test)
-        self.attack_from_preds(train_preds, test_preds)
+        train_correct = None
+        test_correct = None
+        if self.args.include_model_correct_feature:
+            train_correct = 1 * (
+                dataset.y_train == target_model.predict(dataset.x_train)
+            )
+            test_correct = 1 * (dataset.y_test == target_model.predict(dataset.x_test))
+
+        self.attack_from_preds(
+            train_preds,
+            test_preds,
+            train_correct=train_correct,
+            test_correct=test_correct,
+        )
 
     def attack_from_prediction_files(self):
         """Start an attack from saved prediction files
@@ -98,7 +119,11 @@ class WorstCaseAttack(Attack):
         self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(  # pylint: disable=too-many-locals
-        self, train_preds: np.ndarray, test_preds: np.ndarray
+        self,
+        train_preds: np.ndarray,
+        test_preds: np.ndarray,
+        train_correct: np.ndarray = None,
+        test_correct: np.ndarray = None,
     ) -> None:
         """
         Runs the attack based upon the predictions in train_preds and test_preds, and the params
@@ -115,7 +140,13 @@ class WorstCaseAttack(Attack):
         """
         logger = logging.getLogger("attack-from-preds")
         logger.info("Running main attack repetitions")
-        self.attack_metrics = self.run_attack_reps(train_preds, test_preds)
+        self.attack_metrics = self.run_attack_reps(
+            train_preds,
+            test_preds,
+            train_correct=train_correct,
+            test_correct=test_correct,
+        )
+
         if self.args.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
             self.dummy_attack_metrics = []
@@ -130,7 +161,11 @@ class WorstCaseAttack(Attack):
         logger.info("Finished running attacks")
 
     def _prepare_attack_data(
-        self, train_preds: np.ndarray, test_preds: np.ndarray
+        self,
+        train_preds: np.ndarray,
+        test_preds: np.ndarray,
+        train_correct: np.ndarray = None,
+        test_correct: np.ndarray = None,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data and labels for attack model
         Combines the train and test preds into a single numpy array (optionally) sorting each
@@ -143,12 +178,23 @@ class WorstCaseAttack(Attack):
             test_preds = -np.sort(-test_preds, axis=1)
 
         logger.info("Creating MIA data")
+
+        if self.args.include_model_correct_feature and train_correct is not None:
+            train_preds = np.hstack((train_preds, train_correct[:, None]))
+            test_preds = np.hstack((test_preds, test_correct[:, None]))
+
         mi_x = np.vstack((train_preds, test_preds))
         mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
 
         return (mi_x, mi_y)
 
-    def run_attack_reps(self, train_preds: np.ndarray, test_preds: np.ndarray) -> list:
+    def run_attack_reps(  # pylint: disable = too-many-locals
+        self,
+        train_preds: np.ndarray,
+        test_preds: np.ndarray,
+        train_correct: np.ndarray = None,
+        test_correct: np.ndarray = None,
+    ) -> list:
         """
         Run actual attack reps from train and test predictions
 
@@ -167,8 +213,9 @@ class WorstCaseAttack(Attack):
         self.args.set_param("n_rows_in", len(train_preds))
         self.args.set_param("n_rows_out", len(test_preds))
         logger = logging.getLogger("attack-reps")
-
-        mi_x, mi_y = self._prepare_attack_data(train_preds, test_preds)
+        mi_x, mi_y = self._prepare_attack_data(
+            train_preds, test_preds, train_correct, test_correct
+        )
 
         mia_metrics = []
         for rep in range(self.args.n_reps):
@@ -176,12 +223,24 @@ class WorstCaseAttack(Attack):
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
             )
-            attack_classifier = RandomForestClassifier()
+            attack_classifier = self.args.mia_attack_model(
+                **self.args.mia_attack_model_hyp
+            )
             attack_classifier.fit(mi_train_x, mi_train_y)
 
             mia_metrics.append(
                 metrics.get_metrics(attack_classifier, mi_test_x, mi_test_y)
             )
+
+            if self.args.include_model_correct_feature and train_correct is not None:
+                # Compute the Yeom TPR and FPR
+                yeom_preds = mi_test_x[:, -1]
+                tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
+                mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
+                mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
+                mia_metrics[-1]["yeom_advantage"] = (
+                    mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
+                )
 
         logger.info("Finished simulating attacks")
 
@@ -553,6 +612,21 @@ def main():
         dest="p_thresh",
         help=("P-value threshold for significance testing. Default = %(default)f"),
     )
+
+    # Not currently possible from the command line as we cannot compute the correctness
+    # of predictions. Possibly to be added in the future
+    # attack_parser.add_argument(
+    #     "--include-correct",
+    #     action="store",
+    #     type=bool,
+    #     required=False,
+    #     default=False,
+    #     dest='include_model_correct_feature',
+    #     help=(
+    #         "Whether or not to include an additional feature into the MIA attack model that "
+    #         "holds whether or not the target model made a correct predicion for each example."
+    #     ),
+    # )
 
     attack_parser.add_argument(
         "--sort-probs",

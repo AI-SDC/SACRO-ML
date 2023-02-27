@@ -1,4 +1,5 @@
 """Code for automatic report generation"""
+import abc
 import json
 
 import numpy as np
@@ -83,6 +84,8 @@ class NumpyArrayEncoder(json.JSONEncoder):
             return int(o)
         if isinstance(o, np.int32):
             return int(o)
+        if isinstance(o, abc.ABCMeta):
+            return str(o)
         return json.JSONEncoder.default(self, o)
 
 
