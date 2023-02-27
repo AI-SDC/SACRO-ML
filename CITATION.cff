@@ -1,14 +1,20 @@
 cff-version: 1.2.0
 title: AI-SDC
 version: 1.0.2
-doi:
+doi: 10.5281/zenodo.7681783
 date-released: 2023-02-27
 license: MIT
 repository-code: https://github.com/AI-SDC/AI-SDC
 languages:
   - English
 keywords:
+  - attribute inference attack
+  - data privacy
+  - data protection
+  - inference
   - machine learning
+  - membership inference attack
+  - privacy
   - statistical disclosure control
 authors:
   - family-names: Smith
@@ -44,3 +50,6 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.7327390
     description: This is the archived snapshot of AI-SDC v.1.0.1.
+  - type: doi
+    value: 10.5281/zenodo.7681783
+    description: This is the archived snapshot of AI-SDC v.1.0.2.
