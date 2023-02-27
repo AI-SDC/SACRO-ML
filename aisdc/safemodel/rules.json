@@ -1,0 +1,191 @@
+{
+    "DummyClassifier": {
+        "rules": [
+            {
+                "keyword": "at_least_5f",
+                "operator": "min",
+                "value": 5.0
+            },
+            {
+                "keyword": "at_least_5f",
+                "operator": "is_type",
+                "value": "float"
+            },
+            {
+                "keyword": "at_most_5i",
+                "operator": "max",
+                "value": 5
+            },
+            {
+                "keyword": "at_most_5i",
+                "operator": "is_type",
+                "value": "int"
+            },
+            {
+                "keyword": "exactly_boo",
+                "operator": "is_type",
+                "value": "str"
+            },
+            {
+                "keyword": "exactly_boo",
+                "operator": "equals",
+                "value": "boo"
+            },
+            {
+                "operator": "or",
+                "subexpr": [
+                    {
+                        "keyword": "keyA",
+                        "operator": "equals",
+                        "value": true
+                    },
+                    {
+                        "keyword": "keyB",
+                        "operator": "equals",
+                        "value": true
+                    }
+                ]
+            }
+        ]
+    },
+    "DecisionTreeClassifier": {
+        "rules": [
+            {
+                "keyword": "min_samples_leaf",
+                "operator": "is_type",
+                "value": "int"
+            },
+            {
+                "keyword": "min_samples_leaf",
+                "operator": "min",
+                "value": 5
+            }
+        ]
+    },
+    "RandomForestClassifier": {
+        "rules": [
+            {
+                "operator": "and",
+                "subexpr": [
+                    {
+                        "keyword": "bootstrap",
+                        "operator": "equals",
+                        "value": true
+                    },
+                    {
+                        "keyword": "min_samples_leaf",
+                        "operator": "min",
+                        "value": 5
+                    }
+                ]
+            }
+        ]
+    },
+    "SVC": {
+        "rules": [
+            {
+                "keyword": "dhat",
+                "operator": "min",
+                "value": 1000
+            },
+            {
+                "keyword": "C",
+                "operator": "min",
+                "value": 1
+            },
+            {
+                "keyword": "eps",
+                "operator": "min",
+                "value": 10
+            },
+            {
+                "keyword": "gamma",
+                "operator": "min",
+                "value": 0.1
+            }
+        ]
+    },
+    "KerasModel": {
+        "rules": [
+            {
+                "keyword": "l2_norm_clip",
+                "operator": "min",
+                "value": 1.0
+            },
+            {
+                "keyword": "l2_norm_clip",
+                "operator": "max",
+                "value": 1.0
+            },
+            {
+                "keyword": "noise_multiplier",
+                "operator": "min",
+                "value": 0.7
+            },
+            {
+                "keyword": "noise_multiplier",
+                "operator": "max",
+                "value": 0.9
+            },
+            {
+                "keyword": "min_epsilon",
+                "operator": "min",
+                "value": 5
+            },
+            {
+                "keyword": "min_epsilon",
+                "operator": "max",
+                "value": 10
+            },
+            {
+                "keyword": "delta",
+                "operator": "min",
+                "value": 1e-05
+            },
+            {
+                "keyword": "delta",
+                "operator": "max",
+                "value": 1e-05
+            },
+            {
+                "keyword": "batch_size",
+                "operator": "min",
+                "value": 1
+            },
+            {
+                "keyword": "batch_size",
+                "operator": "max",
+                "value": 32
+            },
+            {
+                "keyword": "learning_rate",
+                "operator": "min",
+                "value": 0.0001
+            },
+            {
+                "keyword": "learning_rate",
+                "operator": "min",
+                "value": 0.1
+            }
+        ]
+    },
+    "tf_DPModel": {
+        "rules": [
+            {
+                "operator": "and",
+                "subexpr": [
+                    {
+                        "keyword": "l2_norm_clip",
+                        "operator": "min",
+                        "value": 1.0
+                    },
+                    {
+                        "keyword": "noise_multiplier",
+                        "operator": "min",
+                        "value": 0.5
+                    }
+                ]
+            }
+        ]
+    }
+}

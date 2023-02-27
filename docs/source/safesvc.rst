@@ -1,9 +1,7 @@
 SafeSVC
 =======
 
-An example Python Notebook is available  `Here <https://github.com/jim-smith/GRAIMatter/blob/main/WP2/wrapper/wrapper-SVC-concept.ipynb>`_
+An example Python Notebook is available  `Here <https://github.com/AI-SDC/AI-SDC/blob/main/example_notebooks/example-notebook-SVC.ipynb>`_
 
-.. automodule:: safemodel.classifiers.safesvc
-   :members: 
-
-
+.. automodule:: aisdc.safemodel.classifiers.safesvc
+   :members:

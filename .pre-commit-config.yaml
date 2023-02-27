@@ -1,0 +1,59 @@
+---
+# configuration for https://pre-commit.com
+# To use: pre-commit run -a
+# Or to run every time you commit: pre-commit install
+# To update this file: pre-commit autoupdate
+
+repos:
+
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: check-json
+      - id: pretty-format-json
+        args: ["--autofix", "--no-sort-keys", "--indent=4"]
+
+  # Check for spelling
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.2
+    hooks:
+      - id: codespell
+        args: ["-L", "fpr, tre, sav, provid"]
+        exclude: >
+            (?x)^(
+                .*\.svg|
+                .*\.ipynb
+            )$
+
+  # Autoremoves unused imports
+  - repo: https://github.com/hadialqattan/pycln
+    rev: "v2.1.3"
+    hooks:
+      - id: pycln
+        stages: [manual]
+
+  # Sort includes
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+
+  # Upgrade old Python syntax
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Black format Python and notebooks
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black-jupyter
+...
