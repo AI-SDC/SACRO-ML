@@ -106,7 +106,9 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                                 name="forest_estimators_differ", idx=num_diff_trees
                             )
                             disclosive = True
-                except BaseException as error:  # pylint: disable=broad-except #pragma:no cover
+                except (
+                    BaseException
+                ) as error:  # pylint: disable=broad-except #pragma:no cover
                     msg += get_reporting_string(
                         name="unable_to_check_item", item=item, error=error
                     )

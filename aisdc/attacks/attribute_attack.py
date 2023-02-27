@@ -121,7 +121,7 @@ def _unique_max(confidences: list[float], threshold: float) -> bool:
         if max_conf < threshold:
             return False
         unique, count = np.unique(confidences, return_counts=True)
-        for (u, c) in zip(unique, count):
+        for u, c in zip(unique, count):
             if c == 1 and u == max_conf:
                 return True
     return False

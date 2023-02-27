@@ -20,7 +20,6 @@ from aisdc.attacks import attribute_attack, dataset  # pylint: disable = import-
 # pylint: disable = duplicate-code
 
 if __name__ == "__main__":
-
     # [Researcher] Access a dataset
     nursery_data = fetch_openml(data_id=26, as_frame=True)
     x = np.asarray(nursery_data.data, dtype=str)
@@ -39,7 +38,12 @@ if __name__ == "__main__":
 
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
-    (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
+    (
+        x_train_orig,
+        x_test_orig,
+        y_train_orig,
+        y_test_orig,
+    ) = train_test_split(
         x,
         y,
         test_size=0.5,

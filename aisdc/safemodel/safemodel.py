@@ -544,7 +544,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         attribute_names_as_list = copy.copy(list(self.__dict__.keys()))
 
         for key in attribute_names_as_list:
-
             if key not in self.ignore_items:
                 # logger.debug(f'copying {key}')
                 try:
@@ -655,7 +654,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def additional_checks(  # pylint: disable=too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
-
         """Placeholder function for additional posthoc checks e.g. keras this
         version just checks that any lists have the same contents
 
@@ -795,7 +793,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         attack_name: str = "worst_case",
         filename: str = "undefined",
     ) -> dict:
-
         """Runs a specified attack on the trained model and saves a report to file
 
         Parameters
