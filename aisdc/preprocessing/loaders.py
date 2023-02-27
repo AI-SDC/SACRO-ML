@@ -516,7 +516,6 @@ and place it in the correct folder.
     if not os.path.exists(
         os.path.join(data_folder, "TexasHospitals", processed_data_file)
     ):
-
         logger.info("Processing Texas Hospitals data (2006-2009)")
 
         # Load data

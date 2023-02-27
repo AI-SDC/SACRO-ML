@@ -39,7 +39,12 @@ def test_dataset():  # pylint:disable=too-many-locals
 
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
-    (x_train_orig, x_test_orig, y_train_orig, y_test_orig,) = train_test_split(
+    (
+        x_train_orig,
+        x_test_orig,
+        y_train_orig,
+        y_test_orig,
+    ) = train_test_split(
         x,
         y,
         test_size=0.05,

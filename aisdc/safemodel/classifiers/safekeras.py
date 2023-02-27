@@ -251,7 +251,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         # call the keras super class first as this comes first in chain
         super().__init__(  # pylint: disable=unexpected-keyword-arg
-            inputs=inputs, outputs=outputs
+            inputs=inputs, outputs=outputs  # pylint: disable=used-before-assignment
         )
 
         # set values where the user has supplied them
