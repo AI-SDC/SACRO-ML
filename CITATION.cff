@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: AI-SDC
-version: 1.0.1
-doi: 10.5281/zenodo.7327390
-date-released: 2022-11-16
+version: 1.0.2
+doi:
+date-released: 2023-02-27
 license: MIT
 repository-code: https://github.com/AI-SDC/AI-SDC
 languages:
@@ -27,7 +27,7 @@ authors:
     given-names: Simon
     orcid: https://orcid.org/0000-0003-3578-4477
     affiliation: NHS National Services Scotland
-  - family-names: Boixader Crespi
+  - family-names: Crespi-Boixader
     given-names: Alba
     affiliation: University of Dundee
   - family-names: Liley
