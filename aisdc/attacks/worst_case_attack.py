@@ -24,6 +24,7 @@ from aisdc.attacks.dataset import Data
 logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
+AUC_FAIL_THRESH = 0.8
 
 
 class WorstCaseAttackArgs:
@@ -49,6 +50,7 @@ class WorstCaseAttackArgs:
             "min_samples_leaf": 10,
             "max_depth": 5,
         }
+        self.__dict__["auc_fail_thresh"] = 0.8
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -218,7 +220,7 @@ class WorstCaseAttack(Attack):
         )
 
         mia_metrics = []
-        for rep in range(self.args.n_reps):
+        for rep in range(1,self.args.n_reps+1,1):
             logger.info("Rep %d of %d", rep, self.args.n_reps)
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
@@ -241,6 +243,9 @@ class WorstCaseAttack(Attack):
                 mia_metrics[-1]["yeom_advantage"] = (
                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
                 )
+                
+            if mia_metrics[rep-1]['AUC']>=self.args.auc_fail_thresh:
+                break
 
         logger.info("Finished simulating attacks")
 
@@ -612,7 +617,46 @@ def main():
         dest="p_thresh",
         help=("P-value threshold for significance testing. Default = %(default)f"),
     )
+    
+    attack_parser.add_argument(
+        "--train-beta",
+        action="store",
+        type=float,
+        required=False,
+        default=5,
+        dest="train_beta",
+        help=(
+            "Value of b parameter for beta distribution used to sample the in-sample "
+            "probabilities. "
+            "High values will give more extreme probabilities. Set this value higher than "
+            "--test-beta to see successful attacks. Default = %(default)f"
+        ),
+    )
 
+    attack_parser.add_argument(
+        "--test-beta",
+        action="store",
+        type=float,
+        required=False,
+        default=2,
+        dest="test_beta",
+        help=(
+            "Value of b parameter for beta distribution used to sample the out-of-sample "
+            "probabilities. High values will give more extreme probabilities. Set this value "
+            "lower than --train-beta to see successful attacks. Default = %(default)f"
+        ),
+    )
+    
+    attack_parser.add_argument(
+        "--auc-fail-thresh",
+        action="store",
+        type=float,
+        default=AUC_FAIL_THRESH,
+        required=False,
+        dest="auc_fail_thresh",
+        help=("auc-fail-thresh for fail fast option. Default = %(default)f"),
+    )
+    
     # Not currently possible from the command line as we cannot compute the correctness
     # of predictions. Possibly to be added in the future
     # attack_parser.add_argument(
