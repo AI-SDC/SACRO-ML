@@ -54,6 +54,10 @@ args = worst_case_attack.WorstCaseAttackArgs(
     n_reps=10,
     # number of baseline (dummy) experiments to do
     n_dummy_reps=1,
+    # value of b for beta distribution used to sample the in-sample probabilities
+    train_beta=5,
+    # value of b for beta distribution used to sample the out-of-sample probabilities
+    test_beta=2,
     # Threshold to determine significance of things
     p_thresh=0.05,
     # Filename arguments needed by the code, meaningless if run programmatically
@@ -63,6 +67,8 @@ args = worst_case_attack.WorstCaseAttackArgs(
     test_prop=0.5,
     # Report name is None - don't make json or pdf files
     report_name=None,
+    # AUC threshold computed on attack is important to support fast fail
+    auc_fail_thresh = 0.8,
 )
 
 # [TRE / Researcher] Wrap the data in a dataset object
@@ -155,8 +161,10 @@ os.system(
     "--n-reps 10 "
     "--report-name example_report_risky "
     "--n-dummy-reps 1 "
-    "--test-prop 0.1"
-    "--report-name example_report"
+    "--test-prop 0.1 "
+    "--train-beta 5 "
+    "--test-beta 2 "
+    "auc_fail_thresh 0.8 "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
