@@ -164,7 +164,7 @@ os.system(
     "--test-prop 0.1 "
     "--train-beta 5 "
     "--test-beta 2 "
-    "auc_fail_thresh 0.8 "
+    "--auc-fail-thresh 0.8 "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
