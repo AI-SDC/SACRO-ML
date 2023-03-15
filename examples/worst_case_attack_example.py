@@ -68,7 +68,7 @@ args = worst_case_attack.WorstCaseAttackArgs(
     # Report name is None - don't make json or pdf files
     report_name=None,
     # AUC threshold computed on attack is important to support fast fail
-    auc_fail_thresh = 0.8,
+    auc_fail_thresh=0.8,
 )
 
 # [TRE / Researcher] Wrap the data in a dataset object
