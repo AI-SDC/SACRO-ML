@@ -220,7 +220,7 @@ class WorstCaseAttack(Attack):
         )
 
         mia_metrics = []
-        for rep in range(1, self.args.n_reps + 1, 1):
+        for rep in range(self.args.n_reps):
             logger.info("Rep %d of %d", rep, self.args.n_reps)
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
@@ -244,7 +244,7 @@ class WorstCaseAttack(Attack):
                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
                 )
 
-            if mia_metrics[rep - 1]["AUC"] >= self.args.auc_fail_thresh:
+            if mia_metrics[rep]["AUC"] >= self.args.auc_fail_thresh:
                 break
 
         logger.info("Finished simulating attacks")
