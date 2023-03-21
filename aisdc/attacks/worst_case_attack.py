@@ -221,7 +221,7 @@ class WorstCaseAttack(Attack):
 
         mia_metrics = []
         for rep in range(self.args.n_reps):
-            logger.info("Rep %d of %d", rep + 1, self.args.n_reps)
+            logger.info("Rep %d of %d", rep+1, self.args.n_reps)
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
             )
