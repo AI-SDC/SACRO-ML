@@ -1,0 +1,104 @@
+{
+   "log_id":65,
+   "timestamp":"30/03/2023 09:43:52",
+   "model_filename":"rf_model.sav",
+   "data_filename":"data.csv",
+   "attack_type":"worst_case",
+   "attack_type_version":"not_supported",
+   "fail_fast_threshold":null,
+   "attack_instance_logger":{
+      "instance_1":{
+         "true_labels_distribution":"Counter({0: 8, 1: 7})",
+         "predicted_labels_distribution":"Counter({0: 9, 1: 6})",
+         "metrics":{
+            "AUC":0.6607142857142857,
+            "TPR":0.57142857,
+            "FPR":0.25,
+            "FNR":0.42857143,
+            "TNR":0.75,
+            "acc":0.66666667,
+            "confusion_matrix":[
+               6,
+               2,
+               3,
+               4
+            ]
+         }
+      },
+      "instance_2":{
+         "true_labels_distribution":"Counter({0: 8, 1: 7})",
+         "predicted_labels_distribution":"Counter({0: 8, 1: 7})",
+         "metrics":{
+            "AUC":0.4642857142857143,
+            "TPR":0.42857143,
+            "FPR":0.5,
+            "FNR":0.57142857,
+            "TNR":0.5,
+            "acc":0.46666667,
+            "confusion_matrix":[
+               4,
+               4,
+               4,
+               3
+            ]
+         }
+      },
+      "instance_3":{
+         "true_labels_distribution":"Counter({0: 8, 1: 7})",
+         "predicted_labels_distribution":"Counter({1: 8, 0: 7})",
+         "metrics":{
+            "AUC":0.5357142857142857,
+            "TPR":0.57142857,
+            "FPR":0.5,
+            "FNR":0.42857143,
+            "TNR":0.5,
+            "acc":0.53333333,
+            "confusion_matrix":[
+               4,
+               4,
+               3,
+               4
+            ]
+         }
+      },
+      "instance_4":{
+         "true_labels_distribution":"Counter({0: 8, 1: 7})",
+         "predicted_labels_distribution":"Counter({1: 11, 0: 4})",
+         "metrics":{
+            "AUC":0.48214285714285715,
+            "TPR":0.71428571,
+            "FPR":0.75,
+            "FNR":0.28571429,
+            "TNR":0.25,
+            "acc":0.46666667,
+            "confusion_matrix":[
+               2,
+               6,
+               2,
+               5
+            ]
+         }
+      }
+   },
+   "model":"RandomForestClassifier",
+   "model_params":{
+      "bootstrap":true,
+      "ccp_alpha":0.0,
+      "class_weight":null,
+      "criterion":"gini",
+      "max_depth":null,
+      "max_features":"sqrt",
+      "max_leaf_nodes":null,
+      "max_samples":null,
+      "min_impurity_decrease":0.0,
+      "min_samples_leaf":1,
+      "min_samples_split":2,
+      "min_weight_fraction_leaf":0.0,
+      "n_estimators":100,
+      "n_jobs":null,
+      "oob_score":false,
+      "random_state":null,
+      "verbose":0,
+      "warm_start":false
+   }
+}
