@@ -6,16 +6,20 @@ import json
 from collections import Counter
 import numpy as np
 import sys
+import pickle
 
 class DataLogger:
-    def __init__(self, attack_type=None, attack_type_version=None):
+    def __init__(self, model_filename=None, data_filename=None, attack_type=None, attack_type_version=None, fail_fast_threshold=None):
 
         self.log = {}
 
         self.log['log_id'] = random.randint(1,100)
         self.log['timestamp'] = str(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        self.log['model_filename'] = model_filename
+        self.log['data_filename'] = data_filename
         self.log['attack_type'] = attack_type
         self.log['attack_type_version'] = attack_type_version
+        self.log['fail_fast_threshold'] = fail_fast_threshold
 
         self.log['attack_instance_logger'] = {}
 
@@ -24,7 +28,7 @@ class DataLogger:
         return log_json
 
     def generate_metrics(self):
-        keys = ['True labels distribution','Predicted labels distribution','metrics_array']
+        keys = ['true_labels_distribution','predicted_labels_distribution','metrics']
 
         metrics_dict = {}
         for k in keys:
@@ -33,18 +37,20 @@ class DataLogger:
         return metrics_dict
     
     def log_metrics(self, y_true, y_pred):
-        self.log['True labels distribution'] = str(Counter(y_true))
-        self.log['Predicted labels distribution'] = str(Counter(y_pred))
+        self.log['true_labels_distribution'] = str(Counter(y_true))
+        self.log['predicted_labels_distribution'] = str(Counter(y_pred))
 
         tn, fp, fn, tp = metrics.confusion_matrix(y_true, y_pred).ravel()
-        metrics_list = []
-        metrics_list.append(metrics.roc_auc_score(y_true, y_pred))
-        metrics_list.append(round(float(tp / (tp + fn)), 8))
-        metrics_list.append(round(float(fp / (fp + tn)), 8))
-        metrics_list.append(round(float(tn / (tn + fp)), 8))
-        metrics_list.append(round(float((tp + tn) / (tp + fp + fn + tn)), 8))
+        metrics_dict = {}
+        metrics_dict['AUC'] = (metrics.roc_auc_score(y_true, y_pred))
+        metrics_dict["TPR"] = round(float(tp / (tp + fn)), 8)
+        metrics_dict["FPR"] = round(float(fp / (fp + tn)), 8)
+        metrics_dict["FNR"] = round(float(fn / (tp + fn)), 8)
+        metrics_dict["TNR"] = round(float(tn / (tn + fp)), 8)
+        metrics_dict['acc'] = (round(float((tp + tn) / (tp + fp + fn + tn)), 8))
+        metrics_dict['confusion_matrix'] = [int(tn), int(fp), int(fn), int(tp)]
 
-        self.log['metrics_array'] = metrics_list
+        self.log['metrics'] = metrics_dict
         # will call metrics.py from within attacks
 
     def log_model(self,clf):
@@ -66,15 +72,16 @@ class DataLogger:
 
 
 if __name__ == '__main__':
-    print("Hello World!")
+    model_filename = "rf_model.sav"
+    data_filename = "data.csv"
     
-    d = DataLogger(attack_type='worst_case',attack_type_version='not_supported')
+    d = DataLogger(model_filename=model_filename, data_filename=data_filename, attack_type='worst_case',attack_type_version='not_supported')
     
-    rf = RandomForestClassifier()
+    rf = pickle.load(open(model_filename,'rb'))
     d.log_model(rf)
 
     dummy_y_true = [1,0,0,1,0,1,1,0,1,0,0,0,1,1,0]
-    for i in range(10):
+    for i in range(4):
         dummy_y_pred = np.random.choice([0,1], size=len(dummy_y_true))
         d.log_instance(dummy_y_true, dummy_y_pred)
 
