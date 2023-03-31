@@ -9,5 +9,15 @@ attack_instance_logger: a list of dictionaries - each time an attack is run, par
     true_labels_distribution: count of how many of each class there are in the 'real' labels
     predicted_labels_distribution: count of how many of each class there are in the predicted labels
     metrics: comes from metrics.py
+attack_metric_success_summary: 
+	params:
+		metric_name: name of the metric
+		metric_succ_thresh: threshold for a metric to compare
+		comp_type: type of comparison (based on relational operators such as gt, gte, lt, lte etc)
+		fail_fast: true value will force to stop further attack repetitions based on success_count_thresh value
+		success_count_thresh: threshold counter for attack being successful
+	output:
+		success_count: attack being successful across repetitions
+		fail_count: attack not being successful across repetitions    
 model: class name of model under attack
 model_params: model parameters - comes directly from the model (unprocessed)
