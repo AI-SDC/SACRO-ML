@@ -80,6 +80,19 @@
          }
       }
    },
+   "attack_metrics_success_summary":{
+	  "params":{
+		 "metric_name": "AUC",
+		 "metric_sucess_thresh": 0.6,
+		 "comp_type": "gte",
+		 "fail_fast": true,
+		 "success_count_thresh": 5		 
+	  },
+	  "output":{
+		 "success_count": 5,
+	     "fail_count": 2
+	  }		  
+   },	   	   
    "model":"RandomForestClassifier",
    "model_params":{
       "bootstrap":true,
