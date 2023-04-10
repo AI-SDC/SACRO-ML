@@ -8,13 +8,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+import uuid
 from collections.abc import Hashable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
 import sklearn
-import uuid
-from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -27,6 +27,7 @@ from aisdc.attacks.failfast import FailFast
 logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
+
 
 class WorstCaseAttackArgs:
     """Arguments for worst case"""
@@ -51,11 +52,11 @@ class WorstCaseAttackArgs:
             "min_samples_leaf": 10,
             "max_depth": 5,
         }
-        self.__dict__["attack_metric_success_name"] = 'AUC'
-        self.__dict__["attack_metric_success_thresh"] = 0.6 
-        self.__dict__["attack_metric_success_comp_type"] = "gte"        
-        self.__dict__["attack_metric_success_count_thresh"] = 5 
-        self.__dict__["attack_fail_fast"] = True        
+        self.__dict__["attack_metric_success_name"] = "AUC"
+        self.__dict__["attack_metric_success_thresh"] = 0.6
+        self.__dict__["attack_metric_success_comp_type"] = "gte"
+        self.__dict__["attack_metric_success_count_thresh"] = 5
+        self.__dict__["attack_fail_fast"] = True
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -156,7 +157,9 @@ class WorstCaseAttack(Attack):
             test_correct=test_correct,
         )
         self.attack_metrics = attack_metric_dict["mia_metrics"]
-        self.attack_metric_failfast_summary = attack_metric_dict["failfast_metric_summary"]
+        self.attack_metric_failfast_summary = attack_metric_dict[
+            "failfast_metric_summary"
+        ]
 
         if self.args.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
@@ -168,13 +171,19 @@ class WorstCaseAttack(Attack):
                 d_train_preds, d_test_preds = self.generate_arrays(
                     n_train_rows, n_test_rows, self.args.train_beta, self.args.test_beta
                 )
-                temp_attack_metric_dict = self.run_attack_reps(d_train_preds, d_test_preds)
+                temp_attack_metric_dict = self.run_attack_reps(
+                    d_train_preds, d_test_preds
+                )
                 temp_metrics = temp_attack_metric_dict["mia_metrics"]
-                temp_metric_failfast_summary = temp_attack_metric_dict["failfast_metric_summary"]
-                
-                self.dummy_attack_metrics.append(temp_metrics)                
-                self.dummy_attack_metric_failfast_summary.append(temp_metric_failfast_summary)                
-                
+                temp_metric_failfast_summary = temp_attack_metric_dict[
+                    "failfast_metric_summary"
+                ]
+
+                self.dummy_attack_metrics.append(temp_metrics)
+                self.dummy_attack_metric_failfast_summary.append(
+                    temp_metric_failfast_summary
+                )
+
         logger.info("Finished running attacks")
 
     def _prepare_attack_data(
@@ -225,8 +234,8 @@ class WorstCaseAttack(Attack):
         Returns
         -------
         mia_metrics_dict: dict
-            a dictionary with two items including mia_metrics (a list of metric across repetitions) and 
-            failfast_metric_summary object (an object of FailFast class) to maintain summary of fail/success of attacks for a given metric of failfast option                
+            a dictionary with two items including mia_metrics (a list of metric across repetitions) and
+            failfast_metric_summary object (an object of FailFast class) to maintain summary of fail/success of attacks for a given metric of failfast option
         """
         self.args.set_param("n_rows_in", len(train_preds))
         self.args.set_param("n_rows_out", len(test_preds))
@@ -236,8 +245,12 @@ class WorstCaseAttack(Attack):
         )
 
         mia_metrics = []
-        
-        failfast_metric_summary = FailFast(self.args.attack_metric_success_name, self.args.attack_metric_success_thresh, self.args.attack_metric_success_comp_type)
+
+        failfast_metric_summary = FailFast(
+            self.args.attack_metric_success_name,
+            self.args.attack_metric_success_thresh,
+            self.args.attack_metric_success_comp_type,
+        )
 
         for rep in range(self.args.n_reps):
             logger.info("Rep %d of %d", rep + 1, self.args.n_reps)
@@ -262,19 +275,22 @@ class WorstCaseAttack(Attack):
                 mia_metrics[-1]["yeom_advantage"] = (
                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
                 )
-            
+
             failfast_metric_summary.check_attack_success(mia_metrics[rep])
-                        
-            if failfast_metric_summary.get_success_count() >= self.args.attack_metric_success_count_thresh:                
+
+            if (
+                failfast_metric_summary.get_success_count()
+                >= self.args.attack_metric_success_count_thresh
+            ):
                 if self.args.attack_fail_fast:
                     break
-          
+
         logger.info("Finished simulating attacks")
-                
-        mia_metrics_dict={}
-        mia_metrics_dict["mia_metrics"]=mia_metrics
-        mia_metrics_dict["failfast_metric_summary"]=failfast_metric_summary
-        
+
+        mia_metrics_dict = {}
+        mia_metrics_dict["mia_metrics"] = mia_metrics
+        mia_metrics_dict["failfast_metric_summary"] = failfast_metric_summary
+
         return mia_metrics_dict
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
@@ -450,62 +466,74 @@ class WorstCaseAttack(Attack):
         self.metadata["attack"] = str(self)
 
         # Global metrics
-        self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)        
+        self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
         self.metadata["baseline_global_metrics"] = self._get_global_metrics(
             self._unpack_dummy_attack_metrics_experiments_instances()
-        ) 
-    
+        )
+
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_instances = []
-                
+
         for exp_rep in range(len(self.dummy_attack_metrics)):
-            temp_dummy_attack_metrics=self.dummy_attack_metrics[exp_rep]            
-            dummy_attack_metrics_instances += temp_dummy_attack_metrics            
-                
-        return dummy_attack_metrics_instances    
+            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
+            dummy_attack_metrics_instances += temp_dummy_attack_metrics
+
+        return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
-        
+
         for rep in range(len(self.attack_metrics)):
-            attack_metrics_instances["instance_" + str(rep+1)] = self.attack_metrics[rep]            
-        
-        attack_metrics_experiment['attack_instance_logger']=attack_metrics_instances
-        attack_metrics_experiment['attack_metric_failfast_summary']= self.attack_metric_failfast_summary.get_attack_summary()
+            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+                rep
+            ]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        attack_metrics_experiment[
+            "attack_metric_failfast_summary"
+        ] = self.attack_metric_failfast_summary.get_attack_summary()
 
         return attack_metrics_experiment
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_experiments = {}
-                
+
         for exp_rep in range(len(self.dummy_attack_metrics)):
-            temp_dummy_attack_metrics=self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metric_instances = {}            
+            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
+            dummy_attack_metric_instances = {}
             for rep in range(len(temp_dummy_attack_metrics)):
-                dummy_attack_metric_instances["instance_" + str(rep+1)] = temp_dummy_attack_metrics[rep]
-            temp={}
-            temp["attack_instance_logger"] = dummy_attack_metric_instances 
-            temp["attack_metric_failfast_summary"] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
-            dummy_attack_metrics_experiments["dummy_attack_metrics_experiment_" + str(exp_rep+1)]=temp
-          
+                dummy_attack_metric_instances[
+                    "instance_" + str(rep + 1)
+                ] = temp_dummy_attack_metrics[rep]
+            temp = {}
+            temp["attack_instance_logger"] = dummy_attack_metric_instances
+            temp[
+                "attack_metric_failfast_summary"
+            ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
+            dummy_attack_metrics_experiments[
+                "dummy_attack_metrics_experiment_" + str(exp_rep + 1)
+            ] = temp
+
         return dummy_attack_metrics_experiments
 
     def make_report(self) -> dict:
         """Creates output dictionary structure"""
         output = {}
-        output["log_id"]=str(uuid.uuid4())
-        output["log_time"]=datetime.now().strftime("%d/%m/%Y %H:%M:%S")      
-        
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
         self._construct_metadata()
         output["metadata"] = self.metadata
 
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        output["dummy_attack_experiments_logger"] = self._get_dummy_attack_metrics_experiments_instances()
-        
+        output[
+            "dummy_attack_experiments_logger"
+        ] = self._get_dummy_attack_metrics_experiments_instances()
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
@@ -533,12 +561,14 @@ def _run_attack(args):
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
 
+
 def parse_boolean_argument(value):
-    value=value.lower()
+    value = value.lower()
     if value in ["true"]:
         return True
     else:
         return False
+
 
 def main():
     """main method to parse arguments and invoke relevant method"""
@@ -723,7 +753,6 @@ def main():
         ),
     )
 
-    
     # Not currently possible from the command line as we cannot compute the correctness
     # of predictions. Possibly to be added in the future
     # attack_parser.add_argument(
@@ -759,7 +788,9 @@ def main():
         default="AUC",
         required=False,
         dest="attack_metric_success_name",
-        help=("for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"),
+        help=(
+            "for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"
+        ),
     )
 
     attack_parser.add_argument(
@@ -769,7 +800,9 @@ def main():
         default=0.8,
         required=False,
         dest="attack_metric_success_thresh",
-        help=("for defining threshold value to measure failing for the metric defined by parameter fail-metric-name option. Default = %(default)f"),
+        help=(
+            "for defining threshold value to measure failing for the metric defined by parameter fail-metric-name option. Default = %(default)f"
+        ),
     )
 
     attack_parser.add_argument(
@@ -779,7 +812,9 @@ def main():
         default="gte",
         required=False,
         dest="attack_metric_success_comp_type",
-        help=("for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"),
+        help=(
+            "for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"
+        ),
     )
 
     attack_parser.add_argument(
@@ -789,17 +824,21 @@ def main():
         default=5,
         required=False,
         dest="attack_metric_success_count_thresh",
-        help=("for defining counter to stop further repetitions value when the given metric has passed through a threshold. Default = %(default)d"),
+        help=(
+            "for defining counter to stop further repetitions value when the given metric has passed through a threshold. Default = %(default)d"
+        ),
     )
 
     attack_parser.add_argument(
         "--attack-fail-fast",
         action="store",
-        type=parse_boolean_argument,        
+        type=parse_boolean_argument,
         default=True,
         required=False,
         dest="attack_fail_fast",
-        help=("to stop further repetitions value when the given metric has passed through a threshold at certain number of times and this has a true status. Default = %(default)s"),
+        help=(
+            "to stop further repetitions value when the given metric has passed through a threshold at certain number of times and this has a true status. Default = %(default)s"
+        ),
     )
 
     attack_parser.set_defaults(func=_run_attack)
