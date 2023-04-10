@@ -149,7 +149,7 @@ class WorstCaseAttack(Attack):
         """
         logger = logging.getLogger("attack-from-preds")
         logger.info("Running main attack repetitions")
-        self.attack_metrics = self.run_attack_reps(
+        attack_metric_dict = self.run_attack_reps(
             train_preds,
             test_preds,
             train_correct=train_correct,

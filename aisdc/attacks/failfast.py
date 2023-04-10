@@ -11,8 +11,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.fail_count = 0        
 
     def check_attack_success(self, metric_dict):        
-        metric_value = metric_dict[self.metric_name]
-        print(self.metric_name)
+        metric_value = metric_dict[self.metric_name]        
         success_status=False
         if self.comp_type == 'lt':
             if metric_value < self.metric_success_thresh:
