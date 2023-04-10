@@ -65,10 +65,18 @@ args = worst_case_attack.WorstCaseAttackArgs(
     out_sample_filename=None,
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
-    # Report name is None - don't make json or pdf files
-    report_name=None,
-    # AUC threshold computed on attack is important to support fast fail
-    auc_fail_thresh=0.8,
+    # If Report name is given so it creates Json file; however when it is None - don't make json file
+    report_name='Programmatic_example_report_risky',
+    # Setting the name of metric to compute failures
+    attack_metric_success_name = 'AUC',
+    # threshold for a given metric for failure/success counters
+    attack_metric_success_thresh = 0.6, 
+    # threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte: less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
+    attack_metric_success_comp_type = "gte",    
+    # fail fast counter to stop further repetitions of the test
+    attack_metric_success_count_thresh = 2,
+    # If true it stop repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
+    attack_fail_fast = True,  
 )
 
 # [TRE / Researcher] Wrap the data in a dataset object
@@ -164,7 +172,11 @@ os.system(
     "--test-prop 0.1 "
     "--train-beta 5 "
     "--test-beta 2 "
-    "--auc-fail-thresh 0.8 "
+    "--attack-metric-success-name AUC "    
+    "--attack-metric-success-thresh 0.6 "    
+    "--attack-metric-success-comp-type gte "
+    "--attack-metric-success-count-thresh 2 "
+    "--attack-fail-fast True "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
