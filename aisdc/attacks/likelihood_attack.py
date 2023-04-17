@@ -20,7 +20,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks import metrics, report
+from aisdc import metrics
+from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
 from aisdc.attacks.dataset import Data
 
@@ -333,8 +334,10 @@ class LIRAAttack(Attack):
 
         mia_clf = DummyClassifier()
         logger.info("Finished scenario")
+
+        y_pred_proba, y_test = metrics.get_probabilities(mia_clf, np.array(mia_scores), np.array(mia_labels), permute_rows=True)
         self.attack_metrics = [
-            metrics.get_metrics(mia_clf, np.array(mia_scores), np.array(mia_labels))
+            metrics.get_metrics(y_pred_proba, y_test)
         ]
 
     def example(self) -> None:  # pylint: disable = too-many-locals

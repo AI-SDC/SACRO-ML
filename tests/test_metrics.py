@@ -6,8 +6,7 @@ import unittest
 
 import numpy as np
 
-from aisdc.attacks.metrics import _div, _tpr_at_fpr, get_metrics
-from aisdc.attacks.mia_extremecase import min_max_disc
+from aisdc.metrics import _div, _tpr_at_fpr, get_metrics, min_max_disc, get_probabilites
 
 # pylint: disable = invalid-name
 
@@ -48,7 +47,8 @@ class TestMetrics(unittest.TestCase):
         clf = DummyClassifier()
         testX = []
         testy = TRUE_CLASS
-        metrics = get_metrics(clf, testX, testy, permute_rows=False)
+        y_pred_proba = get_probabilites(clf, testX, testy, permute_rows=False)
+        metrics = get_metrics(y_pred_proba, testy)
         self.assertAlmostEqual(metrics["TPR"], 2 / 3)
         self.assertAlmostEqual(metrics["FPR"], 1 / 3)
         self.assertAlmostEqual(metrics["FAR"], 1 / 3)
