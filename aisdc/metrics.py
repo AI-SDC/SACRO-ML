@@ -15,6 +15,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
 VAR_THRESH = 1e-2
 
+
 def min_max_disc(
     y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
 ) -> tuple[float, float, float, float]:  # pylint: disable = line-too-long
@@ -93,6 +94,7 @@ def min_max_disc(
     # Return
     return maxd, mind, mmd, pval
 
+
 def _tpr_at_fpr(
     y_true: Iterable[float],
     y_score: Iterable[float],
@@ -131,6 +133,7 @@ def _tpr_at_fpr(
     tpr = tpr_from_thresh(thresh)
 
     return tpr
+
 
 def _div(x: float, y: float, default: float) -> float:
     """Solve the problem of division by 0 and round up.
@@ -249,13 +252,10 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     auc_p = 1 - norm.cdf(auc, loc=0.5, scale=auc_std)
     return auc_p, auc_std
 
+
 def get_probabilities(  # pylint: disable=too-many-locals
-    clf,
-    X_test: np.ndarray,
-    y_test: np.ndarray = [],
-    permute_rows: bool = None
+    clf, X_test: np.ndarray, y_test: np.ndarray = [], permute_rows: bool = None
 ):
-  
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
     each data sample in probability format
@@ -272,7 +272,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     Returns
     -------
     y_pred_proba: a list of probabilities for each sample in the dataset
-    
+
     Notes
     -----
     If permute_rows is set to true, y_test must also be supplied.
@@ -280,7 +280,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     """
 
     if permute_rows == True and len(y_test) == 0:
-        raise ValueError ("If permute_rows is set to True, y_test must be supplied")
+        raise ValueError("If permute_rows is set to True, y_test must be supplied")
 
     if permute_rows:
         N, _ = X_test.shape
@@ -289,19 +289,20 @@ def get_probabilities(  # pylint: disable=too-many-locals
         ).permutation(N)
         X_test = X_test[order, :]
         y_test = y_test[order]
-    
+
     y_pred_proba = clf.predict_proba(X_test)
-    
+
     if permute_rows == True:
         return y_pred_proba, y_test
     return y_pred_proba
 
-def get_metrics(  # pylint: disable=too-many-locals
-    y_pred_proba: np.ndarray,
-    y_test: np.ndarray
-):
 
-    invalid_format_error_message = "y_pred must be an array of shape [x,2] with elements of type float"
+def get_metrics(  # pylint: disable=too-many-locals
+    y_pred_proba: np.ndarray, y_test: np.ndarray
+):
+    invalid_format_error_message = (
+        "y_pred must be an array of shape [x,2] with elements of type float"
+    )
 
     shape = y_pred_proba.shape
     if len(shape) != 2:
@@ -309,9 +310,9 @@ def get_metrics(  # pylint: disable=too-many-locals
     else:
         if shape[1] != 2:
             raise ValueError("Multiclass classification is not supported")
-            
+
     try:
-        user_num = float(y_pred_proba[-1,-1])
+        user_num = float(y_pred_proba[-1, -1])
     except ValueError:
         print(invalid_format_error_message)
 
@@ -351,7 +352,7 @@ def get_metrics(  # pylint: disable=too-many-locals
     """
     metrics = {}
 
-    y_pred = np.argmax(y_pred_proba,axis=1)
+    y_pred = np.argmax(y_pred_proba, axis=1)
     y_pred_proba = y_pred_proba[:, 1]
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()

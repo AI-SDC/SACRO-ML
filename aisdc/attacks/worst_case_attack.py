@@ -228,11 +228,11 @@ class WorstCaseAttack(Attack):
                 **self.args.mia_attack_model_hyp
             )
             attack_classifier.fit(mi_train_x, mi_train_y)
-            y_pred_proba, y_test = metrics.get_probabilities(attack_classifier, mi_test_x, mi_test_y,permute_rows=True)
-
-            mia_metrics.append(
-                metrics.get_metrics(y_pred_proba, y_test)
+            y_pred_proba, y_test = metrics.get_probabilities(
+                attack_classifier, mi_test_x, mi_test_y, permute_rows=True
             )
+
+            mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
 
             if self.args.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
