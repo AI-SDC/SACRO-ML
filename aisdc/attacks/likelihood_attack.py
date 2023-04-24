@@ -169,7 +169,7 @@ class LIRAAttack(Attack):
 
         return dataset
 
-    def run_scenario_from_preds(  # pylint: disable = too-many-statements
+    def run_scenario_from_preds(  # pylint: disable = too-many-statements, line-too-long
         self,
         shadow_clf: sklearn.base.BaseEstimator,
         X_target_train: Iterable[float],
@@ -335,7 +335,9 @@ class LIRAAttack(Attack):
         mia_clf = DummyClassifier()
         logger.info("Finished scenario")
 
-        y_pred_proba, y_test = metrics.get_probabilities(mia_clf, np.array(mia_scores), np.array(mia_labels), permute_rows=True)
+        mia_scores = np.array(mia_scores)
+        mia_labels = np.array(mia_labels)
+        y_pred_proba, y_test = metrics.get_probabilities(mia_clf, mia_scores, mia_labels, permute_rows=True)
         self.attack_metrics = [
             metrics.get_metrics(y_pred_proba, y_test)
         ]

@@ -252,10 +252,9 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
 def get_probabilities(  # pylint: disable=too-many-locals
     clf,
     X_test: np.ndarray,
-    y_test: np.ndarray = [],
+    y_test: np.ndarray,
     permute_rows: bool = None
 ):
-  
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
     each data sample in probability format
@@ -279,7 +278,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     The function will then return both the predicted probabilities and corresponding y_test
     """
 
-    if permute_rows == True and len(y_test) == 0:
+    if permute_rows is True and len(y_test) == 0:
         raise ValueError ("If permute_rows is set to True, y_test must be supplied")
 
     if permute_rows:
@@ -289,32 +288,17 @@ def get_probabilities(  # pylint: disable=too-many-locals
         ).permutation(N)
         X_test = X_test[order, :]
         y_test = y_test[order]
-    
+
     y_pred_proba = clf.predict_proba(X_test)
-    
-    if permute_rows == True:
+
+    if permute_rows is True:
         return y_pred_proba, y_test
     return y_pred_proba
 
-def get_metrics(  # pylint: disable=too-many-locals
+def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     y_pred_proba: np.ndarray,
     y_test: np.ndarray
 ):
-
-    invalid_format_error_message = "y_pred must be an array of shape [x,2] with elements of type float"
-
-    shape = y_pred_proba.shape
-    if len(shape) != 2:
-        raise ValueError(invalid_format_error_message)
-    else:
-        if shape[1] != 2:
-            raise ValueError("Multiclass classification is not supported")
-            
-    try:
-        user_num = float(y_pred_proba[-1,-1])
-    except ValueError:
-        print(invalid_format_error_message)
-
     """
     Calculate metrics, including attacker advantage for MIA binary.
     Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
@@ -349,6 +333,21 @@ def get_metrics(  # pylint: disable=too-many-locals
     * F1 Score - harmonic mean of precision and recall.
     * Advantage.
     """
+
+    invalid_format = "y_pred must be an array of shape [x,2] with elements of type float"
+
+    shape = y_pred_proba.shape
+    if len(shape) != 2:
+        raise ValueError(invalid_format)
+
+    if shape[1] != 2:
+        raise ValueError("Multiclass classification is not supported")
+
+    try:
+        _ = float(y_pred_proba[-1,-1])
+    except ValueError:
+        print(invalid_format)
+
     metrics = {}
 
     y_pred = np.argmax(y_pred_proba,axis=1)
