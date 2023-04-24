@@ -6,6 +6,8 @@ in code in the attacks folder
 import numpy as np
 from fpdf import FPDF
 
+import pytest
+
 from aisdc.attacks import attack, dataset, report
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
