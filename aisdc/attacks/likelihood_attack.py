@@ -337,10 +337,10 @@ class LIRAAttack(Attack):
 
         mia_scores = np.array(mia_scores)
         mia_labels = np.array(mia_labels)
-        y_pred_proba, y_test = metrics.get_probabilities(mia_clf, mia_scores, mia_labels, permute_rows=True)
-        self.attack_metrics = [
-            metrics.get_metrics(y_pred_proba, y_test)
-        ]
+        y_pred_proba, y_test = metrics.get_probabilities(
+            mia_clf, mia_scores, mia_labels, permute_rows=True
+        )
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
 
     def example(self) -> None:  # pylint: disable = too-many-locals
         """Runs an example attack using data from sklearn

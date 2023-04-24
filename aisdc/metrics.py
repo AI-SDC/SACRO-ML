@@ -254,10 +254,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
 
 
 def get_probabilities(  # pylint: disable=too-many-locals
-    clf,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    permute_rows: bool = None
+    clf, X_test: np.ndarray, y_test: np.ndarray, permute_rows: bool = None
 ):
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
@@ -283,7 +280,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     """
 
     if permute_rows is True and len(y_test) == 0:
-        raise ValueError ("If permute_rows is set to True, y_test must be supplied")
+        raise ValueError("If permute_rows is set to True, y_test must be supplied")
 
     if permute_rows:
         N, _ = X_test.shape
@@ -299,9 +296,9 @@ def get_probabilities(  # pylint: disable=too-many-locals
         return y_pred_proba, y_test
     return y_pred_proba
 
+
 def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
-    y_pred_proba: np.ndarray,
-    y_test: np.ndarray
+    y_pred_proba: np.ndarray, y_test: np.ndarray
 ):
     """
     Calculate metrics, including attacker advantage for MIA binary.
@@ -338,7 +335,9 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     * Advantage.
     """
 
-    invalid_format = "y_pred must be an array of shape [x,2] with elements of type float"
+    invalid_format = (
+        "y_pred must be an array of shape [x,2] with elements of type float"
+    )
 
     shape = y_pred_proba.shape
     if len(shape) != 2:
@@ -348,7 +347,7 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
         raise ValueError("Multiclass classification is not supported")
 
     try:
-        _ = float(y_pred_proba[-1,-1])
+        _ = float(y_pred_proba[-1, -1])
     except ValueError:
         print(invalid_format)
 
