@@ -2,14 +2,11 @@
 tests to pick up odd cases not otherwise covered
 in code in the attacks folder
 """
-import math
 
 import numpy as np
-import pytest
 from fpdf import FPDF
 
 from aisdc.attacks import attack, dataset, report
-from aisdc.metrics import min_max_disc
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 BORDER = 0

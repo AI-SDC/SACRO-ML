@@ -2,11 +2,12 @@
 Test the metrics
 """
 
+import math
+
 import unittest
 import pytest
 
 import numpy as np
-import math
 
 from aisdc.metrics import (
     _div,
@@ -88,7 +89,8 @@ class TestProbabilities(unittest.TestCase):
 
     def test_permute_rows_errors(self):
         """
-        Test to make sure an error is thrown when permute_rows is set to True, but no y_test is supplied
+        Test to make sure an error is thrown when permute_rows is set to True,
+        but no y_test is supplied
         """
         clf = DummyClassifier()
         testX = []
