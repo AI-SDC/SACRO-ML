@@ -27,7 +27,7 @@ def test_superclass():
 
 
 def test_mia_extremecase():
-    """test the extreme case mia in the file of the same name"""
+    """test the extreme case mia in metrics.py"""
 
     # create actual values
     y = np.zeros(50000)
