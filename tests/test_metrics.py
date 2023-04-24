@@ -6,7 +6,13 @@ import unittest
 
 import numpy as np
 
-from aisdc.metrics import _div, _tpr_at_fpr, get_metrics, get_probabilities, min_max_disc
+from aisdc.metrics import (
+    _div,
+    _tpr_at_fpr,
+    get_metrics,
+    get_probabilities,
+    min_max_disc,
+)
 
 # pylint: disable = invalid-name
 
