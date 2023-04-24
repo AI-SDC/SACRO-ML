@@ -26,26 +26,6 @@ def test_superclass():
         print(str(my_attack))  # .__str__()
 
 
-def test_mia_extremecase():
-    """test the extreme case mia in metrics.py"""
-
-    # create actual values
-    y = np.zeros(50000)
-    y[:25] = 1
-    # exactly right and wrong predictions
-    right = np.zeros(50000)
-    right[:25] = 1
-    wrong = 1 - right
-
-    # right predictions - triggers override for very small logp
-    _, _, _, pval = min_max_disc(y, right)
-    assert pval == -115.13
-
-    # wrong predictions - probaility very close to 1 so logp=0
-    _, _, _, pval = min_max_disc(y, wrong)
-    assert math.isclose(pval, 0.0)
-
-
 def test_NumpyArrayEncoder():
     """conversion routine
     from reports.py

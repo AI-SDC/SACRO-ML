@@ -254,7 +254,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
 
 
 def get_probabilities(  # pylint: disable=too-many-locals
-    clf, X_test: np.ndarray, y_test: np.ndarray, permute_rows: bool = None
+    clf, X_test: np.ndarray, y_test: np.ndarray = None, permute_rows: bool = None
 ):
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
@@ -279,7 +279,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     The function will then return both the predicted probabilities and corresponding y_test
     """
 
-    if permute_rows is True and len(y_test) == 0:
+    if permute_rows is True and y_test is None:
         raise ValueError("If permute_rows is set to True, y_test must be supplied")
 
     if permute_rows:
@@ -345,11 +345,6 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
 
     if shape[1] != 2:
         raise ValueError("Multiclass classification is not supported")
-
-    try:
-        _ = float(y_pred_proba[-1, -1])
-    except ValueError:
-        print(invalid_format)
 
     metrics = {}
 
