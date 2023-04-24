@@ -8,7 +8,8 @@ import numpy as np
 import pytest
 from fpdf import FPDF
 
-from aisdc.attacks import attack, dataset, mia_extremecase, report
+from aisdc.attacks import attack, dataset, report
+from aisdc.metrics import min_max_disc
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 BORDER = 0
@@ -37,11 +38,11 @@ def test_mia_extremecase():
     wrong = 1 - right
 
     # right predictions - triggers override for very small logp
-    _, _, _, pval = mia_extremecase.min_max_disc(y, right)
+    _, _, _, pval = min_max_disc(y, right)
     assert pval == -115.13
 
     # wrong predictions - probaility very close to 1 so logp=0
-    _, _, _, pval = mia_extremecase.min_max_disc(y, wrong)
+    _, _, _, pval = min_max_disc(y, wrong)
     assert math.isclose(pval, 0.0)
 
 
