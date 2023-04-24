@@ -3,9 +3,7 @@ Test the metrics
 """
 
 import math
-
 import unittest
-import pytest
 
 import numpy as np
 
@@ -60,7 +58,7 @@ class TestInputExceptions(unittest.TestCase):
         """
         y_test = self._create_fake_test_data()
         with pytest.raises(ValueError):
-            y_pred_proba = np.zeros((4,2,2))
+            y_pred_proba = np.zeros((4, 2, 2))
             get_metrics(y_pred_proba, y_test)
 
     def test_wrong_size(self):
@@ -69,7 +67,7 @@ class TestInputExceptions(unittest.TestCase):
         """
         y_test = self._create_fake_test_data()
         with pytest.raises(ValueError):
-            y_pred_proba = np.zeros((4,4))
+            y_pred_proba = np.zeros((4, 4))
             get_metrics(y_pred_proba, y_test)
 
     def test_valid_input(self):
@@ -77,7 +75,7 @@ class TestInputExceptions(unittest.TestCase):
         Test to make sure a valid array does not throw an exception
         """
         y_test = self._create_fake_test_data()
-        y_pred_proba = np.zeros((4,2))
+        y_pred_proba = np.zeros((4, 2))
 
         get_metrics(y_pred_proba, y_test)
 
@@ -104,8 +102,8 @@ class TestProbabilities(unittest.TestCase):
         """
 
         clf = DummyClassifier()
-        testX = np.zeros((4,2))
-        testY = np.zeros((4,2))
+        testX = np.zeros((4, 2))
+        testY = np.zeros((4, 2))
 
         get_probabilities(clf, testX, testY, permute_rows=True)
 
@@ -115,9 +113,10 @@ class TestProbabilities(unittest.TestCase):
         """
 
         clf = DummyClassifier()
-        testX = np.zeros((4,2))
+        testX = np.zeros((4, 2))
 
         get_probabilities(clf, testX, permute_rows=False)
+
 
 class TestMetrics(unittest.TestCase):
     """
