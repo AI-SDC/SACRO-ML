@@ -15,6 +15,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
 VAR_THRESH = 1e-2
 
+
 def min_max_disc(
     y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
 ) -> tuple[float, float, float, float]:  # pylint: disable = line-too-long
@@ -93,6 +94,7 @@ def min_max_disc(
     # Return
     return maxd, mind, mmd, pval
 
+
 def _tpr_at_fpr(
     y_true: Iterable[float],
     y_score: Iterable[float],
@@ -131,6 +133,7 @@ def _tpr_at_fpr(
     tpr = tpr_from_thresh(thresh)
 
     return tpr
+
 
 def _div(x: float, y: float, default: float) -> float:
     """Solve the problem of division by 0 and round up.
@@ -249,6 +252,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     auc_p = 1 - norm.cdf(auc, loc=0.5, scale=auc_std)
     return auc_p, auc_std
 
+
 def get_probabilities(  # pylint: disable=too-many-locals
     clf,
     X_test: np.ndarray,
@@ -271,7 +275,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     Returns
     -------
     y_pred_proba: a list of probabilities for each sample in the dataset
-    
+
     Notes
     -----
     If permute_rows is set to true, y_test must also be supplied.
@@ -350,7 +354,7 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
 
     metrics = {}
 
-    y_pred = np.argmax(y_pred_proba,axis=1)
+    y_pred = np.argmax(y_pred_proba, axis=1)
     y_pred_proba = y_pred_proba[:, 1]
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
