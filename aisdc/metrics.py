@@ -15,6 +15,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
 VAR_THRESH = 1e-2
 
+
 def _div(x: float, y: float, default: float) -> float:
     """Solve the problem of division by 0 and round up.
     If y is non-zero, perform x/y and round to 8dp. If it is zero, return the default
@@ -107,6 +108,7 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
     ) / (num_pos * num_neg)
     return var
 
+
 def min_max_disc(
     y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
 ) -> tuple[float, float, float, float]:  # pylint: disable = line-too-long
@@ -184,6 +186,7 @@ def min_max_disc(
 
     # Return
     return maxd, mind, mmd, pval
+
 
 def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     """Compute the p-value for a given AUC
