@@ -5,6 +5,8 @@ Test the metrics
 import math
 import unittest
 
+import pytest
+
 import numpy as np
 
 from aisdc.metrics import (
