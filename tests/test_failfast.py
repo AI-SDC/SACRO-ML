@@ -32,7 +32,7 @@ def test_parse_boolean_argument():
     args = worst_case_attack.WorstCaseAttackArgs(
         attack_metric_success_name="AUC",
         attack_metric_success_thresh=0.6,
-        attack_metric_success_comp_type="lte",
+        attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
     assert failfast_Obj.check_attack_success(metrics) is False
@@ -41,7 +41,7 @@ def test_parse_boolean_argument():
     args = worst_case_attack.WorstCaseAttackArgs(
         attack_metric_success_name="AUC",
         attack_metric_success_thresh=0.99,
-        attack_metric_success_comp_type="lte",
+        attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
     assert failfast_Obj.check_attack_success(metrics) is True
