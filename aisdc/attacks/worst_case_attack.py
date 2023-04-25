@@ -234,8 +234,10 @@ class WorstCaseAttack(Attack):
         Returns
         -------
         mia_metrics_dict: dict
-            a dictionary with two items including mia_metrics (a list of metric across repetitions) and
-            failfast_metric_summary object (an object of FailFast class) to maintain summary of fail/success of attacks for a given metric of failfast option
+            a dictionary with two items including mia_metrics 
+            (a list of metric across repetitions) and failfast_metric_summary object 
+            (an object of FailFast class) to maintain summary of 
+            fail/success of attacks for a given metric of failfast option
         """
         self.args.set_param("n_rows_in", len(train_preds))
         self.args.set_param("n_rows_out", len(test_preds))
@@ -785,7 +787,8 @@ def main():
         required=False,
         dest="attack_metric_success_name",
         help=(
-            "for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"
+            """for computing attack success/failure based on metric_fail_thresh option. 
+            Default = %(default)s"""
         ),
     )
 
@@ -797,7 +800,8 @@ def main():
         required=False,
         dest="attack_metric_success_thresh",
         help=(
-            "for defining threshold value to measure failing for the metric defined by parameter fail-metric-name option. Default = %(default)f"
+            """for defining threshold value to measure failing for the metric 
+            defined by parameter fail-metric-name option. Default = %(default)f"""
         ),
     )
 
@@ -821,7 +825,8 @@ def main():
         required=False,
         dest="attack_metric_success_count_thresh",
         help=(
-            "for defining counter to stop further repetitions value when the given metric has passed through a threshold. Default = %(default)d"
+            """for defining counter to stop further repetitions value when 
+            the given metric has passed through a threshold. Default = %(default)d"""
         ),
     )
 
@@ -833,7 +838,9 @@ def main():
         required=False,
         dest="attack_fail_fast",
         help=(
-            "to stop further repetitions value when the given metric has passed through a threshold at certain number of times and this has a true status. Default = %(default)s"
+            """to stop further repetitions value when the given metric has passed 
+            through a threshold at certain number of times and this has a true status. 
+            Default = %(default)s"""
         ),
     )
 
