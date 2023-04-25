@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import argparse
 import logging
+import uuid
 from collections.abc import Hashable
 from datetime import datetime
 from typing import Any
 
-import uuid
 import numpy as np
 import sklearn
 from sklearn.ensemble import RandomForestClassifier

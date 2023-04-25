@@ -8,7 +8,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.metric_name = attack_obj_args.attack_metric_success_name
         self.metric_success_thresh = attack_obj_args.attack_metric_success_thresh
         self.comp_type = attack_obj_args.attack_metric_success_comp_type
-        self.success_count = 0 
+        self.success_count = 0
         self.fail_count = 0
 
     def check_attack_success(self, metric_dict):
@@ -22,7 +22,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         Returns
         -------
         success_status: boolean
-            a boolean value is returned based on the comparison for a given threshold 
+            a boolean value is returned based on the comparison for a given threshold
 
         Notes
         -----
