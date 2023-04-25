@@ -1,8 +1,6 @@
 """test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
-from unittest.mock import patch
-import pytest
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
 
@@ -11,11 +9,23 @@ def test_parse_boolean_argument():
     metrics={}
     metrics["ACC"] = 0.9
     metrics["AUC"] = 0.8
+    
+    # Option 1
     args = worst_case_attack.WorstCaseAttackArgs(
     attack_metric_success_name="AUC",
     attack_metric_success_thresh=0.6,
-    attack_metric_success_comp_type="gte",
+    attack_metric_success_comp_type="lte",
     )
     failfast_Obj=failfast.FailFast(args)
     t=True
-    assert t is True
+    assert failfast_Obj.check_attack_success(metrics) is False
+
+    # Option 2
+    args = worst_case_attack.WorstCaseAttackArgs(
+    attack_metric_success_name="AUC",
+    attack_metric_success_thresh=0.99,
+    attack_metric_success_comp_type="lte",
+    )
+    failfast_Obj=failfast.FailFast(args)
+    t=True
+    assert failfast_Obj.check_attack_success(metrics) is True
