@@ -12,6 +12,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.success_count = 0
         self.fail_count = 0
 
+    # pylint: disable=too-many-branches
     def check_attack_success(self, metric_dict):
         """A function to check if attack was successful for a given metric
 
