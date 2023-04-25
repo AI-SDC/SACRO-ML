@@ -563,14 +563,12 @@ def _run_attack(args):
     _ = attack_obj.make_report()
 
 
-def parse_boolean_argument(value):
+def parse_boolean_argument(value) -> boolean:
     """Returns boolean value for a passed argument"""
     value = value.lower()
     return_value = False
-
     if value in ["true"]:
         return_value = True
-
     return return_value
 
 
