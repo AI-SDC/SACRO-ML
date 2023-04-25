@@ -304,7 +304,9 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
         raise ValueError(invalid_format)
 
     if shape[1] != 2:
-        raise ValueError("Cannot use this function to calculate metrics for multiclass classification")
+        raise ValueError(
+            "Cannot use this function to calculate metrics for multiclass classification"
+        )
 
     metrics = {}
 
@@ -383,71 +385,103 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
 
     return metrics
 
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
+
 from collections import Counter
+
+import numpy as np
+import pandas as pd
+from sklearn import metrics
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
 
 def format_column(df, name):
     df[name] = pd.Categorical(df[name])
-    df[name+'_code'] = df[name].cat.codes
+    df[name + "_code"] = df[name].cat.codes
     return df
+
 
 def binary_classification():
     df = pd.read_csv("Customer_Churn.csv")
 
-    df = format_column(df, 'gender')
-    df = format_column(df, 'SeniorCitizen')
-    df = format_column(df, 'PhoneService')
-    df = format_column(df, 'MultipleLines')
-    df = format_column(df, 'PaymentMethod')
-    df = format_column(df, 'Partner')
-    df = format_column(df, 'Dependents')
-    df = format_column(df, 'PaperlessBilling')
-    df = format_column(df, 'OnlineSecurity')
-    df = format_column(df, 'TechSupport')
-    df = format_column(df, 'InternetService')
-    df = format_column(df, 'Contract')
-    df = format_column(df, 'StreamingTV')
-    df = format_column(df, 'DeviceProtection')
-    df = format_column(df, 'StreamingMovies')
-    df = format_column(df, 'OnlineBackup')
-    df = format_column(df, 'Churn')
+    df = format_column(df, "gender")
+    df = format_column(df, "SeniorCitizen")
+    df = format_column(df, "PhoneService")
+    df = format_column(df, "MultipleLines")
+    df = format_column(df, "PaymentMethod")
+    df = format_column(df, "Partner")
+    df = format_column(df, "Dependents")
+    df = format_column(df, "PaperlessBilling")
+    df = format_column(df, "OnlineSecurity")
+    df = format_column(df, "TechSupport")
+    df = format_column(df, "InternetService")
+    df = format_column(df, "Contract")
+    df = format_column(df, "StreamingTV")
+    df = format_column(df, "DeviceProtection")
+    df = format_column(df, "StreamingMovies")
+    df = format_column(df, "OnlineBackup")
+    df = format_column(df, "Churn")
 
-    features = ['gender_code', 'SeniorCitizen_code', 'PhoneService_code', 'MultipleLines_code', 
-        'InternetService_code', 'Partner_code', 'Dependents_code', 'PaymentMethod_code', 'PaperlessBilling_code','Contract_code', 'StreamingMovies_code',
-        'StreamingTV_code', 'TechSupport_code', 'DeviceProtection_code', 'OnlineBackup_code',
-        'OnlineSecurity_code', 'Dependents_code', 'Partner_code','tenure', 'MonthlyCharges']
+    features = [
+        "gender_code",
+        "SeniorCitizen_code",
+        "PhoneService_code",
+        "MultipleLines_code",
+        "InternetService_code",
+        "Partner_code",
+        "Dependents_code",
+        "PaymentMethod_code",
+        "PaperlessBilling_code",
+        "Contract_code",
+        "StreamingMovies_code",
+        "StreamingTV_code",
+        "TechSupport_code",
+        "DeviceProtection_code",
+        "OnlineBackup_code",
+        "OnlineSecurity_code",
+        "Dependents_code",
+        "Partner_code",
+        "tenure",
+        "MonthlyCharges",
+    ]
 
     X = np.array(df[features])
-    y = np.array(df['Churn_code'])
+    y = np.array(df["Churn_code"])
 
     return X, y
 
+
 def multiclass_classification():
-    attributes = ["sepal_length", "sepal_width", "petal_length", "petal_width", "species"]
-    dataset = pd.read_csv('iris.data', names = attributes)
+    attributes = [
+        "sepal_length",
+        "sepal_width",
+        "petal_length",
+        "petal_width",
+        "species",
+    ]
+    dataset = pd.read_csv("iris.data", names=attributes)
     dataset.columns = attributes
 
     print(dataset.head())
-    print(dataset['species'].value_counts())
+    print(dataset["species"].value_counts())
 
     dataset.species = pd.Categorical(dataset.species)
-    dataset['species'] = dataset.species.cat.codes
+    dataset["species"] = dataset.species.cat.codes
 
-    y = dataset['species'].values
-    X = dataset.drop(columns=['species'])
+    y = dataset["species"].values
+    X = dataset.drop(columns=["species"])
 
     return X, y
+
 
 if __name__ == "__main__":
     print("Hello world!")
 
     X, y = multiclass_classification()
 
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     rf = RandomForestClassifier()
     rf.fit(x_train, y_train)
@@ -458,11 +492,11 @@ if __name__ == "__main__":
     print(y_test.shape)
 
     y_pred = rf.predict_proba(x_train)
-    y_label = [1]*len(y_pred)
+    y_label = [1] * len(y_pred)
     print(len(y_label))
 
     y_pred_test = rf.predict_proba(x_test)
-    y_label_y = [0]*len(y_pred_test)
+    y_label_y = [0] * len(y_pred_test)
 
     for y in y_label_y:
         y_label.append(y)
@@ -484,9 +518,11 @@ if __name__ == "__main__":
     print(np.array(y_pred).shape)
 
     attack_rf = RandomForestClassifier()
-    x_train_attack, x_test_attack, y_train_attack, y_test_attack = train_test_split(np.array(y_pred), np.array(y_label), test_size=0.2, random_state=42)
+    x_train_attack, x_test_attack, y_train_attack, y_test_attack = train_test_split(
+        np.array(y_pred), np.array(y_label), test_size=0.2, random_state=42
+    )
 
-    attack_rf.fit(x_train_attack,y_train_attack)
+    attack_rf.fit(x_train_attack, y_train_attack)
 
     print("Training Dimensions")
     print(x_train_attack.shape)
