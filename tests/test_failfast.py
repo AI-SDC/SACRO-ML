@@ -17,7 +17,6 @@ def test_parse_boolean_argument():
     attack_metric_success_comp_type="lte",
     )
     failfast_Obj=failfast.FailFast(args)
-    t=True
     assert failfast_Obj.check_attack_success(metrics) is False
 
     # Option 2
@@ -27,5 +26,4 @@ def test_parse_boolean_argument():
     attack_metric_success_comp_type="lte",
     )
     failfast_Obj=failfast.FailFast(args)
-    t=True
     assert failfast_Obj.check_attack_success(metrics) is True
