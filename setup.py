@@ -31,6 +31,7 @@ setup(
         "scipy~=1.7",
         "tensorflow~=2.10.0",
         "tensorflow_privacy~=0.8.7",
+        "uuid~=1.30",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",

@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import argparse
 import logging
-import uuid
 from collections.abc import Hashable
 from datetime import datetime
 from typing import Any
 
+import uuid
 import numpy as np
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -246,11 +246,7 @@ class WorstCaseAttack(Attack):
 
         mia_metrics = []
 
-        failfast_metric_summary = FailFast(
-            self.args.attack_metric_success_name,
-            self.args.attack_metric_success_thresh,
-            self.args.attack_metric_success_comp_type,
-        )
+        failfast_metric_summary = FailFast(self.args)
 
         for rep in range(self.args.n_reps):
             logger.info("Rep %d of %d", rep + 1, self.args.n_reps)
