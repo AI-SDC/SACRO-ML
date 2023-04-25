@@ -28,6 +28,7 @@ logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
 
+
 def parse_boolean_argument(value):
     """Returns boolean value for a passed argument"""
     value = value.lower()
@@ -35,6 +36,7 @@ def parse_boolean_argument(value):
     if value in ["true"]:
         return_value = True
     return return_value
+
 
 class WorstCaseAttackArgs:
     """Arguments for worst case"""
