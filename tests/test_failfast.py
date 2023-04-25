@@ -2,11 +2,8 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 from unittest.mock import patch
-
 import pytest
-
-from aisdc.attacks import failfast.FailFast, worst_case_attack   # pylint: disable = import-error   
-
+from aisdc.attacks import failfast, worst_case_attack   # pylint: disable = import-error   
 
 
 def test_check_attack_success():
@@ -21,7 +18,7 @@ def test_check_attack_success():
         attack_metric_success_thresh=0.99,
         attack_metric_success_comp_type="gte",
     )
-    failfast_metric_summary = FailFast(args)
+    failfast_metric_summary = failast.FailFast(args)
     assert failfast_metric_summary.check_attack_success(metrics) is False
 
     # Option 2: AUC with greater than or equal to
