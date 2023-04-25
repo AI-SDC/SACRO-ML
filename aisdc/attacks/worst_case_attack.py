@@ -567,7 +567,7 @@ def parse_boolean_argument(value):
     """Returns boolean value for a passed argument"""
     value = value.lower()
     return_value = False
-    
+
     if value in ["true"]:
         return_value = True
 
