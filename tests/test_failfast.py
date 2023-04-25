@@ -1,20 +1,13 @@
 """test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
-import os
-import sys
 from unittest.mock import patch
-
-import numpy as np
 import pytest
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-
-from aisdc.attacks import dataset, worst_case_attack, failfast  # pylint: disable = import-error
+from aisdc.attacks import worst_case_attack, failfast.FailFast  # pylint: disable = import-error
 
 def test_check_attack_success():
     """removes unwanted files or directory"""
+    metrics={}
     metrics["AUC"]=0.80
     metrics["ACC"]=0.90
     
