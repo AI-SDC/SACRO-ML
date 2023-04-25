@@ -5,8 +5,10 @@ from unittest.mock import patch
 
 import pytest
 
-from aisdc.attacks import failfast.FailFast, worst_case_attack   # pylint: disable = import-error   
-
+from aisdc.attacks import (  # pylint: disable = import-error
+    failfast.FailFast,
+    worst_case_attack,
+)
 
 
 def test_check_attack_success():
