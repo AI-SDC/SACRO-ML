@@ -819,7 +819,7 @@ def main():
         required=False,
         dest="attack_metric_success_comp_type",
         help=(
-            """for computing attack success/failure based on metric_fail_thresh option. 
+            """for computing attack success/failure based on metric_fail_thresh option.
             Default = %(default)s"""
         ),
     )
