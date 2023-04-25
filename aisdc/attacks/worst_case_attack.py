@@ -483,9 +483,6 @@ class WorstCaseAttack(Attack):
         dummy_attack_metrics_instances = []
 
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            print("start: exp_rep")
-            print(exp_rep)
-            print("End: exp_rep")
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metrics_instances += temp_dummy_attack_metrics
 
