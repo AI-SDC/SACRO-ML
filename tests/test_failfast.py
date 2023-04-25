@@ -3,16 +3,9 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 from unittest.mock import patch
 import pytest
-<<<<<<< HEAD
-from aisdc.attacks import failfast, worst_case_attack   # pylint: disable = import-error   
-=======
 
-from aisdc.attacks import (  # pylint: disable = import-error
-    failfast.FailFast,
-    worst_case_attack,
-)
->>>>>>> 9b5ebf85956afb3d93d3d5694a4272cedc455c20
-
+from aisdc.attacks import failfast.FailFast
+from aisdc.attacks import worst_case_attack
 
 def test_check_attack_success():
     """removes unwanted files or directory"""
