@@ -28,6 +28,13 @@ logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
 
+def parse_boolean_argument(value):
+    """Returns boolean value for a passed argument"""
+    value = value.lower()
+    return_value = False
+    if value in ["true"]:
+        return_value = True
+    return return_value
 
 class WorstCaseAttackArgs:
     """Arguments for worst case"""
@@ -561,15 +568,6 @@ def _run_attack(args):
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
-
-
-def parse_boolean_argument(value):
-    """Returns boolean value for a passed argument"""
-    value = value.lower()
-    return_value = False
-    if value in ["true"]:
-        return_value = True
-    return return_value
 
 
 def main():
