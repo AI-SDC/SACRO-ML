@@ -19,6 +19,10 @@ def clean_up(name):
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
 
+def test_parse_boolean_argument():
+    """removes unwanted files or directory"""
+    attack_obj = worst_case_attack.WorstCaseAttack()
+    assert attack_obj.parse_boolean_argument("true") == True
 
 def test_report_worstcase():
     """tests worst case attack directly"""
