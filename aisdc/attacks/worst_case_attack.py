@@ -147,9 +147,9 @@ class WorstCaseAttack(Attack):
             test_correct=test_correct,
         )
 
+        self.dummy_attack_metrics = []
         if self.args.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
-            self.dummy_attack_metrics = []
             n_train_rows = len(train_preds)
             n_test_rows = len(test_preds)
             for _ in range(self.args.n_dummy_reps):
@@ -267,6 +267,9 @@ class WorstCaseAttack(Attack):
             )[0]
             for m in attack_metrics
         ]
+
+        if len(attack_metrics) == 0:
+            return global_metrics
 
         m = attack_metrics[0]
         _, auc_std = metrics.auc_p_val(
