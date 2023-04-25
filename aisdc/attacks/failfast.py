@@ -4,6 +4,7 @@ from __future__ import annotations
 
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
+    """Class to check attack being successful or not for a given metric"""
     def __init__(self, attack_obj_args):
         self.metric_name = attack_obj_args.attack_metric_success_name
         self.metric_success_thresh = attack_obj_args.attack_metric_success_thresh
@@ -12,7 +13,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.fail_count = 0
 
     def check_attack_success(self, metric_dict):
-        """A function to check if a given metric value violetes the threshold value for a given comparison type
+        """A function to check if attack was successful for a given metric
 
         Parameters
         ----------
@@ -26,8 +27,10 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
 
         Notes
         -----
-        If value of a given metric value has a value meeting the threshold based on the the comparison type returns true otherwise it returns false.
-        This function also counts how many times the attack was successful (i.e. true) and how many times it was not successful (i.e. false).
+        If value of a given metric value has a value meeting the threshold based on 
+        the comparison type returns true otherwise it returns false. This function 
+        also counts how many times the attack was successful (i.e. true) and 
+        how many times it was not successful (i.e. false).
         """
         metric_value = metric_dict[self.metric_name]
         success_status = False
@@ -76,15 +79,15 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         return success_status
 
     def get_success_count(self):
-        """Returns a count of attack being successful for an object of this class by calling check_attack_success"""
+        """Returns a count of attack being successful"""
         return self.success_count
 
     def get_fail_count(self):
-        """Returns a count of attack being successful for an object of this class by calling check_attack_success"""
+        """Returns a count of attack being not successful"""
         return self.fail_count
 
     def get_attack_summary(self) -> dict:
-        """Returns a dictionary with elements of count of attack being successful and fail for an object of this class by calling check_attack_success"""
+        """Returns a dictionary of counts of attack being successful and no successful"""
         summary = {}
         summary["success_count"] = self.success_count
         summary["fail_count"] = self.fail_count
