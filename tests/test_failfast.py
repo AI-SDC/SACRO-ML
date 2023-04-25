@@ -2,16 +2,22 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 from unittest.mock import patch
+
 import pytest
-from aisdc.attacks import worst_case_attack, failfast.FailFast  # pylint: disable = import-error
+
+from aisdc.attacks import (  # pylint: disable = import-error
+    failfast.FailFast,
+    worst_case_attack,
+)
+
 
 def test_check_attack_success():
     """removes unwanted files or directory"""
     metrics={}
     metrics["AUC"]=0.80
     metrics["ACC"]=0.90
-    
-    # Option 1: AUC with greater than or equal to 
+
+    # Option 1: AUC with greater than or equal to
     args = worst_case_attack.WorstCaseAttackArgs(
         attack_metric_success_name="AUC",
         attack_metric_success_thresh=0.6,
