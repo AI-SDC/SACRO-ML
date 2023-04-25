@@ -473,7 +473,10 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_instances = []
 
-        for exp_rep in range(len(self.dummy_attack_metrics)):
+        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
+            print("start: exp_rep")
+            print(exp_rep)
+            print("End: exp_rep")
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metrics_instances += temp_dummy_attack_metrics
 
@@ -484,7 +487,7 @@ class WorstCaseAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
-        for rep in range(len(self.attack_metrics)):
+        for rep, _ in enumerate(self.attack_metrics):
             attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
                 rep
             ]
@@ -500,10 +503,10 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_experiments = {}
 
-        for exp_rep in range(len(self.dummy_attack_metrics)):
+        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metric_instances = {}
-            for rep in range(len(temp_dummy_attack_metrics)):
+            for rep, _ in enumerate(temp_dummy_attack_metrics):
                 dummy_attack_metric_instances[
                     "instance_" + str(rep + 1)
                 ] = temp_dummy_attack_metrics[rep]
@@ -813,7 +816,8 @@ def main():
         required=False,
         dest="attack_metric_success_comp_type",
         help=(
-            "for computing attack success/failure based on metric_fail_thresh option. Default = %(default)s"
+            """for computing attack success/failure based on metric_fail_thresh option. 
+            Default = %(default)s"""
         ),
     )
 
