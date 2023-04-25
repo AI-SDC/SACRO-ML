@@ -271,10 +271,12 @@ def test_non_rf_mia():
     with pytest.raises(AttributeError):
         attack_obj.attack_from_preds(ytr_pred, yte_pred)
 
+
 def test_parse_boolean_argument():
     """test parse string to boolean function"""
     value = "true"
-    assert parse_boolean_argument(value)==True
+    assert parse_boolean_argument(value) == True
+
 
 def test_main():
     """test invocation via command line"""
