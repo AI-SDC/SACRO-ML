@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from aisdc.attacks import failfast.FailFast,
-from aisdc.attacks import worst_case_attack,
+from aisdc.attacks import failfast.FailFast, worst_case_attack
+
 
 def test_check_attack_success():
     """removes unwanted files or directory"""
