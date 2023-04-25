@@ -21,7 +21,7 @@ def clean_up(name):
 
 
 def test_parse_boolean_argument():
-    """removes unwanted files or directory"""    
+    """removes unwanted files or directory"""
     assert worst_case_attack.parse_boolean_argument("true") is True
 
 
