@@ -61,7 +61,7 @@ def convert_output(dictionary_in):
         'attack_instance_logger': {}
     }
     counter = 1
-    for metric_set in output['attack_metrics']:
+    for metric_set in dictionary_in['attack_metrics']:
         new_key = f'instance_{counter}'
         counter += 1
         dict_out['attack_instance_logger'][new_key] = {'metrics_array': {k: v for k, v in metric_set.items()}}
@@ -183,4 +183,51 @@ modules = [
 output = {str(m): m.process_dict(reformat_output) for m in modules}
 
 
+# %%
+# A plotting example
+import pylab as plt
+import logging
+%matplotlib inline
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+class LogLogROCModule(AnalysisModule):
+    def __init__(self, output_folder=None, include_mean=True):
+        self.output_folder = output_folder
+        self.include_mean = include_mean
+    
+    def process_dict(self, input_dict: dict):
+        """Create a roc plot for multiple repetitions"""
+        plt.figure(figsize=(8, 8))
+        plt.plot([0, 1], [0, 1], "k--")
+
+        # Compute average ROC
+        base_fpr = np.linspace(0, 1, 1000)
+        metrics = [value['metrics_array'] for value in input_dict['attack_instance_logger'].values()]
+        all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
+        for i, metric_set in enumerate(metrics):
+            all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
+
+        for _, metric_set in enumerate(metrics):
+            plt.plot(
+                metric_set["fpr"], metric_set["tpr"], color="lightsalmon", linewidth=0.5
+            )
+
+        tpr_mu = all_tpr.mean(axis=0)
+        plt.plot(base_fpr, tpr_mu, "r")
+
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.tight_layout()
+        plt.grid()
+        output_file_name = f"{input_dict['log_id']}-{input_dict['attack_type']}.png"
+        if self.output_folder is not None:
+            output_file_name = os.path.join(
+                self.output_folder,
+                output_file_name
+            )
+        plt.savefig(output_file_name)
+
+s = LogLogROCModule()
+s.process_dict(reformat_output)
 # %%
