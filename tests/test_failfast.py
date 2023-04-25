@@ -2,9 +2,11 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 from unittest.mock import patch
+
 import pytest
 
 from aisdc.attacks import failfast.FailFast, worst_case_attack   # pylint: disable = import-error   
+
 
 
 def test_check_attack_success():
