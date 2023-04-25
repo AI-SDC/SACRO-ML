@@ -304,7 +304,9 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements, line-t
         raise ValueError(invalid_format)
 
     if shape[1] != 2:
-        raise ValueError("Cannot use this function to calculate metrics for multiclass classification")
+        raise ValueError(
+            "Cannot use this function to calculate metrics for multiclass classification"
+        )
 
     metrics = {}
 
