@@ -5,6 +5,7 @@ from __future__ import annotations
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
     """Class to check attack being successful or not for a given metric"""
+
     def __init__(self, attack_obj_args):
         self.metric_name = attack_obj_args.attack_metric_success_name
         self.metric_success_thresh = attack_obj_args.attack_metric_success_thresh
@@ -27,9 +28,9 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
 
         Notes
         -----
-        If value of a given metric value has a value meeting the threshold based on 
-        the comparison type returns true otherwise it returns false. This function 
-        also counts how many times the attack was successful (i.e. true) and 
+        If value of a given metric value has a value meeting the threshold based on
+        the comparison type returns true otherwise it returns false. This function
+        also counts how many times the attack was successful (i.e. true) and
         how many times it was not successful (i.e. false).
         """
         metric_value = metric_dict[self.metric_name]
