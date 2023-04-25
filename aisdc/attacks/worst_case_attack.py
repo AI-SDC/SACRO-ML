@@ -564,11 +564,14 @@ def _run_attack(args):
 
 
 def parse_boolean_argument(value):
+    """Returns boolean value for a passed argument"""
     value = value.lower()
+    return_value = False
+    
     if value in ["true"]:
-        return True
-    else:
-        return False
+        return_value = True
+
+    return return_value
 
 
 def main():
