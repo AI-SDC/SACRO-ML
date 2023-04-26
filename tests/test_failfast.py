@@ -5,8 +5,9 @@ from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = impor
 
 
 def test_parse_boolean_argument():
-    """test all comparison operators and both options for attack 
-    being successful and not successful given a metric and comaprison operator with a threshold value"""
+    """test all comparison operators and both options for attack
+    being successful and not successful given a metric and comaprison operator with a threshold value
+    """
     metrics = {}
     metrics["ACC"] = 0.9
     metrics["AUC"] = 0.8
