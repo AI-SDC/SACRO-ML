@@ -541,13 +541,18 @@ class WorstCaseAttack(Attack):
             "dummy_attack_experiments_logger"
         ] = self._get_dummy_attack_metrics_experiments_instances()
 
+        output_pdf={}
+        output_pdf["attack_metrics"]=self.attack_metrics
+        output_pdf["dummy_attack_metrics"]=self._unpack_dummy_attack_metrics_experiments_instances()
+        output_pdf["metadata"]=self.metadata
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
-
-        #    pdf = report.create_mia_report(output)
-        #    pdf.output(f"{self.args.report_name}.pdf", "F")
+        
+            pdf = report.create_mia_report(output_pdf)
+            pdf.output(f"{self.args.report_name}.pdf", "F")
 
         return output
 
