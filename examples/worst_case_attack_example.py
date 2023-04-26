@@ -68,11 +68,11 @@ args = worst_case_attack.WorstCaseAttackArgs(
     # If Report name is given so it creates Json file; however when it is None - don't make json file
     report_name="Programmatic_example_report_risky",
     # Setting the name of metric to compute failures
-    attack_metric_success_name="AUC",
+    attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
-    attack_metric_success_thresh=0.6,
+    attack_metric_success_thresh=0.05,
     # threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte: less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
-    attack_metric_success_comp_type="gte",
+    attack_metric_success_comp_type="lte",
     # fail fast counter to stop further repetitions of the test
     attack_metric_success_count_thresh=2,
     # If true it stop repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
@@ -172,9 +172,9 @@ os.system(
     "--test-prop 0.1 "
     "--train-beta 5 "
     "--test-beta 2 "
-    "--attack-metric-success-name AUC "
-    "--attack-metric-success-thresh 0.6 "
-    "--attack-metric-success-comp-type gte "
+    "--attack-metric-success-name P_HIGHER_AUC "
+    "--attack-metric-success-thresh 0.05 "
+    "--attack-metric-success-comp-type lte "
     "--attack-metric-success-count-thresh 2 "
     "--attack-fail-fast True "
 )

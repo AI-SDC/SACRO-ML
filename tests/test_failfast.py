@@ -5,15 +5,17 @@ from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = impor
 
 
 def test_parse_boolean_argument():
-    """removes unwanted files or directory"""
+    """test all comparison operators and both options for attack 
+    being successful and not successful given a metric and comaprison operator with a threshold value"""
     metrics = {}
     metrics["ACC"] = 0.9
     metrics["AUC"] = 0.8
+    metrics["P_HIGHER_AUC"] = 0.05
 
     # Option 1
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="lte",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -21,8 +23,8 @@ def test_parse_boolean_argument():
 
     # Option 2
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.99,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="lte",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -30,8 +32,8 @@ def test_parse_boolean_argument():
 
     # Option 3
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -39,8 +41,8 @@ def test_parse_boolean_argument():
 
     # Option 4
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.99,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -48,8 +50,8 @@ def test_parse_boolean_argument():
 
     # Option 5
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="gte",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -57,8 +59,8 @@ def test_parse_boolean_argument():
 
     # Option 6
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.99,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="gte",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -66,8 +68,8 @@ def test_parse_boolean_argument():
 
     # Option 7
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="gt",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -75,8 +77,8 @@ def test_parse_boolean_argument():
 
     # Option 8
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.99,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="gt",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -84,8 +86,8 @@ def test_parse_boolean_argument():
 
     # Option 9
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.8,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="eq",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -93,8 +95,8 @@ def test_parse_boolean_argument():
 
     # Option 10
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="eq",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -102,8 +104,8 @@ def test_parse_boolean_argument():
 
     # Option 11
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.8,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="not_eq",
     )
     failfast_Obj = failfast.FailFast(args)
@@ -111,8 +113,8 @@ def test_parse_boolean_argument():
 
     # Option 12
     args = worst_case_attack.WorstCaseAttackArgs(
-        attack_metric_success_name="AUC",
-        attack_metric_success_thresh=0.6,
+        attack_metric_success_name="P_HIGHER_AUC",
+        attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="not_eq",
     )
     failfast_Obj = failfast.FailFast(args)

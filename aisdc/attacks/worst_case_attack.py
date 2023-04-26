@@ -61,9 +61,9 @@ class WorstCaseAttackArgs:
             "min_samples_leaf": 10,
             "max_depth": 5,
         }
-        self.__dict__["attack_metric_success_name"] = "AUC"
-        self.__dict__["attack_metric_success_thresh"] = 0.6
-        self.__dict__["attack_metric_success_comp_type"] = "gte"
+        self.__dict__["attack_metric_success_name"] = "P_HIGHER_AUC"
+        self.__dict__["attack_metric_success_thresh"] = 0.05
+        self.__dict__["attack_metric_success_comp_type"] = "lte"
         self.__dict__["attack_metric_success_count_thresh"] = 5
         self.__dict__["attack_fail_fast"] = True
         self.__dict__.update(kwargs)
@@ -789,7 +789,7 @@ def main():
         "--attack-metric-success-name",
         action="store",
         type=str,
-        default="AUC",
+        default="P_HIGHER_AUC",
         required=False,
         dest="attack_metric_success_name",
         help=(
@@ -802,7 +802,7 @@ def main():
         "--attack-metric-success-thresh",
         action="store",
         type=float,
-        default=0.8,
+        default=0.05,
         required=False,
         dest="attack_metric_success_thresh",
         help=(
@@ -815,7 +815,7 @@ def main():
         "--attack-metric-success-comp-type",
         action="store",
         type=str,
-        default="gte",
+        default="lte",
         required=False,
         dest="attack_metric_success_comp_type",
         help=(
@@ -828,7 +828,7 @@ def main():
         "--attack-metric-success-count-thresh",
         action="store",
         type=int,
-        default=5,
+        default=2,
         required=False,
         dest="attack_metric_success_count_thresh",
         help=(
