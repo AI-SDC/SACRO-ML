@@ -20,7 +20,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks import metrics, report
+from aisdc import metrics
+from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
 from aisdc.attacks.dataset import Data
 
@@ -168,7 +169,7 @@ class LIRAAttack(Attack):
 
         return dataset
 
-    def run_scenario_from_preds(  # pylint: disable = too-many-statements
+    def run_scenario_from_preds(  # pylint: disable = too-many-statements, too-many-arguments, too-many-locals
         self,
         shadow_clf: sklearn.base.BaseEstimator,
         X_target_train: Iterable[float],
@@ -178,15 +179,6 @@ class LIRAAttack(Attack):
         y_shadow_train: Iterable[float],
         shadow_train_preds: Iterable[float],
     ) -> tuple[np.ndarray, np.ndarray, sklearn.base.BaseEstimator]:
-        # def run_scenario_from_preds( # pylint: disable = too-many-locals, too-many-arguments
-        #     shadow_clf,
-        #     X_target_train: Iterable[float],
-        #     y_target_train: Iterable[float],
-        #     target_train_preds: Iterable[float],
-        #     X_shadow_train: Iterable[float],
-        #     y_shadow_train: Iterable[float],
-        #     shadow_train_preds: Iterable[float],
-
         """Implements the likelihood test, using the "offline" version
         See p.6 (top of second column) for details
 
@@ -333,9 +325,13 @@ class LIRAAttack(Attack):
 
         mia_clf = DummyClassifier()
         logger.info("Finished scenario")
-        self.attack_metrics = [
-            metrics.get_metrics(mia_clf, np.array(mia_scores), np.array(mia_labels))
-        ]
+
+        mia_scores = np.array(mia_scores)
+        mia_labels = np.array(mia_labels)
+        y_pred_proba, y_test = metrics.get_probabilities(
+            mia_clf, mia_scores, mia_labels, permute_rows=True
+        )
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
 
     def example(self) -> None:  # pylint: disable = too-many-locals
         """Runs an example attack using data from sklearn
