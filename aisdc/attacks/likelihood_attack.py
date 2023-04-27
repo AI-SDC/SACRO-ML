@@ -169,7 +169,7 @@ class LIRAAttack(Attack):
 
         return dataset
 
-    def run_scenario_from_preds(  # pylint: disable = too-many-statements
+    def run_scenario_from_preds(  # pylint: disable = too-many-statements, too-many-arguments, too-many-locals
         self,
         shadow_clf: sklearn.base.BaseEstimator,
         X_target_train: Iterable[float],
