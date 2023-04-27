@@ -179,7 +179,6 @@ class LIRAAttack(Attack):
         y_shadow_train: Iterable[float],
         shadow_train_preds: Iterable[float],
     ) -> tuple[np.ndarray, np.ndarray, sklearn.base.BaseEstimator]:
-
         """Implements the likelihood test, using the "offline" version
         See p.6 (top of second column) for details
 

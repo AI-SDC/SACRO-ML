@@ -214,7 +214,10 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
 
 
 def get_probabilities(  # pylint: disable=too-many-locals
-    clf, X_test: np.ndarray, y_test: np.ndarray = np.array([]), permute_rows: bool = False
+    clf,
+    X_test: np.ndarray,
+    y_test: np.ndarray = np.array([]),
+    permute_rows: bool = False,
 ):
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
