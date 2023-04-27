@@ -189,7 +189,7 @@ class WorstCaseAttack(Attack):
 
         return (mi_x, mi_y)
 
-    def run_attack_reps(  # pylint: disable = too-many-locals, line-too-long
+    def run_attack_reps(  # pylint: disable = too-many-locals
         self,
         train_preds: np.ndarray,
         test_preds: np.ndarray,

@@ -111,7 +111,7 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
 
 def min_max_disc(
     y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
-) -> tuple[float, float, float, float]:  # pylint: disable = line-too-long
+) -> tuple[float, float, float, float]:
     """
     Non-average-case methods for MIA attacks. Considers actual frequency of membership
     amongst samples with highest- and lowest- assessed probability of membership. If an
@@ -214,7 +214,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
 
 
 def get_probabilities(  # pylint: disable=too-many-locals
-    clf, X_test: np.ndarray, y_test: np.ndarray = None, permute_rows: bool = None
+    clf, X_test: np.ndarray, y_test: np.ndarray = np.array([]), permute_rows: bool = False
 ):
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
@@ -239,11 +239,11 @@ def get_probabilities(  # pylint: disable=too-many-locals
     The function will then return both the predicted probabilities and corresponding y_test
     """
 
-    if permute_rows is True and y_test is None:
+    if permute_rows and (y_test is None):
         raise ValueError("If permute_rows is set to True, y_test must be supplied")
 
     if permute_rows:
-        N, _ = X_test.shape
+        N, _ = np.array(X_test).shape
         order = np.random.RandomState(  # pylint: disable = no-member
             seed=10
         ).permutation(N)
@@ -252,12 +252,12 @@ def get_probabilities(  # pylint: disable=too-many-locals
 
     y_pred_proba = clf.predict_proba(X_test)
 
-    if permute_rows is True:
+    if permute_rows:
         return y_pred_proba, y_test
     return y_pred_proba
 
 
-def get_metrics(  # pylint: disable=too-many-locals, too-many-statements, line-too-long
+def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     y_pred_proba: np.ndarray, y_test: np.ndarray
 ):
     """

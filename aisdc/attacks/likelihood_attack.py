@@ -169,7 +169,7 @@ class LIRAAttack(Attack):
 
         return dataset
 
-    def run_scenario_from_preds(  # pylint: disable = too-many-statements, line-too-long
+    def run_scenario_from_preds(  # pylint: disable = too-many-statements
         self,
         shadow_clf: sklearn.base.BaseEstimator,
         X_target_train: Iterable[float],
@@ -179,14 +179,6 @@ class LIRAAttack(Attack):
         y_shadow_train: Iterable[float],
         shadow_train_preds: Iterable[float],
     ) -> tuple[np.ndarray, np.ndarray, sklearn.base.BaseEstimator]:
-        # def run_scenario_from_preds( # pylint: disable = too-many-locals, too-many-arguments
-        #     shadow_clf,
-        #     X_target_train: Iterable[float],
-        #     y_target_train: Iterable[float],
-        #     target_train_preds: Iterable[float],
-        #     X_shadow_train: Iterable[float],
-        #     y_shadow_train: Iterable[float],
-        #     shadow_train_preds: Iterable[float],
 
         """Implements the likelihood test, using the "offline" version
         See p.6 (top of second column) for details
