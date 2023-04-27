@@ -782,10 +782,16 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             now = datetime.datetime.now()
             output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-            json_str = json.dumps(output, indent=4, cls=report.NumpyArrayEncoder)
             outputfilename = self.researcher + "_checkfile.json"
-            with open(outputfilename, "a", encoding="utf-8") as file:
-                file.write(json_str)
+            data = [output]
+            # load existing results
+            if os.path.isfile(outputfilename):
+                with open(outputfilename, newline="", encoding="utf-8") as file:
+                    data = json.load(file)
+                    data.append(output)
+            # write to disk
+            with open(outputfilename, "w", newline="", encoding="utf-8") as file:
+                json.dump(data, file, indent=4, sort_keys=False)
 
     def run_attack(
         self,
