@@ -60,14 +60,20 @@ class FinalRecommendationModule(AnalysisModule):
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
     ):
         stat_sig_auc = []
-        if 'attack_instance_logger' in self.report:
-            for i in self.report['attack_experiment_logger']['attack_instance_logger']:
-                instance = self.report['attack_experiment_logger']['attack_instance_logger'][i]['metrics_array']
-                if instance['P_HIGHER_AUC'] < p_val_thresh:
-                    stat_sig_auc.append(instance['AUC'])
+        if "attack_instance_logger" in self.report:
+            for i in self.report["attack_experiment_logger"]["attack_instance_logger"]:
+                instance = self.report["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ][i]["metrics_array"]
+                if instance["P_HIGHER_AUC"] < p_val_thresh:
+                    stat_sig_auc.append(instance["AUC"])
 
-            n_instances = len(self.report['attack_experiment_logger']['attack_instance_logger'])
-            if len(stat_sig_auc)/n_instances > 0.1: # > 10% of AUC are statistically significant
+            n_instances = len(
+                self.report["attack_experiment_logger"]["attack_instance_logger"]
+            )
+            if (
+                len(stat_sig_auc) / n_instances > 0.1
+            ):  # > 10% of AUC are statistically significant
                 self.scores.append(stat_sig_score)
                 self.reasons.append(">10% AUC are statistically significant")
 
@@ -120,7 +126,9 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
 
     def process_dict(self) -> dict:
         metrics_dict = {m: [] for m in self.metrics_list}
-        for _, iteration_value in self.report['attack_experiment_logger']['attack_instance_logger'].items():
+        for _, iteration_value in self.report["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].items():
             for m in metrics_dict:
                 metrics_dict[m].append(iteration_value[m])
         output = {}
@@ -164,8 +172,10 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []
-        for _, iteration_value in self.report['attack_experiment_logger']['attack_instance_logger'].items():
-            metrics_list.append(iteration_value['P_HIGHER_AUC'])
+        for _, iteration_value in self.report["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].items():
+            metrics_list.append(iteration_value["P_HIGHER_AUC"])
         return metrics_list
 
     def process_dict(self) -> dict:
@@ -190,8 +200,8 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
     # TODO do we want to parameterise which FDIF (01, 001, etc)?
     def get_metric_list(self, input_dict: dict) -> list[float]:
         metric_list = []
-        for _, iteration_value in input_dict['attack_instance_logger'].items():
-            metric_list.append(iteration_value['PDIF01'])
+        for _, iteration_value in input_dict["attack_instance_logger"].items():
+            metric_list.append(iteration_value["PDIF01"])
         metric_list = [np.exp(-m) for m in metric_list]
         return metric_list
 
@@ -212,7 +222,9 @@ class LogLogROCModule(AnalysisModule):
 
         # Compute average ROC
         base_fpr = np.linspace(0, 1, 1000)
-        metrics = self.report['attack_experiment_logger']['attack_instance_logger'].values()
+        metrics = self.report["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].values()
         all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
         for i, metric_set in enumerate(metrics):
             all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
@@ -231,7 +243,9 @@ class LogLogROCModule(AnalysisModule):
         plt.yscale("log")
         plt.tight_layout()
         plt.grid()
-        output_file_name = f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+        output_file_name = (
+            f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+        )
         if self.output_folder is not None:
             output_file_name = os.path.join(self.output_folder, output_file_name)
         plt.savefig(output_file_name)
