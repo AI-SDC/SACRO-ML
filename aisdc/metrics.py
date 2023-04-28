@@ -11,8 +11,6 @@ from scipy import interpolate
 from scipy.stats import norm
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
-from .mia_extremecase import min_max_disc
-
 # pylint: disable = invalid-name
 
 VAR_THRESH = 1e-2
@@ -111,6 +109,85 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
     return var
 
 
+def min_max_disc(
+    y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
+) -> tuple[float, float, float, float]:
+    """
+    Non-average-case methods for MIA attacks. Considers actual frequency of membership
+    amongst samples with highest- and lowest- assessed probability of membership. If an
+    MIA method confidently asserts that 5% of samples are members and 5% of samples are
+    not, but cannot tell for the remaining 90% of samples, then these metrics will flag
+    this behaviour, but AUC/advantage may not. Since the difference may be noisy, a
+    p-value against a null of independence of true membership and assessed membership
+    probability (that is, membership probabilities are essentially random) is also used
+    as a metric (using a usual Gaussian approximation to binomial). If the p-value is
+    low and the frequency difference is high (>0.5) then the MIA attack is successful
+    for some samples.
+
+    Parameters
+    ----------
+        y: np.ndarray
+            true labels
+        yp: np.ndarray
+            probabilities of labels, or monotonic transformation of probabilties
+        xprop: float
+            proportion of samples with highest- and lowest- probability of membership to be
+            considered
+        logp: bool
+            convert p-values to log(p).
+
+    Returns
+    -------
+        maxd: float
+            frequency of y=1 amongst proportion xprop of individuals with highest assessed
+            membership probability
+        mind: float
+            frequency of y=1 amongst proportion xprop of individuals with lowest assessed
+            membership probability
+        mmd: float
+            difference between maxd and mind
+        pval: float
+            p-value or log-p value corresponding to mmd against null hypothesis that random
+            variables corresponding to y and yp are independent.
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> y = np.random.choice(2, 100)
+    >>> yp = np.random.rand(100)
+    >>> maxd, mind, mmd, pval = min_max_desc(y, yp, xprop=0.2, logp=True)
+
+    """
+
+    n_examples = int(np.ceil(len(y_true) * x_prop))
+    pos_frequency = np.mean(y_true)  # average frequency
+    y_order = np.argsort(pred_probs)  # ordering permutation
+
+    # Frequencies
+    # y values corresponding to lowest k values of yp
+    y_lowest_n = y_true[y_order[:n_examples]]
+    # y values corresponding to highest k values of yp
+    y_highest_n = y_true[y_order[-(n_examples):]]
+    maxd = np.mean(y_highest_n)
+    mind = np.mean(y_lowest_n)
+    mmd = maxd - mind
+
+    # P-value
+    # mmd is asymptotically distributed as N(0,sdm^2) under null.
+    sdm = np.sqrt(2 * pos_frequency * (1 - pos_frequency) / n_examples)
+    pval = 1 - norm.cdf(mmd, loc=0, scale=sdm)  # normal CDF
+    if log_p:
+        if pval < 1e-50:
+            pval = -115.13
+        else:
+            pval = np.log(pval)
+
+    # Return
+    return maxd, mind, mmd, pval
+
+
 def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     """Compute the p-value for a given AUC
 
@@ -136,17 +213,15 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     return auc_p, auc_std
 
 
-def get_metrics(  # pylint: disable=too-many-locals
+def get_probabilities(  # pylint: disable=too-many-locals
     clf,
     X_test: np.ndarray,
-    y_test: np.ndarray,
-    permute_rows: bool = True,
+    y_test: np.ndarray = np.array([]),
+    permute_rows: bool = False,
 ):
     """
-    Calculate metrics, including attacker advantage for MIA binary.
-    Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
-    which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy
-
+    Given a prediction model and a dataset, calculate the predictions of the model for
+    each data sample in probability format
     Parameters
     ----------
     clf: sklearn.Model
@@ -155,6 +230,50 @@ def get_metrics(  # pylint: disable=too-many-locals
         test data matrix
     y_test: np.ndarray
         test data labels
+    permute_rows: boolean
+        a flag to indicate whether rows should be permuted
+    Returns
+    -------
+    y_pred_proba: a list of probabilities for each sample in the dataset
+
+    Notes
+    -----
+    If permute_rows is set to true, y_test must also be supplied.
+    The function will then return both the predicted probabilities and corresponding y_test
+    """
+
+    if permute_rows and (y_test is None):
+        raise ValueError("If permute_rows is set to True, y_test must be supplied")
+
+    if permute_rows:
+        N, _ = np.array(X_test).shape
+        order = np.random.RandomState(  # pylint: disable = no-member
+            seed=10
+        ).permutation(N)
+        X_test = X_test[order, :]
+        y_test = y_test[order]
+
+    y_pred_proba = clf.predict_proba(X_test)
+
+    if permute_rows:
+        return y_pred_proba, y_test
+    return y_pred_proba
+
+
+def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
+    y_pred_proba: np.ndarray, y_test: np.ndarray
+):
+    """
+    Calculate metrics, including attacker advantage for MIA binary.
+    Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
+    which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy
+
+    Parameters
+    ----------
+    y_test: np.ndarray
+        test data labels
+    y_pred_proba: np.ndarray of shape [x,2] and type float
+        predicted probabilities
 
     Returns
     -------
@@ -178,17 +297,26 @@ def get_metrics(  # pylint: disable=too-many-locals
     * F1 Score - harmonic mean of precision and recall.
     * Advantage.
     """
+
+    invalid_format = (
+        "y_pred must be an array of shape [x,2] with elements of type float"
+    )
+
+    shape = y_pred_proba.shape
+    if len(shape) != 2:
+        raise ValueError(invalid_format)
+
+    if shape[1] != 2:
+        raise ValueError(
+            "Cannot use this function to calculate metrics for multiclass classification"
+        )
+
     metrics = {}
-    if permute_rows:
-        N, _ = X_test.shape
-        order = np.random.RandomState(  # pylint: disable = no-member
-            seed=10
-        ).permutation(N)
-        X_test = X_test[order, :]
-        y_test = y_test[order]
-    y_pred = clf.predict(X_test)
+
+    y_pred = np.argmax(y_pred_proba, axis=1)
+    y_pred_proba = y_pred_proba[:, 1]
+
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    # print('tn', tn, 'fp',fp,'fn', fn,'tp', tp)
 
     # true positive rate or recall
     metrics["TPR"] = round(float(tp / (tp + fn)), 8)
@@ -215,7 +343,6 @@ def get_metrics(  # pylint: disable=too-many-locals
     metrics["Advantage"] = float(abs(metrics["TPR"] - metrics["FPR"]))
 
     # calculate AUC of model
-    y_pred_proba = clf.predict_proba(X_test)[:, 1]
     metrics["AUC"] = round(roc_auc_score(y_test, y_pred_proba), 8)
 
     # Calculate AUC p-val
