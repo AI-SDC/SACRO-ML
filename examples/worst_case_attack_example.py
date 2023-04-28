@@ -53,7 +53,7 @@ args = worst_case_attack.WorstCaseAttackArgs(
     # subset of the data
     n_reps=10,
     # number of baseline (dummy) experiments to do
-    n_dummy_reps=1,
+    n_dummy_reps=2,
     # value of b for beta distribution used to sample the in-sample probabilities
     train_beta=5,
     # value of b for beta distribution used to sample the out-of-sample probabilities
