@@ -799,7 +799,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             try:
                 with open(outputfilename, "w", newline="", encoding="utf-8") as file:
                     json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
-            except json.encoding.EncodeError:
+            except TypeError:
                 logger.warning(
                     "Error: safemodel could not write non-serialisable "
                     " outputs to file %s",
