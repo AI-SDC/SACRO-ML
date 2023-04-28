@@ -431,7 +431,7 @@ class LIRAAttack(Attack):
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        
+
         output_pdf = {}
         output_pdf["log_id"] = str(uuid.uuid4())
         output_pdf["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
