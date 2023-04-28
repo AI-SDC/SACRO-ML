@@ -48,7 +48,7 @@ class FinalRecommendationModule(AnalysisModule): # pylint: disable=too-many-inst
         if "model" in self.report:
             if self.report["model"] == "SVC":
                 self.scores.append(svm_weighing_score)
-                self.reasons.append("Model is SVM (supercedes all other tests)")
+                self.reasons.append("Model is SVM (supersedes all other tests)")
                 return True
         return False
 
