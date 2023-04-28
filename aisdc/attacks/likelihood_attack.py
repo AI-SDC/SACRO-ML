@@ -82,7 +82,7 @@ class LIRAAttackArgs:
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
         if os.path.isfile(self.__dict__["json_file"]):
-            self.construct_dictionary_from_config_json_file("config.json")
+            self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -102,7 +102,7 @@ class LIRAAttackArgs:
         """Return a dictionary object reading through a config.json"""
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
-        for i, k in enumerate(config):
+        for _, k in enumerate(config):
             self.__dict__[k] = config[k]
 
 
@@ -431,8 +431,7 @@ class LIRAAttack(Attack):
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        # output_experiment_dict["shadow_models_trained_count"]=attack_failfast_shadow_models["shadow_models_trained_count"]
-
+        
         output_pdf = {}
         output_pdf["log_id"] = str(uuid.uuid4())
         output_pdf["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -455,7 +454,7 @@ class LIRAAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
-        for rep in range(len(self.attack_metrics)):
+        for rep, _ in enumerate(self.attack_metrics):
             self.attack_metrics[rep][
                 "n_shadow_models_trained"
             ] = self.attack_failfast_shadow_models
