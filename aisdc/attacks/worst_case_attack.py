@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import uuid
 from collections.abc import Hashable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
@@ -425,27 +427,40 @@ class WorstCaseAttack(Attack):
 
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
-        self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-            self.dummy_attack_metrics
-        )
+        # self.metadata["baseline_global_metrics"] = self._get_global_metrics(
+            # self.dummy_attack_metrics
+        # )
+
+    def _get_attack_metrics_instances(self) -> dict:
+        """Constructs the metadata object, after attacks"""
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
+
+        for rep, _ in enumerate(self.attack_metrics):
+            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+                rep
+            ]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
 
     def make_report(self) -> dict:
         """Creates output dictionary structure"""
         output = {}
-        output["attack_metrics"] = self.attack_metrics
-        output["dummy_attack_metrics"] = self.dummy_attack_metrics
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
         self._construct_metadata()
         output["metadata"] = self.metadata
+
+        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
+        
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
 
-            pdf = report.create_mia_report(output)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
-
         return output
-
 
 def _make_dummy_data(args):
     """Initialise class and run dummy data creation"""

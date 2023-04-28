@@ -252,6 +252,7 @@ def pretty_print(report: dict) -> str:
 
 
 def process_json(input_filename: str, output_filename: str):
+    
     with open(input_filename) as f:
         json_report = json.loads(f.read())
 
@@ -272,7 +273,7 @@ def process_json(input_filename: str, output_filename: str):
 
 
 if __name__ == "__main__":
-    attack_json = "json_output.json"
+    attack_json = 'postprocessing/worst_case_attack.json.json'
     dest_file = "results.txt"
 
     process_json(attack_json, dest_file)
