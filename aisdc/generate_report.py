@@ -287,7 +287,7 @@ def process_json(input_filename: str, output_filename: str):
 
 
 if __name__ == "__main__":
-    attack_json = 'postprocessing/worst_case_attack.json.json'
+    attack_json = 'output_json.json'
     dest_file = "results.txt"
 
     process_json(attack_json, dest_file)
