@@ -787,19 +787,24 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             # load existing results
             if os.path.isfile(outputfilename):
                 with open(outputfilename, newline="", encoding="utf-8") as file:
-                    data = json.load(file)
-                    data.append(output)
-                    json_str = json.dumps(data)
                     try:
-                        data_2 = json.loads(json_str)
+                        data = json.load(file)
+                        data.append(output)
                     except json.decoder.JSONDecodeError:
-                        for key, vals in data.items():
-                            print(f"{key} : {vals}")
+                        logger.warning(
+                            "File %s could not be loaded - overwiting", outputfilename
+                        )
 
             # write to disk
-            with open(outputfilename, "w", newline="", encoding="utf-8") as file:
-                json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
-            # file.write(json_str)
+            try:
+                with open(outputfilename, "w", newline="", encoding="utf-8") as file:
+                    json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
+            except json.encoding.EncodeError:
+                logger.warning(
+                    "Error: safemodel could not write non-serialisable "
+                    " outputs to file %s",
+                    outputfilename,
+                )
 
     def run_attack(
         self,
