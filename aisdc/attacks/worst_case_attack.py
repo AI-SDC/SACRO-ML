@@ -428,7 +428,7 @@ class WorstCaseAttack(Attack):
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
         # self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-            # self.dummy_attack_metrics
+        # self.dummy_attack_metrics
         # )
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -454,13 +454,14 @@ class WorstCaseAttack(Attack):
         output["metadata"] = self.metadata
 
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
 
         return output
+
 
 def _make_dummy_data(args):
     """Initialise class and run dummy data creation"""
