@@ -18,7 +18,7 @@ import tensorflow as tf
 import tensorflow_privacy as tfp
 from dictdiffer import diff
 from tensorflow.keras import Model as KerasModel  # pylint: disable = import-error
-from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
+from tensorflow_privacy import compute_dp_sgd_privacy
 
 # safemodel superclass
 from ..reporting import get_reporting_string
@@ -294,7 +294,7 @@ class SafeKerasModel(KerasModel, SafeModel):
     ) -> Tuple[bool, str]:
         """Checks if epsilon is sufficient for Differential Privacy
         Provides feedback to user if epsilon is not sufficient"""
-        privacy = compute_dp_sgd_privacy.compute_dp_sgd_privacy(
+        privacy = compute_dp_sgd_privacy(
             n=num_examples,
             batch_size=batch_size,
             noise_multiplier=self.noise_multiplier,
