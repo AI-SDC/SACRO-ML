@@ -77,12 +77,13 @@ class LIRAAttackArgs:
 
     def __init__(self, **kwargs):
         self.__dict__["n_shadow_models"] = N_SHADOW_MODELS
-        self.__dict__["n_shadow_row_confidences_min"] = 2
+        self.__dict__["n_shadow_rows_confidences_min"] = 2
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
         if os.path.isfile(self.__dict__["json_file"]):
             self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])
+        self.__dict__["shadow_models_fail_fast"] = False
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -312,11 +313,11 @@ class LIRAAttack(Attack):
             lengths_shadow_row_to_confidence = {
                 key: len(value) for key, value in shadow_row_to_confidence.items()
             }
-            n_shadow_confidences = self.args.n_shadow_row_confidences_min
+            n_shadow_confidences = self.args.n_shadow_rows_confidences_min
             if not any(
                 value < n_shadow_confidences
                 for value in lengths_shadow_row_to_confidence.values()
-            ):
+            ) and self.args.shadow_models_fail_fast:
                 break
         self.attack_failfast_shadow_models = model_idx + 1
         # Do the test described in the paper in each case
@@ -563,6 +564,12 @@ def _run_attack(args):
     attack_obj.attack_from_config()
     attack_obj.make_report()
 
+def parse_boolean_argument(value):
+    value=value.lower()
+    if value in ["true"]:
+        return True
+    else:
+        return False
 
 def main():
     """Main method to parse args and invoke relevant code"""
@@ -577,6 +584,20 @@ def main():
         dest="n_shadow_models",
         help=("The number of shadow models to train (default = %(default)d)"),
     )
+
+    parser.add_argument(
+        "--n-shadow-rows-confidences-min",
+        type=int,
+        action="store",
+        dest="n_shadow_rows_confidences_min",
+        default=2,
+        required=False,
+        help=(
+            """Number of confidences against rows in shadow data from the shadow models
+            and works when --shadow-models-fail-fast = True. Default = %(default)d"""
+        ),
+    )
+
     parser.add_argument(
         "--report-name",
         type=str,
@@ -596,6 +617,21 @@ def main():
         default=P_THRESH,
         help=("Significance threshold for p-value comparisons. Default = %(default)f"),
     )
+
+    parser.add_argument(
+        "--shadow-models-fail-fast",
+        action="store",
+        type=parse_boolean_argument,        
+        default=True,
+        required=False,
+        dest="shadow_models_fail_fast",
+        help=(
+            """To stop training shadow models early based on minimum number of 
+            confidences across all rows (--n-shadow-rows-confidences-min) 
+            in the shadow data. Default = %(default)s"""
+            ),
+    )
+
     subparsers = parser.add_subparsers()
     example_parser = subparsers.add_parser("run-example", parents=[parser])
     example_parser.set_defaults(func=_example)
