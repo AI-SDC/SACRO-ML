@@ -70,7 +70,7 @@ class FinalRecommendationModule(
             for i in self.report["attack_experiment_logger"]["attack_instance_logger"]:
                 instance = self.report["attack_experiment_logger"][
                     "attack_instance_logger"
-                ][i]["metrics_array"]
+                ][i]
                 if instance["P_HIGHER_AUC"] < p_val_thresh:
                     stat_sig_auc.append(instance["AUC"])
 
@@ -306,7 +306,7 @@ def process_json(input_filename: str, output_filename: str):
 
 
 if __name__ == "__main__":
-    attack_json = "output_json.json"
+    attack_json = "data (7).json"
     dest_file = "results.txt"
 
     process_json(attack_json, dest_file)
