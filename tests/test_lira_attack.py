@@ -27,6 +27,11 @@ def clean_up(name):
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
 
+def test_parse_boolean_argument():
+    """tests parse boolean argument function"""
+    assert parse_boolean_argument("true") is True
+    assert parse_boolean_argument("false") is False        
+
 
 def test_lira_attack():
     """tests the lira code two ways"""

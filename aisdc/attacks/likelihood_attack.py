@@ -35,6 +35,15 @@ EPS = 1e-16  # Used to avoid numerical issues in logit function
 P_THRESH = 0.05  # default significance threshold
 
 
+def parse_boolean_argument(value):
+    """Parses string value to a boolean"""
+    value = value.lower()
+    return_value = False
+    if value in ["true"]:
+        return_value = True
+    return return_value
+
+
 class DummyClassifier:
     """A Dummy Classifier to allow this code to work with get_metrics"""
 
@@ -566,15 +575,6 @@ def _run_attack(args):
     attack_obj = LIRAAttack(lira_args)
     attack_obj.attack_from_config()
     attack_obj.make_report()
-
-
-def parse_boolean_argument(value):
-    """Parses string value to a boolean"""
-    value = value.lower()
-    return_value = False
-    if value in ["true"]:
-        return_value = True
-    return return_value
 
 
 def main():
