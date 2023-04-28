@@ -169,11 +169,11 @@ class WorstCaseAttack(Attack):
         self.attack_metric_failfast_summary = attack_metric_dict[
             "failfast_metric_summary"
         ]
-
+        
+        self.dummy_attack_metrics = []
+        self.dummy_attack_metric_failfast_summary = []
         if self.args.n_dummy_reps > 0:
-            logger.info("Running dummy attack reps")
-            self.dummy_attack_metrics = []
-            self.dummy_attack_metric_failfast_summary = []
+            logger.info("Running dummy attack reps")            
             n_train_rows = len(train_preds)
             n_test_rows = len(test_preds)
             for _ in range(self.args.n_dummy_reps):
