@@ -25,7 +25,9 @@ class AnalysisModule:
         raise NotImplementedError()
 
 
-class FinalRecommendationModule(AnalysisModule): # pylint: disable=too-many-instance-attributes
+class FinalRecommendationModule(
+    AnalysisModule
+):  # pylint: disable=too-many-instance-attributes
     """
     Module that generates the first layer of a recommendation report
     """
@@ -66,7 +68,9 @@ class FinalRecommendationModule(AnalysisModule): # pylint: disable=too-many-inst
         stat_sig_auc = []
         if "attack_experiment_logger" in self.report:
             for i in self.report["attack_experiment_logger"]["attack_instance_logger"]:
-                instance = self.report["attack_experiment_logger"]["attack_instance_logger"][i]["metrics_array"]
+                instance = self.report["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ][i]["metrics_array"]
                 if instance["P_HIGHER_AUC"] < p_val_thresh:
                     stat_sig_auc.append(instance["AUC"])
 
@@ -219,6 +223,7 @@ class LogLogROCModule(AnalysisModule):
     """
     Module that generates a log-log plot
     """
+
     def __init__(self, report: dict, output_folder=None, include_mean=True):
         self.report = report
         self.output_folder = output_folder
