@@ -790,7 +790,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                     try:
                         data = json.load(file)
                         data.append(output)
-                    except json.decoder.JSONDecodeError:# pragma: no cover
+                    except json.decoder.JSONDecodeError:  # pragma: no cover
                         logger.warning(
                             "File %s could not be loaded - overwiting", outputfilename
                         )
@@ -799,7 +799,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             try:
                 with open(outputfilename, "w", newline="", encoding="utf-8") as file:
                     json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
-            except TypeError:# pragma: no cover
+            except TypeError:  # pragma: no cover
                 logger.warning(
                     "Error: safemodel could not write non-serialisable "
                     " outputs to file %s",
