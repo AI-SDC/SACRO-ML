@@ -425,9 +425,9 @@ class WorstCaseAttack(Attack):
 
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
-        # self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-            # self.dummy_attack_metrics
-        # )
+        self.metadata["baseline_global_metrics"] = self._get_global_metrics(
+            self.dummy_attack_metrics
+        )
 
     def make_report(self) -> dict:
         """Creates output dictionary structure"""
