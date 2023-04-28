@@ -314,10 +314,13 @@ class LIRAAttack(Attack):
                 key: len(value) for key, value in shadow_row_to_confidence.items()
             }
             n_shadow_confidences = self.args.n_shadow_rows_confidences_min
-            if not any(
-                value < n_shadow_confidences
-                for value in lengths_shadow_row_to_confidence.values()
-            ) and self.args.shadow_models_fail_fast:
+            if (
+                not any(
+                    value < n_shadow_confidences
+                    for value in lengths_shadow_row_to_confidence.values()
+                )
+                and self.args.shadow_models_fail_fast
+            ):
                 break
         self.attack_failfast_shadow_models = model_idx + 1
         # Do the test described in the paper in each case
@@ -564,12 +567,14 @@ def _run_attack(args):
     attack_obj.attack_from_config()
     attack_obj.make_report()
 
+
 def parse_boolean_argument(value):
-    value=value.lower()
+    value = value.lower()
     if value in ["true"]:
         return True
     else:
         return False
+
 
 def main():
     """Main method to parse args and invoke relevant code"""
@@ -621,15 +626,15 @@ def main():
     parser.add_argument(
         "--shadow-models-fail-fast",
         action="store",
-        type=parse_boolean_argument,        
+        type=parse_boolean_argument,
         default=True,
         required=False,
         dest="shadow_models_fail_fast",
         help=(
-            """To stop training shadow models early based on minimum number of 
-            confidences across all rows (--n-shadow-rows-confidences-min) 
+            """To stop training shadow models early based on minimum number of
+            confidences across all rows (--n-shadow-rows-confidences-min)
             in the shadow data. Default = %(default)s"""
-            ),
+        ),
     )
 
     subparsers = parser.add_subparsers()
