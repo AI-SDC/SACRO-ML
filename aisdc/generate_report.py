@@ -1,3 +1,7 @@
+"""
+Generate report for TREs from JSON file
+"""
+
 import json
 import os
 import pprint
@@ -21,13 +25,13 @@ class AnalysisModule:
         raise NotImplementedError()
 
 
-class FinalRecommendationModule(AnalysisModule):
+class FinalRecommendationModule(AnalysisModule): # pylint: disable=too-many-instance-attributes
     """
     Module that generates the first layer of a recommendation report
     """
 
     def __init__(self, report: dict):
-        self.P_VAL_THRESH = 0.1
+        self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
 
         self.SVM_WEIGHTING_SCORE = 5
@@ -60,11 +64,9 @@ class FinalRecommendationModule(AnalysisModule):
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
     ):
         stat_sig_auc = []
-        if "attack_instance_logger" in self.report:
+        if "attack_experiment_logger" in self.report:
             for i in self.report["attack_experiment_logger"]["attack_instance_logger"]:
-                instance = self.report["attack_experiment_logger"][
-                    "attack_instance_logger"
-                ][i]["metrics_array"]
+                instance = self.report["attack_experiment_logger"]["attack_instance_logger"][i]["metrics_array"]
                 if instance["P_HIGHER_AUC"] < p_val_thresh:
                     stat_sig_auc.append(instance["AUC"])
 
@@ -146,6 +148,10 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
 
 
 class SummariseAUCPvalsModule(AnalysisModule):
+    """
+    Module that summarises a list of AUC values
+    """
+
     def __init__(self, report: dict, p_thresh: float = 0.05, correction: str = "bh"):
         self.report = report
         self.p_thresh = p_thresh
@@ -210,6 +216,9 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
 
 
 class LogLogROCModule(AnalysisModule):
+    """
+    Module that generates a log-log plot
+    """
     def __init__(self, report: dict, output_folder=None, include_mean=True):
         self.report = report
         self.output_folder = output_folder
@@ -256,6 +265,9 @@ class LogLogROCModule(AnalysisModule):
 
 
 def pretty_print(report: dict) -> str:
+    """
+    Function that formats JSON code to make it more readable for TREs
+    """
     returned_string = ""
 
     for key in report.keys():
@@ -266,7 +278,9 @@ def pretty_print(report: dict) -> str:
 
 
 def process_json(input_filename: str, output_filename: str):
-    
+    """
+    Function that takes an input JSON filename and outputs a neat text file summarising results
+    """
     with open(input_filename) as f:
         json_report = json.loads(f.read())
 
