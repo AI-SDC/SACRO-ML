@@ -800,7 +800,7 @@ def main():
         required=False,
         dest="attack_metric_success_name",
         help=(
-            """for computing attack success/failure based on 
+            """for computing attack success/failure based on
             --attack-metric-success-thresh option. Default = %(default)s"""
         ),
     )
@@ -813,7 +813,7 @@ def main():
         required=False,
         dest="attack_metric_success_thresh",
         help=(
-            """for defining threshold value to measure attack success 
+            """for defining threshold value to measure attack success
             for the metric defined by argument --fail-metric-name option. Default = %(default)f"""
         ),
     )
@@ -826,7 +826,7 @@ def main():
         required=False,
         dest="attack_metric_success_comp_type",
         help=(
-            """for computing attack success/failure based on 
+            """for computing attack success/failure based on
             --attack-metric-success-thresh option. Default = %(default)s"""
         ),
     )
