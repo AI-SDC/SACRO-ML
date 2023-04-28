@@ -6,18 +6,18 @@ Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf
 
 from __future__ import annotations
 
-import os
 import argparse
 import importlib
 import json
 import logging
+import os
+import uuid
 from collections.abc import Hashable, Iterable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
 import sklearn
-import uuid
-from datetime import datetime
 from scipy.stats import norm
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
@@ -81,7 +81,7 @@ class LIRAAttackArgs:
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
-        if (os.path.isfile(self.__dict__["json_file"])):
+        if os.path.isfile(self.__dict__["json_file"]):
             self.construct_dictionary_from_config_json_file("config.json")
         self.__dict__.update(kwargs)
 
@@ -99,11 +99,12 @@ class LIRAAttackArgs:
         return self.__dict__
 
     def construct_dictionary_from_config_json_file(self, config_filename) -> None:
-        """Return a dictionary object reading through a config.json"""        
+        """Return a dictionary object reading through a config.json"""
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
         for i, k in enumerate(config):
             self.__dict__[k] = config[k]
+
 
 class LIRAAttack(Attack):
     """The main LIRA Attack class"""
@@ -261,7 +262,7 @@ class LIRAAttack(Attack):
         # Train N_SHADOW_MODELS shadow models
         logger.info("Training shadow models")
         for model_idx in range(self.args.n_shadow_models):
-            logger.info("Trained %d models", model_idx+1)
+            logger.info("Trained %d models", model_idx + 1)
             # Pick the indices to use for training this one
             np.random.seed(model_idx)  # Reproducibility
             these_idx = np.random.choice(indices, n_train_rows, replace=False)
@@ -307,16 +308,16 @@ class LIRAAttack(Attack):
                     else:  # pragma: no cover
                         # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
-            
-            lengths_shadow_row_to_confidence={
-                key: len(value) for key,value in shadow_row_to_confidence.items()
-                }        
+
+            lengths_shadow_row_to_confidence = {
+                key: len(value) for key, value in shadow_row_to_confidence.items()
+            }
             n_shadow_confidences = self.args.n_shadow_row_confidences_min
             if not any(
-                value < n_shadow_confidences 
+                value < n_shadow_confidences
                 for value in lengths_shadow_row_to_confidence.values()
-                ):                
-                break   
+            ):
+                break
         self.attack_failfast_shadow_models = model_idx + 1
         # Do the test described in the paper in each case
         mia_scores = []
@@ -353,7 +354,7 @@ class LIRAAttack(Attack):
         y_pred_proba, y_test = metrics.get_probabilities(
             mia_clf, mia_scores, mia_labels, permute_rows=True
         )
-        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]        
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
 
     def example(self) -> None:  # pylint: disable = too-many-locals
         """Runs an example attack using data from sklearn
@@ -422,19 +423,19 @@ class LIRAAttack(Attack):
         output: Dict
             Dictionary containing all attack output
         """
-        logger = logging.getLogger("reporting")        
+        logger = logging.getLogger("reporting")
         logger.info("Starting report, report_name = %s", self.args.report_name)
         output = {}
-        output["log_id"]=str(uuid.uuid4())
-        output["log_time"]=datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
-        output["metadata"] = self.metadata                        
+        output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        #output_experiment_dict["shadow_models_trained_count"]=attack_failfast_shadow_models["shadow_models_trained_count"]
-        
+        # output_experiment_dict["shadow_models_trained_count"]=attack_failfast_shadow_models["shadow_models_trained_count"]
+
         output_pdf = {}
-        output_pdf["log_id"]=str(uuid.uuid4())
-        output_pdf["log_time"]=datetime.now().strftime("%d/%m/%Y %H:%M:%S")      
+        output_pdf["log_id"] = str(uuid.uuid4())
+        output_pdf["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output_pdf["metadata"] = self.metadata
         output_pdf["attack_metrics"] = self.attack_metrics
@@ -448,17 +449,21 @@ class LIRAAttack(Attack):
             pdf.output(f"{self.args.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
         return output_pdf
-    
+
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
-        
+
         for rep in range(len(self.attack_metrics)):
-            self.attack_metrics[rep]["n_shadow_models_trained"]=self.attack_failfast_shadow_models
-            attack_metrics_instances["instance_" + str(rep+1)] = self.attack_metrics[rep]            
-        
-        attack_metrics_experiment['attack_instance_logger']=attack_metrics_instances        
+            self.attack_metrics[rep][
+                "n_shadow_models_trained"
+            ] = self.attack_failfast_shadow_models
+            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+                rep
+            ]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
 
     def setup_example_data(self) -> None:
