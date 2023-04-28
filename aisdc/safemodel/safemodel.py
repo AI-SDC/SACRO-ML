@@ -786,12 +786,20 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             data = [output]
             # load existing results
             if os.path.isfile(outputfilename):
-                with open(outputfilename, newline="", encoding="utf-8") as file:
+                with open(outputfilename, "r", newline="", encoding="utf-8") as file:
                     data = json.load(file)
                     data.append(output)
+                    json_str = json.dumps(data)
+                    try:
+                        data_2 = json.loads(json_str)
+                    except json.decoder.JSONDecodeError:
+                        for key, vals in data.items():
+                            print(f'{key} : {vals}')
+
             # write to disk
             with open(outputfilename, "w", newline="", encoding="utf-8") as file:
-                json.dump(data, file, indent=4, sort_keys=False)
+                json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
+               # file.write(json_str)
 
     def run_attack(
         self,
