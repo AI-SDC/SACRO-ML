@@ -427,9 +427,9 @@ class WorstCaseAttack(Attack):
 
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
-        # self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-        # self.dummy_attack_metrics
-        # )
+        self.metadata["baseline_global_metrics"] = self._get_global_metrics(
+        self.dummy_attack_metrics
+        )
 
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
