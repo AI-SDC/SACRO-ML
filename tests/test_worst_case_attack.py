@@ -29,7 +29,7 @@ def test_config_file_arguments_parsin():
     "test_prop": 0.5,    
     "report_name": "programmatically_worstcase_report",
     }
-    
+
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     _ = worst_case_attack.WorstCaseAttackArgs(
