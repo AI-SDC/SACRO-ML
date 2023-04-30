@@ -81,7 +81,7 @@ class WorstCaseAttackArgs:
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
         for _, k in enumerate(config):
-            self.__dict__[k] = config[k]            
+            self.__dict__[k] = config[k]
 
 
 class WorstCaseAttack(Attack):
