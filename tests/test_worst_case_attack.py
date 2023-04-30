@@ -1,8 +1,8 @@
 """test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
-import os
 import json
+import os
 import sys
 from unittest.mock import patch
 
@@ -20,20 +20,21 @@ def clean_up(name):
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
 
+
 def test_config_file_arguments_parsin():
     """tests parse boolean argument function"""
     config = {
-    "n_reps": 10,    
-    "n_dummy_reps": 1,    
-    "p_thresh": 0.05,
-    "test_prop": 0.5,    
-    "report_name": "programmatically_worstcase_report",
+        "n_reps": 10,
+        "n_dummy_reps": 1,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "report_name": "programmatically_worstcase_report",
     }
 
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     _ = worst_case_attack.WorstCaseAttackArgs(
-        json_file = "config_worstcase.json",
+        json_file="config_worstcase.json",
     )
     os.remove("config_worstcase_test.json")
 

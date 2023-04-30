@@ -20,8 +20,8 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.worst_case_attack_example
 
 """
-import os
 import json
+import os
 
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -50,18 +50,18 @@ test_preds = target_model.predict_proba(test_X)
 
 # [TRE] Define some attack parameters
 config = {
-    "n_reps": 10,    
-    "n_dummy_reps": 1,    
+    "n_reps": 10,
+    "n_dummy_reps": 1,
     "p_thresh": 0.05,
-    "test_prop": 0.5,    
-    "report_name": "programmatically_worstcase_report",    
+    "test_prop": 0.5,
+    "report_name": "programmatically_worstcase_report",
 }
 
 with open("config_worstcase.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 args = worst_case_attack.WorstCaseAttackArgs(
-    json_file = "config_worstcase.json",
+    json_file="config_worstcase.json",
 )
 # OR passing through arguments
 # args = worst_case_attack.WorstCaseAttackArgs(
@@ -166,13 +166,13 @@ os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 # [TRE] Then they run the attack
 # Worstcase attack through a configuratation file for parameters
 config = {
-    "n_reps": 30,    
-    "n_dummy_reps": 2,    
+    "n_reps": 30,
+    "n_dummy_reps": 2,
     "p_thresh": 0.05,
-    "test_prop": 0.5,    
+    "test_prop": 0.5,
     "report_name": "commandline_worstcase_report",
     "in_sample_filename": "train_preds.csv",
-    "out_sample_filename": "test_preds.csv",    
+    "out_sample_filename": "test_preds.csv",
 }
 
 with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
@@ -180,7 +180,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 
 os.system(
     "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
-    "--json-file config_worstcase_cmd.json "    
+    "--json-file config_worstcase_cmd.json "
 )
 
 # OR Worstcase attack through commandline passing through parameters

@@ -6,10 +6,10 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 
 from __future__ import annotations
 
-import os
-import json
 import argparse
+import json
 import logging
+import os
 import uuid
 from collections.abc import Hashable
 from datetime import datetime
@@ -59,7 +59,9 @@ class WorstCaseAttackArgs:
         # Reading parameters from a json file
         if self.__dict__["json_file"] is not None:
             if os.path.isfile(self.__dict__["json_file"]):
-                self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])
+                self.construct_dictionary_from_config_json_file(
+                    self.__dict__["json_file"]
+                )
         self.__dict__.update(kwargs)
         del self.__dict__["json_file"]
 
@@ -444,7 +446,7 @@ class WorstCaseAttack(Attack):
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
         self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-        self.dummy_attack_metrics
+            self.dummy_attack_metrics
         )
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -495,13 +497,14 @@ def _run_attack(args):
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
 
+
 def _run_attack_from_configfile(args):
     """Initialise class and run attack from prediction files"""
     print("Hellossssss")
     print(args.json_file)
     print("Hellosssssss")
     wc_args = WorstCaseAttackArgs(
-        json_file = str(args.json_file),
+        json_file=str(args.json_file),
     )
     print(wc_args.__dict__["n_reps"])
     print(wc_args.__dict__["in_sample_filename"])
@@ -509,6 +512,7 @@ def _run_attack_from_configfile(args):
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
+
 
 def main():
     """main method to parse arguments and invoke relevant method"""
