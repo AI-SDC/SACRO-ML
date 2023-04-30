@@ -503,7 +503,7 @@ def _run_attack(args):
 
 
 def _run_attack_from_configfile(args):
-    """Initialise class and run attack from prediction files 
+    """Initialise class and run attack from prediction files
     using config file"""
     wc_args = WorstCaseAttackArgs(
         json_file=str(args.json_file),
