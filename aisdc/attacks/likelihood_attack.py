@@ -91,9 +91,9 @@ class LIRAAttackArgs:
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
         self.__dict__["shadow_models_fail_fast"] = False
-        
+
         if os.path.isfile(self.__dict__["json_file"]):
-            self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])        
+            self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])
         self.__dict__.update(kwargs)
 
     def __str__(self):

@@ -78,7 +78,7 @@ with open("config.json", "w", encoding="utf-8") as f:
 # [TRE] sets up the attack
 args = LIRAAttackArgs(
     n_shadow_models=100,
-    report_name="lira_example_report",    
+    report_name="lira_example_report",
 )
 attack_obj = LIRAAttack(args)
 
