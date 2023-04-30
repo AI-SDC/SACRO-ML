@@ -2,6 +2,7 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import os
+import json
 import sys
 from unittest.mock import patch
 
@@ -31,7 +32,7 @@ def test_config_file_arguments_parsin():
     
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
-    args = worst_case_attack.WorstCaseAttackArgs(
+    _ = worst_case_attack.WorstCaseAttackArgs(
         json_file = "config_worstcase.json",
     )
     os.remove("config_worstcase_test.json")
