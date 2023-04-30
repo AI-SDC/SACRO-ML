@@ -57,7 +57,11 @@ class WorstCaseAttackArgs:
         self.__dict__["json_file"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
+        print("Hellosssss")
+        print(self.__dict__["json_file"])
+        print("Hellos")
         if self.__dict__["json_file"] is not None:
+            print("First If passed")
             if os.path.isfile(self.__dict__["json_file"]):
                 self.construct_dictionary_from_config_json_file(
                     self.__dict__["json_file"]
@@ -499,16 +503,11 @@ def _run_attack(args):
 
 
 def _run_attack_from_configfile(args):
-    """Initialise class and run attack from prediction files"""
-    print("Hellossssss")
-    print(args.json_file)
-    print("Hellosssssss")
+    """Initialise class and run attack from prediction files 
+    using config file"""
     wc_args = WorstCaseAttackArgs(
         json_file=str(args.json_file),
     )
-    print(wc_args.__dict__["n_reps"])
-    print(wc_args.__dict__["in_sample_filename"])
-    print("End of parameters")
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()

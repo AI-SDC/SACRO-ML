@@ -22,7 +22,7 @@ def clean_up(name):
 
 
 def test_config_file_arguments_parsin():
-    """tests parse boolean argument function"""
+    """tests reading parameters from the configuration file"""
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -34,8 +34,8 @@ def test_config_file_arguments_parsin():
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     _ = worst_case_attack.WorstCaseAttackArgs(
-        json_file="config_worstcase.json",
-    )
+        json_file = "config_worstcase_test.json",
+        )
     os.remove("config_worstcase_test.json")
 
 
