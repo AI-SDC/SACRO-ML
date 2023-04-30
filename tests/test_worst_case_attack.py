@@ -34,8 +34,8 @@ def test_config_file_arguments_parsin():
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     _ = worst_case_attack.WorstCaseAttackArgs(
-        json_file = "config_worstcase_test.json",
-        )
+        json_file="config_worstcase_test.json",
+    )
     os.remove("config_worstcase_test.json")
 
 
