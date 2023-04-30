@@ -21,6 +21,7 @@ python -m examples.worst_case_attack_example
 
 """
 import os
+import json
 
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -48,22 +49,37 @@ train_preds = target_model.predict_proba(train_X)
 test_preds = target_model.predict_proba(test_X)
 
 # [TRE] Define some attack parameters
+config = {
+    "n_reps": 10,    
+    "n_dummy_reps": 1,    
+    "p_thresh": 0.05,
+    "test_prop": 0.5,    
+    "report_name": "programmatically_worstcase_report",    
+}
+
+with open("config_worstcase.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
 args = worst_case_attack.WorstCaseAttackArgs(
-    # How many attacks to run -- in each the attack model is trained on a different
-    # subset of the data
-    n_reps=10,
-    # number of baseline (dummy) experiments to do
-    n_dummy_reps=1,
-    # Threshold to determine significance of things
-    p_thresh=0.05,
-    # Filename arguments needed by the code, meaningless if run programmatically
-    in_sample_filename=None,
-    out_sample_filename=None,
-    # Proportion of data to use as a test set for the attack model;
-    test_prop=0.5,
-    # Report name is None - don't make json or pdf files
-    report_name="programmatically_worstcase_report",
+    json_file = "config_worstcase.json",
 )
+# OR passing through arguments
+# args = worst_case_attack.WorstCaseAttackArgs(
+#     # How many attacks to run -- in each the attack model is trained on a different
+#     # subset of the data
+#     n_reps=20,
+#     # number of baseline (dummy) experiments to do
+#     n_dummy_reps=1,
+#     # Threshold to determine significance of things
+#     p_thresh=0.05,
+#     # Filename arguments needed by the code, meaningless if run programmatically
+#     in_sample_filename=None,
+#     out_sample_filename=None,
+#     # Proportion of data to use as a test set for the attack model;
+#     test_prop=0.5,
+#     # Report name is None - don't make json or pdf files
+#     report_name="programmatically_worstcase_report",
+# )
 
 # [TRE / Researcher] Wrap the data in a dataset object
 dataset_obj = dataset.Data()
@@ -148,16 +164,36 @@ np.savetxt("test_preds.csv", test_preds, delimiter=",")
 os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 
 # [TRE] Then they run the attack
+# Worstcase attack through a configuratation file for parameters
+config = {
+    "n_reps": 30,    
+    "n_dummy_reps": 2,    
+    "p_thresh": 0.05,
+    "test_prop": 0.5,    
+    "report_name": "commandline_worstcase_report",
+    "in_sample_filename": "train_preds.csv",
+    "out_sample_filename": "test_preds.csv",    
+}
+
+with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
 os.system(
-    "python -m aisdc.attacks.worst_case_attack run-attack "
-    "--in-sample-preds train_preds.csv "
-    "--out-of-sample-preds test_preds.csv "
-    "--n-reps 10 "
-    "--report-name example_report_risky "
-    "--n-dummy-reps 1 "
-    "--test-prop 0.1 "
-    "--report-name example_report "
+    "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+    "--json-file config_worstcase_cmd.json "    
 )
+
+# OR Worstcase attack through commandline passing through parameters
+# os.system(
+#     "python -m aisdc.attacks.worst_case_attack run-attack "
+#     "--in-sample-preds train_preds.csv "
+#     "--out-of-sample-preds test_preds.csv "
+#     "--n-reps 12 "
+#     "--report-name example_report_risky "
+#     "--n-dummy-reps 1 "
+#     "--test-prop 0.1 "
+#     "--report-name example_report "
+# )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
 # that can be injesetd by the shiny app

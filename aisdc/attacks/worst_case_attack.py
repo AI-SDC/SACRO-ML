@@ -6,6 +6,8 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 
 from __future__ import annotations
 
+import os
+import json
 import argparse
 import logging
 import uuid
@@ -52,7 +54,14 @@ class WorstCaseAttackArgs:
             "min_samples_leaf": 10,
             "max_depth": 5,
         }
+        self.__dict__["json_file"] = None  
         self.__dict__.update(kwargs)
+        # Reading parameters from a json file        
+        if self.__dict__["json_file"] is not None:            
+            if os.path.isfile(self.__dict__["json_file"]):
+                self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])                
+        self.__dict__.update(kwargs)
+        del self.__dict__["json_file"]
 
     def __str__(self):
         return ",".join(
@@ -67,6 +76,13 @@ class WorstCaseAttackArgs:
         """Return arguments"""
         return self.__dict__
 
+    def construct_dictionary_from_config_json_file(self, config_filename) -> None:
+        """Return a dictionary object reading through a config.json"""
+        with open(config_filename, encoding="utf-8") as f:
+            config = json.loads(f.read())
+        for _, k in enumerate(config):
+            self.__dict__[k] = config[k]
+            
 
 class WorstCaseAttack(Attack):
     """Class to wrap the worst case attack code"""
@@ -479,6 +495,20 @@ def _run_attack(args):
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
 
+def _run_attack_from_configfile(args):
+    """Initialise class and run attack from prediction files"""
+    print("Hellossssss")
+    print(args.json_file)
+    print("Hellosssssss")
+    wc_args = WorstCaseAttackArgs(
+        json_file = str(args.json_file),
+    )
+    print(wc_args.__dict__["n_reps"])
+    print(wc_args.__dict__["in_sample_filename"])
+    print("End of parameters")
+    attack_obj = WorstCaseAttack(wc_args)
+    attack_obj.attack_from_prediction_files()
+    _ = attack_obj.make_report()
 
 def main():
     """main method to parse arguments and invoke relevant method"""
@@ -661,8 +691,24 @@ def main():
             "using them to train the attack model. Default = %(default)f"
         ),
     )
-
+  
     attack_parser.set_defaults(func=_run_attack)
+
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--json-file",
+        action="store",
+        required=True,
+        dest="json_file",
+        type=str,
+        default="config_worstcase_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
 
     args = parser.parse_args()
 
