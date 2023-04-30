@@ -38,6 +38,39 @@ def test_config_file_arguments_parsin():
         )
     os.remove("config_worstcase_test.json")
 
+test_attack_from_predictions_cmd():
+"""tests reading parameters from the configuration file"""
+    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    dataset_obj = dataset.Data()
+    dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+
+    target_model = SVC(gamma=0.1, probability=True)
+    target_model.fit(train_X, train_y)
+    ytr_pred = target_model.predict_proba(train_X)
+    yte_pred = target_model.predict_proba(test_X)
+    np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
+    np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
+
+    config = {
+    "n_reps": 30,
+    "n_dummy_reps": 2,
+    "p_thresh": 0.05,
+    "test_prop": 0.5,    
+    "in_sample_filename": "ypred_train.csv",
+    "out_sample_filename": "ypred_test.csv",
+    }
+    
+    with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+    os.system(
+        "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+        "--json-file config_worstcase_cmd.json "
+    )
+    os.remove("config_worstcase_cmd.json")
+    os.remove("ypred_train.csv")
+    os.remove("ypred_test.csv")
+
 
 def test_report_worstcase():
     """tests worst case attack directly"""
