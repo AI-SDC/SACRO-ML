@@ -56,11 +56,11 @@ test_attack_from_predictions_cmd():
     "n_reps": 30,
     "n_dummy_reps": 2,
     "p_thresh": 0.05,
-    "test_prop": 0.5,    
+    "test_prop": 0.5,
     "in_sample_filename": "ypred_train.csv",
     "out_sample_filename": "ypred_test.csv",
     }
-    
+
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
     os.system(
