@@ -38,7 +38,7 @@ def test_config_file_arguments_parsin():
     )
     os.remove("config_worstcase_test.json")
 
-test_attack_from_predictions_cmd():
+def test_attack_from_predictions_cmd():
 """tests reading parameters from the configuration file"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
