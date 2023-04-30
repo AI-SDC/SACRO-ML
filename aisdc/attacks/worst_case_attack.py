@@ -54,7 +54,7 @@ class WorstCaseAttackArgs:
             "min_samples_leaf": 10,
             "max_depth": 5,
         }
-        self.__dict__["json_file"] = None 
+        self.__dict__["json_file"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
         if self.__dict__["json_file"] is not None:
@@ -81,8 +81,8 @@ class WorstCaseAttackArgs:
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
         for _, k in enumerate(config):
-            self.__dict__[k] = config[k]
-            
+            self.__dict__[k] = config[k]            
+
 
 class WorstCaseAttack(Attack):
     """Class to wrap the worst case attack code"""
@@ -691,7 +691,7 @@ def main():
             "using them to train the attack model. Default = %(default)f"
         ),
     )
-  
+
     attack_parser.set_defaults(func=_run_attack)
 
     attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
