@@ -30,7 +30,6 @@ def test_config_file_arguments_parsin():
         "test_prop": 0.5,
         "report_name": "programmatically_worstcase_report",
     }
-
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     _ = worst_case_attack.WorstCaseAttackArgs(
@@ -62,11 +61,11 @@ def test_attack_from_predictions_cmd():
     }
 
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
-    f.write(json.dumps(config))
+        f.write(json.dumps(config))
     os.system(
         "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
         "--json-file config_worstcase_cmd.json "
-    )
+        )
     os.remove("config_worstcase_cmd.json")
     os.remove("ypred_train.csv")
     os.remove("ypred_test.csv")
