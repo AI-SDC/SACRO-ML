@@ -79,9 +79,9 @@ with open("config.json", "w", encoding="utf-8") as f:
 args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example_report",
-    json_file = "config.json",
-    shadow_models_fail_fast = True,
-    n_shadow_rows_confidences_min = 5,
+    json_file="config.json",
+    shadow_models_fail_fast=True,
+    n_shadow_rows_confidences_min=5,
 )
 attack_obj = LIRAAttack(args)
 
@@ -136,7 +136,7 @@ os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
     "--json-file config.json "
     "--report-name example_lira_report "
-    "--n-shadow-models 100 "    
+    "--n-shadow-models 100 "
 )
 
 # os.system(
