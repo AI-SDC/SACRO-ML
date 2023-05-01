@@ -139,7 +139,7 @@ class LIRAAttack(Attack):
         dataset: attacks.dataset.Data
             Dataset as an instance of the Data class. Needs to have x_train, x_test, y_train
             and y_test set.
-        target_mode: sklearn.base.BaseEstimator
+        target_model: sklearn.base.BaseEstimator
             Trained target model. Any class that implements the sklearn.base.BaseEstimator
             interface (i.e. has fit, predict and predict_proba methods)
         """
@@ -420,7 +420,7 @@ class LIRAAttack(Attack):
             else f"Not significant at p={self.args.p_thresh}"
         )
         self.metadata["global_metrics"][
-            "AUC NULL 3sd range"
+            "null_auc_3sd_range"
         ] = f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
 
         self.metadata["attack"] = str(self)
@@ -508,8 +508,8 @@ class LIRAAttack(Attack):
             "testing_data_file": "test_data.csv",
             "training_preds_file": "train_preds.csv",
             "testing_preds_file": "test_preds.csv",
-            "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-            "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
+            "mia_attack_model": ["sklearn.ensemble", "RandomForestClassifier"],
+            "mia_attack_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
         }
 
         with open("config.json", "w", encoding="utf-8") as f:
@@ -542,10 +542,10 @@ class LIRAAttack(Attack):
         test_preds = np.loadtxt(config["testing_preds_file"], delimiter=",")
         assert len(test_preds) == len(test_X)
 
-        clf_module_name, clf_class_name = config["target_model"]
+        clf_module_name, clf_class_name = config["mia_attack_model"]
         module = importlib.import_module(clf_module_name)
         clf_class = getattr(module, clf_class_name)
-        clf_params = config["target_hyppars"]
+        clf_params = config["mia_attack_model_hyp"]
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(

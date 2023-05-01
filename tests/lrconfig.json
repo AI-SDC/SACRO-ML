@@ -3,11 +3,11 @@
     "testing_data_file": "test_data.csv",
     "training_preds_file": "train_preds.csv",
     "testing_preds_file": "test_preds.csv",
-    "target_model": [
+    "mia_attack_model": [
         "sklearn.ensemble",
         "RandomForestClassifier"
     ],
-    "target_hyppars": {
+    "mia_attack_model_hyp": {
         "min_samples_split": 2,
         "min_samples_leaf": 1
     }
