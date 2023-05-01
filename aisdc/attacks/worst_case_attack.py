@@ -41,8 +41,8 @@ class WorstCaseAttackArgs:
         self.__dict__["test_prop"] = 0.3
         self.__dict__["n_rows_in"] = 1000
         self.__dict__["n_rows_out"] = 1000
-        self.__dict__["in_sample_filename"] = None
-        self.__dict__["out_sample_filename"] = None
+        self.__dict__["training_preds_file"] = None
+        self.__dict__["test_preds_file"] = None
         self.__dict__["report_name"] = None
         self.__dict__["include_model_correct_feature"] = False
         self.__dict__["sort_probs"] = True
@@ -117,8 +117,8 @@ class WorstCaseAttack(Attack):
         Filenames for the saved prediction files to be specified in the arguments provided
         in the constructor
         """
-        train_preds = np.loadtxt(self.args.in_sample_filename, delimiter=",")
-        test_preds = np.loadtxt(self.args.out_sample_filename, delimiter=",")
+        train_preds = np.loadtxt(self.args.training_preds_file, delimiter=",")
+        test_preds = np.loadtxt(self.args.test_preds_file, delimiter=",")
         self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(  # pylint: disable=too-many-locals
@@ -411,8 +411,8 @@ class WorstCaseAttack(Attack):
             test_beta=self.args.test_beta,
         )
         logger.info("Saving files")
-        np.savetxt(self.args.in_sample_filename, train_preds, delimiter=",")
-        np.savetxt(self.args.out_sample_filename, test_preds, delimiter=",")
+        np.savetxt(self.args.training_preds_file, train_preds, delimiter=",")
+        np.savetxt(self.args.test_preds_file, test_preds, delimiter=",")
 
     def _construct_metadata(self):
         """Constructs the metadata object, after attacks"""
@@ -466,8 +466,8 @@ class WorstCaseAttack(Attack):
 def _make_dummy_data(args):
     """Initialise class and run dummy data creation"""
     wc_args = WorstCaseAttackArgs(**args.__dict__)
-    wc_args.set_param("in_sample_filename", "train_preds.csv")
-    wc_args.set_param("out_sample_filename", "test_preds.csv")
+    wc_args.set_param("training_preds_file", "train_preds.csv")
+    wc_args.set_param("test_preds_file", "test_preds.csv")
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.make_dummy_data()
 
@@ -547,7 +547,7 @@ def main():
         "-i",
         "--in-sample-preds",
         action="store",
-        dest="in_sample_filename",
+        dest="training_preds_file",
         required=False,
         type=str,
         default="train_preds.csv",
@@ -561,7 +561,7 @@ def main():
         "-o",
         "--out-of-sample-preds",
         action="store",
-        dest="out_sample_filename",
+        dest="test_preds_file",
         required=False,
         type=str,
         default="test_preds.csv",
