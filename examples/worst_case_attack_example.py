@@ -61,6 +61,7 @@ with open("config_worstcase.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 args = worst_case_attack.WorstCaseAttackArgs(
+    # name of the configuration file in JSON format to load parameters
     json_file="config_worstcase.json",
 )
 # OR passing through arguments
@@ -164,7 +165,7 @@ np.savetxt("test_preds.csv", test_preds, delimiter=",")
 os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 
 # [TRE] Then they run the attack
-# Worstcase attack through a configuratation file for parameters
+# Worstcase attack through a configuratation file for loading parameters
 config = {
     "n_reps": 30,
     "n_dummy_reps": 2,
@@ -183,7 +184,7 @@ os.system(
     "--json-file config_worstcase_cmd.json "
 )
 
-# OR Worstcase attack through commandline passing through parameters
+# OR Worstcase attack through commandline by passing parameters
 # os.system(
 #     "python -m aisdc.attacks.worst_case_attack run-attack "
 #     "--in-sample-preds train_preds.csv "
