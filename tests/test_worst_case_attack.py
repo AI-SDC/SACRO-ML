@@ -37,6 +37,7 @@ def test_config_file_arguments_parsin():
     )
     os.remove("config_worstcase_test.json")
 
+
 def test_attack_from_predictions_cmd():
     """Running attack using configuration file and prediction files"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -52,12 +53,12 @@ def test_attack_from_predictions_cmd():
     np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
 
     config = {
-    "n_reps": 30,
-    "n_dummy_reps": 2,
-    "p_thresh": 0.05,
-    "test_prop": 0.5,
-    "in_sample_filename": "ypred_train.csv",
-    "out_sample_filename": "ypred_test.csv",
+        "n_reps": 30,
+        "n_dummy_reps": 2,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "in_sample_filename": "ypred_train.csv",
+        "out_sample_filename": "ypred_test.csv",
     }
 
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
@@ -65,7 +66,7 @@ def test_attack_from_predictions_cmd():
     os.system(
         "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
         "--json-file config_worstcase_cmd.json "
-        )
+    )
     os.remove("config_worstcase_cmd.json")
     os.remove("ypred_train.csv")
     os.remove("ypred_test.csv")
