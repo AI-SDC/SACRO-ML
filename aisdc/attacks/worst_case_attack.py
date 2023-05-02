@@ -498,7 +498,7 @@ class WorstCaseAttack(Attack):
         attack_metrics_instances = {}
 
         for rep, _ in enumerate(self.attack_metrics):
-            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[
                 rep
             ]
 
@@ -518,7 +518,7 @@ class WorstCaseAttack(Attack):
             dummy_attack_metric_instances = {}
             for rep, _ in enumerate(temp_dummy_attack_metrics):
                 dummy_attack_metric_instances[
-                    "instance_" + str(rep + 1)
+                    "instance_" + str(rep)
                 ] = temp_dummy_attack_metrics[rep]
             temp = {}
             temp["attack_instance_logger"] = dummy_attack_metric_instances
@@ -526,7 +526,7 @@ class WorstCaseAttack(Attack):
                 "attack_metric_failfast_summary"
             ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
             dummy_attack_metrics_experiments[
-                "dummy_attack_metrics_experiment_" + str(exp_rep + 1)
+                "dummy_attack_metrics_experiment_" + str(exp_rep)
             ] = temp
 
         return dummy_attack_metrics_experiments

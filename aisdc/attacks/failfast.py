@@ -40,50 +40,28 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         how many times it was not successful (i.e. false).
         """
         metric_value = metric_dict[self.metric_name]
-        success_status = False
-        if self.comp_type == "lt":
-            if metric_value < self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        elif self.comp_type == "lte":
-            if metric_value <= self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        elif self.comp_type == "gt":
-            if metric_value > self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        elif self.comp_type == "gte":
-            if metric_value >= self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        elif self.comp_type == "eq":
-            if metric_value == self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        elif self.comp_type == "not_eq":
-            if metric_value != self.metric_success_thresh:
-                success_status = True
-                self.success_count += 1
-            else:
-                success_status = False
-                self.fail_count += 1
-        return success_status
+        success_status = False        
+        if self.comp_type == 'lt':
+            comparison_function = lambda x, y: x < y
+        elif self.comp_type == 'lte':
+            comparison_function = lambda x, y: x <= y
+        elif self.comp_type == 'gt':
+            comparison_function = lambda x, y: x > y
+        elif self.comp_type == 'gte':
+            comparison_function = lambda x, y: x >= y
+        elif self.comp_type == 'eq':
+            comparison_function = lambda x, y: x == y
+        elif self.comp_type == 'not_eq':
+            comparison_function = lambda x, y: x != y
+    
+        if comparison_function(metric_value, self.metric_success_thresh) == True:
+            success_status = True 
+            self.success_count += 1
+        else:
+            success_status = False
+            self.fail_count += 1
+        
+        return success_status    
 
     def get_success_count(self):
         """Returns a count of attack being successful"""
