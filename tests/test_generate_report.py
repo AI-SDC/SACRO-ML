@@ -168,7 +168,7 @@ class TestGenerateReport(unittest.TestCase):
         f = LogLogROCModule(json_formatted)
         _ = f.process_dict()
 
-        f = LogLogROCModule(json_formatted,output_folder="./")
+        f = LogLogROCModule(json_formatted, output_folder="./")
         _ = f.process_dict()
 
     def test_complete_runthrough(self):
