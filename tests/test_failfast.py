@@ -140,15 +140,15 @@ def test_attack_success_fail_counts_and_overall_attack_success():
         )
     failfast_Obj = failfast.FailFast(args)
     _ = failfast_Obj.check_attack_success(metrics)
-    metric["P_HIGHER_AUC"] = 0.07
+    metrics["P_HIGHER_AUC"] = 0.07
     _ = failfast_Obj.check_attack_success(metrics)
-    metric["P_HIGHER_AUC"] = 0.03
+    metrics["P_HIGHER_AUC"] = 0.03
     _ = failfast_Obj.check_attack_success(metrics)
     assert failfast_Obj.check_overall_attack_success(args) is False
-    metric["P_HIGHER_AUC"] = 0.02
+    metrics["P_HIGHER_AUC"] = 0.02
     _ = failfast_Obj.check_attack_success(metrics)
-    metric["P_HIGHER_AUC"] = 0.01
+    metrics["P_HIGHER_AUC"] = 0.01
     _ = failfast_Obj.check_attack_success(metrics)
-    assert failfast_Obj.get_success_count(metrics) == 3
-    assert failfast_Obj.get_success_count(metrics) == 2
+    assert failfast_Obj.get_success_count() == 3
+    assert failfast_Obj.get_fail_count() == 2
     assert failfast_Obj.check_overall_attack_success(args) is True
