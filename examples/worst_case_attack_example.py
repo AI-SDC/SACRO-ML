@@ -155,7 +155,7 @@ os.system(
     "--n-reps 10 "
     "--report-name example_report_risky "
     "--n-dummy-reps 1 "
-    "--test-prop 0.1"
+    "--test-prop 0.1 "
     "--report-name example_report"
 )
 
