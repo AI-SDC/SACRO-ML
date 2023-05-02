@@ -139,23 +139,21 @@ def test_attack_success_fail_counts_and_overall_attack_success():
         attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="lte",
         attack_metric_success_count_thresh=3,
-
-    )
+        )
     failfast_Obj = failfast.FailFast(args)
     
     _ = failfast_Obj.check_attack_success(metrics)
-
+    
     metric["P_HIGHER_AUC"] = 0.07
     _ = failfast_Obj.check_attack_success(metrics)
-
+    
     metric["P_HIGHER_AUC"] = 0.03
     _ = failfast_Obj.check_attack_success(metrics)
-
     assert failfast_Obj.check_overall_attack_success(args) is False
     
     metric["P_HIGHER_AUC"] = 0.02
     _ = failfast_Obj.check_attack_success(metrics)
-
+    
     metric["P_HIGHER_AUC"] = 0.01
     _ = failfast_Obj.check_attack_success(metrics)
     
