@@ -22,6 +22,7 @@ python -m examples.worst_case_attack_example
 """
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -63,7 +64,7 @@ args = worst_case_attack.WorstCaseAttackArgs(
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
     # Report name is None - don't make json or pdf files
-    report_name='worstcase_example_report',
+    report_name="worstcase_example_report",
 )
 
 # [TRE / Researcher] Wrap the data in a dataset object

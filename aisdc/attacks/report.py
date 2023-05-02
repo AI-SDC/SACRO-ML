@@ -221,7 +221,12 @@ def create_mia_report(attack_output: dict) -> FPDF:
     """
     # dummy_metrics = attack_output["dummy_attack_metrics"]
     dummy_metrics = []
-    mia_metrics = [v for _, v in attack_output["attack_experiment_logger"]["attack_instance_logger"].items()]
+    mia_metrics = [
+        v
+        for _, v in attack_output["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].items()
+    ]
     # mia_metrics = attack_output["attack_metrics"]
     metadata = attack_output["metadata"]
     if dummy_metrics is None or len(dummy_metrics) == 0:
