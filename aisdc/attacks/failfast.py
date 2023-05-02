@@ -40,7 +40,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         how many times it was not successful (i.e. false).
         """
         metric_value = metric_dict[self.metric_name]
-        success_status = False        
+        success_status = False
         if self.comp_type == 'lt':
             comparison_function = lambda x, y: x < y
         elif self.comp_type == 'lte':
@@ -53,15 +53,14 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
             comparison_function = lambda x, y: x == y
         elif self.comp_type == 'not_eq':
             comparison_function = lambda x, y: x != y
-    
+           
         if comparison_function(metric_value, self.metric_success_thresh) == True:
-            success_status = True 
+            success_status = True
             self.success_count += 1
         else:
             success_status = False
             self.fail_count += 1
-        
-        return success_status    
+        return success_status
 
     def get_success_count(self):
         """Returns a count of attack being successful"""
