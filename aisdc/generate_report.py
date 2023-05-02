@@ -243,11 +243,16 @@ class LogLogROCModule(AnalysisModule):
 
         try:
             for i, metric_set in enumerate(metrics):
-                all_tpr[i, :] = np.interp(base_fpr, metric_set["FPR"], metric_set["TPR"])
+                all_tpr[i, :] = np.interp(
+                    base_fpr, metric_set["FPR"], metric_set["TPR"]
+                )
 
             for _, metric_set in enumerate(metrics):
                 plt.plot(
-                    metric_set["FPR"], metric_set["TPR"], color="lightsalmon", linewidth=0.5
+                    metric_set["FPR"],
+                    metric_set["TPR"],
+                    color="lightsalmon",
+                    linewidth=0.5,
                 )
 
             tpr_mu = all_tpr.mean(axis=0)
