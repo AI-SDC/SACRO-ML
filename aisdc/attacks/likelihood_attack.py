@@ -472,9 +472,7 @@ class LIRAAttack(Attack):
             self.attack_metrics[rep][
                 "n_shadow_models_trained"
             ] = self.attack_failfast_shadow_models
-            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[
-                rep
-            ]
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
