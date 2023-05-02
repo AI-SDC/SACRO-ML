@@ -66,7 +66,7 @@ args = worst_case_attack.WorstCaseAttackArgs(
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
     # If Report name is given so it creates Json file; however when it is None - don't make json file
-    report_name="Programmatic_example_report_risky",
+    report_name="programmatic_worstcase_example_report_risky",
     # Setting the name of metric to compute failures
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
@@ -167,7 +167,7 @@ os.system(
     "--in-sample-preds train_preds.csv "
     "--out-of-sample-preds test_preds.csv "
     "--n-reps 10 "
-    "--report-name example_report_risky "
+    "--report-name commandline_worstcase_example_report "
     "--n-dummy-reps 1 "
     "--test-prop 0.1 "
     "--train-beta 5 "
