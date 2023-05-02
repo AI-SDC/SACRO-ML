@@ -49,7 +49,7 @@ class TestGenerateReport(unittest.TestCase):
         return json_formatted
 
     def process_json_from_file(self, json_formatted):
-        """function which handles file input/output from the process_json function in generate_report.py"""
+        """function which handles file input/output from the process_json function"""
         filename = "test.json"
         output_filename = "results.txt"
 
