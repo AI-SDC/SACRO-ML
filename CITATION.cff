@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: AI-SDC
-version: 1.0.2
-doi: 10.5281/zenodo.7681783
-date-released: 2023-02-27
+version: 1.0.3
+doi: 10.5281/zenodo.7886945
+date-released: 2023-05-02
 license: MIT
 repository-code: https://github.com/AI-SDC/AI-SDC
 languages:
@@ -40,6 +40,15 @@ authors:
     given-names: James
     orcid: https://orcid.org/0000-0002-0049-8238
     affiliation: University of Durham
+  - family-names: Albashir
+    given-names: Maha
+    affiliation: University of the West of England
+  - family-names: Jones
+    given-names: Yola
+    affiliation: NHS National Services Scotland
+  - family-names: Mumtaz
+    given-names: Shahzad
+    affiliation: University of Dundee
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7080279
@@ -53,3 +62,6 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.7681783
     description: This is the archived snapshot of AI-SDC v.1.0.2.
+  - type: doi
+    value: 10.5281/zenodo.7886945
+    description: This is the archived snapshot of AI-SDC v.1.0.3.
