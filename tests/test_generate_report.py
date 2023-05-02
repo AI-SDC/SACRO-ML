@@ -2,14 +2,14 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import os
-import sys
-from unittest.mock import patch
+import pytest
 
 import numpy as np
 import unittest
 import json
 
-from aisdc.generate_report import process_json  # pylint: disable = import-error
+from aisdc.generate_report import process_json
+from aisdc.generate_report import AnalysisModule, FinalRecommendationModule, SummariseUnivariateMetricsModule, SummariseAUCPvalsModule, SummariseFDIFPvalsModule, LogLogROCModule
 
 class TestGenerateReport(unittest.TestCase):
 
@@ -54,30 +54,45 @@ class TestGenerateReport(unittest.TestCase):
         if os.path.exists(name) and os.path.isfile(name):
             os.remove(name)
 
+    def test_not_implemented(self):
+        a = AnalysisModule()
+        with pytest.raises(NotImplementedError):
+            a.process_dict()
+
+        with pytest.raises(NotImplementedError):
+            str(a)
+
     def test_svm(self):
         json_formatted = self.get_test_report()
-        data = self.process_json_from_file(json_formatted)
 
-        self.assertNotIn('Model is SVM',data)
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
+    
+        self.assertEqual(len(returned['score_descriptions']),0)
 
         json_formatted['model'] = 'SVC'
-        data = self.process_json_from_file(json_formatted)
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
         
-        self.assertIn('Model is SVM', data)
+        self.assertIn('Model is SVM', returned['score_descriptions'][0])
 
     def test_min_samples_leaf(self):
-        filename = 'test.json'
-        output_filename = 'results.txt'
-
         json_formatted = self.get_test_report()
-        data = self.process_json_from_file(json_formatted)
+        
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
 
-        self.assertNotIn('Min samples per leaf',data)
+        self.assertEqual(len(returned['score_descriptions']),0)
 
         json_formatted['model_params']['min_samples_leaf'] = 2
-        data = self.process_json_from_file(json_formatted)
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
 
-        self.assertIn('Min samples per leaf',data)
+        self.assertIn('Min samples per leaf',returned['score_descriptions'][0])
+
+    def test_complete_runthrough(self):
+        json_formatted = self.get_test_report()
+        _ = self.process_json_from_file(json_formatted)
 
     def test_cleanup(self):
         """gets rid of files created during tests"""
