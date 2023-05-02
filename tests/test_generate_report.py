@@ -4,6 +4,7 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 import json
 import os
 import unittest
+
 import pytest
 
 from aisdc.generate_report import (
@@ -53,12 +54,12 @@ class TestGenerateReport(unittest.TestCase):
         filename = "test.json"
         output_filename = "results.txt"
 
-        with open(filename, "w", encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
 
         process_json(filename, output_filename)
 
-        with open(output_filename, encoding='utf-8') as file:
+        with open(output_filename, encoding="utf-8") as file:
             data = file.read()
 
         return data
