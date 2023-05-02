@@ -69,7 +69,6 @@ config = {
     "testing_preds_file": "test_preds.csv",
     "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
     "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
-    "shadow_models_fail_fast": False,
 }
 
 with open("config.json", "w", encoding="utf-8") as f:

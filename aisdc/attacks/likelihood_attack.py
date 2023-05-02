@@ -39,7 +39,7 @@ def parse_boolean_argument(value):
     """Parses string value to a boolean"""
     value = value.lower()
     return_value = False
-    if value in ["true"]:
+    if value in ["true", "True"]:
         return_value = True
     return return_value
 
@@ -446,22 +446,22 @@ class LIRAAttack(Attack):
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        output_pdf = {}
-        output_pdf["log_id"] = str(uuid.uuid4())
-        output_pdf["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        output_for_pdf = {}
+        output_for_pdf["log_id"] = str(uuid.uuid4())
+        output_for_pdf["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
-        output_pdf["metadata"] = self.metadata
-        output_pdf["attack_metrics"] = self.attack_metrics
+        output_for_pdf["metadata"] = self.metadata
+        output_for_pdf["attack_metrics"] = self.attack_metrics
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
             logger.info("Wrote report to %s", f"{self.args.report_name}.json")
 
-            pdf = report.create_lr_report(output_pdf)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
+            pdf_report = report.create_lr_report(output_for_pdf)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
-        return output_pdf
+        return output_for_pdf
 
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
@@ -472,7 +472,7 @@ class LIRAAttack(Attack):
             self.attack_metrics[rep][
                 "n_shadow_models_trained"
             ] = self.attack_failfast_shadow_models
-            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[
                 rep
             ]
 
