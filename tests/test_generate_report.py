@@ -3,12 +3,19 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import json
 import os
-import pytest
 
 import numpy as np
+import pytest
 
-from aisdc.generate_report import process_json
-from aisdc.generate_report import AnalysisModule, FinalRecommendationModule, SummariseUnivariateMetricsModule, SummariseAUCPvalsModule, SummariseFDIFPvalsModule, LogLogROCModule
+from aisdc.generate_report import (
+    AnalysisModule,
+    FinalRecommendationModule,
+    LogLogROCModule,
+    SummariseAUCPvalsModule,
+    SummariseFDIFPvalsModule,
+    SummariseUnivariateMetricsModule,
+    process_json,
+)
 
 
 class TestGenerateReport(unittest.TestCase):
@@ -68,28 +75,28 @@ class TestGenerateReport(unittest.TestCase):
 
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
-    
-        self.assertEqual(len(returned['score_descriptions']),0)
 
-        json_formatted['model'] = 'SVC'
+        self.assertEqual(len(returned["score_descriptions"]), 0)
+
+        json_formatted["model"] = "SVC"
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
-        
-        self.assertIn('Model is SVM', returned['score_descriptions'][0])
+
+        self.assertIn("Model is SVM", returned["score_descriptions"][0])
 
     def test_min_samples_leaf(self):
         json_formatted = self.get_test_report()
-        
+
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertEqual(len(returned['score_descriptions']),0)
+        self.assertEqual(len(returned["score_descriptions"]), 0)
 
-        json_formatted['model_params']['min_samples_leaf'] = 2
+        json_formatted["model_params"]["min_samples_leaf"] = 2
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertIn('Min samples per leaf',returned['score_descriptions'][0])
+        self.assertIn("Min samples per leaf", returned["score_descriptions"][0])
 
     def test_complete_runthrough(self):
         json_formatted = self.get_test_report()
