@@ -67,7 +67,6 @@ class TestGenerateReport(unittest.TestCase):
     def clean_up(self, name):
         """removes unwanted files or directory"""
         if os.path.exists(name) and os.path.isfile(name):
-            print("REMOVING")
             os.remove(name)
 
     def test_not_implemented(self):
@@ -167,6 +166,9 @@ class TestGenerateReport(unittest.TestCase):
         """test the LogLogROCModule"""
         json_formatted = self.get_test_report()
         f = LogLogROCModule(json_formatted)
+        _ = f.process_dict()
+
+        f = LogLogROCModule(json_formatted,output_folder="./")
         _ = f.process_dict()
 
     def test_complete_runthrough(self):
