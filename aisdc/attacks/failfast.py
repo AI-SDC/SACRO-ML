@@ -46,27 +46,27 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         elif self.comp_type == "lte":
             success_status = bool(metric_value <= self.metric_success_thresh)
         elif self.comp_type == "gt":
-            success_status = bool(metric_value > self.metric_success_thresh)                
+            success_status = bool(metric_value > self.metric_success_thresh)
         elif self.comp_type == "gte":
             success_status = bool(metric_value >= self.metric_success_thresh)
         elif self.comp_type == "eq":
             success_status = bool(metric_value == self.metric_success_thresh)
         elif self.comp_type == "not_eq":
             success_status = bool(metric_value != self.metric_success_thresh)
-        
+
         if success_status:
             self._increment_success_count()
         else:
             self._incremenet_fail_count()
-        
+
         return success_status
-    
+
     def _increment_success_count(self):
         self.success_count += 1
 
     def _incremenet_fail_count(self):
         self.fail_count += 1
-    
+
     def get_success_count(self):
         """Returns a count of attack being successful"""
         return self.success_count
