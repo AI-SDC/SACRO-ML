@@ -160,7 +160,7 @@ class TestGenerateReport(unittest.TestCase):
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = f.process_dict()
-        _ = f.get_metric_list(json_formatted['attack_experiment_logger'])
+        _ = f.get_metric_list(json_formatted["attack_experiment_logger"])
 
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
