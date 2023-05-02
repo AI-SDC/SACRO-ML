@@ -291,11 +291,6 @@ def process_json(input_filename: str, output_filename: str):
 
     modules = [
         FinalRecommendationModule(json_report),
-        SummariseUnivariateMetricsModule(json_report),
-        SummariseAUCPvalsModule(json_report, p_thresh=0.05),
-        SummariseAUCPvalsModule(json_report, p_thresh=0.1),
-        SummariseFDIFPvalsModule(json_report),
-        LogLogROCModule(json_report),
     ]
 
     output = {str(m): m.process_dict() for m in modules}
@@ -303,10 +298,3 @@ def process_json(input_filename: str, output_filename: str):
 
     with open(output_filename, "w") as text_file:
         text_file.write(output_string)
-
-
-if __name__ == "__main__":
-    attack_json = "data (7).json"
-    dest_file = "results.txt"
-
-    process_json(attack_json, dest_file)
