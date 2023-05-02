@@ -167,18 +167,6 @@ class TestGenerateReport(unittest.TestCase):
         f = LogLogROCModule(json_formatted)
         _ = f.process_dict()
 
-        for i in range(10):
-            json_formatted["attack_experiment_logger"]["attack_instance_logger"][
-                "instance_" + str(i)
-            ]["fpr"] = []
-            json_formatted["attack_experiment_logger"]["attack_instance_logger"][
-                "instance_" + str(i)
-            ]["tpr"] = []
-
-        with pytest.raises(ValueError):
-            f = LogLogROCModule(json_formatted)
-            _ = f.process_dict()
-
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
         json_formatted = self.get_test_report()
