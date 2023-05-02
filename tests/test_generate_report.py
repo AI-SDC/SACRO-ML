@@ -23,16 +23,10 @@ class TestGenerateReport(unittest.TestCase):
     def get_test_report(self):
         """create a mock attack result dictionary for use with tests"""
         json_formatted = {
-            'log_id': 1024,
-            'metadata': {
-                'attack': 'WorstCase attack'
-            },
-            'model_params': {
-                'min_samples_leaf': 10
-            },
-            'attack_experiment_logger': {
-                'attack_instance_logger': {}
-            }
+            "log_id": 1024,
+            "metadata": {"attack": "WorstCase attack"},
+            "model_params": {"min_samples_leaf": 10},
+            "attack_experiment_logger": {"attack_instance_logger": {}},
         }
 
         metrics_dict = {
@@ -43,8 +37,8 @@ class TestGenerateReport(unittest.TestCase):
             "PDIF01": 1.0,
             "FPR": 1.0,
             "TPR": 0.1,
-            'fpr': [0.0, 0.0, 1.0],
-            'tpr': [0.0, 1.0, 1.0],
+            "fpr": [0.0, 0.0, 1.0],
+            "tpr": [0.0, 1.0, 1.0],
         }
 
         for i in range(10):
@@ -168,17 +162,17 @@ class TestGenerateReport(unittest.TestCase):
 
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
-        json_formatted = self.get_test_report()        
+        json_formatted = self.get_test_report()
         f = LogLogROCModule(json_formatted)
         _ = f.process_dict()
 
         for i in range(10):
             json_formatted["attack_experiment_logger"]["attack_instance_logger"][
                 "instance_" + str(i)
-            ]['fpr'] = []
+            ]["fpr"] = []
             json_formatted["attack_experiment_logger"]["attack_instance_logger"][
                 "instance_" + str(i)
-            ]['tpr'] = []
+            ]["tpr"] = []
 
         with pytest.raises(ValueError):
             f = LogLogROCModule(json_formatted)
