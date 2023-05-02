@@ -106,5 +106,3 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         if self.success_count >= attack_obj_args.attack_metric_success_count_thresh:
             overall_success_status = True
         return overall_success_status
-        
-
