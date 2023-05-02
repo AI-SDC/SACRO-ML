@@ -123,6 +123,7 @@ def test_parse_boolean_argument():
 
     assert failfast_Obj.get_fail_count() == 0
 
+
 def test_attack_success_fail_counts_and_overall_attack_success():
     """test success and fail counts of attacks for a given threshold
     of a given metric based on a given comparison operation and
@@ -137,7 +138,7 @@ def test_attack_success_fail_counts_and_overall_attack_success():
         attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="lte",
         attack_metric_success_count_thresh=3,
-        )
+    )
     failfast_Obj = failfast.FailFast(args)
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.07

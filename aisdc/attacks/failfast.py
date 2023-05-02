@@ -5,9 +5,9 @@ from __future__ import annotations
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
     """Class to check attack being successful or not for a given metric
-    Note: An object of a FailFast is stateful and instance members 
-    (success_count and fail_count) will preserve values 
-    across repetitions for a test. For the new test 
+    Note: An object of a FailFast is stateful and instance members
+    (success_count and fail_count) will preserve values
+    across repetitions for a test. For the new test
     a new object will require to be created.
     """
 

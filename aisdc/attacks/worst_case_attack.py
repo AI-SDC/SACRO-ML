@@ -288,9 +288,9 @@ class WorstCaseAttack(Attack):
             failfast_metric_summary.check_attack_success(mia_metrics[rep])
 
             if (
-                failfast_metric_summary.check_overall_attack_success(self.args) and
-                self.args.attack_fail_fast
-                ):
+                failfast_metric_summary.check_overall_attack_success(self.args)
+                and self.args.attack_fail_fast
+            ):
                 break
 
         logger.info("Finished simulating attacks")
@@ -498,9 +498,7 @@ class WorstCaseAttack(Attack):
         attack_metrics_instances = {}
 
         for rep, _ in enumerate(self.attack_metrics):
-            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[
-                rep
-            ]
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         attack_metrics_experiment[
@@ -838,8 +836,8 @@ def main():
         required=False,
         dest="attack_metric_success_count_thresh",
         help=(
-            """for setting counter limit to stop further repetitions 
-            given the attack is successful and the 
+            """for setting counter limit to stop further repetitions
+            given the attack is successful and the
             --attack-fail-fast is true. Default = %(default)d"""
         ),
     )
