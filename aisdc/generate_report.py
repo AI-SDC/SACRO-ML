@@ -295,11 +295,6 @@ def process_json(input_filename: str, output_filename: str):
 
     modules = [
         FinalRecommendationModule(json_report),
-        SummariseUnivariateMetricsModule(json_report),
-        SummariseAUCPvalsModule(json_report, p_thresh=0.05),
-        SummariseAUCPvalsModule(json_report, p_thresh=0.1),
-        SummariseFDIFPvalsModule(json_report),
-        LogLogROCModule(json_report),
     ]
 
     output = {str(m): m.process_dict() for m in modules}
