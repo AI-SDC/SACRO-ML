@@ -3,8 +3,8 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import json
 import os
-
 import unittest
+
 import numpy as np
 import pytest
 
@@ -18,8 +18,10 @@ from aisdc.generate_report import (
     process_json,
 )
 
+
 class TestGenerateReport(unittest.TestCase):
     """class which tests the generate_report.py file"""
+
     def get_test_report(self):
         """create a mock attack result dictionary for use with tests"""
         json_formatted = {
@@ -136,7 +138,9 @@ class TestGenerateReport(unittest.TestCase):
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertIn(">10% AUC are statistically significant", returned["score_descriptions"][0])
+        self.assertIn(
+            ">10% AUC are statistically significant", returned["score_descriptions"][0]
+        )
         self.assertIn("Attack AUC > threshold", returned["score_descriptions"][1])
 
     def test_univariate_metrics_module(self):
@@ -151,11 +155,11 @@ class TestGenerateReport(unittest.TestCase):
         f = SummariseAUCPvalsModule(json_formatted)
         _ = f.process_dict()
 
-        f = SummariseAUCPvalsModule(json_formatted,correction='bo')
+        f = SummariseAUCPvalsModule(json_formatted, correction="bo")
         _ = f.process_dict()
 
         with pytest.raises(NotImplementedError):
-            f = SummariseAUCPvalsModule(json_formatted,correction='xyzabcd')
+            f = SummariseAUCPvalsModule(json_formatted, correction="xyzabcd")
             _ = f.process_dict()
 
     def test_fdif_pvals_module(self):
