@@ -67,6 +67,7 @@ class TestGenerateReport(unittest.TestCase):
     def clean_up(self, name):
         """removes unwanted files or directory"""
         if os.path.exists(name) and os.path.isfile(name):
+            print("REMOVING")
             os.remove(name)
 
     def test_not_implemented(self):
@@ -160,6 +161,7 @@ class TestGenerateReport(unittest.TestCase):
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = f.process_dict()
+        _ = f.get_metric_list(json_formatted['attack_experiment_logger'])
 
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
@@ -174,6 +176,6 @@ class TestGenerateReport(unittest.TestCase):
 
     def test_cleanup(self):
         """gets rid of files created during tests"""
-        names = ["test.json", "results.txt"]
+        names = ["test.json", "results.txt", "1024-WorstCase attack.png"]
         for name in names:
             self.clean_up(name)

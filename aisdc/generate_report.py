@@ -241,38 +241,35 @@ class LogLogROCModule(AnalysisModule):
         ].values()
         all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
 
-        try:
-            for i, metric_set in enumerate(metrics):
-                all_tpr[i, :] = np.interp(
-                    base_fpr, metric_set["FPR"], metric_set["TPR"]
-                )
-
-            for _, metric_set in enumerate(metrics):
-                plt.plot(
-                    metric_set["FPR"],
-                    metric_set["TPR"],
-                    color="lightsalmon",
-                    linewidth=0.5,
-                )
-
-            tpr_mu = all_tpr.mean(axis=0)
-            plt.plot(base_fpr, tpr_mu, "r")
-
-            plt.xlabel("False Positive Rate")
-            plt.ylabel("True Positive Rate")
-            plt.xscale("log")
-            plt.yscale("log")
-            plt.tight_layout()
-            plt.grid()
-            output_file_name = (
-                f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+        for i, metric_set in enumerate(metrics):
+            all_tpr[i, :] = np.interp(
+                base_fpr, metric_set["fpr"], metric_set["tpr"]
             )
-            if self.output_folder is not None:
-                output_file_name = os.path.join(self.output_folder, output_file_name)
-            plt.savefig(output_file_name)
-            return "Log plot saved to " + output_file_name
-        except ValueError:
-            return "Not enough values to interpolate log plot, plot not generated"
+
+        for _, metric_set in enumerate(metrics):
+            plt.plot(
+                metric_set["fpr"],
+                metric_set["tpr"],
+                color="lightsalmon",
+                linewidth=0.5,
+            )
+
+        tpr_mu = all_tpr.mean(axis=0)
+        plt.plot(base_fpr, tpr_mu, "r")
+
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.tight_layout()
+        plt.grid()
+        output_file_name = (
+            f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+        )
+        if self.output_folder is not None:
+            output_file_name = os.path.join(self.output_folder, output_file_name)
+        plt.savefig(output_file_name)
+        return "Log plot saved to " + output_file_name
 
     def __str__(self):
         return "ROC Log Plot"
@@ -312,10 +309,3 @@ def process_json(input_filename: str, output_filename: str):
 
     with open(output_filename, "w") as text_file:
         text_file.write(output_string)
-
-
-if __name__ == "__main__":
-    attack_json = "data (7).json"
-    dest_file = "results.txt"
-
-    process_json(attack_json, dest_file)
