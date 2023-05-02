@@ -44,7 +44,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         if self.comp_type == "lt":
             success_status = bool(metric_value < self.metric_success_thresh)
         elif self.comp_type == "lte":
-            success_status = bool(metric_value <= self.metric_success_thresh)                
+            success_status = bool(metric_value <= self.metric_success_thresh)
         elif self.comp_type == "gt":
             success_status = bool(metric_value > self.metric_success_thresh)                
         elif self.comp_type == "gte":
@@ -60,7 +60,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
             self._incremenet_fail_count()
         
         return success_status
-        
+    
     def _increment_success_count(self):
         self.success_count += 1
 
