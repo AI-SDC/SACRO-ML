@@ -427,9 +427,9 @@ class WorstCaseAttack(Attack):
 
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
-        # self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-        # self.dummy_attack_metrics
-        # )
+        self.metadata["baseline_global_metrics"] = self._get_global_metrics(
+            self.dummy_attack_metrics
+        )
 
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks"""
@@ -459,7 +459,8 @@ class WorstCaseAttack(Attack):
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
-
+            pdf_report = report.create_mia_report(output)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
         return output
 
 
