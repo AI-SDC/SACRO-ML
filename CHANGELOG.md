@@ -3,12 +3,12 @@
 ## Version 1.0.3 (May 2, 2023)
 
 Changes:
-*    Refactored metrics [(#111)](https://github.com/AI-SDC/AI-SDC/pull/111).
-*    Fixed a bug making a report when dummy reps is 0 [(#113)](https://github.com/AI-SDC/AI-SDC/pull/113).
-*    Fixed safemodel JSON output [(#115)](https://github.com/AI-SDC/AI-SDC/pull/115).
-*    Added a module to produce recommendations from attack JSON output [(#116)](https://github.com/AI-SDC/AI-SDC/pull/116).
-*    Disabled non-default report logs [(#123)](https://github.com/AI-SDC/AI-SDC/pull/123).
-*    Fixed a minor bug in worst case example [(#124)](https://github.com/AI-SDC/AI-SDC/pull/124).
+*    Refactored metrics ([#111](https://github.com/AI-SDC/AI-SDC/pull/111)).
+*    Fixed a bug making a report when dummy reps is 0 ([#113](https://github.com/AI-SDC/AI-SDC/pull/113)).
+*    Fixed safemodel JSON output ([#115](https://github.com/AI-SDC/AI-SDC/pull/115)).
+*    Added a module to produce recommendations from attack JSON output ([#116](https://github.com/AI-SDC/AI-SDC/pull/116)).
+*    Disabled non-default report logs ([#123](https://github.com/AI-SDC/AI-SDC/pull/123)).
+*    Fixed a minor bug in worst case example ([#124](https://github.com/AI-SDC/AI-SDC/pull/124)).
 
 ## Version 1.0.2 (Feb 27, 2023)
 
