@@ -240,12 +240,16 @@ class LogLogROCModule(AnalysisModule):
             "attack_instance_logger"
         ].values()
         all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
+
         for i, metric_set in enumerate(metrics):
             all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
 
         for _, metric_set in enumerate(metrics):
             plt.plot(
-                metric_set["fpr"], metric_set["tpr"], color="lightsalmon", linewidth=0.5
+                metric_set["fpr"],
+                metric_set["tpr"],
+                color="lightsalmon",
+                linewidth=0.5,
             )
 
         tpr_mu = all_tpr.mean(axis=0)
