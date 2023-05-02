@@ -36,7 +36,7 @@ Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 Clone the repository and install the dependencies (safest in a virtual env):
 
 ```
-$ git clone --recurse-submodules https://github.com/AI-SDC/AI-SDC.git
+$ git clone https://github.com/AI-SDC/AI-SDC.git
 $ cd AI-SDC
 $ pip install -r requirements.txt
 ```
@@ -75,7 +75,7 @@ Or start up `jupyter notebook` and run an example.
 Alternatively, you can clone the repo and install:
 
 ```
-$ git clone --recurse-submodules https://github.com/AI-SDC/AI-SDC.git
+$ git clone https://github.com/AI-SDC/AI-SDC.git
 $ cd AI-SDC
 $ pip install .
 ```

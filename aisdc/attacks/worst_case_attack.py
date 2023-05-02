@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import uuid
 from collections.abc import Hashable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
@@ -17,7 +19,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks import metrics, report
+from aisdc import metrics
+from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
 from aisdc.attacks.dataset import Data
 
@@ -147,9 +150,9 @@ class WorstCaseAttack(Attack):
             test_correct=test_correct,
         )
 
+        self.dummy_attack_metrics = []
         if self.args.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
-            self.dummy_attack_metrics = []
             n_train_rows = len(train_preds)
             n_test_rows = len(test_preds)
             for _ in range(self.args.n_dummy_reps):
@@ -227,10 +230,11 @@ class WorstCaseAttack(Attack):
                 **self.args.mia_attack_model_hyp
             )
             attack_classifier.fit(mi_train_x, mi_train_y)
-
-            mia_metrics.append(
-                metrics.get_metrics(attack_classifier, mi_test_x, mi_test_y)
+            y_pred_proba, y_test = metrics.get_probabilities(
+                attack_classifier, mi_test_x, mi_test_y, permute_rows=True
             )
+
+            mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
 
             if self.args.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
@@ -267,6 +271,9 @@ class WorstCaseAttack(Attack):
             )[0]
             for m in attack_metrics
         ]
+
+        if len(attack_metrics) == 0:
+            return global_metrics
 
         m = attack_metrics[0]
         _, auc_std = metrics.auc_p_val(
@@ -424,21 +431,36 @@ class WorstCaseAttack(Attack):
             self.dummy_attack_metrics
         )
 
+    def _get_attack_metrics_instances(self) -> dict:
+        """Constructs the metadata object, after attacks"""
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
+
+        for rep, _ in enumerate(self.attack_metrics):
+            attack_metrics_instances["instance_" + str(rep + 1)] = self.attack_metrics[
+                rep
+            ]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
+
     def make_report(self) -> dict:
         """Creates output dictionary structure"""
         output = {}
-        output["attack_metrics"] = self.attack_metrics
-        output["dummy_attack_metrics"] = self.dummy_attack_metrics
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
         self._construct_metadata()
         output["metadata"] = self.metadata
+
+        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
-
-            pdf = report.create_mia_report(output)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
-
+            pdf_report = report.create_mia_report(output)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
         return output
 
 

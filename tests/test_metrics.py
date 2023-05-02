@@ -2,12 +2,19 @@
 Test the metrics
 """
 
+import math
 import unittest
 
 import numpy as np
+import pytest
 
-from aisdc.attacks.metrics import _div, _tpr_at_fpr, get_metrics
-from aisdc.attacks.mia_extremecase import min_max_disc
+from aisdc.metrics import (
+    _div,
+    _tpr_at_fpr,
+    get_metrics,
+    get_probabilities,
+    min_max_disc,
+)
 
 # pylint: disable = invalid-name
 
@@ -36,6 +43,82 @@ class DummyClassifier:
         return PREDICTED_PROBS
 
 
+class TestInputExceptions(unittest.TestCase):
+    """
+    Test that the metrics.py errors with a helpful error message if an invalid shape is supplied
+    """
+
+    def _create_fake_test_data(self):
+        y_test = np.zeros(4)
+        y_test[0] = 1
+        return y_test
+
+    def test_wrong_shape(self):
+        """
+        Test the check which ensures y_pred_proba is of shape [:,:]
+        """
+        y_test = self._create_fake_test_data()
+        with pytest.raises(ValueError):
+            y_pred_proba = np.zeros((4, 2, 2))
+            get_metrics(y_pred_proba, y_test)
+
+    def test_wrong_size(self):
+        """
+        Test the check which ensures y_pred_proba is of size (:,2)
+        """
+        y_test = self._create_fake_test_data()
+        with pytest.raises(ValueError):
+            y_pred_proba = np.zeros((4, 4))
+            get_metrics(y_pred_proba, y_test)
+
+    def test_valid_input(self):
+        """
+        Test to make sure a valid array does not throw an exception
+        """
+        y_test = self._create_fake_test_data()
+        y_pred_proba = np.zeros((4, 2))
+
+        get_metrics(y_pred_proba, y_test)
+
+
+class TestProbabilities(unittest.TestCase):
+    """
+    Test the checks on the input parameters of the get_probabilites function
+    """
+
+    def test_permute_rows_errors(self):
+        """
+        Test to make sure an error is thrown when permute_rows is set to True,
+        but no y_test is supplied
+        """
+        clf = DummyClassifier()
+        testX = []
+
+        with pytest.raises(ValueError):
+            get_probabilities(clf, testX, permute_rows=True)
+
+    def test_permute_rows_with_permute_rows(self):
+        """
+        Test permute_rows = True succeeds
+        """
+
+        clf = DummyClassifier()
+        testX = np.zeros((4, 2))
+        testY = np.zeros((4, 2))
+
+        get_probabilities(clf, testX, testY, permute_rows=True)
+
+    def test_permute_rows_without_permute_rows(self):
+        """
+        Test permute_rows = False succeeds
+        """
+
+        clf = DummyClassifier()
+        testX = np.zeros((4, 2))
+
+        get_probabilities(clf, testX, permute_rows=False)
+
+
 class TestMetrics(unittest.TestCase):
     """
     Test the metrics with some dummy predictions
@@ -48,7 +131,8 @@ class TestMetrics(unittest.TestCase):
         clf = DummyClassifier()
         testX = []
         testy = TRUE_CLASS
-        metrics = get_metrics(clf, testX, testy, permute_rows=False)
+        y_pred_proba = get_probabilities(clf, testX, testy, permute_rows=False)
+        metrics = get_metrics(y_pred_proba, testy)
         self.assertAlmostEqual(metrics["TPR"], 2 / 3)
         self.assertAlmostEqual(metrics["FPR"], 1 / 3)
         self.assertAlmostEqual(metrics["FAR"], 1 / 3)
@@ -60,6 +144,25 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(metrics["F1score"], (8 / 9) / (2 / 3 + 2 / 3))
         self.assertAlmostEqual(metrics["Advantage"], 1 / 3)
         self.assertAlmostEqual(metrics["AUC"], 8 / 9)
+
+    def test_mia_extremecase(self):
+        """test the extreme case mia in metrics.py"""
+
+        # create actual values
+        y = np.zeros(50000)
+        y[:25] = 1
+        # exactly right and wrong predictions
+        right = np.zeros(50000)
+        right[:25] = 1
+        wrong = 1 - right
+
+        # right predictions - triggers override for very small logp
+        _, _, _, pval = min_max_disc(y, right)
+        assert pval == -115.13
+
+        # wrong predictions - probaility very close to 1 so logp=0
+        _, _, _, pval = min_max_disc(y, wrong)
+        assert math.isclose(pval, 0.0)
 
 
 class TestFPRatTPR(unittest.TestCase):
