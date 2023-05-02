@@ -4,7 +4,12 @@ from __future__ import annotations
 
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
-    """Class to check attack being successful or not for a given metric"""
+    """Class to check attack being successful or not for a given metric
+    Note: An object of a FailFast is stateful and instance members 
+    (success_count and fail_count) will preserve values 
+    across repetitions for a test. For the new test 
+    a new object will require to be created.
+    """
 
     def __init__(self, attack_obj_args):
         self.metric_name = attack_obj_args.attack_metric_success_name
@@ -89,8 +94,17 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         return self.fail_count
 
     def get_attack_summary(self) -> dict:
-        """Returns a dictionary of counts of attack being successful and no successful"""
+        """Returns a dictionary of counts of attack being successful and not successful"""
         summary = {}
         summary["success_count"] = self.success_count
         summary["fail_count"] = self.fail_count
         return summary
+    
+    def check_overall_attack_success(self, attack_obj_args):
+        """Returns true if the attack is successful for a given success count threshold"""
+        overall_success_status = False
+        if self.success_count >= attack_obj_args.attack_metric_success_count_thresh:
+            overall_success_status = True
+        return overall_success_status
+        
+

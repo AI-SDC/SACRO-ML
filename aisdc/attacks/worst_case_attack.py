@@ -66,7 +66,7 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_metric_success_thresh"] = 0.05
         self.__dict__["attack_metric_success_comp_type"] = "lte"
         self.__dict__["attack_metric_success_count_thresh"] = 5
-        self.__dict__["attack_fail_fast"] = True
+        self.__dict__["attack_fail_fast"] = False
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -288,11 +288,10 @@ class WorstCaseAttack(Attack):
             failfast_metric_summary.check_attack_success(mia_metrics[rep])
 
             if (
-                failfast_metric_summary.get_success_count()
-                >= self.args.attack_metric_success_count_thresh
-            ):
-                if self.args.attack_fail_fast:
-                    break
+                failfast_metric_summary.check_overall_attack_success(self.args) and
+                self.args.attack_fail_fast
+                ):
+                break
 
         logger.info("Finished simulating attacks")
 
@@ -546,20 +545,20 @@ class WorstCaseAttack(Attack):
             "dummy_attack_experiments_logger"
         ] = self._get_dummy_attack_metrics_experiments_instances()
 
-        output_pdf = {}
-        output_pdf["attack_metrics"] = self.attack_metrics
-        output_pdf[
+        output_for_pdf = {}
+        output_for_pdf["attack_metrics"] = self.attack_metrics
+        output_for_pdf[
             "dummy_attack_metrics"
         ] = self._unpack_dummy_attack_metrics_experiments_instances()
-        output_pdf["metadata"] = self.metadata
+        output_for_pdf["metadata"] = self.metadata
 
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
 
-            pdf = report.create_mia_report(output_pdf)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
+            pdf_report = report.create_mia_report(output_for_pdf)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
 
         return output
 
@@ -839,8 +838,9 @@ def main():
         required=False,
         dest="attack_metric_success_count_thresh",
         help=(
-            """for defining counter to stop further repetitions value when
-            the given metric has passed through a threshold. Default = %(default)d"""
+            """for setting counter limit to stop further repetitions 
+            given the attack is successful and the 
+            --attack-fail-fast is true. Default = %(default)d"""
         ),
     )
 
