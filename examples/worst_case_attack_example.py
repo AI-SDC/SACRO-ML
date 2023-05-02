@@ -21,10 +21,7 @@ python -m examples.worst_case_attack_example
 
 """
 import os
-import os
-import sys
 
-sys.path.append(os.path.dirname(os.path.dirname('__file__')))
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
