@@ -242,9 +242,7 @@ class LogLogROCModule(AnalysisModule):
         all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
 
         for i, metric_set in enumerate(metrics):
-            all_tpr[i, :] = np.interp(
-                base_fpr, metric_set["fpr"], metric_set["tpr"]
-            )
+            all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
 
         for _, metric_set in enumerate(metrics):
             plt.plot(
