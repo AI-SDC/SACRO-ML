@@ -42,41 +42,25 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         metric_value = metric_dict[self.metric_name]
         success_status = False
         if self.comp_type == "lt":
-            if metric_value < self.metric_success_thresh:
-                success_status = True
-            else:
-                success_status = False
+            success_status = bool(metric_value < self.metric_success_thresh)
         elif self.comp_type == "lte":
-            if metric_value <= self.metric_success_thresh:
-                success_status = True
-            else:
-                success_status = False
+            success_status = bool(metric_value <= self.metric_success_thresh)                
         elif self.comp_type == "gt":
-            if metric_value > self.metric_success_thresh:
-                success_status = True
-            else:
-                success_status = False
+            success_status = bool(metric_value > self.metric_success_thresh)                
         elif self.comp_type == "gte":
-            if metric_value >= self.metric_success_thresh:
-                success_status = True
-            else:
-                success_status = False
+            success_status = bool(metric_value >= self.metric_success_thresh)
         elif self.comp_type == "eq":
-            if metric_value == self.metric_success_thresh:
-                success_status = True
-            else:
-                success_status = False
+            success_status = bool(metric_value == self.metric_success_thresh)
         elif self.comp_type == "not_eq":
-            if metric_value != self.metric_success_thresh:
-                success_status = True
-                    
+            success_status = bool(metric_value != self.metric_success_thresh)
+        
         if success_status:
             self._increment_success_count()
         else:
-            self._incremenet_fail_count()    
+            self._incremenet_fail_count()
         
-        return success_status    
-    
+        return success_status
+        
     def _increment_success_count(self):
         self.success_count += 1
 
