@@ -1,9 +1,10 @@
-"""test_worst_case_attack.py
+"""test_generate_report.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import json
 import os
 
+import unittest
 import numpy as np
 import pytest
 
@@ -17,9 +18,10 @@ from aisdc.generate_report import (
     process_json,
 )
 
-
 class TestGenerateReport(unittest.TestCase):
+    """class which tests the generate_report.py file"""
     def get_test_report(self):
+        """create a mock attack result dictionary for use with tests"""
         json_formatted = {}
         json_formatted["model_params"] = {}
         json_formatted["model_params"]["min_samples_leaf"] = 10
@@ -44,6 +46,7 @@ class TestGenerateReport(unittest.TestCase):
         return json_formatted
 
     def process_json_from_file(self, json_formatted):
+        """function which handles file input/output from the process_json function in generate_report.py"""
         filename = "test.json"
         output_filename = "results.txt"
 
@@ -63,6 +66,7 @@ class TestGenerateReport(unittest.TestCase):
             os.remove(name)
 
     def test_not_implemented(self):
+        """test to make sure analysis module fails expectedly when functions are called directly"""
         a = AnalysisModule()
         with pytest.raises(NotImplementedError):
             a.process_dict()
@@ -71,6 +75,7 @@ class TestGenerateReport(unittest.TestCase):
             str(a)
 
     def test_svm(self):
+        """test the process_json function when the target model is an SVM"""
         json_formatted = self.get_test_report()
 
         f = FinalRecommendationModule(json_formatted)
@@ -85,6 +90,7 @@ class TestGenerateReport(unittest.TestCase):
         self.assertIn("Model is SVM", returned["score_descriptions"][0])
 
     def test_min_samples_leaf(self):
+        """test the process_json function when the target model is a random forest"""
         json_formatted = self.get_test_report()
 
         f = FinalRecommendationModule(json_formatted)
@@ -98,7 +104,65 @@ class TestGenerateReport(unittest.TestCase):
 
         self.assertIn("Min samples per leaf", returned["score_descriptions"][0])
 
+    def test_statistically_significant(self):
+        """test the statistically significant AUC p-values check in FinalRecommendationModule"""
+        json_formatted = self.get_test_report()
+        json_formatted["attack_experiment_logger"]["attack_instance_logger"] = {}
+
+        metrics_dict = {
+            "P_HIGHER_AUC": 0.001,
+            "AUC": 0.8,
+            "ACC": 0.7,
+            "FDIF01": 0.2,
+            "PDIF01": 1.0,
+            "FPR": 1.0,
+            "TPR": 0.1,
+        }
+
+        for i in range(10):
+            json_formatted["attack_experiment_logger"]["attack_instance_logger"][
+                "instance_" + str(i)
+            ] = metrics_dict
+
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
+
+        self.assertIn(">10% AUC are statistically significant", returned["score_descriptions"][0])
+        self.assertIn("Attack AUC > threshold", returned["score_descriptions"][1])
+
+    def test_univariate_metrics_module(self):
+        """test the SummariseUnivariateMetricsModule"""
+        json_formatted = self.get_test_report()
+        f = SummariseUnivariateMetricsModule(json_formatted)
+        _ = f.process_dict()
+
+    def test_auc_pvals_module(self):
+        """test the SummariseAUCPvalsModule"""
+        json_formatted = self.get_test_report()
+        f = SummariseAUCPvalsModule(json_formatted)
+        _ = f.process_dict()
+
+        f = SummariseAUCPvalsModule(json_formatted,correction='bo')
+        _ = f.process_dict()
+
+        with pytest.raises(NotImplementedError):
+            f = SummariseAUCPvalsModule(json_formatted,correction='xyzabcd')
+            _ = f.process_dict()
+
+    def test_fdif_pvals_module(self):
+        """test the SummariseFDIFPvalsModule"""
+        json_formatted = self.get_test_report()
+        f = SummariseFDIFPvalsModule(json_formatted)
+        _ = f.process_dict()
+
+    def test_loglog_roc_module(self):
+        """test the LogLogROCModule"""
+        json_formatted = self.get_test_report()
+        f = LogLogROCModule(json_formatted)
+        _ = f.process_dict()
+
     def test_complete_runthrough(self):
+        """test the full process_json file end-to-end when valid parameters are passed"""
         json_formatted = self.get_test_report()
         _ = self.process_json_from_file(json_formatted)
 
