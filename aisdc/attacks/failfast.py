@@ -99,7 +99,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         summary["success_count"] = self.success_count
         summary["fail_count"] = self.fail_count
         return summary
-    
+
     def check_overall_attack_success(self, attack_obj_args):
         """Returns true if the attack is successful for a given success count threshold"""
         overall_success_status = False
