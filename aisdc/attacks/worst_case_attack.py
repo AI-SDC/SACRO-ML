@@ -57,9 +57,6 @@ class WorstCaseAttackArgs:
         self.__dict__["json_file"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
-        print("Hellosssss")
-        print(self.__dict__["json_file"])
-        print("Hellos")
         if self.__dict__["json_file"] is not None:
             print("First If passed")
             if os.path.isfile(self.__dict__["json_file"]):
