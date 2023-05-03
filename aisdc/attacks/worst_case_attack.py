@@ -852,7 +852,7 @@ def main():
         dest="attack_fail_fast",
         help=(
             """to stop further repetitions when the given metric has fullfilled
-            a criteria for a specified number of times (--attack-metric-success-count-thresh) 
+            a criteria for a specified number of times (--attack-metric-success-count-thresh)
             and this has a true status.
             Default = %(default)s"""
         ),
