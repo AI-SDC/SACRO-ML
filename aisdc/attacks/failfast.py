@@ -8,7 +8,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
     Note: An object of a FailFast is stateful and instance members
     (success_count and fail_count) will preserve values
     across repetitions for a test. For the new test
-    a new object will require to be created.
+    a new object will require to be instantiated.
     """
 
     def __init__(self, attack_obj_args):
