@@ -66,7 +66,7 @@ with open(FILENAME, "rb") as fp:
 
 sdc_data = Data()
 sdc_data.add_processed_data(trainX, trainy, testX, testy)
-args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "/safe_model_output")
+args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "safe_model_output")
 wca = WorstCaseAttack(args)
 
 # Suppress messages from AI-SDC
