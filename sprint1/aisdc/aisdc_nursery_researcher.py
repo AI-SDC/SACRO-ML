@@ -1,5 +1,6 @@
 """
 This module presents example model training a TRE researcher may perform.
+Uses RandomForestClassifier from sklearn.
 """
 
 import pickle
@@ -12,8 +13,6 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-
-from aisdc.safemodel.classifiers import SafeRandomForestClassifier
 
 DIR = "training_artefacts/"
 print("Creating directory for training artefacts")
@@ -98,21 +97,3 @@ FILENAME = f"{DIR}/safe_random_forest.sav"
 print(f"Saving safe model to {FILENAME}")
 with open(FILENAME, "wb") as fp:
     pickle.dump(target_model, fp)
-
-print()
-print("Training SafeRandomForestClassifier with disclosive hyperparameters: ")
-print(str(DISCLOSIVE_PARAMS))
-
-target_model = SafeRandomForestClassifier(**DISCLOSIVE_PARAMS)
-target_model.fit(trainX, trainy)
-target_model.preliminary_check()
-
-train_acc = accuracy_score(trainy, target_model.predict(trainX))
-test_acc = accuracy_score(testy, target_model.predict(testX))
-
-print(f"Training accuracy on SafeRandomForestClassifier: {train_acc:.2f}")
-print(f"Testing accuracy on SafeRandomForestClassifier: {test_acc:.2f}")
-
-FILENAME = f"{DIR}/SafeRandomForest.sav"
-print(f"Requesting release: {FILENAME}")
-target_model.request_release(FILENAME)

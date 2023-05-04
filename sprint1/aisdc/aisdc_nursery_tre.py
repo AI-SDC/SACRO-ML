@@ -41,13 +41,15 @@ trainy = np.loadtxt(DIR + "trainy.txt")
 testX = np.loadtxt(DIR + "testX.txt")
 testy = np.loadtxt(DIR + "testy.txt")
 
-sdc_data = Data()
 # Wrap the training and test data into the Data object
+sdc_data = Data()
 sdc_data.add_processed_data(trainX, trainy, testX, testy)
+
 # Create attack args.
 args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "/disclosive_model_output")
-# Run the attack
 wca = WorstCaseAttack(args)
+
+# Run the attack on the disclosive model
 wca.attack(sdc_data, target_model)
 
 json_out = wca.make_report()
@@ -62,16 +64,12 @@ print(f"Reading safe random forest from {FILENAME}")
 with open(FILENAME, "rb") as fp:
     target_model = pickle.load(fp)
 
-sdc_data = Data()
-sdc_data.add_processed_data(trainX, trainy, testX, testy)
-args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "/safe_model_output")
-wca = WorstCaseAttack(args)
-
 # Suppress messages from AI-SDC
 logging.getLogger("attack-reps").setLevel(logging.WARNING)
 logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
 logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
+# Run the attack on the non-disclosive model
 wca.attack(sdc_data, target_model)
 
 json_out = wca.make_report()
