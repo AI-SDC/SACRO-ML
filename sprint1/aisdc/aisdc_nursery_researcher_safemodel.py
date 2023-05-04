@@ -95,6 +95,6 @@ test_acc = accuracy_score(testy, target_model.predict(testX))
 print(f"Training accuracy on SafeRandomForestClassifier: {train_acc:.2f}")
 print(f"Testing accuracy on SafeRandomForestClassifier: {test_acc:.2f}")
 
-FILENAME = f"{DIR}/SafeRandomForest.sav"
+FILENAME = f"{DIR}SafeRandomForest.sav"
 print(f"\nRequesting release: {FILENAME} and running attacks...\n")
 target_model.request_release(FILENAME, sdc_data)
