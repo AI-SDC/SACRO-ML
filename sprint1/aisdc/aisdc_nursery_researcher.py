@@ -70,7 +70,7 @@ test_acc = accuracy_score(testy, target_model.predict(testX))
 print(f"Training accuracy on disclosive model: {train_acc:.2f}")
 print(f"Testing accuracy on disclosive model: {test_acc:.2f}")
 
-FILENAME = f"{DIR}/disclosive_random_forest.sav"
+FILENAME = f"{DIR}disclosive_random_forest.sav"
 print(f"Saving disclosive model to {FILENAME}")
 with open(FILENAME, "wb") as fp:
     pickle.dump(target_model, fp)
@@ -93,7 +93,7 @@ test_acc = accuracy_score(testy, target_model.predict(testX))
 print(f"Training accuracy on safe model: {train_acc:.2f}")
 print(f"Testing accuracy on safe model: {test_acc:.2f}")
 
-FILENAME = f"{DIR}/safe_random_forest.sav"
+FILENAME = f"{DIR}safe_random_forest.sav"
 print(f"Saving safe model to {FILENAME}")
 with open(FILENAME, "wb") as fp:
     pickle.dump(target_model, fp)

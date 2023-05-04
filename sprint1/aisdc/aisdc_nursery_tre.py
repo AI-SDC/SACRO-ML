@@ -27,7 +27,7 @@ logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
 logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
 try:
-    FILENAME = f"{DIR}/disclosive_random_forest.sav"
+    FILENAME = f"{DIR}disclosive_random_forest.sav"
     print(f"Reading disclosive random forest from {FILENAME}")
     with open(FILENAME, "rb") as fp:
         target_model = pickle.load(fp)
@@ -46,7 +46,7 @@ sdc_data = Data()
 sdc_data.add_processed_data(trainX, trainy, testX, testy)
 
 # Create attack args.
-args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "/disclosive_model_output")
+args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "disclosive_model_output")
 wca = WorstCaseAttack(args)
 
 # Run the attack on the disclosive model
@@ -55,14 +55,19 @@ wca.attack(sdc_data, target_model)
 json_out = wca.make_report()
 
 DISCLOSIVE_FILENAME = "disclosive_model_summary.txt"
-process_json(DIR + "/disclosive_model_output.json", DISCLOSIVE_FILENAME)
+process_json(DIR + "disclosive_model_output.json", DISCLOSIVE_FILENAME)
 
 print()
 
-FILENAME = f"{DIR}/safe_random_forest.sav"
+FILENAME = f"{DIR}safe_random_forest.sav"
 print(f"Reading safe random forest from {FILENAME}")
 with open(FILENAME, "rb") as fp:
     target_model = pickle.load(fp)
+
+sdc_data = Data()
+sdc_data.add_processed_data(trainX, trainy, testX, testy)
+args = WorstCaseAttackArgs(n_dummy_reps=0, report_name=DIR + "/safe_model_output")
+wca = WorstCaseAttack(args)
 
 # Suppress messages from AI-SDC
 logging.getLogger("attack-reps").setLevel(logging.WARNING)
@@ -75,7 +80,7 @@ wca.attack(sdc_data, target_model)
 json_out = wca.make_report()
 
 SAFE_FILENAME = "safe_model_summary.txt"
-process_json(DIR + "/safe_model_output.json", SAFE_FILENAME)
+process_json(DIR + "safe_model_output.json", SAFE_FILENAME)
 
 print()
 print(
