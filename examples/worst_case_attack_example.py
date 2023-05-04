@@ -22,7 +22,9 @@ python -m examples.worst_case_attack_example
 """
 import json
 import os
+import sys
 
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -191,10 +193,9 @@ os.system(
     "--in-sample-preds train_preds.csv "
     "--out-of-sample-preds test_preds.csv "
     "--n-reps 10 "
-    "--report-name example_report_risky "
     "--n-dummy-reps 1 "
     "--test-prop 0.1 "
-    "--report-name example_report "
+    "--report-name worstcase_example_report "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)

@@ -478,7 +478,8 @@ class WorstCaseAttack(Attack):
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
-
+            pdf_report = report.create_mia_report(output)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
         return output
 
 

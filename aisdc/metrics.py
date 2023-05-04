@@ -31,8 +31,8 @@ def _div(x: float, y: float, default: float) -> float:
 
     Returns
     -------
-        division: float
-            x / y, or default if y == 0
+    division: float
+        x / y, or default if y == 0
     """
     if y != 0:
         division = round(float(x / y), 8)
@@ -126,29 +126,29 @@ def min_max_disc(
 
     Parameters
     ----------
-        y: np.ndarray
-            true labels
-        yp: np.ndarray
-            probabilities of labels, or monotonic transformation of probabilties
-        xprop: float
-            proportion of samples with highest- and lowest- probability of membership to be
-            considered
-        logp: bool
-            convert p-values to log(p).
+    y: np.ndarray
+        true labels
+    yp: np.ndarray
+        probabilities of labels, or monotonic transformation of probabilties
+    xprop: float
+        proportion of samples with highest- and lowest- probability of membership to be
+        considered
+    logp: bool
+        convert p-values to log(p).
 
     Returns
     -------
-        maxd: float
-            frequency of y=1 amongst proportion xprop of individuals with highest assessed
-            membership probability
-        mind: float
-            frequency of y=1 amongst proportion xprop of individuals with lowest assessed
-            membership probability
-        mmd: float
-            difference between maxd and mind
-        pval: float
-            p-value or log-p value corresponding to mmd against null hypothesis that random
-            variables corresponding to y and yp are independent.
+    maxd: float
+        frequency of y=1 amongst proportion xprop of individuals with highest assessed
+        membership probability
+    mind: float
+        frequency of y=1 amongst proportion xprop of individuals with lowest assessed
+        membership probability
+    mmd: float
+        difference between maxd and mind
+    pval: float
+        p-value or log-p value corresponding to mmd against null hypothesis that random
+        variables corresponding to y and yp are independent.
 
     Notes
     -----
@@ -158,7 +158,6 @@ def min_max_disc(
     >>> y = np.random.choice(2, 100)
     >>> yp = np.random.rand(100)
     >>> maxd, mind, mmd, pval = min_max_desc(y, yp, xprop=0.2, logp=True)
-
     """
 
     n_examples = int(np.ceil(len(y_true) * x_prop))
@@ -206,7 +205,6 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
         p-value of observing an AUC > auc by chance
     auc_std: float
         standard deviation of the NULL AUC diustribution (mean = 0.5)
-
     """
     auc_std = np.sqrt(_expected_auc_var(0.5, n_pos, n_neg))
     auc_p = 1 - norm.cdf(auc, loc=0.5, scale=auc_std)
@@ -221,7 +219,8 @@ def get_probabilities(  # pylint: disable=too-many-locals
 ):
     """
     Given a prediction model and a dataset, calculate the predictions of the model for
-    each data sample in probability format
+    each data sample in probability format.
+
     Parameters
     ----------
     clf: sklearn.Model
@@ -232,6 +231,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
         test data labels
     permute_rows: boolean
         a flag to indicate whether rows should be permuted
+
     Returns
     -------
     y_pred_proba: a list of probabilities for each sample in the dataset
