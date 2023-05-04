@@ -32,7 +32,7 @@ try:
     with open(FILENAME, "rb") as fp:
         target_model = pickle.load(fp)
 except FileNotFoundError:
-    print("Target model not found - please run sacro_nursery_researcher.py")
+    print("Target model not found - please run aisdc_nursery_researcher.py")
     sys.exit(0)
 
 print(f"Reading training/testing data from ./{DIR}")
