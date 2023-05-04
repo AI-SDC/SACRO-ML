@@ -110,8 +110,8 @@ target_model.preliminary_check()
 train_acc = accuracy_score(trainy, target_model.predict(trainX))
 test_acc = accuracy_score(testy, target_model.predict(testX))
 
-print(f"Training accuracy on disclosive model: {train_acc:.2f}")
-print(f"Testing accuracy on disclosive model: {test_acc:.2f}")
+print(f"Training accuracy on SafeRandomForestClassifier: {train_acc:.2f}")
+print(f"Testing accuracy on SafeRandomForestClassifier: {test_acc:.2f}")
 
 FILENAME = f"{DIR}/SafeRandomForest.sav"
 print(f"Requesting release: {FILENAME}")
