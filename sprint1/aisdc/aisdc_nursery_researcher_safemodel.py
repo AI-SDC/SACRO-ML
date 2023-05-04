@@ -71,7 +71,7 @@ sdc_data = Data()
 sdc_data.name = "nursery"
 sdc_data.add_processed_data(trainX, trainy, testX, testy)
 sdc_data.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
-for i, feature in indices:
+for i, feature in enumerate(indices):
     sdc_data.add_feature(feature_names[i], feature, "onehot")
 
 # These hyperparameters lead to a dangerously disclosive trained model
