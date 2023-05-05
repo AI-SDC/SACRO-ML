@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: AI-SDC
 version: 1.0.4
-doi:
+doi: 10.5281/zenodo.7900410
 date-released: 2023-05-05
 license: MIT
 repository-code: https://github.com/AI-SDC/AI-SDC
@@ -65,3 +65,6 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.7886945
     description: This is the archived snapshot of AI-SDC v.1.0.3.
+  - type: doi
+    value: 10.5281/zenodo.7900410
+    description: This is the archived snapshot of AI-SDC v.1.0.4.
