@@ -72,7 +72,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         for item in self.examine_seperately_items:
             # template for class of things that make up forest
             if item == "base_estimator":
-                if curr_separate[item] != saved_separate[item]:
+                if type(curr_separate[item]) != type(saved_separate[item]):
                     # msg += get_reporting_string(name="basic_params_differ",length=1)
                     msg += get_reporting_string(
                         name="param_changed_from_to",
