@@ -12,7 +12,7 @@ from ..reporting import get_reporting_string
 from ..safemodel import SafeModel
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
-# pylint: disable=too-many-ancestors,too-many-instance-attributes
+# pylint: disable=too-many-ancestors,too-many-instance-attributes, unidiomatic-typecheck
 
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
