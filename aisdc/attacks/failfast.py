@@ -19,7 +19,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.fail_count = 0
 
     # pylint: disable=too-many-branches
-    def check_attack_success(self, metric_dict):
+    def check_attack_success(self, metric_dict: dict) -> bool:
         """A function to check if attack was successful for a given metric
 
         Parameters
@@ -61,13 +61,13 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
 
         return success_status
 
-    def _increment_success_count(self):
+    def _increment_success_count(self) -> int:
         self.success_count += 1
 
-    def _incremenet_fail_count(self):
+    def _incremenet_fail_count(self) -> int:
         self.fail_count += 1
 
-    def get_success_count(self):
+    def get_success_count(self) -> int:
         """Returns a count of attack being successful"""
         return self.success_count
 
@@ -82,7 +82,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         summary["fail_count"] = self.fail_count
         return summary
 
-    def check_overall_attack_success(self, attack_obj_args):
+    def check_overall_attack_success(self, attack_obj_args: worst_case_attack.WorstCaseAttackArgs) -> bool:
         """Returns true if the attack is successful for a given success count threshold"""
         overall_success_status = False
         if self.success_count >= attack_obj_args.attack_metric_success_count_thresh:
