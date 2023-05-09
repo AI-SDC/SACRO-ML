@@ -136,7 +136,7 @@ os.system(
     "--json-file config.json "
     "--report-name example_lira_report "
     "--n-shadow-models 100 "
-    # "--shadow-models-fail-fast True "  
+    # "--shadow-models-fail-fast True "
     # "--n-shadow-rows-confidences-min 5 "
 )
 
