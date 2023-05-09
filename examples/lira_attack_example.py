@@ -79,8 +79,8 @@ args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example_report",
     json_file="config.json",
-    shadow_models_fail_fast=True,
-    n_shadow_rows_confidences_min=5,
+    # shadow_models_fail_fast=True,
+    # n_shadow_rows_confidences_min=5,
 )
 attack_obj = LIRAAttack(args)
 
@@ -136,15 +136,8 @@ os.system(
     "--json-file config.json "
     "--report-name example_lira_report "
     "--n-shadow-models 100 "
+    # "--shadow-models-fail-fast True "  
+    # "--n-shadow-rows-confidences-min 5 "
 )
-
-# os.system(
-#     "python -m aisdc.attacks.likelihood_attack run-attack "
-#     "--json-file config.json "
-#     "--report-name example_lira_report "
-#     "--n-shadow-models 100 "
-#     "--shadow-models-fail-fast True "
-#     "--n-shadow-rows-confidences-min 5 "
-# )
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)

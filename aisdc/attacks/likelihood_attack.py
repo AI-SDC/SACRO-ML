@@ -35,7 +35,7 @@ EPS = 1e-16  # Used to avoid numerical issues in logit function
 P_THRESH = 0.05  # default significance threshold
 
 
-def parse_boolean_argument(value):
+def parse_boolean_argument(value: str) -> bool:
     """Parses string value to a boolean"""
     value = value.lower()
     return_value = False
@@ -109,7 +109,7 @@ class LIRAAttackArgs:
         """Return arguments"""
         return self.__dict__
 
-    def construct_dictionary_from_config_json_file(self, config_filename) -> None:
+    def construct_dictionary_from_config_json_file(self, config_filename: str) -> None:
         """Return a dictionary object reading through a config.json"""
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
@@ -627,7 +627,7 @@ def main():
         "--shadow-models-fail-fast",
         action="store",
         type=parse_boolean_argument,
-        default=True,
+        default=False,
         required=False,
         dest="shadow_models_fail_fast",
         help=(

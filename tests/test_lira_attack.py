@@ -30,8 +30,8 @@ def clean_up(name):
 
 def test_parse_boolean_argument():
     """tests parse boolean argument function"""
-    assert likelihood_attack.parse_boolean_argument("true") is True
-    assert likelihood_attack.parse_boolean_argument("false") is False
+    assert likelihood_attack.parse_boolean_argument("true")
+    assert not likelihood_attack.parse_boolean_argument("false")
 
 
 def test_lira_attack():
