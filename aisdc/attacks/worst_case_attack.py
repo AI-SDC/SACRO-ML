@@ -57,7 +57,7 @@ class WorstCaseAttackArgs:
         self.__dict__["json_file"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
-        if self.__dict__["json_file"] is not None:            
+        if self.__dict__["json_file"] is not None:
             if os.path.isfile(self.__dict__["json_file"]):
                 self.construct_dictionary_from_config_json_file(
                     self.__dict__["json_file"]
