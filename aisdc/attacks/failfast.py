@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import aisdc.attacks
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
     """Class to check attack being successful or not for a given metric
@@ -82,7 +83,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         summary["fail_count"] = self.fail_count
         return summary
 
-    def check_overall_attack_success(self, attack_obj_args: aisdc.attacks.worst_case_attack.WorstCaseAttackArgs) -> bool:
+    def check_overall_attack_success(self, attack_obj_args: worst_case_attack.WorstCaseAttackArgs) -> bool:
         """Returns true if the attack is successful for a given success count threshold"""
         overall_success_status = False
         if self.success_count >= attack_obj_args.attack_metric_success_count_thresh:
