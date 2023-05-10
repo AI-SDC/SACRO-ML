@@ -264,7 +264,7 @@ class LIRAAttack(Attack):
         # Train N_SHADOW_MODELS shadow models
         logger.info("Training shadow models")
         for model_idx in range(self.args.n_shadow_models):
-            if model_idx % 10 ==  0:
+            if model_idx % 10 == 0:
                 logger.info("Trained %d models", model_idx)
             # Pick the indices to use for training this one
             np.random.seed(model_idx)  # Reproducibility
@@ -317,7 +317,7 @@ class LIRAAttack(Attack):
             }
             n_shadow_confidences = self.args.n_shadow_rows_confidences_min
             # Stop training of shadow models when shadow_model_fail_fast is True
-            # and a minimum number of confidences specified by parameter 
+            # and a minimum number of confidences specified by parameter
             # (n_shadow_rows_confidences_min) are computed for each row
             if (
                 not any(
@@ -620,7 +620,7 @@ def main():
 
     parser.add_argument(
         "--shadow-models-fail-fast",
-        action="store_true",        
+        action="store_true",
         required=False,
         dest="shadow_models_fail_fast",
         help=(

@@ -136,7 +136,7 @@ os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
     "--json-file config.json "
     "--report-name example1_lira_report "
-    "--n-shadow-models 100 "    
+    "--n-shadow-models 100 "
 )
 
 # Example 2 to demonstrate fail fast of shadow models trained
