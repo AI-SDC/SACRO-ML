@@ -22,8 +22,8 @@ def clean_up(name):
 
 def test_parse_boolean_argument():
     """tests parse boolean argument function"""
-    assert worst_case_attack.parse_boolean_argument("true") is True
-    assert worst_case_attack.parse_boolean_argument("false") is False
+    assert worst_case_attack.parse_boolean_argument("true")
+    assert not worst_case_attack.parse_boolean_argument("false")
 
 
 def test_report_worstcase():
