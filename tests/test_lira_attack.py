@@ -28,12 +28,6 @@ def clean_up(name):
         os.remove(name)
 
 
-def test_parse_boolean_argument():
-    """tests parse boolean argument function"""
-    assert likelihood_attack.parse_boolean_argument("true")
-    assert not likelihood_attack.parse_boolean_argument("false")
-
-
 def test_lira_attack():
     """tests the lira code two ways"""
     args = LIRAAttackArgs(n_shadow_models=50, report_name="lira_example_report")
