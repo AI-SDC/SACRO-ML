@@ -31,7 +31,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
 
         Returns
         -------
-        success_status: boolean
+        success_status: bool
             a boolean value is returned based on the comparison for a given threshold
 
         Notes

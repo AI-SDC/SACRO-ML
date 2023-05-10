@@ -20,7 +20,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="lte",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 2
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -29,7 +29,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="lte",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     # Option 3
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -38,7 +38,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 4
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -47,7 +47,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="lt",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     # Option 5
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -56,7 +56,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="gte",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     # Option 6
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -65,7 +65,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="gte",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 7
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -74,7 +74,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="gt",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     # Option 8
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -83,7 +83,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="gt",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 9
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -92,7 +92,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="eq",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     # Option 10
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -101,7 +101,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="eq",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 11
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -110,7 +110,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="not_eq",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is False
+    assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 12
     args = worst_case_attack.WorstCaseAttackArgs(
@@ -119,7 +119,7 @@ def test_parse_boolean_argument():
         attack_metric_success_comp_type="not_eq",
     )
     failfast_Obj = failfast.FailFast(args)
-    assert failfast_Obj.check_attack_success(metrics) is True
+    assert failfast_Obj.check_attack_success(metrics)
 
     assert failfast_Obj.get_fail_count() == 0
 
@@ -145,11 +145,11 @@ def test_attack_success_fail_counts_and_overall_attack_success():
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.03
     _ = failfast_Obj.check_attack_success(metrics)
-    assert failfast_Obj.check_overall_attack_success(args) is False
+    assert not failfast_Obj.check_overall_attack_success(args)
     metrics["P_HIGHER_AUC"] = 0.02
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.01
     _ = failfast_Obj.check_attack_success(metrics)
     assert failfast_Obj.get_success_count() == 3
     assert failfast_Obj.get_fail_count() == 2
-    assert failfast_Obj.check_overall_attack_success(args) is True
+    assert failfast_Obj.check_overall_attack_success(args)
