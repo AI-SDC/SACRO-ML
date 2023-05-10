@@ -131,13 +131,22 @@ np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
 
 # [TRE] Then they run the attack
+# Example 1 to demonstrate all given shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
     "--json-file config.json "
-    "--report-name example_lira_report "
+    "--report-name example1_lira_report "
+    "--n-shadow-models 100 "    
+)
+
+# Example 2 to demonstrate fail fast of shadow models trained
+os.system(
+    "python -m aisdc.attacks.likelihood_attack run-attack "
+    "--json-file config.json "
+    "--report-name example2_lira_report "
     "--n-shadow-models 100 "
-    # "--shadow-models-fail-fast True "
-    # "--n-shadow-rows-confidences-min 5 "
+    "--shadow-models-fail-fast "
+    "--n-shadow-rows-confidences-min 5 "
 )
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)

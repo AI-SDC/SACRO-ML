@@ -35,15 +35,6 @@ EPS = 1e-16  # Used to avoid numerical issues in logit function
 P_THRESH = 0.05  # default significance threshold
 
 
-def parse_boolean_argument(value: str) -> bool:
-    """Parses string value to a boolean"""
-    value = value.lower()
-    return_value = False
-    if value in ["true", "True"]:
-        return_value = True
-    return return_value
-
-
 class DummyClassifier:
     """A Dummy Classifier to allow this code to work with get_metrics"""
 
@@ -86,7 +77,7 @@ class LIRAAttackArgs:
 
     def __init__(self, **kwargs):
         self.__dict__["n_shadow_models"] = N_SHADOW_MODELS
-        self.__dict__["n_shadow_rows_confidences_min"] = 2
+        self.__dict__["n_shadow_rows_confidences_min"] = 5
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
@@ -273,7 +264,8 @@ class LIRAAttack(Attack):
         # Train N_SHADOW_MODELS shadow models
         logger.info("Training shadow models")
         for model_idx in range(self.args.n_shadow_models):
-            logger.info("Trained %d models", model_idx + 1)
+            if model_idx % 10 ==  0:
+                logger.info("Trained %d models", model_idx)
             # Pick the indices to use for training this one
             np.random.seed(model_idx)  # Reproducibility
             these_idx = np.random.choice(indices, n_train_rows, replace=False)
@@ -324,6 +316,9 @@ class LIRAAttack(Attack):
                 key: len(value) for key, value in shadow_row_to_confidence.items()
             }
             n_shadow_confidences = self.args.n_shadow_rows_confidences_min
+            # Stop training of shadow models when shadow_model_fail_fast is True
+            # and a minimum number of confidences specified by parameter 
+            # (n_shadow_rows_confidences_min) are computed for each row
             if (
                 not any(
                     value < n_shadow_confidences
@@ -595,7 +590,7 @@ def main():
         type=int,
         action="store",
         dest="n_shadow_rows_confidences_min",
-        default=2,
+        default=5,
         required=False,
         help=(
             """Number of confidences against rows in shadow data from the shadow models
@@ -625,9 +620,7 @@ def main():
 
     parser.add_argument(
         "--shadow-models-fail-fast",
-        action="store",
-        type=parse_boolean_argument,
-        default=False,
+        action="store_true",        
         required=False,
         dest="shadow_models_fail_fast",
         help=(
