@@ -80,7 +80,7 @@ args = LIRAAttackArgs(
     report_name="lira_example_report",
     json_file="config.json",
     # shadow_models_fail_fast=True,
-    # n_shadow_rows_confidences_min=5,
+    # n_shadow_rows_confidences_min=10,
 )
 attack_obj = LIRAAttack(args)
 
@@ -146,7 +146,7 @@ os.system(
     "--report-name example2_lira_report "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
-    "--n-shadow-rows-confidences-min 5 "
+    "--n-shadow-rows-confidences-min 10 "
 )
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)

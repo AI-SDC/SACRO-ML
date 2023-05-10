@@ -77,7 +77,7 @@ class LIRAAttackArgs:
 
     def __init__(self, **kwargs):
         self.__dict__["n_shadow_models"] = N_SHADOW_MODELS
-        self.__dict__["n_shadow_rows_confidences_min"] = 5
+        self.__dict__["n_shadow_rows_confidences_min"] = 10
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
         self.__dict__["json_file"] = "config.json"
@@ -590,7 +590,7 @@ def main():
         type=int,
         action="store",
         dest="n_shadow_rows_confidences_min",
-        default=5,
+        default=10,
         required=False,
         help=(
             """Number of confidences against rows in shadow data from the shadow models
