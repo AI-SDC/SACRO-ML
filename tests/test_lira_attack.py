@@ -57,8 +57,8 @@ def test_lira_attack():
 def test_lira_attack_failfast():
     """tests the lira code two ways"""
     args = LIRAAttackArgs(
-        n_shadow_models=100, 
-        report_name="lira_example_report" 
+        n_shadow_models=100,
+        report_name="lira_example_report"
         shadow_models_fail_fast=True,
         n_shadow_rows_confidences_min=10,
         )
@@ -79,7 +79,7 @@ def test_lira_attack_failfast():
     target_model.fit(train_X, train_y)
 
     args2 = LIRAAttackArgs(
-        n_shadow_models=100, 
+        n_shadow_models=100,
         report_name="lira_example3_failfast_report"
         shadow_models_fail_fast=True,
         n_shadow_rows_confidences_min=10,
