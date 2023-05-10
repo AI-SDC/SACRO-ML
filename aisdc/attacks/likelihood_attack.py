@@ -113,7 +113,7 @@ class LIRAAttack(Attack):
 
     def __init__(self, args: LIRAAttackArgs = LIRAAttackArgs()) -> None:
         self.attack_metrics = None
-        self.attack_failfast_shadow_models = None
+        self.attack_failfast_shadow_models_trained = None
         self.dummy_attack_metrics = None
         self.metadata = None
         self.args = args
@@ -312,9 +312,10 @@ class LIRAAttack(Attack):
                         # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
 
+            # Compute number of confidences for each row
             lengths_shadow_row_to_confidence = {
                 key: len(value) for key, value in shadow_row_to_confidence.items()
-            }
+            }            
             n_shadow_confidences = self.args.n_shadow_rows_confidences_min
             # Stop training of shadow models when shadow_model_fail_fast is True
             # and a minimum number of confidences specified by parameter
@@ -327,7 +328,7 @@ class LIRAAttack(Attack):
                 and self.args.shadow_models_fail_fast
             ):
                 break
-        self.attack_failfast_shadow_models = model_idx + 1
+        self.attack_failfast_shadow_models_trained = model_idx + 1
         # Do the test described in the paper in each case
         mia_scores = []
         mia_labels = []
@@ -466,7 +467,7 @@ class LIRAAttack(Attack):
         for rep, _ in enumerate(self.attack_metrics):
             self.attack_metrics[rep][
                 "n_shadow_models_trained"
-            ] = self.attack_failfast_shadow_models
+            ] = self.attack_failfast_shadow_models_trained
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
