@@ -315,7 +315,7 @@ class LIRAAttack(Attack):
             # Compute number of confidences for each row
             lengths_shadow_row_to_confidence = {
                 key: len(value) for key, value in shadow_row_to_confidence.items()
-            }            
+            }
             n_shadow_confidences = self.args.n_shadow_rows_confidences_min
             # Stop training of shadow models when shadow_model_fail_fast is True
             # and a minimum number of confidences specified by parameter
