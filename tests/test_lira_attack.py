@@ -71,9 +71,6 @@ class TestLiraAttack(TestCase):
         not present in training set"""
         args = LIRAAttackArgs(n_shadow_models=N_SHADOW_MODELS, report_name="lira_example_report")
         attack_obj = LIRAAttack(args)
-        attack_obj.setup_example_data()
-        attack_obj.attack_from_config()
-        attack_obj.example()
 
         # now make test[0] have a  class not present in training set#
         local_test_y = np.copy(self.test_y)
@@ -85,9 +82,20 @@ class TestLiraAttack(TestCase):
             self.test_X,
             local_test_y
         )
-        attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
+        unique_classes_pre = set(local_test_y)
+        n_test_examples_pre = len(local_test_y)
+        local_dataset = attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
             local_dataset, self.target_model
         )
+
+        unique_classes_post = set(local_dataset.y_test)
+        n_test_examples_post = len(local_dataset.y_test)
+        
+        self.assertNotEqual(local_dataset.y_test[0], 5)
+        self.assertEqual(n_test_examples_pre - n_test_examples_post, 1)
+        class_diff = unique_classes_pre - unique_classes_post # set diff
+        self.assertSetEqual(class_diff, set([5]))
+
 
 
     def test_main_example(self):
