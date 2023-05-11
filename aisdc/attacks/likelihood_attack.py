@@ -135,7 +135,7 @@ class LIRAAttack(Attack):
 
     def _check_and_update_dataset(
         self, dataset: Data, target_model: sklearn.base.BaseEstimator
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Data:
         """Makes sure that it is ok to use the class variables to index the prediction
         arrays. This has two steps:
         1. Replacing the values in y_train with their position in target_model.classes (will
