@@ -90,20 +90,20 @@ class TestLiraAttack(TestCase):
         )
 
 
-    def test_main(self):
-        """test invocation via command line"""
-
-        # option 1
+    def test_main_example(self):
+        '''test command line example'''
         testargs = ["prog", "run-example"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
-
-        # option 2
+    
+    def test_main_config(self):
+        '''test command line with a config file'''        
         testargs = ["prog", "run-attack", "--j", "tests/lrconfig.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
-        # option 3 "setup-example-data"
+    def test_main_example_data(self):
+        '''test command line example data creation'''
         testargs = ["prog", "setup-example-data"]  # , "--j", "tests/lrconfig.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
