@@ -143,14 +143,14 @@ class LIRAAttack(Attack):
         2. Removing from the test set any rows corresponding to classes that are not in the
            training set.
         """
-
+        logger = logging.getLogger('_check_and_update_dataset')
         y_train_new = []
         classes = list(target_model.classes_)  # pylint: disable = protected-access
         for y in dataset.y_train:
             y_train_new.append(classes.index(y))
 
         dataset.y_train = np.array(y_train_new, int)
-        print(
+        logger.info(
             f"new ytrain has values and counts: {np.unique(dataset.y_train,return_counts=True)}"
         )
         ok_pos = []
@@ -163,7 +163,7 @@ class LIRAAttack(Attack):
         if len(y_test_new) != len(dataset.x_test):
             dataset.x_test = dataset.x_test[ok_pos, :]
         dataset.y_test = np.array(y_test_new, int)
-        print(
+        logger.info(
             f"new ytest has values and counts: {np.unique(dataset.y_test,return_counts=True)}"
         )
 

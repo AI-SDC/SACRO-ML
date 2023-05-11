@@ -10,5 +10,6 @@
     "target_hyppars": {
         "min_samples_split": 2,
         "min_samples_leaf": 1
-    }
+    },
+    "n-target-models": 20
 }
