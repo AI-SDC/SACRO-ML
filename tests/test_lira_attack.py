@@ -36,7 +36,8 @@ def clean_up(name):
 
 
 class TestLiraAttack(TestCase):
-    '''Test the LIRA attack code'''
+    """Test the LIRA attack code"""
+
     @classmethod
     def setUpClass(cls):
         """Setup the common things for the class"""
@@ -87,19 +88,19 @@ class TestLiraAttack(TestCase):
         )
         unique_classes_pre = set(local_test_y)
         n_test_examples_pre = len(local_test_y)
-        local_dataset = attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
-            local_dataset, self.target_model
+        local_dataset = (
+            attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
+                local_dataset, self.target_model
+            )
         )
 
         unique_classes_post = set(local_dataset.y_test)
         n_test_examples_post = len(local_dataset.y_test)
-        
+
         self.assertNotEqual(local_dataset.y_test[0], 5)
         self.assertEqual(n_test_examples_pre - n_test_examples_post, 1)
-        class_diff = unique_classes_pre - unique_classes_post # set diff
-        self.assertSetEqual(class_diff, set([5]))
-
-
+        class_diff = unique_classes_pre - unique_classes_post  # set diff
+        self.assertSetEqual(class_diff, {5})
 
     def test_main_example(self):
         """test command line example"""
