@@ -193,6 +193,12 @@ class TestGenerateReport(unittest.TestCase):
 
     def test_cleanup(self):
         """gets rid of files created during tests"""
-        names = ["test.json", "results.txt", "1024-WorstCase attack.png", "filename should be changed.txt", "filename_should_be_changed.txt"]
+        names = [
+            "test.json",
+            "results.txt",
+            "1024-WorstCase attack.png",
+            "filename should be changed.txt",
+            "filename_should_be_changed.txt",
+        ]
         for name in names:
             self.clean_up(name)
