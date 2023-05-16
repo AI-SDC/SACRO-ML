@@ -152,7 +152,8 @@ class LIRAAttack(Attack):
         dataset.y_train = np.array(y_train_new, int)
 
         logger.info(
-            "new ytrain has values and counts: %s", f"{np.unique(dataset.y_train,return_counts=True)}"
+            "new ytrain has values and counts: %s",
+            f"{np.unique(dataset.y_train,return_counts=True)}",
         )
         ok_pos = []
         y_test_new = []
@@ -165,7 +166,8 @@ class LIRAAttack(Attack):
             dataset.x_test = dataset.x_test[ok_pos, :]
         dataset.y_test = np.array(y_test_new, int)
         logger.info(
-            "new ytest has values and counts: %s", f"{np.unique(dataset.y_test,return_counts=True)}"
+            "new ytest has values and counts: %s",
+            f"{np.unique(dataset.y_test,return_counts=True)}",
         )
 
         return dataset
