@@ -21,7 +21,9 @@ python -m examples.worst_case_attack_example
 
 """
 import os
+import sys
 
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -54,6 +56,10 @@ args = worst_case_attack.WorstCaseAttackArgs(
     n_reps=10,
     # number of baseline (dummy) experiments to do
     n_dummy_reps=1,
+    # value of b for beta distribution used to sample the in-sample probabilities
+    train_beta=5,
+    # value of b for beta distribution used to sample the out-of-sample probabilities
+    test_beta=2,
     # Threshold to determine significance of things
     p_thresh=0.05,
     # Filename arguments needed by the code, meaningless if run programmatically
@@ -61,8 +67,18 @@ args = worst_case_attack.WorstCaseAttackArgs(
     out_sample_filename=None,
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
-    # Report name is None - don't make json or pdf files
-    report_name=None,
+    # If Report name is given so it creates Json file; however when it is None - don't make json file
+    report_name="programmatic_worstcase_example_report_risky",
+    # Setting the name of metric to compute failures
+    attack_metric_success_name="P_HIGHER_AUC",
+    # threshold for a given metric for failure/success counters
+    attack_metric_success_thresh=0.05,
+    # threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte: less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
+    attack_metric_success_comp_type="lte",
+    # fail fast counter to stop further repetitions of the test
+    attack_metric_success_count_thresh=2,
+    # If true it stop repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
+    attack_fail_fast=True,
 )
 
 # [TRE / Researcher] Wrap the data in a dataset object
@@ -153,10 +169,16 @@ os.system(
     "--in-sample-preds train_preds.csv "
     "--out-of-sample-preds test_preds.csv "
     "--n-reps 10 "
-    "--report-name example_report_risky "
+    "--report-name commandline_worstcase_example_report "
     "--n-dummy-reps 1 "
-    "--test-prop 0.1"
-    "--report-name example_report"
+    "--test-prop 0.1 "
+    "--train-beta 5 "
+    "--test-beta 2 "
+    "--attack-metric-success-name P_HIGHER_AUC "
+    "--attack-metric-success-thresh 0.05 "
+    "--attack-metric-success-comp-type lte "
+    "--attack-metric-success-count-thresh 2 "
+    "--attack-fail-fast True "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)

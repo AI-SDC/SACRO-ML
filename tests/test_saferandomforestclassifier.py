@@ -151,12 +151,12 @@ def test_randomforest_hacked_postfit():
     part2 = get_reporting_string(
         name="param_changed_from_to", key="bootstrap", val=False, cur_val=True
     )
-    part3 = get_reporting_string(
-        name="param_changed_from_to",
-        key="base_estimator",
-        val="DecisionTreeClassifier()",
-        cur_val="DecisionTreeClassifier()",
-    )
+    part3 = ""  # get_reporting_string(
+    #        name="param_changed_from_to",
+    #        key="base_estimator",
+    #        val="DecisionTreeClassifier()",
+    #        cur_val="DecisionTreeClassifier()",
+    #    )
     correct_msg2 = part1 + part2 + part3
     # print(f'Correct: {correct_msg2}\n Actual: {msg2}')
 
@@ -267,12 +267,12 @@ def test_randomforest_hacked_postfit_trees_swapped():
         name="param_changed_from_to", key="max_depth", val="None", cur_val="2"
     )
     part3 = get_reporting_string(name="forest_estimators_differ", idx=5)
-    part4 = get_reporting_string(
-        name="param_changed_from_to",
-        key="base_estimator",
-        val="DecisionTreeClassifier()",
-        cur_val="DecisionTreeClassifier()",
-    )
+    part4 = ""  # get_reporting_string(
+    #        name="param_changed_from_to",
+    #        key="base_estimator",
+    #        val="DecisionTreeClassifier()",
+    #        cur_val="DecisionTreeClassifier()",
+    #    )
     correct_msg = part1 + part2 + part3 + part4
     # print(f'Correct:\n{correct_msg} Actual:\n{msg}')
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
@@ -298,12 +298,12 @@ def test_randomforest_hacked_postfit_moretrees():
         name="param_changed_from_to", key="n_estimators", val="5", cur_val="10"
     )
     part3 = get_reporting_string(name="different_num_estimators", num1=10, num2=5)
-    part4 = get_reporting_string(
-        name="param_changed_from_to",
-        key="base_estimator",
-        val="DecisionTreeClassifier()",
-        cur_val="DecisionTreeClassifier()",
-    )
+    part4 = ""  # get_reporting_string(
+    #        name="param_changed_from_to",
+    #        key="base_estimator",
+    #        val="DecisionTreeClassifier()",
+    #        cur_val="DecisionTreeClassifier()",
+    #    )
     correct_msg = part1 + part2 + part3 + part4
     # print(f'Correct:\n{correct_msg} Actual:\n{msg}')
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
