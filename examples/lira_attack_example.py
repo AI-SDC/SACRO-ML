@@ -93,7 +93,8 @@ output = attack_obj.make_report()  # also makes .pdf and .json files
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"][
     "attack_instance_logger"][
-    "instance_0"]
+        "instance_0"
+]
 metadata = output["metadata"]
 
 # [TRE] Looks at the metric values

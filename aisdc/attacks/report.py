@@ -317,7 +317,7 @@ def create_lr_report(output: dict) -> FPDF:
     ----------
 
     output: dict
-        dictionary of metadata and attack_experiment_logger                
+        dictionary of metadata and attack_experiment_logger
         
         Note: attack_experiment_logger itself is a dictionary with items of
         attack_instance_logger and for the LIRA attack scenario
@@ -329,14 +329,12 @@ def create_lr_report(output: dict) -> FPDF:
     pdf: fpdf.FPDF
         fpdf document object
 
-    """    
+    """
     mia_metrics = [
         v
-        for _, v in output["attack_experiment_logger"][
-            "attack_instance_logger"
-        ].items()
+        for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
     ][0]
-    #mia_metrics = output["attack_metrics"][0]
+    # mia_metrics = output["attack_metrics"][0]
     metadata = output["metadata"]
     _roc_plot_single(mia_metrics, "log_roc.png")
     pdf = FPDF()
