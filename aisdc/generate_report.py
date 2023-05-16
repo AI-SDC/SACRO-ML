@@ -293,9 +293,7 @@ def process_json(input_filename: str, output_filename: str):
     """
 
     output_filename = output_filename.replace(' ','_')
-    print("OUTPUT FILENAME")
-    print(output_filename)
-
+    
     with open(input_filename) as f:
         json_report = json.loads(f.read())
 
