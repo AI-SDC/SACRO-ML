@@ -87,16 +87,12 @@ def test_lira_attack_failfast():
     attack_obj2 = LIRAAttack(args2)
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
-    _ = output2["attack_metrics"][0]    
+    _ = output2["attack_metrics"][0]
     n_shadow_models_trained = output["attack_experiment_logger"][
-        "attack_instance_logger"][
-            "instance_0"][
-                "n_shadow_models_trained"
-                ]
-    n_shadow_models = output["metadata"][
-        "experiment_details"][
-            "n_shadow_models"]
-    assert n_shadow_models_trained < n_shadow_models 
+        "attack_instance_logger"
+    ]["instance_0"]["n_shadow_models_trained"]
+    n_shadow_models = output["metadata"]["experiment_details"]["n_shadow_models"]
+    assert n_shadow_models_trained < n_shadow_models
 
 
 def test_check_and_update_dataset():
