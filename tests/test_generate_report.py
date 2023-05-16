@@ -79,7 +79,7 @@ class TestGenerateReport(unittest.TestCase):
             str(a)
 
     def test_whitespace_in_filenames(self):
-        """test to make sure whitespace is removed from the output filename when creating the report"""
+        """test to make sure whitespace is removed from the output file when creating the report"""
         json_formatted = self.get_test_report()
 
         filename = "test.json"
@@ -193,6 +193,9 @@ class TestGenerateReport(unittest.TestCase):
 
     def test_cleanup(self):
         """gets rid of files created during tests"""
-        names = ["test.json", "results.txt", "1024-WorstCase attack.png", "filename should be changed.txt", "filename_should_be_changed.txt"]
+        names = ["test.json", "results.txt", 
+            "1024-WorstCase attack.png", 
+            "filename should be changed.txt", 
+            "filename_should_be_changed.txt"]
         for name in names:
             self.clean_up(name)
