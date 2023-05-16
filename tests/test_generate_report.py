@@ -78,6 +78,21 @@ class TestGenerateReport(unittest.TestCase):
         with pytest.raises(NotImplementedError):
             str(a)
 
+    def test_whitespace_in_filenames(self):
+        """test to make sure whitespace is removed from the output filename when creating the report"""
+        json_formatted = self.get_test_report()
+
+        filename = "test.json"
+        output_filename = "filename should be changed.txt"
+
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(json_formatted, f)
+
+        process_json(filename, output_filename)
+
+        assert os.path.exists("filename should be changed.txt") is False
+        assert os.path.exists("filename_should_be_changed.txt") is True
+
     def test_svm(self):
         """test the process_json function when the target model is an SVM"""
         json_formatted = self.get_test_report()
@@ -178,6 +193,6 @@ class TestGenerateReport(unittest.TestCase):
 
     def test_cleanup(self):
         """gets rid of files created during tests"""
-        names = ["test.json", "results.txt", "1024-WorstCase attack.png"]
+        names = ["test.json", "results.txt", "1024-WorstCase attack.png", "filename should be changed.txt", "filename_should_be_changed.txt"]
         for name in names:
             self.clean_up(name)

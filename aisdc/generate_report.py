@@ -209,6 +209,7 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
 
     # TODO do we want to parameterise which FDIF (01, 001, etc)?
     def get_metric_list(self, input_dict: dict) -> list[float]:
+        """Get metrics_list from attack_instance_logger within JSON file"""
         metric_list = []
         for _, iteration_value in input_dict["attack_instance_logger"].items():
             metric_list.append(iteration_value["PDIF01"])
@@ -290,6 +291,11 @@ def process_json(input_filename: str, output_filename: str):
     """
     Function that takes an input JSON filename and outputs a neat text file summarising results
     """
+
+    output_filename = output_filename.replace(' ','_')
+    print("OUTPUT FILENAME")
+    print(output_filename)
+
     with open(input_filename) as f:
         json_report = json.loads(f.read())
 
