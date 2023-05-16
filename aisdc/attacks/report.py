@@ -318,7 +318,7 @@ def create_lr_report(output: dict) -> FPDF:
 
     output: dict
         dictionary of metadata and attack_experiment_logger
-        
+
         Note: attack_experiment_logger itself is a dictionary with items of
         attack_instance_logger and for the LIRA attack scenario
         this will have a single metrics dictionary

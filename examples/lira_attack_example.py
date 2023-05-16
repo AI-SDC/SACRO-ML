@@ -91,9 +91,8 @@ attack_obj.attack(dataset, target_model)
 output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
-attack_metrics = output["attack_experiment_logger"][
-    "attack_instance_logger"][
-        "instance_0"
+attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+    "instance_0"
 ]
 metadata = output["metadata"]
 
