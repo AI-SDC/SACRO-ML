@@ -283,6 +283,32 @@ config = {
     "report_name": "commandline_worstcase_example2_report",
     "in_sample_filename": "train_preds.csv",
     "out_sample_filename": "test_preds.csv",
+    "attack_metric_success_name": "P_HIGHER_AUC",
+    "attack_metric_success_thresh": 0.05,
+    "attack_metric_success_comp_type": "lte",
+    "attack_metric_success_count_thresh": 2,
+    "attack_fail_fast": True,
+    }
+
+with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
+os.system(
+    "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+    "--attack-config-json-file-name config_worstcase_cmd.json "
+)
+
+# Example 3: Worstcase attack by passing a configuratation file name for loading parameters
+config = {
+    "n_reps": 10,
+    "n_dummy_reps": 1,
+    "p_thresh": 0.05,
+    "test_prop": 0.5,
+    "train_beta": 5,
+    "test_beta": 2,
+    "report_name": "commandline_worstcase_example3_report",
+    "in_sample_filename": "train_preds.csv",
+    "out_sample_filename": "test_preds.csv",    
 }
 
 with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:

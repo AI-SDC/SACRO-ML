@@ -64,7 +64,12 @@ def test_attack_from_predictions_cmd():
         "test_prop": 0.5,
         "in_sample_filename": "ypred_train.csv",
         "out_sample_filename": "ypred_test.csv",
-    }
+        "attack_metric_success_name": "P_HIGHER_AUC",
+        "attack_metric_success_thresh": 0.05,
+        "attack_metric_success_comp_type": "lte",
+        "attack_metric_success_count_thresh": 2,
+        "attack_fail_fast": True,
+        }
 
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
