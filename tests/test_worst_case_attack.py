@@ -70,7 +70,7 @@ def test_attack_from_predictions_cmd():
         f.write(json.dumps(config))
     os.system(
         "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
-        "--json-file config_worstcase_cmd.json "
+        "--attack-config-json-file-name config_worstcase_cmd.json "
     )
     os.remove("config_worstcase_cmd.json")
     os.remove("ypred_train.csv")
