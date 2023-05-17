@@ -150,7 +150,7 @@ print(
 print("Programmatic example1 finished")
 print("****************************")
 
-# Example 2: Use of configuration file name to pass through and load parameters 
+# Example 2: Use of configuration file name to pass through and load parameters
 # and running attack programmatically
 config = {
     "n_reps": 10,
