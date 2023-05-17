@@ -52,9 +52,12 @@ def test_lira_attack():
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
     n_shadow_models_trained = output2["attack_experiment_logger"][
-        "attack_instance_logger"
-    ]["instance_0"]["n_shadow_models_trained"]
-    n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
+        "attack_instance_logger"][
+            "instance_0"][
+                "n_shadow_models_trained"]
+    n_shadow_models = output2["metadata"][
+        "experiment_details"][
+            "n_shadow_models"]
     assert n_shadow_models_trained == n_shadow_models
     _ = [
         v
@@ -98,9 +101,12 @@ def test_lira_attack_failfast():
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
     n_shadow_models_trained = output2["attack_experiment_logger"][
-        "attack_instance_logger"
-    ]["instance_0"]["n_shadow_models_trained"]
-    n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
+        "attack_instance_logger"][
+            "instance_0"][
+                "n_shadow_models_trained"]
+    n_shadow_models = output2["metadata"][
+        "experiment_details"][
+            "n_shadow_models"]
     assert n_shadow_models_trained < n_shadow_models
 
 
