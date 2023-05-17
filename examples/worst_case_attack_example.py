@@ -288,7 +288,7 @@ config = {
     "attack_metric_success_comp_type": "lte",
     "attack_metric_success_count_thresh": 2,
     "attack_fail_fast": True,
-    }
+}
 
 with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
@@ -308,7 +308,7 @@ config = {
     "test_beta": 2,
     "report_name": "commandline_worstcase_example3_report",
     "in_sample_filename": "train_preds.csv",
-    "out_sample_filename": "test_preds.csv",    
+    "out_sample_filename": "test_preds.csv",
 }
 
 with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:

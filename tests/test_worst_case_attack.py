@@ -69,7 +69,7 @@ def test_attack_from_predictions_cmd():
         "attack_metric_success_comp_type": "lte",
         "attack_metric_success_count_thresh": 2,
         "attack_fail_fast": True,
-        }
+    }
 
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
