@@ -84,7 +84,7 @@ class LIRAAttackArgs:
         self.__dict__["shadow_models_fail_fast"] = False
 
         if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
-            self.construct_dictionary_from_config_json_file(
+            self.load_config_file_into_dict(
                 self.__dict__["attack_config_json_file_name"]
             )
         self.__dict__.update(kwargs)
@@ -102,8 +102,8 @@ class LIRAAttackArgs:
         """Return arguments"""
         return self.__dict__
 
-    def construct_dictionary_from_config_json_file(self, config_filename: str) -> None:
-        """Return a dictionary object reading through a config.json"""
+    def load_config_file_into_dict(self, config_filename: str) -> None:
+        """Reads a configuration file and loads it into a dictionary object"""
         with open(config_filename, encoding="utf-8") as f:
             config = json.loads(f.read())
         for _, k in enumerate(config):
