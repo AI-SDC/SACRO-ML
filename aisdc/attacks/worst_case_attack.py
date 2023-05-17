@@ -32,15 +32,6 @@ logging.basicConfig(level=logging.INFO)
 P_THRESH = 0.05
 
 
-def parse_boolean_argument(value):
-    """Returns boolean value for a passed argument"""
-    value = value.lower()
-    return_value = False
-    if value in ["true", "True"]:
-        return_value = True
-    return return_value
-
-
 class WorstCaseAttackArgs:
     """Arguments for worst case"""
 
@@ -874,9 +865,7 @@ def main():
 
     attack_parser.add_argument(
         "--attack-fail-fast",
-        action="store",
-        type=parse_boolean_argument,
-        default=True,
+        action="store_true",                
         required=False,
         dest="attack_fail_fast",
         help=(

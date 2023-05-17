@@ -77,12 +77,6 @@ def test_attack_from_predictions_cmd():
     os.remove("ypred_test.csv")
 
 
-def test_parse_boolean_argument():
-    """tests parse boolean argument function"""
-    assert worst_case_attack.parse_boolean_argument("true")
-    assert not worst_case_attack.parse_boolean_argument("false")
-
-
 def test_report_worstcase():
     """tests worst case attack directly"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)

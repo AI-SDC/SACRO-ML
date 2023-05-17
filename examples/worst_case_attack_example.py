@@ -269,7 +269,7 @@ os.system(
     "--attack-metric-success-thresh 0.05 "
     "--attack-metric-success-comp-type lte "
     "--attack-metric-success-count-thresh 2 "
-    "--attack-fail-fast True "
+    "--attack-fail-fast "
 )
 
 # Example 2: Worstcase attack by passing a configuratation file name for loading parameters
