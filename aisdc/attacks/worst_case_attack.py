@@ -865,7 +865,7 @@ def main():
 
     attack_parser.add_argument(
         "--attack-fail-fast",
-        action="store_true",                
+        action="store_true",
         required=False,
         dest="attack_fail_fast",
         help=(
