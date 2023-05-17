@@ -139,7 +139,7 @@ def test_main():
         likelihood_attack.main()
 
     # option 2
-    testargs = ["prog", "run-attack", "--j", "tests/lrconfig.json"]
+    testargs = ["prog", "run-attack", "-j", "tests/lrconfig.json"]
     with patch.object(sys, "argv", testargs):
         likelihood_attack.main()
 
