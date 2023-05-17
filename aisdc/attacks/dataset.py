@@ -38,7 +38,7 @@ class Data:  # pylint: disable=too-many-instance-attributes
         self.y_train = np.array(y_train, int)
         self.x_test = x_test
         self.y_test = np.array(y_test, int)
-        self.n_samples = len(x_train) + len(y_train)
+        self.n_samples = len(x_train) + len(x_test)
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""
