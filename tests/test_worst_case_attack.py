@@ -33,7 +33,7 @@ def test_config_file_arguments_parsin():
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     args = worst_case_attack.WorstCaseAttackArgs(
-        json_file="config_worstcase_test.json",
+        attack_config_json_file_name="config_worstcase_test.json",
     )
     assert args.__dict__["n_reps"] == config["n_reps"]
     assert args.__dict__["n_dummy_reps"] == config["n_dummy_reps"]
