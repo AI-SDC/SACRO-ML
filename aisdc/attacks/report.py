@@ -200,17 +200,17 @@ def create_mia_report(attack_output: dict) -> FPDF:
     Parameters
     ----------
 
-    metadata: dict
-        dictionary of metadata
+    attack_output: dict 
+        dictionary with following items
 
-    mia_metrics: list
-        list of metrics dictionaries
+            metadata: dict
+                dictionary of metadata
 
-    dummy_metrics: list
-        list of metrics dictionaries
+            attack_experiment_logger: dict
+                list of metrics as dictionary items for an experiment                
 
-    dummy_metadata: dict
-        metadata for dummy experiments
+            dummy_attack_experiment_logger: dict
+                list of metrics as dictionary items across dummy experiments                                
 
     Returns
     -------
@@ -317,11 +317,16 @@ def create_lr_report(output: dict) -> FPDF:
     ----------
 
     output: dict
-        dictionary of metadata and attack_experiment_logger
+        dictionary with following items 
 
-        Note: attack_experiment_logger itself is a dictionary with items of
-        attack_instance_logger and for the LIRA attack scenario
-        this will have a single metrics dictionary
+        metadata: dict
+                dictionary of metadata
+
+        attack_experiment_logger: dict
+            list of metrics as dictionary items for an experiments 
+            In case of LIRA attack scenario, this will have dictionary 
+            items of attack_instance_logger that 
+            will have a single metrics dictionary
 
     Returns
     -------

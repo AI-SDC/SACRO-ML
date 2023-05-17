@@ -74,13 +74,11 @@ config = {
 with open("config.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
-# [TRE] sets up the attack
+# [TRE] Example 1: sets up the attack 
 args = LIRAAttackArgs(
     n_shadow_models=100,
-    report_name="lira_example_report",
-    json_file="config.json",
-    # shadow_models_fail_fast=True,
-    # n_shadow_rows_confidences_min=10,
+    report_name="lira_example1_report",
+    attack_config_json_file_name="config.json",
 )
 attack_obj = LIRAAttack(args)
 
@@ -112,6 +110,44 @@ for key, value in metadata["global_metrics"].items():
 print("Programmatic example finished")
 print("****************************")
 
+# [TRE] Example 2: sets up the attack with fail-fast option
+args = LIRAAttackArgs(
+    n_shadow_models=100,
+    report_name="lira_example2_report",
+    attack_config_json_file_name="config.json",
+    shadow_models_fail_fast=True,
+    n_shadow_rows_confidences_min=10,
+)
+attack_obj = LIRAAttack(args)
+
+# [TRE] runs the attack
+attack_obj.attack(dataset, target_model)
+
+# [TRE] Get the output
+output = attack_obj.make_report()  # also makes .pdf and .json files
+
+# [TRE] Accesses attack metrics and metadata
+attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+    "instance_0"
+]
+metadata = output["metadata"]
+
+# [TRE] Looks at the metric values
+print("Attack metrics:")
+for key, value in attack_metrics.items():
+    try:
+        print(key, f"{value:.3f}")
+    except TypeError:
+        print(f"Cannot print {key}")
+
+print("Global metrics")
+for key, value in metadata["global_metrics"].items():
+    print(key, value)
+
+
+print("Programmatic example with fail-fast option finished")
+print("****************************")
+
 print()
 print()
 print("Command line example starting")
@@ -136,7 +172,7 @@ os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
 # Example 1 to demonstrate all given shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
-    "--json-file config.json "
+    "--attack-config-json-file-name config.json "
     "--report-name example1_lira_report "
     "--n-shadow-models 100 "
 )
@@ -144,7 +180,7 @@ os.system(
 # Example 2 to demonstrate fail fast of shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
-    "--json-file config.json "
+    "--attack-config-json-file-name config.json "
     "--report-name example2_lira_report "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "

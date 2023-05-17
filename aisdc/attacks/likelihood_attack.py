@@ -80,11 +80,11 @@ class LIRAAttackArgs:
         self.__dict__["n_shadow_rows_confidences_min"] = 10
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
-        self.__dict__["json_file"] = "config.json"
+        self.__dict__["attack_config_json_file_name"] = "config.json"
         self.__dict__["shadow_models_fail_fast"] = False
 
-        if os.path.isfile(self.__dict__["json_file"]):
-            self.construct_dictionary_from_config_json_file(self.__dict__["json_file"])
+        if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
+            self.construct_dictionary_from_config_json_file(self.__dict__["attack_config_json_file_name"])
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -506,8 +506,8 @@ class LIRAAttack(Attack):
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
-        logger.info("Reading config from %s", self.args.json_file)
-        with open(self.args.json_file, encoding="utf-8") as f:
+        logger.info("Reading config from %s", self.args.attack_config_json_file_name)
+        with open(self.args.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
 
         logger.info("Loading training data csv from %s", config["training_data_file"])
@@ -632,10 +632,10 @@ def main():
     attack_parser = subparsers.add_parser("run-attack", parents=[parser])
     attack_parser.add_argument(
         "-j",
-        "--json-file",
+        "--attack-config-json-file-name",
         action="store",
         required=True,
-        dest="json_file",
+        dest="attack_config_json_file_name",
         type=str,
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
