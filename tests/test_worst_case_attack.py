@@ -24,17 +24,22 @@ def clean_up(name):
 def test_config_file_arguments_parsin():
     """tests reading parameters from the configuration file"""
     config = {
-        "n_reps": 10,
-        "n_dummy_reps": 1,
-        "p_thresh": 0.05,
-        "test_prop": 0.5,
-        "report_name": "programmatically_worstcase_report",
+        "n_reps": 12,
+        "n_dummy_reps": 2,
+        "p_thresh": 0.06,
+        "test_prop": 0.4,
+        "report_name": "programmatically_worstcase_report_test",
     }
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
-    _ = worst_case_attack.WorstCaseAttackArgs(
+    args = worst_case_attack.WorstCaseAttackArgs(
         json_file="config_worstcase_test.json",
     )
+    assert args.__dict__["n_reps"] == config["n_reps"]
+    assert args.__dict__["n_dummy_reps"] == config["n_dummy_reps"]
+    assert args.__dict__["p_thresh"] == config["p_thresh"]
+    assert args.__dict__["test_prop"] == config["test_prop"]
+    assert args.__dict__["report_name"] == config["report_name"]
     os.remove("config_worstcase_test.json")
 
 
