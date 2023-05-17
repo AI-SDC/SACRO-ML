@@ -84,7 +84,9 @@ class LIRAAttackArgs:
         self.__dict__["shadow_models_fail_fast"] = False
 
         if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
-            self.construct_dictionary_from_config_json_file(self.__dict__["attack_config_json_file_name"])
+            self.construct_dictionary_from_config_json_file(
+                self.__dict__["attack_config_json_file_name"]
+            )
         self.__dict__.update(kwargs)
 
     def __str__(self):

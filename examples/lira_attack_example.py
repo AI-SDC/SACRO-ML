@@ -74,7 +74,7 @@ config = {
 with open("config.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
-# [TRE] Example 1: sets up the attack 
+# [TRE] Example 1: sets up the attack
 args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example1_report",
