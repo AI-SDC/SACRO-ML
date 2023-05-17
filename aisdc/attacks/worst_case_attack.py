@@ -69,16 +69,16 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_metric_success_comp_type"] = "lte"
         self.__dict__["attack_metric_success_count_thresh"] = 5
         self.__dict__["attack_fail_fast"] = False
-        self.__dict__["json_file"] = None
+        self.__dict__["attack_config_json_file_name"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
-        if self.__dict__["json_file"] is not None:
-            if os.path.isfile(self.__dict__["json_file"]):
+        if self.__dict__["attack_config_json_file_name"] is not None:
+            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
                 self.construct_dictionary_from_config_json_file(
-                    self.__dict__["json_file"]
+                    self.__dict__["attack_config_json_file_name"]
                 )
         self.__dict__.update(kwargs)
-        del self.__dict__["json_file"]
+        del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
         return ",".join(
@@ -601,7 +601,7 @@ def _run_attack_from_configfile(args):
     """Initialise class and run attack from prediction files
     using config file"""
     wc_args = WorstCaseAttackArgs(
-        json_file=str(args.json_file),
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
     )
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
@@ -892,10 +892,10 @@ def main():
     attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
     attack_parser_config.add_argument(
         "-j",
-        "--json-file",
+        "--attack-config-json-file-name",
         action="store",
         required=True,
-        dest="json_file",
+        dest="attack_config_json_file_name",
         type=str,
         default="config_worstcase_cmd.json",
         help=(
