@@ -7,7 +7,9 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import os
 import uuid
 from collections.abc import Hashable
 from datetime import datetime
@@ -28,15 +30,6 @@ from aisdc.attacks.failfast import FailFast
 logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
-
-
-def parse_boolean_argument(value):
-    """Returns boolean value for a passed argument"""
-    value = value.lower()
-    return_value = False
-    if value in ["true", "True"]:
-        return_value = True
-    return return_value
 
 
 class WorstCaseAttackArgs:
@@ -67,7 +60,16 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_metric_success_comp_type"] = "lte"
         self.__dict__["attack_metric_success_count_thresh"] = 5
         self.__dict__["attack_fail_fast"] = False
+        self.__dict__["attack_config_json_file_name"] = None
         self.__dict__.update(kwargs)
+        # Reading parameters from a json file
+        if self.__dict__["attack_config_json_file_name"] is not None:
+            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
+                self.load_config_file_into_dict(
+                    self.__dict__["attack_config_json_file_name"]
+                )
+        self.__dict__.update(kwargs)
+        del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
         return ",".join(
@@ -81,6 +83,13 @@ class WorstCaseAttackArgs:
     def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
+
+    def load_config_file_into_dict(self, config_filename) -> None:
+        """Reads a configuration file and loads it into a dictionary object"""
+        with open(config_filename, encoding="utf-8") as f:
+            config = json.loads(f.read())
+        for _, k in enumerate(config):
+            self.__dict__[k] = config[k]
 
 
 class WorstCaseAttack(Attack):
@@ -579,6 +588,17 @@ def _run_attack(args):
     _ = attack_obj.make_report()
 
 
+def _run_attack_from_configfile(args):
+    """Initialise class and run attack from prediction files
+    using config file"""
+    wc_args = WorstCaseAttackArgs(
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
+    )
+    attack_obj = WorstCaseAttack(wc_args)
+    attack_obj.attack_from_prediction_files()
+    _ = attack_obj.make_report()
+
+
 def main():
     """main method to parse arguments and invoke relevant method"""
     logger = logging.getLogger("main")
@@ -845,9 +865,7 @@ def main():
 
     attack_parser.add_argument(
         "--attack-fail-fast",
-        action="store",
-        type=parse_boolean_argument,
-        default=True,
+        action="store_true",
         required=False,
         dest="attack_fail_fast",
         help=(
@@ -859,6 +877,22 @@ def main():
     )
 
     attack_parser.set_defaults(func=_run_attack)
+
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--attack-config-json-file-name",
+        action="store",
+        required=True,
+        dest="attack_config_json_file_name",
+        type=str,
+        default="config_worstcase_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
 
     args = parser.parse_args()
 
