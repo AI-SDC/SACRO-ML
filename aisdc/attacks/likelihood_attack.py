@@ -10,7 +10,10 @@ import argparse
 import importlib
 import json
 import logging
+import os
+import uuid
 from collections.abc import Hashable, Iterable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
@@ -74,9 +77,16 @@ class LIRAAttackArgs:
 
     def __init__(self, **kwargs):
         self.__dict__["n_shadow_models"] = N_SHADOW_MODELS
+        self.__dict__["n_shadow_rows_confidences_min"] = 10
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
-        self.__dict__["json_file"] = "config.json"
+        self.__dict__["attack_config_json_file_name"] = "config.json"
+        self.__dict__["shadow_models_fail_fast"] = False
+
+        if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
+            self.load_config_file_into_dict(
+                self.__dict__["attack_config_json_file_name"]
+            )
         self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -92,12 +102,20 @@ class LIRAAttackArgs:
         """Return arguments"""
         return self.__dict__
 
+    def load_config_file_into_dict(self, config_filename: str) -> None:
+        """Reads a configuration file and loads it into a dictionary object"""
+        with open(config_filename, encoding="utf-8") as f:
+            config = json.loads(f.read())
+        for _, k in enumerate(config):
+            self.__dict__[k] = config[k]
+
 
 class LIRAAttack(Attack):
     """The main LIRA Attack class"""
 
     def __init__(self, args: LIRAAttackArgs = LIRAAttackArgs()) -> None:
         self.attack_metrics = None
+        self.attack_failfast_shadow_models_trained = None
         self.dummy_attack_metrics = None
         self.metadata = None
         self.args = args
@@ -296,6 +314,23 @@ class LIRAAttack(Attack):
                         # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
 
+            # Compute number of confidences for each row
+            lengths_shadow_row_to_confidence = {
+                key: len(value) for key, value in shadow_row_to_confidence.items()
+            }
+            n_shadow_confidences = self.args.n_shadow_rows_confidences_min
+            # Stop training of shadow models when shadow_model_fail_fast is True
+            # and a minimum number of confidences specified by parameter
+            # (n_shadow_rows_confidences_min) are computed for each row
+            if (
+                not any(
+                    value < n_shadow_confidences
+                    for value in lengths_shadow_row_to_confidence.values()
+                )
+                and self.args.shadow_models_fail_fast
+            ):
+                break
+        self.attack_failfast_shadow_models_trained = model_idx + 1
         # Do the test described in the paper in each case
         mia_scores = []
         mia_labels = []
@@ -401,21 +436,38 @@ class LIRAAttack(Attack):
             Dictionary containing all attack output
         """
         logger = logging.getLogger("reporting")
-        output = {}
         logger.info("Starting report, report_name = %s", self.args.report_name)
-        output["attack_metrics"] = self.attack_metrics
+        output = {}
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
+        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
             logger.info("Wrote report to %s", f"{self.args.report_name}.json")
 
-            pdf = report.create_lr_report(output)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
+            pdf_report = report.create_lr_report(output)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
         return output
+
+    def _get_attack_metrics_instances(self) -> dict:
+        """Constructs the metadata object, after attacks"""
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
+
+        for rep, _ in enumerate(self.attack_metrics):
+            self.attack_metrics[rep][
+                "n_shadow_models_trained"
+            ] = self.attack_failfast_shadow_models_trained
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
 
     def setup_example_data(self) -> None:
         """Method to create example data and save (including config). Intended to allow users
@@ -456,8 +508,8 @@ class LIRAAttack(Attack):
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
-        logger.info("Reading config from %s", self.args.json_file)
-        with open(self.args.json_file, encoding="utf-8") as f:
+        logger.info("Reading config from %s", self.args.attack_config_json_file_name)
+        with open(self.args.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
 
         logger.info("Loading training data csv from %s", config["training_data_file"])
@@ -529,6 +581,20 @@ def main():
         dest="n_shadow_models",
         help=("The number of shadow models to train (default = %(default)d)"),
     )
+
+    parser.add_argument(
+        "--n-shadow-rows-confidences-min",
+        type=int,
+        action="store",
+        dest="n_shadow_rows_confidences_min",
+        default=10,
+        required=False,
+        help=(
+            """Number of confidences against rows in shadow data from the shadow models
+            and works when --shadow-models-fail-fast = True. Default = %(default)d"""
+        ),
+    )
+
     parser.add_argument(
         "--report-name",
         type=str,
@@ -548,6 +614,19 @@ def main():
         default=P_THRESH,
         help=("Significance threshold for p-value comparisons. Default = %(default)f"),
     )
+
+    parser.add_argument(
+        "--shadow-models-fail-fast",
+        action="store_true",
+        required=False,
+        dest="shadow_models_fail_fast",
+        help=(
+            """To stop training shadow models early based on minimum number of
+            confidences across all rows (--n-shadow-rows-confidences-min)
+            in the shadow data. Default = %(default)s"""
+        ),
+    )
+
     subparsers = parser.add_subparsers()
     example_parser = subparsers.add_parser("run-example", parents=[parser])
     example_parser.set_defaults(func=_example)
@@ -555,10 +634,10 @@ def main():
     attack_parser = subparsers.add_parser("run-attack", parents=[parser])
     attack_parser.add_argument(
         "-j",
-        "--json-file",
+        "--attack-config-json-file-name",
         action="store",
         required=True,
-        dest="json_file",
+        dest="attack_config_json_file_name",
         type=str,
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
