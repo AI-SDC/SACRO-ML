@@ -1,5 +1,6 @@
 """ tests for fnctionality in super class"""
 import copy
+import json
 import os
 import pickle
 
@@ -67,7 +68,12 @@ class SafeDummyClassifier(
                 the_kwds[key] = val
         DummyClassifier.__init__(self, **the_kwds)
         self.model_type: str = "DummyClassifier"
-        self.ignore_items = ["model_save_file", "basemodel_paramnames", "ignore_items"]
+        self.ignore_items = [
+            "model_save_file",
+            "basemodel_paramnames",
+            "ignore_items",
+            "timestamp",
+        ]
         # create an item to test additional_checks()
         self.examine_seperately_items = ["newthing"]
         self.newthing = ["myStringKey", "aString", "myIntKey", "42"]
@@ -506,8 +512,8 @@ def test_generic_additional_tests():
     assert disclosive is True
 
 
-def test_request_release():
-    """checks requestrelease code works"""
+def test_request_release_without_attcks():
+    """checks requestrelease code works and check the content of the json file"""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -515,4 +521,32 @@ def test_request_release():
     model.k_anonymity = 5  # pylint: disable=attribute-defined-outside-init
 
     # no file provided, has k_anonymity
-    model.request_release()
+
+    filename = "test.pkl"
+    json_filename = model.researcher + "_checkfile.json"
+    model.request_release(filename)
+
+    # check that pikle and the json files have been created
+    assert os.path.isfile(filename)
+    assert os.path.isfile(json_filename)
+
+    # check the content of the json file
+    with open(f"./{json_filename}", encoding="utf-8") as file:
+        json_data = json.load(file)
+
+        details, _ = model.preliminary_check(verbose=False)
+        msg_post, _ = model.posthoc_check()
+        k_anonymity = f"{model.k_anonymity}"
+        recommendation = "Do not allow release"
+        reason = details + msg_post
+
+        assert {
+            "researcher": model.researcher,
+            "model_type": model.model_type,
+            "model_save_file": filename,
+            "details": details,
+            "k_anonymity": k_anonymity,
+            "recommendation": recommendation,
+            "reason": reason,
+            "timestamp": model.timestamp,
+        } in json_data
