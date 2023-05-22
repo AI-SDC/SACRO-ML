@@ -75,6 +75,7 @@ Code for a new class needs to reflect is the contents of the list self.basemodel
             	"model_save_file",
             	"ignore_items",
             	"base_estimator_",
+				"timestamp",
         	]
         	self.examine_seperately_items = ["base_estimator", "estimators_"]
 
