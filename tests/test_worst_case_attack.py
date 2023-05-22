@@ -100,8 +100,8 @@ def test_report_worstcase():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        training_preds_file=None,
-        test_preds_file=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-10reps",
     )
@@ -117,8 +117,8 @@ def test_report_worstcase():
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
-        training_preds_file=None,
-        test_preds_file=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
     )
@@ -144,8 +144,8 @@ def test_attack_with_correct_feature():
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
-        training_preds_file=None,
-        test_preds_file=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
         include_model_correct_feature=True,
@@ -182,13 +182,13 @@ def test_attack_from_predictions():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        training_preds_file="ypred_train.csv",
-        test_preds_file="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
 
-    assert args.get_args()["training_preds_file"] == "ypred_train.csv"
+    assert args.get_args()["training_preds_filename"] == "ypred_train.csv"
     print(args)
 
     # with multiple reps
@@ -217,13 +217,13 @@ def test_attack_from_predictions_no_dummy():
         n_reps=10,
         n_dummy_reps=0,
         p_thresh=0.05,
-        training_preds_file="ypred_train.csv",
-        test_preds_file="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
 
-    assert args.get_args()["training_preds_file"] == "ypred_train.csv"
+    assert args.get_args()["training_preds_filename"] == "ypred_train.csv"
     print(args)
 
     # with multiple reps
@@ -239,8 +239,8 @@ def test_dummy_data():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        training_preds_file="ypred_train.csv",
-        test_preds_file="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
