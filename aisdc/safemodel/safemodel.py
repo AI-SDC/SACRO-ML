@@ -741,7 +741,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
 
         """
-        if filename == "undefined":
+        if filename == "undefined":  # pragma: no cover
             print("You must provide the name of the file you want to save your model")
             print("For security reasons, this will overwrite previous versions")
         else:
