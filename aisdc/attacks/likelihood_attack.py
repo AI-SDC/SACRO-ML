@@ -495,11 +495,11 @@ class LIRAAttack(Attack):
 
         config = {
             "training_data_file": "train_data.csv",
-            "testing_data_file": "test_data.csv",
-            "training_preds_file": "train_preds.csv",
-            "testing_preds_file": "test_preds.csv",
-            "mia_attack_model": ["sklearn.ensemble", "RandomForestClassifier"],
-            "mia_attack_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
+            "test_data_file": "test_data.csv",
+            "training_preds_filename": "train_preds.csv",
+            "test_preds_filename": "test_preds.csv",
+            "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
+            "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
         }
 
         with open("config.json", "w", encoding="utf-8") as f:
@@ -512,30 +512,30 @@ class LIRAAttack(Attack):
         with open(self.args.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
 
-        logger.info("Loading training data csv from %s", config["training_data_file"])
-        training_data = np.loadtxt(config["training_data_file"], delimiter=",")
+        logger.info("Loading training data csv from %s", config["training_data_filename"])
+        training_data = np.loadtxt(config["training_data_filename"], delimiter=",")
         train_X = training_data[:, :-1]
         train_y = training_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(train_X))
 
-        logger.info("Loading test data csv from %s", config["testing_data_file"])
-        test_data = np.loadtxt(config["testing_data_file"], delimiter=",")
+        logger.info("Loading test data csv from %s", config["test_data_filename"])
+        test_data = np.loadtxt(config["test_data_filename"], delimiter=",")
         test_X = test_data[:, :-1]
         test_y = test_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(test_X))
 
-        logger.info("Loading train predictions form %s", config["training_preds_file"])
-        train_preds = np.loadtxt(config["training_preds_file"], delimiter=",")
+        logger.info("Loading train predictions form %s", config["training_preds_filename"])
+        train_preds = np.loadtxt(config["training_preds_filename"], delimiter=",")
         assert len(train_preds) == len(train_X)
 
-        logger.info("Loading test predictions form %s", config["testing_preds_file"])
-        test_preds = np.loadtxt(config["testing_preds_file"], delimiter=",")
+        logger.info("Loading test predictions form %s", config["test_preds_filename"])
+        test_preds = np.loadtxt(config["test_preds_filename"], delimiter=",")
         assert len(test_preds) == len(test_X)
 
-        clf_module_name, clf_class_name = config["mia_attack_model"]
+        clf_module_name, clf_class_name = config["target_model"]
         module = importlib.import_module(clf_module_name)
         clf_class = getattr(module, clf_class_name)
-        clf_params = config["mia_attack_model_hyp"]
+        clf_params = config["target_model_hyp"]
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
