@@ -512,7 +512,9 @@ class LIRAAttack(Attack):
         with open(self.args.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
 
-        logger.info("Loading training data csv from %s", config["training_data_filename"])
+        logger.info(
+            "Loading training data csv from %s", config["training_data_filename"]
+        )
         training_data = np.loadtxt(config["training_data_filename"], delimiter=",")
         train_X = training_data[:, :-1]
         train_y = training_data[:, -1].flatten().astype(int)
@@ -524,7 +526,9 @@ class LIRAAttack(Attack):
         test_y = test_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(test_X))
 
-        logger.info("Loading train predictions form %s", config["training_preds_filename"])
+        logger.info(
+            "Loading train predictions form %s", config["training_preds_filename"]
+        )
         train_preds = np.loadtxt(config["training_preds_filename"], delimiter=",")
         assert len(train_preds) == len(train_X)
 
