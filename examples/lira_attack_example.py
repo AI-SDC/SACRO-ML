@@ -63,12 +63,12 @@ dataset.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Creates a config file for the likelihood attack
 config = {
-    "training_data_file": "train_data.csv",
-    "testing_data_file": "test_data.csv",
-    "training_preds_file": "train_preds.csv",
-    "testing_preds_file": "test_preds.csv",
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
     "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-    "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
+    "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
 
 with open("config.json", "w", encoding="utf-8") as f:
