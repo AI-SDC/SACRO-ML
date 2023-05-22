@@ -531,7 +531,7 @@ def test_request_release_without_attcks():
     assert os.path.isfile(json_filename)
 
     # check the content of the json file
-    with open("./m-albashir_checkfile.json", encoding="utf-8") as file:
+    with open(f"./{json_filename}", encoding="utf-8") as file:
         json_data = json.load(file)
 
         details, _ = model.preliminary_check(verbose=False)
