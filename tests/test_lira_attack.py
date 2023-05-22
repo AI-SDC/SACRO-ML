@@ -30,7 +30,11 @@ def clean_up(name):
 
 def test_lira_attack():
     """tests the lira code two ways"""
-    args = LIRAAttackArgs(n_shadow_models=50, report_name="lira_example_report")
+    args = LIRAAttackArgs(
+        n_shadow_models=50,
+        report_name="lira_example_report",
+        attack_config_json_file_name="lrconfig.json"
+        )
     attack_obj = LIRAAttack(args)
     attack_obj.setup_example_data()
     attack_obj.attack_from_config()
@@ -47,7 +51,11 @@ def test_lira_attack():
     )
     target_model.fit(train_X, train_y)
 
-    args2 = LIRAAttackArgs(n_shadow_models=50, report_name="lira_example2_report")
+    args2 = LIRAAttackArgs(
+        n_shadow_models=50,
+        report_name="lira_example2_report",
+        attack_config_json_file_name="lrconfig.json"
+        )
     attack_obj2 = LIRAAttack(args2)
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
@@ -69,6 +77,7 @@ def test_lira_attack_failfast():
     args = LIRAAttackArgs(
         n_shadow_models=100,
         report_name="lira_example_report",
+        attack_config_json_file_name="lrconfig.json",
         shadow_models_fail_fast=True,
         n_shadow_rows_confidences_min=10,
     )
@@ -91,6 +100,7 @@ def test_lira_attack_failfast():
     args2 = LIRAAttackArgs(
         n_shadow_models=100,
         report_name="lira_example3_failfast_report",
+        attack_config_json_file_name="lrconfig.json",
         shadow_models_fail_fast=True,
         n_shadow_rows_confidences_min=10,
     )
@@ -107,7 +117,11 @@ def test_lira_attack_failfast():
 def test_check_and_update_dataset():
     """test the code that removes items from test set with classes
     not present in training set"""
-    args = LIRAAttackArgs(n_shadow_models=50, report_name="lira_example_report")
+    args = LIRAAttackArgs(
+        n_shadow_models=50, 
+        report_name="lira_example_report",
+        attack_config_json_file_name="lrconfig.json"
+        )
     attack_obj = LIRAAttack(args)
     attack_obj.setup_example_data()
     attack_obj.attack_from_config()

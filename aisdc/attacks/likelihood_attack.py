@@ -494,8 +494,8 @@ class LIRAAttack(Attack):
         np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
         config = {
-            "training_data_file": "train_data.csv",
-            "test_data_file": "test_data.csv",
+            "training_data_filename": "train_data.csv",
+            "test_data_filename": "test_data.csv",
             "training_preds_filename": "train_preds.csv",
             "test_preds_filename": "test_preds.csv",
             "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
