@@ -1,8 +1,8 @@
 {
-    "training_data_file": "train_data.csv",
-    "testing_data_file": "test_data.csv",
-    "training_preds_file": "train_preds.csv",
-    "testing_preds_file": "test_preds.csv",
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
     "mia_attack_model": [
         "sklearn.ensemble",
         "RandomForestClassifier"
