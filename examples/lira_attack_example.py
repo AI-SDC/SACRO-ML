@@ -67,8 +67,8 @@ config = {
     "testing_data_file": "test_data.csv",
     "training_preds_file": "train_preds.csv",
     "testing_preds_file": "test_preds.csv",
-    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-    "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
+    "mia_attack_model": ["sklearn.ensemble", "RandomForestClassifier"],
+    "mia_attack_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
 
 with open("config.json", "w", encoding="utf-8") as f:

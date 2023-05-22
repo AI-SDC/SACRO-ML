@@ -257,8 +257,8 @@ os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 # Example 1: Worstcase attack through commandline by passing parameters
 os.system(
     "python -m aisdc.attacks.worst_case_attack run-attack "
-    "--in-sample-preds train_preds.csv "
-    "--out-of-sample-preds test_preds.csv "
+    "--training-preds-file train_preds.csv "
+    "--test_preds_file test_preds.csv "
     "--n-reps 10 "
     "--report-name commandline_worstcase_example1_report "
     "--n-dummy-reps 1 "
@@ -281,8 +281,8 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "report_name": "commandline_worstcase_example2_report",
-    "in_sample_filename": "train_preds.csv",
-    "out_sample_filename": "test_preds.csv",
+    "training_preds_file": "train_preds.csv",
+    "test_preds_file": "test_preds.csv",
     "attack_metric_success_name": "P_HIGHER_AUC",
     "attack_metric_success_thresh": 0.05,
     "attack_metric_success_comp_type": "lte",
@@ -307,8 +307,8 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "report_name": "commandline_worstcase_example3_report",
-    "in_sample_filename": "train_preds.csv",
-    "out_sample_filename": "test_preds.csv",
+    "training_preds_file": "train_preds.csv",
+    "test_preds_file": "test_preds.csv",
 }
 
 with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:

@@ -664,7 +664,7 @@ def main():
     attack_parser = subparsers.add_parser("run-attack")
     attack_parser.add_argument(
         "-i",
-        "--in-sample-preds",
+        "--training-preds-file",
         action="store",
         dest="training_preds_file",
         required=False,
@@ -678,7 +678,7 @@ def main():
 
     attack_parser.add_argument(
         "-o",
-        "--out-of-sample-preds",
+        "--test-preds-file",
         action="store",
         dest="test_preds_file",
         required=False,
