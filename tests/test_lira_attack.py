@@ -33,8 +33,8 @@ def test_lira_attack():
     args = LIRAAttackArgs(
         n_shadow_models=50,
         report_name="lira_example_report",
-        attack_config_json_file_name="lrconfig.json"
-        )
+        attack_config_json_file_name="lrconfig.json",
+    )
     attack_obj = LIRAAttack(args)
     attack_obj.setup_example_data()
     attack_obj.attack_from_config()
@@ -54,8 +54,8 @@ def test_lira_attack():
     args2 = LIRAAttackArgs(
         n_shadow_models=50,
         report_name="lira_example2_report",
-        attack_config_json_file_name="lrconfig.json"
-        )
+        attack_config_json_file_name="lrconfig.json",
+    )
     attack_obj2 = LIRAAttack(args2)
     attack_obj2.attack(dataset, target_model)
     output2 = attack_obj2.make_report()  # also makes .pdf and .json files
@@ -118,10 +118,10 @@ def test_check_and_update_dataset():
     """test the code that removes items from test set with classes
     not present in training set"""
     args = LIRAAttackArgs(
-        n_shadow_models=50, 
+        n_shadow_models=50,
         report_name="lira_example_report",
-        attack_config_json_file_name="lrconfig.json"
-        )
+        attack_config_json_file_name="lrconfig.json",
+    )
     attack_obj = LIRAAttack(args)
     attack_obj.setup_example_data()
     attack_obj.attack_from_config()
