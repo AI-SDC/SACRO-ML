@@ -61,8 +61,25 @@ target_model.fit(train_X, train_y)
 dataset = Data()
 dataset.add_processed_data(train_X, train_y, test_X, test_y)
 
-# [TRE] sets up the attack
-args = LIRAAttackArgs(n_shadow_models=100, report_name="lira_example_report")
+# [TRE] Creates a config file for the likelihood attack
+config = {
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
+    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
+    "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
+}
+
+with open("config.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
+# [TRE] Example 1: sets up the attack
+args = LIRAAttackArgs(
+    n_shadow_models=100,
+    report_name="lira_example1_report",
+    attack_config_json_file_name="config.json",
+)
 attack_obj = LIRAAttack(args)
 
 # [TRE] runs the attack
@@ -72,7 +89,9 @@ attack_obj.attack(dataset, target_model)
 output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
-attack_metrics = output["attack_metrics"][0]
+attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+    "instance_0"
+]
 metadata = output["metadata"]
 
 # [TRE] Looks at the metric values
@@ -91,6 +110,44 @@ for key, value in metadata["global_metrics"].items():
 print("Programmatic example finished")
 print("****************************")
 
+# [TRE] Example 2: sets up the attack with fail-fast option
+args = LIRAAttackArgs(
+    n_shadow_models=100,
+    report_name="lira_example2_report",
+    attack_config_json_file_name="config.json",
+    shadow_models_fail_fast=True,
+    n_shadow_rows_confidences_min=10,
+)
+attack_obj = LIRAAttack(args)
+
+# [TRE] runs the attack
+attack_obj.attack(dataset, target_model)
+
+# [TRE] Get the output
+output = attack_obj.make_report()  # also makes .pdf and .json files
+
+# [TRE] Accesses attack metrics and metadata
+attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+    "instance_0"
+]
+metadata = output["metadata"]
+
+# [TRE] Looks at the metric values
+print("Attack metrics:")
+for key, value in attack_metrics.items():
+    try:
+        print(key, f"{value:.3f}")
+    except TypeError:
+        print(f"Cannot print {key}")
+
+print("Global metrics")
+for key, value in metadata["global_metrics"].items():
+    print(key, value)
+
+
+print("Programmatic example with fail-fast option finished")
+print("****************************")
+
 print()
 print()
 print("Command line example starting")
@@ -106,30 +163,28 @@ np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
 np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter=",")
 np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 
-# [TRE] Creates a config file for the likelihood attack
-config = {
-    "training_data_file": "train_data.csv",
-    "testing_data_file": "test_data.csv",
-    "training_preds_file": "train_preds.csv",
-    "testing_preds_file": "test_preds.csv",
-    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-    "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
-}
-
-with open("config.json", "w", encoding="utf-8") as f:
-    f.write(json.dumps(config))
-
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
 os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
 
 # [TRE] Then they run the attack
+# Example 1 to demonstrate all given shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
-    "--json-file config.json "
-    "--report-name example_lira_report "
-    "--n-shadow-models 100"
+    "--attack-config-json-file-name config.json "
+    "--report-name example1_lira_report "
+    "--n-shadow-models 100 "
+)
+
+# Example 2 to demonstrate fail fast of shadow models trained
+os.system(
+    "python -m aisdc.attacks.likelihood_attack run-attack "
+    "--attack-config-json-file-name config.json "
+    "--report-name example2_lira_report "
+    "--n-shadow-models 100 "
+    "--shadow-models-fail-fast "
+    "--n-shadow-rows-confidences-min 10 "
 )
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)

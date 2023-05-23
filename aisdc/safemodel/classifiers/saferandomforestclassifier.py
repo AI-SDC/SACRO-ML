@@ -55,6 +55,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
             "model_save_file",
             "ignore_items",
             "base_estimator_",  # this is an object
+            "timestamp",
         ]
         self.examine_seperately_items = ["estimators_", "base_estimator"]
         self.k_anonymity = 0

@@ -200,17 +200,17 @@ def create_mia_report(attack_output: dict) -> FPDF:
     Parameters
     ----------
 
-    metadata: dict
-        dictionary of metadata
+    attack_output: dict
+        dictionary with following items
 
-    mia_metrics: list
-        list of metrics dictionaries
+            metadata: dict
+                dictionary of metadata
 
-    dummy_metrics: list
-        list of metrics dictionaries
+            attack_experiment_logger: dict
+                list of metrics as dictionary items for an experiment
 
-    dummy_metadata: dict
-        metadata for dummy experiments
+            dummy_attack_experiment_logger: dict
+                list of metrics as dictionary items across dummy experiments
 
     Returns
     -------
@@ -310,9 +310,36 @@ def create_json_report(output):
     return json.dumps(output, cls=NumpyArrayEncoder)
 
 
-def create_lr_report(output):
-    """TODO"""
-    mia_metrics = output["attack_metrics"][0]
+def create_lr_report(output: dict) -> FPDF:
+    """make a lira membership inference report
+
+    Parameters
+    ----------
+
+    output: dict
+        dictionary with following items
+
+        metadata: dict
+                dictionary of metadata
+
+        attack_experiment_logger: dict
+            list of metrics as dictionary items for an experiments
+            In case of LIRA attack scenario, this will have dictionary
+            items of attack_instance_logger that
+            will have a single metrics dictionary
+
+    Returns
+    -------
+
+    pdf: fpdf.FPDF
+        fpdf document object
+
+    """
+    mia_metrics = [
+        v
+        for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
+    ][0]
+    # mia_metrics = output["attack_metrics"][0]
     metadata = output["metadata"]
     _roc_plot_single(mia_metrics, "log_roc.png")
     pdf = FPDF()

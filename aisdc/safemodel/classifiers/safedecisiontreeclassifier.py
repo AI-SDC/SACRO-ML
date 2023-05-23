@@ -156,7 +156,12 @@ class SafeDecisionTreeClassifier(
         DecisionTreeClassifier.__init__(self, **the_kwds)
         self.model_type: str = "DecisionTreeClassifier"
         super().preliminary_check(apply_constraints=True, verbose=True)
-        self.ignore_items = ["model_save_file", "basemodel_paramnames", "ignore_items"]
+        self.ignore_items = [
+            "model_save_file",
+            "basemodel_paramnames",
+            "ignore_items",
+            "timestamp",
+        ]
         self.examine_seperately_items = ["tree_"]
         self.k_anonymity = 0
 

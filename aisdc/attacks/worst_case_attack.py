@@ -7,7 +7,9 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import os
 import uuid
 from collections.abc import Hashable
 from datetime import datetime
@@ -30,15 +32,6 @@ logging.basicConfig(level=logging.INFO)
 P_THRESH = 0.05
 
 
-def parse_boolean_argument(value):
-    """Returns boolean value for a passed argument"""
-    value = value.lower()
-    return_value = False
-    if value in ["true", "True"]:
-        return_value = True
-    return return_value
-
-
 class WorstCaseAttackArgs:
     """Arguments for worst case"""
 
@@ -51,8 +44,8 @@ class WorstCaseAttackArgs:
         self.__dict__["test_prop"] = 0.3
         self.__dict__["n_rows_in"] = 1000
         self.__dict__["n_rows_out"] = 1000
-        self.__dict__["in_sample_filename"] = None
-        self.__dict__["out_sample_filename"] = None
+        self.__dict__["training_preds_filename"] = None
+        self.__dict__["test_preds_filename"] = None
         self.__dict__["report_name"] = None
         self.__dict__["include_model_correct_feature"] = False
         self.__dict__["sort_probs"] = True
@@ -67,7 +60,16 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_metric_success_comp_type"] = "lte"
         self.__dict__["attack_metric_success_count_thresh"] = 5
         self.__dict__["attack_fail_fast"] = False
+        self.__dict__["attack_config_json_file_name"] = None
         self.__dict__.update(kwargs)
+        # Reading parameters from a json file
+        if self.__dict__["attack_config_json_file_name"] is not None:
+            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
+                self.load_config_file_into_dict(
+                    self.__dict__["attack_config_json_file_name"]
+                )
+        self.__dict__.update(kwargs)
+        del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
         return ",".join(
@@ -81,6 +83,13 @@ class WorstCaseAttackArgs:
     def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
+
+    def load_config_file_into_dict(self, config_filename) -> None:
+        """Reads a configuration file and loads it into a dictionary object"""
+        with open(config_filename, encoding="utf-8") as f:
+            config = json.loads(f.read())
+        for _, k in enumerate(config):
+            self.__dict__[k] = config[k]
 
 
 class WorstCaseAttack(Attack):
@@ -134,8 +143,8 @@ class WorstCaseAttack(Attack):
         Filenames for the saved prediction files to be specified in the arguments provided
         in the constructor
         """
-        train_preds = np.loadtxt(self.args.in_sample_filename, delimiter=",")
-        test_preds = np.loadtxt(self.args.out_sample_filename, delimiter=",")
+        train_preds = np.loadtxt(self.args.training_preds_filename, delimiter=",")
+        test_preds = np.loadtxt(self.args.test_preds_filename, delimiter=",")
         self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(  # pylint: disable=too-many-locals
@@ -462,8 +471,8 @@ class WorstCaseAttack(Attack):
             test_beta=self.args.test_beta,
         )
         logger.info("Saving files")
-        np.savetxt(self.args.in_sample_filename, train_preds, delimiter=",")
-        np.savetxt(self.args.out_sample_filename, test_preds, delimiter=",")
+        np.savetxt(self.args.training_preds_filename, train_preds, delimiter=",")
+        np.savetxt(self.args.test_preds_filename, test_preds, delimiter=",")
 
     def _construct_metadata(self):
         """Constructs the metadata object, after attacks"""
@@ -565,8 +574,8 @@ class WorstCaseAttack(Attack):
 def _make_dummy_data(args):
     """Initialise class and run dummy data creation"""
     wc_args = WorstCaseAttackArgs(**args.__dict__)
-    wc_args.set_param("in_sample_filename", "train_preds.csv")
-    wc_args.set_param("out_sample_filename", "test_preds.csv")
+    wc_args.set_param("training_preds_filename", "train_preds.csv")
+    wc_args.set_param("test_preds_filename", "test_preds.csv")
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.make_dummy_data()
 
@@ -574,6 +583,17 @@ def _make_dummy_data(args):
 def _run_attack(args):
     """Initialise class and run attack from prediction files"""
     wc_args = WorstCaseAttackArgs(**args.__dict__)
+    attack_obj = WorstCaseAttack(wc_args)
+    attack_obj.attack_from_prediction_files()
+    _ = attack_obj.make_report()
+
+
+def _run_attack_from_configfile(args):
+    """Initialise class and run attack from prediction files
+    using config file"""
+    wc_args = WorstCaseAttackArgs(
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
+    )
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
@@ -644,9 +664,9 @@ def main():
     attack_parser = subparsers.add_parser("run-attack")
     attack_parser.add_argument(
         "-i",
-        "--in-sample-preds",
+        "--training-preds-filename",
         action="store",
-        dest="in_sample_filename",
+        dest="training_preds_filename",
         required=False,
         type=str,
         default="train_preds.csv",
@@ -658,9 +678,9 @@ def main():
 
     attack_parser.add_argument(
         "-o",
-        "--out-of-sample-preds",
+        "--test-preds-filename",
         action="store",
-        dest="out_sample_filename",
+        dest="test_preds_filename",
         required=False,
         type=str,
         default="test_preds.csv",
@@ -845,9 +865,7 @@ def main():
 
     attack_parser.add_argument(
         "--attack-fail-fast",
-        action="store",
-        type=parse_boolean_argument,
-        default=True,
+        action="store_true",
         required=False,
         dest="attack_fail_fast",
         help=(
@@ -859,6 +877,22 @@ def main():
     )
 
     attack_parser.set_defaults(func=_run_attack)
+
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--attack-config-json-file-name",
+        action="store",
+        required=True,
+        dest="attack_config_json_file_name",
+        type=str,
+        default="config_worstcase_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
 
     args = parser.parse_args()
 

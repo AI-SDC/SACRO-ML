@@ -256,6 +256,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self.basemodel_paramnames = []
         self.filename: str = "None"
         self.researcher: str = "None"
+        self.timestamp: str = "None"
         try:
             self.researcher = getpass.getuser()
         except (ImportError, KeyError, OSError):  # pragma: no cover
@@ -740,7 +741,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
 
         """
-        if filename == "undefined":
+        if filename == "undefined":  # pragma: no cover
             print("You must provide the name of the file you want to save your model")
             print("For security reasons, this will overwrite previous versions")
         else:
@@ -780,7 +781,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                     )
 
             now = datetime.datetime.now()
-            output["timestamp"] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+            self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+            output["timestamp"] = self.timestamp
 
             outputfilename = self.researcher + "_checkfile.json"
             data = [output]

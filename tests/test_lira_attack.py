@@ -53,6 +53,30 @@ class TestLiraAttack(TestCase):
         )
         cls.target_model.fit(cls.train_X, cls.train_y)
 
+        # Dump training and test data to csv
+        np.savetxt(
+            'train_data.csv',
+            np.hstack((cls.train_X, cls.train_y[:, None])),
+            delimiter=','
+        )
+        np.savetxt(
+            'test_data.csv',
+            np.hstack((cls.test_X, cls.test_y[:, None])),
+            delimiter=','
+        )
+        # dump the training and test predictions into files
+        np.savetxt(
+            'train_preds.csv',
+            cls.target_model.predict_proba(cls.train_X),
+            delimiter=','
+        )
+        np.savetxt(
+            'test_preds.csv',
+            cls.target_model.predict_proba(cls.test_X),
+            delimiter=','
+        )
+        
+
     def test_lira_attack(self):
         """tests the lira code two ways"""
         args = LIRAAttackArgs(
@@ -69,7 +93,11 @@ class TestLiraAttack(TestCase):
         attack_obj2 = LIRAAttack(args2)
         attack_obj2.attack(self.dataset, self.target_model)
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
-        _ = output2["attack_metrics"][0]
+        n_shadow_models_trained = output2["attack_experiment_logger"][
+            "attack_instance_logger"
+            ]["instance_0"]["n_shadow_models_trained"]
+        n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
+        assert n_shadow_models_trained == n_shadow_models
 
     def test_check_and_update_dataset(self):
         """test the code that removes items from test set with classes
@@ -110,7 +138,7 @@ class TestLiraAttack(TestCase):
 
     def test_main_config(self):
         """test command line with a config file"""
-        testargs = ["prog", "run-attack", "--j", "tests/lrconfig.json"]
+        testargs = ["prog", "run-attack", "-j", "tests/lrconfig.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
@@ -119,6 +147,39 @@ class TestLiraAttack(TestCase):
         testargs = ["prog", "setup-example-data"]  # , "--j", "tests/lrconfig.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
+
+    def test_lira_attack_failfast_example(self):
+        """tests the lira code two ways"""
+        args = LIRAAttackArgs(
+            n_shadow_models=N_SHADOW_MODELS,
+            report_name="lira_example_report",
+            attack_config_json_file_name="tests/lrconfig.json",
+            shadow_models_fail_fast=True,
+            n_shadow_rows_confidences_min=10,
+        )
+        attack_obj = LIRAAttack(args)
+        attack_obj.setup_example_data()
+        attack_obj.attack_from_config()
+        attack_obj.example()
+
+    def test_lira_attack_failfast_from_scratch(self):
+        '''Test by training a model from scratch'''
+        args = LIRAAttackArgs(
+            n_shadow_models=N_SHADOW_MODELS,
+            report_name="lira_example3_failfast_report",
+            attack_config_json_file_name="tests/lrconfig.json",
+            shadow_models_fail_fast=True,
+            n_shadow_rows_confidences_min=10,
+        )
+        attack_obj = LIRAAttack(args)
+        attack_obj.attack(self.dataset, self.target_model)
+        output = attack_obj.make_report()  # also makes .pdf and .json files
+        n_shadow_models_trained = output["attack_experiment_logger"][
+            "attack_instance_logger"
+        ]["instance_0"]["n_shadow_models_trained"]
+        n_shadow_models = output["metadata"]["experiment_details"]["n_shadow_models"]
+        assert n_shadow_models_trained < n_shadow_models
+
 
     @classmethod
     def tearDownClass(cls):

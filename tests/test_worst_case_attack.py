@@ -1,6 +1,7 @@
 """test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
+import json
 import os
 import sys
 from unittest.mock import patch
@@ -20,10 +21,65 @@ def clean_up(name):
         os.remove(name)
 
 
-def test_parse_boolean_argument():
-    """tests parse boolean argument function"""
-    assert worst_case_attack.parse_boolean_argument("true")
-    assert not worst_case_attack.parse_boolean_argument("false")
+def test_config_file_arguments_parsin():
+    """tests reading parameters from the configuration file"""
+    config = {
+        "n_reps": 12,
+        "n_dummy_reps": 2,
+        "p_thresh": 0.06,
+        "test_prop": 0.4,
+        "report_name": "programmatically_worstcase_report_test",
+    }
+    with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(config))
+    args = worst_case_attack.WorstCaseAttackArgs(
+        attack_config_json_file_name="config_worstcase_test.json",
+    )
+    assert args.__dict__["n_reps"] == config["n_reps"]
+    assert args.__dict__["n_dummy_reps"] == config["n_dummy_reps"]
+    assert args.__dict__["p_thresh"] == config["p_thresh"]
+    assert args.__dict__["test_prop"] == config["test_prop"]
+    assert args.__dict__["report_name"] == config["report_name"]
+    os.remove("config_worstcase_test.json")
+
+
+def test_attack_from_predictions_cmd():
+    """Running attack using configuration file and prediction files"""
+    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    dataset_obj = dataset.Data()
+    dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+
+    target_model = SVC(gamma=0.1, probability=True)
+    target_model.fit(train_X, train_y)
+    ytr_pred = target_model.predict_proba(train_X)
+    yte_pred = target_model.predict_proba(test_X)
+    np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
+    np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
+
+    config = {
+        "n_reps": 30,
+        "n_dummy_reps": 2,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "training_preds_filename": "ypred_train.csv",
+        "test_preds_filename": "ypred_test.csv",
+        "attack_metric_success_name": "P_HIGHER_AUC",
+        "attack_metric_success_thresh": 0.05,
+        "attack_metric_success_comp_type": "lte",
+        "attack_metric_success_count_thresh": 2,
+        "attack_fail_fast": True,
+    }
+
+    with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(config))
+    os.system(
+        "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+        "--attack-config-json-file-name config_worstcase_cmd.json "
+    )
+    os.remove("config_worstcase_cmd.json")
+    os.remove("ypred_train.csv")
+    os.remove("ypred_test.csv")
 
 
 def test_report_worstcase():
@@ -44,8 +100,8 @@ def test_report_worstcase():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        in_sample_filename=None,
-        out_sample_filename=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-10reps",
     )
@@ -61,8 +117,8 @@ def test_report_worstcase():
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
-        in_sample_filename=None,
-        out_sample_filename=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
     )
@@ -88,8 +144,8 @@ def test_attack_with_correct_feature():
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
-        in_sample_filename=None,
-        out_sample_filename=None,
+        training_preds_filename=None,
+        test_preds_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
         include_model_correct_feature=True,
@@ -126,13 +182,13 @@ def test_attack_from_predictions():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        in_sample_filename="ypred_train.csv",
-        out_sample_filename="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
 
-    assert args.get_args()["in_sample_filename"] == "ypred_train.csv"
+    assert args.get_args()["training_preds_filename"] == "ypred_train.csv"
     print(args)
 
     # with multiple reps
@@ -161,13 +217,13 @@ def test_attack_from_predictions_no_dummy():
         n_reps=10,
         n_dummy_reps=0,
         p_thresh=0.05,
-        in_sample_filename="ypred_train.csv",
-        out_sample_filename="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
 
-    assert args.get_args()["in_sample_filename"] == "ypred_train.csv"
+    assert args.get_args()["training_preds_filename"] == "ypred_train.csv"
     print(args)
 
     # with multiple reps
@@ -183,8 +239,8 @@ def test_dummy_data():
         n_reps=10,
         n_dummy_reps=1,
         p_thresh=0.05,
-        in_sample_filename="ypred_train.csv",
-        out_sample_filename="ypred_test.csv",
+        training_preds_filename="ypred_train.csv",
+        test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         report_name="test-10reps",
     )
