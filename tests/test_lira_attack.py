@@ -55,27 +55,22 @@ class TestLiraAttack(TestCase):
 
         # Dump training and test data to csv
         np.savetxt(
-            'train_data.csv',
+            "train_data.csv",
             np.hstack((cls.train_X, cls.train_y[:, None])),
-            delimiter=','
+            delimiter=",",
         )
         np.savetxt(
-            'test_data.csv',
-            np.hstack((cls.test_X, cls.test_y[:, None])),
-            delimiter=','
+            "test_data.csv", np.hstack((cls.test_X, cls.test_y[:, None])), delimiter=","
         )
         # dump the training and test predictions into files
         np.savetxt(
-            'train_preds.csv',
+            "train_preds.csv",
             cls.target_model.predict_proba(cls.train_X),
-            delimiter=','
+            delimiter=",",
         )
         np.savetxt(
-            'test_preds.csv',
-            cls.target_model.predict_proba(cls.test_X),
-            delimiter=','
+            "test_preds.csv", cls.target_model.predict_proba(cls.test_X), delimiter=","
         )
-        
 
     def test_lira_attack(self):
         """tests the lira code two ways"""
@@ -95,7 +90,7 @@ class TestLiraAttack(TestCase):
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
         n_shadow_models_trained = output2["attack_experiment_logger"][
             "attack_instance_logger"
-            ]["instance_0"]["n_shadow_models_trained"]
+        ]["instance_0"]["n_shadow_models_trained"]
         n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
         assert n_shadow_models_trained == n_shadow_models
 
@@ -163,7 +158,7 @@ class TestLiraAttack(TestCase):
         attack_obj.example()
 
     def test_lira_attack_failfast_from_scratch(self):
-        '''Test by training a model from scratch'''
+        """Test by training a model from scratch"""
         args = LIRAAttackArgs(
             n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example3_failfast_report",
@@ -179,7 +174,6 @@ class TestLiraAttack(TestCase):
         ]["instance_0"]["n_shadow_models_trained"]
         n_shadow_models = output["metadata"]["experiment_details"]["n_shadow_models"]
         assert n_shadow_models_trained == n_shadow_models
-
 
     @classmethod
     def tearDownClass(cls):
