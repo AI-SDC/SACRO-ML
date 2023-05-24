@@ -21,6 +21,7 @@ from aisdc.attacks.dataset import Data  # pylint: disable = import-error
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
+    DummyClassifier
 )
 
 N_SHADOW_MODELS = 20
@@ -33,6 +34,31 @@ def clean_up(name):
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
         logger.info("Removed %s", name)
+
+class TestDummyClassifier(TestCase):
+    '''Test the dummy classifier class'''
+    @classmethod
+    def setUpClass(cls):
+        '''Create a dummy classifier object'''
+        cls.dummy = DummyClassifier()
+        cls.X = np.array(
+            [
+                [0.2, 0.8],
+                [0.7, 0.3]
+            ]
+        )
+
+    def test_predict_proba(self):
+        '''Test the predict_proba method'''
+        pred_probs = self.dummy.predict_proba(self.X)
+        assert np.array_equal(pred_probs, self.X)
+
+    def test_predict(self):
+        '''Test the predict method'''
+        expected_output = np.array([1, 0])
+        pred = self.dummy.predict(self.X)
+        assert np.array_equal(pred, expected_output)
+
 
 
 class TestLiraAttack(TestCase):
