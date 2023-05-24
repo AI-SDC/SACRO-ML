@@ -153,7 +153,7 @@ class LIRAAttack(Attack):
 
     def _check_and_update_dataset(
         self, dataset: Data, target_model: sklearn.base.BaseEstimator
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Data:
         """Makes sure that it is ok to use the class variables to index the prediction
         arrays. This has two steps:
         1. Replacing the values in y_train with their position in target_model.classes (will
@@ -161,15 +161,17 @@ class LIRAAttack(Attack):
         2. Removing from the test set any rows corresponding to classes that are not in the
            training set.
         """
-
+        logger = logging.getLogger("_check_and_update_dataset")
         y_train_new = []
         classes = list(target_model.classes_)  # pylint: disable = protected-access
         for y in dataset.y_train:
             y_train_new.append(classes.index(y))
 
         dataset.y_train = np.array(y_train_new, int)
-        print(
-            f"new ytrain has values and counts: {np.unique(dataset.y_train,return_counts=True)}"
+
+        logger.info(
+            "new ytrain has values and counts: %s",
+            f"{np.unique(dataset.y_train,return_counts=True)}",
         )
         ok_pos = []
         y_test_new = []
@@ -181,8 +183,9 @@ class LIRAAttack(Attack):
         if len(y_test_new) != len(dataset.x_test):
             dataset.x_test = dataset.x_test[ok_pos, :]
         dataset.y_test = np.array(y_test_new, int)
-        print(
-            f"new ytest has values and counts: {np.unique(dataset.y_test,return_counts=True)}"
+        logger.info(
+            "new ytest has values and counts: %s",
+            f"{np.unique(dataset.y_test,return_counts=True)}",
         )
 
         return dataset
