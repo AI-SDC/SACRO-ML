@@ -1,7 +1,8 @@
 """attack.py - base class for an attack object"""
 
-import os
 import json
+import os
+
 import sklearn
 
 from aisdc.attacks.dataset import Data
@@ -17,7 +18,8 @@ class Attack:
     def __str__(self):
         raise NotImplementedError
 
-class ConfigFile: # pylint: disable=too-few-public-methods
+
+class ConfigFile:  # pylint: disable=too-few-public-methods
     """ConfigFile class to load parameters from json configuration file"""
 
     def __init__(self, config_filename):

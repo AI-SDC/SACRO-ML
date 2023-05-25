@@ -213,7 +213,7 @@ config = {
     "n_shadow_models": 150,
     "report_name": "commandline_lira_example4_report",
     "shadow_models_fail_fast": True,
-    "n_shadow_rows_confidences_min": 10, 
+    "n_shadow_rows_confidences_min": 10,
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
