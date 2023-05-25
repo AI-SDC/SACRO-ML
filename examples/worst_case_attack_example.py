@@ -258,7 +258,7 @@ os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
 os.system(
     "python -m aisdc.attacks.worst_case_attack run-attack "
     "--training-preds-filename train_preds.csv "
-    "--test_preds_filename test_preds.csv "
+    "--test-preds-filename test_preds.csv "
     "--n-reps 10 "
     "--report-name commandline_worstcase_example1_report "
     "--n-dummy-reps 1 "

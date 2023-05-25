@@ -7,9 +7,7 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 from __future__ import annotations
 
 import argparse
-import json
 import logging
-import os
 import uuid
 from collections.abc import Hashable
 from datetime import datetime
@@ -23,7 +21,7 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack
+from aisdc.attacks.attack import Attack, ConfigFile
 from aisdc.attacks.dataset import Data
 from aisdc.attacks.failfast import FailFast
 
@@ -63,12 +61,9 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_config_json_file_name"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
-        if self.__dict__["attack_config_json_file_name"] is not None:
-            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
-                self.load_config_file_into_dict(
-                    self.__dict__["attack_config_json_file_name"]
-                )
-        self.__dict__.update(kwargs)
+        configfile_obj=ConfigFile(self.__dict__["attack_config_json_file_name"])
+        dict_obj = configfile_obj.load_config_file_into_dict(self.__dict__)
+        self.__dict__.update(dict_obj)
         del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
@@ -83,13 +78,6 @@ class WorstCaseAttackArgs:
     def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
-
-    def load_config_file_into_dict(self, config_filename) -> None:
-        """Reads a configuration file and loads it into a dictionary object"""
-        with open(config_filename, encoding="utf-8") as f:
-            config = json.loads(f.read())
-        for _, k in enumerate(config):
-            self.__dict__[k] = config[k]
 
 
 class WorstCaseAttack(Attack):
