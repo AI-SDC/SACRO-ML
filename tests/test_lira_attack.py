@@ -97,7 +97,9 @@ class TestLiraAttack(TestCase):
     def test_lira_attack(self):
         """tests the lira code two ways"""
         args = LIRAAttackArgs(
-            n_shadow_models=N_SHADOW_MODELS, report_name="lira_example_report"
+            n_shadow_models=N_SHADOW_MODELS, 
+            report_name="lira_example_report",
+            attack_config_json_file_name = "tests/lrconfig.json"
         )
         attack_obj = LIRAAttack(args)
         attack_obj.setup_example_data()
