@@ -94,7 +94,7 @@ class LIRAAttackArgs:
             if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
                 self.load_config_file_into_dict(
                     self.__dict__["attack_config_json_file_name"]
-                    )        
+                    )
         self.__dict__.update(kwargs)
         # deleted for not enabling to appear in the output file
         del self.__dict__["attack_config_json_file_name"]
