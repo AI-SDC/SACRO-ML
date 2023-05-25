@@ -173,7 +173,7 @@ os.system(f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack --hel
 # Example 1 to demonstrate all given shadow models trained
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
-    "--attack-config-json-file-name config.json "
+    "--attack-config-json-file-name lira_config.json "
     "--report-name example1_lira_report "
     "--n-shadow-models 100 "
 )
@@ -181,7 +181,7 @@ os.system(
 # Example 2 to demonstrate fail fast of shadow models trained
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
-    "--attack-config-json-file-name config.json "
+    "--attack-config-json-file-name lira_config.json "
     "--report-name example2_lira_report "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
