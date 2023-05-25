@@ -94,10 +94,10 @@ class LIRAAttackArgs:
             if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
                 self.load_config_file_into_dict(
                     self.__dict__["attack_config_json_file_name"]
-                )        
+                    )        
         self.__dict__.update(kwargs)
         # deleted for not enabling to appear in the output file
-        del self.__dict__["attack_config_json_file_name"] 
+        del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
         return ",".join(
@@ -518,7 +518,7 @@ class LIRAAttack(Attack):
         with open("config.json", "w", encoding="utf-8") as f:
             f.write(json.dumps(config))
 
-    
+
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
@@ -677,7 +677,7 @@ def main():
         required=True,
         dest="attack_config_json_file_name",
         type=str,
-        default="config_worstcase_cmd.json",
+        default="config_lira_cmd.json",
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
         ),
