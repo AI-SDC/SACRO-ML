@@ -88,7 +88,7 @@ class LIRAAttackArgs:
         self.__dict__["attack_config_json_file_name"] = None
         self.__dict__["shadow_models_fail_fast"] = False
         self.__dict__.update(kwargs)
-        configfile_obj=ConfigFile(self.__dict__["attack_config_json_file_name"])
+        configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
         dict_obj = configfile_obj.load_config_file_into_dict(self.__dict__)
         self.__dict__.update(dict_obj)
         # deleted for not enabling to appear in the output file
@@ -505,7 +505,6 @@ class LIRAAttack(Attack):
 
         with open("config.json", "w", encoding="utf-8") as f:
             f.write(json.dumps(config))
-
 
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
