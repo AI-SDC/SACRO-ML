@@ -34,6 +34,7 @@ python -m examples.lira_attack_example
 
 import json
 import os
+import sys
 
 import numpy as np
 from sklearn.datasets import load_breast_cancer
@@ -166,12 +167,12 @@ np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
-os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
+os.system(f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack --help")
 
 # [TRE] Then they run the attack
 # Example 1 to demonstrate all given shadow models trained
 os.system(
-    "python -m aisdc.attacks.likelihood_attack run-attack "
+    f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name config.json "
     "--report-name example1_lira_report "
     "--n-shadow-models 100 "
@@ -179,7 +180,7 @@ os.system(
 
 # Example 2 to demonstrate fail fast of shadow models trained
 os.system(
-    "python -m aisdc.attacks.likelihood_attack run-attack "
+    f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name config.json "
     "--report-name example2_lira_report "
     "--n-shadow-models 100 "

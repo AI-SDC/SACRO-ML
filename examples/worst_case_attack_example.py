@@ -251,12 +251,12 @@ np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
-os.system("python -m aisdc.attacks.worst_case_attack run-attack --help")
+os.system(f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack --help")
 
 # [TRE] Then they run the attack
 # Example 1: Worstcase attack through commandline by passing parameters
 os.system(
-    "python -m aisdc.attacks.worst_case_attack run-attack "
+    f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack "
     "--training-preds-filename train_preds.csv "
     "--test_preds_filename test_preds.csv "
     "--n-reps 10 "
@@ -294,7 +294,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 os.system(
-    "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+    f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_worstcase_cmd.json "
 )
 
@@ -315,7 +315,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 os.system(
-    "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+    f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_worstcase_cmd.json "
 )
 

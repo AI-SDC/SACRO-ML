@@ -74,7 +74,7 @@ def test_attack_from_predictions_cmd():
     with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
     os.system(
-        "python -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
+        f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
         "--attack-config-json-file-name config_worstcase_cmd.json "
     )
     os.remove("config_worstcase_cmd.json")
