@@ -25,7 +25,7 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack
+from aisdc.attacks.attack import Attack, ConfigFile
 from aisdc.attacks.dataset import Data
 
 logging.basicConfig(level=logging.INFO)
@@ -88,13 +88,9 @@ class LIRAAttackArgs:
         self.__dict__["target_model_hyp"] = None
         self.__dict__["attack_config_json_file_name"] = None
         self.__dict__["shadow_models_fail_fast"] = False
-
         self.__dict__.update(kwargs)
-        if self.__dict__["attack_config_json_file_name"] is not None:
-            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
-                self.load_config_file_into_dict(
-                    self.__dict__["attack_config_json_file_name"]
-                    )
+        configfile_obj=ConfigFile(self.__dict__["attack_config_json_file_name"])        
+        self.__dict__ = configfile_obj.load_config_file_into_dict(self.__dict__)
         self.__dict__.update(kwargs)
         # deleted for not enabling to appear in the output file
         del self.__dict__["attack_config_json_file_name"]
@@ -111,13 +107,6 @@ class LIRAAttackArgs:
     def get_args(self) -> dict:
         """Return arguments"""
         return self.__dict__
-
-    def load_config_file_into_dict(self, config_filename: str) -> None:
-        """Reads a configuration file and loads it into a dictionary object"""
-        with open(config_filename, encoding="utf-8") as f:
-            config = json.loads(f.read())
-        for _, k in enumerate(config):
-            self.__dict__[k] = config[k]
 
 
 class LIRAAttack(Attack):
