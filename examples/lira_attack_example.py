@@ -71,14 +71,14 @@ config = {
     "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
 
-with open("config.json", "w", encoding="utf-8") as f:
+with open("lira_config.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 # [TRE] Example 1: sets up the attack
 args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example1_report",
-    attack_config_json_file_name="config.json",
+    attack_config_json_file_name="config_lira.json",
 )
 attack_obj = LIRAAttack(args)
 
@@ -114,7 +114,7 @@ print("****************************")
 args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example2_report",
-    attack_config_json_file_name="config.json",
+    attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
 )
@@ -172,19 +172,62 @@ os.system("python -m aisdc.attacks.likelihood_attack run-attack --help")
 # Example 1 to demonstrate all given shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
-    "--attack-config-json-file-name config.json "
-    "--report-name example1_lira_report "
+    "--attack-config-json-file-name lira_config.json "
+    "--report-name commandline_lira_example1_report "
     "--n-shadow-models 100 "
 )
 
 # Example 2 to demonstrate fail fast of shadow models trained
 os.system(
     "python -m aisdc.attacks.likelihood_attack run-attack "
-    "--attack-config-json-file-name config.json "
-    "--report-name example2_lira_report "
+    "--attack-config-json-file-name lira_config.json "
+    "--report-name commandline_lira_example2_report "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
     "--n-shadow-rows-confidences-min 10 "
 )
+
+# Example 3 to demonstrate running attack from configuration file only
+config = {
+    "n_shadow_models": 150,
+    "report_name": "commandline_lira_example3_report",
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
+    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
+    "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
+}
+
+with open("config_lira_cmd1.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
+os.system(
+    "python -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
+    "--attack-config-json-file-name config_lira_cmd1.json "
+)
+
+# Example 4 to demonstrate running attack from configuration file only with fail fail fast option
+config = {
+    "n_shadow_models": 150,
+    "report_name": "commandline_lira_example4_report",
+    "shadow_models_fail_fast": True,
+    "n_shadow_rows_confidences_min": 10, 
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
+    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
+    "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
+}
+
+with open("config_lira_cmd2.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+
+os.system(
+    "python -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
+    "--attack-config-json-file-name config_lira_cmd2.json "
+)
+
 
 # [TRE] The code produces a .pdf report (example_lira_report.pdf)

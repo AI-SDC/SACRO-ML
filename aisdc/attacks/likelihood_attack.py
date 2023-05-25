@@ -80,14 +80,24 @@ class LIRAAttackArgs:
         self.__dict__["n_shadow_rows_confidences_min"] = 10
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
-        self.__dict__["attack_config_json_file_name"] = "config.json"
+        self.__dict__["training_data_filename"] = None
+        self.__dict__["test_data_filename"] = None
+        self.__dict__["training_preds_filename"] = None
+        self.__dict__["test_preds_filename"] = None
+        self.__dict__["target_model"] = None
+        self.__dict__["target_model_hyp"] = None
+        self.__dict__["attack_config_json_file_name"] = None
         self.__dict__["shadow_models_fail_fast"] = False
 
-        if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
-            self.load_config_file_into_dict(
-                self.__dict__["attack_config_json_file_name"]
-            )
         self.__dict__.update(kwargs)
+        if self.__dict__["attack_config_json_file_name"] is not None:
+            if os.path.isfile(self.__dict__["attack_config_json_file_name"]):
+                self.load_config_file_into_dict(
+                    self.__dict__["attack_config_json_file_name"]
+                )        
+        self.__dict__.update(kwargs)
+        # deleted for not enabling to appear in the output file
+        del self.__dict__["attack_config_json_file_name"] 
 
     def __str__(self):
         return ",".join(
@@ -508,41 +518,38 @@ class LIRAAttack(Attack):
         with open("config.json", "w", encoding="utf-8") as f:
             f.write(json.dumps(config))
 
+    
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
-        logger.info("Reading config from %s", self.args.attack_config_json_file_name)
-        with open(self.args.attack_config_json_file_name, encoding="utf-8") as f:
-            config = json.loads(f.read())
-
         logger.info(
-            "Loading training data csv from %s", config["training_data_filename"]
+            "Loading training data csv from %s", self.args.training_data_filename
         )
-        training_data = np.loadtxt(config["training_data_filename"], delimiter=",")
+        training_data = np.loadtxt(self.args.training_data_filename, delimiter=",")
         train_X = training_data[:, :-1]
         train_y = training_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(train_X))
 
-        logger.info("Loading test data csv from %s", config["test_data_filename"])
-        test_data = np.loadtxt(config["test_data_filename"], delimiter=",")
+        logger.info("Loading test data csv from %s", self.args.test_data_filename)
+        test_data = np.loadtxt(self.args.test_data_filename, delimiter=",")
         test_X = test_data[:, :-1]
         test_y = test_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(test_X))
 
         logger.info(
-            "Loading train predictions form %s", config["training_preds_filename"]
+            "Loading train predictions form %s", self.args.training_preds_filename
         )
-        train_preds = np.loadtxt(config["training_preds_filename"], delimiter=",")
+        train_preds = np.loadtxt(self.args.training_preds_filename, delimiter=",")
         assert len(train_preds) == len(train_X)
 
-        logger.info("Loading test predictions form %s", config["test_preds_filename"])
-        test_preds = np.loadtxt(config["test_preds_filename"], delimiter=",")
+        logger.info("Loading test predictions form %s", self.args.test_preds_filename)
+        test_preds = np.loadtxt(self.args.test_preds_filename, delimiter=",")
         assert len(test_preds) == len(test_X)
 
-        clf_module_name, clf_class_name = config["target_model"]
+        clf_module_name, clf_class_name = self.args.target_model
         module = importlib.import_module(clf_module_name)
         clf_class = getattr(module, clf_class_name)
-        clf_params = config["target_model_hyp"]
+        clf_params = self.args.target_model_hyp
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
@@ -570,6 +577,16 @@ def _example(args):
 def _run_attack(args):
     """Run a command line attack based on saved files described in .json file"""
     lira_args = LIRAAttackArgs(**args.__dict__)
+    attack_obj = LIRAAttack(lira_args)
+    attack_obj.attack_from_config()
+    attack_obj.make_report()
+
+
+def _run_attack_from_configfile(args):
+    """Run a command line attack based on saved files described in .json file"""
+    lira_args = LIRAAttackArgs(
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
+    )
     attack_obj = LIRAAttack(lira_args)
     attack_obj.attack_from_config()
     attack_obj.make_report()
@@ -651,6 +668,22 @@ def main():
         ),
     )
     attack_parser.set_defaults(func=_run_attack)
+
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--attack-config-json-file-name",
+        action="store",
+        required=True,
+        dest="attack_config_json_file_name",
+        type=str,
+        default="config_worstcase_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
 
     example_data_parser = subparsers.add_parser("setup-example-data")
     example_data_parser.set_defaults(func=_setup_example_data)
