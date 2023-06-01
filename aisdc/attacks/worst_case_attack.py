@@ -61,9 +61,10 @@ class WorstCaseAttackArgs:
         self.__dict__["attack_config_json_file_name"] = None
         self.__dict__.update(kwargs)
         # Reading parameters from a json file
-        configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
-        dict_obj = configfile_obj.load_config_file_into_dict(self.__dict__)
-        self.__dict__.update(dict_obj)
+        if self.__dict__["attack_config_json_file_name"] is not None: 
+            configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
+            configfile_obj.load_config_file_into_dict(self.__dict__)
+        # deleted for not enabling to appear in the output file
         del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):

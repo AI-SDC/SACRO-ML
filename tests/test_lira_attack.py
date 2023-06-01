@@ -163,7 +163,7 @@ class TestLiraAttack(TestCase):
 
     def test_main_from_configfile(self):
         """test command line with a config file"""
-        testargs = ["prog", "run-attack-from-configfile", "-j", "tests/lrconfig2.json"]
+        testargs = ["prog", "run-attack-from-configfile", "-j", "tests/lrconfig_cmd.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 

@@ -174,7 +174,7 @@ os.system(f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack --hel
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
-    "--report-name example1_lira_report "
+    "--report-name commandline_lira_example1_report "
     "--n-shadow-models 100 "
 )
 
@@ -182,7 +182,7 @@ os.system(
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
-    "--report-name example2_lira_report "
+    "--report-name commandline_lira_example2_report "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
     "--n-shadow-rows-confidences-min 10 "

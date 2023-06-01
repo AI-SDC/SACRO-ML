@@ -25,12 +25,10 @@ class ConfigFile:  # pylint: disable=too-few-public-methods
     def __init__(self, config_filename):
         self.config_filename = config_filename
 
-    def load_config_file_into_dict(self, attack_args_dict: dict) -> dict:
+    def load_config_file_into_dict(self, attack_args_dict: dict) -> None:
         """Reads a configuration file and loads it into a dictionary object"""
-        if self.config_filename is not None:
-            if os.path.isfile(self.config_filename):
-                with open(self.config_filename, encoding="utf-8") as f:
-                    config = json.loads(f.read())
-                for _, k in enumerate(config):
-                    attack_args_dict[k] = config[k]
-        return attack_args_dict
+        if os.path.isfile(self.config_filename):
+            with open(self.config_filename, encoding="utf-8") as f:
+                config = json.loads(f.read())
+            for _, k in enumerate(config):
+                attack_args_dict[k] = config[k]        
