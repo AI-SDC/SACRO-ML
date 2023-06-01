@@ -31,4 +31,4 @@ class ConfigFile:  # pylint: disable=too-few-public-methods
             with open(self.config_filename, encoding="utf-8") as f:
                 config = json.loads(f.read())
             for _, k in enumerate(config):
-                attack_args_dict[k] = config[k]        
+                attack_args_dict[k] = config[k]

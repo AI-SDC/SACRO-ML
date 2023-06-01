@@ -88,9 +88,9 @@ class LIRAAttackArgs:
         self.__dict__["attack_config_json_file_name"] = None
         self.__dict__["shadow_models_fail_fast"] = False
         self.__dict__.update(kwargs)
-        if self.__dict__["attack_config_json_file_name"] is not None: 
+        if self.__dict__["attack_config_json_file_name"] is not None:
             configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
-            configfile_obj.load_config_file_into_dict(self.__dict__)            
+            configfile_obj.load_config_file_into_dict(self.__dict__)
         # deleted for not enabling to appear in the output file
         del self.__dict__["attack_config_json_file_name"]
 
