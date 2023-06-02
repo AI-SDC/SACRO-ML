@@ -1,7 +1,6 @@
 """attack.py - base class for an attack object"""
 
 import json
-import os
 
 import sklearn
 
