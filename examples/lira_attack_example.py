@@ -79,7 +79,7 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 args = LIRAAttackArgs(
     n_shadow_models=100,
     report_name="lira_example1_report",
-    attack_config_json_file_name="config_lira.json",
+    attack_config_json_file_name="lira_config.json",
 )
 attack_obj = LIRAAttack(args)
 
