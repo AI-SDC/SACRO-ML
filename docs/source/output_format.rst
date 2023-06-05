@@ -1,7 +1,7 @@
 JSON Output for MIA attacks
 ===========================
 
-We standaridised the JSON output both for worst_case and LIRA attacks where possible. A generic JSON output strcture is presented as under:
+We standaridised the JSON output both for worst_case and LIRA attacks where possible. A generic JSON output structure is presented as under:
 
 General Structure
 -----------------
@@ -25,7 +25,7 @@ metadata::
         p_thresh: threshold to determine significance of things. For instance auc_p_value and pdif_vals
         n_dummy_reps: number of baseline (dummy) experiments to do
         train_beta: value of b for beta distribution used to sample the in-sample (training) probabilities
-        test_beta: value of b for beta distibution used to sample the out-of-sample (test) probabilities
+        test_beta: value of b for beta distribution used to sample the out-of-sample (test) probabilities
         test_prop: proportion of data to use as a test set for the attack model
         n_rows_in: number of rows for in-sample (training data)
         n_rows_out: number of rows for out-of-sample (test data)
@@ -39,7 +39,7 @@ metadata::
         attack_metric_success_name: the name of metric to compute for the attack being successful
         attack_metric_success_thresh: threshold for a given metric to measure attack being successful or not
         attack_metric_success_comp_type: threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte: less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
-        attack_metric_success_count_thresh: a counter to record how many times an attack was successful given that the threshold has fullfilled criteria for a given comparison type
+        attack_metric_success_count_thresh: a counter to record how many times an attack was successful given that the threshold has fulfilled criteria for a given comparison type
         attack_fail_fast: If true it stops repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
 
     attack: name of the attack type ('WorstCase attack')
