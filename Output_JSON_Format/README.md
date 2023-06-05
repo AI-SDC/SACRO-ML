@@ -1,4 +1,4 @@
-# JSON output Standardisation
+# JSON output from MIA attacks
 We standaridised the JSON output both for worst_case and LIRA attacks where possible. A generic JSON output strcture is presented as under:
 
 ## General Structure
