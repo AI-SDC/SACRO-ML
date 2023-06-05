@@ -1,4 +1,4 @@
-# JSON output from MIA attacks
+# JSON Output for MIA attacks
 We standaridised the JSON output both for worst_case and LIRA attacks where possible. A generic JSON output strcture is presented as under:
 
 ## General Structure
@@ -141,3 +141,6 @@ attack_experiment_logger:
     
 ````
 Example JSON output for LIRA attack is accessible from the [link](lira_example1_report.json)
+
+# Running MIA Attacks from Config File
+Both for worst case and LIRA attacks, examples presented [worst_case_attack_example](https://github.com/AI-SDC/AI-SDC/blob/development/examples/worst_case_attack_example.py) and [lira_attack_example](https://github.com/AI-SDC/AI-SDC/blob/development/examples/lira_attack_example.py) in the AI-SDC explains most of the possible use of configuration files. 
