@@ -25,6 +25,7 @@ This is the class and function reference for safemodel.
    safesvc
    examples
    extending
+   output_format
 
 Indices and tables
 ==================
