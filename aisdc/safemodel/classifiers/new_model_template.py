@@ -80,6 +80,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
             "model_save_file",
             "ignore_items",
             "base_estimator_",
+            "timestamp",
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
 

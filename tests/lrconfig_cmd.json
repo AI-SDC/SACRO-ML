@@ -1,4 +1,6 @@
 {
+    "n_shadow_models": 150,
+    "report_name": "commandline_lira_exampletest_report",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -10,6 +12,5 @@
     "target_model_hyp": {
         "min_samples_split": 2,
         "min_samples_leaf": 1
-    },
-    "n-shadow-models": 20
+    }
 }

@@ -13,7 +13,7 @@ sys.path.insert(1, os.path.abspath("../../attacks/"))
 project = "GRAIMATTER"
 copyright = "2023, GRAIMATTER and SACRO Project Team"
 author = "GRAIMATTER and SACRO Project Team"
-release = "1.0.3"
+release = "1.0.5"
 
 # -- General configuration ---------------------------------------------------
 
@@ -36,6 +36,7 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {"navigation_depth": 2}
+html_static_path = ["_static"]
 
 # -- -------------------------------------------------------------------------
 

@@ -10,7 +10,9 @@ import argparse
 import importlib
 import json
 import logging
+import uuid
 from collections.abc import Hashable, Iterable
+from datetime import datetime
 from typing import Any
 
 import numpy as np
@@ -22,7 +24,7 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack
+from aisdc.attacks.attack import Attack, ConfigFile
 from aisdc.attacks.dataset import Data
 
 logging.basicConfig(level=logging.INFO)
@@ -74,10 +76,23 @@ class LIRAAttackArgs:
 
     def __init__(self, **kwargs):
         self.__dict__["n_shadow_models"] = N_SHADOW_MODELS
+        self.__dict__["n_shadow_rows_confidences_min"] = 10
         self.__dict__["p_thresh"] = 0.05
         self.__dict__["report_name"] = None
-        self.__dict__["json_file"] = "config.json"
+        self.__dict__["training_data_filename"] = None
+        self.__dict__["test_data_filename"] = None
+        self.__dict__["training_preds_filename"] = None
+        self.__dict__["test_preds_filename"] = None
+        self.__dict__["target_model"] = None
+        self.__dict__["target_model_hyp"] = None
+        self.__dict__["attack_config_json_file_name"] = None
+        self.__dict__["shadow_models_fail_fast"] = False
         self.__dict__.update(kwargs)
+        if self.__dict__["attack_config_json_file_name"] is not None:
+            configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
+            configfile_obj.load_config_file_into_dict(self.__dict__)
+        # deleted for not enabling to appear in the output file
+        del self.__dict__["attack_config_json_file_name"]
 
     def __str__(self):
         return ",".join(
@@ -98,6 +113,7 @@ class LIRAAttack(Attack):
 
     def __init__(self, args: LIRAAttackArgs = LIRAAttackArgs()) -> None:
         self.attack_metrics = None
+        self.attack_failfast_shadow_models_trained = None
         self.dummy_attack_metrics = None
         self.metadata = None
         self.args = args
@@ -114,7 +130,7 @@ class LIRAAttack(Attack):
         dataset: attacks.dataset.Data
             Dataset as an instance of the Data class. Needs to have x_train, x_test, y_train
             and y_test set.
-        target_mode: sklearn.base.BaseEstimator
+        target_model: sklearn.base.BaseEstimator
             Trained target model. Any class that implements the sklearn.base.BaseEstimator
             interface (i.e. has fit, predict and predict_proba methods)
         """
@@ -135,7 +151,7 @@ class LIRAAttack(Attack):
 
     def _check_and_update_dataset(
         self, dataset: Data, target_model: sklearn.base.BaseEstimator
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Data:
         """Makes sure that it is ok to use the class variables to index the prediction
         arrays. This has two steps:
         1. Replacing the values in y_train with their position in target_model.classes (will
@@ -143,15 +159,17 @@ class LIRAAttack(Attack):
         2. Removing from the test set any rows corresponding to classes that are not in the
            training set.
         """
-
+        logger = logging.getLogger("_check_and_update_dataset")
         y_train_new = []
         classes = list(target_model.classes_)  # pylint: disable = protected-access
         for y in dataset.y_train:
             y_train_new.append(classes.index(y))
 
         dataset.y_train = np.array(y_train_new, int)
-        print(
-            f"new ytrain has values and counts: {np.unique(dataset.y_train,return_counts=True)}"
+
+        logger.info(
+            "new ytrain has values and counts: %s",
+            f"{np.unique(dataset.y_train,return_counts=True)}",
         )
         ok_pos = []
         y_test_new = []
@@ -163,8 +181,9 @@ class LIRAAttack(Attack):
         if len(y_test_new) != len(dataset.x_test):
             dataset.x_test = dataset.x_test[ok_pos, :]
         dataset.y_test = np.array(y_test_new, int)
-        print(
-            f"new ytest has values and counts: {np.unique(dataset.y_test,return_counts=True)}"
+        logger.info(
+            "new ytest has values and counts: %s",
+            f"{np.unique(dataset.y_test,return_counts=True)}",
         )
 
         return dataset
@@ -296,6 +315,23 @@ class LIRAAttack(Attack):
                         # catch-all
                         shadow_row_to_confidence[i].append(_logit(0))
 
+            # Compute number of confidences for each row
+            lengths_shadow_row_to_confidence = {
+                key: len(value) for key, value in shadow_row_to_confidence.items()
+            }
+            n_shadow_confidences = self.args.n_shadow_rows_confidences_min
+            # Stop training of shadow models when shadow_model_fail_fast is True
+            # and a minimum number of confidences specified by parameter
+            # (n_shadow_rows_confidences_min) are computed for each row
+            if (
+                not any(
+                    value < n_shadow_confidences
+                    for value in lengths_shadow_row_to_confidence.values()
+                )
+                and self.args.shadow_models_fail_fast
+            ):
+                break
+        self.attack_failfast_shadow_models_trained = model_idx + 1
         # Do the test described in the paper in each case
         mia_scores = []
         mia_labels = []
@@ -383,7 +419,7 @@ class LIRAAttack(Attack):
             else f"Not significant at p={self.args.p_thresh}"
         )
         self.metadata["global_metrics"][
-            "AUC NULL 3sd range"
+            "null_auc_3sd_range"
         ] = f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
 
         self.metadata["attack"] = str(self)
@@ -401,21 +437,38 @@ class LIRAAttack(Attack):
             Dictionary containing all attack output
         """
         logger = logging.getLogger("reporting")
-        output = {}
         logger.info("Starting report, report_name = %s", self.args.report_name)
-        output["attack_metrics"] = self.attack_metrics
+        output = {}
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
+        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
+
         if self.args.report_name is not None:
             json_report = report.create_json_report(output)
             with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
             logger.info("Wrote report to %s", f"{self.args.report_name}.json")
 
-            pdf = report.create_lr_report(output)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
+            pdf_report = report.create_lr_report(output)
+            pdf_report.output(f"{self.args.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
         return output
+
+    def _get_attack_metrics_instances(self) -> dict:
+        """Constructs the metadata object, after attacks"""
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
+
+        for rep, _ in enumerate(self.attack_metrics):
+            self.attack_metrics[rep][
+                "n_shadow_models_trained"
+            ] = self.attack_failfast_shadow_models_trained
+            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
 
     def setup_example_data(self) -> None:
         """Method to create example data and save (including config). Intended to allow users
@@ -442,12 +495,12 @@ class LIRAAttack(Attack):
         np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
         config = {
-            "training_data_file": "train_data.csv",
-            "testing_data_file": "test_data.csv",
-            "training_preds_file": "train_preds.csv",
-            "testing_preds_file": "test_preds.csv",
+            "training_data_filename": "train_data.csv",
+            "test_data_filename": "test_data.csv",
+            "training_preds_filename": "train_preds.csv",
+            "test_preds_filename": "test_preds.csv",
             "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-            "target_hyppars": {"min_samples_split": 2, "min_samples_leaf": 1},
+            "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
         }
 
         with open("config.json", "w", encoding="utf-8") as f:
@@ -456,34 +509,34 @@ class LIRAAttack(Attack):
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
-        logger.info("Reading config from %s", self.args.json_file)
-        with open(self.args.json_file, encoding="utf-8") as f:
-            config = json.loads(f.read())
-
-        logger.info("Loading training data csv from %s", config["training_data_file"])
-        training_data = np.loadtxt(config["training_data_file"], delimiter=",")
+        logger.info(
+            "Loading training data csv from %s", self.args.training_data_filename
+        )
+        training_data = np.loadtxt(self.args.training_data_filename, delimiter=",")
         train_X = training_data[:, :-1]
         train_y = training_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(train_X))
 
-        logger.info("Loading test data csv from %s", config["testing_data_file"])
-        test_data = np.loadtxt(config["testing_data_file"], delimiter=",")
+        logger.info("Loading test data csv from %s", self.args.test_data_filename)
+        test_data = np.loadtxt(self.args.test_data_filename, delimiter=",")
         test_X = test_data[:, :-1]
         test_y = test_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(test_X))
 
-        logger.info("Loading train predictions form %s", config["training_preds_file"])
-        train_preds = np.loadtxt(config["training_preds_file"], delimiter=",")
+        logger.info(
+            "Loading train predictions form %s", self.args.training_preds_filename
+        )
+        train_preds = np.loadtxt(self.args.training_preds_filename, delimiter=",")
         assert len(train_preds) == len(train_X)
 
-        logger.info("Loading test predictions form %s", config["testing_preds_file"])
-        test_preds = np.loadtxt(config["testing_preds_file"], delimiter=",")
+        logger.info("Loading test predictions form %s", self.args.test_preds_filename)
+        test_preds = np.loadtxt(self.args.test_preds_filename, delimiter=",")
         assert len(test_preds) == len(test_X)
 
-        clf_module_name, clf_class_name = config["target_model"]
+        clf_module_name, clf_class_name = self.args.target_model
         module = importlib.import_module(clf_module_name)
         clf_class = getattr(module, clf_class_name)
-        clf_params = config["target_hyppars"]
+        clf_params = self.args.target_model_hyp
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
@@ -516,6 +569,16 @@ def _run_attack(args):
     attack_obj.make_report()
 
 
+def _run_attack_from_configfile(args):
+    """Run a command line attack based on saved files described in .json file"""
+    lira_args = LIRAAttackArgs(
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
+    )
+    attack_obj = LIRAAttack(lira_args)
+    attack_obj.attack_from_config()
+    attack_obj.make_report()
+
+
 def main():
     """Main method to parse args and invoke relevant code"""
     parser = argparse.ArgumentParser(add_help=False)
@@ -529,6 +592,20 @@ def main():
         dest="n_shadow_models",
         help=("The number of shadow models to train (default = %(default)d)"),
     )
+
+    parser.add_argument(
+        "--n-shadow-rows-confidences-min",
+        type=int,
+        action="store",
+        dest="n_shadow_rows_confidences_min",
+        default=10,
+        required=False,
+        help=(
+            """Number of confidences against rows in shadow data from the shadow models
+            and works when --shadow-models-fail-fast = True. Default = %(default)d"""
+        ),
+    )
+
     parser.add_argument(
         "--report-name",
         type=str,
@@ -548,6 +625,19 @@ def main():
         default=P_THRESH,
         help=("Significance threshold for p-value comparisons. Default = %(default)f"),
     )
+
+    parser.add_argument(
+        "--shadow-models-fail-fast",
+        action="store_true",
+        required=False,
+        dest="shadow_models_fail_fast",
+        help=(
+            """To stop training shadow models early based on minimum number of
+            confidences across all rows (--n-shadow-rows-confidences-min)
+            in the shadow data. Default = %(default)s"""
+        ),
+    )
+
     subparsers = parser.add_subparsers()
     example_parser = subparsers.add_parser("run-example", parents=[parser])
     example_parser.set_defaults(func=_example)
@@ -555,16 +645,32 @@ def main():
     attack_parser = subparsers.add_parser("run-attack", parents=[parser])
     attack_parser.add_argument(
         "-j",
-        "--json-file",
+        "--attack-config-json-file-name",
         action="store",
         required=True,
-        dest="json_file",
+        dest="attack_config_json_file_name",
         type=str,
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
         ),
     )
     attack_parser.set_defaults(func=_run_attack)
+
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--attack-config-json-file-name",
+        action="store",
+        required=True,
+        dest="attack_config_json_file_name",
+        type=str,
+        default="config_lira_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
 
     example_data_parser = subparsers.add_parser("setup-example-data")
     example_data_parser.set_defaults(func=_setup_example_data)

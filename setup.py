@@ -9,7 +9,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="aisdc",
-    version="1.0.4",
+    version="1.0.5",
     license="MIT",
     maintainer="Jim Smith",
     maintainer_email="james.smith@uwe.ac.uk",
@@ -31,6 +31,7 @@ setup(
         "scipy~=1.7",
         "tensorflow~=2.10.0",
         "tensorflow_privacy~=0.8.7",
+        "uuid~=1.30",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",

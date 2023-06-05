@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 1.0.5 (Jun 5, 2023)
+
+Changes:
+* Fix a bug calculating the number of data samples in the `Data` class ([#105](https://github.com/AI-SDC/AI-SDC/pull/105))
+* Add a fail-fast mechanism for the worst case attack that enables the number of attack repetitions to terminate early based on a given metric and comparison operator ([#105](https://github.com/AI-SDC/AI-SDC/pull/105))
+* Change the logging message when attack repetitions are run to 1-10 instead of 0-9 ([#105](https://github.com/AI-SDC/AI-SDC/pull/105))
+* Add the ability to specify the number of worst case attack dummy repetitions on the command line ([#105](https://github.com/AI-SDC/AI-SDC/pull/105))
+* Add LIRA fail-fast mechanism ([#118](https://github.com/AI-SDC/AI-SDC/pull/118))
+* Add the ability to load LIRA attack parameters from a config file ([#118](https://github.com/AI-SDC/AI-SDC/pull/118))
+* Add the ability to load worst case attack parameters from a config file ([#119](https://github.com/AI-SDC/AI-SDC/pull/119))
+* Standardise the MIA attack output ([#120](https://github.com/AI-SDC/AI-SDC/pull/120))
+* Prohibit the use of white space in report file names ([#154](https://github.com/AI-SDC/AI-SDC/pull/154))
+* Improve the safemodel request release test ([#160](https://github.com/AI-SDC/AI-SDC/pull/160))
+* Refactor LIRA attack tests ([#151](https://github.com/AI-SDC/AI-SDC/pull/151))
+* Fix setting the number of LIRA shadow models from a config file ([#165](https://github.com/AI-SDC/AI-SDC/pull/165))
+* Fix OS system calls relying on calling "python" ([#162](https://github.com/AI-SDC/AI-SDC/pull/162))
+* Fix invalid command line argument in worst case attack example ([#164](https://github.com/AI-SDC/AI-SDC/pull/164))
+* Add current output JSON format documentation ([#168](https://github.com/AI-SDC/AI-SDC/pull/168))
+* Add current attack config format documentation ([#168](https://github.com/AI-SDC/AI-SDC/pull/168))
+
 ## Version 1.0.4 (May 5, 2023)
 
 Changes:
