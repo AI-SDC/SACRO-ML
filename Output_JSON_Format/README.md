@@ -26,7 +26,7 @@ metadata:
         n_rows_out: number of rows for out-of-sample (test data)
         training_preds_filename: name of the file to keep predictions of the training data (in-sample)
         test_preds_filename: name of the file to keep predictions of the test data (out-of-sample)
-        report_name: name of the report generated
+        report_name: name of the JSON report
         include_model_correct_feature: inclusion of additional feature to hold whether or not the target model made a correct prediction for each example
         sort_probs: true in case require to sort combine preds (from training and test) to have highest probabilities in the first column 
         mia_attack_model: name of the attack model suchas RandomForestClassifier
@@ -53,7 +53,53 @@ metadata:
         n_sig_pdif_vals: number of significant pdif given a p_thresh value
         n_sig_pdif_vals_corrected: number of significant p values given a p_thresh value given applying testing corrections
 ````
+A worst case attack will have experiment logger. and baseline (dummy) experiments logger which is unique to worst case attack only.
+````
+attack_experiment_logger:
+    attack_instance_logger: stores metrics computed across all iteration of attacks (i.e. n_reps)
+        instance_0:
+            TPR: value of true positive rate
+            FPR: value of false positive rate
+            ...
+            ...
+            n_pos_test_examples:
+            n_neg_test_examples:
 
+        instance_1: 
+            ... all metric values computed similar to instance_0
+            
+        instance_n: 
+            ... n will be n_reps-1 representing iterations of attacks
+    attack_metric_failfast_summary:
+        succcess_count: number of attacks being successful given the attack success criteria demonstrated in metadata
+        fail_count: number of attacks being not successful
+
+dummy_attack_experiments_logger:
+    dummy_attack_metrics_experiment_0:
+       attack_instance_logger: stores metrics computed across all iteration of attacks (i.e. n_reps)
+            instance_0:
+                TPR: value of true positive rate
+                FPR: value of false positive rate
+                ...
+                ...
+                n_pos_test_examples:
+                n_neg_test_examples:
+
+            instance_1: 
+                ... all metric values computed similar to instance_0
+                
+            instance_n: n will be n_reps-1 representing iterations of attacks
+                ... 
+        attack_metric_failfast_summary:
+            succcess_count: number of attacks being successful given the attack success criteria demonstrated in metadata
+            fail_count: number of attacks being not successful
+    dummy_attack_metrics_experiment_1:
+        ...
+        ...
+    dummy_attack_metrics_experiment_n: n will be n_dummy_reps-1 representing iterations of attacks
+        ...            
+````
+Example JSON output for LIRS attack is accessible from the [link](programmatically_worstcase_example1_report.json)
 
 ### LIRA Attack
 A LIRA attack will have the following components in a metadata component of JSON output.
@@ -62,7 +108,7 @@ metadata:
     experiment_details: this will have attack type parameters
         n_shadow_models: number of shadow models to be trained
         p_thresh: threshold to determine significance of things. For instance auc_p_value and pdif_vals        
-        report_name: name of the report generated
+        report_name: name of the JSON report
         training_data_filename: name of the data file for the training data (in-sample)
         test_data_filename: name of the file for the test data (out-of-sample) 
         training_preds_filename: name of the file to keep predictions of the training data (in-sample)
@@ -79,3 +125,19 @@ metadata:
         AUC_sig: significant AUC at given p value           
         PDIF_sig: significant PDIF at given p value
 ````
+
+A LIRA attack will have experiment logger with only one instance.
+````
+attack_experiment_logger:
+    attack_instance_logger: stores metrics computed across all iteration of attacks (i.e. n_reps)
+        instance_0: For a lira attack type, this will have a single instance 
+            TPR: value of true positive rate
+            FPR: value of false positive rate
+            ...
+            ...
+            n_pos_test_examples:
+            n_neg_test_examples: 
+            n_shadow_models_trained: this represent number of actual models trained. For a case where attack_fail_fast is true and minimum number of confidences computed for each row in the test data, there is likely to be a chance to have less number of shadow models trained satisfying the given criteria       
+    
+````
+Example JSON output for LIRA attack is accessible from the [link](lira_example1_report.json)
