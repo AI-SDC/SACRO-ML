@@ -34,7 +34,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.x_test_orig: np.ndarray
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
-        self.model: sklearn.BaseEstimator = model
+        self.model: sklearn.base.BaseEstimator = model
 
     def add_processed_data(
         self,
