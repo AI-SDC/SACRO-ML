@@ -112,6 +112,7 @@ def test_attacks_via_request_release():
     # build a broken model and hack it so lots of reasons to fail and be vulnerable
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=10, min_samples_leaf=1)
     target = get_target(model)
+    assert target.__str__() == "nursery"
     model.fit(target.x_train, target.y_train)
     model.min_samples_leaf = 10
     model.request_release(filename="vulnerable_hacked.pkl", target=target)
