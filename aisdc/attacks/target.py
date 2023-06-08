@@ -77,6 +77,3 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.x_test_orig = x_test_orig
         self.y_test_orig = y_test_orig
         self.n_samples_orig = len(x_orig)
-
-    def __str__(self):
-        return self.name
