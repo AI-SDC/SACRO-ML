@@ -71,9 +71,7 @@ class AttributeAttack(Attack):
         target: attacks.target.Target
             target is a Target class object
         """
-        self.attack_metrics = _attribute_inference(
-            target.model, target, self.args.n_cpu
-        )
+        self.attack_metrics = _attribute_inference(target, self.args.n_cpu)
 
     def _construct_metadata(self) -> None:
         """Constructs the metadata object. Called by the reporting method."""
@@ -126,7 +124,7 @@ def _unique_max(confidences: list[float], threshold: float) -> bool:
 
 
 def _get_inference_data(  # pylint: disable=too-many-locals
-    target_model: BaseEstimator, target: Target, feature_id: int, memberset: bool
+    target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Returns a dataset of each sample with the attributes to test."""
     attack_feature: dict = target.features[feature_id]
@@ -149,7 +147,7 @@ def _get_inference_data(  # pylint: disable=too-many-locals
         samples_orig = target.x_test_orig
     n_samples, x_dim = np.shape(samples)
     x_values = np.zeros((n_samples, n_unique, x_dim), dtype=np.float64)
-    y_values = target_model.predict(samples)
+    y_values = target.model.predict(samples)
     # for each sample to perform inference on
     # add each possible missing feature value
     for i, x in enumerate(samples):
@@ -164,7 +162,6 @@ def _get_inference_data(  # pylint: disable=too-many-locals
 
 
 def _infer(  # pylint: disable=too-many-locals
-    target_model: BaseEstimator,
     target: Target,
     feature_id: int,
     threshold: float,
@@ -179,14 +176,12 @@ def _infer(  # pylint: disable=too-many-locals
     logger.debug("Commencing attack on feature %d set %d", feature_id, int(memberset))
     correct: int = 0  # number of correct inferences made
     total: int = 0  # total number of inferences made
-    x_values, y_values, baseline = _get_inference_data(
-        target_model, target, feature_id, memberset
-    )
+    x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
     n_unique: int = len(x_values[1])
     samples = target.x_train if memberset else target.x_test
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
-        confidence = target_model.predict_proba(x)
+        confidence = target.model.predict_proba(x)
         conf = []  # confidences for each possible value with correct label
         attr = []  # features for each possible value with correct label
         # for each possible attribute value,
@@ -376,8 +371,8 @@ def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dic
     """Returns the training and test set risks of a categorical feature."""
     result: dict = {
         "name": target.features[feature_id]["name"],
-        "train": _infer(target.model, target, feature_id, threshold, True),
-        "test": _infer(target.model, target, feature_id, threshold, False),
+        "train": _infer(target, feature_id, threshold, True),
+        "test": _infer(target, feature_id, threshold, False),
     }
     return result
 
@@ -527,14 +522,12 @@ def _get_bounds_risk(
     return risk
 
 
-def _get_bounds_risks(
-    target_model: BaseEstimator, target: Target, features: list[int], n_cpu: int
-) -> list[dict]:
+def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[dict]:
     """Computes the bounds risk for all specified features."""
     logger.debug("Computing bounds risk for all specified features")
     args = [
         (
-            target_model,
+            target.model,
             target.features[feature_id]["name"],
             feature_id,
             target.x_train,
@@ -547,11 +540,7 @@ def _get_bounds_risks(
     return results
 
 
-def _attribute_inference(
-    target_model: BaseEstimator,
-    target: Target,
-    n_cpu: int,
-) -> dict:
+def _attribute_inference(target: Target, n_cpu: int) -> dict:
     """
     Execute attribute inference attacks on a target given a trained model.
     """
@@ -569,7 +558,7 @@ def _attribute_inference(
     for feature in range(target.n_features):
         if not _is_categorical(target, feature):
             feature_list.append(feature)
-    results_b: list[dict] = _get_bounds_risks(target_model, target, feature_list, n_cpu)
+    results_b: list[dict] = _get_bounds_risks(target, feature_list, n_cpu)
     # combine results into single object
     results: dict = {
         "name": target.name,
