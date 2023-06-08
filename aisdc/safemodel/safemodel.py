@@ -855,7 +855,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 report_name=None,
             )
             attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-            attack_obj.attack(target=target, target_model=self)
+            attack_obj.attack(target=target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
@@ -864,7 +864,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 n_shadow_models=100, report_name="lira_example_report"
             )
             attack_obj = LIRAAttack(args)
-            attack_obj.attack(target, self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()  # also makes .pdf and .json files
             metadata = output["metadata"]
 
@@ -873,7 +873,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 report_name="aia_example"
             )
             attack_obj = attribute_attack.AttributeAttack(attack_args)
-            attack_obj.attack(target, self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 

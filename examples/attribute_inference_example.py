@@ -60,8 +60,18 @@ if __name__ == "__main__":
     x_test = feature_enc.transform(x_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    # [TRE / Researcher] Wrap the data in a Target object
-    target = target.Target()
+    # [Researcher] Define the classifier
+    model = RandomForestClassifier(bootstrap=False)
+
+    # [Researcher] Train the classifier
+    model.fit(x_train, y_train)
+    acc_train = model.score(x_train, y_train)
+    acc_test = model.score(x_test, y_test)
+    print(f"Base model train accuracy: {acc_train}")
+    print(f"Base model test accuracy: {acc_test}")
+
+    # [TRE / Researcher] Wrap the model and data in a Target object
+    target = target.Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
     target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
@@ -75,16 +85,6 @@ if __name__ == "__main__":
     print(f"x_test shape = {np.shape(target.x_test)}")
     print(f"y_test shape = {np.shape(target.y_test)}")
 
-    # [Researcher] Define the classifier
-    model = RandomForestClassifier(bootstrap=False)
-
-    # [Researcher] Train the classifier
-    model.fit(target.x_train, target.y_train)
-    acc_train = model.score(target.x_train, target.y_train)
-    acc_test = model.score(target.x_test, target.y_test)
-    print(f"Base model train accuracy: {acc_train}")
-    print(f"Base model test accuracy: {acc_test}")
-
     # [TRE] Define some attack parameters
     attack_args = attribute_attack.AttributeAttackArgs(
         n_cpu=7, report_name="aia_report"
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     attack_obj = attribute_attack.AttributeAttack(attack_args)
 
     # [TRE] Run the attack
-    attack_obj.attack(target, model)
+    attack_obj.attack(target)
 
     # [TRE] Grab the output
     output = attack_obj.make_report()  # also makes .pdf and .json files

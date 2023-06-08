@@ -61,7 +61,7 @@ class AttributeAttack(Attack):
     def __str__(self):
         return "Attribute inference attack"
 
-    def attack(self, target: Target, target_model: BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Programmatic attack entry point
 
         To be used when code has access to Target class and trained target model
@@ -70,11 +70,9 @@ class AttributeAttack(Attack):
         ----------
         target: attacks.target.Target
             target is a Target class object
-        target_model: sklearn.base.BaseEstimator
-            target model that inherits from an sklearn BaseEstimator
         """
         self.attack_metrics = _attribute_inference(
-            target_model, target, self.args.n_cpu
+            target.model, target, self.args.n_cpu
         )
 
     def _construct_metadata(self) -> None:
@@ -374,14 +372,12 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
 #     plot_quantitative_risk(results, savefile=savefile)
 
 
-def _infer_categorical(
-    target_model: BaseEstimator, target: Target, feature_id: int, threshold: float
-) -> dict:
+def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dict:
     """Returns the training and test set risks of a categorical feature."""
     result: dict = {
         "name": target.features[feature_id]["name"],
-        "train": _infer(target_model, target, feature_id, threshold, True),
-        "test": _infer(target_model, target, feature_id, threshold, False),
+        "train": _infer(target.model, target, feature_id, threshold, True),
+        "test": _infer(target.model, target, feature_id, threshold, False),
     }
     return result
 
@@ -396,7 +392,6 @@ def _is_categorical(target: Target, feature_id: int) -> bool:
 
 
 def _attack_brute_force(
-    target_model: BaseEstimator,
     target: Target,
     features: list[int],
     n_cpu: int,
@@ -408,9 +403,7 @@ def _attack_brute_force(
     if there is a unique highest confidence score that exceeds attack_threshold.
     """
     logger.debug("Brute force attacking categorical features")
-    args = [
-        (target_model, target, feature_id, attack_threshold) for feature_id in features
-    ]
+    args = [(target, feature_id, attack_threshold) for feature_id in features]
     with mp.Pool(processes=n_cpu) as pool:  # pylint:disable=not-callable
         results = pool.starmap(_infer_categorical, args)
     return results
@@ -569,9 +562,7 @@ def _attribute_inference(
     for feature in range(target.n_features):
         if _is_categorical(target, feature):
             feature_list.append(feature)
-    results_a: list[dict] = _attack_brute_force(
-        target_model, target, feature_list, n_cpu
-    )
+    results_a: list[dict] = _attack_brute_force(target, feature_list, n_cpu)
     # compute risk scores for quantitative attributes
     logger.debug("Attacking quantitative attributes...")
     feature_list = []

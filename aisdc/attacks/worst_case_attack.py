@@ -14,7 +14,6 @@ from datetime import datetime
 from typing import Any
 
 import numpy as np
-import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -95,7 +94,7 @@ class WorstCaseAttack(Attack):
     def __str__(self):
         return "WorstCase attack"
 
-    def attack(self, target: Target, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Programmatic attack entry point
 
         To be used when code has access to Target class and trained target model
@@ -104,16 +103,14 @@ class WorstCaseAttack(Attack):
         ----------
         target: attacks.target.Target
             target as a Target class object
-        target_model: sklearn.base.BaseEstimator
-            target model that inherits from an sklearn BaseEstimator
         """
-        train_preds = target_model.predict_proba(target.x_train)
-        test_preds = target_model.predict_proba(target.x_test)
+        train_preds = target.model.predict_proba(target.x_train)
+        test_preds = target.model.predict_proba(target.x_test)
         train_correct = None
         test_correct = None
         if self.args.include_model_correct_feature:
-            train_correct = 1 * (target.y_train == target_model.predict(target.x_train))
-            test_correct = 1 * (target.y_test == target_model.predict(target.x_test))
+            train_correct = 1 * (target.y_train == target.model.predict(target.x_train))
+            test_correct = 1 * (target.y_test == target.model.predict(target.x_test))
 
         self.attack_from_preds(
             train_preds,

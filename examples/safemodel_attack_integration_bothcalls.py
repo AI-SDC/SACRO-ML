@@ -55,8 +55,13 @@ if __name__ == "__main__":
     x_test = feature_enc.transform(x_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    # [TRE / Researcher] Wrap the data in a Target object
-    target = Target()
+    # [Researcher] Build a model
+    model = SafeDecisionTreeClassifier(random_state=1)
+    model.fit(x_train, y_train)
+    msg, disclosive = model.preliminary_check()
+
+    # [TRE / Researcher] Wrap the model and data in a Target object
+    target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
     target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
@@ -69,11 +74,6 @@ if __name__ == "__main__":
     logging.info("y_train shape = %s", np.shape(target.y_train))
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
-
-    # build a model
-    model = SafeDecisionTreeClassifier(random_state=1)
-    model.fit(x_train, y_train)
-    msg, disclosive = model.preliminary_check()
 
     ##check direct method
     print("==========> first running attacks explicitly via run_attack()")

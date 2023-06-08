@@ -59,7 +59,7 @@ target_model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
 target_model.fit(train_X, train_y)
 
 # [Researcher] Provide the model and the train and test data to the TRE
-target = Target()
+target = Target(model=target_model)
 target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Creates a config file for the likelihood attack
@@ -84,7 +84,7 @@ args = LIRAAttackArgs(
 attack_obj = LIRAAttack(args)
 
 # [TRE] runs the attack
-attack_obj.attack(target, target_model)
+attack_obj.attack(target)
 
 # [TRE] Get the output
 output = attack_obj.make_report()  # also makes .pdf and .json files
@@ -122,7 +122,7 @@ args = LIRAAttackArgs(
 attack_obj = LIRAAttack(args)
 
 # [TRE] runs the attack
-attack_obj.attack(target, target_model)
+attack_obj.attack(target)
 
 # [TRE] Get the output
 output = attack_obj.make_report()  # also makes .pdf and .json files

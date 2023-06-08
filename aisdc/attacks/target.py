@@ -3,19 +3,28 @@
 from __future__ import annotations
 
 import numpy as np
+import sklearn
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
     """Stores information about the target model and data"""
 
-    def __init__(self) -> None:
+    def __init__(self, model: sklearn.base.BaseEstimator) -> None:
+        """Store information about a target model and associated data.
+
+        Parameters
+        ----------
+        model: sklearn.base.BaseEstimator
+            Trained target model. Any class that implements the
+            sklearn.base.BaseEstimator interface (i.e. has fit, predict and
+            predict_proba methods)
+        """
         self.name: str = ""
         self.n_samples: int = 0
         self.x_train: np.ndarray
         self.y_train: np.ndarray
         self.x_test: np.ndarray
         self.y_test: np.ndarray
-
         self.features: dict = {}
         self.n_features: int = 0
         self.x_orig: np.ndarray
@@ -25,6 +34,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.x_test_orig: np.ndarray
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
+        self.model: sklearn.BaseEstimator = model
 
     def add_processed_data(
         self,

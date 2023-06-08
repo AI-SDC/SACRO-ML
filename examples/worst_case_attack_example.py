@@ -84,15 +84,15 @@ args = worst_case_attack.WorstCaseAttackArgs(
     attack_fail_fast=True,
 )
 
-# [TRE / Researcher] Wrap the data in a Target object
-target = Target()
+# [TRE / Researcher] Wrap the model and data in a Target object
+target = Target(model=target_model)
 target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(args)
 
 # [TRE] Run the attack
-attack_obj.attack(target, target_model)
+attack_obj.attack(target)
 
 # [TRE] Grab the output
 output = attack_obj.make_report()
@@ -172,15 +172,15 @@ args = worst_case_attack.WorstCaseAttackArgs(
 )
 
 
-# [TRE / Researcher] Wrap the data in a dataset object
-target = Target()
+# [TRE / Researcher] Wrap the model and data in a Target object
+target = Target(model=target_model)
 target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(args)
 
 # [TRE] Run the attack
-attack_obj.attack(target, target_model)
+attack_obj.attack(target)
 
 # [TRE] Grab the output
 output = attack_obj.make_report()

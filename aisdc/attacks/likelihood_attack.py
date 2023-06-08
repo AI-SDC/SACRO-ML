@@ -121,47 +121,43 @@ class LIRAAttack(Attack):
     def __str__(self):
         return "LIRA Attack"
 
-    def attack(self, target: Target, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Programmatic attack running
         Runs a LIRA attack from a Target object and a target model
 
         Parameters
         ----------
         target: attacks.target.Target
-            target as an instance of the Target class. Needs to have x_train, x_test, y_train
-            and y_test set.
-        target_model: sklearn.base.BaseEstimator
-            Trained target model. Any class that implements the sklearn.base.BaseEstimator
-            interface (i.e. has fit, predict and predict_proba methods)
+            target as an instance of the Target class. Needs to have x_train,
+            x_test, y_train and y_test set.
         """
 
-        shadow_clf = sklearn.base.clone(target_model)
+        shadow_clf = sklearn.base.clone(target.model)
 
-        target = self._check_and_update_dataset(target, target_model)
+        target = self._check_and_update_dataset(target)
 
         self.run_scenario_from_preds(
             shadow_clf,
             target.x_train,
             target.y_train,
-            target_model.predict_proba(target.x_train),
+            target.model.predict_proba(target.x_train),
             target.x_test,
             target.y_test,
-            target_model.predict_proba(target.x_test),
+            target.model.predict_proba(target.x_test),
         )
 
-    def _check_and_update_dataset(
-        self, target: Target, target_model: sklearn.base.BaseEstimator
-    ) -> Target:
-        """Makes sure that it is ok to use the class variables to index the prediction
-        arrays. This has two steps:
-        1. Replacing the values in y_train with their position in target_model.classes (will
-           normally result in no change)
-        2. Removing from the test set any rows corresponding to classes that are not in the
-           training set.
+    def _check_and_update_dataset(self, target: Target) -> Target:
+        """
+        Makes sure that it is ok to use the class variables to index the
+        prediction arrays. This has two steps:
+        1. Replacing the values in y_train with their position in
+        target.model.classes (will normally result in no change)
+        2. Removing from the test set any rows corresponding to classes that
+        are not in the training set.
         """
         logger = logging.getLogger("_check_and_update_dataset")
         y_train_new = []
-        classes = list(target_model.classes_)  # pylint: disable = protected-access
+        classes = list(target.model.classes_)  # pylint: disable = protected-access
         for y in target.y_train:
             y_train_new.append(classes.index(y))
 
