@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from fpdf import FPDF
 
-from aisdc.attacks import attack, dataset, report
+from aisdc.attacks import attack, report, target
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 BORDER = 0
@@ -16,7 +16,7 @@ BORDER = 0
 def test_superclass():
     """Test that the exceptions are raised if the superclass is called in error"""
     my_attack = attack.Attack()
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     target_obj = SafeDecisionTreeClassifier()
     with pytest.raises(NotImplementedError):
         my_attack.attack(target_obj, dataset_obj)

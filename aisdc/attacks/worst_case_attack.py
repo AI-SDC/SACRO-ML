@@ -22,8 +22,8 @@ from sklearn.model_selection import train_test_split
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
-from aisdc.attacks.dataset import Data
 from aisdc.attacks.failfast import FailFast
+from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 
@@ -95,27 +95,25 @@ class WorstCaseAttack(Attack):
     def __str__(self):
         return "WorstCase attack"
 
-    def attack(self, dataset: Data, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target, target_model: sklearn.base.BaseEstimator) -> None:
         """Programmatic attack entry point
 
-        To be used when code has access to data class and trained target model
+        To be used when code has access to Target class and trained target model
 
         Parameters
         ----------
-        dataset: attacks.dataset.Data
-            dataset as a Data class object
+        target: attacks.target.Target
+            target as a Target class object
         target_model: sklearn.base.BaseEstimator
             target model that inherits from an sklearn BaseEstimator
         """
-        train_preds = target_model.predict_proba(dataset.x_train)
-        test_preds = target_model.predict_proba(dataset.x_test)
+        train_preds = target_model.predict_proba(target.x_train)
+        test_preds = target_model.predict_proba(target.x_test)
         train_correct = None
         test_correct = None
         if self.args.include_model_correct_feature:
-            train_correct = 1 * (
-                dataset.y_train == target_model.predict(dataset.x_train)
-            )
-            test_correct = 1 * (dataset.y_test == target_model.predict(dataset.x_test))
+            train_correct = 1 * (target.y_train == target_model.predict(target.x_train))
+            test_correct = 1 * (target.y_test == target_model.predict(target.x_test))
 
         self.attack_from_preds(
             train_preds,

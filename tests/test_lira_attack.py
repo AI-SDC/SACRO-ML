@@ -17,12 +17,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks import likelihood_attack
-from aisdc.attacks.dataset import Data  # pylint: disable = import-error
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     DummyClassifier,
     LIRAAttack,
     LIRAAttackArgs,
 )
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 N_SHADOW_MODELS = 20
 
@@ -68,7 +68,7 @@ class TestLiraAttack(TestCase):
         cls.train_X, cls.test_X, cls.train_y, cls.test_y = train_test_split(
             X, y, test_size=0.3
         )
-        cls.dataset = Data()
+        cls.dataset = Target()
         cls.dataset.add_processed_data(cls.train_X, cls.train_y, cls.test_X, cls.test_y)
         cls.target_model = RandomForestClassifier(
             n_estimators=100, min_samples_split=2, min_samples_leaf=1
@@ -129,7 +129,7 @@ class TestLiraAttack(TestCase):
         # now make test[0] have a  class not present in training set#
         local_test_y = np.copy(self.test_y)
         local_test_y[0] = 5
-        local_dataset = Data()
+        local_dataset = Target()
         local_dataset.add_processed_data(
             self.train_X, self.train_y, self.test_X, local_test_y
         )

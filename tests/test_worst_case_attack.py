@@ -12,7 +12,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from aisdc.attacks import dataset, worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks import target, worst_case_attack  # pylint: disable = import-error
 
 
 def clean_up(name):
@@ -47,7 +47,7 @@ def test_attack_from_predictions_cmd():
     """Running attack using configuration file and prediction files"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)
@@ -86,7 +86,7 @@ def test_report_worstcase():
     """tests worst case attack directly"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)
@@ -132,7 +132,7 @@ def test_attack_with_correct_feature():
     """Test the attack when the model correctness feature is used"""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)
@@ -166,7 +166,7 @@ def test_attack_from_predictions():
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)
@@ -201,7 +201,7 @@ def test_attack_from_predictions_no_dummy():
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)
@@ -321,7 +321,7 @@ def test_non_rf_mia():
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
-    dataset_obj = dataset.Data()
+    dataset_obj = target.Target()
     dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
 
     target_model = SVC(gamma=0.1, probability=True)

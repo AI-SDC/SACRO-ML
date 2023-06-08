@@ -1,12 +1,12 @@
-"""dataset.py - class to represent a dataset"""
+"""target.py - information storage about the target model and data"""
 
 from __future__ import annotations
 
 import numpy as np
 
 
-class Data:  # pylint: disable=too-many-instance-attributes
-    """Stripped down Data class"""
+class Target:  # pylint: disable=too-many-instance-attributes
+    """Stores information about the target model and data"""
 
     def __init__(self) -> None:
         self.name: str = ""
