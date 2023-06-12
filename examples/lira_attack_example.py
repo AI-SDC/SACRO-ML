@@ -41,11 +41,11 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.dataset import Data  # pylint: disable = import-error
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -59,8 +59,8 @@ target_model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
 target_model.fit(train_X, train_y)
 
 # [Researcher] Provide the model and the train and test data to the TRE
-dataset = Data()
-dataset.add_processed_data(train_X, train_y, test_X, test_y)
+target = Target(model=target_model)
+target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Creates a config file for the likelihood attack
 config = {
@@ -84,7 +84,7 @@ args = LIRAAttackArgs(
 attack_obj = LIRAAttack(args)
 
 # [TRE] runs the attack
-attack_obj.attack(dataset, target_model)
+attack_obj.attack(target)
 
 # [TRE] Get the output
 output = attack_obj.make_report()  # also makes .pdf and .json files
@@ -122,7 +122,7 @@ args = LIRAAttackArgs(
 attack_obj = LIRAAttack(args)
 
 # [TRE] runs the attack
-attack_obj.attack(dataset, target_model)
+attack_obj.attack(target)
 
 # [TRE] Get the output
 output = attack_obj.make_report()  # also makes .pdf and .json files

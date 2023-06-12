@@ -18,11 +18,12 @@ import joblib
 # import tensorflow as tf
 from dictdiffer import diff
 
-from aisdc.attacks import attribute_attack, dataset, report, worst_case_attack
+from aisdc.attacks import attribute_attack, report, worst_case_attack
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )
+from aisdc.attacks.target import Target
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
@@ -709,7 +710,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def request_release(
-        self, filename: str = "undefined", data_obj: dataset.Data = None
+        self, filename: str = "undefined", target: Target = None
     ) -> None:  # pylint: disable=too-many-branches
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
@@ -720,7 +721,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         filename: string
         The filename used to save the model
 
-        dataobj: object of type Data
+        target: object of type Target
         Contains train/test data and encoding dictionary needed to run attacks
 
         Returns
@@ -729,12 +730,12 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         Notes
         -----
-         1. The dataset object is saved in a file called filebase_data.json
+         1. The target object is saved in a file called filebase_data.json
          (where filebase= filename without the extension)
          for reference/use by the TRE.
          Data should never be held or stored with the model.
          Clearly filebase_data.json mst never leave the TRE.
-         2. If data_obj is not null, then worst case MIA and attribute inference
+         2. If target is not null, then worst case MIA and attribute inference
          attacks are called via run_attack.
          Outputs from the attacks will be stored in filebase_attack_res.json
 
@@ -766,16 +767,16 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 output["reason"] = msg_prel + msg_post
 
             ##Run attacks programmatically if possible
-            if data_obj is not None:
+            if target is not None:
                 # make filenames and save a copy of the data
                 with open(
                     os.path.splitext(filename)[0] + "_data.pickle", "wb"
                 ) as handle:
-                    pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(target, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
                 for attack_name in ["worst_case", "lira", "attribute"]:
                     output[f"{attack_name}_results"] = self.run_attack(
-                        data_obj,
+                        target,
                         attack_name,
                         f"{os.path.splitext(filename)[0]}_{attack_name}_res",
                     )
@@ -810,7 +811,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     def run_attack(
         self,
-        data_obj: dataset.Data = None,
+        target: Target = None,
         attack_name: str = "worst_case",
         filename: str = "undefined",
     ) -> dict:
@@ -818,8 +819,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         Parameters
         ----------
-        data_obj: Data
-        the dataset in the form of a Data object
+        target: Target
+        the target in the form of a Target object
 
         attack_name: string
 
@@ -854,7 +855,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 report_name=None,
             )
             attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-            attack_obj.attack(dataset=data_obj, target_model=self)
+            attack_obj.attack(target=target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
@@ -863,7 +864,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 n_shadow_models=100, report_name="lira_example_report"
             )
             attack_obj = LIRAAttack(args)
-            attack_obj.attack(data_obj, self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()  # also makes .pdf and .json files
             metadata = output["metadata"]
 
@@ -872,7 +873,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 report_name="aia_example"
             )
             attack_obj = attribute_attack.AttributeAttack(attack_args)
-            attack_obj.attack(data_obj, self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 

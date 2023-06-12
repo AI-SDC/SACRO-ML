@@ -25,7 +25,7 @@ from sklearn.model_selection import train_test_split
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
-from aisdc.attacks.dataset import Data
+from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 
@@ -121,72 +121,68 @@ class LIRAAttack(Attack):
     def __str__(self):
         return "LIRA Attack"
 
-    def attack(self, dataset: Data, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Programmatic attack running
-        Runs a LIRA attack from a dataset object and a target model
+        Runs a LIRA attack from a Target object and a target model
 
         Parameters
         ----------
-        dataset: attacks.dataset.Data
-            Dataset as an instance of the Data class. Needs to have x_train, x_test, y_train
-            and y_test set.
-        target_model: sklearn.base.BaseEstimator
-            Trained target model. Any class that implements the sklearn.base.BaseEstimator
-            interface (i.e. has fit, predict and predict_proba methods)
+        target: attacks.target.Target
+            target as an instance of the Target class. Needs to have x_train,
+            x_test, y_train and y_test set.
         """
 
-        shadow_clf = sklearn.base.clone(target_model)
+        shadow_clf = sklearn.base.clone(target.model)
 
-        dataset = self._check_and_update_dataset(dataset, target_model)
+        target = self._check_and_update_dataset(target)
 
         self.run_scenario_from_preds(
             shadow_clf,
-            dataset.x_train,
-            dataset.y_train,
-            target_model.predict_proba(dataset.x_train),
-            dataset.x_test,
-            dataset.y_test,
-            target_model.predict_proba(dataset.x_test),
+            target.x_train,
+            target.y_train,
+            target.model.predict_proba(target.x_train),
+            target.x_test,
+            target.y_test,
+            target.model.predict_proba(target.x_test),
         )
 
-    def _check_and_update_dataset(
-        self, dataset: Data, target_model: sklearn.base.BaseEstimator
-    ) -> Data:
-        """Makes sure that it is ok to use the class variables to index the prediction
-        arrays. This has two steps:
-        1. Replacing the values in y_train with their position in target_model.classes (will
-           normally result in no change)
-        2. Removing from the test set any rows corresponding to classes that are not in the
-           training set.
+    def _check_and_update_dataset(self, target: Target) -> Target:
+        """
+        Makes sure that it is ok to use the class variables to index the
+        prediction arrays. This has two steps:
+        1. Replacing the values in y_train with their position in
+        target.model.classes (will normally result in no change)
+        2. Removing from the test set any rows corresponding to classes that
+        are not in the training set.
         """
         logger = logging.getLogger("_check_and_update_dataset")
         y_train_new = []
-        classes = list(target_model.classes_)  # pylint: disable = protected-access
-        for y in dataset.y_train:
+        classes = list(target.model.classes_)  # pylint: disable = protected-access
+        for y in target.y_train:
             y_train_new.append(classes.index(y))
 
-        dataset.y_train = np.array(y_train_new, int)
+        target.y_train = np.array(y_train_new, int)
 
         logger.info(
             "new ytrain has values and counts: %s",
-            f"{np.unique(dataset.y_train,return_counts=True)}",
+            f"{np.unique(target.y_train,return_counts=True)}",
         )
         ok_pos = []
         y_test_new = []
-        for i, y in enumerate(dataset.y_test):
+        for i, y in enumerate(target.y_test):
             if y in classes:
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
 
-        if len(y_test_new) != len(dataset.x_test):
-            dataset.x_test = dataset.x_test[ok_pos, :]
-        dataset.y_test = np.array(y_test_new, int)
+        if len(y_test_new) != len(target.x_test):
+            target.x_test = target.x_test[ok_pos, :]
+        target.y_test = np.array(y_test_new, int)
         logger.info(
             "new ytest has values and counts: %s",
-            f"{np.unique(dataset.y_test,return_counts=True)}",
+            f"{np.unique(target.y_test,return_counts=True)}",
         )
 
-        return dataset
+        return target
 
     def run_scenario_from_preds(  # pylint: disable = too-many-statements, too-many-arguments, too-many-locals
         self,

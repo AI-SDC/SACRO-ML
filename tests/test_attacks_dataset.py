@@ -6,12 +6,12 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.dataset import Data
+from aisdc.attacks.target import Target
 
 
 def test_dataset():  # pylint:disable=too-many-locals
     """returns a randomly sampled 10+10% of
-    the nursery data set as a Data object
+    the nursery data set as a Target object
     if needed fetches it from openml and saves. it
 
     """
@@ -80,11 +80,11 @@ def test_dataset():  # pylint:disable=too-many-locals
 
     n_features = np.shape(x_train_orig)[1]
 
-    # [TRE / Researcher] Wrap the data in a dataset object
-    the_data = Data()
-    the_data.name = "nursery"
-    the_data.add_processed_data(x_train, y_train, x_test, y_test)
-    the_data.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    # [TRE / Researcher] Wrap the data in a Target object
+    target = Target(model=None)
+    target.name = "nursery"
+    target.add_processed_data(x_train, y_train, x_test, y_test)
+    target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
     for i in range(n_features - 1):
-        the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
-    the_data.add_feature("dummy", indices[n_features - 1], "float")
+        target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+    target.add_feature("dummy", indices[n_features - 1], "float")
