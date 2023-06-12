@@ -2,8 +2,18 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
+import pickle
+
 import numpy as np
 import sklearn
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("target")
+
+OUTPUT_DIR: str = "outputs/"
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
@@ -77,6 +87,103 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.x_test_orig = x_test_orig
         self.y_test_orig = y_test_orig
         self.n_samples_orig = len(x_orig)
+
+    def __save_model(self, path: str, target: dict) -> None:
+        """Save the target model as pickle.
+
+        Parameters
+        ----------
+        path : str
+            Path to write the model.
+
+        target : dict
+            Target class as a dictionary for writing JSON.
+        """
+        # write model
+        filename: str = f"{path}_model.pkl"
+        with open(filename, "wb") as fp:
+            pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        target["model_path"] = filename
+        # write hyperparameters
+        try:
+            target["model_name"] = type(self.model).__name__
+            target["model_params"] = self.model.get_params()
+        except Exception:  # pragma: no cover pylint: disable=broad-exception-caught
+            pass
+
+    def __save_numpy(self, path: str, target: dict, name: str) -> None:
+        """Save a numpy array variable as txt.
+
+        Parameters
+        ----------
+        path : str
+            Path to save the data.
+
+        target : dict
+            Target class as a dictionary for writing JSON.
+
+        name : str
+            Name of the numpy array to save.
+        """
+        if hasattr(self, name):
+            np_filename: str = f"{path}_{name}.txt"
+            np.savetxt(np_filename, self.x_train)
+            target[f"{name}_path"] = np_filename
+
+    def __save_data(self, path: str, target: dict) -> dict:
+        """Save the target model data as txt.
+
+        Parameters
+        ----------
+        path : str
+            Path to save the data.
+
+        target : dict
+            Target class as a dictionary for writing JSON.
+        """
+        self.__save_numpy(path, target, "x_train")
+        self.__save_numpy(path, target, "y_train")
+        self.__save_numpy(path, target, "x_test")
+        self.__save_numpy(path, target, "y_test")
+        self.__save_numpy(path, target, "x_orig")
+        self.__save_numpy(path, target, "y_orig")
+        self.__save_numpy(path, target, "x_train_orig")
+        self.__save_numpy(path, target, "y_train_orig")
+        self.__save_numpy(path, target, "x_test_orig")
+        self.__save_numpy(path, target, "y_test_orig")
+
+    def save(self, filename: str = "target") -> None:
+        """Saves the target class to persistent storage.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the output file(s).
+        """
+        # check if the outputs directory was already created
+        try:  # pragma: no cover
+            os.makedirs(OUTPUT_DIR)
+            logger.debug("Directory %s created successfully", OUTPUT_DIR)
+        except FileExistsError:
+            logger.debug("Directory %s already exists", OUTPUT_DIR)
+
+        path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
+
+        # convert Target to JSON
+        target: dict = {
+            "data_name": self.name,
+            "n_samples": self.n_samples,
+            "features": self.features,
+            "n_features": self.n_features,
+            "n_samples_orig": self.n_samples_orig,
+        }
+        # write model and add path to JSON
+        self.__save_model(path, target)
+        # write data arrays and add paths to JSON
+        self.__save_data(path, target)
+        # write JSON
+        with open(f"{path}.json", "w", newline="", encoding="utf-8") as fp:
+            json.dump(target, fp, indent=4, sort_keys=False)
 
     def __str__(self):
         return self.name
