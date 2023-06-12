@@ -2,8 +2,8 @@
 
 import json
 
-from aisdc.attacks.target import Target
 from sklearn.ensemble import RandomForestClassifier
+from aisdc.attacks.target import Target
 
 
 class Attack:
@@ -51,5 +51,4 @@ def load_default_worstcase_dict(args: dict) -> None:
     args["attack_metric_success_comp_type"] = "lte"
     args["attack_metric_success_count_thresh"] = 5
     args["attack_fail_fast"] = False
-    args["attack_config_json_file_name"] = None        
-    
+    args["attack_config_json_file_name"] = None

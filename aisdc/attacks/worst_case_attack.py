@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import *
+from aisdc.attacks.attack import Attack, load_config_file_into_dict, load_default_worstcase_dict
 from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
@@ -33,8 +33,8 @@ class WorstCaseAttack(Attack):
 
     def __init__(self, **kwargs):
         self.args={}
-        load_default_worstcase_dict(self.args)        
-        self.args.update(kwargs)        
+        load_default_worstcase_dict(self.args)
+        self.args.update(kwargs)
         # Reading parameters from a json file
         if self.args["attack_config_json_file_name"] is not None:
         #    configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
@@ -514,11 +514,10 @@ class WorstCaseAttack(Attack):
 
 
 def _make_dummy_data(args):
-    """Initialise class and run dummy data creation"""
-    wc_args = WorstCaseAttackArgs(**args.__dict__)
-    wc_args.set_param("training_preds_filename", "train_preds.csv")
-    wc_args.set_param("test_preds_filename", "test_preds.csv")
-    attack_obj = WorstCaseAttack(wc_args)
+    """Initialise class and run dummy data creation"""    
+    **args.__dict__["training_preds_filename"] = "train_preds.csv"
+    **args.__dict__["test_preds_filename"] = "test_preds.csv"
+    attack_obj = WorstCaseAttack(**args.__dict__)
     attack_obj.make_dummy_data()
 
 
@@ -531,7 +530,7 @@ def _run_attack(args):
 
 def _run_attack_from_configfile(args):
     """Initialise class and run attack from prediction files
-    using config file"""    
+    using config file"""
     attack_obj = WorstCaseAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         )
