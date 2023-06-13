@@ -96,7 +96,6 @@ class TestGenerateReport(unittest.TestCase):
     def test_svm(self):
         """test the process_json function when the target model is an SVM"""
         json_formatted = self.get_test_report()
-        
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
