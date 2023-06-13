@@ -125,7 +125,7 @@ class FinalRecommendationModule(
         if self._is_svm(self.SVM_WEIGHTING_SCORE):
             summarised_score = self.SVM_WEIGHTING_SCORE
 
-        output = dict()
+        output = {}
         output["final_score"] = summarised_score
         output["score_breakdown"] = self.scores
         output["score_descriptions"] = self.reasons
@@ -185,18 +185,18 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
         if correction == "none":
             return len(np.where(np.array(p_val_list) <= self.p_thresh)[0])
-        elif correction == "bh":
+        if correction == "bh":
             sorted_p = sorted(p_val_list)
             m = len(p_val_list)
             alpha = self.p_thresh
             comparators = np.arange(1, m + 1, 1) * alpha / m
             return (sorted_p <= comparators).sum()
-        elif correction == "bo":  # bonferroni
+        if correction == "bo":  # bonferroni
             return len(
                 np.where(np.array(p_val_list) <= self.p_thresh / len(p_val_list))[0]
             )
-        else:
-            raise NotImplementedError()  # any others?
+        
+        raise NotImplementedError()  # any others?
 
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []

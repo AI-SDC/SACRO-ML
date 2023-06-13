@@ -101,7 +101,7 @@ class AttributeAttack(Attack):
         output["attack_metrics"] = self.attack_metrics
         self._construct_metadata()
         output["metadata"] = self.metadata
-        
+
         if json_attack_formatter is not None:
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
             json_attack_formatter.add_attack_output(json_report)

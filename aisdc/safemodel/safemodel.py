@@ -263,6 +263,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         except (ImportError, KeyError, OSError):  # pragma: no cover
             self.researcher = "unknown"
 
+        self.json_attack_formatter = GenerateJSONModule('safemodel.json')
+
     def get_params(self, deep=True):
         """gets dictionary of parameter values
         restricted to those expected by base classifier.
@@ -856,7 +858,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             )
             attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
             attack_obj.attack(dataset=data_obj, target_model=self)
-            output = attack_obj.make_report()
+            output = attack_obj.make_report(self.json_attack_formatter)
             metadata = output["metadata"]
 
         elif attack_name == "lira":
@@ -865,7 +867,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             )
             attack_obj = LIRAAttack(args)
             attack_obj.attack(data_obj, self)
-            output = attack_obj.make_report()  # also makes .pdf and .json files
+            output = attack_obj.make_report(self.json_attack_formatter)  # also makes .pdf and .json files
             metadata = output["metadata"]
 
         elif attack_name == "attribute":
@@ -874,7 +876,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             )
             attack_obj = attribute_attack.AttributeAttack(attack_args)
             attack_obj.attack(data_obj, self)
-            output = attack_obj.make_report()
+            output = attack_obj.make_report(self.json_attack_formatter)
             metadata = output["metadata"]
 
         else:
