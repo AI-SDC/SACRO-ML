@@ -439,9 +439,10 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_instances = []
 
-        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metrics_instances += temp_dummy_attack_metrics
+        if self.dummy_attack_experiments_logger is not None:
+            for exp_rep, _ in enumerate(self.dummy_attack_metrics):
+                temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
+                dummy_attack_metrics_instances += temp_dummy_attack_metrics
 
         return dummy_attack_metrics_instances
 
