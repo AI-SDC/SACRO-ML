@@ -838,7 +838,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
-        if attack_name == "worst_case":            
+        if attack_name == "worst_case":
             attack_obj = worst_case_attack.WorstCaseAttack(
                 n_reps=10,
                 # number of baseline (dummy) experiments to do
@@ -857,9 +857,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
-        elif attack_name == "lira":            
+        elif attack_name == "lira":
             attack_obj = LIRAAttack(
-                n_shadow_models=100, 
+                n_shadow_models=100,
                 report_name="lira_example_report"
             )
             attack_obj.attack(target)

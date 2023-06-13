@@ -199,16 +199,16 @@ def test_attack_args():
     assert fname in attack_args.__str__()
 
     fname = "liraa"
-    attack_args = likelihood_attack.LIRAAttackArgs(report_name=fname)
-    attack_args.set_param("foo", "boo")
-    assert attack_args.get_args()["foo"] == "boo"
-    assert fname in attack_args.__str__()
+    attack_obj = likelihood_attack.LIRAAttack(report_name=fname)
+    attack_obj.args["foo"] = "boo"
+    assert attack_obj.args["foo"] == "boo"
+    assert fname == attack_obj.args["report_name"]
 
     fname = "wca"
-    attack_args = worst_case_attack.WorstCaseAttackArgs(report_name=fname)
-    attack_args.set_param("foo", "boo")
-    assert attack_args.get_args()["foo"] == "boo"
-    assert fname in attack_args.__str__()
+    attack_obj = worst_case_attack.WorstCaseAttack(report_name=fname)
+    attack_obj.args["foo"] = "boo"
+    assert attack_obj.args["foo"] == "boo"
+    assert fname == attack_obj.args["report_name"]
 
 
 def test_run_attack_unknown():
