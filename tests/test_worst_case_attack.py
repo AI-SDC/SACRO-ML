@@ -120,7 +120,7 @@ def test_report_worstcase():
         p_thresh=0.05,
         training_preds_filename=None,
         test_preds_filename=None,
-        test_prop=0.5,        
+        test_prop=0.5,
     )
     # calling mark_report without running attack for code coverage
     _ = attack_obj2.make_report()
