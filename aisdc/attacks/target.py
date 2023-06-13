@@ -211,10 +211,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Name of the output file(s), not including file extension.
         """
         # check if the outputs directory was already created
-        try:  # pragma: no cover
+        try:
             os.makedirs(OUTPUT_DIR)
             logger.debug("Directory %s created successfully", OUTPUT_DIR)
-        except FileExistsError:
+        except FileExistsError:  # pragma: no cover
             logger.debug("Directory %s already exists", OUTPUT_DIR)
         path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
         # convert Target to JSON
