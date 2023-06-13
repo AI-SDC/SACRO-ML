@@ -75,7 +75,7 @@ class LIRAAttack(Attack):
 
     def __init__(self, **kwargs) -> None:
         self.args={}
-        load_default_lira_dict(self.args)        
+        load_default_lira_dict(self.args)
         self.args.update(kwargs)
         if self.args["attack_config_json_file_name"] is not None:
             load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
@@ -84,7 +84,7 @@ class LIRAAttack(Attack):
         self.attack_metrics = None
         self.attack_failfast_shadow_models_trained = None
         self.dummy_attack_metrics = None
-        self.metadata = None        
+        self.metadata = None
 
     def __str__(self):
         return "LIRA Attack"

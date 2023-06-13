@@ -223,7 +223,7 @@ def test_attack_from_predictions_no_dummy():
     )
 
     assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
-    print(args)
+    print(attack_obj.args)
     
     # with multiple reps
     attack_obj.attack_from_prediction_files()
