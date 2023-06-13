@@ -37,7 +37,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="lt",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 4
@@ -46,7 +46,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="lt",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert failfast_Obj.check_attack_success(metrics)
 
     # Option 5
@@ -55,7 +55,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="gte",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert failfast_Obj.check_attack_success(metrics)
 
     # Option 6
@@ -64,7 +64,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="gte",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 7
@@ -73,7 +73,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.04,
         attack_metric_success_comp_type="gt",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert failfast_Obj.check_attack_success(metrics)
 
     # Option 8
@@ -82,7 +82,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="gt",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 9
@@ -91,7 +91,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="eq",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert failfast_Obj.check_attack_success(metrics)
 
     # Option 10
@@ -100,7 +100,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="eq",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 11
@@ -109,7 +109,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.05,
         attack_metric_success_comp_type="not_eq",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert not failfast_Obj.check_attack_success(metrics)
 
     # Option 12
@@ -118,7 +118,7 @@ def test_parse_boolean_argument():
         attack_metric_success_thresh=0.06,
         attack_metric_success_comp_type="not_eq",
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     assert failfast_Obj.check_attack_success(metrics)
 
     assert failfast_Obj.get_fail_count() == 0
@@ -139,17 +139,17 @@ def test_attack_success_fail_counts_and_overall_attack_success():
         attack_metric_success_comp_type="lte",
         attack_metric_success_count_thresh=3,
     )
-    failfast_Obj = failfast.FailFast(attack_obj)
+    failfast_Obj = failfast.FailFast(attack_obj.args)
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.07
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.03
     _ = failfast_Obj.check_attack_success(metrics)
-    assert not failfast_Obj.check_overall_attack_success(attack_obj)
+    assert not failfast_Obj.check_overall_attack_success(attack_obj.args)
     metrics["P_HIGHER_AUC"] = 0.02
     _ = failfast_Obj.check_attack_success(metrics)
     metrics["P_HIGHER_AUC"] = 0.01
     _ = failfast_Obj.check_attack_success(metrics)
     assert failfast_Obj.get_success_count() == 3
     assert failfast_Obj.get_fail_count() == 2
-    assert failfast_Obj.check_overall_attack_success(attack_obj)
+    assert failfast_Obj.check_overall_attack_success(attack_obj.args)
