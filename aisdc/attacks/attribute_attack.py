@@ -7,8 +7,6 @@ from __future__ import annotations
 import json
 import logging
 
-# import pickle
-from typing import Any
 
 import matplotlib.pyplot as plt
 import multiprocess as mp
@@ -36,7 +34,7 @@ class AttributeAttack(Attack):
         load_default_attribute_dict(self.args)
         self.args.update(kwargs)
         self.attack_metrics: dict = {}
-        self.metadata: dict = {}        
+        self.metadata: dict = {}
 
     def __str__(self):
         return "Attribute inference attack"

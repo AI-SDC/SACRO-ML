@@ -866,7 +866,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()  # also makes .pdf and .json files
             metadata = output["metadata"]
 
-        elif attack_name == "attribute":            
+        elif attack_name == "attribute":
             attack_obj = attribute_attack.AttributeAttack(
                 report_name="aia_example"
             )

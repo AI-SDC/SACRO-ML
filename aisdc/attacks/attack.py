@@ -1,7 +1,7 @@
 """attack.py - base class for an attack object"""
 
-import multiprocess as mp
 import json
+import multiprocess as mp
 
 from sklearn.ensemble import RandomForestClassifier
 from aisdc.attacks.target import Target
@@ -75,4 +75,3 @@ def load_default_attribute_dict(args: dict) -> None:
     """Initialise dictionary items with default values for attribute inference attack"""
     args["report_name"] = None
     args["n_cpu"] = max(1, mp.cpu_count() - 1)
-

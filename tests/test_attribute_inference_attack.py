@@ -48,7 +48,7 @@ def common_setup():
 
 def test_attack_args():
     """tests methods in the attack_args class"""
-    _, attack_obj = common_setup()    
+    _, attack_obj = common_setup()
     attack_obj.args["newkey"] = True
     thedict = attack_obj.args
     assert thedict["newkey"] is True
@@ -92,7 +92,6 @@ def test_AIA_on_nursery():
     """tests running AIA on the nursery data
     with an added continuous feature"""
     target, attack_obj = common_setup()
-    
     attack_obj.attack(target)
 
     output = attack_obj.make_report()
