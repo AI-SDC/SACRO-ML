@@ -272,13 +272,12 @@ class WorstCaseAttack(Attack):
         """
         global_metrics = {}
         if attack_metrics is not None:
-                        
             auc_p_vals = [
                 metrics.auc_p_val(
                     m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
                 )[0]
                 for m in attack_metrics
-            ]        
+            ]
 
             m = attack_metrics[0]
             _, auc_std = metrics.auc_p_val(

@@ -124,7 +124,7 @@ def test_report_worstcase():
         report_name="test-1rep",
     )
     attack_obj.attack(target)
-    _ = attack_obj.make_report()    
+    _ = attack_obj.make_report()
 
 
 def test_attack_with_correct_feature():
