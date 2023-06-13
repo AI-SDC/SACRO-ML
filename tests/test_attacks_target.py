@@ -43,7 +43,7 @@ def patch_open(open_func, files):
     return open_patched
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def cleanup_files(monkeypatch):
     """Automatically remove created files."""
     files = []
@@ -54,7 +54,7 @@ def cleanup_files(monkeypatch):
         os.remove(file)
 
 
-def test_target():  # pylint:disable=too-many-locals
+def test_target(cleanup_files):  # pylint:disable=too-many-locals
     """
     Returns a randomly sampled 10+10% of
     the nursery data set as a Target object
