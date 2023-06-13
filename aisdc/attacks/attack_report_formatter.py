@@ -26,7 +26,7 @@ class GenerateJSONModule():
 
     def add_attack_output(self, incoming_json):
         """ Add a section of JSON to the file which is already open """
-        with open(self.filename, 'a') as f:
+        with open(self.filename, 'a', encoding="utf-8") as f:
             f.write(incoming_json)
 
     def get_output_filename(self):
@@ -320,7 +320,7 @@ class GenerateTextReport():
 
         output_filename = output_filename.replace(" ", "_")
 
-        with open(input_filename) as f:
+        with open(input_filename, encoding="utf-8") as f:
             json_report = json.loads(f.read())
 
         modules = [
@@ -330,5 +330,5 @@ class GenerateTextReport():
         output = {str(m): m.process_dict() for m in modules}
         output_string = self.pretty_print(output)
 
-        with open(output_filename, "w") as text_file:
+        with open(output_filename, "w", encoding="utf-8") as text_file:
             text_file.write(output_string)

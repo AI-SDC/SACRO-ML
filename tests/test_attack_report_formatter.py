@@ -15,8 +15,8 @@ from aisdc.attacks.attack_report_formatter import (
     SummariseFDIFPvalsModule,
     SummariseUnivariateMetricsModule,
     GenerateTextReport,
+    GenerateJSONModule,
 )
-
 
 class TestGenerateReport(unittest.TestCase):
     """class which tests the generate_report.py file"""
@@ -78,6 +78,18 @@ class TestGenerateReport(unittest.TestCase):
 
         with pytest.raises(NotImplementedError):
             str(a)
+
+    def test_json_formatter(self):
+        """test which tests the GenerateJSONModule"""
+        g = GenerateJSONModule()
+        filename = g.get_output_filename()
+        self.assertIsNotNone(filename)
+        self.clean_up(filename)
+
+        test_filename = "example_filename.json"
+        g = GenerateJSONModule(test_filename)
+        self.assertEqual(test_filename, g.get_output_filename())
+        self.clean_up(test_filename)
 
     def test_whitespace_in_filenames(self):
         """test to make sure whitespace is removed from the output file when creating the report"""
@@ -159,6 +171,8 @@ class TestGenerateReport(unittest.TestCase):
         f = SummariseUnivariateMetricsModule(json_formatted)
         _ = f.process_dict()
 
+        self.assertEqual("Summary of Univarite Metrics", str(f))
+
     def test_auc_pvals_module(self):
         """test the SummariseAUCPvalsModule"""
         json_formatted = self.get_test_report()
@@ -172,12 +186,16 @@ class TestGenerateReport(unittest.TestCase):
             f = SummariseAUCPvalsModule(json_formatted, correction="xyzabcd")
             _ = f.process_dict()
 
+        self.assertIn("Summary of AUC p-values", str(f))
+
     def test_fdif_pvals_module(self):
         """test the SummariseFDIFPvalsModule"""
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = f.process_dict()
         _ = f.get_metric_list(json_formatted["attack_experiment_logger"])
+
+        self.assertIn("Summary of FDIF p-values", str(f))
 
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
@@ -187,6 +205,8 @@ class TestGenerateReport(unittest.TestCase):
 
         f = LogLogROCModule(json_formatted, output_folder="./")
         _ = f.process_dict()
+
+        self.assertEqual("ROC Log Plot", str(f))
 
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
