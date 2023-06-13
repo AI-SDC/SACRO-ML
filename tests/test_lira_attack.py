@@ -116,6 +116,7 @@ class TestLiraAttack(TestCase):
         n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
         assert n_shadow_models_trained == n_shadow_models
 
+
     def test_check_and_update_dataset(self):
         """test the code that removes items from test set with classes
         not present in training set"""
@@ -190,7 +191,7 @@ class TestLiraAttack(TestCase):
         attack_obj.attack_from_config()
         attack_obj.example()
 
-    def test_lira_attack_failfast_from_scratch(self):
+    def test_lira_attack_failfast_from_scratch1(self):
         """Test by training a model from scratch"""        
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
@@ -206,6 +207,23 @@ class TestLiraAttack(TestCase):
         ]["instance_0"]["n_shadow_models_trained"]
         n_shadow_models = output["metadata"]["experiment_details"]["n_shadow_models"]
         assert n_shadow_models_trained == n_shadow_models
+        
+    def test_lira_attack_failfast_from_scratch2(self):
+        """Test by training a model from scratch"""        
+        attack_obj = LIRAAttack(
+            n_shadow_models=150,
+            report_name="lira_example3_failfast_report",
+            attack_config_json_file_name="tests/lrconfig.json",
+            shadow_models_fail_fast=True,
+            n_shadow_rows_confidences_min=10,
+            )
+        attack_obj.attack(self.target)
+        output = attack_obj.make_report()  # also makes .pdf and .json files
+        n_shadow_models_trained = output["attack_experiment_logger"][
+            "attack_instance_logger"
+        ]["instance_0"]["n_shadow_models_trained"]
+        n_shadow_models = output["metadata"]["experiment_details"]["n_shadow_models"]
+        assert n_shadow_models_trained < n_shadow_models
 
     @classmethod
     def tearDownClass(cls):
