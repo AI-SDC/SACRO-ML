@@ -23,7 +23,6 @@ from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
