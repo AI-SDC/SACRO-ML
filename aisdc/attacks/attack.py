@@ -26,7 +26,7 @@ def load_config_file_into_dict(config_filename: str,attack_args_dict: dict) -> N
 
 
 def load_default_worstcase_dict(args: dict) -> None:
-    """Initialise dictionary items with default value for worst case attack"""    
+    """Initialise dictionary items with default values for worst case attack"""    
     args["n_reps"] = 10
     args["p_thresh"] = 0.05
     args["n_dummy_reps"] = 1
@@ -52,3 +52,19 @@ def load_default_worstcase_dict(args: dict) -> None:
     args["attack_metric_success_count_thresh"] = 5
     args["attack_fail_fast"] = False
     args["attack_config_json_file_name"] = None
+
+
+def load_default_lira_dict(args: dict) -> None:
+    """Initialise dictionary items with default values for worst case attack"""
+    args["n_shadow_models"] = 100
+    args["n_shadow_rows_confidences_min"] = 10
+    args["p_thresh"] = 0.05
+    args["report_name"] = None
+    args["training_data_filename"] = None
+    args["test_data_filename"] = None
+    args["training_preds_filename"] = None
+    args["test_preds_filename"] = None
+    args["target_model"] = None
+    args["target_model_hyp"] = None
+    args["attack_config_json_file_name"] = None
+    args["shadow_models_fail_fast"] = False

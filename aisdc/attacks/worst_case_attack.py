@@ -36,9 +36,7 @@ class WorstCaseAttack(Attack):
         load_default_worstcase_dict(self.args)
         self.args.update(kwargs)
         # Reading parameters from a json file
-        if self.args["attack_config_json_file_name"] is not None:
-        #    configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
-        #    configfile_obj.load_config_file_into_dict(self.__dict__)
+        if self.args["attack_config_json_file_name"] is not None:        
             load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
         # deleted for not enabling to appear in the output file
         del self.args["attack_config_json_file_name"]
@@ -46,8 +44,7 @@ class WorstCaseAttack(Attack):
         self.attack_metric_failfast_summary = None
         self.dummy_attack_metrics = None
         self.dummy_attack_metric_failfast_summary = None
-        self.metadata = None
-        #self.args = args
+        self.metadata = None        
 
     def __str__(self):
         return "WorstCase attack"
@@ -514,9 +511,9 @@ class WorstCaseAttack(Attack):
 
 
 def _make_dummy_data(args):
-    """Initialise class and run dummy data creation"""    
-    **args.__dict__["training_preds_filename"] = "train_preds.csv"
-    **args.__dict__["test_preds_filename"] = "test_preds.csv"
+    """Initialise class and run dummy data creation"""
+    args.__dict__["training_preds_filename"] = "train_preds.csv"
+    args.__dict__["test_preds_filename"] = "test_preds.csv"
     attack_obj = WorstCaseAttack(**args.__dict__)
     attack_obj.make_dummy_data()
 

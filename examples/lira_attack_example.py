@@ -43,7 +43,6 @@ from sklearn.model_selection import train_test_split
 
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
-    LIRAAttackArgs,
 )
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
@@ -76,12 +75,11 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
 # [TRE] Example 1: sets up the attack
-args = LIRAAttackArgs(
+attack_obj = LIRAAttack(
     n_shadow_models=100,
     report_name="lira_example1_report",
     attack_config_json_file_name="lira_config.json",
-)
-attack_obj = LIRAAttack(args)
+    )
 
 # [TRE] runs the attack
 attack_obj.attack(target)
@@ -112,14 +110,13 @@ print("Programmatic example finished")
 print("****************************")
 
 # [TRE] Example 2: sets up the attack with fail-fast option
-args = LIRAAttackArgs(
+attack_obj = LIRAAttack(
     n_shadow_models=100,
     report_name="lira_example2_report",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
-)
-attack_obj = LIRAAttack(args)
+    )
 
 # [TRE] runs the attack
 attack_obj.attack(target)
