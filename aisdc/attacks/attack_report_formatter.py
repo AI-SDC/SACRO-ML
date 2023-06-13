@@ -230,7 +230,6 @@ class SummariseAUCPvalsModule(AnalysisModule):
 class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
     """Summarise the number of significant FDIF p-values"""
 
-    # TODO do we want to parameterise which FDIF (01, 001, etc)?
     def get_metric_list(self, input_dict: dict) -> list[float]:
         """Get metrics_list from attack_instance_logger within JSON file"""
         metric_list = []
