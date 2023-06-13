@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
     """Class to check attack being successful or not for a given metric
