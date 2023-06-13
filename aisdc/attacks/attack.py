@@ -2,15 +2,13 @@
 
 import json
 
-import sklearn
-
-from aisdc.attacks.dataset import Data
+from aisdc.attacks.target import Target
 
 
 class Attack:
     """Base (abstract) class to represent an attack"""
 
-    def attack(self, dataset: Data, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Method to run an attack"""
         raise NotImplementedError
 

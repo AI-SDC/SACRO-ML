@@ -17,12 +17,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks import likelihood_attack
-from aisdc.attacks.dataset import Data  # pylint: disable = import-error
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     DummyClassifier,
     LIRAAttack,
     LIRAAttackArgs,
 )
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 N_SHADOW_MODELS = 20
 
@@ -68,12 +68,12 @@ class TestLiraAttack(TestCase):
         cls.train_X, cls.test_X, cls.train_y, cls.test_y = train_test_split(
             X, y, test_size=0.3
         )
-        cls.dataset = Data()
-        cls.dataset.add_processed_data(cls.train_X, cls.train_y, cls.test_X, cls.test_y)
         cls.target_model = RandomForestClassifier(
             n_estimators=100, min_samples_split=2, min_samples_leaf=1
         )
         cls.target_model.fit(cls.train_X, cls.train_y)
+        cls.target = Target(cls.target_model)
+        cls.target.add_processed_data(cls.train_X, cls.train_y, cls.test_X, cls.test_y)
 
         # Dump training and test data to csv
         np.savetxt(
@@ -110,7 +110,7 @@ class TestLiraAttack(TestCase):
             n_shadow_models=N_SHADOW_MODELS, report_name="lira_example2_report"
         )
         attack_obj2 = LIRAAttack(args2)
-        attack_obj2.attack(self.dataset, self.target_model)
+        attack_obj2.attack(self.target)
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
         n_shadow_models_trained = output2["attack_experiment_logger"][
             "attack_instance_logger"
@@ -129,22 +129,22 @@ class TestLiraAttack(TestCase):
         # now make test[0] have a  class not present in training set#
         local_test_y = np.copy(self.test_y)
         local_test_y[0] = 5
-        local_dataset = Data()
-        local_dataset.add_processed_data(
+        local_target = Target(self.target_model)
+        local_target.add_processed_data(
             self.train_X, self.train_y, self.test_X, local_test_y
         )
         unique_classes_pre = set(local_test_y)
         n_test_examples_pre = len(local_test_y)
-        local_dataset = (
+        local_target = (
             attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
-                local_dataset, self.target_model
+                local_target
             )
         )
 
-        unique_classes_post = set(local_dataset.y_test)
-        n_test_examples_post = len(local_dataset.y_test)
+        unique_classes_post = set(local_target.y_test)
+        n_test_examples_post = len(local_target.y_test)
 
-        self.assertNotEqual(local_dataset.y_test[0], 5)
+        self.assertNotEqual(local_target.y_test[0], 5)
         self.assertEqual(n_test_examples_pre - n_test_examples_post, 1)
         class_diff = unique_classes_pre - unique_classes_post  # set diff
         self.assertSetEqual(class_diff, {5})
@@ -202,7 +202,7 @@ class TestLiraAttack(TestCase):
             n_shadow_rows_confidences_min=10,
         )
         attack_obj = LIRAAttack(args)
-        attack_obj.attack(self.dataset, self.target_model)
+        attack_obj.attack(self.target)
         output = attack_obj.make_report()  # also makes .pdf and .json files
         n_shadow_models_trained = output["attack_experiment_logger"][
             "attack_instance_logger"

@@ -10,7 +10,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.dataset import Data
+from aisdc.attacks.target import Target
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 if __name__ == "__main__":
@@ -55,32 +55,32 @@ if __name__ == "__main__":
     x_test = feature_enc.transform(x_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    # [TRE / Researcher] Wrap the data in a dataset object
-    the_data = Data()
-    the_data.name = "nursery"
-    the_data.add_processed_data(x_train, y_train, x_test, y_test)
-    the_data.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
-    for i in range(n_features):
-        the_data.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
-
-    logging.info("Dataset: %s", the_data.name)
-    logging.info("Features: %s", the_data.features)
-    logging.info("x_train shape = %s", np.shape(the_data.x_train))
-    logging.info("y_train shape = %s", np.shape(the_data.y_train))
-    logging.info("x_test shape = %s", np.shape(the_data.x_test))
-    logging.info("y_test shape = %s", np.shape(the_data.y_test))
-
-    # build a model
+    # [Researcher] Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
     msg, disclosive = model.preliminary_check()
+
+    # [TRE / Researcher] Wrap the model and data in a Target object
+    target = Target(model=model)
+    target.name = "nursery"
+    target.add_processed_data(x_train, y_train, x_test, y_test)
+    target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    for i in range(n_features):
+        target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+
+    logging.info("Dataset: %s", target.name)
+    logging.info("Features: %s", target.features)
+    logging.info("x_train shape = %s", np.shape(target.x_train))
+    logging.info("y_train shape = %s", np.shape(target.y_train))
+    logging.info("x_test shape = %s", np.shape(target.x_test))
+    logging.info("y_test shape = %s", np.shape(target.y_test))
 
     ##check direct method
     print("==========> first running attacks explicitly via run_attack()")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
         fname = f"modelDOTrun_attack_output_{attack_name}"
-        metadata = model.run_attack(the_data, attack_name, fname)
+        metadata = model.run_attack(target, attack_name, fname)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):
@@ -92,4 +92,4 @@ if __name__ == "__main__":
 
     ## now via request_release()
     print("===>now running attacks implicitly via request_release()")
-    model.request_release("test.sav", the_data)
+    model.request_release("test.sav", target)

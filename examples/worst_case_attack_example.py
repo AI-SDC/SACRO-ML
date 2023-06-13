@@ -30,7 +30,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from aisdc.attacks import dataset, worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 
 # [Researcher] Access a dataset
@@ -84,15 +85,15 @@ args = worst_case_attack.WorstCaseAttackArgs(
     attack_fail_fast=True,
 )
 
-# [TRE / Researcher] Wrap the data in a dataset object
-dataset_obj = dataset.Data()
-dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+# [TRE / Researcher] Wrap the model and data in a Target object
+target = Target(model=target_model)
+target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(args)
 
 # [TRE] Run the attack
-attack_obj.attack(dataset_obj, target_model)
+attack_obj.attack(target)
 
 # [TRE] Grab the output
 output = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
@@ -172,15 +173,15 @@ args = worst_case_attack.WorstCaseAttackArgs(
 )
 
 
-# [TRE / Researcher] Wrap the data in a dataset object
-dataset_obj = dataset.Data()
-dataset_obj.add_processed_data(train_X, train_y, test_X, test_y)
+# [TRE / Researcher] Wrap the model and data in a Target object
+target = Target(model=target_model)
+target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(args)
 
 # [TRE] Run the attack
-attack_obj.attack(dataset_obj, target_model)
+attack_obj.attack(target)
 
 # [TRE] Grab the output
 output = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
