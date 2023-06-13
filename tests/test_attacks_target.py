@@ -1,19 +1,64 @@
-""" code to test the file attacks/dataset
-Jim Smith james.smith@uwe.ac.uk 2022
-"""
+""" code to test the file attacks/target.py """
+
+import builtins
+import io
+import os
+
 import numpy as np
+import pytest
 from sklearn.datasets import fetch_openml
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
 
 
-def test_dataset():  # pylint:disable=too-many-locals
-    """returns a randomly sampled 10+10% of
+def patch_open(open_func, files):
+    """Helper function for cleaning up created files."""
+
+    def open_patched(  # pylint: disable=too-many-arguments
+        path,
+        mode="r",
+        buffering=-1,
+        encoding=None,
+        errors=None,
+        newline=None,
+        closefd=True,
+        opener=None,
+    ):
+        if "w" in mode and not os.path.isfile(path):
+            files.append(path)
+        return open_func(
+            path,
+            mode=mode,
+            buffering=buffering,
+            encoding=encoding,
+            errors=errors,
+            newline=newline,
+            closefd=closefd,
+            opener=opener,
+        )
+
+    return open_patched
+
+
+@pytest.fixture(autouse=True)
+def cleanup_files(monkeypatch):
+    """Automatically remove created files."""
+    files = []
+    monkeypatch.setattr(builtins, "open", patch_open(builtins.open, files))
+    monkeypatch.setattr(io, "open", patch_open(io.open, files))
+    yield
+    for file in files:
+        os.remove(file)
+
+
+def test_target():  # pylint:disable=too-many-locals
+    """
+    Returns a randomly sampled 10+10% of
     the nursery data set as a Target object
     if needed fetches it from openml and saves. it
-
     """
 
     nursery_data = fetch_openml(data_id=26, as_frame=True)
@@ -80,11 +125,35 @@ def test_dataset():  # pylint:disable=too-many-locals
 
     n_features = np.shape(x_train_orig)[1]
 
-    # [TRE / Researcher] Wrap the data in a Target object
-    target = Target(model=None)
+    # [Researcher] Wrap the data in a Target object
+    target = Target(model=RandomForestClassifier(n_estimators=5, max_depth=5))
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
     target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
+
+    # [Researcher] Saves the target model and data
+    target.save("save_test")
+
+    # [TRE] Loads the target model and data
+    tre_target = Target()
+    tre_target.load("save_test")
+
+    assert tre_target.model.get_params() == target.model.get_params()
+    assert tre_target.name == target.name
+    assert tre_target.features == target.features
+    assert tre_target.n_samples == target.n_samples
+    assert tre_target.n_samples_orig == target.n_samples_orig
+    assert tre_target.n_features == target.n_features
+    assert np.array_equal(tre_target.x_train, target.x_train)
+    assert np.array_equal(tre_target.y_train, target.y_train)
+    assert np.array_equal(tre_target.x_test, target.x_test)
+    assert np.array_equal(tre_target.y_test, target.y_test)
+    assert np.array_equal(tre_target.x_orig, target.x_orig)
+    assert np.array_equal(tre_target.y_orig, target.y_orig)
+    assert np.array_equal(tre_target.x_train_orig, target.x_train_orig)
+    assert np.array_equal(tre_target.y_train_orig, target.y_train_orig)
+    assert np.array_equal(tre_target.x_test_orig, target.x_test_orig)
+    assert np.array_equal(tre_target.y_test_orig, target.y_test_orig)

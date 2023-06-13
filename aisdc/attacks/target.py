@@ -19,12 +19,12 @@ OUTPUT_DIR: str = "outputs/"
 class Target:  # pylint: disable=too-many-instance-attributes
     """Stores information about the target model and data"""
 
-    def __init__(self, model: sklearn.base.BaseEstimator) -> None:
+    def __init__(self, model: sklearn.base.BaseEstimator | None = None) -> None:
         """Store information about a target model and associated data.
 
         Parameters
         ----------
-        model: sklearn.base.BaseEstimator
+        model: sklearn.base.BaseEstimator | None
             Trained target model. Any class that implements the
             sklearn.base.BaseEstimator interface (i.e. has fit, predict and
             predict_proba methods)
@@ -44,7 +44,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.x_test_orig: np.ndarray
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
-        self.model: sklearn.base.BaseEstimator = model
+        self.model: sklearn.base.BaseEstimator | None = model
 
     def add_processed_data(
         self,
@@ -89,7 +89,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.n_samples_orig = len(x_orig)
 
     def __save_model(self, path: str, target: dict) -> None:
-        """Save the target model as pickle.
+        """Save the target model.
 
         Parameters
         ----------
@@ -111,8 +111,20 @@ class Target:  # pylint: disable=too-many-instance-attributes
         except Exception:  # pragma: no cover pylint: disable=broad-exception-caught
             pass
 
+    def __load_model(self, target: dict) -> None:
+        """Load the target model.
+
+        Parameters
+        ----------
+        target : dict
+            Target class as a dictionary read from JSON.
+        """
+        model_path = os.path.normpath(target["model_path"])
+        with open(model_path, "rb") as fp:
+            self.model = pickle.load(fp)
+
     def __save_numpy(self, path: str, target: dict, name: str) -> None:
-        """Save a numpy array variable as txt.
+        """Save a numpy array variable as pickle.
 
         Parameters
         ----------
@@ -126,12 +138,31 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Name of the numpy array to save.
         """
         if hasattr(self, name):
-            np_filename: str = f"{path}_{name}.txt"
-            np.savetxt(np_filename, self.x_train)
-            target[f"{name}_path"] = np_filename
+            np_path: str = os.path.normpath(f"{path}_{name}.pkl")
+            target[f"{name}_path"] = np_path
+            with open(np_path, "wb") as fp:
+                pickle.dump(getattr(self, name), fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def __save_data(self, path: str, target: dict) -> dict:
-        """Save the target model data as txt.
+    def __load_numpy(self, target: dict, name: str) -> None:
+        """Load a numpy array variable from pickle.
+
+        Parameters
+        ----------
+        target : dict
+            Target class as a dictionary read from JSON.
+
+        name : str
+            Name of the numpy array to load.
+        """
+        key: str = f"{name}_path"
+        if key in target:
+            np_path: str = os.path.normpath(target[key])
+            with open(np_path, "rb") as fp:
+                arr = pickle.load(fp)
+                setattr(self, name, arr)
+
+    def __save_data(self, path: str, target: dict) -> None:
+        """Save the target model data.
 
         Parameters
         ----------
@@ -152,13 +183,32 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__save_numpy(path, target, "x_test_orig")
         self.__save_numpy(path, target, "y_test_orig")
 
+    def __load_data(self, target: dict) -> None:
+        """Load the target model data.
+
+        Parameters
+        ----------
+        target : dict
+            Target class as a dictionary read from JSON.
+        """
+        self.__load_numpy(target, "x_train")
+        self.__load_numpy(target, "y_train")
+        self.__load_numpy(target, "x_test")
+        self.__load_numpy(target, "y_test")
+        self.__load_numpy(target, "x_orig")
+        self.__load_numpy(target, "y_orig")
+        self.__load_numpy(target, "x_train_orig")
+        self.__load_numpy(target, "y_train_orig")
+        self.__load_numpy(target, "x_test_orig")
+        self.__load_numpy(target, "y_test_orig")
+
     def save(self, filename: str = "target") -> None:
         """Saves the target class to persistent storage.
 
         Parameters
         ----------
         filename : str
-            Name of the output file(s).
+            Name of the output file(s), not including file extension.
         """
         # check if the outputs directory was already created
         try:  # pragma: no cover
@@ -166,9 +216,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             logger.debug("Directory %s created successfully", OUTPUT_DIR)
         except FileExistsError:
             logger.debug("Directory %s already exists", OUTPUT_DIR)
-
         path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
-
         # convert Target to JSON
         target: dict = {
             "data_name": self.name,
@@ -178,12 +226,45 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "n_samples_orig": self.n_samples_orig,
         }
         # write model and add path to JSON
-        self.__save_model(path, target)
+        if self.model is not None:
+            self.__save_model(path, target)
         # write data arrays and add paths to JSON
         self.__save_data(path, target)
         # write JSON
         with open(f"{path}.json", "w", newline="", encoding="utf-8") as fp:
             json.dump(target, fp, indent=4, sort_keys=False)
+
+    def load(self, filename: str = "target") -> None:
+        """Loads the target class from persistent storage.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the output JSON file, not including file extension.
+        """
+        target: dict = {}
+        # load JSON
+        path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
+        with open(f"{path}.json", encoding="utf-8") as fp:
+            target = json.load(fp)
+        # load parameters
+        if "data_name" in target:
+            self.name = target["data_name"]
+        if "n_samples" in target:
+            self.n_samples = target["n_samples"]
+        if "features" in target:
+            features: dict = target["features"]
+            # convert str keys to int
+            self.features = {int(key): value for key, value in features.items()}
+        if "n_features" in target:
+            self.n_features = target["n_features"]
+        if "n_samples_orig" in target:
+            self.n_samples_orig = target["n_samples_orig"]
+        # load model
+        if "model_path" in target:
+            self.__load_model(target)
+        # load data
+        self.__load_data(target)
 
     def __str__(self):
         return self.name
