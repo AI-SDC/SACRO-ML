@@ -9,9 +9,7 @@ from __future__ import annotations
 import argparse
 import logging
 import uuid
-from collections.abc import Hashable
 from datetime import datetime
-from typing import Any
 
 import numpy as np
 from sklearn.metrics import confusion_matrix
@@ -36,7 +34,7 @@ class WorstCaseAttack(Attack):
         load_default_worstcase_dict(self.args)
         self.args.update(kwargs)
         # Reading parameters from a json file
-        if self.args["attack_config_json_file_name"] is not None:        
+        if self.args["attack_config_json_file_name"] is not None:
             load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
         # deleted for not enabling to appear in the output file
         del self.args["attack_config_json_file_name"]
@@ -44,7 +42,7 @@ class WorstCaseAttack(Attack):
         self.attack_metric_failfast_summary = None
         self.dummy_attack_metrics = None
         self.dummy_attack_metric_failfast_summary = None
-        self.metadata = None        
+        self.metadata = None
 
     def __str__(self):
         return "WorstCase attack"

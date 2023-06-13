@@ -11,9 +11,8 @@ import importlib
 import json
 import logging
 import uuid
-from collections.abc import Hashable, Iterable
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Any
 
 import numpy as np
 import sklearn
@@ -78,7 +77,7 @@ class LIRAAttack(Attack):
         self.args={}
         load_default_lira_dict(self.args)        
         self.args.update(kwargs)
-        if self.args["attack_config_json_file_name"] is not None:            
+        if self.args["attack_config_json_file_name"] is not None:
             load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
         # deleted for not enabling to appear in the output file
         del self.args["attack_config_json_file_name"]
@@ -512,9 +511,8 @@ class LIRAAttack(Attack):
 
 # Methods invoked by command line script
 def _setup_example_data(args):
-    """Call the methods to setup some example data"""
-    lira_args = LIRAAttackArgs(**args.__dict__)
-    attack_obj = LIRAAttack(lira_args)
+    """Call the methods to setup some example data"""    
+    attack_obj = LIRAAttack(**args.__dict__)
     attack_obj.setup_example_data()
 
 

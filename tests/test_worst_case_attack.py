@@ -113,7 +113,7 @@ def test_report_worstcase():
     # attack_obj.make_dummy_data() cause exception when used like this!
     _ = attack_obj.make_report()
 
-        
+
     # with one rep
     attack_obj = worst_case_attack.WorstCaseAttack(
         n_reps=1,
@@ -188,9 +188,9 @@ def test_attack_from_predictions():
         report_name="test-10reps",
     )
 
-    assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"    
+    assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
 
-    # with multiple reps    
+    # with multiple reps
     attack_obj.attack_from_prediction_files()
 
 
@@ -224,7 +224,7 @@ def test_attack_from_predictions_no_dummy():
 
     assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
     print(args)
-
+    
     # with multiple reps
     attack_obj.attack_from_prediction_files()
 
@@ -242,7 +242,7 @@ def test_dummy_data():
         test_prop=0.5,
         report_name="test-10reps",
     )
-    
+
     attack_obj.make_dummy_data()
 
 
@@ -258,8 +258,8 @@ def test_attack_data_prep():
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
     # Test the x data produced. Each row should be sorted in descending order
     np.testing.assert_array_equal(mi_x, np.array([[1, 0], [1, 0], [2, 0], [2, 0]]))
-
-    # With sort_probs = False, the rows of x should not be sorted    
+    
+    # With sort_probs = False, the rows of x should not be sorted
     attack_obj = worst_case_attack.WorstCaseAttack(sort_probs=False)
     mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
         train_preds, test_preds
@@ -271,7 +271,7 @@ def test_attack_data_prep():
 def test_attack_data_prep_with_correct_feature():
     """test the method that prepares the attack data.
     This time, testing that the model correctness values are added, are always
-    the final feature, and are not included in the sorting"""    
+    the final feature, and are not included in the sorting"""
     attack_obj = worst_case_attack.WorstCaseAttack(include_model_correct_feature=True)
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
@@ -287,7 +287,7 @@ def test_attack_data_prep_with_correct_feature():
         mi_x, np.array([[1, 0, 1], [1, 0, 0], [2, 0, 0], [2, 0, 1]])
     )
 
-    # With sort_probs = False, the rows of x should not be sorted    
+    # With sort_probs = False, the rows of x should not be sorted
     attack_obj = worst_case_attack.WorstCaseAttack(
         sort_probs=False, include_model_correct_feature=True
         )
