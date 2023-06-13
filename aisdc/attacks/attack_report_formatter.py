@@ -29,6 +29,10 @@ class GenerateJSONModule():
         with open(self.filename, 'a') as f:
             f.write(incoming_json)
 
+    def get_output_filename(self):
+        """ Returns the filename of the JSON file which has been created """
+        return self.filename
+
 class AnalysisModule:
     """
     Wrapper module for metrics analysis modules
