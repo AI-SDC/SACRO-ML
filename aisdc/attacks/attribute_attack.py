@@ -7,7 +7,6 @@ from __future__ import annotations
 import json
 import logging
 
-
 import matplotlib.pyplot as plt
 import multiprocess as mp
 import numpy as np
@@ -30,7 +29,7 @@ class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
     def __init__(self, **kwargs):
-        self.args={}
+        self.args = {}
         load_default_attribute_dict(self.args)
         self.args.update(kwargs)
         self.attack_metrics: dict = {}

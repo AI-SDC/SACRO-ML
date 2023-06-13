@@ -19,9 +19,7 @@ import joblib
 from dictdiffer import diff
 
 from aisdc.attacks import attribute_attack, report, worst_case_attack
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    LIRAAttack,
-)
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target
 
 # pylint : disable=too-many-branches
@@ -859,17 +857,14 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         elif attack_name == "lira":
             attack_obj = LIRAAttack(
-                n_shadow_models=100,
-                report_name="lira_example_report"
+                n_shadow_models=100, report_name="lira_example_report"
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()  # also makes .pdf and .json files
             metadata = output["metadata"]
 
         elif attack_name == "attribute":
-            attack_obj = attribute_attack.AttributeAttack(
-                report_name="aia_example"
-            )
+            attack_obj = attribute_attack.AttributeAttack(report_name="aia_example")
             attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]

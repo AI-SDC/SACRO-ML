@@ -85,7 +85,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     attack_metric_success_count_thresh=2,
     # If true it stop repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
     attack_fail_fast=True,
-    )
+)
 
 # [TRE] Run the attack
 attack_obj.attack(target)
@@ -173,9 +173,9 @@ target = Target(model=target_model)
 target.add_processed_data(train_X, train_y, test_X, test_y)
 
 # [TRE] Create the attack object
-attack_obj = worst_case_attack.WorstCaseAttack(# name of the configuration file in JSON format to load parameters
+attack_obj = worst_case_attack.WorstCaseAttack(  # name of the configuration file in JSON format to load parameters
     attack_config_json_file_name="config_worstcase.json",
-    )
+)
 
 # [TRE] Run the attack
 attack_obj.attack(target)
@@ -318,5 +318,5 @@ os.system(
     "--attack-config-json-file-name config_worstcase_cmd.json "
 )
 
-#[TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
+# [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)
 # that can be injesetd by the shiny app

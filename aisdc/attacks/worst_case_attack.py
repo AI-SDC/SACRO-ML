@@ -17,7 +17,11 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack, load_config_file_into_dict, load_default_worstcase_dict
+from aisdc.attacks.attack import (
+    Attack,
+    load_config_file_into_dict,
+    load_default_worstcase_dict,
+)
 from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
@@ -30,12 +34,14 @@ class WorstCaseAttack(Attack):
     """Class to wrap the worst case attack code"""
 
     def __init__(self, **kwargs):
-        self.args={}
+        self.args = {}
         load_default_worstcase_dict(self.args)
         self.args.update(kwargs)
         # Reading parameters from a json file
         if self.args["attack_config_json_file_name"] is not None:
-            load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
+            load_config_file_into_dict(
+                self.args["attack_config_json_file_name"], self.args
+            )
         # deleted for not enabling to appear in the output file
         del self.args["attack_config_json_file_name"]
         self.attack_metrics = None
@@ -125,7 +131,10 @@ class WorstCaseAttack(Attack):
             n_test_rows = len(test_preds)
             for _ in range(self.args["n_dummy_reps"]):
                 d_train_preds, d_test_preds = self.generate_arrays(
-                    n_train_rows, n_test_rows, self.args["train_beta"], self.args["test_beta"]
+                    n_train_rows,
+                    n_test_rows,
+                    self.args["train_beta"],
+                    self.args["test_beta"],
                 )
                 temp_attack_metric_dict = self.run_attack_reps(
                     d_train_preds, d_test_preds
@@ -517,7 +526,7 @@ def _make_dummy_data(args):
 
 
 def _run_attack(args):
-    """Initialise class and run attack from prediction files"""    
+    """Initialise class and run attack from prediction files"""
     attack_obj = WorstCaseAttack(**args.__dict__)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
@@ -528,7 +537,7 @@ def _run_attack_from_configfile(args):
     using config file"""
     attack_obj = WorstCaseAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
-        )
+    )
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
 

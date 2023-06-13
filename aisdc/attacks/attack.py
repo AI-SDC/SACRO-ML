@@ -1,9 +1,10 @@
 """attack.py - base class for an attack object"""
 
 import json
-import multiprocess as mp
 
+import multiprocess as mp
 from sklearn.ensemble import RandomForestClassifier
+
 from aisdc.attacks.target import Target
 
 
@@ -18,7 +19,7 @@ class Attack:
         raise NotImplementedError
 
 
-def load_config_file_into_dict(config_filename: str,attack_args_dict: dict) -> None:
+def load_config_file_into_dict(config_filename: str, attack_args_dict: dict) -> None:
     """Reads a configuration file and loads it into a dictionary object"""
     with open(config_filename, encoding="utf-8") as f:
         config = json.loads(f.read())
@@ -27,7 +28,7 @@ def load_config_file_into_dict(config_filename: str,attack_args_dict: dict) -> N
 
 
 def load_default_worstcase_dict(args: dict) -> None:
-    """Initialise dictionary items with default values for worst case attack"""    
+    """Initialise dictionary items with default values for worst case attack"""
     args["n_reps"] = 10
     args["p_thresh"] = 0.05
     args["n_dummy_reps"] = 1
@@ -46,7 +47,7 @@ def load_default_worstcase_dict(args: dict) -> None:
         "min_samples_split": 20,
         "min_samples_leaf": 10,
         "max_depth": 5,
-        }
+    }
     args["attack_metric_success_name"] = "P_HIGHER_AUC"
     args["attack_metric_success_thresh"] = 0.05
     args["attack_metric_success_comp_type"] = "lte"

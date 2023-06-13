@@ -41,9 +41,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    LIRAAttack,
-)
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
@@ -79,7 +77,7 @@ attack_obj = LIRAAttack(
     n_shadow_models=100,
     report_name="lira_example1_report",
     attack_config_json_file_name="lira_config.json",
-    )
+)
 
 # [TRE] runs the attack
 attack_obj.attack(target)
@@ -116,7 +114,7 @@ attack_obj = LIRAAttack(
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
-    )
+)
 
 # [TRE] runs the attack
 attack_obj.attack(target)

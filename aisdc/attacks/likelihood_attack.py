@@ -23,7 +23,11 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack, load_config_file_into_dict, load_default_lira_dict
+from aisdc.attacks.attack import (
+    Attack,
+    load_config_file_into_dict,
+    load_default_lira_dict,
+)
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -74,11 +78,13 @@ class LIRAAttack(Attack):
     """The main LIRA Attack class"""
 
     def __init__(self, **kwargs) -> None:
-        self.args={}
+        self.args = {}
         load_default_lira_dict(self.args)
         self.args.update(kwargs)
         if self.args["attack_config_json_file_name"] is not None:
-            load_config_file_into_dict(self.args["attack_config_json_file_name"], self.args)
+            load_config_file_into_dict(
+                self.args["attack_config_json_file_name"], self.args
+            )
         # deleted for not enabling to appear in the output file
         del self.args["attack_config_json_file_name"]
         self.attack_metrics = None
@@ -493,7 +499,9 @@ class LIRAAttack(Attack):
         train_preds = np.loadtxt(self.args["training_preds_filename"], delimiter=",")
         assert len(train_preds) == len(train_X)
 
-        logger.info("Loading test predictions form %s", self.args["test_preds_filename"])
+        logger.info(
+            "Loading test predictions form %s", self.args["test_preds_filename"]
+        )
         test_preds = np.loadtxt(self.args["test_preds_filename"], delimiter=",")
         assert len(test_preds) == len(test_X)
 
@@ -511,7 +519,7 @@ class LIRAAttack(Attack):
 
 # Methods invoked by command line script
 def _setup_example_data(args):
-    """Call the methods to setup some example data"""    
+    """Call the methods to setup some example data"""
     attack_obj = LIRAAttack(**args.__dict__)
     attack_obj.setup_example_data()
 
@@ -534,7 +542,7 @@ def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = LIRAAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
-        )
+    )
     attack_obj.attack_from_config()
     attack_obj.make_report()
 

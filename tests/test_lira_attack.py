@@ -99,7 +99,7 @@ class TestLiraAttack(TestCase):
             n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example_report",
             attack_config_json_file_name="tests/lrconfig.json",
-            )
+        )
         attack_obj.setup_example_data()
         attack_obj.attack_from_config()
         attack_obj.example()
@@ -107,7 +107,7 @@ class TestLiraAttack(TestCase):
         attack_obj2 = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example2_report",
-            )
+        )
         attack_obj2.attack(self.target)
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
         n_shadow_models_trained = output2["attack_experiment_logger"][
@@ -121,9 +121,8 @@ class TestLiraAttack(TestCase):
         not present in training set"""
 
         attack_obj = LIRAAttack(
-            n_shadow_models=N_SHADOW_MODELS,
-            report_name="lira_example_report"
-            )
+            n_shadow_models=N_SHADOW_MODELS, report_name="lira_example_report"
+        )
 
         # now make test[0] have a  class not present in training set#
         local_test_y = np.copy(self.test_y)
@@ -185,20 +184,20 @@ class TestLiraAttack(TestCase):
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
-            )
+        )
         attack_obj.setup_example_data()
         attack_obj.attack_from_config()
         attack_obj.example()
 
     def test_lira_attack_failfast_from_scratch(self):
-        """Test by training a model from scratch"""        
+        """Test by training a model from scratch"""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example3_failfast_report",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
-            )
+        )
         attack_obj.attack(self.target)
         output = attack_obj.make_report()  # also makes .pdf and .json files
         n_shadow_models_trained = output["attack_experiment_logger"][
