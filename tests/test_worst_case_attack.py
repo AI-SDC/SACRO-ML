@@ -98,7 +98,7 @@ def test_report_worstcase():
     target.add_processed_data(train_X, train_y, test_X, test_y)
 
     # with multiple reps
-    attack_obj = worst_case_attack.WorstCaseAttack(
+    attack_obj1 = worst_case_attack.WorstCaseAttack(
         # How many attacks to run -- in each the attack model is trained on a different
         # subset of the data
         n_reps=10,
@@ -109,12 +109,25 @@ def test_report_worstcase():
         test_prop=0.5,
         report_name="test-10reps",
     )
-    attack_obj.attack(target)
+    attack_obj1.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
-    _ = attack_obj.make_report()
+    _ = attack_obj1.make_report()
 
     # with one rep
-    attack_obj = worst_case_attack.WorstCaseAttack(
+    attack_obj2 = worst_case_attack.WorstCaseAttack(
+        n_reps=10,
+        n_dummy_reps=1,
+        p_thresh=0.05,
+        training_preds_filename=None,
+        test_preds_filename=None,
+        test_prop=0.5,
+        report_name="test-1rep",
+    )
+    # calling mark_report without running attack for code coverage
+    _ = attack_obj2.make_report() 
+
+    # with one rep
+    attack_obj3 = worst_case_attack.WorstCaseAttack(
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
@@ -123,8 +136,8 @@ def test_report_worstcase():
         test_prop=0.5,
         report_name="test-1rep",
     )
-    attack_obj.attack(target)
-    _ = attack_obj.make_report()
+    attack_obj3.attack(target)
+    _ = attack_obj3.make_report()
 
 
 def test_attack_with_correct_feature():
