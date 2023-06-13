@@ -21,8 +21,8 @@ from sklearn.model_selection import train_test_split
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
-from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -570,7 +570,7 @@ def _run_attack(args):
     wc_args = WorstCaseAttackArgs(**args.__dict__)
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
+    _ = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
 
 
 def _run_attack_from_configfile(args):
@@ -581,7 +581,7 @@ def _run_attack_from_configfile(args):
     )
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack_from_config.json'))
+    _ = attack_obj.make_report(GenerateJSONModule("worst_case_attack_from_config.json"))
 
 
 def main():

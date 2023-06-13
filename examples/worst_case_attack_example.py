@@ -31,8 +31,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -96,7 +96,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(args)
 attack_obj.attack(target)
 
 # [TRE] Grab the output
-output = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
+output = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
 metadata = output["metadata"]
 # [TRE] explore the metrics
 # For how many of the reps is the AUC p-value significant, with and without FDR correction. A
@@ -184,7 +184,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(args)
 attack_obj.attack(target)
 
 # [TRE] Grab the output
-output = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
+output = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
 metadata = output["metadata"]
 # [TRE] explore the metrics
 # For how many of the reps is the AUC p-value significant, with and without FDR correction. A

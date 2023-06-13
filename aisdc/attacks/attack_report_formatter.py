@@ -5,33 +5,37 @@ Generate report for TREs from JSON file
 import json
 import os
 import pprint
-
 from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-class GenerateJSONModule():
+
+class GenerateJSONModule:
     """
     Module that creates and appends to a JSON file
     """
+
     def __init__(self, filename=None):
         self.filename = filename
 
         if self.filename is None:
-            self.filename = 'attack_output_json_'+str(date.today().strftime("%d_%m_%Y"))+'.json'
+            self.filename = (
+                "attack_output_json_" + str(date.today().strftime("%d_%m_%Y")) + ".json"
+            )
 
         if os.path.exists(self.filename):
             os.remove(self.filename)
 
     def add_attack_output(self, incoming_json):
-        """ Add a section of JSON to the file which is already open """
-        with open(self.filename, 'a', encoding="utf-8") as f:
+        """Add a section of JSON to the file which is already open"""
+        with open(self.filename, "a", encoding="utf-8") as f:
             f.write(incoming_json)
 
     def get_output_filename(self):
-        """ Returns the filename of the JSON file which has been created """
+        """Returns the filename of the JSON file which has been created"""
         return self.filename
+
 
 class AnalysisModule:
     """
@@ -295,10 +299,12 @@ class LogLogROCModule(AnalysisModule):
     def __str__(self):
         return "ROC Log Plot"
 
-class GenerateTextReport():
+
+class GenerateTextReport:
     """
     Module that generates a text report from a JSON input
     """
+
     def pretty_print(self, report: dict) -> str:
         """
         Function that formats JSON code to make it more readable for TREs
@@ -310,7 +316,6 @@ class GenerateTextReport():
             returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
 
         return returned_string
-
 
     def process_json(self, input_filename: str, output_filename: str):
         """

@@ -98,7 +98,9 @@ if __name__ == "__main__":
     attack_obj.attack(target)
 
     # [TRE] Grab the output
-    output = attack_obj.make_report(GenerateJSONModule('attribute_inference_attack.json'))  # also makes .pdf and .json files
+    output = attack_obj.make_report(
+        GenerateJSONModule("attribute_inference_attack.json")
+    )  # also makes .pdf and .json files
     output = output["attack_metrics"]
 
     # [TRE] explore the metrics
