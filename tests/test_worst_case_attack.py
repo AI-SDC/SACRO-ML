@@ -108,11 +108,10 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         report_name="test-10reps",
-        )
+    )
     attack_obj.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
     _ = attack_obj.make_report()
-
 
     # with one rep
     attack_obj = worst_case_attack.WorstCaseAttack(
@@ -123,7 +122,7 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         report_name="test-1rep",
-        )
+    )
     attack_obj.attack(target)
     _ = attack_obj.make_report()
 
@@ -151,7 +150,7 @@ def test_attack_with_correct_feature():
         test_prop=0.5,
         report_name="test-1rep",
         include_model_correct_feature=True,
-        )
+    )
     attack_obj.attack(target)
 
     # Check that attack_metrics has the Yeom metrics
@@ -246,7 +245,7 @@ def test_dummy_data():
 
 
 def test_attack_data_prep():
-    """test the method that prepares the attack data"""    
+    """test the method that prepares the attack data"""
     attack_obj = worst_case_attack.WorstCaseAttack()
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
@@ -288,7 +287,7 @@ def test_attack_data_prep_with_correct_feature():
     # With sort_probs = False, the rows of x should not be sorted
     attack_obj = worst_case_attack.WorstCaseAttack(
         sort_probs=False, include_model_correct_feature=True
-        )
+    )
     mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
         train_preds, test_preds, train_correct=train_correct, test_correct=test_correct
     )
@@ -319,7 +318,7 @@ def test_non_rf_mia():
     attack_obj = worst_case_attack.WorstCaseAttack(
         mia_attack_model=SVC,
         mia_attack_model_hyp={"kernel": "rbf", "probability": False},
-        )
+    )
     with pytest.raises(AttributeError):
         attack_obj.attack_from_preds(ytr_pred, yte_pred)
 

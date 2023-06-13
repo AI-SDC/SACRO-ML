@@ -40,9 +40,7 @@ def common_setup():
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    attack_obj = attribute_attack.AttributeAttack(
-        n_cpu=7, report_name="aia_report"
-    )
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
     return target, attack_obj
 
 
