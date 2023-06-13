@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 from aisdc.attacks import likelihood_attack
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     DummyClassifier,
-    LIRAAttack,    
+    LIRAAttack,
 )
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
@@ -105,7 +105,7 @@ class TestLiraAttack(TestCase):
         attack_obj.example()
 
         attack_obj2 = LIRAAttack(
-            n_shadow_models=N_SHADOW_MODELS, 
+            n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example2_report",
             )
         attack_obj2.attack(self.target)
@@ -119,9 +119,9 @@ class TestLiraAttack(TestCase):
     def test_check_and_update_dataset(self):
         """test the code that removes items from test set with classes
         not present in training set"""
-        
+
         attack_obj = LIRAAttack(
-            n_shadow_models=N_SHADOW_MODELS, 
+            n_shadow_models=N_SHADOW_MODELS,
             report_name="lira_example_report"
             )
 
