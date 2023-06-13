@@ -7,14 +7,14 @@ import unittest
 
 import pytest
 
-from aisdc.generate_report import (
+from aisdc.attacks.attack_report_formatter import (
     AnalysisModule,
     FinalRecommendationModule,
     LogLogROCModule,
     SummariseAUCPvalsModule,
     SummariseFDIFPvalsModule,
     SummariseUnivariateMetricsModule,
-    process_json,
+    GenerateTextReport,
 )
 
 
@@ -57,7 +57,8 @@ class TestGenerateReport(unittest.TestCase):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
 
-        process_json(filename, output_filename)
+        g = GenerateTextReport()
+        g.process_json(filename, output_filename)
 
         with open(output_filename, encoding="utf-8") as file:
             data = file.read()
@@ -88,7 +89,8 @@ class TestGenerateReport(unittest.TestCase):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
 
-        process_json(filename, output_filename)
+        g = GenerateTextReport()
+        g.process_json(filename, output_filename)
 
         assert os.path.exists("filename should be changed.txt") is False
         assert os.path.exists("filename_should_be_changed.txt") is True

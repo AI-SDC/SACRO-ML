@@ -512,7 +512,7 @@ def test_generic_additional_tests():
     assert disclosive is True
 
 
-def test_request_release_without_attcks():
+def test_request_release_without_attacks():
     """checks requestrelease code works and check the content of the json file"""
     model = SafeDummyClassifier()
     x, y = get_data()

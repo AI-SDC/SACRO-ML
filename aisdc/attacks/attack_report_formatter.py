@@ -16,17 +16,18 @@ class GenerateJSONModule():
     Module that creates and appends to a JSON file
     """
     def __init__(self, filename=None):
-        if filename is None:
-            filename = 'attack_output_json_'+str(date.today().strftime("%d_%m_%Y"))+'.json'
+        self.filename = filename
 
-        self.file = open(filename,"w") # create file if it doesn't exist, otherwise overwrite it
+        if self.filename is None:
+            self.filename = 'attack_output_json_'+str(date.today().strftime("%d_%m_%Y"))+'.json'
+
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
 
     def add_attack_output(self, incoming_json):
         """ Add a section of JSON to the file which is already open """
-        self.file.write(incoming_json)
-
-    def __del__(self):
-        self.file.close()
+        with open(self.filename, 'a') as f:
+            f.write(incoming_json)
 
 class AnalysisModule:
     """
@@ -195,7 +196,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
             return len(
                 np.where(np.array(p_val_list) <= self.p_thresh / len(p_val_list))[0]
             )
-        
+
         raise NotImplementedError()  # any others?
 
     def _get_metrics_list(self) -> list[float]:
