@@ -271,38 +271,37 @@ class WorstCaseAttack(Attack):
 
         """
         global_metrics = {}
-        if attack_metrics is None:
-            return global_metrics
+        if attack_metrics is not None:
+            
+            auc_p_vals = [
+                metrics.auc_p_val(
+                    m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
+                )[0]
+                for m in attack_metrics
+            ]        
 
-        auc_p_vals = [
-            metrics.auc_p_val(
-                m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
-            )[0]
-            for m in attack_metrics
-        ]
+            m = attack_metrics[0]
+            _, auc_std = metrics.auc_p_val(
+                0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
+            )
 
-        m = attack_metrics[0]
-        _, auc_std = metrics.auc_p_val(
-            0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
-        )
+            global_metrics[
+                "null_auc_3sd_range"
+            ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+            global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
+                auc_p_vals, self.args["p_thresh"]
+            )
+            global_metrics["n_sig_auc_p_vals_corrected"] = self._get_n_significant(
+                auc_p_vals, self.args["p_thresh"], bh_fdr_correction=True
+            )
 
-        global_metrics[
-            "null_auc_3sd_range"
-        ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
-        global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
-            auc_p_vals, self.args["p_thresh"]
-        )
-        global_metrics["n_sig_auc_p_vals_corrected"] = self._get_n_significant(
-            auc_p_vals, self.args["p_thresh"], bh_fdr_correction=True
-        )
-
-        pdif_vals = [np.exp(-m["PDIF01"]) for m in attack_metrics]
-        global_metrics["n_sig_pdif_vals"] = self._get_n_significant(
-            pdif_vals, self.args["p_thresh"]
-        )
-        global_metrics["n_sig_pdif_vals_corrected"] = self._get_n_significant(
-            pdif_vals, self.args["p_thresh"], bh_fdr_correction=True
-        )
+            pdif_vals = [np.exp(-m["PDIF01"]) for m in attack_metrics]
+            global_metrics["n_sig_pdif_vals"] = self._get_n_significant(
+                pdif_vals, self.args["p_thresh"]
+            )
+            global_metrics["n_sig_pdif_vals_corrected"] = self._get_n_significant(
+                pdif_vals, self.args["p_thresh"], bh_fdr_correction=True
+            )
 
         return global_metrics
 
@@ -452,13 +451,14 @@ class WorstCaseAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
-        for rep, _ in enumerate(self.attack_metrics):
-            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+        if self.attack_metrics is not None:
+            for rep, _ in enumerate(self.attack_metrics):
+                attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
-        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment[
-            "attack_metric_failfast_summary"
-        ] = self.attack_metric_failfast_summary.get_attack_summary()
+            attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+            attack_metrics_experiment[
+                "attack_metric_failfast_summary"
+            ] = self.attack_metric_failfast_summary.get_attack_summary()
 
         return attack_metrics_experiment
 
@@ -466,21 +466,22 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         dummy_attack_metrics_experiments = {}
 
-        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metric_instances = {}
-            for rep, _ in enumerate(temp_dummy_attack_metrics):
-                dummy_attack_metric_instances[
-                    "instance_" + str(rep)
-                ] = temp_dummy_attack_metrics[rep]
-            temp = {}
-            temp["attack_instance_logger"] = dummy_attack_metric_instances
-            temp[
-                "attack_metric_failfast_summary"
-            ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
-            dummy_attack_metrics_experiments[
-                "dummy_attack_metrics_experiment_" + str(exp_rep)
-            ] = temp
+        if self.dummy_attack_metrics is not None:
+            for exp_rep, _ in enumerate(self.dummy_attack_metrics):
+                temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
+                dummy_attack_metric_instances = {}
+                for rep, _ in enumerate(temp_dummy_attack_metrics):
+                    dummy_attack_metric_instances[
+                        "instance_" + str(rep)
+                    ] = temp_dummy_attack_metrics[rep]
+                temp = {}
+                temp["attack_instance_logger"] = dummy_attack_metric_instances
+                temp[
+                    "attack_metric_failfast_summary"
+                ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
+                dummy_attack_metrics_experiments[
+                    "dummy_attack_metrics_experiment_" + str(exp_rep)
+                ] = temp
 
         return dummy_attack_metrics_experiments
 
