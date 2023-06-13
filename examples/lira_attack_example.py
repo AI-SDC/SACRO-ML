@@ -46,6 +46,7 @@ from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
     LIRAAttackArgs,
 )
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -87,7 +88,7 @@ attack_obj = LIRAAttack(args)
 attack_obj.attack(dataset, target_model)
 
 # [TRE] Get the output
-output = attack_obj.make_report()  # also makes .pdf and .json files
+output = attack_obj.make_report(GenerateJSONModule('lira_attack.json'))  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
@@ -125,7 +126,7 @@ attack_obj = LIRAAttack(args)
 attack_obj.attack(dataset, target_model)
 
 # [TRE] Get the output
-output = attack_obj.make_report()  # also makes .pdf and .json files
+output = attack_obj.make_report(GenerateJSONModule('lira_attack.json'))  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][

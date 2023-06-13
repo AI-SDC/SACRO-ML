@@ -24,6 +24,7 @@ from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
 from aisdc.attacks.dataset import Data
 from aisdc.attacks.failfast import FailFast
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 
 logging.basicConfig(level=logging.INFO)
 
@@ -527,7 +528,7 @@ class WorstCaseAttack(Attack):
 
         return dummy_attack_metrics_experiments
 
-    def make_report(self) -> dict:
+    def make_report(self, json_attack_formatter=None) -> dict:
         """Creates output dictionary structure"""
         output = {}
         output["log_id"] = str(uuid.uuid4())
@@ -548,11 +549,11 @@ class WorstCaseAttack(Attack):
         # ] = self._unpack_dummy_attack_metrics_experiments_instances()
         # output_for_pdf["metadata"] = self.metadata
 
-        if self.args.report_name is not None:
+        if json_attack_formatter is not None:
             json_report = report.create_json_report(output)
-            with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
-                f.write(json_report)
+            json_attack_formatter.add_attack_output(json_report)
 
+        if self.args.report_name is not None:
             # pdf_report = report.create_mia_report(output_for_pdf)
             pdf_report = report.create_mia_report(output)
             pdf_report.output(f"{self.args.report_name}.pdf", "F")
@@ -574,7 +575,7 @@ def _run_attack(args):
     wc_args = WorstCaseAttackArgs(**args.__dict__)
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report()
+    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
 
 
 def _run_attack_from_configfile(args):
@@ -585,7 +586,7 @@ def _run_attack_from_configfile(args):
     )
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report()
+    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack_from_config.json'))
 
 
 def main():

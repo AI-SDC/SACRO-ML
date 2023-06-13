@@ -6,9 +6,27 @@ import json
 import os
 import pprint
 
+from datetime import date
+
 import matplotlib.pyplot as plt
 import numpy as np
 
+class GenerateJSONModule():
+    """
+    Module that creates and appends to a JSON file
+    """
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = 'attack_output_json_'+str(date.today().strftime("%d_%m_%Y"))+'.json'
+
+        self.file = open(filename,"w") # create file if it doesn't exist, otherwise overwrite it
+
+    def add_attack_output(self, incoming_json):
+        """ Add a section of JSON to the file which is already open """
+        self.file.write(incoming_json)
+
+    def __del__(self):
+        self.file.close()
 
 class AnalysisModule:
     """
@@ -273,36 +291,39 @@ class LogLogROCModule(AnalysisModule):
     def __str__(self):
         return "ROC Log Plot"
 
-
-def pretty_print(report: dict) -> str:
+class GenerateTextReport():
     """
-    Function that formats JSON code to make it more readable for TREs
+    Module that generates a text report from a JSON input
     """
-    returned_string = ""
+    def pretty_print(self, report: dict) -> str:
+        """
+        Function that formats JSON code to make it more readable for TREs
+        """
+        returned_string = ""
 
-    for key in report.keys():
-        returned_string = returned_string + key + "\n"
-        returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
+        for key in report.keys():
+            returned_string = returned_string + key + "\n"
+            returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
 
-    return returned_string
+        return returned_string
 
 
-def process_json(input_filename: str, output_filename: str):
-    """
-    Function that takes an input JSON filename and outputs a neat text file summarising results
-    """
+    def process_json(self, input_filename: str, output_filename: str):
+        """
+        Function that takes an input JSON filename and outputs a neat text file summarising results
+        """
 
-    output_filename = output_filename.replace(" ", "_")
+        output_filename = output_filename.replace(" ", "_")
 
-    with open(input_filename) as f:
-        json_report = json.loads(f.read())
+        with open(input_filename) as f:
+            json_report = json.loads(f.read())
 
-    modules = [
-        FinalRecommendationModule(json_report),
-    ]
+        modules = [
+            FinalRecommendationModule(json_report),
+        ]
 
-    output = {str(m): m.process_dict() for m in modules}
-    output_string = pretty_print(output)
+        output = {str(m): m.process_dict() for m in modules}
+        output_string = self.pretty_print(output)
 
-    with open(output_filename, "w") as text_file:
-        text_file.write(output_string)
+        with open(output_filename, "w") as text_file:
+            text_file.write(output_string)
