@@ -85,13 +85,12 @@ if __name__ == "__main__":
     print(f"x_test shape = {np.shape(target.x_test)}")
     print(f"y_test shape = {np.shape(target.y_test)}")
 
-    # [TRE] Define some attack parameters
-    attack_args = attribute_attack.AttributeAttackArgs(
-        n_cpu=7, report_name="aia_report"
+    
+    # [TRE] Create the attack object with attack parameters
+    attack_obj = attribute_attack.AttributeAttack(
+        n_cpu=7, 
+        report_name="aia_report"
     )
-
-    # [TRE] Create the attack object
-    attack_obj = attribute_attack.AttributeAttack(attack_args)
 
     # [TRE] Run the attack
     attack_obj.attack(target)

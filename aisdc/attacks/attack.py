@@ -1,5 +1,6 @@
 """attack.py - base class for an attack object"""
 
+import multiprocess as mp
 import json
 
 from sklearn.ensemble import RandomForestClassifier
@@ -68,3 +69,10 @@ def load_default_lira_dict(args: dict) -> None:
     args["target_model_hyp"] = None
     args["attack_config_json_file_name"] = None
     args["shadow_models_fail_fast"] = False
+
+
+def load_default_attribute_dict(args: dict) -> None:
+    """Initialise dictionary items with default values for attribute inference attack"""
+    args["report_name"] = None
+    args["n_cpu"] = max(1, mp.cpu_count() - 1)
+
