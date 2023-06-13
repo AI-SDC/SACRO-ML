@@ -13,7 +13,7 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
     a new object will require to be instantiated.
     """
 
-    def __init__(self, attack_obj_args: Any):
+    def __init__(self, attack_obj_args: dict):
         self.metric_name = attack_obj_args["attack_metric_success_name"]
         self.metric_success_thresh = attack_obj_args["attack_metric_success_thresh"]
         self.comp_type = attack_obj_args["attack_metric_success_comp_type"]
