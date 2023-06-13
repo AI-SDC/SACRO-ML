@@ -224,7 +224,6 @@ def test_attack_from_predictions_no_dummy():
 
     assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
     print(attack_obj.args)
-    
     # with multiple reps
     attack_obj.attack_from_prediction_files()
 
@@ -258,7 +257,6 @@ def test_attack_data_prep():
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], np.int))
     # Test the x data produced. Each row should be sorted in descending order
     np.testing.assert_array_equal(mi_x, np.array([[1, 0], [1, 0], [2, 0], [2, 0]]))
-    
     # With sort_probs = False, the rows of x should not be sorted
     attack_obj = worst_case_attack.WorstCaseAttack(sort_probs=False)
     mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
