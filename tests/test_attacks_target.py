@@ -53,7 +53,10 @@ def cleanup_files(monkeypatch):
     monkeypatch.setattr(io, "open", patch_open(io.open, files))
     yield
     for file in files:
-        os.remove(file)
+        try:
+            os.remove(file)
+        except FileNotFoundError:  # pragma: no cover
+            pass
 
 
 def test_target(cleanup_files):  # pylint:disable=too-many-locals,unused-argument
