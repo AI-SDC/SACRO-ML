@@ -272,13 +272,12 @@ class WorstCaseAttack(Attack):
         """
         global_metrics = {}
         if attack_metrics is not None:
-            
             auc_p_vals = [
                 metrics.auc_p_val(
                     m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
                 )[0]
                 for m in attack_metrics
-            ]        
+            ]
 
             m = attack_metrics[0]
             _, auc_std = metrics.auc_p_val(
@@ -453,9 +452,13 @@ class WorstCaseAttack(Attack):
 
         if self.attack_metrics is not None:
             for rep, _ in enumerate(self.attack_metrics):
-                attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+                attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[
+                    rep
+                ]
 
-            attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+            attack_metrics_experiment[
+                "attack_instance_logger"
+            ] = attack_metrics_instances
             attack_metrics_experiment[
                 "attack_metric_failfast_summary"
             ] = self.attack_metric_failfast_summary.get_attack_summary()
@@ -478,7 +481,9 @@ class WorstCaseAttack(Attack):
                 temp["attack_instance_logger"] = dummy_attack_metric_instances
                 temp[
                     "attack_metric_failfast_summary"
-                ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
+                ] = self.dummy_attack_metric_failfast_summary[
+                    exp_rep
+                ].get_attack_summary()
                 dummy_attack_metrics_experiments[
                     "dummy_attack_metrics_experiment_" + str(exp_rep)
                 ] = temp
