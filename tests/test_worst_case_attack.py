@@ -124,7 +124,7 @@ def test_report_worstcase():
         report_name="test-1rep",
     )
     # calling mark_report without running attack for code coverage
-    _ = attack_obj2.make_report() 
+    _ = attack_obj2.make_report()
 
     # with one rep
     attack_obj3 = worst_case_attack.WorstCaseAttack(
