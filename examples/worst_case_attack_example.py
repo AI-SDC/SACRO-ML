@@ -162,12 +162,6 @@ config = {
 with open("config_worstcase.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
-# args = worst_case_attack.WorstCaseAttackArgs(
-#     # name of the configuration file in JSON format to load parameters
-#     attack_config_json_file_name="config_worstcase.json",
-# )
-
-
 # [TRE / Researcher] Wrap the model and data in a Target object
 target = Target(model=target_model)
 target.add_processed_data(train_X, train_y, test_X, test_y)
