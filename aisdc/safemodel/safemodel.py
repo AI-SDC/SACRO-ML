@@ -21,7 +21,6 @@ from dictdiffer import diff
 from aisdc.attacks import attribute_attack, report, worst_case_attack
 from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
     LIRAAttack,
-    LIRAAttackArgs,
 )
 from aisdc.attacks.target import Target
 
@@ -839,8 +838,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
-        if attack_name == "worst_case":
-            attack_args = worst_case_attack.WorstCaseAttackArgs(
+        if attack_name == "worst_case":            
+            attack_obj = worst_case_attack.WorstCaseAttack(
                 n_reps=10,
                 # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
@@ -854,16 +853,15 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 # Report name is None - don't make json or pdf files
                 report_name=None,
             )
-            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
             attack_obj.attack(target=target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
-        elif attack_name == "lira":
-            args = LIRAAttackArgs(
-                n_shadow_models=100, report_name="lira_example_report"
+        elif attack_name == "lira":            
+            attack_obj = LIRAAttack(
+                n_shadow_models=100, 
+                report_name="lira_example_report"
             )
-            attack_obj = LIRAAttack(args)
             attack_obj.attack(target)
             output = attack_obj.make_report()  # also makes .pdf and .json files
             metadata = output["metadata"]
