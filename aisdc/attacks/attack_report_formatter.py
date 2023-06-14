@@ -26,7 +26,7 @@ class GenerateJSONModule:
 
         # if file doesn't exist, create it
         if not os.path.exists(self.filename):
-            with open(self.filename, 'w+', encoding='utf-8') as f:
+            with open(self.filename, "w+", encoding="utf-8") as f:
                 f.write("")
 
     def add_attack_output(self, incoming_json):
@@ -43,8 +43,9 @@ class GenerateJSONModule:
         if os.path.exists(self.filename):
             os.remove(self.filename)
 
-        with open(self.filename, 'w+', encoding='utf-8') as f:
+        with open(self.filename, "w+", encoding="utf-8") as f:
             f.write("")
+
 
 class AnalysisModule:
     """
