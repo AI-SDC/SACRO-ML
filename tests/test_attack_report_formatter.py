@@ -91,6 +91,22 @@ class TestGenerateReport(unittest.TestCase):
         self.assertEqual(test_filename, g.get_output_filename())
         self.clean_up(test_filename)
 
+        # check file is overwritten when the same file is passed
+        test_filename = "filename_to_rewrite.json"
+        g = GenerateJSONModule(test_filename)
+        g.add_attack_output("this should be overwritten")
+
+        g = GenerateJSONModule(test_filename)
+        g.add_attack_output("this should be the only contents of the file")
+
+        with open(test_filename, encoding="utf-8") as f:
+            file_contents = f.readlines()
+
+        self.assertNotIn("this should be overwritten", file_contents)
+        self.assertIn("this should be the only contents of the file", file_contents)
+
+        self.clean_up(test_filename)
+
     def test_whitespace_in_filenames(self):
         """test to make sure whitespace is removed from the output file when creating the report"""
         json_formatted = self.get_test_report()
