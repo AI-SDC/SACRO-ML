@@ -26,8 +26,8 @@ class GenerateJSONModule:
 
         #if file doesn't exist, create it
         if not os.path.exists(self.filename):
-            f = open(self.filename, 'w+', encoding='utf-8')
-            f.close()
+            with open(self.filename, 'w+', encoding='utf-8') as f:
+                f.write("")
 
     def add_attack_output(self, incoming_json):
         """Add a section of JSON to the file which is already open"""
@@ -38,6 +38,13 @@ class GenerateJSONModule:
         """Returns the filename of the JSON file which has been created"""
         return self.filename
 
+    def clean_file(self):
+        """Delete the file if it exists"""
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
+
+        with open(self.filename, 'w+', encoding='utf-8') as f:
+            f.write("")
 
 class AnalysisModule:
     """
