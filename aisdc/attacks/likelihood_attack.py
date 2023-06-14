@@ -26,7 +26,6 @@ from aisdc.attacks import report
 from aisdc.attacks.attack import (
     Attack,
     load_config_file_into_dict,
-    load_default_lira_dict,
 )
 from aisdc.attacks.target import Target
 
@@ -79,7 +78,18 @@ class LIRAAttack(Attack):
 
     def __init__(self, **kwargs) -> None:
         self.args = {}
-        load_default_lira_dict(self.args)
+        self.args["n_shadow_models"] = 100
+        self.args["n_shadow_rows_confidences_min"] = 10
+        self.args["p_thresh"] = 0.05
+        self.args["report_name"] = None
+        self.args["training_data_filename"] = None
+        self.args["test_data_filename"] = None
+        self.args["training_preds_filename"] = None
+        self.args["test_preds_filename"] = None
+        self.args["target_model"] = None
+        self.args["target_model_hyp"] = None
+        self.args["attack_config_json_file_name"] = None
+        self.args["shadow_models_fail_fast"] = False
         self.args.update(kwargs)
         if self.args["attack_config_json_file_name"] is not None:
             load_config_file_into_dict(

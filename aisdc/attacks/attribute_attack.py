@@ -15,7 +15,7 @@ from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
 
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack, load_default_attribute_dict
+from aisdc.attacks.attack import Attack
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +30,8 @@ class AttributeAttack(Attack):
 
     def __init__(self, **kwargs):
         self.args = {}
-        load_default_attribute_dict(self.args)
+        self.args["report_name"] = None
+        self.args["n_cpu"] = max(1, mp.cpu_count() - 1)        
         self.args.update(kwargs)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
