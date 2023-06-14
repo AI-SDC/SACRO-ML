@@ -10,13 +10,14 @@ import pytest
 from aisdc.attacks.attack_report_formatter import (
     AnalysisModule,
     FinalRecommendationModule,
+    GenerateJSONModule,
+    GenerateTextReport,
     LogLogROCModule,
     SummariseAUCPvalsModule,
     SummariseFDIFPvalsModule,
     SummariseUnivariateMetricsModule,
-    GenerateTextReport,
-    GenerateJSONModule,
 )
+
 
 class TestGenerateReport(unittest.TestCase):
     """class which tests the generate_report.py file"""

@@ -14,7 +14,6 @@ from datetime import datetime
 from typing import Any
 
 import numpy as np
-import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -22,9 +21,9 @@ from sklearn.model_selection import train_test_split
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
-from aisdc.attacks.dataset import Data
-from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.failfast import FailFast
+from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,27 +95,23 @@ class WorstCaseAttack(Attack):
     def __str__(self):
         return "WorstCase attack"
 
-    def attack(self, dataset: Data, target_model: sklearn.base.BaseEstimator) -> None:
+    def attack(self, target: Target) -> None:
         """Programmatic attack entry point
 
-        To be used when code has access to data class and trained target model
+        To be used when code has access to Target class and trained target model
 
         Parameters
         ----------
-        dataset: attacks.dataset.Data
-            dataset as a Data class object
-        target_model: sklearn.base.BaseEstimator
-            target model that inherits from an sklearn BaseEstimator
+        target: attacks.target.Target
+            target as a Target class object
         """
-        train_preds = target_model.predict_proba(dataset.x_train)
-        test_preds = target_model.predict_proba(dataset.x_test)
+        train_preds = target.model.predict_proba(target.x_train)
+        test_preds = target.model.predict_proba(target.x_test)
         train_correct = None
         test_correct = None
         if self.args.include_model_correct_feature:
-            train_correct = 1 * (
-                dataset.y_train == target_model.predict(dataset.x_train)
-            )
-            test_correct = 1 * (dataset.y_test == target_model.predict(dataset.x_test))
+            train_correct = 1 * (target.y_train == target.model.predict(target.x_train))
+            test_correct = 1 * (target.y_test == target.model.predict(target.x_test))
 
         self.attack_from_preds(
             train_preds,
@@ -575,7 +570,7 @@ def _run_attack(args):
     wc_args = WorstCaseAttackArgs(**args.__dict__)
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack.json'))
+    _ = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
 
 
 def _run_attack_from_configfile(args):
@@ -586,7 +581,7 @@ def _run_attack_from_configfile(args):
     )
     attack_obj = WorstCaseAttack(wc_args)
     attack_obj.attack_from_prediction_files()
-    _ = attack_obj.make_report(GenerateJSONModule('worst_case_attack_from_config.json'))
+    _ = attack_obj.make_report(GenerateJSONModule("worst_case_attack_from_config.json"))
 
 
 def main():

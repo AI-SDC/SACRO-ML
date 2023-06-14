@@ -19,13 +19,13 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
 )
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,
     _unique_max,
 )
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
-from tests.test_attacks_via_safemodel import get_nursery_dataset
+from tests.test_attacks_via_safemodel import get_target
 
 # pylint: disable = duplicate-code
 
@@ -38,19 +38,18 @@ def cleanup_file(name: str):
 
 def common_setup():
     """basic commands to get ready to test some code"""
-    data = get_nursery_dataset()
     model = RandomForestClassifier(bootstrap=False)
-    model.fit(data.x_train, data.y_train)
+    target = get_target(model)
+    model.fit(target.x_train, target.y_train)
     attack_args = attribute_attack.AttributeAttackArgs(
         n_cpu=7, report_name="aia_report"
     )
-
-    return data, model, attack_args
+    return target, attack_args
 
 
 def test_attack_args():
     """tests methods in the attack_args class"""
-    _, _, attack_args = common_setup()
+    _, attack_args = common_setup()
     _ = attack_args.__str__()  # pylint:disable=unnecessary-dunder-call
     attack_args.set_param("newkey", True)
     thedict = attack_args.get_args()
@@ -70,15 +69,15 @@ def test_categorical_via_modified_attack_brute_force():
     """test lots of functionality for categoricals
     using code from brute_force but without multiprocessing
     """
-    data, model, _ = common_setup()
+    target, _ = common_setup()
 
     threshold = 0
     feature = 0
     # make predictions
-    _infer_categorical(model, data, feature, threshold)
+    _infer_categorical(target, feature, threshold)
     # or don't because threshold is too high
     threshold = 999
-    _infer_categorical(model, data, feature, threshold)
+    _infer_categorical(target, feature, threshold)
 
 
 def test_continuous_via_modified_bounds_risk():
@@ -86,20 +85,20 @@ def test_continuous_via_modified_bounds_risk():
     via a copy of the _get_bounds_risk()
     modified not to use multiprocessing
     """
-    data, model, _ = common_setup()
-    _ = _get_bounds_risk(model, "dummy", 8, data.x_train, data.x_test)
+    target, _ = common_setup()
+    _ = _get_bounds_risk(target.model, "dummy", 8, target.x_train, target.x_test)
 
 
 # test below covers a lot of the plotting etc.
 def test_AIA_on_nursery():
     """tests running AIA on the nursery data
     with an added continuous feature"""
-    data, model, attack_args = common_setup()
+    target, attack_args = common_setup()
 
     attack_obj = attribute_attack.AttributeAttack(attack_args)
-    attack_obj.attack(data, model)
+    attack_obj.attack(target)
 
-    g = GenerateJSONModule('test_attribute_attack.json')
+    g = GenerateJSONModule("test_attribute_attack.json")
     output = attack_obj.make_report(g)
     output = output["attack_metrics"]
 
@@ -115,7 +114,7 @@ def test_cleanup():
         "aia_report_quant_risk.png",
         "aia_report.pdf",
         "aia_report.json",
-        "test_attribute_attack.json"
+        "test_attribute_attack.json",
     )
     for fname in files_made:
         cleanup_file(fname)
