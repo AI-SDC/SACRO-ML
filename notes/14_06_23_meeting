@@ -1,0 +1,17 @@
+# SACRO ML Agenda 2023-06-14
+
+Apologies: Chris (bit late), Maha (and for next 5 weeks)
+
+1. Review of actions from previous meeting
+    None
+2. Update on 1.05, 1.06, 1.07 and any issues arising
+    - Stage 1 largely complete - just PRs required
+    - YJ moving some things from stage 3 to stage 2 as away later in the time period
+3. Naming conventions: should we keep things in clearly named folders e.g. “workings-do-not-release” and “stuff-for-release” To help output checkers (and WP3)
+    - Needs to be very obvious to output checkers etc that the saved models should be in a folder that is separate from everything else. To be discussed at the meeting. Current thinking is that "request release" is a separate step (in a programmatic sense) that would place the report _and_ the saved model artifact into.
+4. YJ had looked through the repo suggested by JS. Doesn't seem to be anything particularly useful in there. Not particularly well documented, and a slightly different usecase.
+5. Feedback from Felix / TRE staff?
+    - JS to chase Felix
+    - Interesting use cases to chase up at UCL hospital
+6. AOCB
+    - YJ chair for next week
