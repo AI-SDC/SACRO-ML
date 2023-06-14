@@ -12,16 +12,13 @@ import uuid
 from datetime import datetime
 
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import (
-    Attack,
-    load_config_file_into_dict,
-)
+from aisdc.attacks.attack import Attack, load_config_file_into_dict
 from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
@@ -53,7 +50,7 @@ class WorstCaseAttack(Attack):
             "min_samples_split": 20,
             "min_samples_leaf": 10,
             "max_depth": 5,
-            }
+        }
         self.args["attack_metric_success_name"] = "P_HIGHER_AUC"
         self.args["attack_metric_success_thresh"] = 0.05
         self.args["attack_metric_success_comp_type"] = "lte"

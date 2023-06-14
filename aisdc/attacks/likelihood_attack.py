@@ -23,10 +23,7 @@ from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import (
-    Attack,
-    load_config_file_into_dict,
-)
+from aisdc.attacks.attack import Attack, load_config_file_into_dict
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)

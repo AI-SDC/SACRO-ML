@@ -31,7 +31,7 @@ class AttributeAttack(Attack):
     def __init__(self, **kwargs):
         self.args = {}
         self.args["report_name"] = None
-        self.args["n_cpu"] = max(1, mp.cpu_count() - 1)        
+        self.args["n_cpu"] = max(1, mp.cpu_count() - 1)
         self.args.update(kwargs)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
