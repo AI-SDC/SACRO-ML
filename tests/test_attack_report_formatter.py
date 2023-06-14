@@ -95,16 +95,15 @@ class TestGenerateReport(unittest.TestCase):
         # check file is overwritten when the same file is passed
         test_filename = "filename_to_rewrite.json"
         g = GenerateJSONModule(test_filename)
-        g.add_attack_output("this should be overwritten")
+        g.add_attack_output("this should be included in the file")
 
         g = GenerateJSONModule(test_filename)
-        g.add_attack_output("this should be the only contents of the file")
-
+        g.add_attack_output("this should also be included in the file")
         with open(test_filename, encoding="utf-8") as f:
             file_contents = f.readlines()
 
-        self.assertNotIn("this should be overwritten", file_contents)
-        self.assertIn("this should be the only contents of the file", file_contents)
+        self.assertIn("this should be included in the file", file_contents)
+        self.assertIn("this should also be included in the file", file_contents)
 
         self.clean_up(test_filename)
 

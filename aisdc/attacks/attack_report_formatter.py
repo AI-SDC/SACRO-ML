@@ -21,11 +21,13 @@ class GenerateJSONModule:
 
         if self.filename is None:
             self.filename = (
-                "attack_output_json_" + str(date.today().strftime("%d_%m_%Y")) + ".json"
+                "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
             )
 
-        if os.path.exists(self.filename):
-            os.remove(self.filename)
+        #if file doesn't exist, create it
+        if not os.path.exists(self.filename):
+            f = open(self.filename, 'w+', encoding='utf-8')
+            f.close()
 
     def add_attack_output(self, incoming_json):
         """Add a section of JSON to the file which is already open"""
