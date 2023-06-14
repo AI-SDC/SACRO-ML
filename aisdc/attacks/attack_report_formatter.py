@@ -24,9 +24,9 @@ class GenerateJSONModule:
                 "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
             )
 
-        #if file doesn't exist, create it
+        # if file doesn't exist, create it
         if not os.path.exists(self.filename):
-            f = open(self.filename, 'w+', encoding='utf-8')
+            f = open(self.filename, "w+", encoding="utf-8")
             f.close()
 
     def add_attack_output(self, incoming_json):
