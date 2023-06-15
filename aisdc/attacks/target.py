@@ -13,8 +13,6 @@ import sklearn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("target")
 
-OUTPUT_DIR: str = "outputs/"
-
 
 class Target:  # pylint: disable=too-many-instance-attributes
     """Stores information about the target model and data"""
@@ -100,7 +98,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Target class as a dictionary for writing JSON.
         """
         # write model
-        filename: str = f"{path}_model.pkl"
+        filename: str = os.path.normpath(f"{path}/model.pkl")
         with open(filename, "wb") as fp:
             pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
         target["model_path"] = filename
@@ -138,7 +136,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Name of the numpy array to save.
         """
         if hasattr(self, name):
-            np_path: str = os.path.normpath(f"{path}_{name}.pkl")
+            np_path: str = os.path.normpath(f"{path}/{name}.pkl")
             target[f"{name}_path"] = np_path
             with open(np_path, "wb") as fp:
                 pickle.dump(getattr(self, name), fp, protocol=pickle.HIGHEST_PROTOCOL)
@@ -202,21 +200,20 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_numpy(target, "x_test_orig")
         self.__load_numpy(target, "y_test_orig")
 
-    def save(self, filename: str = "target") -> None:
+    def save(self, name: str = "target") -> None:
         """Saves the target class to persistent storage.
 
         Parameters
         ----------
-        filename : str
-            Name of the output file(s), not including file extension.
+        name : str
+            Name of the output folder to save target information.
         """
-        # check if the outputs directory was already created
-        try:
-            os.makedirs(OUTPUT_DIR)
-            logger.debug("Directory %s created successfully", OUTPUT_DIR)
+        path: str = os.path.normpath(name)
+        try:  # check if the directory was already created
+            os.makedirs(path)
+            logger.debug("Directory %s created successfully", path)
         except FileExistsError:  # pragma: no cover
-            logger.debug("Directory %s already exists", OUTPUT_DIR)
-        path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
+            logger.debug("Directory %s already exists", path)
         # convert Target to JSON
         target: dict = {
             "data_name": self.name,
@@ -231,21 +228,22 @@ class Target:  # pylint: disable=too-many-instance-attributes
         # write data arrays and add paths to JSON
         self.__save_data(path, target)
         # write JSON
-        with open(f"{path}.json", "w", newline="", encoding="utf-8") as fp:
+        filename: str = os.path.normpath(f"{path}/target.json")
+        with open(filename, "w", newline="", encoding="utf-8") as fp:
             json.dump(target, fp, indent=4, sort_keys=False)
 
-    def load(self, filename: str = "target") -> None:
+    def load(self, name: str = "target") -> None:
         """Loads the target class from persistent storage.
 
         Parameters
         ----------
-        filename : str
-            Name of the output JSON file, not including file extension.
+        name : str
+            Name of the output folder containing a target JSON file.
         """
         target: dict = {}
         # load JSON
-        path: str = os.path.normpath(f"{OUTPUT_DIR}/{filename}")
-        with open(f"{path}.json", encoding="utf-8") as fp:
+        filename: str = os.path.normpath(f"{name}/target.json")
+        with open(filename, encoding="utf-8") as fp:
             target = json.load(fp)
         # load parameters
         if "data_name" in target:
