@@ -10,6 +10,8 @@ import pickle
 import numpy as np
 import sklearn
 
+from aisdc.attacks.report import NumpyArrayEncoder
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("target")
 
@@ -61,6 +63,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The total number of samples in the original dataset.
         model : sklearn.base.BaseEstimator | None
             The trained model.
+        safemodel : list
+            The results of safemodel disclosure checks.
         """
         self.name: str = ""
         self.n_samples: int = 0
@@ -78,6 +82,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
         self.model: sklearn.base.BaseEstimator | None = model
+        self.safemodel: list = []
 
     def add_processed_data(
         self,
@@ -257,6 +262,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "features": self.features,
             "n_features": self.n_features,
             "n_samples_orig": self.n_samples_orig,
+            "safemodel": self.safemodel,
         }
         # write model and add path to JSON
         if self.model is not None:
@@ -266,7 +272,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         # write JSON
         filename: str = os.path.normpath(f"{path}/target.json")
         with open(filename, "w", newline="", encoding="utf-8") as fp:
-            json.dump(target, fp, indent=4, sort_keys=False)
+            json.dump(target, fp, indent=4, cls=NumpyArrayEncoder)
 
     def load(self, path: str = "target") -> None:
         """Loads the target class from persistent storage.
@@ -294,11 +300,23 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_features = target["n_features"]
         if "n_samples_orig" in target:
             self.n_samples_orig = target["n_samples_orig"]
+        if "safemodel" in target:
+            self.safemodel = target["safemodel"]
         # load model
         if "model_path" in target:
             self.__load_model(path, target)
         # load data
         self.__load_data(path, target)
+
+    def add_safemodel_results(self, data: list) -> None:
+        """Adds the results of safemodel disclosure checking.
+
+        Parameters
+        ----------
+        data : list
+            The results of safemodel disclosure checking.
+        """
+        self.safemodel = data
 
     def __str__(self):
         return self.name
