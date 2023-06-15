@@ -36,11 +36,11 @@ def test_config_file_arguments_parsin():
     attack_obj = worst_case_attack.WorstCaseAttack(
         attack_config_json_file_name="config_worstcase_test.json",
     )
-    assert attack_obj.args["n_reps"] == config["n_reps"]
-    assert attack_obj.args["n_dummy_reps"] == config["n_dummy_reps"]
-    assert attack_obj.args["p_thresh"] == config["p_thresh"]
-    assert attack_obj.args["test_prop"] == config["test_prop"]
-    assert attack_obj.args["report_name"] == config["report_name"]
+    assert attack_obj.n_reps == config["n_reps"]
+    assert attack_obj.n_dummy_reps == config["n_dummy_reps"]
+    assert attack_obj.p_thresh == config["p_thresh"]
+    assert attack_obj.test_prop == config["test_prop"]
+    assert attack_obj.report_name == config["report_name"]
     os.remove("config_worstcase_test.json")
 
 
@@ -187,7 +187,7 @@ def test_attack_from_predictions():
         report_name="test-10reps",
     )
 
-    assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
+    assert attack_obj.training_preds_filename == "ypred_train.csv"
 
     # with multiple reps
     attack_obj.attack_from_prediction_files()
@@ -221,8 +221,8 @@ def test_attack_from_predictions_no_dummy():
         report_name="test-10reps",
     )
 
-    assert attack_obj.args["training_preds_filename"] == "ypred_train.csv"
-    print(attack_obj.args)
+    assert attack_obj.training_preds_filename == "ypred_train.csv"
+    print(attack_obj)
     # with multiple reps
     attack_obj.attack_from_prediction_files()
 
