@@ -15,7 +15,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks import attribute_attack, target  # pylint: disable = import-error
+from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks.target import Target
 
 # pylint: disable = duplicate-code
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     print(f"Base model test accuracy: {acc_test}")
 
     # [TRE / Researcher] Wrap the model and data in a Target object
-    target = target.Target(model=model)
+    target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
     target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
