@@ -100,23 +100,23 @@ metadata = output["metadata"]
 
 print(
     "Number of significant AUC values (raw):",
-    f"{metadata['global_metrics']['n_sig_auc_p_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_auc_p_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "Number of significant AUC values (FDR corrected):",
-    f"{metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # Or the number of repetitions in which the PDIF (0.1) was significant
 print(
     "Number of significant PDIF values (proportion of 0.1), raw:",
-    f"{metadata['global_metrics']['n_sig_pdif_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_pdif_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "Number of significant PDIF values (proportion of 0.1), FDR corrected:",
-    f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # [TRE] to compare the results obtained with those expected by chance, the attack runs some
@@ -125,23 +125,23 @@ print(
 # [TRE] looks at the metric values to compare with those for the model
 print(
     "(dummy) Number of significant AUC values (raw):",
-    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "(dummy) Number of significant AUC values (FDR corrected):",
-    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # Or the number of repetitions in which the PDIF (0.1) was significant
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), raw:",
-    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), FDR corrected:",
-    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 print("Programmatic example1 finished")
@@ -184,23 +184,23 @@ metadata = output["metadata"]
 
 print(
     "Number of significant AUC values (raw):",
-    f"{metadata['global_metrics']['n_sig_auc_p_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_auc_p_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "Number of significant AUC values (FDR corrected):",
-    f"{metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # Or the number of repetitions in which the PDIF (0.1) was significant
 print(
     "Number of significant PDIF values (proportion of 0.1), raw:",
-    f"{metadata['global_metrics']['n_sig_pdif_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_pdif_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "Number of significant PDIF values (proportion of 0.1), FDR corrected:",
-    f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # [TRE] to compare the results obtained with those expected by chance, the attack runs some
@@ -209,23 +209,23 @@ print(
 # [TRE] looks at the metric values to compare with those for the model
 print(
     "(dummy) Number of significant AUC values (raw):",
-    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "(dummy) Number of significant AUC values (FDR corrected):",
-    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_auc_p_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 # Or the number of repetitions in which the PDIF (0.1) was significant
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), raw:",
-    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals']}/{attack_obj.n_reps}",
 )
 
 print(
     "(dummy) Number of significant PDIF values (proportion of 0.1), FDR corrected:",
-    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.args['n_reps']}",
+    f"{metadata['baseline_global_metrics']['n_sig_pdif_vals_corrected']}/{attack_obj.n_reps}",
 )
 
 print("Programmatic example2 finished")

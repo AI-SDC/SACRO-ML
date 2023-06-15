@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 
 class FailFast:  # pylint: disable=too-many-instance-attributes
     """Class to check attack being successful or not for a given metric
@@ -11,10 +12,10 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
     a new object will require to be instantiated.
     """
 
-    def __init__(self, attack_obj_args: dict):
-        self.metric_name = attack_obj_args["attack_metric_success_name"]
-        self.metric_success_thresh = attack_obj_args["attack_metric_success_thresh"]
-        self.comp_type = attack_obj_args["attack_metric_success_comp_type"]
+    def __init__(self, attack_obj: Any):
+        self.metric_name = attack_obj.attack_metric_success_name
+        self.metric_success_thresh = attack_obj.attack_metric_success_thresh
+        self.comp_type = attack_obj.attack_metric_success_comp_type
         self.success_count = 0
         self.fail_count = 0
 
@@ -82,9 +83,9 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         summary["fail_count"] = self.fail_count
         return summary
 
-    def check_overall_attack_success(self, attack_obj_args: dict) -> bool:
+    def check_overall_attack_success(self, attack_obj: Any) -> bool:
         """Returns true if the attack is successful for a given success count threshold"""
         overall_success_status = False
-        if self.success_count >= attack_obj_args["attack_metric_success_count_thresh"]:
+        if self.success_count >= attack_obj.attack_metric_success_count_thresh:
             overall_success_status = True
         return overall_success_status
