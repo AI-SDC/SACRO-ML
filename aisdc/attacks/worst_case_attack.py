@@ -57,7 +57,7 @@ class WorstCaseAttack(Attack):
         self.attack_metric_success_count_thresh = 5
         self.attack_fail_fast = False
         self.attack_config_json_file_name = None
-        self.__dict__.update(kwargs)        
+        self.__dict__.update(kwargs)
         # Updating parameters from a configuration json file
         if self.attack_config_json_file_name is not None:
             self.update_params_from_config_file()
@@ -237,9 +237,7 @@ class WorstCaseAttack(Attack):
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
                 mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
             )
-            attack_classifier = self.mia_attack_model(
-                **self.mia_attack_model_hyp
-            )
+            attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
             attack_classifier.fit(mi_train_x, mi_train_y)
             y_pred_proba, y_test = metrics.get_probabilities(
                 attack_classifier, mi_test_x, mi_test_y, permute_rows=True
@@ -443,14 +441,14 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         self.metadata = {}
         # Store all args
-        self.metadata["experiment_details"] = {}        
-        keys_to_exclude_in_metadata={
+        self.metadata["experiment_details"] = {}
+        keys_to_exclude_in_metadata = {
             "attack_metrics",
             "attack_metric_failfast_summary",
             "dummy_attack_metrics",
-            "dummy_attack_metric_failfast_summary", 
-            "metadata"
-            }            
+            "dummy_attack_metric_failfast_summary",
+            "metadata",
+        }
         self.metadata["experiment_details"] = self._exclude_keys_from_dict(
             self.__dict__, keys_to_exclude_in_metadata
         )
@@ -555,7 +553,7 @@ def _make_dummy_data(args):
 
 
 def _run_attack(args):
-    """Initialise class and run attack from prediction files"""    
+    """Initialise class and run attack from prediction files"""
     attack_obj = WorstCaseAttack(**args.__dict__)
     print(attack_obj.training_preds_filename)
     attack_obj.attack_from_prediction_files()
