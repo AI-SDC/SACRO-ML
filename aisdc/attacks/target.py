@@ -26,6 +26,41 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Trained target model. Any class that implements the
             sklearn.base.BaseEstimator interface (i.e. has fit, predict and
             predict_proba methods)
+
+        Attributes
+        ----------
+        name : str
+            The name of the dataset.
+        n_samples : int
+            The total number of samples in the dataset.
+        x_train : np.ndarray
+            The (processed) training inputs.
+        y_train : np.ndarray
+            The (processed) training outputs.
+        x_test : np.ndarray
+            The (processed) testing inputs.
+        y_test : np.ndarray
+            The (processed) testing outputs.
+        features : dict
+            Dictionary describing the dataset features.
+        n_features : int
+            The total number of features.
+        x_orig : np.ndarray
+            The original (unprocessed) dataset inputs.
+        y_orig : np.ndarray
+            The original (unprocessed) dataset outputs.
+        x_train_orig : np.ndarray
+            The original (unprocessed) training inputs.
+        y_train_orig : np.ndarray
+            The original (unprocessed) training outputs.
+        x_test_orig : np.ndarray
+            The original (unprocessed) testing inputs.
+        y_test_orig : np.ndarray
+            The original (unprocessed) testing outputs.
+        n_samples_orig : int
+            The total number of samples in the original dataset.
+        model : sklearn.base.BaseEstimator | None
+            The trained model.
         """
         self.name: str = ""
         self.n_samples: int = 0
