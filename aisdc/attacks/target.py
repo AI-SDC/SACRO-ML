@@ -93,7 +93,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ----------
         path : str
             Path to write the model.
-
         target : dict
             Target class as a dictionary for writing JSON.
         """
@@ -101,7 +100,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         filename: str = os.path.normpath(f"{path}/model.pkl")
         with open(filename, "wb") as fp:
             pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        target["model_path"] = filename
+        target["model_path"] = "model.pkl"
         # write hyperparameters
         try:
             target["model_name"] = type(self.model).__name__
@@ -109,15 +108,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
         except Exception:  # pragma: no cover pylint: disable=broad-exception-caught
             pass
 
-    def __load_model(self, target: dict) -> None:
+    def __load_model(self, path: str, target: dict) -> None:
         """Load the target model.
 
         Parameters
         ----------
+        path : str
+            Path to load the model.
         target : dict
             Target class as a dictionary read from JSON.
         """
-        model_path = os.path.normpath(target["model_path"])
+        model_path = os.path.normpath(f"{path}/{target['model_path']}")
         with open(model_path, "rb") as fp:
             self.model = pickle.load(fp)
 
@@ -128,33 +129,32 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ----------
         path : str
             Path to save the data.
-
         target : dict
             Target class as a dictionary for writing JSON.
-
         name : str
             Name of the numpy array to save.
         """
         if hasattr(self, name):
             np_path: str = os.path.normpath(f"{path}/{name}.pkl")
-            target[f"{name}_path"] = np_path
+            target[f"{name}_path"] = f"{name}.pkl"
             with open(np_path, "wb") as fp:
                 pickle.dump(getattr(self, name), fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def __load_numpy(self, target: dict, name: str) -> None:
+    def __load_numpy(self, path: str, target: dict, name: str) -> None:
         """Load a numpy array variable from pickle.
 
         Parameters
         ----------
+        path : str
+            Path to load the data.
         target : dict
             Target class as a dictionary read from JSON.
-
         name : str
             Name of the numpy array to load.
         """
         key: str = f"{name}_path"
         if key in target:
-            np_path: str = os.path.normpath(target[key])
+            np_path: str = os.path.normpath(f"{path}/{target[key]}")
             with open(np_path, "rb") as fp:
                 arr = pickle.load(fp)
                 setattr(self, name, arr)
@@ -166,7 +166,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ----------
         path : str
             Path to save the data.
-
         target : dict
             Target class as a dictionary for writing JSON.
         """
@@ -181,34 +180,36 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__save_numpy(path, target, "x_test_orig")
         self.__save_numpy(path, target, "y_test_orig")
 
-    def __load_data(self, target: dict) -> None:
+    def __load_data(self, path: str, target: dict) -> None:
         """Load the target model data.
 
         Parameters
         ----------
+        path : str
+            Path to load the data.
         target : dict
             Target class as a dictionary read from JSON.
         """
-        self.__load_numpy(target, "x_train")
-        self.__load_numpy(target, "y_train")
-        self.__load_numpy(target, "x_test")
-        self.__load_numpy(target, "y_test")
-        self.__load_numpy(target, "x_orig")
-        self.__load_numpy(target, "y_orig")
-        self.__load_numpy(target, "x_train_orig")
-        self.__load_numpy(target, "y_train_orig")
-        self.__load_numpy(target, "x_test_orig")
-        self.__load_numpy(target, "y_test_orig")
+        self.__load_numpy(path, target, "x_train")
+        self.__load_numpy(path, target, "y_train")
+        self.__load_numpy(path, target, "x_test")
+        self.__load_numpy(path, target, "y_test")
+        self.__load_numpy(path, target, "x_orig")
+        self.__load_numpy(path, target, "y_orig")
+        self.__load_numpy(path, target, "x_train_orig")
+        self.__load_numpy(path, target, "y_train_orig")
+        self.__load_numpy(path, target, "x_test_orig")
+        self.__load_numpy(path, target, "y_test_orig")
 
-    def save(self, name: str = "target") -> None:
+    def save(self, path: str = "target") -> None:
         """Saves the target class to persistent storage.
 
         Parameters
         ----------
-        name : str
+        path : str
             Name of the output folder to save target information.
         """
-        path: str = os.path.normpath(name)
+        path: str = os.path.normpath(path)
         try:  # check if the directory was already created
             os.makedirs(path)
             logger.debug("Directory %s created successfully", path)
@@ -232,17 +233,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
         with open(filename, "w", newline="", encoding="utf-8") as fp:
             json.dump(target, fp, indent=4, sort_keys=False)
 
-    def load(self, name: str = "target") -> None:
+    def load(self, path: str = "target") -> None:
         """Loads the target class from persistent storage.
 
         Parameters
         ----------
-        name : str
+        path : str
             Name of the output folder containing a target JSON file.
         """
         target: dict = {}
         # load JSON
-        filename: str = os.path.normpath(f"{name}/target.json")
+        filename: str = os.path.normpath(f"{path}/target.json")
         with open(filename, encoding="utf-8") as fp:
             target = json.load(fp)
         # load parameters
@@ -260,9 +261,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_samples_orig = target["n_samples_orig"]
         # load model
         if "model_path" in target:
-            self.__load_model(target)
+            self.__load_model(path, target)
         # load data
-        self.__load_data(target)
+        self.__load_data(path, target)
 
     def __str__(self):
         return self.name
