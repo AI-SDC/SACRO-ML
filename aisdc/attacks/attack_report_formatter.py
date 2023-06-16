@@ -33,6 +33,7 @@ class GenerateJSONModule:
         """Add a section of JSON to the file which is already open"""
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(incoming_json)
+            f.write("\n")
 
     def get_output_filename(self):
         """Returns the filename of the JSON file which has been created"""
