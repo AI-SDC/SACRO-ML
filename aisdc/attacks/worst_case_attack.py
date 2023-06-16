@@ -435,7 +435,6 @@ class WorstCaseAttack(Attack):
         np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
         np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
-
     def _construct_metadata(self):
         """Constructs the metadata object, after attacks"""
         self.metadata = {}

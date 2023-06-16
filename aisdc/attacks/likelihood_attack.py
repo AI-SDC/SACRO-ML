@@ -76,7 +76,7 @@ class LIRAAttack(Attack):
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self, **kwargs) -> None:
-        super().__init__()        
+        super().__init__()
         self.n_shadow_models = 100
         self.n_shadow_rows_confidences_min = 10
         self.p_thresh = 0.05
@@ -93,7 +93,7 @@ class LIRAAttack(Attack):
         if self.attack_config_json_file_name is not None:
             self.update_params_from_config_file()
         self.attack_metrics = None
-        self.attack_failfast_shadow_models_trained = None        
+        self.attack_failfast_shadow_models_trained = None
         self.metadata = None
 
     def __str__(self):
@@ -371,7 +371,7 @@ class LIRAAttack(Attack):
         keys_to_exclude_in_metadata = {
             "attack_metrics",
             "attack_failfast_shadow_models_trained",
-            "dummy_attack_metrics",            
+            "dummy_attack_metrics",
             "metadata",
         }
         self.metadata["experiment_details"] = self._exclude_keys_from_dict(
@@ -492,9 +492,7 @@ class LIRAAttack(Attack):
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
         """Runs an attack based on the args parsed from the command line"""
         logger = logging.getLogger("run-attack")
-        logger.info(
-            "Loading training data csv from %s", self.training_data_filename
-        )
+        logger.info("Loading training data csv from %s", self.training_data_filename)
         training_data = np.loadtxt(self.training_data_filename, delimiter=",")
         train_X = training_data[:, :-1]
         train_y = training_data[:, -1].flatten().astype(int)
@@ -506,15 +504,11 @@ class LIRAAttack(Attack):
         test_y = test_data[:, -1].flatten().astype(int)
         logger.info("Loaded %d rows", len(test_X))
 
-        logger.info(
-            "Loading train predictions form %s", self.training_preds_filename
-        )
+        logger.info("Loading train predictions form %s", self.training_preds_filename)
         train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
         assert len(train_preds) == len(train_X)
 
-        logger.info(
-            "Loading test predictions form %s", self.test_preds_filename
-        )
+        logger.info("Loading test predictions form %s", self.test_preds_filename)
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
         assert len(test_preds) == len(test_X)
 
