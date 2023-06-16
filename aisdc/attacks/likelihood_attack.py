@@ -74,6 +74,7 @@ class LIRAAttack(Attack):
     """The main LIRA Attack class"""
 
     def __init__(self, **kwargs) -> None:
+        super().__init__()
         self.args = {}
         self.args["n_shadow_models"] = 100
         self.args["n_shadow_rows_confidences_min"] = 10

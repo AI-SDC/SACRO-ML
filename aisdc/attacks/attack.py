@@ -8,7 +8,7 @@ from aisdc.attacks.target import Target
 class Attack:
     """Base (abstract) class to represent an attack"""
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.attack_config_json_file_name = None
 
     def attack(self, target: Target) -> None:

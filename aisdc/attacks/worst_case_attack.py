@@ -30,7 +30,10 @@ P_THRESH = 0.05
 class WorstCaseAttack(Attack):
     """Class to wrap the worst case attack code"""
 
-    def __init__(self, **kwargs):  # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(self, **kwargs):  
+        super().__init__()
         self.n_reps = 10
         self.p_thresh = 0.05
         self.n_dummy_reps = 1

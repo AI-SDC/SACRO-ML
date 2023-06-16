@@ -29,6 +29,7 @@ class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
     def __init__(self, **kwargs):
+        super().__init__()
         self.args = {}
         self.args["report_name"] = None
         self.args["n_cpu"] = max(1, mp.cpu_count() - 1)
