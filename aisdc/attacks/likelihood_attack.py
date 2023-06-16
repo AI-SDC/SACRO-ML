@@ -112,7 +112,7 @@ class LIRAAttack(Attack):
             name of the module (i.e. classification module name such as 'sklearn.ensemble') and
             attack model name (i.e. classification model name such as 'RandomForestClassifier')
         target_model_hyp: dict
-            list of hyper parameters for the mia_attack_model
+            dictionary of hyper parameters for the target_model
             such as min_sample_split, min_samples_leaf etc
         attack_config_json_file_name: str
             name of the configuration file to load parameters

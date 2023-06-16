@@ -10,6 +10,7 @@ import argparse
 import logging
 import uuid
 from datetime import datetime
+from typing import Any
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -32,34 +33,118 @@ class WorstCaseAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, **kwargs):
+    def __init__( # pylint: disable = too-many-arguments, too-many-locals
+        self,
+        n_reps: int = 10,
+        p_thresh: float = 0.05,
+        n_dummy_reps: int = 1,
+        train_beta: int = 1,
+        test_beta: int = 1,
+        test_prop: float = 0.2,
+        n_rows_in: int = 1000,
+        n_rows_out: int = 1000,
+        training_preds_filename: str = None,
+        test_preds_filename: str = None,
+        report_name: str = None,
+        include_model_correct_feature: bool = False,
+        sort_probs: bool = True,
+        mia_attack_model: Any = RandomForestClassifier,
+        mia_attack_model_hyp: dict = None,
+        attack_metric_success_name: str = "P_HIGHER_AUC",
+        attack_metric_success_thresh: float = 0.05,
+        attack_metric_success_comp_type: str = "lte",
+        attack_metric_success_count_thresh: int = 5,
+        attack_fail_fast: bool = False,
+        attack_config_json_file_name: str = None,
+    ) -> None:
+        """Constructs an object to execute a worst case attack.
+        
+        Parameters
+        ----------
+        n_reps: int
+            number of attacks to run -- in each iteration an attack model 
+            is trained on a different subset of the data
+        p_thresh: float
+            threshold to determine significance of things. For instance auc_p_value and pdif_vals
+        n_dummy_reps: int
+            number of baseline (dummy) experiments to do
+        train_beta: int
+            value of b for beta distribution used to sample the in-sample (training) probabilities
+        test_beta: int
+            value of b for beta distibution used to sample the out-of-sample (test) probabilities
+        test_prop: float
+            proportion of data to use as a test set for the attack model
+        n_rows_in: int
+            number of rows for in-sample (training data)
+        n_rows_out: int
+            number of rows for out-of-sample (test data)
+        training_preds_filename: str
+            name of the file to keep predictions of the training data (in-sample)
+        test_preds_filename: str
+            name of the file to keep predictions of the test data (out-of-sample)
+        report_name: str
+            name of the JSON output report 
+        include_model_correct_feature: bool 
+            inclusion of additional feature to hold whether or not the target model 
+            made a correct prediction for each example
+        sort_probs: bool
+            true in case require to sort combine preds (from training and test) 
+            to have highest probabilities in the first column
+        mia_attack_model: Any
+            name of the attack model such as RandomForestClassifier
+        mia_attack_model_hyp: dict
+            dictionary of hyper parameters for the mia_attack_model
+            such as min_sample_split, min_samples_leaf etc
+        attack_metric_success_name: str
+            name of metric to compute for the attack being successful
+        attack_metric_success_thresh: float
+            threshold for a given metric to measure attack being successful or not
+        attack_metric_success_comp_type: str
+            threshold comparison operator (i.e., gte: greater than or equal to, gt: 
+            greater than, lte: less than or equal to, lt: less than, 
+            eq: equal to and not_eq: not equal to)
+        attack_metric_success_count_thresh: int
+            a counter to record how many times an attack was successful 
+            given that the threshold has fullfilled criteria for a given comparison type
+        attack_fail_fast: bool
+            If true it stops repetitions earlier based on the given attack metric 
+            (i.e., attack_metric_success_name) considering the comparison type 
+            (attack_metric_success_comp_type) satisfying a threshold 
+            (i.e., attack_metric_success_thresh) for n 
+            (attack_metric_success_count_thresh) number of times
+        attack_config_json_file_name: str
+            name of the configuration file to load parameters        
+        """
+
         super().__init__()
-        self.n_reps = 10
-        self.p_thresh = 0.05
-        self.n_dummy_reps = 1
-        self.train_beta = 2
-        self.test_beta = 2
-        self.test_prop = 0.2
-        self.n_rows_in = 1000
-        self.n_rows_out = 1000
-        self.training_preds_filename = None
-        self.test_preds_filename = None
-        self.report_name = None
-        self.include_model_correct_feature = False
-        self.sort_probs = True
-        self.mia_attack_model = RandomForestClassifier
-        self.mia_attack_model_hyp = {
-            "min_samples_split": 20,
-            "min_samples_leaf": 10,
-            "max_depth": 5,
-        }
-        self.attack_metric_success_name = "P_HIGHER_AUC"
-        self.attack_metric_success_thresh = 0.05
-        self.attack_metric_success_comp_type = "lte"
-        self.attack_metric_success_count_thresh = 5
-        self.attack_fail_fast = False
-        self.attack_config_json_file_name = None
-        self.__dict__.update(kwargs)
+        self.n_reps = n_reps
+        self.p_thresh = p_thresh
+        self.n_dummy_reps = n_dummy_reps
+        self.train_beta = train_beta
+        self.test_beta = test_beta
+        self.test_prop = test_prop
+        self.n_rows_in = n_rows_in
+        self.n_rows_out = n_rows_out
+        self.training_preds_filename = training_preds_filename
+        self.test_preds_filename = test_preds_filename
+        self.report_name = report_name
+        self.include_model_correct_feature = include_model_correct_feature
+        self.sort_probs = sort_probs
+        self.mia_attack_model = mia_attack_model
+        if mia_attack_model_hyp is None:
+            self.mia_attack_model_hyp = {
+                "min_samples_split": 20, 
+                "min_samples_leaf": 10, 
+                "max_depth": 5,
+                }
+        else:
+            self.mia_attack_model_hyp = mia_attack_model_hyp
+        self.attack_metric_success_name = attack_metric_success_name
+        self.attack_metric_success_thresh = attack_metric_success_thresh
+        self.attack_metric_success_comp_type = attack_metric_success_comp_type
+        self.attack_metric_success_count_thresh = attack_metric_success_count_thresh
+        self.attack_fail_fast = attack_fail_fast
+        self.attack_config_json_file_name = attack_config_json_file_name
         # Updating parameters from a configuration json file
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
@@ -546,13 +631,37 @@ def _make_dummy_data(args):
     """Initialise class and run dummy data creation"""
     args.__dict__["training_preds_filename"] = "train_preds.csv"
     args.__dict__["test_preds_filename"] = "test_preds.csv"
-    attack_obj = WorstCaseAttack(**args.__dict__)
+    attack_obj = WorstCaseAttack(
+        train_beta = args.train_beta,
+        test_beta = args.test_beta,
+        n_rows_in = args.n_rows_in,
+        n_rows_out = args.n_rows_out,
+        training_preds_filename = args.training_preds_filename,
+        test_preds_filename = args.test_preds_filename,
+    )
     attack_obj.make_dummy_data()
 
 
 def _run_attack(args):
     """Initialise class and run attack from prediction files"""
-    attack_obj = WorstCaseAttack(**args.__dict__)
+    #attack_obj = WorstCaseAttack(**args.__dict__)
+    attack_obj = WorstCaseAttack(
+        n_reps = args.n_reps,
+        p_thresh = args.p_thresh,
+        n_dummy_reps = args.n_dummy_reps,
+        train_beta = args.train_beta,
+        test_beta = args.test_beta,
+        test_prop = args.test_prop,
+        training_preds_filename = args.training_preds_filename,
+        test_preds_filename = args.test_preds_filename,
+        report_name = args.report_name,
+        sort_probs = args.sort_probs,
+        attack_metric_success_name = args.attack_metric_success_name,
+        attack_metric_success_thresh = args.attack_metric_success_thresh,
+        attack_metric_success_comp_type = args.attack_metric_success_comp_type,
+        attack_metric_success_count_thresh = args.attack_metric_success_count_thresh,
+        attack_fail_fast = args.attack_fail_fast,
+    )
     print(attack_obj.training_preds_filename)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
