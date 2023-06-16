@@ -32,7 +32,7 @@ class WorstCaseAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, **kwargs):  
+    def __init__(self, **kwargs):
         super().__init__()
         self.n_reps = 10
         self.p_thresh = 0.05
