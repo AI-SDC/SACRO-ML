@@ -29,9 +29,7 @@ class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
     def __init__(
-        self,
-        report_name: str = None,
-        n_cpu: int = max(1, mp.cpu_count() - 1)
+        self, report_name: str = None, n_cpu: int = max(1, mp.cpu_count() - 1)
     ) -> None:
         """Constructs an object to execute an attribut inference attack.
 
