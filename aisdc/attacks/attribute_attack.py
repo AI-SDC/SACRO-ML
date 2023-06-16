@@ -33,7 +33,7 @@ class AttributeAttack(Attack):
         report_name: str = None,
         n_cpu: int = max(1, mp.cpu_count() - 1)
     ) -> None:
-        """Constructs an object to execute an attribut inference attack.
+        """Constructs an object to execute an attribute inference attack.
 
         Parameters
         ----------
