@@ -48,7 +48,7 @@ def test_attack_args():
     """tests methods in the attack_args class"""
     _, attack_obj = common_setup()
     attack_obj.args["newkey"] = True
-    thedict = attack_obj.args
+    thedict = attack_obj.__dict__
     assert thedict["newkey"] is True
 
 

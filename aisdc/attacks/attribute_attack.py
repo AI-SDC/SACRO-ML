@@ -30,10 +30,9 @@ class AttributeAttack(Attack):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.args = {}
-        self.args["report_name"] = None
-        self.args["n_cpu"] = max(1, mp.cpu_count() - 1)
-        self.args.update(kwargs)
+        self.report_name = None
+        self.n_cpu = max(1, mp.cpu_count() - 1)
+        self.__dict__.update(kwargs)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
@@ -50,19 +49,25 @@ class AttributeAttack(Attack):
         target: attacks.target.Target
             target is a Target class object
         """
-        self.attack_metrics = _attribute_inference(target, self.args["n_cpu"])
+        self.attack_metrics = _attribute_inference(target, self.n_cpu)
 
     def _construct_metadata(self) -> None:
         """Constructs the metadata object. Called by the reporting method."""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"].update(self.args)
+        keys_to_exclude_in_metadata = {
+            "attack_metrics",            
+            "metadata",
+        }
+        self.metadata["experiment_details"] = self._exclude_keys_from_dict(
+            keys_to_exclude_in_metadata
+        )
         self.metadata["attack"] = str(self)
 
     def make_report(self) -> dict:
         """Create the report.
 
-        Creates the output report. If self.args.report_name is not None, it will also save the
+        Creates the output report. If self.report_name is not None, it will also save the
         information in json and pdf formats.
 
         Returns
@@ -72,19 +77,19 @@ class AttributeAttack(Attack):
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, report_name = %s", self.args["report_name"])
+        logger.info("Starting report, report_name = %s", self.report_name)
         output["attack_metrics"] = self.attack_metrics
         self._construct_metadata()
         output["metadata"] = self.metadata
-        if self.args["report_name"] is not None:
+        if self.report_name is not None:
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            with open(f"{self.args['report_name']}.json", "w", encoding="utf-8") as f:
+            with open(f"{self.report_name}.json", "w", encoding="utf-8") as f:
                 f.write(json_report)
-            logger.info("Wrote report to %s", f"{self.args['report_name']}.json")
+            logger.info("Wrote report to %s", f"{self.report_name}.json")
 
             pdf = create_aia_report(output)
-            pdf.output(f"{self.args['report_name']}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.args['report_name']}.pdf")
+            pdf.output(f"{self.report_name}.pdf", "F")
+            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
         return output
 
 

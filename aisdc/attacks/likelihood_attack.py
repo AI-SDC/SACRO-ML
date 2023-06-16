@@ -91,7 +91,7 @@ class LIRAAttack(Attack):
         self.shadow_models_fail_fast = False
         self.__dict__.update(kwargs)
         if self.attack_config_json_file_name is not None:
-            self.update_params_from_config_file()
+            self._update_params_from_config_file()
         self.attack_metrics = None
         self.attack_failfast_shadow_models_trained = None
         self.metadata = None

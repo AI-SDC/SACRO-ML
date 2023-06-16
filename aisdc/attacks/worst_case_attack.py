@@ -62,7 +62,7 @@ class WorstCaseAttack(Attack):
         self.__dict__.update(kwargs)
         # Updating parameters from a configuration json file
         if self.attack_config_json_file_name is not None:
-            self.update_params_from_config_file()
+            self._update_params_from_config_file()
         self.attack_metrics = None
         self.attack_metric_failfast_summary = None
         self.dummy_attack_metrics = None

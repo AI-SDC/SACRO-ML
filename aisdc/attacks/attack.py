@@ -18,7 +18,7 @@ class Attack:
     def __str__(self):
         raise NotImplementedError
 
-    def update_params_from_config_file(self) -> None:
+    def _update_params_from_config_file(self) -> None:
         """Reads a configuration file and loads it into a dictionary object"""
         with open(self.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
