@@ -435,9 +435,6 @@ class WorstCaseAttack(Attack):
         np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
         np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
-    def _exclude_keys_from_dict(self, d: dict, keys: list) -> dict:
-        """Exclude keys from a given dictionary"""
-        return {v: d[v] for v in d if v not in keys}
 
     def _construct_metadata(self):
         """Constructs the metadata object, after attacks"""
@@ -452,7 +449,7 @@ class WorstCaseAttack(Attack):
             "metadata",
         }
         self.metadata["experiment_details"] = self._exclude_keys_from_dict(
-            self.__dict__, keys_to_exclude_in_metadata
+            keys_to_exclude_in_metadata
         )
 
         if "func" in self.metadata["experiment_details"]:

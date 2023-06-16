@@ -25,10 +25,6 @@ class Attack:
         for key, value in config.items():
             setattr(self, key, value)
 
-
-def load_config_file_into_dict(config_filename: str, attack_args_dict: dict) -> None:
-    """Reads a configuration file and loads it into a dictionary object"""
-    with open(config_filename, encoding="utf-8") as f:
-        config = json.loads(f.read())
-    for _, k in enumerate(config):
-        attack_args_dict[k] = config[k]
+    def _exclude_keys_from_dict(self, keys: list) -> dict:
+        """Exclude keys from a given dictionary"""
+        return {v: self.__dict__[v] for v in self.__dict__ if v not in keys}
