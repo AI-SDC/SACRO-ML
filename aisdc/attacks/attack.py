@@ -21,10 +21,10 @@ class Attack:
     def update_params_from_config_file(self) -> None:
         """Reads a configuration file and loads it into a dictionary object"""
         with open(self.attack_config_json_file_name, encoding="utf-8") as f:
-            config = json.loads(f.read())
-        for key, value in config.items():
-            setattr(self, key, value)
+            config = json.loads(f.read())        
+        for _, k in enumerate(config):
+            self.__dict__[k] = config[k]
 
     def _exclude_keys_from_dict(self, keys_to_exclude: list) -> dict:
         """Exclude keys from a given dictionary"""
-        return {k: self.__dict__[k] for k in self.__dict__.keys() if k not in keys_to_exclude}
+        return {k: self.__dict__[k] for k,v in self.__dict__.items() if k not in keys_to_exclude}
