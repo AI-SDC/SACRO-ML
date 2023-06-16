@@ -537,9 +537,6 @@ class WorstCaseAttack(Attack):
             keys_to_exclude_in_metadata
         )
 
-        if "func" in self.metadata["experiment_details"]:
-            del self.metadata["experiment_details"]["func"]
-
         self.metadata["attack"] = str(self)
 
         # Global metrics

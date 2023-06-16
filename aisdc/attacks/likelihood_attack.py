@@ -425,9 +425,6 @@ class LIRAAttack(Attack):
             keys_to_exclude_in_metadata
         )
 
-        if "func" in self.metadata["experiment_details"]:
-            del self.metadata["experiment_details"]["func"]
-
         self.metadata["global_metrics"] = {}
 
         pdif = np.exp(-self.attack_metrics[0]["PDIF01"])
