@@ -75,7 +75,7 @@ class LIRAAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__( # pylint: disable = too-many-arguments
+    def __init__(  # pylint: disable = too-many-arguments
         self,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
@@ -89,7 +89,7 @@ class LIRAAttack(Attack):
         attack_config_json_file_name: str = None,
         n_shadow_rows_confidences_min: int = 10,
         shadow_models_fail_fast: bool = False,
-        ) -> None:
+    ) -> None:
         """Constructs an object to execute a worst case attack.
 
         Parameters
@@ -109,7 +109,7 @@ class LIRAAttack(Attack):
         test_preds_filename: str
             name of the file to keep predictions of the test data (out-of-sample)
         target_model: list
-            name of the module (i.e. classification module name such as 'sklearn.ensemble') and 
+            name of the module (i.e. classification module name such as 'sklearn.ensemble') and
             attack model name (i.e. classification model name such as 'RandomForestClassifier')
         target_model_hyp: dict
             list of hyper parameters for the mia_attack_model
@@ -117,7 +117,7 @@ class LIRAAttack(Attack):
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         n_shadow_rows_confidences_min: int
-            number of minimum number of confidences calculated for 
+            number of minimum number of confidences calculated for
             each row in test data (out-of-sample)
         shadow_models_fail_fast: bool
             If true it stops repetitions earlier based on the given minimum
@@ -601,14 +601,14 @@ def _example(args):
 
 def _run_attack(args):
     """Run a command line attack based on saved files described in .json file"""
-    #attack_obj = LIRAAttack(**args.__dict__)
+    # attack_obj = LIRAAttack(**args.__dict__)
     attack_obj = LIRAAttack(
-        n_shadow_models = args.n_shadow_models,
-        n_shadow_rows_confidences_min = args.n_shadow_rows_confidences_min,
-        p_thresh = args.p_thresh,
-        report_name= args.report_name,
-        shadow_models_fail_fast = args.shadow_models_fail_fast,
-        attack_config_json_file_name = args.attack_config_json_file_name,
+        n_shadow_models=args.n_shadow_models,
+        n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
+        p_thresh=args.p_thresh,
+        report_name=args.report_name,
+        shadow_models_fail_fast=args.shadow_models_fail_fast,
+        attack_config_json_file_name=args.attack_config_json_file_name,
     )
     attack_obj.attack_from_config()
     attack_obj.make_report()
