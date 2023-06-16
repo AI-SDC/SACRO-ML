@@ -71,7 +71,7 @@ class WorstCaseAttack(Attack):
         train_beta: int
             value of b for beta distribution used to sample the in-sample (training) probabilities
         test_beta: int
-            value of b for beta distibution used to sample the out-of-sample (test) probabilities
+            value of b for beta distribution used to sample the out-of-sample (test) probabilities
         test_prop: float
             proportion of data to use as a test set for the attack model
         n_rows_in: int
@@ -105,7 +105,7 @@ class WorstCaseAttack(Attack):
             eq: equal to and not_eq: not equal to)
         attack_metric_success_count_thresh: int
             a counter to record how many times an attack was successful
-            given that the threshold has fullfilled criteria for a given comparison type
+            given that the threshold has fulfilled criteria for a given comparison type
         attack_fail_fast: bool
             If true it stops repetitions earlier based on the given attack metric
             (i.e., attack_metric_success_name) considering the comparison type
