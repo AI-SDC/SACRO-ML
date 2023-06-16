@@ -573,25 +573,25 @@ class LIRAAttack(Attack):
 
 # Methods invoked by command line script
 def _setup_example_data(args):
-    """Call the methods to setup some example data"""    
+    """Call the methods to setup some example data"""
     attack_obj = LIRAAttack(
-        n_shadow_models = args.n_shadow_models,
-        n_shadow_rows_confidences_min = args.n_shadow_rows_confidences_min,
-        report_name = args.report_name,
-        p_thresh = args.p_thresh,
-        shadow_models_fail_fast = args.shadow_models_fail_fast
-        )
+        n_shadow_models=args.n_shadow_models,
+        n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
+        report_name=args.report_name,
+        p_thresh=args.p_thresh,
+        shadow_models_fail_fast=args.shadow_models_fail_fast,
+    )
     attack_obj.setup_example_data()
 
 
 def _example(args):
-    """Call the methods to run an example"""    
+    """Call the methods to run an example"""
     attack_obj = LIRAAttack(
-        n_shadow_models = args.n_shadow_models,
-        n_shadow_rows_confidences_min = args.n_shadow_rows_confidences_min,
-        report_name = args.report_name,
-        p_thresh = args.p_thresh,
-        shadow_models_fail_fast = args.shadow_models_fail_fast
+        n_shadow_models=args.n_shadow_models,
+        n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
+        report_name=args.report_name,
+        p_thresh=args.p_thresh,
+        shadow_models_fail_fast=args.shadow_models_fail_fast,
     )
     attack_obj.example()
     attack_obj.make_report(GenerateJSONModule("likelihood_attack_example.json"))
