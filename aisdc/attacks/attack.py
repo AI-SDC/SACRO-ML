@@ -1,13 +1,15 @@
 """attack.py - base class for an attack object"""
 
 import json
-from typing import Any
 
 from aisdc.attacks.target import Target
 
 
 class Attack:
     """Base (abstract) class to represent an attack"""
+
+    def __init__(self, **kwargs):
+        self.attack_config_json_file_name = None
 
     def attack(self, target: Target) -> None:
         """Method to run an attack"""
