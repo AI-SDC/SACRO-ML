@@ -575,12 +575,12 @@ class LIRAAttack(Attack):
 def _setup_example_data(args):
     """Call the methods to setup some example data"""
     attack_obj = LIRAAttack(
-        n_shadow_models = args.n_shadow_models,
-        n_shadow_rows_confidences_min = args.n_shadow_rows_confidences_min,
-        p_thresh = args.p_thresh,
-        report_name= args.report_name,
-        shadow_models_fail_fast = args.shadow_models_fail_fast,
-        attack_config_json_file_name = args.attack_config_json_file_name,
+        n_shadow_models=args.n_shadow_models,
+        n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
+        p_thresh=args.p_thresh,
+        report_name=args.report_name,
+        shadow_models_fail_fast=args.shadow_models_fail_fast,
+        attack_config_json_file_name=args.attack_config_json_file_name,
     )
     attack_obj.setup_example_data()
 
@@ -588,12 +588,12 @@ def _setup_example_data(args):
 def _example(args):
     """Call the methods to run an example"""
     attack_obj = LIRAAttack(
-        n_shadow_models = args.n_shadow_models,
-        n_shadow_rows_confidences_min = args.n_shadow_rows_confidences_min,
-        p_thresh = args.p_thresh,
-        report_name= args.report_name,
-        shadow_models_fail_fast = args.shadow_models_fail_fast,
-        attack_config_json_file_name = args.attack_config_json_file_name,
+        n_shadow_models=args.n_shadow_models,
+        n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
+        p_thresh=args.p_thresh,
+        report_name=args.report_name,
+        shadow_models_fail_fast=args.shadow_models_fail_fast,
+        attack_config_json_file_name=args.attack_config_json_file_name,
     )
     attack_obj.example()
     attack_obj.make_report()
