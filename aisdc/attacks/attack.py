@@ -25,6 +25,6 @@ class Attack:
         for key, value in config.items():
             setattr(self, key, value)
 
-    def _exclude_keys_from_dict(self, keys: list) -> dict:
+    def _exclude_keys_from_dict(self, keys_to_exclude: list) -> dict:
         """Exclude keys from a given dictionary"""
-        return {k: self.__dict__[k] for k, _ in self.__dict__.items() if k not in keys}
+        return {k: self.__dict__[k] for k in self.__dict__.keys() if k not in keys_to_exclude}
