@@ -26,14 +26,32 @@ class GenerateJSONModule:
 
         # if file doesn't exist, create it
         if not os.path.exists(self.filename):
-            with open(self.filename, "w+", encoding="utf-8") as f:
+            with open(self.filename, "w", encoding="utf-8") as f:
                 f.write("")
 
-    def add_attack_output(self, incoming_json):
+    def add_attack_output(self, incoming_json, class_name):
         """Add a section of JSON to the file which is already open"""
-        with open(self.filename, "a", encoding="utf-8") as f:
-            f.write(incoming_json)
-            f.write("\n")
+        
+        #Read the contents of the file and then clear the file
+        with open(self.filename, "r+", encoding="utf-8") as f:
+            file_contents = f.read()
+            if file_contents != "":
+                file_data = json.loads(file_contents)
+                print(file_data.keys())
+            else:
+                file_data = {}
+
+            f.truncate(0)
+
+        #Add the new JSON to the JSON that was in the file, and re-write
+        with open(self.filename, "w", encoding="utf-8") as f:
+            incoming_json = json.loads(incoming_json)
+
+            if 'log_id' in incoming_json:
+                class_name = class_name + "_" + str(incoming_json['log_id'])
+
+            file_data[class_name] = incoming_json
+            json.dump(file_data, f)
 
     def get_output_filename(self):
         """Returns the filename of the JSON file which has been created"""
@@ -44,9 +62,8 @@ class GenerateJSONModule:
         if os.path.exists(self.filename):
             os.remove(self.filename)
 
-        with open(self.filename, "w+", encoding="utf-8") as f:
+        with open(self.filename, "w", encoding="utf-8") as f:
             f.write("")
-
 
 class AnalysisModule:
     """

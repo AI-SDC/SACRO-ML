@@ -444,7 +444,7 @@ class LIRAAttack(Attack):
 
         if json_attack_formatter is not None:
             json_report = report.create_json_report(output)
-            json_attack_formatter.add_attack_output(json_report)
+            json_attack_formatter.add_attack_output(json_report,'LikelihoodAtack')
 
         if self.args.report_name is not None:
             pdf_report = report.create_lr_report(output)
