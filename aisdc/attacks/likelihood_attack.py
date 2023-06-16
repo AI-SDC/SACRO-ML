@@ -572,13 +572,13 @@ class LIRAAttack(Attack):
 
 
 # Methods invoked by command line script
-def _setup_example_data(args):
+def _setup_example_data():
     """Call the methods to setup some example data"""
     attack_obj = LIRAAttack()
     attack_obj.setup_example_data()
 
 
-def _example(args):
+def _example():
     """Call the methods to run an example"""
     attack_obj = LIRAAttack()
     attack_obj.example()
