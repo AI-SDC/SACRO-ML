@@ -27,4 +27,4 @@ class Attack:
 
     def _exclude_keys_from_dict(self, keys: list) -> dict:
         """Exclude keys from a given dictionary"""
-        return {v: self.__dict__[v] for v in self.__dict__ if v not in keys}
+        return {k: self.__dict__[k] for k, _ in self.__dict__.items() if k not in keys}

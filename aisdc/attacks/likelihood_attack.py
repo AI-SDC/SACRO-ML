@@ -73,6 +73,8 @@ def _logit(p: float) -> float:
 class LIRAAttack(Attack):
     """The main LIRA Attack class"""
 
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(self, **kwargs) -> None:
         super().__init__()        
         self.n_shadow_models = 100
