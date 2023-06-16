@@ -196,7 +196,7 @@ def test_attack_args():
     attack_obj = attribute_attack.AttributeAttack(report_name=fname)
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.args["report_name"]
+    assert fname == attack_obj.report_name
 
     fname = "liraa"
     attack_obj = likelihood_attack.LIRAAttack(report_name=fname)
