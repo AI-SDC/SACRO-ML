@@ -515,7 +515,7 @@ class LIRAAttack(Attack):
         clf_module_name, clf_class_name = self.target_model
         print(clf_class_name)
         module = importlib.import_module(clf_module_name)
-        clf_class = getattr(module, clf_class_name)        
+        clf_class = getattr(module, clf_class_name)
         clf = clf_class(**self.target_model_hyp)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
