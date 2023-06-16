@@ -479,7 +479,7 @@ class LIRAAttack(Attack):
             json_report = report.create_json_report(output)
             json_attack_formatter.add_attack_output(json_report)
 
-        if self.args.report_name is not None:
+        if self.report_name is not None:
             pdf_report = report.create_lr_report(output)
             pdf_report.output(f"{self.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
