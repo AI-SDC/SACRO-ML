@@ -199,7 +199,7 @@ def test_attack_args():
     assert fname == attack_obj.args["report_name"]
 
     fname = "liraa"
-    attack_obj = likelihood_attack.LIRAAttack(report_name=fname)    
+    attack_obj = likelihood_attack.LIRAAttack(report_name=fname)
     assert fname == attack_obj.report_name
 
     fname = "wca"
