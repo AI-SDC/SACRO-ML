@@ -512,10 +512,10 @@ class LIRAAttack(Attack):
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
         assert len(test_preds) == len(test_X)
 
-        clf_module_name, clf_class_name = self.target_model
+        clf_module_name, clf_class_name = self.__dict__["target_model"]
         module = importlib.import_module(clf_module_name)
         clf_class = getattr(module, clf_class_name)
-        clf_params = self.target_model_hyp
+        clf_params = self.__dict__["target_model_hyp"]
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
