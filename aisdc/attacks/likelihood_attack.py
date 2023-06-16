@@ -25,6 +25,7 @@ from sklearn.model_selection import train_test_split
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, ConfigFile
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -420,7 +421,7 @@ class LIRAAttack(Attack):
 
         self.metadata["attack"] = str(self)
 
-    def make_report(self) -> dict:
+    def make_report(self, json_attack_formatter=None) -> dict:
         """Create the report
 
         Creates the output report. If self.args.report_name is not None, it will also save the
@@ -441,12 +442,11 @@ class LIRAAttack(Attack):
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if self.args.report_name is not None:
+        if json_attack_formatter is not None:
             json_report = report.create_json_report(output)
-            with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
-                f.write(json_report)
-            logger.info("Wrote report to %s", f"{self.args.report_name}.json")
+            json_attack_formatter.add_attack_output(json_report)
 
+        if self.args.report_name is not None:
             pdf_report = report.create_lr_report(output)
             pdf_report.output(f"{self.args.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
@@ -554,7 +554,7 @@ def _example(args):
     lira_args = LIRAAttackArgs(**args.__dict__)
     attack_obj = LIRAAttack(lira_args)
     attack_obj.example()
-    attack_obj.make_report()
+    attack_obj.make_report(GenerateJSONModule("likelihood_attack_example.json"))
 
 
 def _run_attack(args):
@@ -562,7 +562,7 @@ def _run_attack(args):
     lira_args = LIRAAttackArgs(**args.__dict__)
     attack_obj = LIRAAttack(lira_args)
     attack_obj.attack_from_config()
-    attack_obj.make_report()
+    attack_obj.make_report(GenerateJSONModule("likelihood_attack.json"))
 
 
 def _run_attack_from_configfile(args):
@@ -572,7 +572,7 @@ def _run_attack_from_configfile(args):
     )
     attack_obj = LIRAAttack(lira_args)
     attack_obj.attack_from_config()
-    attack_obj.make_report()
+    attack_obj.make_report(GenerateJSONModule("likelihood_attack_from_configfile.json"))
 
 
 def main():

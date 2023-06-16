@@ -7,14 +7,15 @@ import unittest
 
 import pytest
 
-from aisdc.generate_report import (
+from aisdc.attacks.attack_report_formatter import (
     AnalysisModule,
     FinalRecommendationModule,
+    GenerateJSONModule,
+    GenerateTextReport,
     LogLogROCModule,
     SummariseAUCPvalsModule,
     SummariseFDIFPvalsModule,
     SummariseUnivariateMetricsModule,
-    process_json,
 )
 
 
@@ -57,7 +58,8 @@ class TestGenerateReport(unittest.TestCase):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
 
-        process_json(filename, output_filename)
+        g = GenerateTextReport()
+        g.process_json(filename, output_filename)
 
         with open(output_filename, encoding="utf-8") as file:
             data = file.read()
@@ -78,6 +80,35 @@ class TestGenerateReport(unittest.TestCase):
         with pytest.raises(NotImplementedError):
             str(a)
 
+    def test_json_formatter(self):
+        """test which tests the GenerateJSONModule"""
+        g = GenerateJSONModule()
+        filename = g.get_output_filename()
+        self.assertIsNotNone(filename)
+        self.clean_up(filename)
+
+        test_filename = "example_filename.json"
+        g = GenerateJSONModule(test_filename)
+        self.assertEqual(test_filename, g.get_output_filename())
+        self.clean_up(test_filename)
+
+        # check file is overwritten when the same file is passed
+        test_filename = "filename_to_rewrite.json"
+        g = GenerateJSONModule(test_filename)
+        g.clean_file()
+
+        g.add_attack_output("this should be included in the file\n")
+
+        g = GenerateJSONModule(test_filename)
+        g.add_attack_output("this should also be included in the file\n")
+        with open(test_filename, encoding="utf-8") as f:
+            file_contents = f.read()
+
+        self.assertIn("this should be included in the file", file_contents)
+        self.assertIn("this should also be included in the file", file_contents)
+
+        self.clean_up(test_filename)
+
     def test_whitespace_in_filenames(self):
         """test to make sure whitespace is removed from the output file when creating the report"""
         json_formatted = self.get_test_report()
@@ -88,7 +119,10 @@ class TestGenerateReport(unittest.TestCase):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
 
-        process_json(filename, output_filename)
+        g = GenerateTextReport()
+        g.process_json(filename, output_filename)
+
+        self.clean_up(output_filename)
 
         assert os.path.exists("filename should be changed.txt") is False
         assert os.path.exists("filename_should_be_changed.txt") is True
@@ -157,6 +191,8 @@ class TestGenerateReport(unittest.TestCase):
         f = SummariseUnivariateMetricsModule(json_formatted)
         _ = f.process_dict()
 
+        self.assertEqual("Summary of Univarite Metrics", str(f))
+
     def test_auc_pvals_module(self):
         """test the SummariseAUCPvalsModule"""
         json_formatted = self.get_test_report()
@@ -170,12 +206,16 @@ class TestGenerateReport(unittest.TestCase):
             f = SummariseAUCPvalsModule(json_formatted, correction="xyzabcd")
             _ = f.process_dict()
 
+        self.assertIn("Summary of AUC p-values", str(f))
+
     def test_fdif_pvals_module(self):
         """test the SummariseFDIFPvalsModule"""
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = f.process_dict()
         _ = f.get_metric_list(json_formatted["attack_experiment_logger"])
+
+        self.assertIn("Summary of FDIF p-values", str(f))
 
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
@@ -185,6 +225,8 @@ class TestGenerateReport(unittest.TestCase):
 
         f = LogLogROCModule(json_formatted, output_folder="./")
         _ = f.process_dict()
+
+        self.assertEqual("ROC Log Plot", str(f))
 
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
