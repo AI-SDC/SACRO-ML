@@ -28,11 +28,23 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        report_name: str = None,
+        n_cpu: int = max(1, mp.cpu_count() - 1)
+    ) -> None:
+        """Constructs an object to execute an attribut inference attack.
+
+        Parameters
+        ----------
+        report_name: str
+            name of the JSON output report
+        n_cpu: int
+            number of CPUs used to run the attack
+        """
         super().__init__()
-        self.report_name = None
-        self.n_cpu = max(1, mp.cpu_count() - 1)
-        self.__dict__.update(kwargs)
+        self.report_name = report_name
+        self.n_cpu = n_cpu
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 

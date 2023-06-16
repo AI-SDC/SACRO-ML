@@ -90,7 +90,7 @@ class LIRAAttack(Attack):
         n_shadow_rows_confidences_min: int = 10,
         shadow_models_fail_fast: bool = False,
     ) -> None:
-        """Constructs an object to execute a worst case attack.
+        """Constructs an object to execute a LIRA attack.
 
         Parameters
         ----------
