@@ -56,7 +56,7 @@ class AttributeAttack(Attack):
         self.metadata = {}
         self.metadata["experiment_details"] = {}
         keys_to_exclude_in_metadata = {
-            "attack_metrics",            
+            "attack_metrics",
             "metadata",
         }
         self.metadata["experiment_details"] = self._exclude_keys_from_dict(
