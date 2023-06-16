@@ -844,8 +844,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 # Threshold to determine significance of things
                 p_thresh=0.05,
                 # Filename arguments needed by the code, meaningless if run programmatically
-                in_sample_filename=None,
-                out_sample_filename=None,
+                training_preds_filename=None,
+                test_preds_filename=None,
                 # Proportion of data to use as a test set for the attack model;
                 test_prop=0.5,
                 # Report name is None - don't make json or pdf files
