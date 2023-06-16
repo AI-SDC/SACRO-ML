@@ -41,8 +41,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
