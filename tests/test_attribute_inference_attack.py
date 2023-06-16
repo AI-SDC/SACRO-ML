@@ -19,6 +19,7 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
 )
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,
@@ -92,7 +93,8 @@ def test_AIA_on_nursery():
     target, attack_obj = common_setup()
     attack_obj.attack(target)
 
-    output = attack_obj.make_report()
+    g = GenerateJSONModule("test_attribute_attack.json")
+    output = attack_obj.make_report(g)
     output = output["attack_metrics"]
 
 
@@ -107,6 +109,7 @@ def test_cleanup():
         "aia_report_quant_risk.png",
         "aia_report.pdf",
         "aia_report.json",
+        "test_attribute_attack.json",
     )
     for fname in files_made:
         cleanup_file(fname)

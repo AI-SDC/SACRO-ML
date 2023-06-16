@@ -5,9 +5,47 @@ Generate report for TREs from JSON file
 import json
 import os
 import pprint
+from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+class GenerateJSONModule:
+    """
+    Module that creates and appends to a JSON file
+    """
+
+    def __init__(self, filename=None):
+        self.filename = filename
+
+        if self.filename is None:
+            self.filename = (
+                "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
+            )
+
+        # if file doesn't exist, create it
+        if not os.path.exists(self.filename):
+            with open(self.filename, "w+", encoding="utf-8") as f:
+                f.write("")
+
+    def add_attack_output(self, incoming_json):
+        """Add a section of JSON to the file which is already open"""
+        with open(self.filename, "a", encoding="utf-8") as f:
+            f.write(incoming_json)
+            f.write("\n")
+
+    def get_output_filename(self):
+        """Returns the filename of the JSON file which has been created"""
+        return self.filename
+
+    def clean_file(self):
+        """Delete the file if it exists"""
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
+
+        with open(self.filename, "w+", encoding="utf-8") as f:
+            f.write("")
 
 
 class AnalysisModule:
@@ -107,7 +145,7 @@ class FinalRecommendationModule(
         if self._is_svm(self.SVM_WEIGHTING_SCORE):
             summarised_score = self.SVM_WEIGHTING_SCORE
 
-        output = dict()
+        output = {}
         output["final_score"] = summarised_score
         output["score_breakdown"] = self.scores
         output["score_descriptions"] = self.reasons
@@ -167,18 +205,18 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
         if correction == "none":
             return len(np.where(np.array(p_val_list) <= self.p_thresh)[0])
-        elif correction == "bh":
+        if correction == "bh":
             sorted_p = sorted(p_val_list)
             m = len(p_val_list)
             alpha = self.p_thresh
             comparators = np.arange(1, m + 1, 1) * alpha / m
             return (sorted_p <= comparators).sum()
-        elif correction == "bo":  # bonferroni
+        if correction == "bo":  # bonferroni
             return len(
                 np.where(np.array(p_val_list) <= self.p_thresh / len(p_val_list))[0]
             )
-        else:
-            raise NotImplementedError()  # any others?
+
+        raise NotImplementedError()  # any others?
 
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []
@@ -207,7 +245,6 @@ class SummariseAUCPvalsModule(AnalysisModule):
 class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
     """Summarise the number of significant FDIF p-values"""
 
-    # TODO do we want to parameterise which FDIF (01, 001, etc)?
     def get_metric_list(self, input_dict: dict) -> list[float]:
         """Get metrics_list from attack_instance_logger within JSON file"""
         metric_list = []
@@ -274,35 +311,39 @@ class LogLogROCModule(AnalysisModule):
         return "ROC Log Plot"
 
 
-def pretty_print(report: dict) -> str:
+class GenerateTextReport:
     """
-    Function that formats JSON code to make it more readable for TREs
-    """
-    returned_string = ""
-
-    for key in report.keys():
-        returned_string = returned_string + key + "\n"
-        returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
-
-    return returned_string
-
-
-def process_json(input_filename: str, output_filename: str):
-    """
-    Function that takes an input JSON filename and outputs a neat text file summarising results
+    Module that generates a text report from a JSON input
     """
 
-    output_filename = output_filename.replace(" ", "_")
+    def pretty_print(self, report: dict) -> str:
+        """
+        Function that formats JSON code to make it more readable for TREs
+        """
+        returned_string = ""
 
-    with open(input_filename) as f:
-        json_report = json.loads(f.read())
+        for key in report.keys():
+            returned_string = returned_string + key + "\n"
+            returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
 
-    modules = [
-        FinalRecommendationModule(json_report),
-    ]
+        return returned_string
 
-    output = {str(m): m.process_dict() for m in modules}
-    output_string = pretty_print(output)
+    def process_json(self, input_filename: str, output_filename: str):
+        """
+        Function that takes an input JSON filename and outputs a neat text file summarising results
+        """
 
-    with open(output_filename, "w") as text_file:
-        text_file.write(output_string)
+        output_filename = output_filename.replace(" ", "_")
+
+        with open(input_filename, encoding="utf-8") as f:
+            json_report = json.loads(f.read())
+
+        modules = [
+            FinalRecommendationModule(json_report),
+        ]
+
+        output = {str(m): m.process_dict() for m in modules}
+        output_string = self.pretty_print(output)
+
+        with open(output_filename, "w", encoding="utf-8") as text_file:
+            text_file.write(output_string)

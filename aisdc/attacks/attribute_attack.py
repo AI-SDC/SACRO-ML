@@ -74,7 +74,7 @@ class AttributeAttack(Attack):
         )
         self.metadata["attack"] = str(self)
 
-    def make_report(self) -> dict:
+    def make_report(self, json_attack_formatter=None) -> dict:
         """Create the report.
 
         Creates the output report. If self.report_name is not None, it will also save the
@@ -91,12 +91,12 @@ class AttributeAttack(Attack):
         output["attack_metrics"] = self.attack_metrics
         self._construct_metadata()
         output["metadata"] = self.metadata
-        if self.report_name is not None:
-            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            with open(f"{self.report_name}.json", "w", encoding="utf-8") as f:
-                f.write(json_report)
-            logger.info("Wrote report to %s", f"{self.report_name}.json")
 
+        if json_attack_formatter is not None:
+            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
+            json_attack_formatter.add_attack_output(json_report)
+
+        if self.args.report_name is not None:
             pdf = create_aia_report(output)
             pdf.output(f"{self.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")

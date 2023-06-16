@@ -15,7 +15,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks import attribute_attack, target  # pylint: disable = import-error
+from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.target import Target
 
 # pylint: disable = duplicate-code
 
@@ -71,7 +73,7 @@ if __name__ == "__main__":
     print(f"Base model test accuracy: {acc_test}")
 
     # [TRE / Researcher] Wrap the model and data in a Target object
-    target = target.Target(model=model)
+    target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
     target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
@@ -92,7 +94,9 @@ if __name__ == "__main__":
     attack_obj.attack(target)
 
     # [TRE] Grab the output
-    output = attack_obj.make_report()  # also makes .pdf and .json files
+    output = attack_obj.make_report(
+        GenerateJSONModule("attribute_inference_attack.json")
+    )  # also makes .pdf and .json files
     output = output["attack_metrics"]
 
     # [TRE] explore the metrics

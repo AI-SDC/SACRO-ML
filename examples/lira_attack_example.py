@@ -42,6 +42,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # [Researcher] Access a dataset
@@ -83,7 +84,9 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report()  # also makes .pdf and .json files
+output = attack_obj.make_report(
+    GenerateJSONModule("lira_attack.json")
+)  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
@@ -120,7 +123,9 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report()  # also makes .pdf and .json files
+output = attack_obj.make_report(
+    GenerateJSONModule("lira_attack.json")
+)  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
