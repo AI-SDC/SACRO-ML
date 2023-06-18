@@ -415,15 +415,7 @@ class LIRAAttack(Attack):
         """Constructs the metadata object. Called by the reporting method"""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
-        keys_to_exclude_in_metadata = {
-            "attack_metrics",
-            "attack_failfast_shadow_models_trained",
-            "dummy_attack_metrics",
-            "metadata",
-        }
-        self.metadata["experiment_details"] = self._exclude_keys_from_dict(
-            keys_to_exclude_in_metadata
-        )
+        self.metadata["experiment_details"] = self.get_params()
 
         self.metadata["global_metrics"] = {}
 

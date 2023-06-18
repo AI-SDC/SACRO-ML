@@ -1,6 +1,7 @@
 """attack.py - base class for an attack object"""
 
 import json
+import inspect
 
 from aisdc.attacks.target import Target
 
@@ -24,7 +25,28 @@ class Attack:
             config = json.loads(f.read())
         for key, value in config.items():
             setattr(self, key, value)
+      
+    @classmethod
+    def _get_param_names(cls):
+        """Get parameter names"""
+        init_signature = inspect.signature(cls.__init__)
+        parameters = [
+            p.name
+            for p in init_signature.parameters.values()
+            if p.name != "self" and p.kind != p.VAR_KEYWORD
+        ]
+        return parameters
 
-    def _exclude_keys_from_dict(self, keys_to_exclude: list) -> dict:
-        """Exclude keys from a given dictionary"""
-        return {k: v for k, v in self.__dict__.items() if k not in keys_to_exclude}
+    def get_params(self):
+        """
+        Get parameters for this attack.
+
+        Returns
+        -------
+        params : dict
+            Parameter names mapped to their values.
+        """
+        out: dict = {}
+        for key in self._get_param_names():
+            out[key] = getattr(self, key)
+        return out

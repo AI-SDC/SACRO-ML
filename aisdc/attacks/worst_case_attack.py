@@ -525,17 +525,8 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         self.metadata = {}
         # Store all args
-        self.metadata["experiment_details"] = {}
-        keys_to_exclude_in_metadata = {
-            "attack_metrics",
-            "attack_metric_failfast_summary",
-            "dummy_attack_metrics",
-            "dummy_attack_metric_failfast_summary",
-            "metadata",
-        }
-        self.metadata["experiment_details"] = self._exclude_keys_from_dict(
-            keys_to_exclude_in_metadata
-        )
+        self.metadata["experiment_details"]={}
+        self.metadata["experiment_details"] = self.get_params()
 
         self.metadata["attack"] = str(self)
 

@@ -65,13 +65,8 @@ class AttributeAttack(Attack):
         """Constructs the metadata object. Called by the reporting method."""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
-        keys_to_exclude_in_metadata = {
-            "attack_metrics",
-            "metadata",
-        }
-        self.metadata["experiment_details"] = self._exclude_keys_from_dict(
-            keys_to_exclude_in_metadata
-        )
+        self.metadata["experiment_details"] = self.get_params()
+
         self.metadata["attack"] = str(self)
 
     def make_report(self, json_attack_formatter=None) -> dict:
