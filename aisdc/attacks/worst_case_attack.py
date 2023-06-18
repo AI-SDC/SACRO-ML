@@ -525,7 +525,7 @@ class WorstCaseAttack(Attack):
         """Constructs the metadata object, after attacks"""
         self.metadata = {}
         # Store all args
-        self.metadata["experiment_details"]={}
+        self.metadata["experiment_details"] = {}
         self.metadata["experiment_details"] = self.get_params()
 
         self.metadata["attack"] = str(self)

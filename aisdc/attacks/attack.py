@@ -1,7 +1,7 @@
 """attack.py - base class for an attack object"""
 
-import json
 import inspect
+import json
 
 from aisdc.attacks.target import Target
 
@@ -25,7 +25,7 @@ class Attack:
             config = json.loads(f.read())
         for key, value in config.items():
             setattr(self, key, value)
-      
+
     @classmethod
     def _get_param_names(cls):
         """Get parameter names"""
