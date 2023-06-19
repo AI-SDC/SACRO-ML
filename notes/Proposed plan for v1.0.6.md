@@ -1,5 +1,5 @@
 2. v.1.0.6 (June, 2023?)
-    * Plan: Getting to `TARGET.json` :heavy_plus_sign: `ATTACK_CONFIG.json` :arrow_right: `ATTACK_RESULTS.json` :arrow_right: `SUMMARY.txt`
+    * Plan: Getting to `TARGET.json` :heavy_plus_sign: `ATTACK_CONFIG.json` :arrow_right: `ATTACK_RESULTS.json` :arrow_right: `SUMMARY.json`
         * Improve `ATTACK_CONFIG.json`
             * Refactor attack argument handling: replace the attack args classes with a dictionary within each attack class and move config file handling into the `Attack` class [Issue [#156](https://github.com/AI-SDC/AI-SDC/issues/156)] [Assigned: SM - phase1]
             * Ensure this is documented and appears in the github.io docs [Assigned: SM - phase1]
