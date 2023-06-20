@@ -1,6 +1,6 @@
 """ workimg on how to integrate attacks into safemosdel classes
 Invoke this code from the root AI-SDC folder with
-python -m examples.test_sagfemodel_attack_integration
+python -m examples.safemodel_attack_integration_bothcalls
 
 """
 import logging

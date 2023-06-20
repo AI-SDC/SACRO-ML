@@ -7,9 +7,6 @@ from __future__ import annotations
 import json
 import logging
 
-# import pickle
-from typing import Any
-
 import matplotlib.pyplot as plt
 import multiprocess as mp
 import numpy as np
@@ -28,35 +25,26 @@ COLOR_A: str = "#86bf91"  # training set plot colour
 COLOR_B: str = "steelblue"  # testing set plot colour
 
 
-class AttributeAttackArgs:
-    """Arguments for attribute inference."""
-
-    def __init__(self, **kwargs):
-        self.__dict__["report_name"] = None
-        self.__dict__["n_cpu"] = max(1, mp.cpu_count() - 1)
-        self.__dict__.update(kwargs)
-
-    def __str__(self):
-        return ",".join(
-            [f"{str(key)}: {str(value)}" for key, value in self.__dict__.items()]
-        )
-
-    def set_param(self, key: str, value: Any) -> None:
-        """Set a parameter"""
-        self.__dict__[key] = value
-
-    def get_args(self) -> dict:
-        """Return arguments"""
-        return self.__dict__
-
-
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    def __init__(self, args: AttributeAttackArgs = AttributeAttackArgs()):
+    def __init__(
+        self, report_name: str = None, n_cpu: int = max(1, mp.cpu_count() - 1)
+    ) -> None:
+        """Constructs an object to execute an attribute inference attack.
+
+        Parameters
+        ----------
+        report_name: str
+            name of the JSON output report
+        n_cpu: int
+            number of CPUs used to run the attack
+        """
+        super().__init__()
+        self.report_name = report_name
+        self.n_cpu = n_cpu
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
-        self.args = args
 
     def __str__(self):
         return "Attribute inference attack"
@@ -71,19 +59,20 @@ class AttributeAttack(Attack):
         target: attacks.target.Target
             target is a Target class object
         """
-        self.attack_metrics = _attribute_inference(target, self.args.n_cpu)
+        self.attack_metrics = _attribute_inference(target, self.n_cpu)
 
     def _construct_metadata(self) -> None:
         """Constructs the metadata object. Called by the reporting method."""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"].update(self.args.__dict__)
+        self.metadata["experiment_details"] = self.get_params()
+
         self.metadata["attack"] = str(self)
 
     def make_report(self, json_attack_formatter=None) -> dict:
         """Create the report.
 
-        Creates the output report. If self.args.report_name is not None, it will also save the
+        Creates the output report. If self.report_name is not None, it will also save the
         information in json and pdf formats.
 
         Returns
@@ -93,7 +82,7 @@ class AttributeAttack(Attack):
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, report_name = %s", self.args.report_name)
+        logger.info("Starting report, report_name = %s", self.report_name)
         output["attack_metrics"] = self.attack_metrics
         self._construct_metadata()
         output["metadata"] = self.metadata
@@ -102,10 +91,10 @@ class AttributeAttack(Attack):
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
             json_attack_formatter.add_attack_output(json_report)
 
-        if self.args.report_name is not None:
+        if self.report_name is not None:
             pdf = create_aia_report(output)
-            pdf.output(f"{self.args.report_name}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.args.report_name}.pdf")
+            pdf.output(f"{self.report_name}.pdf", "F")
+            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
         return output
 
 

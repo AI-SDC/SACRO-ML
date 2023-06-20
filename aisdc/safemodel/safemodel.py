@@ -19,10 +19,7 @@ import joblib
 from dictdiffer import diff
 
 from aisdc.attacks import attribute_attack, report, worst_case_attack
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    LIRAAttack,
-    LIRAAttackArgs,
-)
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target
 
 # pylint : disable=too-many-branches
@@ -840,39 +837,34 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Single Attribute Inference: attributes
         """
         if attack_name == "worst_case":
-            attack_args = worst_case_attack.WorstCaseAttackArgs(
+            attack_obj = worst_case_attack.WorstCaseAttack(
                 n_reps=10,
                 # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
                 # Threshold to determine significance of things
                 p_thresh=0.05,
                 # Filename arguments needed by the code, meaningless if run programmatically
-                in_sample_filename=None,
-                out_sample_filename=None,
+                training_preds_filename=None,
+                test_preds_filename=None,
                 # Proportion of data to use as a test set for the attack model;
                 test_prop=0.5,
                 # Report name is None - don't make json or pdf files
                 report_name=None,
             )
-            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
             attack_obj.attack(target=target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
 
         elif attack_name == "lira":
-            args = LIRAAttackArgs(
+            attack_obj = LIRAAttack(
                 n_shadow_models=100, report_name="lira_example_report"
             )
-            attack_obj = LIRAAttack(args)
             attack_obj.attack(target)
             output = attack_obj.make_report()  # also makes .pdf file
             metadata = output["metadata"]
 
         elif attack_name == "attribute":
-            attack_args = attribute_attack.AttributeAttackArgs(
-                report_name="aia_example"
-            )
-            attack_obj = attribute_attack.AttributeAttack(attack_args)
+            attack_obj = attribute_attack.AttributeAttack(report_name="aia_example")
             attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]

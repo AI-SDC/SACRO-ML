@@ -41,18 +41,15 @@ def common_setup():
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    attack_args = attribute_attack.AttributeAttackArgs(
-        n_cpu=7, report_name="aia_report"
-    )
-    return target, attack_args
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
+    return target, attack_obj
 
 
 def test_attack_args():
     """tests methods in the attack_args class"""
-    _, attack_args = common_setup()
-    _ = attack_args.__str__()  # pylint:disable=unnecessary-dunder-call
-    attack_args.set_param("newkey", True)
-    thedict = attack_args.get_args()
+    _, attack_obj = common_setup()
+    attack_obj.__dict__["newkey"] = True
+    thedict = attack_obj.__dict__
     assert thedict["newkey"] is True
 
 
@@ -93,9 +90,7 @@ def test_continuous_via_modified_bounds_risk():
 def test_AIA_on_nursery():
     """tests running AIA on the nursery data
     with an added continuous feature"""
-    target, attack_args = common_setup()
-
-    attack_obj = attribute_attack.AttributeAttack(attack_args)
+    target, attack_obj = common_setup()
     attack_obj.attack(target)
 
     g = GenerateJSONModule("test_attribute_attack.json")
