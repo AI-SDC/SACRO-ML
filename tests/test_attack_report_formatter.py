@@ -97,10 +97,10 @@ class TestGenerateReport(unittest.TestCase):
         g = GenerateJSONModule(test_filename)
         g.clean_file()
 
-        g.add_attack_output("this should be included in the file\n",'TestAttack')
+        g.add_attack_output("this should be included in the file\n", "TestAttack")
 
         g = GenerateJSONModule(test_filename)
-        g.add_attack_output("this should also be included in the file\n",'TestAttack')
+        g.add_attack_output("this should also be included in the file\n", "TestAttack")
         with open(test_filename, encoding="utf-8") as f:
             file_contents = f.read()
 
