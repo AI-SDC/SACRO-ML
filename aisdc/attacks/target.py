@@ -126,21 +126,28 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_test_orig = y_test_orig
         self.n_samples_orig = len(x_orig)
 
-    def __save_model(self, path: str, target: dict) -> None:
+    def __save_model(self, path: str, ext: str, target: dict) -> None:
         """Save the target model.
 
         Parameters
         ----------
         path : str
             Path to write the model.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
         target : dict
             Target class as a dictionary for writing JSON.
         """
         # write model
-        filename: str = os.path.normpath(f"{path}/model.pkl")
-        with open(filename, "wb") as fp:
-            pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        target["model_path"] = "model.pkl"
+        filename: str = os.path.normpath(f"{path}/model.{ext}")
+        if hasattr(self.model, "save"):
+            self.model.save(filename)
+        elif ext == "pkl":
+            with open(filename, "wb") as fp:
+                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            raise ValueError(f"Unsupported file format for saving a model: {ext}")
+        target["model_path"] = f"model.{ext}"
         # write hyperparameters
         try:
             target["model_name"] = type(self.model).__name__
@@ -241,20 +248,19 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_numpy(path, target, "x_test_orig")
         self.__load_numpy(path, target, "y_test_orig")
 
-    def save(self, path: str = "target") -> None:
+    def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Saves the target class to persistent storage.
 
         Parameters
         ----------
         path : str
             Name of the output folder to save target information.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
         """
         path: str = os.path.normpath(path)
-        try:  # check if the directory was already created
-            os.makedirs(path)
-            logger.debug("Directory %s created successfully", path)
-        except FileExistsError:  # pragma: no cover
-            logger.debug("Directory %s already exists", path)
+        filename: str = os.path.normpath(f"{path}/target.json")
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         # convert Target to JSON
         target: dict = {
             "data_name": self.name,
@@ -266,11 +272,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
         }
         # write model and add path to JSON
         if self.model is not None:
-            self.__save_model(path, target)
+            self.__save_model(path, ext, target)
         # write data arrays and add paths to JSON
         self.__save_data(path, target)
         # write JSON
-        filename: str = os.path.normpath(f"{path}/target.json")
         with open(filename, "w", newline="", encoding="utf-8") as fp:
             json.dump(target, fp, indent=4, cls=NumpyArrayEncoder)
 
