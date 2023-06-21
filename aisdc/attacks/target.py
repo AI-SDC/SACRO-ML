@@ -145,7 +145,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         elif ext == "pkl":
             with open(filename, "wb") as fp:
                 pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for saving a model: {ext}")
         target["model_path"] = f"model.{ext}"
         # write hyperparameters
