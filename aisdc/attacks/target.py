@@ -166,8 +166,12 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Target class as a dictionary read from JSON.
         """
         model_path = os.path.normpath(f"{path}/{target['model_path']}")
-        with open(model_path, "rb") as fp:
-            self.model = pickle.load(fp)
+        _, ext = os.path.splitext(model_path)
+        if ext == ".pkl":
+            with open(model_path, "rb") as fp:
+                self.model = pickle.load(fp)
+        else:  # pragma: no cover
+            raise ValueError(f"Unsupported file format for loading a model: {ext}")
 
     def __save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
