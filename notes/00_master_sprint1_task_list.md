@@ -2,9 +2,9 @@
 - [x] Ensure this is documented and appears in the github.io docs [Assigned: SM - phase1]
 - [x] Ensure that the config file is standardised to run any attack [Issue #148] [Assigned: SM - phase1]
 - [x] Create TARGET.json - some of these must be done in sequence [Assigned: RP - phase1]
-  - [ ] (in progress) SafeModel
-  - [ ] (in progress) Modify safemodels request_release() to add the target model information to the Target class and create the TARGET.json above. [Assigned: JS/RP]
-  - [ ] (in progress) Redirect safemodel info/outputs from *checkfile.txt to TARGET.json. Update the safemodel example(s) [Issue #158] [Assigned: JS/RP - phase]
+  - [x]  SafeModel
+  - [x]  Modify safemodels request_release() to add the target model information to the Target class and create the TARGET.json above. [Assigned: JS/RP]
+  - [x]  Redirect safemodel info/outputs from *checkfile.txt to TARGET.json. Update the safemodel example(s) [Issue #158] [Assigned: JS/RP - phase]
 - [ ] Add generalisation error reporting to safemodels (and include in TARGET.json) [Issue #150] [Assigned: JS/RP - phase1]
 - [x] Redirect attack output to a single file instead of creating individual files for each attack [Assigned: YJ - phase1]
 - [x] Add the ability to produce ATTACK_RESULTS.json from the command line with TARGET.json and ATTACK_CONFIG.json [Assigned: SM- phase2]
