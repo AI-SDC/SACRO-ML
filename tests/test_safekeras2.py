@@ -1,6 +1,5 @@
 """This module contains unit tests for SafeKerasModel."""
 
-import getpass
 import os
 import platform
 import shutil
@@ -30,6 +29,13 @@ n_classes = 4
 ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 
 UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
+
+RES_DIR = "RES"
+
+
+def clean():
+    """Removes unwanted results"""
+    shutil.rmtree(RES_DIR)
 
 
 def cleanup_file(name: str):
@@ -725,43 +731,29 @@ def test_create_checkfile():
     model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
-    names = ("safekeras.tf", "safekeras.h5")
-    for name in names:
-        # clear existing files
-        cleanup_file(name)
-        # save file
+    exts = ("tf", "h5")
+    for ext in exts:
+        name = os.path.normpath(f"{RES_DIR}/model.{ext}")
+        os.makedirs(os.path.dirname(name), exist_ok=True)
+        # check save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-
-        model.request_release(name)
+        clean()
+        # check release
+        model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-
-        researcher = getpass.getuser()
-        outputfilename = researcher + "_checkfile.json"
-        assert os.path.exists(
-            outputfilename
-        ), f"Failed test to save checkfile as {outputfilename}"
-
-        # Using readlines()
-        with open(outputfilename, encoding="utf-8") as file1:
-            lines = file1.readlines()
-
-        count = 0
-        # Strips the newline character
-        for line in lines:
-            count += 1
-            print(f"Line{count}: {line.strip()}")
-
-        # clean up
-        cleanup_file(name)
+        name = os.path.normpath(f"{RES_DIR}/target.json")
+        assert os.path.exists(name), "Failed test to save target.json"
+        clean()
 
     # now other versions which should not
-    names = ("safekeras.sav", "safekeras.pkl", "randomfilename", "undefined")
-    for name in names:
-        cleanup_file(name)
+    exts = ("sav", "pkl", "undefined")
+    for ext in exts:
+        name = os.path.normpath(f"{RES_DIR}/model.{ext}")
+        os.makedirs(os.path.dirname(name), exist_ok=True)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        cleanup_file(name)
+        clean()
 
 
 def test_posthoc_check():
