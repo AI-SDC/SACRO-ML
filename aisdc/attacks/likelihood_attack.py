@@ -611,7 +611,7 @@ def _run_attack_from_configfile(args):
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
     )
-    target=Target()
+    target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack_from_config()
     attack_obj.make_report(GenerateJSONModule("likelihood_attack_from_configfile.json"))
@@ -717,7 +717,7 @@ def main():
         type=str,
         default="lira_target",
         help=(
-            """Name of the target directory to load the trained target model and the target data. 
+            """Name of the target directory to load the trained target model and the target data.
             Default = %(default)s"""
         ),
     )

@@ -168,7 +168,7 @@ class TestLiraAttack(TestCase):
             "-j",
             "tests/lrconfig_cmd.json",
             "-t",
-            "test_lira_target"
+            "test_lira_target",
         ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
