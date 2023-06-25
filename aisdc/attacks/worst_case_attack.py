@@ -973,7 +973,7 @@ def main():
         required=True,
         dest="target_path",
         type=str,
-        default="target",
+        default="worstcase_target",
         help=(
             """Name of the target directory to load the trained target model and the target data. 
             Default = %(default)s"""
