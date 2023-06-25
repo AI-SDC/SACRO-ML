@@ -24,15 +24,16 @@ import json
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule # pylint: disable = import-error
 from aisdc.attacks.target import Target  # pylint: disable = import-error
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
@@ -74,17 +75,22 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     test_preds_filename=None,
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
-    # If Report name is given so it creates Json file; however when it is None - don't make json file
+    # If Report name is given so it creates Json file; however when it is None -
+    # don't make json file
     report_name="programmatically_worstcase_example1_report",
     # Setting the name of metric to compute failures
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
     attack_metric_success_thresh=0.05,
-    # threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte: less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
+    # threshold comparison operator (i.e., gte: greater than or equal to, gt: greater than, lte:
+    # less than or equal to, lt: less than, eq: equal to and not_eq: not equal to)
     attack_metric_success_comp_type="lte",
     # fail fast counter to stop further repetitions of the test
     attack_metric_success_count_thresh=2,
-    # If true it stop repetitions earlier based on the given attack metric (i.e., attack_metric_success_name) considering the comparison type (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh) for n (attack_metric_success_count_thresh) number of times
+    # If true it stop repetitions earlier based on the given attack metric
+    # (i.e., attack_metric_success_name) considering the comparison type
+    # (attack_metric_success_comp_type) satisfying a threshold (i.e., attack_metric_success_thresh)
+    #  for n (attack_metric_success_count_thresh) number of times
     attack_fail_fast=True,
 )
 
@@ -163,12 +169,9 @@ config = {
 with open("config_worstcase.json", "w", encoding="utf-8") as f:
     f.write(json.dumps(config))
 
-# [TRE / Researcher] Wrap the model and data in a Target object
-target = Target(model=target_model)
-target.add_processed_data(train_X, train_y, test_X, test_y)
-
 # [TRE] Create the attack object
-attack_obj = worst_case_attack.WorstCaseAttack(  # name of the configuration file in JSON format to load parameters
+attack_obj = worst_case_attack.WorstCaseAttack(
+    # name of the configuration file in JSON format to load parameters
     attack_config_json_file_name="config_worstcase.json",
 )
 
@@ -243,6 +246,9 @@ print("*****************************")
 np.savetxt("train_preds.csv", train_preds, delimiter=",")
 np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
+# [Researcher] Dump the target model and target data
+target.save(path="worstcase_target")
+
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
 os.system(f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack --help")
@@ -290,6 +296,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_worstcase_cmd.json "
+    "--attack-target-folder-path worstcase_target "
 )
 
 # Example 3: Worstcase attack by passing a configuratation file name for loading parameters
@@ -310,7 +317,8 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 
 os.system(
     f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
-    "--attack-config-json-file-name config_worstcase_cmd.json "
+    "--attack-config-json-file-name config_worstcase_cmd.json " 
+    "--attack-target-folder-path worstcase_target "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)

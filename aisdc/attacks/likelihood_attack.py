@@ -90,6 +90,7 @@ class LIRAAttack(Attack):
         attack_config_json_file_name: str = None,
         n_shadow_rows_confidences_min: int = 10,
         shadow_models_fail_fast: bool = False,
+        target_path: str = None,
     ) -> None:
         """Constructs an object to execute a LIRA attack.
 
@@ -123,6 +124,8 @@ class LIRAAttack(Attack):
         shadow_models_fail_fast: bool
             If true it stops repetitions earlier based on the given minimum
             number of confidences for each row in the test data
+        target_path: str
+            path to the saved trained target model and target data
         """
         super().__init__()
         self.n_shadow_models = n_shadow_models
@@ -137,6 +140,7 @@ class LIRAAttack(Attack):
         self.attack_config_json_file_name = attack_config_json_file_name
         self.n_shadow_rows_confidences_min = n_shadow_rows_confidences_min
         self.shadow_models_fail_fast = shadow_models_fail_fast
+        self.target_path = target_path
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
         self.attack_metrics = None
@@ -605,7 +609,10 @@ def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = LIRAAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
+        target_path=str(args.target_path),
     )
+    target=Target()
+    target.load(attack_obj.target_path)
     attack_obj.attack_from_config()
     attack_obj.make_report(GenerateJSONModule("likelihood_attack_from_configfile.json"))
 
@@ -698,6 +705,20 @@ def main():
         default="config_lira_cmd.json",
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.add_argument(
+        "-t",
+        "--attack-target-folder-path",
+        action="store",
+        required=True,
+        dest="target_path",
+        type=str,
+        default="target",
+        help=(
+            """Name of the target directory to load the trained target model and the target data. 
+            Default = %(default)s"""
         ),
     )
 
