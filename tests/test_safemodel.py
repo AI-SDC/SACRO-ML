@@ -522,16 +522,18 @@ def test_request_release_without_attacks():
 
     # no file provided, has k_anonymity
 
-    filename = "test.pkl"
-    json_filename = model.researcher + "_checkfile.json"
-    model.request_release(filename)
+    RES_DIR = "RES"
+    json_filename = os.path.normpath(f"{RES_DIR}/target.json")
+    model_filename = os.path.normpath(f"{RES_DIR}/model.pkl")
+
+    model.request_release(path=RES_DIR, ext="pkl")
 
     # check that pikle and the json files have been created
-    assert os.path.isfile(filename)
+    assert os.path.isfile(model_filename)
     assert os.path.isfile(json_filename)
 
     # check the content of the json file
-    with open(f"./{json_filename}", encoding="utf-8") as file:
+    with open(f"{json_filename}", encoding="utf-8") as file:
         json_data = json.load(file)
 
         details, _ = model.preliminary_check(verbose=False)
@@ -543,10 +545,9 @@ def test_request_release_without_attacks():
         assert {
             "researcher": model.researcher,
             "model_type": model.model_type,
-            "model_save_file": filename,
             "details": details,
             "k_anonymity": k_anonymity,
             "recommendation": recommendation,
             "reason": reason,
             "timestamp": model.timestamp,
-        } in json_data
+        } in json_data["safemodel"]
