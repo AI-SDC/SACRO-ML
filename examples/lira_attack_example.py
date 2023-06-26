@@ -208,7 +208,7 @@ with open("config_lira_cmd1.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd1.json "
-    "--attack-target-folder-path worstcase_target "
+    "--attack-target-folder-path lira_target "
 )
 
 # Example 4 to demonstrate running attack from configuration file only with fail fail fast option
@@ -231,7 +231,7 @@ with open("config_lira_cmd2.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd2.json "
-    "--attack-target-folder-path worstcase_target "
+    "--attack-target-folder-path lira_target "
 )
 
 
