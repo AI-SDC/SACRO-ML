@@ -30,7 +30,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -317,7 +319,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 
 os.system(
     f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
-    "--attack-config-json-file-name config_worstcase_cmd.json " 
+    "--attack-config-json-file-name config_worstcase_cmd.json "
     "--attack-target-folder-path worstcase_target "
 )
 
