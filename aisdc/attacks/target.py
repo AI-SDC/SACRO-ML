@@ -267,9 +267,12 @@ class Target:  # pylint: disable=too-many-instance-attributes
             and hasattr(self, "x_test")
             and hasattr(self, "y_test")
         ):
-            train = self.model.score(self.x_train, self.y_train)
-            test = self.model.score(self.x_test, self.y_test)
-            return str(test - train)
+            try:
+                train = self.model.score(self.x_train, self.y_train)
+                test = self.model.score(self.x_test, self.y_test)
+                return str(test - train)
+            except sklearn.exceptions.NotFittedError:
+                return "not fitted"
         return "unknown"
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
