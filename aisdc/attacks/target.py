@@ -252,6 +252,29 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_numpy(path, target, "x_test_orig")
         self.__load_numpy(path, target, "y_test_orig")
 
+    def __ge(self) -> str:
+        """Returns the model generalisation error.
+
+        Returns
+        -------
+        str
+            Generalisation error.
+        """
+        if (
+            hasattr(self.model, "score")
+            and hasattr(self, "x_train")
+            and hasattr(self, "y_train")
+            and hasattr(self, "x_test")
+            and hasattr(self, "y_test")
+        ):
+            try:
+                train = self.model.score(self.x_train, self.y_train)
+                test = self.model.score(self.x_test, self.y_test)
+                return str(test - train)
+            except sklearn.exceptions.NotFittedError:
+                return "not fitted"
+        return "unknown"
+
     def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Saves the target class to persistent storage.
 
@@ -272,6 +295,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "features": self.features,
             "n_features": self.n_features,
             "n_samples_orig": self.n_samples_orig,
+            "generalisation_error": self.__ge(),
             "safemodel": self.safemodel,
         }
         # write model and add path to JSON
