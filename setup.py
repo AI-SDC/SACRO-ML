@@ -30,7 +30,7 @@ setup(
         "scikit_learn~=1.1.3",
         "scipy~=1.9.0",
         "tensorflow~=2.12.0",
-        "tensorflow_privacy~=0.8.10",
+        "tensorflow_privacy==0.8.10",
         "uuid~=1.30",
     ],
     classifiers=[
