@@ -35,7 +35,7 @@ class AttributeAttack(Attack):
         report_name: str = None,
         n_cpu: int = max(1, mp.cpu_count() - 1),
         attack_config_json_file_name: str = None,
-        target_path: str = None
+        target_path: str = None,
     ) -> None:
         """Constructs an object to execute an attribute inference attack.
 
@@ -46,9 +46,9 @@ class AttributeAttack(Attack):
         n_cpu: int
             number of CPUs used to run the attack
         attack_config_json_file_name: str
-            name of the configuration file to load parameters    
+            name of the configuration file to load parameters
         target_path: str
-            path to the saved trained target model and target data    
+            path to the saved trained target model and target data
         """
         super().__init__()
         self.report_name = report_name
@@ -606,16 +606,18 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
         )
     return pdf
 
+
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = AttributeAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
     )
-    target=Target()
+    target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack(target)
     attack_obj.make_report(GenerateJSONModule("aia_attack_from_configfile.json"))
+
 
 def main():
     """Main method to parse args and invoke relevant code"""
@@ -637,19 +639,18 @@ def main():
     )
 
     attack_parser_config.add_argument(
-    "-t",
-    "--attack-target-folder-path",
-    action="store",
-    required=True,
-    dest="target_path",
-    type=str,
-    default="aia_target",
-    help=(
-        """Name of the target directory to load the trained target model and the target data.
+        "-t",
+        "--attack-target-folder-path",
+        action="store",
+        required=True,
+        dest="target_path",
+        type=str,
+        default="aia_target",
+        help=(
+            """Name of the target directory to load the trained target model and the target data.
         Default = %(default)s"""
         ),
     )
-
 
     attack_parser_config.set_defaults(func=_run_attack_from_configfile)
     args = parser.parse_args()

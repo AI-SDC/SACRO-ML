@@ -99,15 +99,16 @@ def test_AIA_on_nursery():
     output = attack_obj.make_report(g)
     output = output["attack_metrics"]
 
+
 def test_AIA_on_nursery_from_cmd():
     """tests running AIA on the nursery data
     with an added continuous feature"""
     target, _ = common_setup()
-    target.save(path = "tests/test_aia_target")
+    target.save(path="tests/test_aia_target")
 
     config = {
         "n_cpu": 7,
-        "report_name": "commandline_aia_exampl1_report",        
+        "report_name": "commandline_aia_exampl1_report",
     }
     with open("tests/test_config_aia_cmd.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
@@ -116,7 +117,8 @@ def test_AIA_on_nursery_from_cmd():
         f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
         "--attack-config-json-file-name tests/test_config_aia_cmd.json "
         "--attack-target-folder-path tests/test_aia_target "
-        )
+    )
+
 
 def test_cleanup():
     """tidies up any files created"""
@@ -130,7 +132,7 @@ def test_cleanup():
         "aia_report.pdf",
         "aia_report.json",
         "test_attribute_attack.json",
-        "tests/test_config_aia_cmd.json"
+        "tests/test_config_aia_cmd.json",
     )
     for fname in files_made:
         cleanup_file(fname)
