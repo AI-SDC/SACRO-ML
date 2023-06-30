@@ -274,6 +274,10 @@ os.system(
     "--attack-fail-fast "
 )
 
+# [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
+# [TRE] First they access the help to work out which parameters they need to set
+os.system(f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile --help")
+
 # Example 2: Worstcase attack by passing a configuratation file name for loading parameters
 config = {
     "n_reps": 10,

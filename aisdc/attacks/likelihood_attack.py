@@ -613,7 +613,7 @@ def _run_attack_from_configfile(args):
     )
     target = Target()
     target.load(attack_obj.target_path)
-    attack_obj.attack_from_config()
+    attack_obj.attack(target)
     attack_obj.make_report(GenerateJSONModule("likelihood_attack_from_configfile.json"))
 
 
