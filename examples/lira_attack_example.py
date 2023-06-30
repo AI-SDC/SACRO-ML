@@ -194,7 +194,9 @@ os.system(
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
-os.system(f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile --help")
+os.system(
+    f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile --help"
+)
 
 # Example 3 to demonstrate running attack from configuration file only
 config = {
