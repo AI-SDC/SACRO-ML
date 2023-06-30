@@ -10,6 +10,7 @@ python -m examples.attribute_inference_example
 """
 import json
 import os
+import sys
 
 # ignore unused imports because it depends on whether data file is present
 from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
@@ -98,7 +99,7 @@ def test_AIA_on_nursery():
     output = attack_obj.make_report(g)
     output = output["attack_metrics"]
 
-def test_AIA_on_nursery():
+def test_AIA_on_nursery_from_cmd():
     """tests running AIA on the nursery data
     with an added continuous feature"""
     target, _ = common_setup()
@@ -129,6 +130,7 @@ def test_cleanup():
         "aia_report.pdf",
         "aia_report.json",
         "test_attribute_attack.json",
+        "tests/test_config_aia_cmd.json"
     )
     for fname in files_made:
         cleanup_file(fname)
