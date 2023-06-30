@@ -4,6 +4,7 @@ Attribute inference attacks.
 
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 
@@ -16,6 +17,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +31,11 @@ class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
     def __init__(
-        self, report_name: str = None, n_cpu: int = max(1, mp.cpu_count() - 1)
+        self,
+        report_name: str = None,
+        n_cpu: int = max(1, mp.cpu_count() - 1),
+        attack_config_json_file_name: str = None,
+        target_path: str = None
     ) -> None:
         """Constructs an object to execute an attribute inference attack.
 
@@ -39,10 +45,18 @@ class AttributeAttack(Attack):
             name of the JSON output report
         n_cpu: int
             number of CPUs used to run the attack
+        attack_config_json_file_name: str
+            name of the configuration file to load parameters    
+        target_path: str
+            path to the saved trained target model and target data    
         """
         super().__init__()
         self.report_name = report_name
         self.n_cpu = n_cpu
+        self.attack_config_json_file_name = attack_config_json_file_name
+        self.target_path = target_path
+        if self.attack_config_json_file_name is not None:
+            self._update_params_from_config_file()
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
@@ -591,3 +605,60 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
             name + "_quant_risk.png", x=None, y=None, w=150, h=0, type="", link=""
         )
     return pdf
+
+def _run_attack_from_configfile(args):
+    """Run a command line attack based on saved files described in .json file"""
+    attack_obj = AttributeAttack(
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
+        target_path=str(args.target_path),
+    )
+    target=Target()
+    target.load(attack_obj.target_path)
+    attack_obj.attack(target)
+    attack_obj.make_report(GenerateJSONModule("aia_attack_from_configfile.json"))
+
+def main():
+    """Main method to parse args and invoke relevant code"""
+    parser = argparse.ArgumentParser(add_help=False)
+
+    subparsers = parser.add_subparsers()
+    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
+    attack_parser_config.add_argument(
+        "-j",
+        "--attack-config-json-file-name",
+        action="store",
+        required=True,
+        dest="attack_config_json_file_name",
+        type=str,
+        default="config_aia_cmd.json",
+        help=(
+            "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.add_argument(
+    "-t",
+    "--attack-target-folder-path",
+    action="store",
+    required=True,
+    dest="target_path",
+    type=str,
+    default="aia_target",
+    help=(
+        """Name of the target directory to load the trained target model and the target data.
+        Default = %(default)s"""
+        ),
+    )
+
+
+    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
+    args = parser.parse_args()
+    try:
+        args.func(args)
+    except AttributeError as e:  # pragma:no cover
+        print(e)
+        print("Invalid command. Try --help to get more details")
+
+
+if __name__ == "__main__":  # pragma:no cover
+    main()
