@@ -53,6 +53,20 @@ class TestGenerateReport(unittest.TestCase):
 
         return json_formatted
 
+    def get_target_report(self):
+        """create a mock target model dictionary for use with tests"""
+        target_formatted = {
+            "data_name": "",
+            "n_samples": 12960,
+            "features": {},
+            "n_features": 0,
+            "n_samples_orig": 0,
+            "model_path": "model.pkl",
+            "model_name": "SVC",
+        }
+
+        return target_formatted
+
     def process_json_from_file(self, json_formatted):
         """function which handles file input/output from the process_json function"""
         filename = "test.json"
@@ -114,6 +128,30 @@ class TestGenerateReport(unittest.TestCase):
         self.assertIn(msg_2, file_contents["SecondTestAttack"]["test_output"])
 
         self.clean_up(test_filename)
+
+    def test_process_attack_target_json(self):
+        """test which tests the process_attack_target_json function"""
+        target_report = self.get_target_report()
+        target_json = "target.json"
+
+        with open(target_json, "w", encoding="utf-8") as f:
+            json.dump(target_report, f)
+        
+        json_formatted = self.get_test_report()
+
+        attack_json = "test.json"
+        output_filename = "attack.txt"
+
+        with open(attack_json, "w", encoding="utf-8") as f:
+            json.dump(json_formatted, f)
+
+        g = GenerateTextReport()
+        g.process_attack_target_json(attack_json, target_json)
+        g.export_to_file(output_filename)
+
+        self.clean_up(target_json)
+        self.clean_up(attack_json)
+        self.clean_up(output_filename)
 
     def test_whitespace_in_filenames(self):
         """test to make sure whitespace is removed from the output file when creating the report"""
@@ -231,6 +269,31 @@ class TestGenerateReport(unittest.TestCase):
         self.assertIn(">10% AUC are statistically significant", support_rejection)
         self.assertIn("Attack AUC > threshold", support_rejection)
 
+        metrics_dict["AUC"] = 0.5
+
+        for i in range(10):
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                "attack_instance_logger"
+            ]["instance_" + str(i)] = metrics_dict
+
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
+
+        # output = returned[0]
+        # immediate_rejection = returned[1]
+        # support_rejection = returned[2]
+        support_release = returned[3]
+
+        support_release = ", ".join(support_release)
+
+        self.assertIn("Attack AUC <= threshold", support_release)
+
+    def test_final_recommendation_module(self):
+        """test the FinalRecommendationModule"""
+        json_formatted = self.get_test_report()
+        f = FinalRecommendationModule(json_formatted)
+        self.assertEqual("Final Recommendation", str(f))
+
     def test_univariate_metrics_module(self):
         """test the SummariseUnivariateMetricsModule"""
         json_formatted = self.get_test_report()
@@ -255,6 +318,9 @@ class TestGenerateReport(unittest.TestCase):
             _ = f.process_dict()
 
         self.assertIn("Summary of AUC p-values", str(f))
+
+        _ = json_formatted['WorstCaseAttack'].pop('attack_experiment_logger')
+        f = SummariseAUCPvalsModule(json_formatted)
 
     def test_fdif_pvals_module(self):
         """test the SummariseFDIFPvalsModule"""
