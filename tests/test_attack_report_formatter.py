@@ -136,7 +136,7 @@ class TestGenerateReport(unittest.TestCase):
 
         with open(target_json, "w", encoding="utf-8") as f:
             json.dump(target_report, f)
-        
+
         json_formatted = self.get_test_report()
 
         attack_json = "test.json"
@@ -319,7 +319,7 @@ class TestGenerateReport(unittest.TestCase):
 
         self.assertIn("Summary of AUC p-values", str(f))
 
-        _ = json_formatted['WorstCaseAttack'].pop('attack_experiment_logger')
+        _ = json_formatted["WorstCaseAttack"].pop("attack_experiment_logger")
         f = SummariseAUCPvalsModule(json_formatted)
 
     def test_fdif_pvals_module(self):
