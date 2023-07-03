@@ -63,9 +63,7 @@ class TestGenerateReport(unittest.TestCase):
             "n_samples_orig": 0,
             "model_path": "model.pkl",
             "model_name": "SVC",
-            "model_params": {
-                "C": 1.0
-            }
+            "model_params": {"C": 1.0},
         }
 
         return target_formatted
@@ -166,7 +164,6 @@ class TestGenerateReport(unittest.TestCase):
             json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
                 "attack_instance_logger"
             ]["instance_" + str(i)] = metrics_dict
-        
 
         with open(attack_json, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
