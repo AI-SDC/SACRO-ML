@@ -194,7 +194,6 @@ class FinalRecommendationModule(
             self.MEAN_AUC_SCORE,
         )
 
-
         if len(self.scores) == 0:
             summarised_score = 0
         else:
