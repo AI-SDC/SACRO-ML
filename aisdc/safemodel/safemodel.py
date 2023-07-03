@@ -14,16 +14,13 @@ from pickle import PicklingError
 from typing import Any
 
 import joblib
-
-# import tensorflow as tf
 from dictdiffer import diff
 
-from aisdc.attacks import attribute_attack, report, worst_case_attack
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    LIRAAttack,
-    LIRAAttackArgs,
-)
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.attribute_attack import AttributeAttack
+from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
+from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
@@ -233,7 +230,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     >>> safeRFModel.fit(X, y)
     >>> safeRFModel.save(name="safe.pkl")
     >>> safeRFModel.preliminary_check()
-    >>> safeRFModel.request_release(filename="safe.pkl")
+    >>> safeRFModel.request_release(path="safe", ext="pkl", target=target)
     WARNING: model parameters may present a disclosure risk:
     - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
     Changed parameter min_samples_leaf = 5.
@@ -709,105 +706,58 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def request_release(
-        self, filename: str = "undefined", target: Target = None
-    ) -> None:  # pylint: disable=too-many-branches
+    def request_release(self, path: str, ext: str, target: Target = None) -> None:
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
         Parameters
         ----------
-
-        filename: string
-        The filename used to save the model
-
-        target: object of type Target
-        Contains train/test data and encoding dictionary needed to run attacks
-
-        Returns
-        -------
-
+        path : string
+            Path to save the outputs.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
+        target : attacks.target.Target
+            Contains model and dataset information.
 
         Notes
         -----
-         1. The target object is saved in a file called filebase_data.json
-         (where filebase= filename without the extension)
-         for reference/use by the TRE.
-         Data should never be held or stored with the model.
-         Clearly filebase_data.json mst never leave the TRE.
-         2. If target is not null, then worst case MIA and attribute inference
-         attacks are called via run_attack.
-         Outputs from the attacks will be stored in filebase_attack_res.json
-
-
-
+        If target is not null, then worst case MIA and attribute inference
+        attacks are called via run_attack.
         """
-        if filename == "undefined":  # pragma: no cover
-            print("You must provide the name of the file you want to save your model")
-            print("For security reasons, this will overwrite previous versions")
+        # perform checks
+        msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
+        msg_post, disclosive_post = self.posthoc_check()
+        # prepare results
+        output: dict = {
+            "researcher": self.researcher,
+            "model_type": self.model_type,
+            "details": msg_prel,
+        }
+        if hasattr(self, "k_anonymity"):
+            output["k_anonymity"] = str(self.k_anonymity)
+        if not disclosive_prel and not disclosive_post:
+            output["recommendation"] = "Proceed to next step of checking"
         else:
-            self.save(filename)
-            msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
-            msg_post, disclosive_post = self.posthoc_check()
-
-            output: dict = {
-                "researcher": self.researcher,
-                "model_type": self.model_type,
-                "model_save_file": self.model_save_file,
-                "details": msg_prel,
-            }
-            if hasattr(self, "k_anonymity"):
-                output["k_anonymity"] = f"{self.k_anonymity}"
-            if not disclosive_prel and not disclosive_post:
-                output[
-                    "recommendation"
-                ] = f"Run file {filename} through next step of checking procedure"
-            else:
-                output["recommendation"] = "Do not allow release"
-                output["reason"] = msg_prel + msg_post
-
-            ##Run attacks programmatically if possible
-            if target is not None:
-                # make filenames and save a copy of the data
-                with open(
-                    os.path.splitext(filename)[0] + "_data.pickle", "wb"
-                ) as handle:
-                    pickle.dump(target, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-                for attack_name in ["worst_case", "lira", "attribute"]:
-                    output[f"{attack_name}_results"] = self.run_attack(
-                        target,
-                        attack_name,
-                        f"{os.path.splitext(filename)[0]}_{attack_name}_res",
-                    )
-
-            now = datetime.datetime.now()
-            self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
-            output["timestamp"] = self.timestamp
-
-            outputfilename = self.researcher + "_checkfile.json"
-            data = [output]
-            # load existing results
-            if os.path.isfile(outputfilename):
-                with open(outputfilename, newline="", encoding="utf-8") as file:
-                    try:
-                        data = json.load(file)
-                        data.append(output)
-                    except json.decoder.JSONDecodeError:  # pragma: no cover
-                        logger.warning(
-                            "File %s could not be loaded - overwiting", outputfilename
-                        )
-
-            # write to disk
-            try:
-                with open(outputfilename, "w", newline="", encoding="utf-8") as file:
-                    json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
-            except TypeError:  # pragma: no cover
-                logger.warning(
-                    "Error: safemodel could not write non-serialisable "
-                    " outputs to file %s",
-                    outputfilename,
+            output["recommendation"] = "Do not allow release"
+            output["reason"] = msg_prel + msg_post
+        # Run attacks programmatically if possible
+        attack_results_filename = os.path.normpath(f"{path}/attack_results.json")
+        os.makedirs(os.path.dirname(attack_results_filename), exist_ok=True)
+        if target is not None:
+            for attack_name in ["worst_case", "lira", "attribute"]:
+                output[f"{attack_name}_results"] = self.run_attack(
+                    target, attack_name, attack_results_filename
                 )
+        # add timestamp
+        now = datetime.datetime.now()
+        self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+        output["timestamp"] = self.timestamp
+        data = [output]
+        # save output
+        if target is None:
+            target = Target(model=self)
+        target.add_safemodel_results(data)
+        target.save(path, ext)
 
     def run_attack(
         self,
@@ -815,22 +765,21 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         attack_name: str = "worst_case",
         filename: str = "undefined",
     ) -> dict:
-        """Runs a specified attack on the trained model and saves a report to file
+        """Runs a specified attack on the trained model and saves a report to file.
 
         Parameters
         ----------
         target: Target
-        the target in the form of a Target object
-
-        attack_name: string
-
-        filebasename: string
-        Report will be saved to filebasename.json
-
+            The target in the form of a Target object.
+        attack_name: str
+            Name of the attack to run.
+        filename: str
+            Name of a .json file to save report.
 
         Returns
         -------
-        dict of meta data results
+        dict
+            Metadata results.
 
         Notes
         -----
@@ -839,57 +788,34 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
+        g = GenerateJSONModule(filename)
         if attack_name == "worst_case":
-            attack_args = worst_case_attack.WorstCaseAttackArgs(
+            attack_obj = WorstCaseAttack(
                 n_reps=10,
-                # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
-                # Threshold to determine significance of things
                 p_thresh=0.05,
-                # Filename arguments needed by the code, meaningless if run programmatically
-                in_sample_filename=None,
-                out_sample_filename=None,
-                # Proportion of data to use as a test set for the attack model;
+                training_preds_filename=None,
+                test_preds_filename=None,
                 test_prop=0.5,
-                # Report name is None - don't make json or pdf files
                 report_name=None,
             )
-            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-            attack_obj.attack(target=target)
-            output = attack_obj.make_report()
+            attack_obj.attack(target)
+            output = attack_obj.make_report(g)
             metadata = output["metadata"]
-
         elif attack_name == "lira":
-            args = LIRAAttackArgs(
-                n_shadow_models=100, report_name="lira_example_report"
-            )
-            attack_obj = LIRAAttack(args)
+            attack_obj = LIRAAttack(n_shadow_models=100, report_name=None)
             attack_obj.attack(target)
-            output = attack_obj.make_report()  # also makes .pdf file
+            output = attack_obj.make_report(g)
             metadata = output["metadata"]
-
         elif attack_name == "attribute":
-            attack_args = attribute_attack.AttributeAttackArgs(
-                report_name="aia_example"
-            )
-            attack_obj = attribute_attack.AttributeAttack(attack_args)
+            attack_obj = AttributeAttack(report_name=None)
             attack_obj.attack(target)
-            output = attack_obj.make_report()
+            output = attack_obj.make_report(g)
             metadata = output["metadata"]
-
         else:
             metadata = {}
             metadata["outcome"] = "unrecognised attack type requested"
-
         print(f"attack {attack_name}, metadata {metadata}")
-
-        try:
-            with open(f"{filename}.json", "w", encoding="utf-8") as fp:
-                json.dump(metadata, fp, cls=report.NumpyArrayEncoder)
-        except TypeError:  # pragma: no cover
-            # not covered in tests as all atttacks prodice simple json so far
-            print(f"couldn't serialise metadata {metadata} for attack {attack_name}")
-
         return metadata
 
     def __str__(self) -> str:  # pragma: no cover

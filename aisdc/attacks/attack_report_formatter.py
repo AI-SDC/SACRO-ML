@@ -24,6 +24,8 @@ class GenerateJSONModule:
                 "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
             )
 
+        dirname = os.path.normpath(os.path.dirname(self.filename))
+        os.makedirs(dirname, exist_ok=True)
         # if file doesn't exist, create it
         if not os.path.exists(self.filename):
             with open(self.filename, "w", encoding="utf-8") as f:

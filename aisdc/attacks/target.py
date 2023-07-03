@@ -10,6 +10,8 @@ import pickle
 import numpy as np
 import sklearn
 
+from aisdc.attacks.report import NumpyArrayEncoder
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("target")
 
@@ -26,6 +28,43 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Trained target model. Any class that implements the
             sklearn.base.BaseEstimator interface (i.e. has fit, predict and
             predict_proba methods)
+
+        Attributes
+        ----------
+        name : str
+            The name of the dataset.
+        n_samples : int
+            The total number of samples in the dataset.
+        x_train : np.ndarray
+            The (processed) training inputs.
+        y_train : np.ndarray
+            The (processed) training outputs.
+        x_test : np.ndarray
+            The (processed) testing inputs.
+        y_test : np.ndarray
+            The (processed) testing outputs.
+        features : dict
+            Dictionary describing the dataset features.
+        n_features : int
+            The total number of features.
+        x_orig : np.ndarray
+            The original (unprocessed) dataset inputs.
+        y_orig : np.ndarray
+            The original (unprocessed) dataset outputs.
+        x_train_orig : np.ndarray
+            The original (unprocessed) training inputs.
+        y_train_orig : np.ndarray
+            The original (unprocessed) training outputs.
+        x_test_orig : np.ndarray
+            The original (unprocessed) testing inputs.
+        y_test_orig : np.ndarray
+            The original (unprocessed) testing outputs.
+        n_samples_orig : int
+            The total number of samples in the original dataset.
+        model : sklearn.base.BaseEstimator | None
+            The trained model.
+        safemodel : list
+            The results of safemodel disclosure checks.
         """
         self.name: str = ""
         self.n_samples: int = 0
@@ -43,6 +82,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
         self.model: sklearn.base.BaseEstimator | None = model
+        self.safemodel: list = []
 
     def add_processed_data(
         self,
@@ -86,21 +126,28 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_test_orig = y_test_orig
         self.n_samples_orig = len(x_orig)
 
-    def __save_model(self, path: str, target: dict) -> None:
+    def __save_model(self, path: str, ext: str, target: dict) -> None:
         """Save the target model.
 
         Parameters
         ----------
         path : str
             Path to write the model.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
         target : dict
             Target class as a dictionary for writing JSON.
         """
         # write model
-        filename: str = os.path.normpath(f"{path}/model.pkl")
-        with open(filename, "wb") as fp:
-            pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        target["model_path"] = "model.pkl"
+        filename: str = os.path.normpath(f"{path}/model.{ext}")
+        if hasattr(self.model, "save"):
+            self.model.save(filename)
+        elif ext == "pkl":
+            with open(filename, "wb") as fp:
+                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        else:  # pragma: no cover
+            raise ValueError(f"Unsupported file format for saving a model: {ext}")
+        target["model_path"] = f"model.{ext}"
         # write hyperparameters
         try:
             target["model_name"] = type(self.model).__name__
@@ -119,8 +166,12 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Target class as a dictionary read from JSON.
         """
         model_path = os.path.normpath(f"{path}/{target['model_path']}")
-        with open(model_path, "rb") as fp:
-            self.model = pickle.load(fp)
+        _, ext = os.path.splitext(model_path)
+        if ext == ".pkl":
+            with open(model_path, "rb") as fp:
+                self.model = pickle.load(fp)
+        else:  # pragma: no cover
+            raise ValueError(f"Unsupported file format for loading a model: {ext}")
 
     def __save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
@@ -201,20 +252,42 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_numpy(path, target, "x_test_orig")
         self.__load_numpy(path, target, "y_test_orig")
 
-    def save(self, path: str = "target") -> None:
+    def __ge(self) -> str:
+        """Returns the model generalisation error.
+
+        Returns
+        -------
+        str
+            Generalisation error.
+        """
+        if (
+            hasattr(self.model, "score")
+            and hasattr(self, "x_train")
+            and hasattr(self, "y_train")
+            and hasattr(self, "x_test")
+            and hasattr(self, "y_test")
+        ):
+            try:
+                train = self.model.score(self.x_train, self.y_train)
+                test = self.model.score(self.x_test, self.y_test)
+                return str(test - train)
+            except sklearn.exceptions.NotFittedError:
+                return "not fitted"
+        return "unknown"
+
+    def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Saves the target class to persistent storage.
 
         Parameters
         ----------
         path : str
             Name of the output folder to save target information.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
         """
         path: str = os.path.normpath(path)
-        try:  # check if the directory was already created
-            os.makedirs(path)
-            logger.debug("Directory %s created successfully", path)
-        except FileExistsError:  # pragma: no cover
-            logger.debug("Directory %s already exists", path)
+        filename: str = os.path.normpath(f"{path}/target.json")
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         # convert Target to JSON
         target: dict = {
             "data_name": self.name,
@@ -222,16 +295,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "features": self.features,
             "n_features": self.n_features,
             "n_samples_orig": self.n_samples_orig,
+            "generalisation_error": self.__ge(),
+            "safemodel": self.safemodel,
         }
         # write model and add path to JSON
         if self.model is not None:
-            self.__save_model(path, target)
+            self.__save_model(path, ext, target)
         # write data arrays and add paths to JSON
         self.__save_data(path, target)
         # write JSON
-        filename: str = os.path.normpath(f"{path}/target.json")
         with open(filename, "w", newline="", encoding="utf-8") as fp:
-            json.dump(target, fp, indent=4, sort_keys=False)
+            json.dump(target, fp, indent=4, cls=NumpyArrayEncoder)
 
     def load(self, path: str = "target") -> None:
         """Loads the target class from persistent storage.
@@ -259,11 +333,23 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_features = target["n_features"]
         if "n_samples_orig" in target:
             self.n_samples_orig = target["n_samples_orig"]
+        if "safemodel" in target:
+            self.safemodel = target["safemodel"]
         # load model
         if "model_path" in target:
             self.__load_model(path, target)
         # load data
         self.__load_data(path, target)
+
+    def add_safemodel_results(self, data: list) -> None:
+        """Adds the results of safemodel disclosure checking.
+
+        Parameters
+        ----------
+        data : list
+            The results of safemodel disclosure checking.
+        """
+        self.safemodel = data
 
     def __str__(self):
         return self.name

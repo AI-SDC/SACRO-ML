@@ -3,7 +3,7 @@ Tests attacks called via safemodel classes
 uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests
 """
-import os
+import shutil
 
 import numpy as np
 import sklearn
@@ -17,11 +17,12 @@ from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 # pylint: disable=too-many-locals,bare-except,duplicate-code,unnecessary-dunder-call
 
+RES_DIR = "RES"
 
-def cleanup_file(name: str):
-    """removes unwanted files or directory"""
-    if os.path.exists(name) and os.path.isfile(name):  # h5
-        os.remove(name)
+
+def clean():
+    """Removes unwanted results"""
+    shutil.rmtree(RES_DIR)
 
 
 def get_target(model: sklearn.base.BaseEstimator) -> Target:
@@ -115,16 +116,8 @@ def test_attacks_via_request_release():
     assert target.__str__() == "nursery"
     model.fit(target.x_train, target.y_train)
     model.min_samples_leaf = 10
-    model.request_release(filename="vulnerable_hacked.pkl", target=target)
-    files_made = (
-        "vulnerable_hacked_attribute_res.json",
-        "vulnerable_hacked_lira_res.json",
-        "vulnerable_hacked_worst_case_res.json",
-        "vulnerable_hacked_data.pickle",
-        "vulnerable_hacked.pkl",
-    )
-    for fname in files_made:
-        cleanup_file(fname)
+    model.request_release(path=RES_DIR, ext="pkl", target=target)
+    clean()
 
 
 def test_run_attack_lira():
@@ -138,16 +131,8 @@ def test_run_attack_lira():
 
     print(np.unique(target.y_test, return_counts=True))
     print(np.unique(model.predict(target.x_test), return_counts=True))
-    fname = "delete-me"
-    metadata = model.run_attack(target, "lira", fname)
-    files_made = (
-        "delete-me.json",
-        "lira_example_report.json",
-        "lira_example_report.pdf",
-        "log_roc.png",
-    )
-    for fname in files_made:
-        cleanup_file(fname)
+    metadata = model.run_attack(target, "lira", f"{RES_DIR}/lira_res.json")
+    clean()
     assert len(metadata) > 0  # something has been added
 
 
@@ -158,12 +143,8 @@ def test_run_attack_worstcase():
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
-
-    fname = "delete-me"
-    metadata = model.run_attack(target, "worst_case", fname)
-    files_made = ("delete-me.json", "log_roc.png")
-    for fname in files_made:
-        cleanup_file(fname)
+    metadata = model.run_attack(target, "worst_case", f"{RES_DIR}/wc_res.json")
+    clean()
     assert len(metadata) > 0  # something has been added
 
 
@@ -174,41 +155,30 @@ def test_run_attack_attribute():
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
-
-    fname = "delete-me"
-    metadata = model.run_attack(target, "attribute", fname)
-    files_made = (
-        "delete-me.json",
-        "aia_example.json",
-        "aia_example.pdf",
-        "aia_report_cat_frac.png",
-        "aia_report_cat_risk.png",
-        "aia_report_quant_risk.png",
-    )
-    for fname in files_made:
-        cleanup_file(fname)
+    metadata = model.run_attack(target, "attribute", f"{RES_DIR}/attr_res.json")
+    clean()
     assert len(metadata) > 0  # something has been added
 
 
 def test_attack_args():
     """tests the attack arguments class"""
     fname = "aia_example"
-    attack_args = attribute_attack.AttributeAttackArgs(report_name=fname)
-    attack_args.set_param("foo", "boo")
-    assert attack_args.get_args()["foo"] == "boo"
-    assert fname in attack_args.__str__()
+    attack_obj = attribute_attack.AttributeAttack(report_name=fname)
+    attack_obj.__dict__["foo"] = "boo"
+    assert attack_obj.__dict__["foo"] == "boo"
+    assert fname == attack_obj.report_name
 
     fname = "liraa"
-    attack_args = likelihood_attack.LIRAAttackArgs(report_name=fname)
-    attack_args.set_param("foo", "boo")
-    assert attack_args.get_args()["foo"] == "boo"
-    assert fname in attack_args.__str__()
+    attack_obj = likelihood_attack.LIRAAttack(report_name=fname)
+    attack_obj.__dict__["foo"] = "boo"
+    assert attack_obj.__dict__["foo"] == "boo"
+    assert fname == attack_obj.report_name
 
     fname = "wca"
-    attack_args = worst_case_attack.WorstCaseAttackArgs(report_name=fname)
-    attack_args.set_param("foo", "boo")
-    assert attack_args.get_args()["foo"] == "boo"
-    assert fname in attack_args.__str__()
+    attack_obj = worst_case_attack.WorstCaseAttack(report_name=fname)
+    attack_obj.__dict__["foo"] = "boo"
+    assert attack_obj.__dict__["foo"] == "boo"
+    assert fname == attack_obj.report_name
 
 
 def test_run_attack_unknown():
@@ -217,10 +187,6 @@ def test_run_attack_unknown():
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-
-    fname = "delete-me"
-    metadata = model.run_attack(target, "unknown", fname)
-    files_made = ("delete-me.json",)
-    for fname in files_made:
-        cleanup_file(fname)
+    metadata = model.run_attack(target, "unknown", f"{RES_DIR}/unk.json")
+    clean()
     assert metadata["outcome"] == "unrecognised attack type requested"

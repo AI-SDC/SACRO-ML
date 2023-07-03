@@ -135,7 +135,6 @@ class TestGenerateReport(unittest.TestCase):
     def test_instance_based(self):
         """test the process_json function when the target model is an instance based model"""
         json_formatted = self.get_test_report()
-
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
@@ -234,6 +233,7 @@ class TestGenerateReport(unittest.TestCase):
         """test the SummariseUnivariateMetricsModule"""
         json_formatted = self.get_test_report()
         f = SummariseUnivariateMetricsModule(json_formatted)
+        _ = str(f)
         _ = f.process_dict()
 
         self.assertEqual("Summary of Univarite Metrics", str(f))
@@ -242,6 +242,7 @@ class TestGenerateReport(unittest.TestCase):
         """test the SummariseAUCPvalsModule"""
         json_formatted = self.get_test_report()
         f = SummariseAUCPvalsModule(json_formatted)
+        _ = str(f)
         _ = f.process_dict()
 
         f = SummariseAUCPvalsModule(json_formatted, correction="bo")
@@ -257,6 +258,7 @@ class TestGenerateReport(unittest.TestCase):
         """test the SummariseFDIFPvalsModule"""
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
+        _ = str(f)
         _ = f.process_dict()
         _ = f.get_metric_list(json_formatted["WorstCaseAttack"]["attack_experiment_logger"])
 
@@ -266,6 +268,7 @@ class TestGenerateReport(unittest.TestCase):
         """test the LogLogROCModule"""
         json_formatted = self.get_test_report()
         f = LogLogROCModule(json_formatted)
+        _ = str(f)
         _ = f.process_dict()
 
         f = LogLogROCModule(json_formatted, output_folder="./")

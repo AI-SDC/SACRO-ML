@@ -1,17 +1,20 @@
 """ workimg on how to integrate attacks into safemosdel classes
 Invoke this code from the root AI-SDC folder with
-python -m examples.test_sagfemodel_attack_integration
+python -m examples.safemodel_attack_integration_bothcalls
 
 """
 import logging
+import os
 
 import numpy as np
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.target import Target
-from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
+from aisdc.attacks.target import Target  # pylint: disable=import-error
+from aisdc.safemodel.classifiers import (
+    SafeDecisionTreeClassifier,  # pylint: disable=import-error
+)
 
 if __name__ == "__main__":
     # [Researcher] Access a dataset
@@ -75,12 +78,15 @@ if __name__ == "__main__":
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-    ##check direct method
+    # [TRE / Researcher] Perform disclosure checks
+    SAVE_PATH = "mytest"
+
+    # check direct method
     print("==========> first running attacks explicitly via run_attack()")
+    results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        fname = f"modelDOTrun_attack_output_{attack_name}"
-        metadata = model.run_attack(target, attack_name, fname)
+        metadata = model.run_attack(target, attack_name, results_filename)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):
@@ -90,6 +96,8 @@ if __name__ == "__main__":
             else:
                 logging.info(" %s : %s", key, val)
 
-    ## now via request_release()
-    print("===>now running attacks implicitly via request_release()")
-    model.request_release("test.sav", target)
+    # now via request_release()
+    print("===> now running attacks implicitly via request_release()")
+    model.request_release(path=SAVE_PATH, ext="pkl", target=target)
+
+    print(f"Please see the files generated in: {SAVE_PATH}")
