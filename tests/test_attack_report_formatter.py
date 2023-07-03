@@ -151,10 +151,10 @@ class TestGenerateReport(unittest.TestCase):
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        output = returned[0]
+        # output = returned[0]
         immediate_rejection = returned[1]
-        support_rejection = returned[2]
-        support_release = returned[3]
+        # support_rejection = returned[2]
+        # support_release = returned[3]
 
         self.assertIn("Model is SVM", immediate_rejection)
 
@@ -162,10 +162,10 @@ class TestGenerateReport(unittest.TestCase):
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        output = returned[0]
+        # output = returned[0]
         immediate_rejection = returned[1]
-        support_rejection = returned[2]
-        support_release = returned[3]
+        # support_rejection = returned[2]
+        # support_release = returned[3]
 
         self.assertIn("Model is kNN", immediate_rejection)
 
