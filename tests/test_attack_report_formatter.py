@@ -28,8 +28,10 @@ class TestGenerateReport(unittest.TestCase):
             "log_id": 1024,
             "metadata": {"attack": "WorstCase attack"},
             "model_params": {"min_samples_leaf": 10},
-            "model_name": 'RandomForestClassifier',
-            "WorstCaseAttack": {"attack_experiment_logger": {"attack_instance_logger": {}}},
+            "model_name": "RandomForestClassifier",
+            "WorstCaseAttack": {
+                "attack_experiment_logger": {"attack_instance_logger": {}}
+            },
         }
 
         metrics_dict = {
@@ -45,9 +47,9 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         for i in range(10):
-            json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"][
-                "instance_" + str(i)
-            ] = metrics_dict
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                "attack_instance_logger"
+            ]["instance_" + str(i)] = metrics_dict
 
         return json_formatted
 
@@ -102,14 +104,14 @@ class TestGenerateReport(unittest.TestCase):
         msg_1 = "this should be included in the file"
         msg_2 = "this should also be included in the file"
 
-        g.add_attack_output("{\"test_output\":\""+msg_1+"\"}",'FirstTestAttack')
-        g.add_attack_output("{\"test_output\":\""+msg_2+"\"}",'SecondTestAttack')
+        g.add_attack_output('{"test_output":"' + msg_1 + '"}', "FirstTestAttack")
+        g.add_attack_output('{"test_output":"' + msg_2 + '"}', "SecondTestAttack")
 
         with open(test_filename, encoding="utf-8") as f:
             file_contents = json.loads(f.read())
 
-        self.assertIn(msg_1, file_contents["FirstTestAttack"]['test_output'])
-        self.assertIn(msg_2, file_contents["SecondTestAttack"]['test_output'])
+        self.assertIn(msg_1, file_contents["FirstTestAttack"]["test_output"])
+        self.assertIn(msg_2, file_contents["SecondTestAttack"]["test_output"])
 
         self.clean_up(test_filename)
 
@@ -191,13 +193,15 @@ class TestGenerateReport(unittest.TestCase):
         support_rejection = returned[2]
         # support_release = returned[3]
 
-        support_rejection = ', '.join(support_rejection)
+        support_rejection = ", ".join(support_rejection)
         self.assertIn("Min samples per leaf", support_rejection)
 
     def test_statistically_significant(self):
         """test the statistically significant AUC p-values check in FinalRecommendationModule"""
         json_formatted = self.get_test_report()
-        json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"] = {}
+        json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+            "attack_instance_logger"
+        ] = {}
 
         metrics_dict = {
             "P_HIGHER_AUC": 0.001,
@@ -210,9 +214,9 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         for i in range(10):
-            json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"][
-                "instance_" + str(i)
-            ] = metrics_dict
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                "attack_instance_logger"
+            ]["instance_" + str(i)] = metrics_dict
 
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
@@ -222,11 +226,9 @@ class TestGenerateReport(unittest.TestCase):
         support_rejection = returned[2]
         # support_release = returned[3]
 
-        support_rejection = ', '.join(support_rejection)
+        support_rejection = ", ".join(support_rejection)
 
-        self.assertIn(
-            ">10% AUC are statistically significant", support_rejection
-        )
+        self.assertIn(">10% AUC are statistically significant", support_rejection)
         self.assertIn("Attack AUC > threshold", support_rejection)
 
     def test_univariate_metrics_module(self):
@@ -260,7 +262,9 @@ class TestGenerateReport(unittest.TestCase):
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = str(f)
         _ = f.process_dict()
-        _ = f.get_metric_list(json_formatted["WorstCaseAttack"]["attack_experiment_logger"])
+        _ = f.get_metric_list(
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"]
+        )
 
         self.assertIn("Summary of FDIF p-values", str(f))
 
