@@ -302,15 +302,15 @@ class SummariseAUCPvalsModule(AnalysisModule):
         raise NotImplementedError()  # any others?
 
     def _get_metrics_list(self) -> list[float]:
+        metrics_list = []
         for k in self.report.keys():
             if isinstance(self.report[k], dict):
                 if "attack_experiment_logger" in self.report[k]:
-                    metrics_list = []
                     for _, iteration_value in self.report[k][
                         "attack_experiment_logger"
                     ]["attack_instance_logger"].items():
                         metrics_list.append(iteration_value["P_HIGHER_AUC"])
-                    return metrics_list
+        return metrics_list
 
     def process_dict(self):
         """Process the dict to summarise the number of significant AUC p-values"""
