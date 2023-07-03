@@ -194,12 +194,12 @@ class FinalRecommendationModule(
             self.MEAN_AUC_SCORE,
         )
 
+
         if len(self.scores) == 0:
             summarised_score = 0
         else:
             summarised_score = int(np.sum(np.array(self.scores)).round(0))
-            if summarised_score > 5:
-                summarised_score = 5
+            summarised_score = min(summarised_score, 5)
 
         # if model is instance based, it is automatically disclosive. Assign max score
         if self._is_instance_based_model(self.INSTANCE_MODEL_WEIGHTING_SCORE):
