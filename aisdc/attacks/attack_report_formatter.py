@@ -256,7 +256,12 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
                             "median": np.median(metrics_dict[m]),
                         }
                     output_dict[k] = output
-        return output_dict, self.immediate_rejection, self.support_rejection, self.support_release
+        return (
+            output_dict,
+            self.immediate_rejection,
+            self.support_rejection,
+            self.support_release,
+        )
 
     def __str__(self):
         return "Summary of Univarite Metrics"
@@ -398,9 +403,7 @@ class LogLogROCModule(AnalysisModule):
                     plt.grid()
                     out_file = f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
                     if self.output_folder is not None:
-                        out_file = os.path.join(
-                            self.output_folder, out_file
-                        )
+                        out_file = os.path.join(self.output_folder, out_file)
                     plt.savefig(out_file)
                     log_plot_names.append(out_file)
         msg = "Log plot(s) saved to " + str(log_plot_names)
