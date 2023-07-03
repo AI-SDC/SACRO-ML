@@ -28,7 +28,8 @@ class TestGenerateReport(unittest.TestCase):
             "log_id": 1024,
             "metadata": {"attack": "WorstCase attack"},
             "model_params": {"min_samples_leaf": 10},
-            "attack_experiment_logger": {"attack_instance_logger": {}},
+            "model_name": 'RandomForestClassifier',
+            "WorstCaseAttack": {"attack_experiment_logger": {"attack_instance_logger": {}}},
         }
 
         metrics_dict = {
@@ -44,7 +45,7 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         for i in range(10):
-            json_formatted["attack_experiment_logger"]["attack_instance_logger"][
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"][
                 "instance_" + str(i)
             ] = metrics_dict
 
@@ -59,7 +60,8 @@ class TestGenerateReport(unittest.TestCase):
             json.dump(json_formatted, f)
 
         g = GenerateTextReport()
-        g.process_json(filename, output_filename)
+        g.process_attack_target_json(filename)
+        g.export_to_file(output_filename)
 
         with open(output_filename, encoding="utf-8") as file:
             data = file.read()
@@ -97,15 +99,17 @@ class TestGenerateReport(unittest.TestCase):
         g = GenerateJSONModule(test_filename)
         g.clean_file()
 
-        g.add_attack_output("this should be included in the file\n",'TestAttack')
+        msg_1 = "this should be included in the file"
+        msg_2 = "this should also be included in the file"
 
-        g = GenerateJSONModule(test_filename)
-        g.add_attack_output("this should also be included in the file\n",'TestAttack')
+        g.add_attack_output("{\"test_output\":\""+msg_1+"\"}",'FirstTestAttack')
+        g.add_attack_output("{\"test_output\":\""+msg_2+"\"}",'SecondTestAttack')
+
         with open(test_filename, encoding="utf-8") as f:
-            file_contents = f.read()
+            file_contents = json.loads(f.read())
 
-        self.assertIn("this should be included in the file", file_contents)
-        self.assertIn("this should also be included in the file", file_contents)
+        self.assertIn(msg_1, file_contents["FirstTestAttack"]['test_output'])
+        self.assertIn(msg_2, file_contents["SecondTestAttack"]['test_output'])
 
         self.clean_up(test_filename)
 
@@ -120,27 +124,49 @@ class TestGenerateReport(unittest.TestCase):
             json.dump(json_formatted, f)
 
         g = GenerateTextReport()
-        g.process_json(filename, output_filename)
+        g.process_attack_target_json(filename)
+        g.export_to_file(output_filename)
 
         self.clean_up(output_filename)
 
         assert os.path.exists("filename should be changed.txt") is False
         assert os.path.exists("filename_should_be_changed.txt") is True
 
-    def test_svm(self):
-        """test the process_json function when the target model is an SVM"""
+    def test_instance_based(self):
+        """test the process_json function when the target model is an instance based model"""
         json_formatted = self.get_test_report()
 
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertEqual(len(returned["score_descriptions"]), 0)
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
 
-        json_formatted["model"] = "SVC"
+        self.assertEqual(len(immediate_rejection), 0)
+
+        json_formatted["model_name"] = "SVC"
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertIn("Model is SVM", returned["score_descriptions"][0])
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
+
+        self.assertIn("Model is SVM", immediate_rejection)
+
+        json_formatted["model_name"] = "KNeighborsClassifier"
+        f = FinalRecommendationModule(json_formatted)
+        returned = f.process_dict()
+
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
+
+        self.assertIn("Model is kNN", immediate_rejection)
 
     def test_min_samples_leaf(self):
         """test the process_json function when the target model is a random forest"""
@@ -149,18 +175,30 @@ class TestGenerateReport(unittest.TestCase):
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertEqual(len(returned["score_descriptions"]), 0)
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
+
+        self.assertEqual(len(immediate_rejection), 0)
 
         json_formatted["model_params"]["min_samples_leaf"] = 2
+
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertIn("Min samples per leaf", returned["score_descriptions"][0])
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
+
+        support_rejection = ', '.join(support_rejection)
+        self.assertIn("Min samples per leaf", support_rejection)
 
     def test_statistically_significant(self):
         """test the statistically significant AUC p-values check in FinalRecommendationModule"""
         json_formatted = self.get_test_report()
-        json_formatted["attack_experiment_logger"]["attack_instance_logger"] = {}
+        json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"] = {}
 
         metrics_dict = {
             "P_HIGHER_AUC": 0.001,
@@ -173,17 +211,24 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         for i in range(10):
-            json_formatted["attack_experiment_logger"]["attack_instance_logger"][
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"]["attack_instance_logger"][
                 "instance_" + str(i)
             ] = metrics_dict
 
         f = FinalRecommendationModule(json_formatted)
         returned = f.process_dict()
 
+        output = returned[0]
+        immediate_rejection = returned[1]
+        support_rejection = returned[2]
+        support_release = returned[3]
+
+        support_rejection = ', '.join(support_rejection)
+
         self.assertIn(
-            ">10% AUC are statistically significant", returned["score_descriptions"][0]
+            ">10% AUC are statistically significant", support_rejection
         )
-        self.assertIn("Attack AUC > threshold", returned["score_descriptions"][1])
+        self.assertIn("Attack AUC > threshold", support_rejection)
 
     def test_univariate_metrics_module(self):
         """test the SummariseUnivariateMetricsModule"""
@@ -213,7 +258,7 @@ class TestGenerateReport(unittest.TestCase):
         json_formatted = self.get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         _ = f.process_dict()
-        _ = f.get_metric_list(json_formatted["attack_experiment_logger"])
+        _ = f.get_metric_list(json_formatted["WorstCaseAttack"]["attack_experiment_logger"])
 
         self.assertIn("Summary of FDIF p-values", str(f))
 

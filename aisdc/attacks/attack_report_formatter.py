@@ -239,7 +239,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
                             "median": np.median(metrics_dict[m]),
                         }
                     output_dictionary[k] = output
-        return output, self.immediate_rejection, self.support_rejection, self.support_release
+        return output_dictionary, self.immediate_rejection, self.support_rejection, self.support_release
 
     def __str__(self):
         return "Summary of Univarite Metrics"
