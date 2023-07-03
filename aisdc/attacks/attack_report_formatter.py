@@ -311,7 +311,6 @@ class SummariseAUCPvalsModule(AnalysisModule):
                     ]["attack_instance_logger"].items():
                         metrics_list.append(iteration_value["P_HIGHER_AUC"])
                     return metrics_list
-        return None
 
     def process_dict(self):
         """Process the dict to summarise the number of significant AUC p-values"""
@@ -432,18 +431,12 @@ class GenerateTextReport:
         self.support_rejection = []
         self.support_release = []
 
-    def _pretty_print(self, report: dict, title=None) -> str:
+    def _pretty_print(self, report: dict, title) -> str:
         """
         Function that formats JSON code to make it more readable for TREs
         """
 
-        if title is None:
-            returned_string = ""
-        else:
-            returned_string = str(title) + "\n"
-
-        if "Final Recommendation" in report.keys():
-            report = report["Final Recommendation"]
+        returned_string = str(title) + "\n"
 
         for key in report.keys():
             returned_string = returned_string + key + "\n"

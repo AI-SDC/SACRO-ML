@@ -63,6 +63,9 @@ class TestGenerateReport(unittest.TestCase):
             "n_samples_orig": 0,
             "model_path": "model.pkl",
             "model_name": "SVC",
+            "model_params": {
+                "C": 1.0
+            }
         }
 
         return target_formatted
@@ -141,6 +144,29 @@ class TestGenerateReport(unittest.TestCase):
 
         attack_json = "test.json"
         output_filename = "attack.txt"
+
+        with open(attack_json, "w", encoding="utf-8") as f:
+            json.dump(json_formatted, f)
+
+        g = GenerateTextReport()
+        g.process_attack_target_json(attack_json, target_json)
+        g.export_to_file(output_filename)
+
+        metrics_dict = {
+            "P_HIGHER_AUC": 0.001,
+            "AUC": 0.8,
+            "ACC": 0.7,
+            "FDIF01": 0.2,
+            "PDIF01": 1.0,
+            "FPR": 1.0,
+            "TPR": 0.1,
+        }
+
+        for i in range(10):
+            json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                "attack_instance_logger"
+            ]["instance_" + str(i)] = metrics_dict
+        
 
         with open(attack_json, "w", encoding="utf-8") as f:
             json.dump(json_formatted, f)
