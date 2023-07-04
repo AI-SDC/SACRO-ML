@@ -97,7 +97,10 @@ def test_AIA_on_nursery():
 
     g = GenerateJSONModule("test_attribute_attack.json")
     output = attack_obj.make_report(g)
-    output = output["attack_metrics"]
+    output = output[
+        "attack_experiment_logger"][
+            "attack_instance_logger"][
+                "instance_0"]
 
 
 def test_AIA_on_nursery_from_cmd():
