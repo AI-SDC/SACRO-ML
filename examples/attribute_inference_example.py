@@ -103,10 +103,7 @@ if __name__ == "__main__":
     output = attack_obj.make_report(
         GenerateJSONModule("attribute_inference_attack.json")
     )  # also makes .pdf and .json files
-    output = output[
-        "attack_experiment_logger"][
-            "attack_instance_logger"][
-                "instance_0"]
+    output = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
     # [TRE] explore the metrics
     print(attribute_attack.report_categorical(output))
