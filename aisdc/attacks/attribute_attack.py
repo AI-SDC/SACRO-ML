@@ -7,6 +7,8 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import uuid
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import multiprocess as mp
@@ -97,9 +99,11 @@ class AttributeAttack(Attack):
         """
         output = {}
         logger.info("Starting report, report_name = %s", self.report_name)
-        output["attack_metrics"] = self.attack_metrics
+        output["log_id"] = str(uuid.uuid4())
+        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
+        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
         if json_attack_formatter is not None:
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
@@ -110,6 +114,16 @@ class AttributeAttack(Attack):
             pdf.output(f"{self.report_name}.pdf", "F")
             logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
         return output
+
+    def _get_attack_metrics_instances(self) -> dict:
+        """Constructs the instances metric calculated, during attacks"""
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
+
+        attack_metrics_instances["instance_0"] = self.attack_metrics
+
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
 
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
@@ -573,8 +587,11 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
 
 def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
     """Creates PDF report."""
-    aia_metrics = output["attack_metrics"]
     metadata = output["metadata"]
+    aia_metrics = output[
+        "attack_experiment_logger"][
+            "attack_instance_logger"][
+                "instance_0"]   
     plot_categorical_risk(aia_metrics, name)
     plot_categorical_fraction(aia_metrics, name)
     plot_quantitative_risk(aia_metrics, name)
