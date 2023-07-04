@@ -374,7 +374,7 @@ class WorstCaseAttack(Attack):
 
         """
         global_metrics = {}
-        if attack_metrics is not None:
+        if attack_metrics is not None and len(attack_metrics) != 0:
             auc_p_vals = [
                 metrics.auc_p_val(
                     m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
@@ -606,7 +606,7 @@ class WorstCaseAttack(Attack):
 
         if json_attack_formatter is not None:
             json_report = report.create_json_report(output)
-            json_attack_formatter.add_attack_output(json_report)
+            json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
 
         if self.report_name is not None:
             # pdf_report = report.create_mia_report(output_for_pdf)
