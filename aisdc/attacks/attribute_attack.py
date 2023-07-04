@@ -588,10 +588,9 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
 def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
     """Creates PDF report."""
     metadata = output["metadata"]
-    aia_metrics = output[
-        "attack_experiment_logger"][
-            "attack_instance_logger"][
-                "instance_0"]   
+    aia_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
     plot_categorical_risk(aia_metrics, name)
     plot_categorical_fraction(aia_metrics, name)
     plot_quantitative_risk(aia_metrics, name)
