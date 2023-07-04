@@ -606,7 +606,7 @@ class WorstCaseAttack(Attack):
 
         if json_attack_formatter is not None:
             json_report = report.create_json_report(output)
-            json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
+            json_attack_formatter.add_attack_output(json_report)
 
         if self.report_name is not None:
             # pdf_report = report.create_mia_report(output_for_pdf)
