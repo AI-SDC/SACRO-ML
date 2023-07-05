@@ -71,6 +71,7 @@ class AnalysisModule:
     """
     Wrapper module for metrics analysis modules
     """
+
     def __init__(self):
         self.immediate_rejection = []
         self.support_rejection = []
@@ -110,11 +111,11 @@ class FinalRecommendationModule(
             file_contents = f.read()
             json_structure = json.loads(file_contents)
 
-            rules = json_structure['DecisionTreeClassifier']['rules']
+            rules = json_structure["DecisionTreeClassifier"]["rules"]
             for entry in rules:
-                if 'keyword' in entry.keys() and entry['keyword'] == 'min_samples_leaf':
-                    if 'operator' in entry.keys() and entry['operator'] == 'min':
-                        min_samples_leaf_score = entry['value']
+                if "keyword" in entry.keys() and entry["keyword"] == "min_samples_leaf":
+                    if "operator" in entry.keys() and entry["operator"] == "min":
+                        min_samples_leaf_score = entry["value"]
                         break
 
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
