@@ -1,13 +1,13 @@
-""" 
+"""
 User story 2 (best case) as researcher
 """
 
 import logging
 import os
 import pickle
-import pandas as pd
-import numpy as np
 
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
@@ -15,6 +15,7 @@ from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.safemodel.classifiers import (
     SafeDecisionTreeClassifier,  # pylint: disable=import-error
 )
+
 
 def main():
     """
@@ -30,14 +31,14 @@ def main():
     print("Acting as researcher...")
     print()
 
-    filename = 'user_stories_resources/dataset_26_nursery.csv'
-    print("Reading data from "+filename)
+    filename = "user_stories_resources/dataset_26_nursery.csv"
+    print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
     print()
 
-    y = np.asarray(data['class'])
-    x = np.asarray(data.drop(columns=['class'], inplace=False))
+    y = np.asarray(data["class"])
+    x = np.asarray(data.drop(columns=["class"], inplace=False))
 
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
@@ -61,7 +62,7 @@ def main():
         y_train_orig,
         y_test_orig,
         indices_train,
-        indices_test
+        indices_test,
     ) = train_test_split(
         x,
         y,
@@ -80,9 +81,9 @@ def main():
     x_test = feature_enc.transform(x_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    logging.getLogger('attack-reps').setLevel(logging.WARNING)
-    logging.getLogger('prep-attack-data').setLevel(logging.WARNING)
-    logging.getLogger('attack-from-preds').setLevel(logging.WARNING)
+    logging.getLogger("attack-reps").setLevel(logging.WARNING)
+    logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
+    logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
     # Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
@@ -97,16 +98,16 @@ def main():
     for i in range(n_features):
         target.add_feature(data.columns[i], indices[i], "onehot")
 
-    #NOTE: we assume here that the researcher does not use the target.save() function
-    #and instead provides only the model and the list of indices which have been used to split the dataset
+    # NOTE: we assume here that the researcher does not use the target.save() function
+    # and instead provides only the model and the list of indices which have been used to split the dataset
 
     filename = directory + "/target.sav"
-    print("Saving model to "+filename)
-    pickle.dump(model, open(filename, 'wb'))
+    print("Saving model to " + filename)
+    pickle.dump(model, open(filename, "wb"))
 
-    print("Saving training/testing indices to ./"+directory)
-    np.savetxt(directory + 'indices_train.txt', indices_train, fmt='%d')
-    np.savetxt(directory + 'indices_test.txt', indices_test, fmt='%d')
+    print("Saving training/testing indices to ./" + directory)
+    np.savetxt(directory + "indices_train.txt", indices_train, fmt="%d")
+    np.savetxt(directory + "indices_test.txt", indices_test, fmt="%d")
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
@@ -114,6 +115,7 @@ def main():
     logging.info("y_train shape = %s", np.shape(target.y_train))
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
+
 
 if __name__ == "__main__":
     main()

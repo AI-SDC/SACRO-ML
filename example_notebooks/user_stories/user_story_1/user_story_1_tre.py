@@ -5,7 +5,8 @@ import argparse
 
 from aisdc.attacks.attack_report_formatter import GenerateTextReport
 
-def generate_report(directory,attack_results,target,outfile):
+
+def generate_report(directory, attack_results, target, outfile):
     """
     Generate report based on target model
     """
@@ -79,10 +80,12 @@ def main():
     args = parser.parse_args()
 
     try:
-        generate_report(args.training_artefacts_directory,
+        generate_report(
+            args.training_artefacts_directory,
             args.attack_results,
             args.target_results,
-            args.outfile)
+            args.outfile,
+        )
     except AttributeError as e:  # pragma:no cover
         print("Invalid command. Try --help to get more details" f"error mesge is {e}")
 
