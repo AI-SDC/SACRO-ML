@@ -108,9 +108,8 @@ def generate_report(directory,target_model,train_indices,test_indices,attack_res
 
     print("Results written to "+outfile)
 
-
 def main():
-    """main method to parse arguments and then invoke report generstion"""
+    """main method to parse arguments and then invoke report generation"""
     parser = argparse.ArgumentParser(
         description=("Generate a risk report after request_release() has been called by researcher")
     )
