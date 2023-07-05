@@ -283,9 +283,9 @@ class TestGenerateReport(unittest.TestCase):
         f.process_dict()
         returned = f.get_recommendation()
 
-        immediate_rejection = returned[0]
+        # immediate_rejection = returned[0]
         support_rejection = returned[1]
-        support_release = returned[2]
+        # support_release = returned[2]
 
         support_rejection = ", ".join(support_rejection)
 
