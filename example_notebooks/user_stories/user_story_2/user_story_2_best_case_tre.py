@@ -1,39 +1,50 @@
-""" 
+"""
 User story 2 (best case) as TRE
 """
 
+import argparse
 import logging
 import os
 import pickle
-import argparse
-import pandas as pd
-import numpy as np
 
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.target import Target  # pylint: disable=import-error
 
-def generate_report(directory,target_model,train_indices,test_indices,attack_results,target_filename,outfile):
+
+def generate_report(
+    directory,
+    target_model,
+    train_indices,
+    test_indices,
+    attack_results,
+    target_filename,
+    outfile,
+):
     """
     Generate report based on target model
     """
 
     print()
     print("Acting as TRE...")
-    print("(when instructions on how to recreate the dataset have been provided by the researcher)")
+    print(
+        "(when instructions on how to recreate the dataset have been provided by the researcher)"
+    )
     print()
 
     filename = directory + target_model
-    print("Reading target model from "+filename)
-    target_model = pickle.load(open(filename, 'rb'))
+    print("Reading target model from " + filename)
+    target_model = pickle.load(open(filename, "rb"))
 
-    print("Reading training/testing indices from ./"+directory)
+    print("Reading training/testing indices from ./" + directory)
     indices_train = np.loadtxt(directory + train_indices)
     indices_test = np.loadtxt(directory + test_indices)
 
-    filename = 'user_stories_resources/dataset_26_nursery.csv'
-    print("Reading data from "+filename)
+    filename = "user_stories_resources/dataset_26_nursery.csv"
+    print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
     print()
@@ -42,8 +53,8 @@ def generate_report(directory,target_model,train_indices,test_indices,attack_res
     print(indices_test[:10])
     print(indices_train[:10])
 
-    y = np.asarray(data['class'])
-    x = np.asarray(data.drop(columns=['class'], inplace=False))
+    y = np.asarray(data["class"])
+    x = np.asarray(data.drop(columns=["class"], inplace=False))
 
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
@@ -102,16 +113,20 @@ def generate_report(directory,target_model,train_indices,test_indices,attack_res
     print(f"Please see the files generated in: {SAVE_PATH}")
 
     t = GenerateTextReport()
-    t.process_attack_target_json(directory+attack_results,target_filename=directory+target_filename)
+    t.process_attack_target_json(
+        directory + attack_results, target_filename=directory + target_filename
+    )
 
     t.export_to_file(output_filename=outfile)
 
-    print("Results written to "+outfile)
+    print("Results written to " + outfile)
 
 def main():
     """main method to parse arguments and then invoke report generation"""
     parser = argparse.ArgumentParser(
-        description=("Generate a risk report after request_release() has been called by researcher")
+        description=(
+            "Generate a risk report after request_release() has been called by researcher"
+        )
     )
 
     parser.add_argument(
@@ -133,9 +148,7 @@ def main():
         dest="target_model",
         required=False,
         default="/target.sav",
-        help=(
-            "Filename of target model. Default = %(default)s."
-        ),
+        help=("Filename of target model. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -145,9 +158,7 @@ def main():
         dest="train_indices",
         required=False,
         default="indices_train.txt",
-        help=(
-            "Filename for the saved training indices. Default = %(default)s."
-        ),
+        help=("Filename for the saved training indices. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -157,9 +168,7 @@ def main():
         dest="test_indices",
         required=False,
         default="indices_test.txt",
-        help=(
-            "Filename for the saved testing indices. Default = %(default)s."
-        ),
+        help=("Filename for the saved testing indices. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -169,9 +178,7 @@ def main():
         dest="attack_results",
         required=False,
         default="attack_results.json",
-        help=(
-            "Filename for the saved JSON attack output. Default = %(default)s."
-        ),
+        help=("Filename for the saved JSON attack output. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -181,9 +188,7 @@ def main():
         dest="target_results",
         required=False,
         default="target.json",
-        help=(
-            "Filename for the saved JSON model output. Default = %(default)s."
-        ),
+        help=("Filename for the saved JSON model output. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -201,16 +206,18 @@ def main():
     args = parser.parse_args()
 
     try:
-        generate_report(args.training_artefacts_directory,
+        generate_report(
+            args.training_artefacts_directory,
             args.target_model,
             args.train_indices,
             args.test_indices,
             args.attack_results,
             args.target_results,
-            args.outfile)
+            args.outfile,
+        )
     except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details"
-              f"error mesge is {e}")
+        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+
 
 if __name__ == "__main__":  # pragma:no cover
     main()
