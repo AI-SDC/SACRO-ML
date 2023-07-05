@@ -63,7 +63,7 @@ def main():
             "Filename for the saved JSON model output. Default = %(default)s."
         ),
     )
-    
+
     parser.add_argument(
         "--outfile",
         type=str,

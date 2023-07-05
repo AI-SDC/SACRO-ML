@@ -1,8 +1,10 @@
+""" 
+User story 2 (best case) as researcher
 """
-User story 1 as researcher
-"""
+
 import logging
 import os
+import pickle
 import pandas as pd
 import numpy as np
 
@@ -49,6 +51,8 @@ def main():
         [24, 25, 26],  # health
     ]
 
+    row_indices = np.arange(np.shape(x)[0])
+
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
     (
@@ -56,15 +60,18 @@ def main():
         x_test_orig,
         y_train_orig,
         y_test_orig,
+        indices_train,
+        indices_test
     ) = train_test_split(
         x,
         y,
+        row_indices,
         test_size=0.5,
         stratify=y,
         shuffle=True,
     )
 
-    # [Researcher] Preprocess dataset
+    # Preprocess dataset
     # one-hot encoding of features and integer encoding of labels
     label_enc = LabelEncoder()
     feature_enc = OneHotEncoder()
@@ -90,6 +97,17 @@ def main():
     for i in range(n_features):
         target.add_feature(data.columns[i], indices[i], "onehot")
 
+    #NOTE: we assume here that the researcher does not use the target.save() function
+    #and instead provides only the model and the list of indices which have been used to split the dataset
+
+    filename = directory + "/target.sav"
+    print("Saving model to "+filename)
+    pickle.dump(model, open(filename, 'wb'))
+
+    print("Saving training/testing indices to ./"+directory)
+    np.savetxt(directory + 'indices_train.txt', indices_train, fmt='%d')
+    np.savetxt(directory + 'indices_test.txt', indices_test, fmt='%d')
+
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
     logging.info("x_train shape = %s", np.shape(target.x_train))
@@ -97,30 +115,5 @@ def main():
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-    # [TRE / Researcher] Perform disclosure checks
-    SAVE_PATH = directory
-
-    # check direct method
-    print("==========> first running attacks explicitly via run_attack()")
-    results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
-    for attack_name in ["worst_case", "attribute", "lira"]:
-        print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, results_filename)
-        logging.info("metadata is:")
-        for key, val in metadata.items():
-            if isinstance(val, dict):
-                logging.info(" %s ", key)
-                for key1, val2 in val.items():
-                    logging.info("  %s : %s", key1, val2)
-            else:
-                logging.info(" %s : %s", key, val)
-
-    # now via request_release()
-    print("===> now running attacks implicitly via request_release()")
-    model.request_release(path=SAVE_PATH, ext="pkl", target=target)
-
-    print(f"Please see the files generated in: {SAVE_PATH}")
-
 if __name__ == "__main__":
     main()
-    
