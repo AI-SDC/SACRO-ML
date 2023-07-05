@@ -71,12 +71,22 @@ class AnalysisModule:
     """
     Wrapper module for metrics analysis modules
     """
+    def __init__(self):
+        self.immediate_rejection = []
+        self.support_rejection = []
+        self.support_release = []
 
     def process_dict(self):
         """
         Function that produces a risk summary output based on analysis in this module
         """
         raise NotImplementedError()
+
+    def get_recommendation(self):
+        """
+        Function that returns the three recommendation buckets created by this module
+        """
+        return self.immediate_rejection, self.support_rejection, self.support_release
 
     def __str__(self):
         raise NotImplementedError()
@@ -90,11 +100,25 @@ class FinalRecommendationModule(
     """
 
     def __init__(self, report: dict):
+        super().__init__()
+
         self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
 
+        risk_appetite_path = "./aisdc/safemodel/rules.json"
+        with open(risk_appetite_path, "r+", encoding="utf-8") as f:
+            file_contents = f.read()
+            json_structure = json.loads(file_contents)
+
+            rules = json_structure['DecisionTreeClassifier']['rules']
+            for entry in rules:
+                if 'keyword' in entry.keys() and entry['keyword'] == 'min_samples_leaf':
+                    if 'operator' in entry.keys() and entry['operator'] == 'min':
+                        min_samples_leaf_score = entry['value']
+                        break
+
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
-        self.MIN_SAMPLES_LEAF_SCORE = 3
+        self.MIN_SAMPLES_LEAF_SCORE = min_samples_leaf_score
         self.STATISTICALLY_SIGNIFICANT_SCORE = 2
         self.MEAN_AUC_SCORE = 4
 
@@ -102,10 +126,6 @@ class FinalRecommendationModule(
 
         self.scores = []
         self.reasons = []
-
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
 
     def _is_instance_based_model(self, instance_based_model_score):
         if "model_name" in self.report:
@@ -121,7 +141,7 @@ class FinalRecommendationModule(
                 return True
         return False
 
-    def _rf_min_samples_leaf(self, min_samples_leaf_score):
+    def _tree_min_samples_leaf(self, min_samples_leaf_score):
         if "model_params" in self.report:
             if "min_samples_leaf" in self.report["model_params"]:
                 min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
@@ -186,7 +206,7 @@ class FinalRecommendationModule(
                             self.support_release.append(msg)
 
     def process_dict(self):
-        self._rf_min_samples_leaf(self.MIN_SAMPLES_LEAF_SCORE)
+        self._tree_min_samples_leaf(self.MIN_SAMPLES_LEAF_SCORE)
         self._statistically_significant_auc(
             self.P_VAL_THRESH,
             self.MEAN_AUC_THRESH,
@@ -209,12 +229,7 @@ class FinalRecommendationModule(
         msg = "Final score (scale of 0-5, where 0 is least disclosive and 5 is recommend rejection)"
         output[msg] = summarised_score
 
-        return (
-            output,
-            self.immediate_rejection,
-            self.support_rejection,
-            self.support_release,
-        )
+        return output
 
     def __str__(self):
         return "Final Recommendation"
@@ -226,15 +241,13 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
     """
 
     def __init__(self, report: dict, metrics_list=None):
+        super().__init__()
+
         if metrics_list is None:
             metrics_list = ["AUC", "ACC", "FDIF01"]
 
         self.report = report
         self.metrics_list = metrics_list
-
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
 
     def process_dict(self):
         output_dict = {}
@@ -257,12 +270,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
                             "median": np.median(metrics_dict[m]),
                         }
                     output_dict[k] = output
-        return (
-            output_dict,
-            self.immediate_rejection,
-            self.support_rejection,
-            self.support_release,
-        )
+        return output_dict
 
     def __str__(self):
         return "Summary of Univarite Metrics"
@@ -274,13 +282,11 @@ class SummariseAUCPvalsModule(AnalysisModule):
     """
 
     def __init__(self, report: dict, p_thresh: float = 0.05, correction: str = "bh"):
+        super().__init__()
+
         self.report = report
         self.p_thresh = p_thresh
         self.correction = correction
-
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
 
     def _n_sig(self, p_val_list: list[float], correction: str = "none") -> int:
         """Compute the number of significant p-vals in a list with different corrections for
@@ -322,12 +328,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
             "correction": self.correction,
             "n_sig_corrected": self._n_sig(p_val_list, self.correction),
         }
-        return (
-            output,
-            self.immediate_rejection,
-            self.support_rejection,
-            self.support_release,
-        )
+        return output
 
     def __str__(self):
         return f"Summary of AUC p-values at p = ({self.p_thresh})"
@@ -354,13 +355,11 @@ class LogLogROCModule(AnalysisModule):
     """
 
     def __init__(self, report: dict, output_folder=None, include_mean=True):
+        super().__init__()
+
         self.report = report
         self.output_folder = output_folder
         self.include_mean = include_mean
-
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
 
     def process_dict(self):
         """Create a roc plot for multiple repetitions"""
@@ -407,12 +406,7 @@ class LogLogROCModule(AnalysisModule):
                     plt.savefig(out_file)
                     log_plot_names.append(out_file)
         msg = "Log plot(s) saved to " + str(log_plot_names)
-        return (
-            msg,
-            self.immediate_rejection,
-            self.support_rejection,
-            self.support_release,
-        )
+        return msg
 
     def __str__(self):
         return "ROC Log Plot"
@@ -509,12 +503,12 @@ class GenerateTextReport:
         ]
 
         for m in modules:
-            returned = m.process_dict()
+            output = m.process_dict()
+            returned = m.get_recommendation()
 
-            output = returned[0]
-            self.immediate_rejection += returned[1]
-            self.support_rejection += returned[2]
-            self.support_release += returned[3]
+            self.immediate_rejection += returned[0]
+            self.support_rejection += returned[1]
+            self.support_release += returned[2]
 
         output_string = self._pretty_print(output, "ATTACK JSON RESULTS")
 

@@ -199,34 +199,34 @@ class TestGenerateReport(unittest.TestCase):
         """test the process_json function when the target model is an instance based model"""
         json_formatted = self.get_test_report()
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        immediate_rejection = returned[1]
-        # support_rejection = returned[2]
-        # support_release = returned[3]
+        immediate_rejection = returned[0]
+        # support_rejection = returned[1]
+        # support_release = returned[2]
 
         self.assertEqual(len(immediate_rejection), 0)
 
         json_formatted["model_name"] = "SVC"
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        immediate_rejection = returned[1]
-        # support_rejection = returned[2]
-        # support_release = returned[3]
+        immediate_rejection = returned[0]
+        # support_rejection = returned[1]
+        # support_release = returned[2]
 
         self.assertIn("Model is SVM", immediate_rejection)
 
         json_formatted["model_name"] = "KNeighborsClassifier"
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        immediate_rejection = returned[1]
-        # support_rejection = returned[2]
-        # support_release = returned[3]
+        immediate_rejection = returned[0]
+        # support_rejection = returned[1]
+        # support_release = returned[2]
 
         self.assertIn("Model is kNN", immediate_rejection)
 
@@ -235,24 +235,24 @@ class TestGenerateReport(unittest.TestCase):
         json_formatted = self.get_test_report()
 
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        immediate_rejection = returned[1]
-        # support_rejection = returned[2]
-        # support_release = returned[3]
+        immediate_rejection = returned[0]
+        # support_rejection = returned[1]
+        # support_release = returned[2]
 
         self.assertEqual(len(immediate_rejection), 0)
 
         json_formatted["model_params"]["min_samples_leaf"] = 2
 
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        # immediate_rejection = returned[1]
-        support_rejection = returned[2]
-        # support_release = returned[3]
+        # immediate_rejection = returned[0]
+        support_rejection = returned[1]
+        # support_release = returned[2]
 
         support_rejection = ", ".join(support_rejection)
         self.assertIn("Min samples per leaf", support_rejection)
@@ -280,12 +280,12 @@ class TestGenerateReport(unittest.TestCase):
             ]["instance_" + str(i)] = metrics_dict
 
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        # immediate_rejection = returned[1]
-        support_rejection = returned[2]
-        # support_release = returned[3]
+        immediate_rejection = returned[0]
+        support_rejection = returned[1]
+        support_release = returned[2]
 
         support_rejection = ", ".join(support_rejection)
 
@@ -300,12 +300,12 @@ class TestGenerateReport(unittest.TestCase):
             ]["instance_" + str(i)] = metrics_dict
 
         f = FinalRecommendationModule(json_formatted)
-        returned = f.process_dict()
+        f.process_dict()
+        returned = f.get_recommendation()
 
-        # output = returned[0]
-        # immediate_rejection = returned[1]
-        # support_rejection = returned[2]
-        support_release = returned[3]
+        # immediate_rejection = returned[0]
+        # support_rejection = returned[1]
+        support_release = returned[2]
 
         support_release = ", ".join(support_release)
 
