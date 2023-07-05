@@ -3,9 +3,9 @@ User story 1 as researcher
 """
 import logging
 import os
-import pandas as pd
-import numpy as np
 
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
@@ -13,6 +13,7 @@ from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.safemodel.classifiers import (
     SafeDecisionTreeClassifier,  # pylint: disable=import-error
 )
+
 
 def main():
     """
@@ -28,14 +29,14 @@ def main():
     print("Acting as researcher...")
     print()
 
-    filename = 'user_stories_resources/dataset_26_nursery.csv'
-    print("Reading data from "+filename)
+    filename = "user_stories_resources/dataset_26_nursery.csv"
+    print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
     print()
 
-    y = np.asarray(data['class'])
-    x = np.asarray(data.drop(columns=['class'], inplace=False))
+    y = np.asarray(data["class"])
+    x = np.asarray(data.drop(columns=["class"], inplace=False))
 
     n_features = np.shape(x)[1]
     indices: list[list[int]] = [
@@ -73,9 +74,9 @@ def main():
     x_test = feature_enc.transform(x_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    logging.getLogger('attack-reps').setLevel(logging.WARNING)
-    logging.getLogger('prep-attack-data').setLevel(logging.WARNING)
-    logging.getLogger('attack-from-preds').setLevel(logging.WARNING)
+    logging.getLogger("attack-reps").setLevel(logging.WARNING)
+    logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
+    logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
     # Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
@@ -121,6 +122,6 @@ def main():
 
     print(f"Please see the files generated in: {SAVE_PATH}")
 
+
 if __name__ == "__main__":
     main()
-    

@@ -1,4 +1,4 @@
-""" 
+"""
 User story 1 as TRE
 """
 import argparse
@@ -15,17 +15,21 @@ def generate_report(directory,attack_results,target,outfile):
     print()
 
     t = GenerateTextReport()
-    t.process_attack_target_json(directory+attack_results,target_filename=directory+target)
+    t.process_attack_target_json(
+        directory + attack_results, target_filename=directory + target
+    )
 
     t.export_to_file(output_filename=outfile)
 
-    print("Results written to "+outfile)
+    print("Results written to " + outfile)
 
 
 def main():
     """main method to parse arguments and then invoke report generstion"""
     parser = argparse.ArgumentParser(
-        description=("Generate a risk report after request_release() has been called by researcher")
+        description=(
+            "Generate a risk report after request_release() has been called by researcher"
+        )
     )
 
     parser.add_argument(
@@ -47,9 +51,7 @@ def main():
         dest="attack_results",
         required=False,
         default="attack_results.json",
-        help=(
-            "Filename for the saved JSON attack output. Default = %(default)s."
-        ),
+        help=("Filename for the saved JSON attack output. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -59,9 +61,7 @@ def main():
         dest="target_results",
         required=False,
         default="target.json",
-        help=(
-            "Filename for the saved JSON model output. Default = %(default)s."
-        ),
+        help=("Filename for the saved JSON model output. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -84,8 +84,8 @@ def main():
             args.target_results,
             args.outfile)
     except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details"
-              f"error mesge is {e}")
+        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+
 
 if __name__ == "__main__":  # pragma:no cover
     main()
