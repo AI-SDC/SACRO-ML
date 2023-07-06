@@ -105,7 +105,7 @@ class FinalRecommendationModule(
 
         self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
-       
+
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
         self.MIN_SAMPLES_LEAF_SCORE = 5
         self.STATISTICALLY_SIGNIFICANT_SCORE = 2
@@ -131,8 +131,7 @@ class FinalRecommendationModule(
         return False
 
     def _tree_min_samples_leaf(self, min_samples_leaf_score):
-
-        #Find min samples per leaf requirement
+        # Find min samples per leaf requirement
         risk_appetite_path = "./aisdc/safemodel/rules.json"
         min_samples_leaf_appetite = None
 
@@ -153,11 +152,11 @@ class FinalRecommendationModule(
                 if min_samples_leaf < min_samples_leaf_appetite:
                     self.scores.append(min_samples_leaf_score)
 
-                    msg = "Min samples per leaf < "+str(min_samples_leaf_appetite)
+                    msg = "Min samples per leaf < " + str(min_samples_leaf_appetite)
                     self.reasons.append(msg)
                     self.support_rejection.append(msg)
                 else:
-                    msg = "Min samples per leaf > "+str(min_samples_leaf_appetite)
+                    msg = "Min samples per leaf > " + str(min_samples_leaf_appetite)
                     self.support_release.append(msg)
 
     def _statistically_significant_auc(
