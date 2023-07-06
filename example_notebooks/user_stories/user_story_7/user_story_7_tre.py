@@ -1,5 +1,5 @@
 """
-User story 2 (worst case) as TRE
+User story 7 as TRE
 """
 
 import argparse
@@ -49,14 +49,14 @@ def main():
         action="store",
         dest="target_model",
         required=False,
-        default="/target.sav",
+        default="/model.pkl",
         help=("Filename of target model. Default = %(default)s."),
     )
 
     args = parser.parse_args()
 
     try:
-        generate_report(args.training_artefacts_directory, args.target_model_directory)
+        generate_report(args.training_artefacts_directory, args.target_model)
     except AttributeError as e:  # pragma:no cover
         print("Invalid command. Try --help to get more details" f"error mesge is {e}")
 

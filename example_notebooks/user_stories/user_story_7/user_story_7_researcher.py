@@ -1,5 +1,5 @@
 """
-User story 2 worst case (researcher)
+User story 7 (researcher)
 """
 import logging
 import os
@@ -77,7 +77,7 @@ def main():
     # Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
-    _ = model.preliminary_check()
+    model.request_release(path=directory, ext="pkl")
 
     # Wrap the model and data in a Target object
     target = Target(model=model)
@@ -88,11 +88,7 @@ def main():
         target.add_feature(data.columns[i], indices[i], "onehot")
 
     # NOTE: we assume here that the researcher does not use the target.save() function
-    # and instead provides only the model and the list of indices which have been used to split the dataset
-
-    filename = directory + "/target.sav"
-    print("Saving model to " + filename)
-    pickle.dump(model, open(filename, "wb"))
+    # and instead provides only the model
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)

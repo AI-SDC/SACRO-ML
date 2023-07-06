@@ -91,22 +91,7 @@ def generate_report(
 
     SAVE_PATH = directory
 
-    # check direct method
-    print("==========> first running attacks explicitly via run_attack()")
-    results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
-    for attack_name in ["worst_case", "attribute", "lira"]:
-        print(f"===> running {attack_name} attack directly")
-        metadata = target_model.run_attack(target, attack_name, results_filename)
-        logging.info("metadata is:")
-        for key, val in metadata.items():
-            if isinstance(val, dict):
-                logging.info(" %s ", key)
-                for key1, val2 in val.items():
-                    logging.info("  %s : %s", key1, val2)
-            else:
-                logging.info(" %s : %s", key, val)
-
-    # now via request_release()
+    # TRE calls request_release()
     print("===> now running attacks implicitly via request_release()")
     target_model.request_release(path=SAVE_PATH, ext="pkl", target=target)
 
@@ -148,7 +133,7 @@ def main():
         action="store",
         dest="target_model",
         required=False,
-        default="/target.sav",
+        default="/model.pkl",
         help=("Filename of target model. Default = %(default)s."),
     )
 

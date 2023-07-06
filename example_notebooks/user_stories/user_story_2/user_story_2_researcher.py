@@ -85,10 +85,10 @@ def main():
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
-    # Build a model
+    # Build a model and request its release
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
-    msg, disclosive = model.preliminary_check()
+    model.request_release(path=directory, ext="pkl")
 
     # Wrap the model and data in a Target object
     target = Target(model=model)
@@ -100,10 +100,6 @@ def main():
 
     # NOTE: we assume here that the researcher does not use the target.save() function
     # and instead provides only the model and the list of indices which have been used to split the dataset
-
-    filename = directory + "/target.sav"
-    print("Saving model to " + filename)
-    pickle.dump(model, open(filename, "wb"))
 
     print("Saving training/testing indices to ./" + directory)
     np.savetxt(directory + "indices_train.txt", indices_train, fmt="%d")

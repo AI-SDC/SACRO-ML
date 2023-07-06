@@ -98,7 +98,7 @@ def main():
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-    # [TRE / Researcher] Perform disclosure checks
+    # Researcher can check for themselves whether their model passes individual disclosure checks
     SAVE_PATH = directory
 
     # check direct method
@@ -116,7 +116,8 @@ def main():
             else:
                 logging.info(" %s : %s", key, val)
 
-    # now via request_release()
+    # when researcher is satisfied the call request release()
+    # if they pass in the target model object the code will automatically run checks for the TRE staff
     print("===> now running attacks implicitly via request_release()")
     model.request_release(path=SAVE_PATH, ext="pkl", target=target)
 
