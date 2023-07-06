@@ -105,21 +105,9 @@ class FinalRecommendationModule(
 
         self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
-
-        risk_appetite_path = "./aisdc/safemodel/rules.json"
-        with open(risk_appetite_path, "r+", encoding="utf-8") as f:
-            file_contents = f.read()
-            json_structure = json.loads(file_contents)
-
-            rules = json_structure["DecisionTreeClassifier"]["rules"]
-            for entry in rules:
-                if "keyword" in entry.keys() and entry["keyword"] == "min_samples_leaf":
-                    if "operator" in entry.keys() and entry["operator"] == "min":
-                        min_samples_leaf_score = entry["value"]
-                        break
-
+       
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
-        self.MIN_SAMPLES_LEAF_SCORE = min_samples_leaf_score
+        self.MIN_SAMPLES_LEAF_SCORE = 5
         self.STATISTICALLY_SIGNIFICANT_SCORE = 2
         self.MEAN_AUC_SCORE = 4
 
@@ -143,15 +131,34 @@ class FinalRecommendationModule(
         return False
 
     def _tree_min_samples_leaf(self, min_samples_leaf_score):
-        if "model_params" in self.report:
+
+        #Find min samples per leaf requirement
+        risk_appetite_path = "./aisdc/safemodel/rules.json"
+        min_samples_leaf_appetite = None
+
+        with open(risk_appetite_path, "r+", encoding="utf-8") as f:
+            file_contents = f.read()
+            json_structure = json.loads(file_contents)
+
+            rules = json_structure["DecisionTreeClassifier"]["rules"]
+            for entry in rules:
+                if "keyword" in entry.keys() and entry["keyword"] == "min_samples_leaf":
+                    if "operator" in entry.keys() and entry["operator"] == "min":
+                        min_samples_leaf_appetite = entry["value"]
+                        break
+
+        if ("model_params" in self.report) and min_samples_leaf_appetite is not None:
             if "min_samples_leaf" in self.report["model_params"]:
                 min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
-                if min_samples_leaf < 5:
+                if min_samples_leaf < min_samples_leaf_appetite:
                     self.scores.append(min_samples_leaf_score)
-                    self.reasons.append("Min samples per leaf < 5")
-                    self.support_rejection.append("Min samples per leaf < 5")
+
+                    msg = "Min samples per leaf < "+str(min_samples_leaf_appetite)
+                    self.reasons.append(msg)
+                    self.support_rejection.append(msg)
                 else:
-                    self.support_release.append("Min samples per leaf > 5")
+                    msg = "Min samples per leaf > "+str(min_samples_leaf_appetite)
+                    self.support_release.append(msg)
 
     def _statistically_significant_auc(
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
