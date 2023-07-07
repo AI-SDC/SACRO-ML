@@ -18,6 +18,7 @@ from aisdc.attacks.attack_report_formatter import (
     SummariseUnivariateMetricsModule,
 )
 
+
 def get_test_report():
     """create a mock attack result dictionary for use with tests"""
     json_formatted = {
@@ -25,9 +26,7 @@ def get_test_report():
         "metadata": {"attack": "WorstCase"},
         "model_params": {"min_samples_leaf": 10},
         "model_name": "RandomForestClassifier",
-        "WorstCaseAttack": {
-            "attack_experiment_logger": {"attack_instance_logger": {}}
-        },
+        "WorstCaseAttack": {"attack_experiment_logger": {"attack_instance_logger": {}}},
     }
 
     metrics_dict = {
@@ -49,6 +48,7 @@ def get_test_report():
 
     return json_formatted
 
+
 def get_target_report():
     """create a mock target model dictionary for use with tests"""
     target_formatted = {
@@ -64,10 +64,12 @@ def get_target_report():
 
     return target_formatted
 
+
 def clean_up(name):
     """removes unwanted files or directory"""
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
+
 
 class TestGenerateReport(unittest.TestCase):
     """class which tests the attack_report_formatter.py file"""
@@ -199,8 +201,9 @@ class TestGenerateReport(unittest.TestCase):
         json_formatted = get_test_report()
         _ = self.process_json_from_file(json_formatted)
 
+
 class TestFinalRecommendationModule(unittest.TestCase):
-    """ class which tests the FinalRecommendatiionModule inside attack_report_formatter.py """
+    """class which tests the FinalRecommendatiionModule inside attack_report_formatter.py"""
 
     def test_instance_based(self):
         """test the process_json function when the target model is an instance based model"""
@@ -327,6 +330,7 @@ class TestFinalRecommendationModule(unittest.TestCase):
         f = FinalRecommendationModule(json_formatted)
         self.assertEqual("Final Recommendation", str(f))
 
+
 class TestSummariseUnivariateMetricsModule(unittest.TestCase):
     """
     Class which tests the SummariseUnivariateMetricsModule inside attack_report_formatter.py
@@ -358,15 +362,15 @@ class TestSummariseUnivariateMetricsModule(unittest.TestCase):
         f = SummariseUnivariateMetricsModule(json_formatted)
         returned = f.process_dict()
 
-        wca_auc = returned['WorstCaseAttack']['AUC']
+        wca_auc = returned["WorstCaseAttack"]["AUC"]
         for k in wca_auc.keys():
             self.assertAlmostEqual(auc_value, wca_auc[k])
 
-        wca_acc = returned['WorstCaseAttack']['ACC']
+        wca_acc = returned["WorstCaseAttack"]["ACC"]
         for k in wca_acc.keys():
             self.assertAlmostEqual(acc_value, wca_acc[k])
 
-        wca_fdif = returned['WorstCaseAttack']['FDIF01']
+        wca_fdif = returned["WorstCaseAttack"]["FDIF01"]
         for k in wca_fdif.keys():
             self.assertAlmostEqual(fdif01_value, wca_fdif[k])
 
@@ -377,6 +381,7 @@ class TestSummariseUnivariateMetricsModule(unittest.TestCase):
         json_formatted = get_test_report()
         f = SummariseUnivariateMetricsModule(json_formatted)
         self.assertEqual("Summary of Univarite Metrics", str(f))
+
 
 class TestSummariseAUCPvalsModule(unittest.TestCase):
     """
@@ -391,12 +396,10 @@ class TestSummariseAUCPvalsModule(unittest.TestCase):
         returned = f.process_dict()
 
         # test the default correction
-        self.assertEqual('bh', returned['correction'])
-        self.assertEqual(10, returned['n_total'])
+        self.assertEqual("bh", returned["correction"])
+        self.assertEqual(10, returned["n_total"])
 
-        metrics_dict = {
-            "P_HIGHER_AUC": 0.001
-        }
+        metrics_dict = {"P_HIGHER_AUC": 0.001}
 
         for i in range(11):
             json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
@@ -406,12 +409,12 @@ class TestSummariseAUCPvalsModule(unittest.TestCase):
         f = SummariseAUCPvalsModule(json_formatted)
         _ = str(f)
         returned = f.process_dict()
-        self.assertEqual(11, returned['n_total'])
+        self.assertEqual(11, returned["n_total"])
 
         f = SummariseAUCPvalsModule(json_formatted, correction="bo")
         returned = f.process_dict()
 
-        self.assertEqual('bo', returned['correction'])
+        self.assertEqual("bo", returned["correction"])
 
         with pytest.raises(NotImplementedError):
             f = SummariseAUCPvalsModule(json_formatted, correction="xyzabcd")
@@ -426,6 +429,7 @@ class TestSummariseAUCPvalsModule(unittest.TestCase):
         f = SummariseAUCPvalsModule(json_formatted)
         self.assertIn("Summary of AUC p-values", str(f))
 
+
 class TestSummariseFDIFPvalsModule(unittest.TestCase):
     """
     Class which tests the SummariseFDIFPvalsModule inside attack_report_formatter.py
@@ -437,8 +441,8 @@ class TestSummariseFDIFPvalsModule(unittest.TestCase):
         f = SummariseFDIFPvalsModule(json_formatted)
         returned = f.process_dict()
 
-        self.assertEqual('bh', returned['correction'])
-        self.assertEqual(10, returned['n_total'])
+        self.assertEqual("bh", returned["correction"])
+        self.assertEqual(10, returned["n_total"])
 
         returned = f.get_metric_list(
             json_formatted["WorstCaseAttack"]["attack_experiment_logger"]
@@ -452,17 +456,21 @@ class TestSummariseFDIFPvalsModule(unittest.TestCase):
         f = SummariseFDIFPvalsModule(json_formatted)
         self.assertIn("Summary of FDIF p-values", str(f))
 
+
 class TestLogLogROCModule(unittest.TestCase):
     """
     Class which tests the LogLogROCModule inside attack_report_formatter.py
     """
+
     def test_loglog_roc_module(self):
         """test the LogLogROCModule"""
         json_formatted = get_test_report()
         f = LogLogROCModule(json_formatted)
         returned = f.process_dict()
 
-        output_file = f"{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        output_file = (
+            f"{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        )
         self.assertIn(output_file, returned)
         assert os.path.exists(output_file) is True
 
@@ -471,7 +479,9 @@ class TestLogLogROCModule(unittest.TestCase):
         f = LogLogROCModule(json_formatted, output_folder="./")
         returned = f.process_dict()
 
-        output_file = f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        output_file = (
+            f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        )
         self.assertIn(output_file, returned)
         assert os.path.exists(output_file) is True
 
@@ -481,14 +491,16 @@ class TestLogLogROCModule(unittest.TestCase):
         """test the LogLogROCModule with multiple tests"""
         json_formatted = get_test_report()
         json_formatted_copy = get_test_report()
-        json_formatted_copy['log_id'] = 2048
+        json_formatted_copy["log_id"] = 2048
 
         json_formatted.update(json_formatted_copy)
 
         f = LogLogROCModule(json_formatted, output_folder="./")
         returned = f.process_dict()
 
-        output_file_1 = f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        output_file_1 = (
+            f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+        )
         output_file_2 = f"./{json_formatted_copy['log_id']}-{json_formatted_copy['metadata']['attack']}.png"
 
         self.assertIn(output_file_1, returned)
