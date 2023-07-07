@@ -102,9 +102,9 @@ def generate_report(
         directory + attack_results, target_filename=directory + target_filename
     )
 
-    t.export_to_file(output_filename=outfile)
+    t.export_to_file(output_filename=directory+outfile)
 
-    print("Results written to " + outfile)
+    print("Results written to " + directory+outfile)
 
 
 def main():

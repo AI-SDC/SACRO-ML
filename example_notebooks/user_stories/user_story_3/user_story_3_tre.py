@@ -48,9 +48,9 @@ def generate_report(
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
-    filename = directory + target_model
-    print("Reading target model from " + filename)
-    target_model = pickle.load(open(filename, "rb"))
+    model_filename = directory + target_model
+    print("Reading target model from " + model_filename)
+    target_model = pickle.load(open(model_filename, "rb"))
 
     print("Reading training/testing data from ./" + directory)
     trainX = np.loadtxt(directory + x_train)
@@ -98,9 +98,9 @@ def generate_report(
         directory + attack_output_name, target_filename=directory + target_filename
     )
 
-    t.export_to_file(output_filename=outfile)
+    t.export_to_file(output_filename=directory+outfile, model_filename=model_filename)
 
-    print("Results written to " + outfile)
+    print("Results written to " + directory+outfile)
 
 
 def main():
