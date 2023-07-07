@@ -491,7 +491,7 @@ class TestLogLogROCModule(unittest.TestCase):
         """test the LogLogROCModule with multiple tests"""
         out_json = get_test_report()
         out_json_copy = get_test_report()
-        out_json_copy['log_id'] = 2048
+        out_json_copy["log_id"] = 2048
 
         out_json.update(out_json_copy)
 
@@ -499,7 +499,9 @@ class TestLogLogROCModule(unittest.TestCase):
         returned = f.process_dict()
 
         output_file_1 = f"./{out_json['log_id']}-{out_json['metadata']['attack']}.png"
-        output_file_2 = f"./{out_json_copy['log_id']}-{out_json_copy['metadata']['attack']}.png"
+        output_file_2 = (
+            f"./{out_json_copy['log_id']}-{out_json_copy['metadata']['attack']}.png"
+        )
 
         self.assertIn(output_file_1, returned)
         self.assertIn(output_file_2, returned)
