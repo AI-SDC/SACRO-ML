@@ -1,5 +1,9 @@
 """
-User story 7 (researcher)
+User story 7 as researcher
+
+Details can be found here:
+https://github.com/AI-SDC/AI-SDC/issues/141
+
 """
 import logging
 import os

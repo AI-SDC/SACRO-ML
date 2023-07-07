@@ -1,5 +1,9 @@
 """
 User story 3 as TRE
+
+Details can be found here:
+https://github.com/AI-SDC/AI-SDC/issues/141
+
 """
 
 import argparse

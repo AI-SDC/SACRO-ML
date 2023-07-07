@@ -1,7 +1,9 @@
 """
-Example of researcher just using `standard' dsklearn algorithms
-and submitting saved model and their train/test datasets
-@Yola Jones 2023, tweaked by @Jim Smith
+User story 3 as researcher
+
+Details can be found here:
+https://github.com/AI-SDC/AI-SDC/issues/141
+
 """
 import os
 import pickle

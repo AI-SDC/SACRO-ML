@@ -1,5 +1,9 @@
 """
 User story 2 (best case) as researcher
+
+Details can be found here:
+https://github.com/AI-SDC/AI-SDC/issues/141
+
 """
 
 import logging
