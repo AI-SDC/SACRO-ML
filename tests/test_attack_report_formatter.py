@@ -83,6 +83,9 @@ class TestGenerateReport(unittest.TestCase):
         with open(output_filename, encoding="utf-8") as file:
             data = file.read()
 
+        self.clean_up(filename)
+        self.clean_up(output_filename)
+
         return data
 
     def clean_up(self, name):
@@ -190,10 +193,12 @@ class TestGenerateReport(unittest.TestCase):
         g.process_attack_target_json(filename)
         g.export_to_file(output_filename)
 
-        self.clean_up(output_filename)
-
         assert os.path.exists("filename should be changed.txt") is False
         assert os.path.exists("filename_should_be_changed.txt") is True
+
+        self.clean_up(filename)
+        self.clean_up(output_filename)
+        self.clean_up("filename_should_be_changed.txt")
 
     def test_instance_based(self):
         """test the process_json function when the target model is an instance based model"""
@@ -369,19 +374,9 @@ class TestGenerateReport(unittest.TestCase):
 
         self.assertEqual("ROC Log Plot", str(f))
 
+        self.clean_up("1024-WorstCase attack.png")
+
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
         json_formatted = self.get_test_report()
         _ = self.process_json_from_file(json_formatted)
-
-    def test_cleanup(self):
-        """gets rid of files created during tests"""
-        names = [
-            "test.json",
-            "results.txt",
-            "1024-WorstCase attack.png",
-            "filename should be changed.txt",
-            "filename_should_be_changed.txt",
-        ]
-        for name in names:
-            self.clean_up(name)
