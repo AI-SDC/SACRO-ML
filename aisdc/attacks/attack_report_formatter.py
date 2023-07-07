@@ -5,15 +5,19 @@ Generate report for TREs from JSON file
 import json
 import os
 import pprint
-from datetime import date
 import shutil
+from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-def cleanup_files_for_release(move_into_artefacts,copy_into_release,
+
+def cleanup_files_for_release(
+    move_into_artefacts,
+    copy_into_release,
     release_dir="release_files/",
-    artefacts_dir="training_artefacts/"):
+    artefacts_dir="training_artefacts/",
+):
     """
     Function that will move any files created throughout the release process and sort them into appropriate folders
     """
@@ -23,13 +27,14 @@ def cleanup_files_for_release(move_into_artefacts,copy_into_release,
 
     for filename in move_into_artefacts:
         if os.path.exists(filename):
-            dest = artefacts_dir + "/" + os.path.basename(filename).split('/')[-1]
+            dest = artefacts_dir + "/" + os.path.basename(filename).split("/")[-1]
             shutil.move(filename, dest)
 
     for filename in copy_into_release:
         if os.path.exists(filename):
-            dest = release_dir + "/" + os.path.basename(filename).split('/')[-1]
+            dest = release_dir + "/" + os.path.basename(filename).split("/")[-1]
             shutil.copy(filename, dest)
+
 
 class GenerateJSONModule:
     """
@@ -510,7 +515,7 @@ class GenerateTextReport:
 
         if "model_path" in json_report.keys():
             filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
-            self.model_name_from_target = filepath + '\\' + json_report['model_path']
+            self.model_name_from_target = filepath + "\\" + json_report["model_path"]
 
         self.text_out.append(output_string)
 
@@ -571,11 +576,14 @@ class GenerateTextReport:
 
         self.text_out.append(bucket_text)
 
-    def export_to_file(self, output_filename:str="summary.txt",
-        move_files = False,
-        model_filename = None,
+    def export_to_file(
+        self,
+        output_filename: str = "summary.txt",
+        move_files=False,
+        model_filename=None,
         release_dir="release_files/",
-        artefacts_dir="training_artefacts/"):
+        artefacts_dir="training_artefacts/",
+    ):
         """
         Function that takes the input strings collected and combines into a neat text file
         """
@@ -596,14 +604,12 @@ class GenerateTextReport:
                 text_file.write("\n")
 
         if move_files is True:
-            move_into_artefacts = [
-                "log_roc.png"
-            ]
+            move_into_artefacts = ["log_roc.png"]
 
             copy_into_release = [
                 output_filename,
                 self.attack_json_filename,
-                self.target_json_filename
+                self.target_json_filename,
             ]
 
             if model_filename is None:
@@ -612,9 +618,5 @@ class GenerateTextReport:
                 copy_into_release.append(model_filename)
 
             cleanup_files_for_release(
-                move_into_artefacts,
-                copy_into_release,
-                release_dir,
-                artefacts_dir
-                )
-            
+                move_into_artefacts, copy_into_release, release_dir, artefacts_dir
+            )
