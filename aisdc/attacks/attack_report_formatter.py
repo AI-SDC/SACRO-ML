@@ -19,7 +19,7 @@ def cleanup_files_for_release(
     artefacts_dir="training_artefacts/",
 ):
     """
-    Function that will move any files created throughout the release process and 
+    Function that will move any files created throughout the release process and
     sort them into appropriate folders
     """
 
@@ -577,11 +577,11 @@ class GenerateTextReport:
 
         self.text_out.append(bucket_text)
 
-    def export_to_file( # pylint: disable=too-many-arguments
+    def export_to_file(  # pylint: disable=too-many-arguments
         self,
-        output_filename:str="summary.txt",
-        move_files = False,
-        model_filename = None,
+        output_filename: str = "summary.txt",
+        move_files=False,
+        model_filename=None,
         release_dir="release_files/",
         artefacts_dir="training_artefacts/",
     ):
