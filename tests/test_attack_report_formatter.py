@@ -479,17 +479,17 @@ class TestLogLogROCModule(unittest.TestCase):
 
     def test_loglog_multiple_files(self):
         """test the LogLogROCModule with multiple tests"""
-        json_formatted = get_test_report()
-        json_formatted_copy = get_test_report()
-        json_formatted_copy['log_id'] = 2048
+        out_json = get_test_report()
+        out_json_copy = get_test_report()
+        out_json_copy['log_id'] = 2048
 
-        json_formatted.update(json_formatted_copy)
+        out_json.update(out_json_copy)
 
-        f = LogLogROCModule(json_formatted, output_folder="./")
+        f = LogLogROCModule(out_json, output_folder="./")
         returned = f.process_dict()
 
-        output_file_1 = f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
-        output_file_2 = f"./{json_formatted_copy['log_id']}-{json_formatted_copy['metadata']['attack']}.png"
+        output_file_1 = f"./{out_json['log_id']}-{out_json['metadata']['attack']}.png"
+        output_file_2 = f"./{out_json_copy['log_id']}-{out_json_copy['metadata']['attack']}.png"
 
         self.assertIn(output_file_1, returned)
         self.assertIn(output_file_2, returned)
