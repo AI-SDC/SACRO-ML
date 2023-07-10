@@ -27,13 +27,13 @@ def cleanup_files_for_release(
         os.makedirs(release_dir)
 
     for filepath in move_into_artefacts:
-        if os.path.exists(filepath):
+        if os.path.exists(str(filepath)):
             filename = os.path.basename(filepath)
             dest = os.path.join(artefacts_dir, filename)
             shutil.move(filename, dest)
 
     for filepath in copy_into_release:
-        if os.path.exists(filepath):
+        if os.path.exists(str(filepath)):
             filename = os.path.basename(filepath)
             dest = os.path.join(release_dir, filename)
             shutil.copy(filepath, dest)
