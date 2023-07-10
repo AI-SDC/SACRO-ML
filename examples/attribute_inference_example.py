@@ -9,6 +9,10 @@ python -m examples.attribute_inference_example
 
 """
 
+import json
+import os
+import sys
+
 import numpy as np
 from sklearn.datasets import fetch_openml
 from sklearn.ensemble import RandomForestClassifier
@@ -16,8 +20,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
-from aisdc.attacks.target import Target
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # pylint: disable = duplicate-code
 
@@ -88,7 +94,9 @@ if __name__ == "__main__":
     print(f"y_test shape = {np.shape(target.y_test)}")
 
     # [TRE] Create the attack object with attack parameters
-    attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
+    attack_obj = attribute_attack.AttributeAttack(
+        n_cpu=2, report_name="programmatic_aia_report"
+    )
 
     # [TRE] Run the attack
     attack_obj.attack(target)
@@ -97,8 +105,42 @@ if __name__ == "__main__":
     output = attack_obj.make_report(
         GenerateJSONModule("attribute_inference_attack.json")
     )  # also makes .pdf and .json files
-    output = output["attack_metrics"]
+    output = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
     # [TRE] explore the metrics
     print(attribute_attack.report_categorical(output))
     print(attribute_attack.report_quantitative(output))
+
+    print("Programmatic example finished")
+    print("****************************")
+
+    print()
+    print()
+    print("Command line example starting")
+    print("*****************************")
+
+    # [Researcher] Dump the training and test predictions to .csv files
+    target.save(path="aia_target")
+
+    # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
+    # [TRE] First they access the help to work out which parameters they need to set
+    os.system(
+        f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile --help"
+    )
+
+    # [TRE] Then they run the attack
+
+    # Example 1 to demonstrate running attack from configuration and target files
+    config = {
+        "n_cpu": 2,
+        "report_name": "commandline_aia_exampl1_report",
+    }
+
+    with open("config_aia_cmd.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(config))
+
+    os.system(
+        f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
+        "--attack-config-json-file-name config_aia_cmd.json "
+        "--attack-target-folder-path aia_target "
+    )

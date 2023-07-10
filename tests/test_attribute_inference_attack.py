@@ -8,7 +8,9 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.attribute_inference_example
 
 """
+import json
 import os
+import sys
 
 # ignore unused imports because it depends on whether data file is present
 from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
@@ -95,7 +97,27 @@ def test_AIA_on_nursery():
 
     g = GenerateJSONModule("test_attribute_attack.json")
     output = attack_obj.make_report(g)
-    output = output["attack_metrics"]
+    output = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+
+
+def test_AIA_on_nursery_from_cmd():
+    """tests running AIA on the nursery data
+    with an added continuous feature"""
+    target, _ = common_setup()
+    target.save(path="tests/test_aia_target")
+
+    config = {
+        "n_cpu": 7,
+        "report_name": "commandline_aia_exampl1_report",
+    }
+    with open("tests/test_config_aia_cmd.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(config))
+
+    os.system(
+        f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
+        "--attack-config-json-file-name tests/test_config_aia_cmd.json "
+        "--attack-target-folder-path tests/test_aia_target "
+    )
 
 
 def test_cleanup():
@@ -110,6 +132,7 @@ def test_cleanup():
         "aia_report.pdf",
         "aia_report.json",
         "test_attribute_attack.json",
+        "tests/test_config_aia_cmd.json",
     )
     for fname in files_made:
         cleanup_file(fname)
