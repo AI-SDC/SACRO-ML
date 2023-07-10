@@ -38,6 +38,7 @@ def cleanup_files_for_release(
             dest = os.path.join(release_dir, filename)
             shutil.copy(filepath, dest)
 
+
 class GenerateJSONModule:
     """
     Module that creates and appends to a JSON file
@@ -517,7 +518,9 @@ class GenerateTextReport:
 
         if "model_path" in json_report.keys():
             filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
-            self.model_name_from_target = os.path.join(filepath, json_report["model_path"])
+            self.model_name_from_target = os.path.join(
+                filepath, json_report["model_path"]
+            )
 
         self.text_out.append(output_string)
 
