@@ -20,7 +20,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # pylint: disable = duplicate-code
