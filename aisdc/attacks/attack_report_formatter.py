@@ -26,16 +26,17 @@ def cleanup_files_for_release(
     if not os.path.exists(release_dir):
         os.makedirs(release_dir)
 
-    for filename in move_into_artefacts:
-        if os.path.exists(filename):
-            dest = artefacts_dir + "/" + os.path.basename(filename).split("/")[-1]
+    for filepath in move_into_artefacts:
+        if os.path.exists(filepath):
+            filename = os.path.basename(filepath)
+            dest = os.path.join(artefacts_dir, filename)
             shutil.move(filename, dest)
 
-    for filename in copy_into_release:
-        if os.path.exists(filename):
-            dest = release_dir + "/" + os.path.basename(filename).split("/")[-1]
-            shutil.copy(filename, dest)
-
+    for filepath in copy_into_release:
+        if os.path.exists(filepath):
+            filename = os.path.basename(filepath)
+            dest = os.path.join(release_dir, filename)
+            shutil.copy(filepath, dest)
 
 class GenerateJSONModule:
     """
@@ -516,7 +517,7 @@ class GenerateTextReport:
 
         if "model_path" in json_report.keys():
             filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
-            self.model_name_from_target = filepath + "\\" + json_report["model_path"]
+            self.model_name_from_target = os.path.join(filepath, json_report["model_path"])
 
         self.text_out.append(output_string)
 
