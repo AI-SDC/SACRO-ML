@@ -107,7 +107,7 @@ class AttributeAttack(Attack):
 
         if json_attack_formatter is not None:
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            json_attack_formatter.add_attack_output(json_report)
+            json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
         if self.report_name is not None:
             pdf = create_aia_report(output)
