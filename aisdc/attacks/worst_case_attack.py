@@ -57,6 +57,7 @@ class WorstCaseAttack(Attack):
         attack_metric_success_count_thresh: int = 5,
         attack_fail_fast: bool = False,
         attack_config_json_file_name: str = None,
+        target_path: str = None,
     ) -> None:
         """Constructs an object to execute a worst case attack.
 
@@ -115,6 +116,8 @@ class WorstCaseAttack(Attack):
             (attack_metric_success_count_thresh) number of times
         attack_config_json_file_name: str
             name of the configuration file to load parameters
+        target_path: str
+            path to the saved trained target model and target data
         """
 
         super().__init__()
@@ -146,6 +149,7 @@ class WorstCaseAttack(Attack):
         self.attack_metric_success_count_thresh = attack_metric_success_count_thresh
         self.attack_fail_fast = attack_fail_fast
         self.attack_config_json_file_name = attack_config_json_file_name
+        self.target_path = target_path
         # Updating parameters from a configuration json file
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
@@ -661,8 +665,11 @@ def _run_attack_from_configfile(args):
     using config file"""
     attack_obj = WorstCaseAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
+        target_path=str(args.target_path),
     )
-    attack_obj.attack_from_prediction_files()
+    target = Target()
+    target.load(attack_obj.target_path)
+    attack_obj.attack(target)
     _ = attack_obj.make_report(GenerateJSONModule("worst_case_attack_from_config.json"))
 
 
@@ -956,6 +963,20 @@ def main():
         default="config_worstcase_cmd.json",
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.add_argument(
+        "-t",
+        "--attack-target-folder-path",
+        action="store",
+        required=True,
+        dest="target_path",
+        type=str,
+        default="worstcase_target",
+        help=(
+            """Name of the target directory to load the trained target model and the target data.
+            Default = %(default)s"""
         ),
     )
 

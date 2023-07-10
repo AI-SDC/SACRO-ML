@@ -73,6 +73,7 @@ class TestLiraAttack(TestCase):
         cls.target_model.fit(cls.train_X, cls.train_y)
         cls.target = Target(cls.target_model)
         cls.target.add_processed_data(cls.train_X, cls.train_y, cls.test_X, cls.test_y)
+        cls.target.save(path="test_lira_target")
 
         # Dump training and test data to csv
         np.savetxt(
@@ -166,6 +167,8 @@ class TestLiraAttack(TestCase):
             "run-attack-from-configfile",
             "-j",
             "tests/lrconfig_cmd.json",
+            "-t",
+            "test_lira_target",
         ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
@@ -232,6 +235,11 @@ class TestLiraAttack(TestCase):
             "lr_report.json",
             "lira_example2_report.json",
             "lira_example2_report.pdf",
+            "lira_example3_failfast_report.pdf",
+            "commandline_lira_exampletest_report.pdf",
+            "likelihood_attack.json",
+            "likelihood_attack_example.json",
+            "likelihood_attack_from_configfile.json",
             "test_preds.csv",
             "config.json",
             "train_preds.csv",
