@@ -89,8 +89,8 @@ class TestGenerateReport(unittest.TestCase):
         with open(output_filename, encoding="utf-8") as file:
             data = file.read()
 
-        self.clean_up(filename)
-        self.clean_up(output_filename)
+        clean_up(filename)
+        clean_up(output_filename)
 
         return data
 
@@ -194,10 +194,12 @@ class TestGenerateReport(unittest.TestCase):
         g.process_attack_target_json(filename)
         g.export_to_file(output_filename)
 
-        clean_up(output_filename)
-
         assert os.path.exists("filename should be changed.txt") is False
         assert os.path.exists("filename_should_be_changed.txt") is True
+
+        clean_up(filename)
+        clean_up(output_filename)
+        clean_up("filename_should_be_changed.txt")
 
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
