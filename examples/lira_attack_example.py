@@ -41,7 +41,9 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
 from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
@@ -164,6 +166,8 @@ np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
 np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter=",")
 np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 
+# [Researcher] Dump the target model and target data
+target.save(path="lira_target")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
@@ -188,6 +192,12 @@ os.system(
     "--n-shadow-rows-confidences-min 10 "
 )
 
+# [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
+# [TRE] First they access the help to work out which parameters they need to set
+os.system(
+    f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile --help"
+)
+
 # Example 3 to demonstrate running attack from configuration file only
 config = {
     "n_shadow_models": 150,
@@ -206,6 +216,7 @@ with open("config_lira_cmd1.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd1.json "
+    "--attack-target-folder-path lira_target "
 )
 
 # Example 4 to demonstrate running attack from configuration file only with fail fail fast option
@@ -228,6 +239,7 @@ with open("config_lira_cmd2.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd2.json "
+    "--attack-target-folder-path lira_target "
 )
 
 

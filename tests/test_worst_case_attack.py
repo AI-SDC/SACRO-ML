@@ -59,6 +59,8 @@ def test_attack_from_predictions_cmd():
     target = Target(model=model)
     target.add_processed_data(train_X, train_y, test_X, test_y)
 
+    target.save(path="test_worstcase_target")
+
     config = {
         "n_reps": 30,
         "n_dummy_reps": 2,
@@ -78,6 +80,7 @@ def test_attack_from_predictions_cmd():
     os.system(
         f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
         "--attack-config-json-file-name config_worstcase_cmd.json "
+        "--attack-target-folder-path test_worstcase_target "
     )
     os.remove("config_worstcase_cmd.json")
     os.remove("ypred_train.csv")
