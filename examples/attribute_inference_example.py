@@ -20,7 +20,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # pylint: disable = duplicate-code
@@ -93,7 +95,7 @@ if __name__ == "__main__":
 
     # [TRE] Create the attack object with attack parameters
     attack_obj = attribute_attack.AttributeAttack(
-        n_cpu=7, report_name="programmatic_aia_report"
+        n_cpu=2, report_name="programmatic_aia_report"
     )
 
     # [TRE] Run the attack
@@ -130,7 +132,7 @@ if __name__ == "__main__":
 
     # Example 1 to demonstrate running attack from configuration and target files
     config = {
-        "n_cpu": 7,
+        "n_cpu": 2,
         "report_name": "commandline_aia_exampl1_report",
     }
 
