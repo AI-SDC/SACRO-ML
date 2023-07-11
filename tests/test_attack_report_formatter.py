@@ -217,20 +217,20 @@ class TestGenerateReport(unittest.TestCase):
 
         g = GenerateTextReport()
         g.process_attack_target_json(filename)
-        g.export_to_file(output_filename,
-            move_files=True,
-            release_dir="release_dir/")
+        g.export_to_file(output_filename, move_files=True, release_dir="release_dir/")
 
         # Check when no model name has been provided
-        assert os.path.exists("release_dir/"+output_filename) is True
+        assert os.path.exists("release_dir/" + output_filename) is True
 
-        g.export_to_file(output_filename,
+        g.export_to_file(
+            output_filename,
             move_files=True,
             release_dir="release_dir/",
-            model_filename=dummy_model)
+            model_filename=dummy_model,
+        )
 
         # Check model file has been copied (NOT moved)
-        assert os.path.exists("release_dir/"+dummy_model) is True
+        assert os.path.exists("release_dir/" + dummy_model) is True
         assert os.path.exists(dummy_model) is True
 
         clean_up(dummy_model)
@@ -255,9 +255,9 @@ class TestGenerateReport(unittest.TestCase):
 
         clean_up(filename)
         clean_up(output_filename)
-        clean_up("release_dir/"+dummy_model)
-        clean_up("release_dir/"+filename)
-        clean_up("release_dir/"+output_filename)
+        clean_up("release_dir/" + dummy_model)
+        clean_up("release_dir/" + filename)
+        clean_up("release_dir/" + output_filename)
         clean_up("release_dir/")
         clean_up("training_artefacts/"+png_file)
         clean_up("training_artefacts/")
@@ -266,6 +266,7 @@ class TestGenerateReport(unittest.TestCase):
         """test the full process_json file end-to-end when valid parameters are passed"""
         json_formatted = get_test_report()
         _ = self.process_json_from_file(json_formatted)
+
 
 class TestFinalRecommendationModule(unittest.TestCase):
     """class which tests the FinalRecommendatiionModule inside attack_report_formatter.py"""
