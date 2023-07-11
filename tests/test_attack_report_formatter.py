@@ -234,7 +234,7 @@ class TestGenerateReport(unittest.TestCase):
         assert os.path.exists(dummy_model) is True
 
         clean_up(dummy_model)
-        
+
         clean_up(output_filename)
 
         png_file = "log_roc.png"
@@ -245,13 +245,15 @@ class TestGenerateReport(unittest.TestCase):
 
         g = GenerateTextReport()
         g.process_attack_target_json(filename)
-        g.export_to_file(output_filename,
+        g.export_to_file(
+            output_filename,
             move_files=True,
             release_dir="release_dir/",
-            artefacts_dir="training_artefacts/")
+            artefacts_dir="training_artefacts/",
+        )
 
         assert os.path.exists(png_file) is False
-        assert os.path.exists("training_artefacts/"+png_file) is True
+        assert os.path.exists("training_artefacts/" + png_file) is True
 
         clean_up(filename)
         clean_up(output_filename)
@@ -259,7 +261,7 @@ class TestGenerateReport(unittest.TestCase):
         clean_up("release_dir/" + filename)
         clean_up("release_dir/" + output_filename)
         clean_up("release_dir/")
-        clean_up("training_artefacts/"+png_file)
+        clean_up("training_artefacts/" + png_file)
         clean_up("training_artefacts/")
 
     def test_complete_runthrough(self):
