@@ -7,17 +7,20 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import uuid
 import pprint
+import uuid
 from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
-from aisdc.attacks.target import Target
+
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.worst_case_attack import WorstCaseAttack  # pylint: disable = import-error
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
+from aisdc.attacks.target import Target
+from aisdc.attacks.worst_case_attack import (
+    WorstCaseAttack,  # pylint: disable = import-error
+)
 
 
 class MultipleAttacks(Attack):
@@ -34,7 +37,7 @@ class MultipleAttacks(Attack):
         self.config_filename = config_filename
         self.output_filename = output_filename
         self.target_path = target_path
-            
+
     def attack(self, target: Target) -> None:
         """Programmatic attack running
         Runs a LIRA attack from a Target object and a target model
@@ -49,70 +52,72 @@ class MultipleAttacks(Attack):
             file_contents = f.read()
             if file_contents != "":
                 config_file_data = json.loads(file_contents)
-                for config_obj in config_file_data:                
+                for config_obj in config_file_data:
                     params = config_file_data[config_obj]
-                    attack_name = config_obj.split('-')[0]                    
-                    attack_obj = None                
+                    attack_name = config_obj.split("-")[0]
+                    attack_obj = None
                     if attack_name == "worst_case":
-                        attack_obj=WorstCaseAttack(**params)
-                        attack_obj.attack(target)                                                
+                        attack_obj = WorstCaseAttack(**params)
+                        attack_obj.attack(target)
                     elif attack_name == "lira":
                         attack_obj = LIRAAttack(**params)
-                        attack_obj.attack(target)                        
+                        attack_obj.attack(target)
                     elif attack_name == "attribute":
                         attack_obj = AttributeAttack(**params)
                         attack_obj.attack(target)
-                        
+
                     if self.output_filename is not None and attack_obj is not None:
                         g = GenerateJSONModule(self.output_filename)
                         output = attack_obj.make_report(g)
 
+
 class ConfigFile:
     """
-    Module that creates a single JSON configuration file    
+    Module that creates a single JSON configuration file
     """
-    def __init__(
-            self,
-            filename: str = None,            
-        ) -> None:
-            self.filename = filename            
 
-            dirname = os.path.normpath(os.path.dirname(self.filename))
-            os.makedirs(dirname, exist_ok=True)
-            # if file doesn't exist, create it
-            with open(self.filename, "w", encoding="utf-8") as f:
-                f.write("")      
+    def __init__(
+        self,
+        filename: str = None,
+    ) -> None:
+        self.filename = filename
+
+        dirname = os.path.normpath(os.path.dirname(self.filename))
+        os.makedirs(dirname, exist_ok=True)
+        # if file doesn't exist, create it
+        with open(self.filename, "w", encoding="utf-8") as f:
+            f.write("")
 
     def add_config(self, config_obj: dict, config_attack_type: str) -> None:
-            """Add a section of JSON to the file which is already open"""
+        """Add a section of JSON to the file which is already open"""
 
-            # Read the contents of the file and then clear the file
-            with open(self.filename, "r+", encoding="utf-8") as f:
-                file_contents = f.read()
-                if file_contents != "":
-                    config_file_data = json.loads(file_contents)
-                else:
-                    config_file_data = {}
+        # Read the contents of the file and then clear the file
+        with open(self.filename, "r+", encoding="utf-8") as f:
+            file_contents = f.read()
+            if file_contents != "":
+                config_file_data = json.loads(file_contents)
+            else:
+                config_file_data = {}
 
-                f.truncate(0)
-            
-            # Add the new JSON to the JSON that was in the file, and re-write      
-                    
-            with open(self.filename, "w", encoding="utf-8") as f:
-                config_file_data[config_attack_type + "-" + str(uuid.uuid4())] = config_obj
-                f.write(json.dumps(config_file_data))
+            f.truncate(0)
+
+        # Add the new JSON to the JSON that was in the file, and re-write
+
+        with open(self.filename, "w", encoding="utf-8") as f:
+            config_file_data[config_attack_type + "-" + str(uuid.uuid4())] = config_obj
+            f.write(json.dumps(config_file_data))
 
 
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = MultipleAttacks(
-        config_filename = str(args.config_filename),
-        output_filename = str(args.output_filename),
+        config_filename=str(args.config_filename),
+        output_filename=str(args.output_filename),
         target_path=str(args.target_path),
     )
     target = Target()
     target.load(attack_obj.target_path)
-    attack_obj.attack(target)   
+    attack_obj.attack(target)
 
 
 def main():
@@ -130,7 +135,7 @@ def main():
         type=str,
         default="singleconfig.json",
         help=(
-            """Name of the .json file containing details for running 
+            """Name of the .json file containing details for running
             multiple attacks run. Default = %(default)s"""
         ),
     )
@@ -158,7 +163,7 @@ def main():
         type=str,
         default="single_output.json",
         help=(
-            """Name of the .json file containing outputs from 
+            """Name of the .json file containing outputs from
             multiple attacks. Default = %(default)s"""
         ),
     )
