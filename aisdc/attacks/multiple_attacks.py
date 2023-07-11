@@ -9,12 +9,18 @@ import json
 import os
 import uuid
 
-from aisdc.attacks.target import Target
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.worst_case_attack import WorstCaseAttack  # pylint: disable = import-error
+from aisdc.attacks.attack_report_formatter import (
+    GenerateJSONModule,  # pylint: disable = import-error
+)
+from aisdc.attacks.attribute_attack import (
+    AttributeAttack,  # pylint: disable = import-error
+)
 from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
-from aisdc.attacks.attribute_attack import AttributeAttack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule # pylint: disable = import-error
+from aisdc.attacks.target import Target
+from aisdc.attacks.worst_case_attack import (
+    WorstCaseAttack,  # pylint: disable = import-error
+)
 
 
 class MultipleAttacks(Attack):
@@ -52,10 +58,10 @@ class MultipleAttacks(Attack):
                 config_file_data = json.loads(file_contents)
                 for config_obj in config_file_data:
                     params = config_file_data[config_obj]
-                    attack_name = config_obj.split('-')[0]
+                    attack_name = config_obj.split("-")[0]
                     attack_obj = None
                     if attack_name == "worst_case":
-                        attack_obj=WorstCaseAttack(**params)
+                        attack_obj = WorstCaseAttack(**params)
                         attack_obj.attack(target)
                     elif attack_name == "lira":
                         attack_obj = LIRAAttack(**params)
@@ -68,14 +74,16 @@ class MultipleAttacks(Attack):
                         g = GenerateJSONModule(self.output_filename)
                         _ = attack_obj.make_report(g)
 
-class ConfigFile: # pylint: disable = too-few-public-methods
+
+class ConfigFile:  # pylint: disable = too-few-public-methods
     """
-    Module that creates a single JSON configuration file    
+    Module that creates a single JSON configuration file
     """
+
     def __init__(
-            self,
-            filename: str = None,
-        ) -> None:
+        self,
+        filename: str = None,
+    ) -> None:
         self.filename = filename
 
         dirname = os.path.normpath(os.path.dirname(self.filename))
@@ -106,8 +114,8 @@ class ConfigFile: # pylint: disable = too-few-public-methods
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = MultipleAttacks(
-        config_filename = str(args.config_filename),
-        output_filename = str(args.output_filename),
+        config_filename=str(args.config_filename),
+        output_filename=str(args.output_filename),
         target_path=str(args.target_path),
     )
     target = Target()
@@ -130,7 +138,7 @@ def main():
         type=str,
         default="singleconfig.json",
         help=(
-            """Name of the .json file containing details for running 
+            """Name of the .json file containing details for running
             multiple attacks run. Default = %(default)s"""
         ),
     )
@@ -158,7 +166,7 @@ def main():
         type=str,
         default="single_output.json",
         help=(
-            """Name of the .json file containing outputs from 
+            """Name of the .json file containing outputs from
             multiple attacks. Default = %(default)s"""
         ),
     )

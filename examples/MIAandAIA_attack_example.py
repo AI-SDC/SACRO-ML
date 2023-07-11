@@ -24,16 +24,15 @@ python -m examples.MIA_and_AIA_single_entry_example
 import os
 import sys
 
-
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = import-error
 from aisdc.attacks.multiple_attacks import (
-    MultipleAttacks, # pylint: disable = import-error
-    ConfigFile, # pylint: disable = import-error
+    MultipleAttacks,  # pylint: disable = import-error
 )
+from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -70,7 +69,7 @@ target.save(path="MIA_target")
 # to add an attack configuration to a configuration file and
 # attack method then runs attacks based on the specifications given in the configuration file
 configfile_obj = ConfigFile(
-    filename = "single_config.json",
+    filename="single_config.json",
 )
 config = {
     "n_reps": 10,
@@ -110,11 +109,11 @@ config = {
     "attack_metric_success_count_thresh": 2,
     "attack_fail_fast": True,
 }
-configfile_obj.add_config(config,"worst_case")
+configfile_obj.add_config(config, "worst_case")
 
 config = {
     "n_shadow_models": 100,
-    "report_name": "programmatically_lira_example1_report",    
+    "report_name": "programmatically_lira_example1_report",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -122,7 +121,7 @@ config = {
     "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
     "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
-configfile_obj.add_config(config,"lira")
+configfile_obj.add_config(config, "lira")
 
 config = {
     "n_shadow_models": 150,
@@ -136,14 +135,14 @@ config = {
     "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
     "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
 }
-configfile_obj.add_config(config,"lira")
+configfile_obj.add_config(config, "lira")
 
 # attack method not only runs attacks given the configurations
 # specified but also generates a single JSON output file
 # in case if output_filename is specified
 attack_obj = MultipleAttacks(
-    config_filename = "single_config.json",
-    output_filename = "single_output.json",
+    config_filename="single_config.json",
+    output_filename="single_output.json",
 )
 attack_obj.attack(target)
 
@@ -153,13 +152,13 @@ target.save(path="target")
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
 os.system(
-        f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile --help"
+    f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile --help"
 )
 
 # [TRE] Then they run the attack
 os.system(
-        f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
-        "--attack-config-json-file-name single_config.json "
-        "--attack-target-folder-path target "
-        "--attack-output-json-file-name single_output2.json "
+    f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
+    "--attack-config-json-file-name single_config.json "
+    "--attack-target-folder-path target "
+    "--attack-output-json-file-name single_output2.json "
 )
