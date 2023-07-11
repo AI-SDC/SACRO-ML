@@ -26,6 +26,9 @@ def cleanup_files_for_release(
     if not os.path.exists(release_dir):
         os.makedirs(release_dir)
 
+    if not os.path.exists(artefacts_dir):
+        os.makedirs(artefacts_dir)
+
     for filepath in move_into_artefacts:
         if os.path.exists(str(filepath)):
             filename = os.path.basename(filepath)
