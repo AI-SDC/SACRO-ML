@@ -238,7 +238,7 @@ class TestGenerateReport(unittest.TestCase):
         clean_up(output_filename)
 
         png_file = "log_roc.png"
-        with open(png_file, 'w') as f: 
+        with open(png_file, 'w',encoding="utf-8") as f: 
             pass
 
         assert os.path.exists(png_file) is True
