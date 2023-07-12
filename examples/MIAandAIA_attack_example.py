@@ -21,6 +21,7 @@ python -m examples.MIA_and_AIA_single_entry_example
 
 """
 
+import json
 import os
 import sys
 
@@ -71,6 +72,8 @@ target.save(path="MIA_target")
 configfile_obj = ConfigFile(
     filename="single_config.json",
 )
+
+# Example 1: Adding a configuration dictionary to the JSON file
 config = {
     "n_reps": 10,
     "n_dummy_reps": 1,
@@ -82,6 +85,7 @@ config = {
 }
 configfile_obj.add_config(config, "worst_case")
 
+# Example 2: Adding a configuration dictionary to the JSON file
 config = {
     "n_reps": 20,
     "n_dummy_reps": 1,
@@ -93,6 +97,7 @@ config = {
 }
 configfile_obj.add_config(config, "worst_case")
 
+# Example 3: Adding a configuration dictionary to the JSON file
 config = {
     "n_reps": 10,
     "n_dummy_reps": 1,
@@ -111,6 +116,7 @@ config = {
 }
 configfile_obj.add_config(config, "worst_case")
 
+# Example 4: Adding a configuration dictionary to the JSON file
 config = {
     "n_shadow_models": 100,
     "report_name": "programmatically_lira_example1_report",
@@ -123,6 +129,7 @@ config = {
 }
 configfile_obj.add_config(config, "lira")
 
+# Example 5: Adding a configuration dictionary to the JSON file
 config = {
     "n_shadow_models": 150,
     "report_name": "programmatically_lira_example2_report",
@@ -137,6 +144,22 @@ config = {
 }
 configfile_obj.add_config(config, "lira")
 
+# Example 5: Adding an existing configuration file to a single JSON configuration file
+config = {
+    "n_shadow_models": 120,
+    "report_name": "programmatically_lira_example3_report",
+    "shadow_models_fail_fast": True,
+    "n_shadow_rows_confidences_min": 10,
+    "training_data_filename": "train_data.csv",
+    "test_data_filename": "test_data.csv",
+    "training_preds_filename": "train_preds.csv",
+    "test_preds_filename": "test_preds.csv",
+    "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
+    "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
+}
+with open("lira_config.json", "w", encoding="utf-8") as f:
+    f.write(json.dumps(config))
+configfile_obj.add_config("lira_config.json", "lira")
 # attack method not only runs attacks given the configurations
 # specified but also generates a single JSON output file
 # in case if output_filename is specified

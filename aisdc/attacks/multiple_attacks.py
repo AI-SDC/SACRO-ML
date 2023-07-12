@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import uuid
+from typing import Any
 
 from aisdc.attacks.attack import Attack
 from aisdc.attacks.attack_report_formatter import (
@@ -92,8 +93,8 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
         with open(self.filename, "w", encoding="utf-8") as f:
             f.write("")
 
-    def add_config(self, config_obj: dict, config_attack_type: str) -> None:
-        """Add a section of JSON to the file which is already open"""
+    def add_config(self, config_obj: Any, config_attack_type: str) -> None:
+        """Add a section of JSON to the file which is already open"""      
 
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
@@ -107,9 +108,15 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
 
         # Add the new JSON to the JSON that was in the file, and re-write
         with open(self.filename, "w", encoding="utf-8") as f:
-            config_file_data[config_attack_type + "-" + str(uuid.uuid4())] = config_obj
-            f.write(json.dumps(config_file_data))
+            class_name = config_attack_type + "-" + str(uuid.uuid4())
 
+            if isinstance(config_obj, dict):
+                config_file_data[class_name] = config_obj
+            elif isinstance(config_obj, str):
+                with open(str(config_obj), encoding="utf-8") as fr:
+                    config_file_data[class_name] = json.loads(fr.read())
+
+            f.write(json.dumps(config_file_data))
 
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
