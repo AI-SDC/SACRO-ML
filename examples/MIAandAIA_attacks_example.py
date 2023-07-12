@@ -202,7 +202,7 @@ if __name__ == "__main__":
     config = {
         "n_cpu": 2,
         "report_name": "aia_exampl1_report",
-        }
+    }
     configfile_obj.add_config(config, "attribute")
 
     # attack method not only runs attacks given the configurations
