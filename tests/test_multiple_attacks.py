@@ -45,6 +45,7 @@ def common_setup():
     )
     return target, attack_obj
 
+
 def create_single_config_file():
     """creates single configuration files using multiple attack configuration"""
     configfile_obj = ConfigFile(
@@ -147,11 +148,13 @@ def create_single_config_file():
     configfile_obj.add_config(config, "attribute")
     return configfile_obj
 
+
 def test_configfile_number():
     """tests number of attack configurations in a configuration file"""
     configfile_obj = create_single_config_file()
     _, n = configfile_obj.read_config_file()
     assert n == 7
+
 
 def test_programmatic_multiple_attacks():
     """tests programmatic attacks using configuration file"""
@@ -191,7 +194,7 @@ def test_cleanup():
         "worstcase_example3_report.pdf",
         "lira_example1_report.pdf",
         "lira_example2_report.pdf",
-        "lira_example3_report.pdf",        
+        "lira_example3_report.pdf",
         "aia_exampl1_report.pdf",
         "tests/test_single_config_cmd.json",
         "tests/test_single_output_cmd.json",
