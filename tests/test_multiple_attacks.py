@@ -24,12 +24,6 @@ from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = impor
 from aisdc.attacks.multiple_attacks import (
     MultipleAttacks,  # pylint: disable = import-error
 )
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
-from aisdc.attacks.attribute_attack import (
-    _get_bounds_risk,
-    _infer_categorical,
-    _unique_max,
-)
 from tests.test_attacks_via_safemodel import get_target
 
 # pylint: disable = duplicate-code
@@ -45,7 +39,7 @@ def common_setup():
     """basic commands to get ready to test some code"""
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
-    model.fit(target.x_train, target.y_train)    
+    model.fit(target.x_train, target.y_train)
     attack_obj = multiple_attacks.MultipleAttacks(
         config_filename="test_single_config.json",
         output_filename="test_single_output.json",
@@ -53,6 +47,7 @@ def common_setup():
     return target, attack_obj
 
 def create_single_config_file():
+    """creates single configuration files using multiple attack configuration"""
     configfile_obj = ConfigFile(
         filename="single_config.json",
     )
@@ -154,11 +149,13 @@ def create_single_config_file():
     return configfile_obj
 
 def test_configfile_number():
+    """tests number of attack configurations in a configuration file"""
     configfile_obj = create_single_config_file()
     _, n = configfile_obj.read_config_file()
     assert n == 7
 
 def test_programmatic_multiple_attacks():
+    """tests programmatic attacks using configuration file"""
     target, attack_obj = common_setup()
     attack_obj.attack(target)
 
