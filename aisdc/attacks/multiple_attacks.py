@@ -121,9 +121,9 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
             f.write(json.dumps(config_file_data))
 
     def read_config_file(self) -> tuple[dict, int]:
-        """Reads a JSON configuration file and returns dictionary 
+        """Reads a JSON configuration file and returns dictionary
         and number of configuration objects"""
-        with open(self.filename, "r", encoding="utf-8") as f:
+        with open(self.filename, encoding="utf-8") as f:
             file_contents = f.read()
             if file_contents != "":
                 config_file_data = json.loads(file_contents)

@@ -1,1 +1,92 @@
-{"worst_case-a283b22d-205e-4371-ab0a-a47b96ff980f": {"n_reps": 10, "n_dummy_reps": 1, "p_thresh": 0.05, "test_prop": 0.5, "train_beta": 5, "test_beta": 2, "report_name": "worstcase_example1_report"}, "worst_case-0cee542a-43db-4856-944b-ff18b5e97f71": {"n_reps": 20, "n_dummy_reps": 1, "p_thresh": 0.05, "test_prop": 0.5, "train_beta": 5, "test_beta": 2, "report_name": "worstcase_example2_report"}, "worst_case-511242bf-4a49-48d7-972e-2fa2eefd7812": {"n_reps": 10, "n_dummy_reps": 1, "p_thresh": 0.05, "test_prop": 0.5, "train_beta": 5, "test_beta": 2, "report_name": "worstcase_example3_report", "training_preds_filename": "train_preds.csv", "test_preds_filename": "test_preds.csv", "attack_metric_success_name": "P_HIGHER_AUC", "attack_metric_success_thresh": 0.05, "attack_metric_success_comp_type": "lte", "attack_metric_success_count_thresh": 2, "attack_fail_fast": true}, "lira-1ade5d92-fd27-44aa-ac61-9ce0cdd01cb4": {"n_shadow_models": 100, "report_name": "lira_example1_report", "training_data_filename": "train_data.csv", "test_data_filename": "test_data.csv", "training_preds_filename": "train_preds.csv", "test_preds_filename": "test_preds.csv", "target_model": ["sklearn.ensemble", "RandomForestClassifier"], "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1}}, "lira-9123bd81-043f-4a55-8a98-567ebb31f241": {"n_shadow_models": 150, "report_name": "lira_example2_report", "shadow_models_fail_fast": true, "n_shadow_rows_confidences_min": 10, "training_data_filename": "train_data.csv", "test_data_filename": "test_data.csv", "training_preds_filename": "train_preds.csv", "test_preds_filename": "test_preds.csv", "target_model": ["sklearn.ensemble", "RandomForestClassifier"], "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1}}, "lira-3d81857f-2709-46a8-bd55-d869481dbf28": {"n_shadow_models": 120, "report_name": "lira_example3_report", "shadow_models_fail_fast": true, "n_shadow_rows_confidences_min": 10, "training_data_filename": "train_data.csv", "test_data_filename": "test_data.csv", "training_preds_filename": "train_preds.csv", "test_preds_filename": "test_preds.csv", "target_model": ["sklearn.ensemble", "RandomForestClassifier"], "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1}}, "attribute-53aeb02b-2c50-4507-89b7-3e1e368de798": {"n_cpu": 2, "report_name": "aia_exampl1_report"}}
+{
+    "worst_case-a283b22d-205e-4371-ab0a-a47b96ff980f": {
+        "n_reps": 10,
+        "n_dummy_reps": 1,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "train_beta": 5,
+        "test_beta": 2,
+        "report_name": "worstcase_example1_report"
+    },
+    "worst_case-0cee542a-43db-4856-944b-ff18b5e97f71": {
+        "n_reps": 20,
+        "n_dummy_reps": 1,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "train_beta": 5,
+        "test_beta": 2,
+        "report_name": "worstcase_example2_report"
+    },
+    "worst_case-511242bf-4a49-48d7-972e-2fa2eefd7812": {
+        "n_reps": 10,
+        "n_dummy_reps": 1,
+        "p_thresh": 0.05,
+        "test_prop": 0.5,
+        "train_beta": 5,
+        "test_beta": 2,
+        "report_name": "worstcase_example3_report",
+        "training_preds_filename": "train_preds.csv",
+        "test_preds_filename": "test_preds.csv",
+        "attack_metric_success_name": "P_HIGHER_AUC",
+        "attack_metric_success_thresh": 0.05,
+        "attack_metric_success_comp_type": "lte",
+        "attack_metric_success_count_thresh": 2,
+        "attack_fail_fast": true
+    },
+    "lira-1ade5d92-fd27-44aa-ac61-9ce0cdd01cb4": {
+        "n_shadow_models": 100,
+        "report_name": "lira_example1_report",
+        "training_data_filename": "train_data.csv",
+        "test_data_filename": "test_data.csv",
+        "training_preds_filename": "train_preds.csv",
+        "test_preds_filename": "test_preds.csv",
+        "target_model": [
+            "sklearn.ensemble",
+            "RandomForestClassifier"
+        ],
+        "target_model_hyp": {
+            "min_samples_split": 2,
+            "min_samples_leaf": 1
+        }
+    },
+    "lira-9123bd81-043f-4a55-8a98-567ebb31f241": {
+        "n_shadow_models": 150,
+        "report_name": "lira_example2_report",
+        "shadow_models_fail_fast": true,
+        "n_shadow_rows_confidences_min": 10,
+        "training_data_filename": "train_data.csv",
+        "test_data_filename": "test_data.csv",
+        "training_preds_filename": "train_preds.csv",
+        "test_preds_filename": "test_preds.csv",
+        "target_model": [
+            "sklearn.ensemble",
+            "RandomForestClassifier"
+        ],
+        "target_model_hyp": {
+            "min_samples_split": 2,
+            "min_samples_leaf": 1
+        }
+    },
+    "lira-3d81857f-2709-46a8-bd55-d869481dbf28": {
+        "n_shadow_models": 120,
+        "report_name": "lira_example3_report",
+        "shadow_models_fail_fast": true,
+        "n_shadow_rows_confidences_min": 10,
+        "training_data_filename": "train_data.csv",
+        "test_data_filename": "test_data.csv",
+        "training_preds_filename": "train_preds.csv",
+        "test_preds_filename": "test_preds.csv",
+        "target_model": [
+            "sklearn.ensemble",
+            "RandomForestClassifier"
+        ],
+        "target_model_hyp": {
+            "min_samples_split": 2,
+            "min_samples_leaf": 1
+        }
+    },
+    "attribute-53aeb02b-2c50-4507-89b7-3e1e368de798": {
+        "n_cpu": 2,
+        "report_name": "aia_exampl1_report"
+    }
+}
