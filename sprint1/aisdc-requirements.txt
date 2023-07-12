@@ -1,0 +1,11 @@
+dictdiffer~=0.9.0
+fpdf~=1.7.2
+joblib~=1.1.0
+multiprocess~=0.70.12.2
+numpy~=1.21
+pandas~=1.5.0
+scikit_learn~=1.1.2
+scipy~=1.7
+tensorflow-macos
+tensorflow_privacy
+uuid~=1.30
