@@ -45,8 +45,7 @@ def common_setup():
     """basic commands to get ready to test some code"""
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
-    model.fit(target.x_train, target.y_train)
-    config = 
+    model.fit(target.x_train, target.y_train)    
     attack_obj = multiple_attacks.MultipleAttacks(
         config_filename="test_single_config.json",
         output_filename="test_single_output.json",
