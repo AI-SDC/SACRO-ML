@@ -85,10 +85,6 @@ if __name__ == "__main__":
 
     # [Researcher] Train the classifier
     model.fit(x_train, y_train)
-    acc_train = model.score(x_train, y_train)
-    acc_test = model.score(x_test, y_test)
-    print(f"Base model train accuracy: {acc_train}")
-    print(f"Base model test accuracy: {acc_test}")
 
     # [TRE / Researcher] Wrap the model and data in a Target object
     target = Target(model=model)
@@ -181,7 +177,7 @@ if __name__ == "__main__":
     }
     configfile_obj.add_config(config, "lira")
 
-    # Example 5: Adding an existing configuration file to a single JSON configuration file
+    # Example 6: Adding an existing configuration file to a single JSON configuration file
     config = {
         "n_shadow_models": 120,
         "report_name": "lira_example3_report",
@@ -198,7 +194,7 @@ if __name__ == "__main__":
         f.write(json.dumps(config))
     configfile_obj.add_config("lira_config.json", "lira")
 
-    # Example 6: Adding a configuration dictionary to the JSON file
+    # Example 7: Adding a configuration dictionary to the JSON file
     config = {
         "n_cpu": 2,
         "report_name": "aia_exampl1_report",
@@ -214,7 +210,7 @@ if __name__ == "__main__":
     )
     attack_obj.attack(target)
 
-    # [Researcher] Dump the target model and target data
+    # # [Researcher] Dump the target model and target data
     target.save(path="target")
 
     # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
@@ -223,7 +219,7 @@ if __name__ == "__main__":
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile --help"
     )
 
-    # [TRE] Then they run the attack
+    # # [TRE] Then they run the attack
     os.system(
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
         "--attack-config-json-file-name single_config.json "
