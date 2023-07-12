@@ -21,12 +21,13 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
 )
 
 from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
-    MultipleAttacks,
     ConfigFile,
+    MultipleAttacks,
 )
 from tests.test_attacks_via_safemodel import get_target
 
 # pylint: disable = duplicate-code
+
 
 def cleanup_file(name: str):
     """removes unwanted files or directory"""
