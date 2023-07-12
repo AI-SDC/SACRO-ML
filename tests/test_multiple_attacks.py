@@ -39,7 +39,7 @@ def common_setup():
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    attack_obj = multiple_attacks.MultipleAttacks(
+    attack_obj = MultipleAttacks(
         config_filename="test_single_config.json",
         output_filename="test_single_output.json",
     )
