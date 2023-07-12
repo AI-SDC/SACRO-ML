@@ -139,7 +139,7 @@ def create_single_config_file():
     }
     with open("test_lira_config.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
-    configfile_obj.add_config("lira_config.json", "lira")
+    configfile_obj.add_config("test_lira_config.json", "lira")
 
     # Example 6: Adding a configuration dictionary to the JSON file
     config = {
