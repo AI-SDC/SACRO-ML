@@ -217,20 +217,20 @@ class TestGenerateReport(unittest.TestCase):
 
         g = GenerateTextReport()
         g.process_attack_target_json(filename)
-        g.export_to_file(output_filename, move_files=True, release_dir="release_dir/")
+        g.export_to_file(output_filename, move_files=True, release_dir="release_dir")
 
         # Check when no model name has been provided
-        assert os.path.exists("release_dir/" + output_filename) is True
+        assert os.path.exists(os.path.join("release_dir",output_filename)) is True
 
         g.export_to_file(
             output_filename,
             move_files=True,
-            release_dir="release_dir/",
+            release_dir="release_dir",
             model_filename=dummy_model,
         )
 
         # Check model file has been copied (NOT moved)
-        assert os.path.exists("release_dir/" + dummy_model) is True
+        assert os.path.exists(os.path.join("release_dir",dummy_model)) is True
         assert os.path.exists(dummy_model) is True
 
         clean_up(dummy_model)
@@ -248,21 +248,21 @@ class TestGenerateReport(unittest.TestCase):
         g.export_to_file(
             output_filename,
             move_files=True,
-            release_dir="release_dir/",
-            artefacts_dir="training_artefacts/",
+            release_dir="release_dir",
+            artefacts_dir="training_artefacts",
         )
 
         assert os.path.exists(png_file) is False
-        assert os.path.exists("training_artefacts/" + png_file) is True
+        assert os.path.exists(os.path.join("training_artefacts",png_file)) is True
 
         clean_up(filename)
         clean_up(output_filename)
-        clean_up("release_dir/" + dummy_model)
-        clean_up("release_dir/" + filename)
-        clean_up("release_dir/" + output_filename)
-        clean_up("release_dir/")
-        clean_up("training_artefacts/" + png_file)
-        clean_up("training_artefacts/")
+        clean_up(os.path.join("release_dir",dummy_model))
+        clean_up(os.path.join("release_dir",filename))
+        clean_up(os.path.join("release_dir",output_filename))
+        clean_up("release_dir")
+        clean_up(os.path.join("training_artefacts",png_file))
+        clean_up("training_artefacts")
 
     def test_complete_runthrough(self):
         """test the full process_json file end-to-end when valid parameters are passed"""
@@ -563,12 +563,12 @@ class TestLogLogROCModule(unittest.TestCase):
 
         out_json.update(out_json_copy)
 
-        f = LogLogROCModule(out_json, output_folder="./")
+        f = LogLogROCModule(out_json, output_folder=".")
         returned = f.process_dict()
 
-        output_file_1 = f"./{out_json['log_id']}-{out_json['metadata']['attack']}.png"
+        output_file_1 = f"{out_json['log_id']}-{out_json['metadata']['attack']}.png"
         output_file_2 = (
-            f"./{out_json_copy['log_id']}-{out_json_copy['metadata']['attack']}.png"
+            f"{out_json_copy['log_id']}-{out_json_copy['metadata']['attack']}.png"
         )
 
         self.assertIn(output_file_1, returned)

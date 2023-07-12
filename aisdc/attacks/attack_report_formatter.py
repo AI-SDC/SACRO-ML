@@ -15,8 +15,8 @@ import numpy as np
 def cleanup_files_for_release(
     move_into_artefacts,
     copy_into_release,
-    release_dir="release_files/",
-    artefacts_dir="training_artefacts/",
+    release_dir="release_files",
+    artefacts_dir="training_artefacts",
 ):
     """
     Function that will move any files created throughout the release process and
@@ -589,8 +589,8 @@ class GenerateTextReport:
         output_filename: str = "summary.txt",
         move_files=False,
         model_filename=None,
-        release_dir="release_files/",
-        artefacts_dir="training_artefacts/",
+        release_dir="release_files",
+        artefacts_dir="training_artefacts",
     ):
         """
         Function that takes the input strings collected and combines into a neat text file
