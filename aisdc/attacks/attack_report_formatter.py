@@ -203,7 +203,9 @@ class FinalRecommendationModule(
                         instance = self.report[k]["attack_experiment_logger"][
                             "attack_instance_logger"
                         ][i]
-                        if instance["P_HIGHER_AUC"] < p_val_thresh:
+
+                        auc_key = 'P_HIGHER_AUC'
+                        if auc_key in instance.keys() and instance[auc_key] < p_val_thresh:
                             stat_sig_auc.append(instance["AUC"])
 
                     n_instances = len(
