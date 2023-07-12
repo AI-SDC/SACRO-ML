@@ -95,7 +95,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
             f.write("")
 
     def add_config(self, config_obj: Any, config_attack_type: str) -> None:
-        """Add a section of JSON to the file which is already open"""      
+        """Add a section of JSON to the file which is already open"""
 
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
@@ -118,6 +118,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
                     config_file_data[class_name] = json.loads(fr.read())
 
             f.write(json.dumps(config_file_data))
+
 
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
