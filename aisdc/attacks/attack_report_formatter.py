@@ -5,10 +5,41 @@ Generate report for TREs from JSON file
 import json
 import os
 import pprint
+import shutil
 from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+def cleanup_files_for_release(
+    move_into_artefacts,
+    copy_into_release,
+    release_dir="release_files",
+    artefacts_dir="training_artefacts",
+):
+    """
+    Function that will move any files created throughout the release process and
+    sort them into appropriate folders
+    """
+
+    if not os.path.exists(release_dir):
+        os.makedirs(release_dir)
+
+    if not os.path.exists(artefacts_dir):
+        os.makedirs(artefacts_dir)
+
+    for filepath in move_into_artefacts:
+        if os.path.exists(str(filepath)):
+            filename = os.path.basename(filepath)
+            dest = os.path.join(artefacts_dir, filename)
+            shutil.move(filename, dest)
+
+    for filepath in copy_into_release:
+        if os.path.exists(str(filepath)):
+            filename = os.path.basename(filepath)
+            dest = os.path.join(release_dir, filename)
+            shutil.copy(filepath, dest)
 
 
 class GenerateJSONModule:
@@ -427,6 +458,8 @@ class GenerateTextReport:
     def __init__(self):
         self.text_out = []
         self.target_json_filename = None
+        self.attack_json_filename = None
+        self.model_name_from_target = None
 
         self.immediate_rejection = []
         self.support_rejection = []
@@ -486,6 +519,12 @@ class GenerateTextReport:
                     )
                     output_string = output_string + "\n"
 
+        if "model_path" in json_report.keys():
+            filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
+            self.model_name_from_target = os.path.join(
+                filepath, json_report["model_path"]
+            )
+
         self.text_out.append(output_string)
 
     def process_attack_target_json(
@@ -494,6 +533,7 @@ class GenerateTextReport:
         """
         Function that creates a neat summary of an attack JSON file
         """
+        self.attack_json_filename = attack_filename
 
         with open(attack_filename, encoding="utf-8") as f:
             json_report = json.loads(f.read())
@@ -544,7 +584,14 @@ class GenerateTextReport:
 
         self.text_out.append(bucket_text)
 
-    def export_to_file(self, output_filename: str = "summary.txt"):
+    def export_to_file(  # pylint: disable=too-many-arguments
+        self,
+        output_filename: str = "summary.txt",
+        move_files=False,
+        model_filename=None,
+        release_dir="release_files",
+        artefacts_dir="training_artefacts",
+    ):
         """
         Function that takes the input strings collected and combines into a neat text file
         """
@@ -563,3 +610,21 @@ class GenerateTextReport:
             for output_string in self.text_out:
                 text_file.write(output_string)
                 text_file.write("\n")
+
+        if move_files is True:
+            move_into_artefacts = ["log_roc.png"]
+
+            copy_into_release = [
+                output_filename,
+                self.attack_json_filename,
+                self.target_json_filename,
+            ]
+
+            if model_filename is None:
+                copy_into_release.append(self.model_name_from_target)
+            else:
+                copy_into_release.append(model_filename)
+
+            cleanup_files_for_release(
+                move_into_artefacts, copy_into_release, release_dir, artefacts_dir
+            )
