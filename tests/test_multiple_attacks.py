@@ -20,15 +20,15 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
     OneHotEncoder,
 )
 
-from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = import-error
-from aisdc.attacks.multiple_attacks import (
-    MultipleAttacks,  # pylint: disable = import-error
-)
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,
     _unique_max,
+)
+from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = import-error
+from aisdc.attacks.multiple_attacks import (
+    MultipleAttacks,  # pylint: disable = import-error
 )
 from tests.test_attacks_via_safemodel import get_target
 
@@ -46,7 +46,7 @@ def common_setup():
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    config = 
+    config =
     attack_obj = multiple_attacks.MultipleAttacks(
         config_filename="test_single_config.json",
         output_filename="test_single_output.json",
@@ -196,7 +196,7 @@ def test_cleanup():
         "worstcase_example3_report.pdf",
         "lira_example1_report.pdf",
         "lira_example2_report.pdf",
-        "lira_example3_report.pdf",        
+        "lira_example3_report.pdf",
         "aia_exampl1_report.pdf",
         "tests/test_single_config_cmd.json",
         "tests/test_single_output_cmd.json",
