@@ -20,14 +20,13 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
     OneHotEncoder,
 )
 
-from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = import-error
-from aisdc.attacks.multiple_attacks import (
-    MultipleAttacks,  # pylint: disable = import-error
+from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
+    MultipleAttacks,
+    ConfigFile,
 )
 from tests.test_attacks_via_safemodel import get_target
 
 # pylint: disable = duplicate-code
-
 
 def cleanup_file(name: str):
     """removes unwanted files or directory"""
