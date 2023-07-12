@@ -50,7 +50,7 @@ def common_setup():
 def create_single_config_file():
     """creates single configuration files using multiple attack configuration"""
     configfile_obj = ConfigFile(
-        filename="single_config.json",
+        filename="test_single_config.json",
     )
 
     # Example 1: Adding a configuration dictionary to the JSON file
