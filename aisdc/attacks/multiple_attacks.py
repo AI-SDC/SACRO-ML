@@ -114,7 +114,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
         """Add a section of JSON to the file which is already open"""
 
         # Read the contents of the file and then clear the file
-        config_file_data, _ = self.read_config_file()
+        config_file_data = self.read_config_file()
 
         # Add the new JSON to the JSON that was in the file, and re-write
         with open(self.filename, "w", encoding="utf-8") as f:
@@ -128,7 +128,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
 
             f.write(json.dumps(config_file_data))
 
-    def read_config_file(self) -> tuple[dict, int]:
+    def read_config_file(self) -> dict:
         """Reads a JSON configuration file and returns dictionary
         with a number of configuration objects"""
         with open(self.filename, encoding="utf-8") as f:
@@ -137,7 +137,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
                 config_file_data = json.loads(file_contents)
             else:
                 config_file_data = {}
-        return config_file_data, len(config_file_data)
+        return config_file_data
 
 
 def _run_attack_from_configfile(args):

@@ -124,6 +124,8 @@ def create_single_config_file():
         "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
     }
     configfile_obj.add_config(config, "lira")
+    # adding explicitly wrong attack name to cover codecov test
+    configfile_obj.add_config(config, "lirrra")
 
     # Example 3: Adding a lira JSON configuration file to a configuration file
     # having multiple attack configurations
@@ -156,8 +158,8 @@ def create_single_config_file():
 def test_configfile_number():
     """tests number of attack configurations in a configuration file"""
     configfile_obj = create_single_config_file()
-    _, n = configfile_obj.read_config_file()
-    assert n == 7
+    configfile_data = configfile_obj.read_config_file()
+    assert len(configfile_data) == 8
 
 
 def test_multiple_attacks_programmatic():
