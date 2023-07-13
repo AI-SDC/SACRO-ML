@@ -1,7 +1,9 @@
 """
-Generate report for TREs from JSON file
-"""
+An entry point to run multiple attacks including MIA (worst-case and LIRA) 
+and attribute inference attack using a single configuration file 
+with multiple attack configuration
 
+"""
 from __future__ import annotations
 
 import argparse
@@ -23,29 +25,34 @@ from aisdc.attacks.worst_case_attack import (
     WorstCaseAttack,  # pylint: disable = import-error
 )
 
-
 class MultipleAttacks(Attack):
-    """
-    Module that creates and appends to a JSON file
-    """
+    """Class to wrap the MIA and AIA attack codes"""
 
     def __init__(
         self,
         config_filename: str = None,
-        output_filename: str = None,
-        target_path: str = None,
+        output_filename: str = None,        
     ) -> None:
         super().__init__()
         self.config_filename = config_filename
-        self.output_filename = output_filename
-        self.target_path = target_path
+        self.output_filename = output_filename        
+        """Constructs an object to execute a worst case attack.
+
+        Parameters
+        ----------
+        config_filename: str
+            name of the configuration file which has configurations in a single JSON file
+            to support running multiple attacks
+        output_filename: str
+            name of the output JSON file to store outputs generated through multiple attack runs
+        """
 
     def __str__(self):
-        return "Multiple Attacks"
+        return "Multiple Attacks (MIA and AIA) given configurations"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack running
-        Runs a LIRA attack from a Target object and a target model
+        """
+        Runs attacks from a Target object and a target model        
 
         Parameters
         ----------
@@ -98,15 +105,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
         """Add a section of JSON to the file which is already open"""
 
         # Read the contents of the file and then clear the file
-        config_file_data, _ = self.read_config_file()
-        # with open(self.filename, "r+", encoding="utf-8") as f:
-        #     file_contents = f.read()
-        #     if file_contents != "":
-        #         config_file_data = json.loads(file_contents)
-        #     else:
-        #         config_file_data = {}
-
-        #     f.truncate(0)
+        config_file_data, _ = self.read_config_file()        
 
         # Add the new JSON to the JSON that was in the file, and re-write
         with open(self.filename, "w", encoding="utf-8") as f:
@@ -122,7 +121,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
 
     def read_config_file(self) -> tuple[dict, int]:
         """Reads a JSON configuration file and returns dictionary
-        and number of configuration objects"""
+        with a number of configuration objects"""
         with open(self.filename, encoding="utf-8") as f:
             file_contents = f.read()
             if file_contents != "":
@@ -136,11 +135,10 @@ def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = MultipleAttacks(
         config_filename=str(args.config_filename),
-        output_filename=str(args.output_filename),
-        target_path=str(args.target_path),
+        output_filename=str(args.output_filename),        
     )
     target = Target()
-    target.load(attack_obj.target_path)
+    target.load(args.target_path)
     attack_obj.attack(target)
 
 

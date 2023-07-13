@@ -1,15 +1,6 @@
-"""Examples for using the 'Membership Inferene Attack' attack code.
-
-This code simulates a MIA attack providing the attacker with as much information as possible.
-i.e. they have a subset of rows that they _know_ were used for training. And a subset that they
-know were not. They also have query access to the target model.
-
-They pass the training and non-training rows through the target model to get the predictive
-probabilities. These are then used to train an _attack model_. And the attack model is evaluated
-to see how well it can predict whether or not other examples were in the training set or not.
-
-The code can be called from the command line, or accessed programmatically. Examples of both
-are shown below.
+"""Examples for running multiple attacks including the 'Membership Inferene Attack' 
+and the "Attribute Inference Attack" with a single configuration file have 
+multiple configurations.
 
 In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
 
@@ -94,19 +85,18 @@ if __name__ == "__main__":
     for i in range(n_features):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
-    # Example 1: Adding multiple configurations to a configuration file
-    # and then running attacks programmatically
-    # creating an instance of Multiple Attacks object
-    # requiring name of the configuration file and
-    # output json file name
-    # MultipleAttacks class has a method add_config
-    # to add an attack configuration to a configuration file and
-    # attack method then runs attacks based on the specifications given in the configuration file
+    # [Researcher] Dump the target model and target data
+    target.save(path="target")
+
+    # [TRE / Researcher] Wrap the model and data in a Target object
+    # Instantiating a ConfigFile instance to add configurations
+    # (i.e., configuration dictionaries or a configuration file)
+    # to a single configuration file and then running attacks
     configfile_obj = ConfigFile(
         filename="single_config.json",
     )
 
-    # Example 1: Adding a configuration dictionary to the JSON file
+    # Adding three worst-case attack configuration dictionaries to the JSON file
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -117,8 +107,7 @@ if __name__ == "__main__":
         "report_name": "worstcase_example1_report",
     }
     configfile_obj.add_config(config, "worst_case")
-
-    # Example 2: Adding a configuration dictionary to the JSON file
+    
     config = {
         "n_reps": 20,
         "n_dummy_reps": 1,
@@ -130,7 +119,6 @@ if __name__ == "__main__":
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Example 3: Adding a configuration dictionary to the JSON file
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -149,7 +137,7 @@ if __name__ == "__main__":
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Example 4: Adding a configuration dictionary to the JSON file
+    # Adding two lira attack configuration dictionaries to the JSON file
     config = {
         "n_shadow_models": 100,
         "report_name": "lira_example1_report",
@@ -162,7 +150,6 @@ if __name__ == "__main__":
     }
     configfile_obj.add_config(config, "lira")
 
-    # Example 5: Adding a configuration dictionary to the JSON file
     config = {
         "n_shadow_models": 150,
         "report_name": "lira_example2_report",
@@ -177,7 +164,8 @@ if __name__ == "__main__":
     }
     configfile_obj.add_config(config, "lira")
 
-    # Example 6: Adding an existing configuration file to a single JSON configuration file
+    # Adding a lira JSON configuration file to a configuration file
+    # having multiple attack configurations
     config = {
         "n_shadow_models": 120,
         "report_name": "lira_example3_report",
@@ -194,24 +182,20 @@ if __name__ == "__main__":
         f.write(json.dumps(config))
     configfile_obj.add_config("lira_config.json", "lira")
 
-    # Example 7: Adding a configuration dictionary to the JSON file
+    # Adding an attribute inference attack configuration dictionary to the JSON file
     config = {
         "n_cpu": 2,
         "report_name": "aia_exampl1_report",
     }
     configfile_obj.add_config(config, "attribute")
 
-    # attack method not only runs attacks given the configurations
-    # specified but also generates a single JSON output file
-    # in case if output_filename is specified
+    # Instantiating MultipleAttacks object specifying a single configuration file
+    # (with multiple attacks configurations) and a single JSON output file
     attack_obj = MultipleAttacks(
         config_filename="single_config.json",
         output_filename="single_output.json",
     )
-    attack_obj.attack(target)
-
-    # # [Researcher] Dump the target model and target data
-    target.save(path="target")
+    attack_obj.attack(target)   
 
     # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
     # [TRE] First they access the help to work out which parameters they need to set

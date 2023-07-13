@@ -1,11 +1,14 @@
 """
-Example demonstrating the attribute inference attacks.
+Test to run multiple attacks (MIA and AIA) using a single configuration file 
+having different configuration settings (i.e. attack type or configuration parameters).
 
 Running
 -------
 
-Invoke this code from the root AI-SDC folder with
-python -m examples.attribute_inference_example
+Invoke this code from the root AI-SDC folder.
+However to run this test file, it will be required to install pytest package
+using 'pip install pytest' and then run following 
+python -m pytest .\tests\test_multiple_attacks.py
 
 """
 import json
@@ -48,12 +51,13 @@ def common_setup():
 
 
 def create_single_config_file():
-    """creates single configuration files using multiple attack configuration"""
+    """creates single configuration file using multiple attack configuration"""
+    # instantiating a configfile object to add configurations
     configfile_obj = ConfigFile(
         filename="test_single_config.json",
     )
 
-    # Example 1: Adding a configuration dictionary to the JSON file
+    # Example 1: Adding three different worst case configuration dictionaries to the JSON file
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -65,7 +69,6 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Example 2: Adding a configuration dictionary to the JSON file
     config = {
         "n_reps": 20,
         "n_dummy_reps": 1,
@@ -77,7 +80,6 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Example 3: Adding a configuration dictionary to the JSON file
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -96,7 +98,7 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Example 4: Adding a configuration dictionary to the JSON file
+    # Adding two different lira attack configuration dictionaries to the JSON file
     config = {
         "n_shadow_models": 100,
         "report_name": "lira_example1_report",
@@ -109,7 +111,6 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "lira")
 
-    # Example 5: Adding a configuration dictionary to the JSON file
     config = {
         "n_shadow_models": 150,
         "report_name": "lira_example2_report",
@@ -124,7 +125,8 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "lira")
 
-    # Example 5: Adding an existing configuration file to a single JSON configuration file
+    # Example 3: Adding a lira JSON configuration file to a configuration file
+    # having multiple attack configurations
     config = {
         "n_shadow_models": 120,
         "report_name": "lira_example3_report",
@@ -141,7 +143,8 @@ def create_single_config_file():
         f.write(json.dumps(config))
     configfile_obj.add_config("test_lira_config.json", "lira")
 
-    # Example 6: Adding a configuration dictionary to the JSON file
+    # Example 4: Adding a attribute configuration dictionary
+    # from an existing configuration file to the JSON configuration file
     config = {
         "n_cpu": 2,
         "report_name": "aia_exampl1_report",
@@ -157,14 +160,14 @@ def test_configfile_number():
     assert n == 7
 
 
-def test_programmatic_multiple_attacks():
-    """tests programmatic attacks using configuration file"""
+def test_multiple_attacks_programmatic():
+    """tests programmatically running attacks using a single configuration configuration file"""
     target, attack_obj = common_setup()
     attack_obj.attack(target)
 
 
-def test_cmd_multiple_attacks():
-    """tests running AIA on the nursery data
+def test_multiple_attacks_cmd():
+    """tests running multiple attacks (MIA and AIA) on the nursery data
     with an added continuous feature"""
     target, _ = common_setup()
     target.save(path="tests/test_multiple_target")
