@@ -1,6 +1,6 @@
 """
-An entry point to run multiple attacks including MIA (worst-case and LIRA) 
-and attribute inference attack using a single configuration file 
+An entry point to run multiple attacks including MIA (worst-case and LIRA)
+and attribute inference attack using a single configuration file
 with multiple attack configuration
 
 """
@@ -25,17 +25,18 @@ from aisdc.attacks.worst_case_attack import (
     WorstCaseAttack,  # pylint: disable = import-error
 )
 
+
 class MultipleAttacks(Attack):
     """Class to wrap the MIA and AIA attack codes"""
 
     def __init__(
         self,
         config_filename: str = None,
-        output_filename: str = None,        
+        output_filename: str = None,
     ) -> None:
         super().__init__()
         self.config_filename = config_filename
-        self.output_filename = output_filename        
+        self.output_filename = output_filename
         """Constructs an object to execute a worst case attack.
 
         Parameters
@@ -52,7 +53,7 @@ class MultipleAttacks(Attack):
 
     def attack(self, target: Target) -> None:
         """
-        Runs attacks from a Target object and a target model        
+        Runs attacks from a Target object and a target model
 
         Parameters
         ----------
@@ -105,7 +106,7 @@ class ConfigFile:  # pylint: disable = too-few-public-methods
         """Add a section of JSON to the file which is already open"""
 
         # Read the contents of the file and then clear the file
-        config_file_data, _ = self.read_config_file()        
+        config_file_data, _ = self.read_config_file()
 
         # Add the new JSON to the JSON that was in the file, and re-write
         with open(self.filename, "w", encoding="utf-8") as f:
@@ -135,7 +136,7 @@ def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = MultipleAttacks(
         config_filename=str(args.config_filename),
-        output_filename=str(args.output_filename),        
+        output_filename=str(args.output_filename),
     )
     target = Target()
     target.load(args.target_path)

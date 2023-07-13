@@ -1,5 +1,5 @@
-"""Examples for running multiple attacks including the 'Membership Inferene Attack' 
-and the "Attribute Inference Attack" with a single configuration file have 
+"""Examples for running multiple attacks including the 'Membership Inferene Attack'
+and the "Attribute Inference Attack" with a single configuration file have
 multiple configurations.
 
 In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         "report_name": "worstcase_example1_report",
     }
     configfile_obj.add_config(config, "worst_case")
-    
+
     config = {
         "n_reps": 20,
         "n_dummy_reps": 1,
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         config_filename="single_config.json",
         output_filename="single_output.json",
     )
-    attack_obj.attack(target)   
+    attack_obj.attack(target)
 
     # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
     # [TRE] First they access the help to work out which parameters they need to set

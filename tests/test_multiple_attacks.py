@@ -1,5 +1,5 @@
 """
-Test to run multiple attacks (MIA and AIA) using a single configuration file 
+Test to run multiple attacks (MIA and AIA) using a single configuration file
 having different configuration settings (i.e. attack type or configuration parameters).
 
 Running
@@ -7,7 +7,7 @@ Running
 
 Invoke this code from the root AI-SDC folder.
 However to run this test file, it will be required to install pytest package
-using 'pip install pytest' and then run following 
+using 'pip install pytest' and then run following
 python -m pytest .\tests\test_multiple_attacks.py
 
 """
