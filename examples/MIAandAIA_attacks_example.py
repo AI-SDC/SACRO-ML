@@ -22,9 +22,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.multiple_attacks import ConfigFile  # pylint: disable = import-error
-from aisdc.attacks.multiple_attacks import (
-    MultipleAttacks,  # pylint: disable = import-error
+from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
+    ConfigFile,
+    MultipleAttacks,
 )
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # (with multiple attacks configurations) and a single JSON output file
     attack_obj = MultipleAttacks(
         config_filename="single_config.json",
-        output_filename="single_output.json",
+        output_filename="single_output_progammatic.json",
     )
     attack_obj.attack(target)
 
@@ -208,5 +208,5 @@ if __name__ == "__main__":
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
         "--attack-config-json-file-name single_config.json "
         "--attack-target-folder-path target "
-        "--attack-output-json-file-name single_output2.json "
+        "--attack-output-json-file-name single_output_cmd.json "
     )

@@ -75,8 +75,7 @@ class MultipleAttacks(Attack):
                     elif attack_name == "lira":
                         attack_obj = LIRAAttack(**params)
                         attack_obj.attack(target)
-                    elif attack_name == "attribute":
-                        print(attack_name)
+                    elif attack_name == "attribute":                        
                         attack_obj = AttributeAttack(**params)
                         attack_obj.attack(target)
 

@@ -164,6 +164,7 @@ def test_multiple_attacks_programmatic():
     """tests programmatically running attacks using a single configuration configuration file"""
     target, attack_obj = common_setup()
     attack_obj.attack(target)
+    print(attack_obj)
 
 
 def test_multiple_attacks_cmd():
