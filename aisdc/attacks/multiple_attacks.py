@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import logging
+import os
 import uuid
 from typing import Any
 
@@ -82,8 +82,11 @@ class MultipleAttacks(Attack):
                     attack_obj = AttributeAttack(**params)
                 else:
                     attack_names = "'worst_case', 'lira' and 'attribute'"
-                    logger.error("""attack name is %s whereas supported attack names are %s: """
-                    , attack_name, attack_names)
+                    logger.error(
+                        """attack name is %s whereas supported attack names are %s: """,
+                        attack_name,
+                        attack_names,
+                    )
 
                 if attack_obj is not None:
                     attack_obj.attack(target)
@@ -92,6 +95,7 @@ class MultipleAttacks(Attack):
                     g = GenerateJSONModule(self.output_filename)
                     _ = attack_obj.make_report(g)
         logger.info("Finished running attacks")
+
 
 class ConfigFile:  # pylint: disable = too-few-public-methods
     """
