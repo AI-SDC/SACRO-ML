@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import logging
 import uuid
 from typing import Any
 
@@ -61,28 +62,36 @@ class MultipleAttacks(Attack):
             target as an instance of the Target class. Needs to have x_train,
             x_test, y_train and y_test set.
         """
+        logger = logging.getLogger("attack-multiple attacks")
+        logger.info("Running attacks")
+        file_contents = ""
         with open(self.config_filename, "r+", encoding="utf-8") as f:
             file_contents = f.read()
-            if file_contents != "":
-                config_file_data = json.loads(file_contents)
-                for config_obj in config_file_data:
-                    params = config_file_data[config_obj]
-                    attack_name = config_obj.split("-")[0]
-                    attack_obj = None
-                    if attack_name == "worst_case":
-                        attack_obj = WorstCaseAttack(**params)
-                        attack_obj.attack(target)
-                    elif attack_name == "lira":
-                        attack_obj = LIRAAttack(**params)
-                        attack_obj.attack(target)
-                    elif attack_name == "attribute":
-                        attack_obj = AttributeAttack(**params)
-                        attack_obj.attack(target)
 
-                    if self.output_filename is not None and attack_obj is not None:
-                        g = GenerateJSONModule(self.output_filename)
-                        _ = attack_obj.make_report(g)
+        if file_contents != "":
+            config_file_data = json.loads(file_contents)
+            for config_obj in config_file_data:
+                params = config_file_data[config_obj]
+                attack_name = config_obj.split("-")[0]
+                attack_obj = None
+                if attack_name == "worst_case":
+                    attack_obj = WorstCaseAttack(**params)
+                elif attack_name == "lira":
+                    attack_obj = LIRAAttack(**params)
+                elif attack_name == "attribute":
+                    attack_obj = AttributeAttack(**params)
+                else:
+                    attack_names = "'worst_case', 'lira' and 'attribute'"
+                    logger.error("""attack name is %s whereas supported attack names are %s: """
+                    , attack_name, attack_names)
 
+                if attack_obj is not None:
+                    attack_obj.attack(target)
+
+                if self.output_filename is not None and attack_obj is not None:
+                    g = GenerateJSONModule(self.output_filename)
+                    _ = attack_obj.make_report(g)
+        logger.info("Finished running attacks")
 
 class ConfigFile:  # pylint: disable = too-few-public-methods
     """
