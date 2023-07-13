@@ -173,15 +173,8 @@ def test_multiple_attacks_cmd():
     target, _ = common_setup()
     target.save(path="tests/test_multiple_target")
 
-    config = {
-        "n_cpu": 7,
-        "report_name": "commandline_aia_exampl1_report",
-    }
-    with open("tests/test_config_aia_cmd.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(config))
-
     os.system(
-        f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
+        f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
         "--attack-config-json-file-name tests/test_single_config_cmd.json "
         "--attack-target-folder-path tests/test_multiple_target "
         "--attack-output-json-file-name tests/test_single_output_cmd.json "
