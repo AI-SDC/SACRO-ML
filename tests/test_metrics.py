@@ -80,15 +80,16 @@ class TestInputExceptions(unittest.TestCase):
 
         returned = get_metrics(y_pred_proba, y_test)
 
-        acc = returned['ACC']
-        auc = returned['AUC']
-        p_auc = returned['P_HIGHER_AUC']
-        tpr = returned['TPR']
+        acc = returned["ACC"]
+        auc = returned["AUC"]
+        p_auc = returned["P_HIGHER_AUC"]
+        tpr = returned["TPR"]
 
         self.assertAlmostEqual(0.75, acc)
         self.assertAlmostEqual(0.5, auc)
         self.assertAlmostEqual(0.5, p_auc)
         self.assertAlmostEqual(0.0, tpr)
+
 
 class TestProbabilities(unittest.TestCase):
     """
@@ -117,13 +118,13 @@ class TestProbabilities(unittest.TestCase):
 
         returned = get_probabilities(clf, testX, testY, permute_rows=True)
 
-        #Check the function returns two arguments
+        # Check the function returns two arguments
         self.assertEqual(2, len(returned))
 
-        #Check that the second argument is the same shape as testY
+        # Check that the second argument is the same shape as testY
         self.assertEqual(testY.shape, returned[1].shape)
 
-        #Check that the function is returning the right thing: predict_proba
+        # Check that the function is returning the right thing: predict_proba
         self.assertEqual(clf.predict_proba(testX).shape, returned[0].shape)
 
     def test_permute_rows_without_permute_rows(self):
@@ -136,8 +137,9 @@ class TestProbabilities(unittest.TestCase):
 
         y_pred_proba = get_probabilities(clf, testX, permute_rows=False)
 
-        #Check the function returns pnly y_pred_proba
+        # Check the function returns pnly y_pred_proba
         self.assertEqual(clf.predict_proba(testX).shape, y_pred_proba.shape)
+
 
 class TestMetrics(unittest.TestCase):
     """

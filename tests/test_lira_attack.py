@@ -5,8 +5,8 @@ Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>
 
 import logging
 import os
-import sys
 import shutil
+import sys
 from unittest import TestCase
 
 # import json
@@ -37,6 +37,7 @@ def clean_up(name):
         elif os.path.isdir(name):
             shutil.rmtree(name)
         logger.info("Removed %s", name)
+
 
 class TestDummyClassifier(TestCase):
     """Test the dummy classifier class"""
@@ -248,7 +249,7 @@ class TestLiraAttack(TestCase):
             "train_preds.csv",
             "test_data.csv",
             "train_data.csv",
-            "test_lira_target/"
+            "test_lira_target/",
         ]
         for name in names:
             clean_up(name)
