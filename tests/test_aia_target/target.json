@@ -1,0 +1,124 @@
+{
+    "data_name": "nursery",
+    "n_samples": 1264,
+    "features": {
+        "0": {
+            "name": "parents",
+            "indices": [
+                0,
+                1,
+                2
+            ],
+            "encoding": "onehot"
+        },
+        "1": {
+            "name": "has_nurs",
+            "indices": [
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "encoding": "onehot"
+        },
+        "2": {
+            "name": "form",
+            "indices": [
+                8,
+                9,
+                10,
+                11
+            ],
+            "encoding": "onehot"
+        },
+        "3": {
+            "name": "children",
+            "indices": [
+                12,
+                13,
+                14,
+                15
+            ],
+            "encoding": "onehot"
+        },
+        "4": {
+            "name": "housing",
+            "indices": [
+                16,
+                17,
+                18
+            ],
+            "encoding": "onehot"
+        },
+        "5": {
+            "name": "finance",
+            "indices": [
+                19,
+                20
+            ],
+            "encoding": "onehot"
+        },
+        "6": {
+            "name": "social",
+            "indices": [
+                21,
+                22,
+                23
+            ],
+            "encoding": "onehot"
+        },
+        "7": {
+            "name": "health",
+            "indices": [
+                24,
+                25,
+                26
+            ],
+            "encoding": "onehot"
+        },
+        "8": {
+            "name": "dummy",
+            "indices": [
+                27
+            ],
+            "encoding": "float"
+        }
+    },
+    "n_features": 9,
+    "n_samples_orig": 1264,
+    "generalisation_error": "-0.09413580246913578",
+    "safemodel": [],
+    "model_path": "model.pkl",
+    "model_name": "RandomForestClassifier",
+    "model_params": {
+        "bootstrap": false,
+        "ccp_alpha": 0.0,
+        "class_weight": null,
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 100,
+        "n_jobs": null,
+        "oob_score": false,
+        "random_state": null,
+        "verbose": 0,
+        "warm_start": false
+    },
+    "x_train_path": "x_train.pkl",
+    "y_train_path": "y_train.pkl",
+    "x_test_path": "x_test.pkl",
+    "y_test_path": "y_test.pkl",
+    "x_orig_path": "x_orig.pkl",
+    "y_orig_path": "y_orig.pkl",
+    "x_train_orig_path": "x_train_orig.pkl",
+    "y_train_orig_path": "y_train_orig.pkl",
+    "x_test_orig_path": "x_test_orig.pkl",
+    "y_test_orig_path": "y_test_orig.pkl"
+}
