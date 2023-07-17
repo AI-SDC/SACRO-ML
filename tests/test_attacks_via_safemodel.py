@@ -175,10 +175,10 @@ def test_attack_args():
     assert fname == attack_obj.report_name
 
     fname = "wca"
-    attack_obj = worst_case_attack.WorstCaseAttack(report_name=fname)
+    attack_obj = worst_case_attack.WorstCaseAttack(pdf_report_name=fname)
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.report_name
+    assert fname == attack_obj.pdf_report_name
 
 
 def test_run_attack_unknown():
