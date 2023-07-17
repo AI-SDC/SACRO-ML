@@ -1,4 +1,5 @@
 """Code for automatic report generation"""
+import os
 import abc
 import json
 
@@ -233,8 +234,13 @@ def create_mia_report(attack_output: dict) -> FPDF:
         do_dummy = False
     else:
         do_dummy = True
-
-    _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
+    dest_log_roc = None
+    if metadata['experiment_details']['pdf_report_name'] is not None:
+        dest_log_roc= os.path.join(
+            metadata['experiment_details']['output_dir'],
+            metadata['experiment_details']['pdf_report_name']) + "_log_roc.png"
+        _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
+        # _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
 
     pdf = FPDF()
     pdf.add_page()
@@ -291,10 +297,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
             )
             line(pdf, text, font="courier")
 
-    pdf.add_page()
-    subtitle(pdf, "Log ROC")
-    pdf.image("log_roc.png", x=None, y=None, w=0, h=140, type="", link="")
-    pdf.set_font("arial", "", 12)
+    _add_log_roc_to_page(dest_log_roc, pdf)
     line(pdf, LOGROC_CAPTION)
 
     pdf.add_page()
@@ -303,6 +306,12 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     return pdf
 
+def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
+    if log_roc is not None:
+        pdf_obj.add_page()
+        subtitle(pdf_obj, "Log ROC")
+        pdf_obj.image(log_roc, x=None, y=None, w=0, h=140, type="", link="")
+        pdf_obj.set_font("arial", "", 12)
 
 def create_json_report(output):
     """Create a report in json format for injestion by other tools"""

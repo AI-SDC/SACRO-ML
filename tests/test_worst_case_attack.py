@@ -29,7 +29,7 @@ def test_config_file_arguments_parsin():
         "n_dummy_reps": 2,
         "p_thresh": 0.06,
         "test_prop": 0.4,
-        "report_name": "programmatically_worstcase_report_test",
+        "pdf_report_name": "programmatically_worstcase_report_test",
     }
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
@@ -40,7 +40,7 @@ def test_config_file_arguments_parsin():
     assert attack_obj.n_dummy_reps == config["n_dummy_reps"]
     assert attack_obj.p_thresh == config["p_thresh"]
     assert attack_obj.test_prop == config["test_prop"]
-    assert attack_obj.report_name == config["report_name"]
+    assert attack_obj.pdf_report_name == config["pdf_report_name"]
     os.remove("config_worstcase_test.json")
 
 
@@ -110,7 +110,7 @@ def test_report_worstcase():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-10reps",
+        pdf_report_name="test-10reps",
     )
     attack_obj.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
@@ -124,7 +124,7 @@ def test_report_worstcase():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-1rep",
+        pdf_report_name="test-1rep",
     )
     attack_obj.attack(target)
     _ = attack_obj.make_report()
@@ -151,7 +151,7 @@ def test_attack_with_correct_feature():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-1rep",
+        pdf_report_name="test-1rep",
         include_model_correct_feature=True,
     )
     attack_obj.attack(target)
@@ -187,7 +187,7 @@ def test_attack_from_predictions():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        pdf_report_name="test-10reps",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -221,7 +221,7 @@ def test_attack_from_predictions_no_dummy():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        pdf_report_name="test-10reps",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -241,7 +241,7 @@ def test_dummy_data():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        pdf_report_name="test-10reps",
     )
 
     attack_obj.make_dummy_data()
