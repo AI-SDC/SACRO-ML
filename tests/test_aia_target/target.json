@@ -87,7 +87,7 @@
     },
     "n_features": 9,
     "n_samples_orig": 1264,
-    "generalisation_error": "-0.09413580246913578",
+    "generalisation_error": "-0.07253086419753085",
     "safemodel": [],
     "model_path": "model.pkl",
     "model_name": "RandomForestClassifier",

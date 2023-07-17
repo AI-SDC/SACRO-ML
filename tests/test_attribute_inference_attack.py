@@ -105,7 +105,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         target, _ = self._common_setup()
         returned = _get_bounds_risk(target.model, "dummy", 8, target.x_train, target.x_test)
 
-        #Check the number of paramters returned
+        #Check the number of parameters returned
         self.assertEqual(3, len(returned.keys()))
 
         #Check the value of the returned parameters
