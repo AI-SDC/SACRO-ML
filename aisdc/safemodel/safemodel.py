@@ -762,6 +762,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self,
         target: Target = None,
         attack_name: str = "worst_case",
+        outputdir: str = "RES",
         filename: str = "undefined",
     ) -> dict:
         """Runs a specified attack on the trained model and saves a report to file.
@@ -795,7 +796,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 training_preds_filename=None,
                 test_preds_filename=None,
                 test_prop=0.5,
-                output_dir="safemodel_output",
+                output_dir=outputdir,
                 pdf_report_name=filename,
                 json_report_name=filename,
             )
@@ -805,7 +806,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         elif attack_name == "lira":
             attack_obj = LIRAAttack(
                 n_shadow_models=100,
-                output_dir="safemodel_output",
+                output_dir=outputdir,
                 pdf_report_name=filename,
                 json_report_name=filename,
             )
@@ -814,7 +815,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             metadata = output["metadata"]
         elif attack_name == "attribute":
             attack_obj = AttributeAttack(
-                output_dir="safemodel_output",
+                output_dir=outputdir,
                 pdf_report_name=filename,
                 json_report_name=filename,
             )

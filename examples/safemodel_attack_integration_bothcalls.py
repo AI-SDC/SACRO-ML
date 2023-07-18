@@ -4,7 +4,6 @@ python -m examples.safemodel_attack_integration_bothcalls
 
 """
 import logging
-import os
 
 import numpy as np
 from sklearn.datasets import fetch_openml
@@ -12,8 +11,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import (
-    SafeDecisionTreeClassifier,  # pylint: disable=import-error
+from aisdc.safemodel.classifiers import ( # pylint: disable=import-error
+    SafeDecisionTreeClassifier,
 )
 
 if __name__ == "__main__":
@@ -79,14 +78,14 @@ if __name__ == "__main__":
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
     # [TRE / Researcher] Perform disclosure checks
-    SAVE_PATH = "mytest"
+    SAVE_DIR = "mytest"
+    SAVE_FiLENAME = "direct_results"
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")
-    results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, results_filename)
+        metadata = model.run_attack(target, attack_name, SAVE_DIR, SAVE_FiLENAME)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):
@@ -98,6 +97,6 @@ if __name__ == "__main__":
 
     # now via request_release()
     print("===> now running attacks implicitly via request_release()")
-    model.request_release(path=SAVE_PATH, ext="pkl", target=target)
+    model.request_release(path=SAVE_DIR, ext="pkl", target=target)
 
-    print(f"Please see the files generated in: {SAVE_PATH}")
+    print(f"Please see the files generated in: {SAVE_DIR}")

@@ -4,7 +4,7 @@ uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests
 """
 import shutil
-
+import os
 import numpy as np
 import sklearn
 from sklearn.datasets import fetch_openml
@@ -22,8 +22,8 @@ RES_DIR = "RES"
 
 def clean():
     """Removes unwanted results"""
-    shutil.rmtree(RES_DIR)
-
+    if os.path.exists(RES_DIR):
+        shutil.rmtree(RES_DIR)
 
 def get_target(model: sklearn.base.BaseEstimator) -> Target:
     """Wrap the model and data in a Target object.
@@ -131,7 +131,7 @@ def test_run_attack_lira():
 
     print(np.unique(target.y_test, return_counts=True))
     print(np.unique(model.predict(target.x_test), return_counts=True))
-    metadata = model.run_attack(target, "lira", f"{RES_DIR}/lira_res.json")
+    metadata = model.run_attack(target, "lira", RES_DIR,"lira_res")
     clean()
     assert len(metadata) > 0  # something has been added
 
@@ -143,7 +143,7 @@ def test_run_attack_worstcase():
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
-    metadata = model.run_attack(target, "worst_case", f"{RES_DIR}/wc_res.json")
+    metadata = model.run_attack(target, "worst_case", RES_DIR,"wc_res")
     clean()
     assert len(metadata) > 0  # something has been added
 
@@ -155,7 +155,7 @@ def test_run_attack_attribute():
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
-    metadata = model.run_attack(target, "attribute", f"{RES_DIR}/attr_res.json")
+    metadata = model.run_attack(target, "attribute", RES_DIR, "attr_res")
     clean()
     assert len(metadata) > 0  # something has been added
 
@@ -163,22 +163,34 @@ def test_run_attack_attribute():
 def test_attack_args():
     """tests the attack arguments class"""
     fname = "aia_example"
-    attack_obj = attribute_attack.AttributeAttack(pdf_report_name=fname)
+    attack_obj = attribute_attack.AttributeAttack(
+        output_dir="output_attribute",
+        pdf_report_name=fname
+    )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
     assert fname == attack_obj.pdf_report_name
 
     fname = "liraa"
-    attack_obj = likelihood_attack.LIRAAttack(pdf_report_name=fname)
+    attack_obj = likelihood_attack.LIRAAttack(
+        output_dir="output_lira",
+        pdf_report_name=fname
+    )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
     assert fname == attack_obj.pdf_report_name
 
     fname = "wca"
-    attack_obj = worst_case_attack.WorstCaseAttack(pdf_report_name=fname)
+    attack_obj = worst_case_attack.WorstCaseAttack(
+        output_dir="output_worstcase",
+        pdf_report_name=fname
+        )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
     assert fname == attack_obj.pdf_report_name
+    shutil.rmtree("output_attribute")
+    shutil.rmtree("output_lira")
+    shutil.rmtree("output_worstcase")
 
 
 def test_run_attack_unknown():
@@ -187,6 +199,6 @@ def test_run_attack_unknown():
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    metadata = model.run_attack(target, "unknown", f"{RES_DIR}/unk.json")
+    metadata = model.run_attack(target, "unknown", RES_DIR, "unk")
     clean()
     assert metadata["outcome"] == "unrecognised attack type requested"
