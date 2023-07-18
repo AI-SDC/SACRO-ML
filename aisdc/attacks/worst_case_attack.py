@@ -586,7 +586,8 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_experiments
 
     def make_report(self) -> dict:
-        """Creates output dictionary structure"""
+        """Creates output dictionary structure and generates
+        pdf and json outputs if filenames are given"""
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
