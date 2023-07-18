@@ -126,9 +126,7 @@ class TestLiraAttack(TestCase):
         """test the code that removes items from test set with classes
         not present in training set"""
 
-        attack_obj = LIRAAttack(
-            n_shadow_models=N_SHADOW_MODELS
-        )
+        attack_obj = LIRAAttack(n_shadow_models=N_SHADOW_MODELS)
 
         # now make test[0] have a  class not present in training set#
         local_test_y = np.copy(self.test_y)
@@ -156,30 +154,40 @@ class TestLiraAttack(TestCase):
     def test_main_example(self):
         """test command line example"""
         testargs = [
-            "prog", "run-example",
-            "--output-dir", "test_output_lira",
-            "--pdf-report-name", "commandline_lira_example2_report",
-            ]
+            "prog",
+            "run-example",
+            "--output-dir",
+            "test_output_lira",
+            "--pdf-report-name",
+            "commandline_lira_example2_report",
+        ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
     def test_main_config(self):
         """test command line with a config file"""
         testargs = [
-            "prog", "run-attack", 
-            "-j", "tests/lrconfig.json",
-            "--output-dir", "test_output_lira",
-            "--pdf-report-name", "commandline_lira_example1_report",
-            ]
+            "prog",
+            "run-attack",
+            "-j",
+            "tests/lrconfig.json",
+            "--output-dir",
+            "test_output_lira",
+            "--pdf-report-name",
+            "commandline_lira_example1_report",
+        ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
     def test_main_from_configfile(self):
         """test command line with a config file"""
         testargs = [
-            "prog", "run-attack-from-configfile",
-            "-j", "tests/lrconfig_cmd.json",
-            "-t", "test_lira_target",
+            "prog",
+            "run-attack-from-configfile",
+            "-j",
+            "tests/lrconfig_cmd.json",
+            "-t",
+            "test_lira_target",
         ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()

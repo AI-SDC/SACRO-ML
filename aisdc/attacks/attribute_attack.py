@@ -4,10 +4,10 @@ Attribute inference attacks.
 
 from __future__ import annotations
 
-import os
 import argparse
 import json
 import logging
+import os
 import uuid
 from datetime import datetime
 
@@ -47,7 +47,7 @@ class AttributeAttack(Attack):
         """Constructs an object to execute an attribute inference attack.
 
         Parameters
-        ----------        
+        ----------
         n_cpu: int
             number of CPUs used to run the attack
         output_dir: str
@@ -55,7 +55,7 @@ class AttributeAttack(Attack):
         pdf_report_name: str
             name of the pdf output report
         json_report_name: str
-            name of the JSON report                
+            name of the JSON report
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         target_path: str
@@ -120,7 +120,7 @@ class AttributeAttack(Attack):
 
         if self.json_report_name is not None:
             json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
-            json_attack_formatter =  GenerateJSONModule(json_dest)
+            json_attack_formatter = GenerateJSONModule(json_dest)
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
             json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 

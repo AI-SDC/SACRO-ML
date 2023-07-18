@@ -50,7 +50,7 @@ def common_setup():
         n_cpu=7,
         output_dir="test_output_aia",
         pdf_report_name="test_attribute_attack",
-        json_report_name="test_attribute_attack"
+        json_report_name="test_attribute_attack",
     )
     return target, attack_obj
 

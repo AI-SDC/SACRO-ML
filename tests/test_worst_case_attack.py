@@ -367,7 +367,7 @@ def test_cleanup():
         "test_preds.csv",
         "train_preds.csv",
         "ypred_test.csv",
-        "ypred_train.csv",        
+        "ypred_train.csv",
     ]
     for name in names:
         clean_up(name)
