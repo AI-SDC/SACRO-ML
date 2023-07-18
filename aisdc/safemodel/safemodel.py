@@ -806,7 +806,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             metadata = output["metadata"]
         elif attack_name == "lira":
             attack_obj = LIRAAttack(
-                n_shadow_models=100, 
+                n_shadow_models=100,
                 output_dir="safemodel_output",
                 pdf_report_name=filename,
                 json_report_name=filename,
