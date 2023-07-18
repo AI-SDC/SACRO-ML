@@ -4,6 +4,7 @@ Attribute inference attacks.
 
 from __future__ import annotations
 
+import os
 import argparse
 import json
 import logging
@@ -32,9 +33,13 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    def __init__(
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
-        report_name: str = None,
+        output_dir: str = "output_attribute",
+        pdf_report_name: str = None,
+        json_report_name: str = None,
         n_cpu: int = max(1, mp.cpu_count() - 1),
         attack_config_json_file_name: str = None,
         target_path: str = None,
@@ -42,23 +47,31 @@ class AttributeAttack(Attack):
         """Constructs an object to execute an attribute inference attack.
 
         Parameters
-        ----------
-        report_name: str
-            name of the JSON output report
+        ----------        
         n_cpu: int
             number of CPUs used to run the attack
+        output_dir: str
+            name of the directory where outputs are stored
+        pdf_report_name: str
+            name of the pdf output report
+        json_report_name: str
+            name of the JSON report                
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         target_path: str
             path to the saved trained target model and target data
         """
         super().__init__()
-        self.report_name = report_name
         self.n_cpu = n_cpu
+        self.output_dir = output_dir
+        self.pdf_report_name = pdf_report_name
+        self.json_report_name = json_report_name
         self.attack_config_json_file_name = attack_config_json_file_name
         self.target_path = target_path
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
@@ -85,7 +98,7 @@ class AttributeAttack(Attack):
 
         self.metadata["attack"] = str(self)
 
-    def make_report(self, json_attack_formatter=None) -> dict:
+    def make_report(self) -> dict:
         """Create the report.
 
         Creates the output report. If self.report_name is not None, it will also save the
@@ -98,21 +111,25 @@ class AttributeAttack(Attack):
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, report_name = %s", self.report_name)
+        logger.info("Starting report, pdf_report_name = %s", self.pdf_report_name)
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if json_attack_formatter is not None:
+        if self.json_report_name is not None:
+            json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
+            json_attack_formatter =  GenerateJSONModule(json_dest)
             json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
             json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
-        if self.report_name is not None:
-            pdf = create_aia_report(output)
-            pdf.output(f"{self.report_name}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
+        if self.pdf_report_name is not None:
+            pdf_dest = os.path.join(self.output_dir, self.pdf_report_name)
+            pdf_report = create_aia_report(output, pdf_dest)
+            pdf_dest = pdf_dest + ".pdf"
+            pdf_report.output(pdf_dest)
+            logger.info("Wrote pdf report to %s", pdf_dest)
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -632,7 +649,7 @@ def _run_attack_from_configfile(args):
     target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack(target)
-    attack_obj.make_report(GenerateJSONModule("aia_attack_from_configfile.json"))
+    attack_obj.make_report()
 
 
 def main():

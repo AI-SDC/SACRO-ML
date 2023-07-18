@@ -163,10 +163,10 @@ def test_run_attack_attribute():
 def test_attack_args():
     """tests the attack arguments class"""
     fname = "aia_example"
-    attack_obj = attribute_attack.AttributeAttack(report_name=fname)
+    attack_obj = attribute_attack.AttributeAttack(pdf_report_name=fname)
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.report_name
+    assert fname == attack_obj.pdf_report_name
 
     fname = "liraa"
     attack_obj = likelihood_attack.LIRAAttack(pdf_report_name=fname)

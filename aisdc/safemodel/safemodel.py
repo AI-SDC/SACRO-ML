@@ -16,7 +16,6 @@ from typing import Any
 import joblib
 from dictdiffer import diff
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import AttributeAttack
 from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
@@ -788,7 +787,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
-        g = GenerateJSONModule(filename)
         if attack_name == "worst_case":
             attack_obj = WorstCaseAttack(
                 n_reps=10,
@@ -815,9 +813,13 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "attribute":
-            attack_obj = AttributeAttack(report_name=None)
+            attack_obj = AttributeAttack(
+                output_dir="safemodel_output",
+                pdf_report_name=filename,
+                json_report_name=filename,
+            )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         else:
             metadata = {}
