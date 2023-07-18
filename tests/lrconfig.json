@@ -10,6 +10,5 @@
     "target_model_hyp": {
         "min_samples_split": 2,
         "min_samples_leaf": 1
-    },
-    "n-shadow-models": 20
+    }        
 }

@@ -5,6 +5,7 @@ Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>
 
 import logging
 import os
+import shutil
 import sys
 from unittest import TestCase
 
@@ -30,8 +31,11 @@ logger = logging.getLogger(__file__)
 
 def clean_up(name):
     """removes unwanted files or directory"""
-    if os.path.exists(name) and os.path.isfile(name):
-        os.remove(name)
+    if os.path.exists(name):
+        if os.path.isfile(name):
+            os.remove(name)
+        elif os.path.isdir(name):
+            shutil.rmtree(name)
         logger.info("Removed %s", name)
 
 
@@ -98,7 +102,7 @@ class TestLiraAttack(TestCase):
         """tests the lira code two ways"""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
-            report_name="lira_example_report",
+            output_dir="test_output_lira",
             attack_config_json_file_name="tests/lrconfig.json",
         )
         attack_obj.setup_example_data()
@@ -107,7 +111,8 @@ class TestLiraAttack(TestCase):
 
         attack_obj2 = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
-            report_name="lira_example2_report",
+            output_dir="test_output_lira",
+            pdf_report_name="lira_example1_report",
         )
         attack_obj2.attack(self.target)
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
@@ -122,7 +127,7 @@ class TestLiraAttack(TestCase):
         not present in training set"""
 
         attack_obj = LIRAAttack(
-            n_shadow_models=N_SHADOW_MODELS, report_name="lira_example_report"
+            n_shadow_models=N_SHADOW_MODELS
         )
 
         # now make test[0] have a  class not present in training set#
@@ -150,25 +155,31 @@ class TestLiraAttack(TestCase):
 
     def test_main_example(self):
         """test command line example"""
-        testargs = ["prog", "run-example"]
+        testargs = [
+            "prog", "run-example",
+            "--output-dir", "test_output_lira",
+            "--pdf-report-name", "commandline_lira_example2_report",
+            ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
     def test_main_config(self):
         """test command line with a config file"""
-        testargs = ["prog", "run-attack", "-j", "tests/lrconfig.json"]
+        testargs = [
+            "prog", "run-attack", 
+            "-j", "tests/lrconfig.json",
+            "--output-dir", "test_output_lira",
+            "--pdf-report-name", "commandline_lira_example1_report",
+            ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
     def test_main_from_configfile(self):
         """test command line with a config file"""
         testargs = [
-            "prog",
-            "run-attack-from-configfile",
-            "-j",
-            "tests/lrconfig_cmd.json",
-            "-t",
-            "test_lira_target",
+            "prog", "run-attack-from-configfile",
+            "-j", "tests/lrconfig_cmd.json",
+            "-t", "test_lira_target",
         ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
@@ -183,7 +194,7 @@ class TestLiraAttack(TestCase):
         """tests the lira code two ways"""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
-            report_name="lira_example_report",
+            output_dir="test_output_lira",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
@@ -196,7 +207,8 @@ class TestLiraAttack(TestCase):
         """Test by training a model from scratch"""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
-            report_name="lira_example3_failfast_report",
+            output_dir="test_output_lira",
+            pdf_report_name="lira_example2_failfast_report",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
@@ -213,7 +225,8 @@ class TestLiraAttack(TestCase):
         """Test by training a model from scratch"""
         attack_obj = LIRAAttack(
             n_shadow_models=150,
-            report_name="lira_example3_failfast_report",
+            output_dir="test_output_lira",
+            pdf_report_name="lira_example3_failfast_report",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
@@ -230,16 +243,9 @@ class TestLiraAttack(TestCase):
     def tearDownClass(cls):
         """cleans up various files made during the tests"""
         names = [
-            "lr_report.pdf",
-            "log_roc.png",
-            "lr_report.json",
-            "lira_example2_report.json",
-            "lira_example2_report.pdf",
-            "lira_example3_failfast_report.pdf",
-            "commandline_lira_exampletest_report.pdf",
-            "likelihood_attack.json",
-            "likelihood_attack_example.json",
-            "likelihood_attack_from_configfile.json",
+            "test_output_lira/",
+            "output_lira/",
+            "test_lira_target/",
             "test_preds.csv",
             "config.json",
             "train_preds.csv",

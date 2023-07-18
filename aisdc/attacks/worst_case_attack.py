@@ -47,7 +47,7 @@ class WorstCaseAttack(Attack):
         n_rows_out: int = 1000,
         training_preds_filename: str = None,
         test_preds_filename: str = None,
-        output_dir: str = "outputs_worstcase",
+        output_dir: str = "output_worstcase",
         pdf_report_name: str = None,
         json_report_name: str = None,
         include_model_correct_feature: bool = False,
@@ -162,10 +162,8 @@ class WorstCaseAttack(Attack):
         # Updating parameters from a configuration json file
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
-
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-
         self.attack_metrics = None
         self.attack_metric_failfast_summary = None
         self.dummy_attack_metrics = None

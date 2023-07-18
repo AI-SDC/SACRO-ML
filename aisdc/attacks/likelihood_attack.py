@@ -6,6 +6,7 @@ Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf
 
 from __future__ import annotations
 
+import os
 import argparse
 import importlib
 import json
@@ -76,11 +77,13 @@ class LIRAAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
-        report_name: str = None,
+        output_dir: str = "output_lira",
+        pdf_report_name: str = None,
+        json_report_name: str = None,
         training_data_filename: str = None,
         test_data_filename: str = None,
         training_preds_filename: str = None,
@@ -100,8 +103,12 @@ class LIRAAttack(Attack):
             number of shadow models to be trained
         p_thresh: float
             threshold to determine significance of things. For instance auc_p_value and pdif_vals
-        report_name: str
-            name of the JSON output report
+        output_dir: str
+            name of the directory where outputs are stored
+        pdf_report_name: str
+            name of the pdf output report
+        json_report_name: str
+            name of the JSON report
         training_data_filename: str
             name of the data file for the training data (in-sample)
         test_data_filename: str
@@ -130,7 +137,9 @@ class LIRAAttack(Attack):
         super().__init__()
         self.n_shadow_models = n_shadow_models
         self.p_thresh = p_thresh
-        self.report_name = report_name
+        self.output_dir = output_dir
+        self.pdf_report_name = pdf_report_name
+        self.json_report_name = json_report_name
         self.training_data_filename = training_data_filename
         self.test_data_filename = test_data_filename
         self.training_preds_filename = training_preds_filename
@@ -143,6 +152,8 @@ class LIRAAttack(Attack):
         self.target_path = target_path
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.attack_metrics = None
         self.attack_failfast_shadow_models_trained = None
         self.metadata = None
@@ -447,7 +458,7 @@ class LIRAAttack(Attack):
 
         self.metadata["attack"] = str(self)
 
-    def make_report(self, json_attack_formatter=None) -> dict:
+    def make_report(self) -> dict:
         """Create the report
 
         Creates the output report. If self.args.report_name is not None, it will also save the
@@ -460,7 +471,7 @@ class LIRAAttack(Attack):
             Dictionary containing all attack output
         """
         logger = logging.getLogger("reporting")
-        logger.info("Starting report, report_name = %s", self.report_name)
+        logger.info("Starting pdf report, report_name = %s", self.pdf_report_name)
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -468,14 +479,18 @@ class LIRAAttack(Attack):
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if json_attack_formatter is not None:
+        if self.json_report_name is not None:
+            json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
+            json_attack_formatter =  GenerateJSONModule(json_dest)
             json_report = report.create_json_report(output)
             json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
 
-        if self.report_name is not None:
+        if self.pdf_report_name is not None:
+            pdf_dest = os.path.join(self.output_dir, self.pdf_report_name) + ".pdf"
             pdf_report = report.create_lr_report(output)
-            pdf_report.output(f"{self.report_name}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
+            pdf_report.output(pdf_dest)
+            logger.info("Wrote pdf report to %s", pdf_dest)
+
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -570,7 +585,9 @@ def _setup_example_data(args):
     attack_obj = LIRAAttack(
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
-        report_name=args.report_name,
+        output_dir=args.output_dir,
+        pdf_report_name=args.pdf_report_name,
+        json_report_name=args.json_report_name,
         p_thresh=args.p_thresh,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
     )
@@ -582,12 +599,14 @@ def _example(args):
     attack_obj = LIRAAttack(
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
-        report_name=args.report_name,
+        output_dir=args.output_dir,
+        pdf_report_name=args.pdf_report_name,
+        json_report_name=args.json_report_name,
         p_thresh=args.p_thresh,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
     )
     attack_obj.example()
-    attack_obj.make_report(GenerateJSONModule("likelihood_attack_example.json"))
+    attack_obj.make_report()
 
 
 def _run_attack(args):
@@ -597,24 +616,27 @@ def _run_attack(args):
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
         p_thresh=args.p_thresh,
-        report_name=args.report_name,
+        output_dir=args.output_dir,
+        pdf_report_name=args.pdf_report_name,
+        json_report_name=args.json_report_name,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
         attack_config_json_file_name=args.attack_config_json_file_name,
     )
     attack_obj.attack_from_config()
-    attack_obj.make_report(GenerateJSONModule("likelihood_attack.json"))
+    attack_obj.make_report()
 
 
 def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = LIRAAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
+        attack_config_json_file_name=args.attack_config_json_file_name,
         target_path=str(args.target_path),
     )
+    print(args.attack_config_json_file_name)
     target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack(target)
-    attack_obj.make_report(GenerateJSONModule("likelihood_attack_from_configfile.json"))
+    attack_obj.make_report()
 
 
 def main():
@@ -645,14 +667,41 @@ def main():
     )
 
     parser.add_argument(
-        "--report-name",
+        "--output-dir",
         type=str,
         action="store",
-        dest="report_name",
+        dest="output_dir",
+        default="output_lira",
         required=False,
-        default="lr_report",
-        help=("Output name for the report. Default = %(default)s"),
+        help=(
+            "Folder name where output files are stored. Default = %(default)s."
+        ),
     )
+
+    parser.add_argument(
+        "--pdf-report-name",
+        type=str,
+        action="store",
+        dest="pdf_report_name",
+        default="lr_report",
+        required=False,
+        help=(
+            "Filename for the pdf report output. Default = %(default)s. Code will append .pdf"
+        ),
+    )
+
+    parser.add_argument(
+        "--json-report-name",
+        type=str,
+        action="store",
+        dest="json_report_name",
+        default="lr_report",
+        required=False,
+        help=(
+            "Filename for the JSON report output. Default = %(default)s. Code will append .json"
+        ),
+    )
+
     parser.add_argument(
         "-p",
         "--p-thresh",

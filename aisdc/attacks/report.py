@@ -350,7 +350,12 @@ def create_lr_report(output: dict) -> FPDF:
     ][0]
     # mia_metrics = output["attack_metrics"][0]
     metadata = output["metadata"]
-    _roc_plot_single(mia_metrics, "log_roc.png")
+    dest_log_roc = None
+    if metadata['experiment_details']['pdf_report_name'] is not None:
+        dest_log_roc= os.path.join(
+            metadata['experiment_details']['output_dir'],
+            metadata['experiment_details']['pdf_report_name']) + "_log_roc.png"
+        _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()
     pdf.add_page()
     pdf.set_xy(0, 0)
@@ -369,7 +374,8 @@ def create_lr_report(output: dict) -> FPDF:
         if key in MAPPINGS:
             value = MAPPINGS[key](value)
         line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
-    pdf.add_page()
-    subtitle(pdf, "ROC Curve")
-    pdf.image("log_roc.png", x=None, y=None, w=0, h=140, type="", link="")
+    if dest_log_roc is not None:
+        pdf.add_page()
+        subtitle(pdf, "ROC Curve")
+        pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
     return pdf
