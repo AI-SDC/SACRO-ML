@@ -8,12 +8,12 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.attribute_inference_example
 
 """
+import glob
 import json
 import os
+import shutil
 import sys
 import unittest
-import shutil
-import glob
 
 # ignore unused imports because it depends on whether data file is present
 from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
@@ -44,7 +44,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         if os.path.exists(name) and os.path.isfile(name):  # h5
             os.remove(name)
         elif os.path.exists(name) and os.path.isdir(name):  # tf
-            files = glob.glob(name+'*')
+            files = glob.glob(name + "*")
             for f in files:
                 os.remove(f)
             shutil.rmtree(name)
@@ -169,7 +169,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "test_attribute_attack.json",
             "commandline_aia_exampl1_report.pdf",
             "tests/test_config_aia_cmd.json",
-            "tests/test_aia_target/"
+            "tests/test_aia_target/",
         )
         for fname in files_made:
             self._cleanup_file(fname)
