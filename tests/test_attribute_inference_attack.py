@@ -12,6 +12,8 @@ import json
 import os
 import sys
 import unittest
+import shutil
+import glob
 
 # ignore unused imports because it depends on whether data file is present
 from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
@@ -41,6 +43,11 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         """removes unwanted files or directory"""
         if os.path.exists(name) and os.path.isfile(name):  # h5
             os.remove(name)
+        elif os.path.exists(name) and os.path.isdir(name):  # tf
+            files = glob.glob(name+'*')
+            for f in files:
+                os.remove(f)
+            shutil.rmtree(name)
 
     def _common_setup(self):
         """basic commands to get ready to test some code"""
@@ -158,8 +165,11 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "aia_report_quant_risk.png",
             "aia_report.pdf",
             "aia_report.json",
+            "aia_attack_from_configfile.json",
             "test_attribute_attack.json",
+            "commandline_aia_exampl1_report.pdf",
             "tests/test_config_aia_cmd.json",
+            "tests/test_aia_target/"
         )
         for fname in files_made:
             self._cleanup_file(fname)
