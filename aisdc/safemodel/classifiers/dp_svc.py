@@ -13,7 +13,7 @@ from sklearn.svm import SVC
 local_logger = logging.getLogger(__file__)
 local_logger.setLevel(logging.WARNING)
 
-np.seterr(divide='ignore', invalid='ignore')
+np.seterr(divide="ignore", invalid="ignore")
 
 # pylint: disable = invalid-name
 # pylint: disable=R0902: too-many-instance-attributes
