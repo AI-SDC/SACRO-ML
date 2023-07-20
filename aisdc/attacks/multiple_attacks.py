@@ -92,7 +92,6 @@ class MultipleAttacks(Attack):
                     attack_obj.attack(target)
 
                 if self.output_filename is not None and attack_obj is not None:
-                    g = GenerateJSONModule(self.output_filename)
                     _ = attack_obj.make_report()
         logger.info("Finished running attacks")
 
