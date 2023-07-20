@@ -17,7 +17,6 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from pypdf import PdfWriter
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -603,19 +602,7 @@ class WorstCaseAttack(Attack):
         json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
 
         pdf_report = report.create_mia_report(output)
-        if os.path.exists(report_dest+".pdf"):
-            old_pdf=report_dest + ".pdf"
-            new_pdf=report_dest + "_new.pdf"
-            pdf_report.output(new_pdf)
-            merger = PdfWriter()
-            for pdf in [old_pdf, new_pdf]:
-                merger.append(pdf)
-            merger.write(old_pdf)
-            merger.close()
-            os.remove(new_pdf)
-        else:
-            pdf_report.output(report_dest+".pdf")
-        os.remove(report_dest+ "_log_roc.png")
+        report.add_output_to_pdf(report_dest, pdf_report, "WorstCaseAttack")
         return output
 
 

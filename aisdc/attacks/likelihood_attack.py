@@ -21,7 +21,6 @@ from scipy.stats import norm
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from pypdf import PdfWriter
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -482,19 +481,7 @@ class LIRAAttack(Attack):
         json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
 
         pdf_report = report.create_lr_report(output)
-        if os.path.exists(report_dest+".pdf"):
-            old_pdf=report_dest+".pdf"
-            new_pdf=report_dest+"_new.pdf"
-            pdf_report.output(new_pdf)
-            merger = PdfWriter()
-            for pdf in [old_pdf, new_pdf]:
-                merger.append(pdf)
-            merger.write(old_pdf)
-            merger.close()
-            os.remove(new_pdf)
-        else:
-            pdf_report.output(report_dest+".pdf")
-        os.remove(report_dest + "_log_roc.png")
+        report.add_output_to_pdf(report_dest, pdf_report, "LikelihoodAttack")
         logger.info(
             "Wrote pdf report to %s and json report to %s", 
             report_dest+".pdf",

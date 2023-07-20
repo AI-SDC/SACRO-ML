@@ -6,6 +6,7 @@ import json
 import numpy as np
 import pylab as plt
 from fpdf import FPDF
+from pypdf import PdfWriter
 
 # Adds a border to all pdf cells of set to 1 -- useful for debugging
 BORDER = 0
@@ -304,6 +305,26 @@ def create_mia_report(attack_output: dict) -> FPDF:
     _write_dict(pdf, GLOSSARY)
 
     return pdf
+
+def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> None:
+    """creates pdf and appends contents if it already exists"""
+    if os.path.exists(report_dest+".pdf"):
+        old_pdf=report_dest + ".pdf"
+        new_pdf=report_dest + "_new.pdf"
+        pdf_report.output(new_pdf)
+        merger = PdfWriter()
+        for pdf in [old_pdf, new_pdf]:
+            merger.append(pdf)
+        merger.write(old_pdf)
+        merger.close()
+        os.remove(new_pdf)
+    else:
+        pdf_report.output(report_dest+".pdf")
+    if attack_type in ('WorstCaseAttack', 'LikelihoodAttack'):
+        os.remove(report_dest + "_log_roc.png")
+    elif attack_type == "WorstCaseAttack":
+        os.remove(report_dest+ "_cat_frac.png")
+        os.remove(report_dest+ "_cat_risk.png")
 
 def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
     if log_roc is not None:

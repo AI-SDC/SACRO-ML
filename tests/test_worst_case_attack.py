@@ -118,7 +118,6 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        report_name="test-10reps-programmatically_worstcase_example2_test",
     )
     attack_obj.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
@@ -133,7 +132,6 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        report_name="test-1rep-programmatically_worstcase_example3_test",
     )
     attack_obj.attack(target)
     _ = attack_obj.make_report()

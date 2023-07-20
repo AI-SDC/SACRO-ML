@@ -17,7 +17,6 @@ import numpy as np
 from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
-from pypdf import PdfWriter
 
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
@@ -125,20 +124,7 @@ class AttributeAttack(Attack):
         json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
         pdf_report = create_aia_report(output, report_dest)
-        if os.path.exists(report_dest+".pdf"):
-            old_pdf=report_dest+".pdf"
-            new_pdf=report_dest+"_new.pdf"
-            pdf_report.output(new_pdf)
-            merger = PdfWriter()
-            for pdf in [old_pdf, new_pdf]:
-                merger.append(pdf)
-            merger.write(old_pdf)
-            merger.close()
-            os.remove(new_pdf)
-        else:
-            pdf_report.output(report_dest+".pdf")
-        os.remove(report_dest+ "_cat_frac.png")
-        os.remove(report_dest+ "_cat_risk.png")
+        report.add_output_to_pdf(report_dest, pdf_report, "AttributeAttack")
         logger.info(
             "Wrote pdf report to %s and json report to %s", 
             report_dest+".pdf",
