@@ -327,7 +327,7 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
         pdf_report.output(report_dest + ".pdf")
     if attack_type in ("WorstCaseAttack", "LikelihoodAttack"):
         os.remove(report_dest + "_log_roc.png")
-    elif attack_type == "WorstCaseAttack":
+    elif attack_type == "AttributeAttack":
         os.remove(report_dest + "_cat_frac.png")
         os.remove(report_dest + "_cat_risk.png")
 

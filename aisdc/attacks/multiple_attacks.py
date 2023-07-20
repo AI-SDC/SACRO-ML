@@ -14,9 +14,6 @@ import uuid
 from typing import Any
 
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attack_report_formatter import (
-    GenerateJSONModule,  # pylint: disable = import-error
-)
 from aisdc.attacks.attribute_attack import (
     AttributeAttack,  # pylint: disable = import-error
 )
@@ -33,11 +30,9 @@ class MultipleAttacks(Attack):
     def __init__(
         self,
         config_filename: str = None,
-        output_filename: str = None,
     ) -> None:
         super().__init__()
         self.config_filename = config_filename
-        self.output_filename = output_filename
         """Constructs an object to execute a worst case attack.
 
         Parameters
@@ -45,8 +40,6 @@ class MultipleAttacks(Attack):
         config_filename: str
             name of the configuration file which has configurations in a single JSON file
             to support running multiple attacks
-        output_filename: str
-            name of the output JSON file to store outputs generated through multiple attack runs
         """
 
     def __str__(self):
@@ -91,7 +84,7 @@ class MultipleAttacks(Attack):
                 if attack_obj is not None:
                     attack_obj.attack(target)
 
-                if self.output_filename is not None and attack_obj is not None:
+                if attack_obj is not None:
                     _ = attack_obj.make_report()
         logger.info("Finished running attacks")
 
@@ -147,7 +140,6 @@ def _run_attack_from_configfile(args):
     """Run a command line attack based on saved files described in .json file"""
     attack_obj = MultipleAttacks(
         config_filename=str(args.config_filename),
-        output_filename=str(args.output_filename),
     )
     target = Target()
     target.load(args.target_path)
@@ -185,20 +177,6 @@ def main():
         help=(
             """Name of the target directory to load the trained target model and the target data.
         Default = %(default)s"""
-        ),
-    )
-
-    attack_parser_config.add_argument(
-        "-o",
-        "--attack-output-json-file-name",
-        action="store",
-        required=True,
-        dest="output_filename",
-        type=str,
-        default="single_output.json",
-        help=(
-            """Name of the .json file containing outputs from
-            multiple attacks. Default = %(default)s"""
         ),
     )
 
