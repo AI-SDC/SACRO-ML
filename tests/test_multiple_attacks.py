@@ -200,9 +200,9 @@ def test_multiple_attacks_cmd():
 def test_cleanup():
     """tidies up any files created"""
     files_made = (
-        "test_single_config.json",   
-        "outputs_multiple_attacks",       
-        "tests/test_multiple_target",        
+        "test_single_config.json",
+        "outputs_multiple_attacks",
+        "tests/test_multiple_target",
     )
     for fname in files_made:
         cleanup_file(fname)

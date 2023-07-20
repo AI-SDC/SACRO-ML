@@ -198,9 +198,7 @@ if __name__ == "__main__":
 
     # Instantiating MultipleAttacks object specifying a single configuration file
     # (with multiple attacks configurations) and a single JSON output file
-    attack_obj = MultipleAttacks(
-        config_filename="single_config.json"
-    )
+    attack_obj = MultipleAttacks(config_filename="single_config.json")
     attack_obj.attack(target)
 
     # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
