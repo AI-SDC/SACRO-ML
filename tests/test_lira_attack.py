@@ -112,7 +112,7 @@ class TestLiraAttack(TestCase):
         attack_obj2 = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
-            pdf_report_name="lira_example1_report",
+            report_name="lira_example1_report",
         )
         attack_obj2.attack(self.target)
         output2 = attack_obj2.make_report()  # also makes .pdf and .json files
@@ -158,7 +158,7 @@ class TestLiraAttack(TestCase):
         testargs = [
             "prog", "run-example",
             "--output-dir", "test_output_lira",
-            "--pdf-report-name", "commandline_lira_example2_report",
+            "--report-name", "commandline_lira_example2_report",
             ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
@@ -169,7 +169,7 @@ class TestLiraAttack(TestCase):
             "prog", "run-attack", 
             "-j", "tests/lrconfig.json",
             "--output-dir", "test_output_lira",
-            "--pdf-report-name", "commandline_lira_example1_report",
+            "--report-name", "commandline_lira_example1_report",
             ]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
@@ -208,7 +208,7 @@ class TestLiraAttack(TestCase):
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
-            pdf_report_name="lira_example2_failfast_report",
+            report_name="lira_example2_failfast_report",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
@@ -226,7 +226,7 @@ class TestLiraAttack(TestCase):
         attack_obj = LIRAAttack(
             n_shadow_models=150,
             output_dir="test_output_lira",
-            pdf_report_name="lira_example3_failfast_report",
+            report_name="lira_example3_failfast_report",
             attack_config_json_file_name="tests/lrconfig.json",
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,

@@ -49,8 +49,7 @@ def common_setup():
     attack_obj = attribute_attack.AttributeAttack(
         n_cpu=7,
         output_dir="test_output_aia",
-        pdf_report_name="test_attribute_attack",
-        json_report_name="test_attribute_attack"
+        report_name="test_attribute_attack",
     )
     return target, attack_obj
 
@@ -116,8 +115,7 @@ def test_AIA_on_nursery_from_cmd():
     config = {
         "n_cpu": 7,
         "output_dir": "test_output_aia",
-        "pdf_report_name": "commandline_aia_exampl1_report",
-        "json_report_name": "commandline_aia_exampl1_report",
+        "report_name": "commandline_aia_exampl1_report",
     }
     with open("tests/test_config_aia_cmd.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))

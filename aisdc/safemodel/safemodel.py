@@ -797,8 +797,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 test_preds_filename=None,
                 test_prop=0.5,
                 output_dir=outputdir,
-                pdf_report_name=filename,
-                json_report_name=filename,
+                report_name=filename,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()
@@ -807,8 +806,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             attack_obj = LIRAAttack(
                 n_shadow_models=100,
                 output_dir=outputdir,
-                pdf_report_name=filename,
-                json_report_name=filename,
+                report_name=filename,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()
@@ -816,8 +814,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         elif attack_name == "attribute":
             attack_obj = AttributeAttack(
                 output_dir=outputdir,
-                pdf_report_name=filename,
-                json_report_name=filename,
+                report_name=filename,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()

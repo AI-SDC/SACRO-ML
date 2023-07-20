@@ -94,8 +94,7 @@ if __name__ == "__main__":
     attack_obj = attribute_attack.AttributeAttack(
         n_cpu=2,
         output_dir="outputs_aia",
-        pdf_report_name="programmatically_aia_example1_report",
-        json_report_name="programmatically_aia_attack_output",
+        # pdf_report_name="report_aia",
     )
 
     # [TRE] Run the attack
@@ -132,8 +131,7 @@ if __name__ == "__main__":
     config = {
         "n_cpu": 2,
         "output_dir": "outputs_aia",
-        "pdf_report_name": "commandline_aia_example1_report",
-        "json_report_name": "commandline_aia_attack_output",
+        # "report_name": "report_aia",
     }
 
     with open("config_aia_cmd.json", "w", encoding="utf-8") as f:

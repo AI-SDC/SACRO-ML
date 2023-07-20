@@ -165,29 +165,29 @@ def test_attack_args():
     fname = "aia_example"
     attack_obj = attribute_attack.AttributeAttack(
         output_dir="output_attribute",
-        pdf_report_name=fname
+        report_name=fname
     )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.pdf_report_name
+    assert fname == attack_obj.report_name
 
     fname = "liraa"
     attack_obj = likelihood_attack.LIRAAttack(
         output_dir="output_lira",
-        pdf_report_name=fname
+        report_name=fname
     )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.pdf_report_name
+    assert fname == attack_obj.report_name
 
     fname = "wca"
     attack_obj = worst_case_attack.WorstCaseAttack(
         output_dir="output_worstcase",
-        pdf_report_name=fname
+        report_name=fname
         )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.pdf_report_name
+    assert fname == attack_obj.report_name
     shutil.rmtree("output_attribute")
     shutil.rmtree("output_lira")
     shutil.rmtree("output_worstcase")

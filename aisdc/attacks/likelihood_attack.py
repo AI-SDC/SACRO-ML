@@ -21,6 +21,7 @@ from scipy.stats import norm
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from pypdf import PdfWriter
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -81,9 +82,8 @@ class LIRAAttack(Attack):
         self,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
-        output_dir: str = "output_lira",
-        pdf_report_name: str = None,
-        json_report_name: str = None,
+        output_dir: str = "outputs_lira",
+        report_name: str = "report_lira",
         training_data_filename: str = None,
         test_data_filename: str = None,
         training_preds_filename: str = None,
@@ -105,10 +105,8 @@ class LIRAAttack(Attack):
             threshold to determine significance of things. For instance auc_p_value and pdif_vals
         output_dir: str
             name of the directory where outputs are stored
-        pdf_report_name: str
-            name of the pdf output report
-        json_report_name: str
-            name of the JSON report
+        report_name: str
+            name of the pdf and json output reports
         training_data_filename: str
             name of the data file for the training data (in-sample)
         test_data_filename: str
@@ -138,8 +136,7 @@ class LIRAAttack(Attack):
         self.n_shadow_models = n_shadow_models
         self.p_thresh = p_thresh
         self.output_dir = output_dir
-        self.pdf_report_name = pdf_report_name
-        self.json_report_name = json_report_name
+        self.report_name = report_name
         self.training_data_filename = training_data_filename
         self.test_data_filename = test_data_filename
         self.training_preds_filename = training_preds_filename
@@ -471,7 +468,7 @@ class LIRAAttack(Attack):
             Dictionary containing all attack output
         """
         logger = logging.getLogger("reporting")
-        logger.info("Starting pdf report, report_name = %s", self.pdf_report_name)
+        logger.info("Starting pdf report, report_name = %s", self.report_name)
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -479,17 +476,30 @@ class LIRAAttack(Attack):
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if self.json_report_name is not None:
-            json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
-            json_attack_formatter =  GenerateJSONModule(json_dest)
-            json_report = report.create_json_report(output)
-            json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_report = report.create_json_report(output)
+        json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
 
-        if self.pdf_report_name is not None:
-            pdf_dest = os.path.join(self.output_dir, self.pdf_report_name) + ".pdf"
-            pdf_report = report.create_lr_report(output)
-            pdf_report.output(pdf_dest)
-            logger.info("Wrote pdf report to %s", pdf_dest)
+        pdf_report = report.create_lr_report(output)
+        if os.path.exists(report_dest+".pdf"):
+            old_pdf=report_dest+".pdf"
+            new_pdf=report_dest+"_new.pdf"
+            pdf_report.output(new_pdf)
+            merger = PdfWriter()
+            for pdf in [old_pdf, new_pdf]:
+                merger.append(pdf)
+            merger.write(old_pdf)
+            merger.close()
+            os.remove(new_pdf)
+        else:
+            pdf_report.output(report_dest+".pdf")
+        os.remove(report_dest + "_log_roc.png")
+        logger.info(
+            "Wrote pdf report to %s and json report to %s", 
+            report_dest+".pdf",
+            report_dest+".json"
+            )
 
         return output
 
@@ -586,8 +596,7 @@ def _setup_example_data(args):
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
         output_dir=args.output_dir,
-        pdf_report_name=args.pdf_report_name,
-        json_report_name=args.json_report_name,
+        report_name=args.report_name,
         p_thresh=args.p_thresh,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
     )
@@ -600,8 +609,7 @@ def _example(args):
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
         output_dir=args.output_dir,
-        pdf_report_name=args.pdf_report_name,
-        json_report_name=args.json_report_name,
+        report_name=args.report_name,
         p_thresh=args.p_thresh,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
     )
@@ -617,8 +625,7 @@ def _run_attack(args):
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,
         p_thresh=args.p_thresh,
         output_dir=args.output_dir,
-        pdf_report_name=args.pdf_report_name,
-        json_report_name=args.json_report_name,
+        report_name=args.report_name,
         shadow_models_fail_fast=args.shadow_models_fail_fast,
         attack_config_json_file_name=args.attack_config_json_file_name,
     )
@@ -679,26 +686,15 @@ def main():
     )
 
     parser.add_argument(
-        "--pdf-report-name",
+        "--report-name",
         type=str,
         action="store",
-        dest="pdf_report_name",
-        default="lr_report",
+        dest="report_name",
+        default="report_lira",
         required=False,
         help=(
-            "Filename for the pdf report output. Default = %(default)s. Code will append .pdf"
-        ),
-    )
-
-    parser.add_argument(
-        "--json-report-name",
-        type=str,
-        action="store",
-        dest="json_report_name",
-        default="lr_report",
-        required=False,
-        help=(
-            "Filename for the JSON report output. Default = %(default)s. Code will append .json"
+            """Filename for the pdf and json reports output. Default = %(default)s.
+            Code will append .pdf and .json"""
         ),
     )
 

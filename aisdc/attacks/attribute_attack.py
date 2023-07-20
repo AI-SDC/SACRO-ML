@@ -17,6 +17,7 @@ import numpy as np
 from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
+from pypdf import PdfWriter
 
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
@@ -38,8 +39,7 @@ class AttributeAttack(Attack):
     def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
         output_dir: str = "output_attribute",
-        pdf_report_name: str = None,
-        json_report_name: str = None,
+        report_name: str = "aia_report",
         n_cpu: int = max(1, mp.cpu_count() - 1),
         attack_config_json_file_name: str = None,
         target_path: str = None,
@@ -52,10 +52,8 @@ class AttributeAttack(Attack):
             number of CPUs used to run the attack
         output_dir: str
             name of the directory where outputs are stored
-        pdf_report_name: str
-            name of the pdf output report
-        json_report_name: str
-            name of the JSON report                
+        report_name: str
+            name of the pdf and json output reports        
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         target_path: str
@@ -64,8 +62,7 @@ class AttributeAttack(Attack):
         super().__init__()
         self.n_cpu = n_cpu
         self.output_dir = output_dir
-        self.pdf_report_name = pdf_report_name
-        self.json_report_name = json_report_name
+        self.report_name = report_name
         self.attack_config_json_file_name = attack_config_json_file_name
         self.target_path = target_path
         if self.attack_config_json_file_name is not None:
@@ -111,25 +108,42 @@ class AttributeAttack(Attack):
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, pdf_report_name = %s", self.pdf_report_name)
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        logger.info(
+            "Starting reports, pdf report_name = %s, joson report name =%s",
+            report_dest+".pdf",
+            report_dest + ".json"
+            )
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if self.json_report_name is not None:
-            json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
-            json_attack_formatter =  GenerateJSONModule(json_dest)
-            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
+        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
+        json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
-        if self.pdf_report_name is not None:
-            pdf_dest = os.path.join(self.output_dir, self.pdf_report_name)
-            pdf_report = create_aia_report(output, pdf_dest)
-            pdf_dest = pdf_dest + ".pdf"
-            pdf_report.output(pdf_dest)
-            logger.info("Wrote pdf report to %s", pdf_dest)
+        pdf_report = create_aia_report(output, report_dest)
+        if os.path.exists(report_dest+".pdf"):
+            old_pdf=report_dest+".pdf"
+            new_pdf=report_dest+"_new.pdf"
+            pdf_report.output(new_pdf)
+            merger = PdfWriter()
+            for pdf in [old_pdf, new_pdf]:
+                merger.append(pdf)
+            merger.write(old_pdf)
+            merger.close()
+            os.remove(new_pdf)
+        else:
+            pdf_report.output(report_dest+".pdf")
+        os.remove(report_dest+ "_cat_frac.png")
+        os.remove(report_dest+ "_cat_risk.png")
+        logger.info(
+            "Wrote pdf report to %s and json report to %s", 
+            report_dest+".pdf",
+            report_dest+".json"
+            )
         return output
 
     def _get_attack_metrics_instances(self) -> dict:

@@ -75,9 +75,8 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 # [TRE] Example 1: sets up the attack
 attack_obj = LIRAAttack(
     n_shadow_models=100,
-    pdf_report_name="programmatically_lira_example1_report",
-    json_report_name="programmatically_lira_attack_output",
     output_dir = "outputs_lira",
+    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
 )
 
@@ -113,8 +112,7 @@ print("****************************")
 attack_obj = LIRAAttack(
     n_shadow_models=100,
     output_dir = "outputs_lira",
-    pdf_report_name="programmatically_lira_example2_report",
-    json_report_name="programmatically_lira_attack_output",
+    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
@@ -176,8 +174,7 @@ os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
     "--output-dir outputs_lira "
-    "--pdf-report-name commandline_lira_example1_report "
-    "--json-report-name commandline_lira_attack_output "
+    # "report-name report_lira "
     "--n-shadow-models 100 "
 )
 
@@ -186,8 +183,7 @@ os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
     "--output-dir outputs_lira "
-    "--pdf-report-name commandline_lira_example2_report "
-    "--json-report-name commandline_lira_attack_output "
+    "--report-name report_lira "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
     "--n-shadow-rows-confidences-min 10 "
@@ -203,8 +199,7 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    "pdf_report_name": "commandline_lira_example3_report",
-    "json_report_name": "commandline_lira_attack_output_using_configfile",
+    # "report_name": "report_lira",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -226,8 +221,7 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    "pdf_report_name": "commandline_lira_example4_report",
-    "json_report_name": "commandline_lira_attack_output_using_configfile",
+    # "report_name": "report_lira",
     "shadow_models_fail_fast": True,
     "n_shadow_rows_confidences_min": 10,
     "training_data_filename": "train_data.csv",

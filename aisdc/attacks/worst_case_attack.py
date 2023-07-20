@@ -17,6 +17,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
+from pypdf import PdfWriter
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -48,8 +49,7 @@ class WorstCaseAttack(Attack):
         training_preds_filename: str = None,
         test_preds_filename: str = None,
         output_dir: str = "output_worstcase",
-        pdf_report_name: str = None,
-        json_report_name: str = None,
+        report_name: str = "report_worstcase",
         include_model_correct_feature: bool = False,
         sort_probs: bool = True,
         mia_attack_model: Any = RandomForestClassifier,
@@ -89,10 +89,8 @@ class WorstCaseAttack(Attack):
             name of the file to keep predictions of the test data (out-of-sample)
         output_dir: str
             name of the directory where outputs are stored
-        pdf_report_name: str
-            name of the pdf output report
-        json_report_name: str
-            name of the JSON report
+        report_name: str
+            name of the pdf and json output reports
         include_model_correct_feature: bool
             inclusion of additional feature to hold whether or not the target model
             made a correct prediction for each example
@@ -139,8 +137,7 @@ class WorstCaseAttack(Attack):
         self.training_preds_filename = training_preds_filename
         self.test_preds_filename = test_preds_filename
         self.output_dir = output_dir
-        self.pdf_report_name = pdf_report_name
-        self.json_report_name = json_report_name
+        self.report_name = report_name
         self.include_model_correct_feature = include_model_correct_feature
         self.sort_probs = sort_probs
         self.mia_attack_model = mia_attack_model
@@ -600,17 +597,25 @@ class WorstCaseAttack(Attack):
             "dummy_attack_experiments_logger"
         ] = self._get_dummy_attack_metrics_experiments_instances()
 
-        if self.json_report_name is not None:
-            json_dest = os.path.join(self.output_dir, self.json_report_name) + ".json"
-            json_attack_formatter =  GenerateJSONModule(json_dest)
-            json_report = report.create_json_report(output)
-            json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_report = report.create_json_report(output)
+        json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
 
-        if self.pdf_report_name is not None:
-            pdf_dest = os.path.join(self.output_dir, self.pdf_report_name) + ".pdf"
-            pdf_report = report.create_mia_report(output)
-            pdf_report.output(pdf_dest)
-
+        pdf_report = report.create_mia_report(output)
+        if os.path.exists(report_dest+".pdf"):
+            old_pdf=report_dest + ".pdf"
+            new_pdf=report_dest + "_new.pdf"
+            pdf_report.output(new_pdf)
+            merger = PdfWriter()
+            for pdf in [old_pdf, new_pdf]:
+                merger.append(pdf)
+            merger.write(old_pdf)
+            merger.close()
+            os.remove(new_pdf)
+        else:
+            pdf_report.output(report_dest+".pdf")
+        os.remove(report_dest+ "_log_roc.png")
         return output
 
 
@@ -641,8 +646,7 @@ def _run_attack(args):
         training_preds_filename=args.training_preds_filename,
         test_preds_filename=args.test_preds_filename,
         output_dir=args.output_dir,
-        pdf_report_name=args.pdf_report_name,
-        json_report_name=args.json_report_name,
+        report_name=args.report_name,
         sort_probs=args.sort_probs,
         attack_metric_success_name=args.attack_metric_success_name,
         attack_metric_success_thresh=args.attack_metric_success_thresh,
@@ -798,26 +802,15 @@ def main():
     )
 
     attack_parser.add_argument(
-        "--pdf-report-name",
+        "--report-name",
         type=str,
         action="store",
-        dest="pdf_report_name",
-        default="worstcase_report",
+        dest="report_name",
+        default="report_worstcase",
         required=False,
         help=(
-            "Filename for the pdf report output. Default = %(default)s. Code will append .pdf"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--json-report-name",
-        type=str,
-        action="store",
-        dest="json_report_name",
-        default="worstcase_report",
-        required=False,
-        help=(
-            "Filename for the JSON report output. Default = %(default)s. Code will append .json"
+            """Filename for the pdf and json report outputs. Default = %(default)s.
+            Code will append .pdf and .json"""
         ),
     )
 

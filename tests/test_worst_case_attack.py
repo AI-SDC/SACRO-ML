@@ -34,7 +34,7 @@ def test_config_file_arguments_parsin():
         "p_thresh": 0.06,
         "test_prop": 0.4,
         "output_dir": "test_output_worstcase",
-        "pdf_report_name": "programmatically_worstcase_example1_test",
+        "report_name": "programmatically_worstcase_example1_test",
     }
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
@@ -45,7 +45,7 @@ def test_config_file_arguments_parsin():
     assert attack_obj.n_dummy_reps == config["n_dummy_reps"]
     assert attack_obj.p_thresh == config["p_thresh"]
     assert attack_obj.test_prop == config["test_prop"]
-    assert attack_obj.pdf_report_name == config["pdf_report_name"]
+    assert attack_obj.report_name == config["report_name"]
     os.remove("config_worstcase_test.json")
 
 
@@ -72,7 +72,7 @@ def test_attack_from_predictions_cmd():
         "p_thresh": 0.05,
         "test_prop": 0.5,
         "output_dir": "test_output_worstcase",
-        "pdf_report_name": "commandline_worstcase_example1_report",
+        "report_name": "commandline_worstcase_example1_report",
         "training_preds_filename": "ypred_train.csv",
         "test_preds_filename": "ypred_test.csv",
         "attack_metric_success_name": "P_HIGHER_AUC",
@@ -118,7 +118,7 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        pdf_report_name="test-10reps-programmatically_worstcase_example2_test",
+        report_name="test-10reps-programmatically_worstcase_example2_test",
     )
     attack_obj.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
@@ -133,7 +133,7 @@ def test_report_worstcase():
         test_preds_filename=None,
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        pdf_report_name="test-1rep-programmatically_worstcase_example3_test",
+        report_name="test-1rep-programmatically_worstcase_example3_test",
     )
     attack_obj.attack(target)
     _ = attack_obj.make_report()
@@ -160,7 +160,7 @@ def test_attack_with_correct_feature():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        pdf_report_name="test-1rep-programmatically_worstcase_example4_test",
+        report_name="test-1rep-programmatically_worstcase_example4_test",
         include_model_correct_feature=True,
     )
     attack_obj.attack(target)
@@ -197,7 +197,7 @@ def test_attack_from_predictions():
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        pdf_report_name="test-10reps-programmatically_worstcase_example5_test",
+        report_name="test-10reps-programmatically_worstcase_example5_test",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -232,7 +232,7 @@ def test_attack_from_predictions_no_dummy():
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        pdf_report_name="test-10reps-programmatically_worstcase_example6_test",
+        report_name="test-10reps-programmatically_worstcase_example6_test",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -253,7 +253,7 @@ def test_dummy_data():
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
         output_dir="test_output_worstcase",
-        pdf_report_name="test-10reps-programmatically_worstcase_example7_test",
+        report_name="test-10reps-programmatically_worstcase_example7_test",
     )
 
     attack_obj.make_dummy_data()
