@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import ( # pylint: disable=import-error
+from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
 
