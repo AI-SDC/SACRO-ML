@@ -6,9 +6,9 @@ Runs a worst case attack based upon predictive probabilities stored in two .csv 
 
 from __future__ import annotations
 
-import os
 import argparse
 import logging
+import os
 import uuid
 from datetime import datetime
 from typing import Any
@@ -165,7 +165,6 @@ class WorstCaseAttack(Attack):
         self.dummy_attack_metrics = None
         self.dummy_attack_metric_failfast_summary = None
         self.metadata = None
-
 
     def __str__(self):
         return "WorstCase attack"
@@ -597,7 +596,7 @@ class WorstCaseAttack(Attack):
         ] = self._get_dummy_attack_metrics_experiments_instances()
 
         report_dest = os.path.join(self.output_dir, self.report_name)
-        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
 
@@ -622,7 +621,7 @@ def _make_dummy_data(args):
 
 
 def _run_attack(args):
-    """Initialise class and run attack from prediction files"""    
+    """Initialise class and run attack from prediction files"""
     attack_obj = WorstCaseAttack(
         n_reps=args.n_reps,
         p_thresh=args.p_thresh,
@@ -697,8 +696,8 @@ def main():
         default=5,
         dest="train_beta",
         help=(
-            """Value of b parameter for beta distribution used to sample the in-sample 
-            probabilities. High values will give more extreme probabilities. Set this 
+            """Value of b parameter for beta distribution used to sample the in-sample
+            probabilities. High values will give more extreme probabilities. Set this
             value higher than --test-beta to see successful attacks. Default = %(default)f"""
         ),
     )
@@ -783,9 +782,7 @@ def main():
         dest="output_dir",
         default="output_worstcase",
         required=False,
-        help=(
-            "Folder name where output files are stored. Default = %(default)s."
-        ),
+        help=("Folder name where output files are stored. Default = %(default)s."),
     )
 
     attack_parser.add_argument(
@@ -971,6 +968,7 @@ def main():
     except AttributeError as e:  # pragma:no cover
         logger.error("Invalid command. Try --help to get more details")
         logger.error(e)
+
 
 if __name__ == "__main__":  # pragma:no cover
     main()

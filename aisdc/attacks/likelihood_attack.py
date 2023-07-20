@@ -6,11 +6,11 @@ Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf
 
 from __future__ import annotations
 
-import os
 import argparse
 import importlib
 import json
 import logging
+import os
 import uuid
 from collections.abc import Iterable
 from datetime import datetime
@@ -476,17 +476,17 @@ class LIRAAttack(Attack):
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
         report_dest = os.path.join(self.output_dir, self.report_name)
-        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
 
         pdf_report = report.create_lr_report(output)
         report.add_output_to_pdf(report_dest, pdf_report, "LikelihoodAttack")
         logger.info(
-            "Wrote pdf report to %s and json report to %s", 
-            report_dest+".pdf",
-            report_dest+".json"
-            )
+            "Wrote pdf report to %s and json report to %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
 
         return output
 
@@ -667,9 +667,7 @@ def main():
         dest="output_dir",
         default="output_lira",
         required=False,
-        help=(
-            "Folder name where output files are stored. Default = %(default)s."
-        ),
+        help=("Folder name where output files are stored. Default = %(default)s."),
     )
 
     parser.add_argument(
