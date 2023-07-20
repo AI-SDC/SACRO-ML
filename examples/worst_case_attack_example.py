@@ -75,7 +75,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
     # name of the output directory
-    output_dir = "outputs_worstcase",
+    output_dir="outputs_worstcase",
     # # If report_name is given, it creates pdf and json files; however when it is None -
     # # will create output files with default names 'report_worstcase'
     # report_name="programmatically_worstcase_example1_report",

@@ -75,7 +75,7 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 # [TRE] Example 1: sets up the attack
 attack_obj = LIRAAttack(
     n_shadow_models=100,
-    output_dir = "outputs_lira",
+    output_dir="outputs_lira",
     # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
 )
@@ -84,7 +84,7 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report() # also makes .pdf and .json files
+output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
@@ -111,7 +111,7 @@ print("****************************")
 # [TRE] Example 2: sets up the attack with fail-fast option
 attack_obj = LIRAAttack(
     n_shadow_models=100,
-    output_dir = "outputs_lira",
+    output_dir="outputs_lira",
     # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
@@ -122,7 +122,7 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report() # also makes .pdf and .json files
+output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][

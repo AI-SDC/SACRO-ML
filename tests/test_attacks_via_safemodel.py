@@ -3,8 +3,9 @@ Tests attacks called via safemodel classes
 uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests
 """
-import shutil
 import os
+import shutil
+
 import numpy as np
 import sklearn
 from sklearn.datasets import fetch_openml
@@ -24,6 +25,7 @@ def clean():
     """Removes unwanted results"""
     if os.path.exists(RES_DIR):
         shutil.rmtree(RES_DIR)
+
 
 def get_target(model: sklearn.base.BaseEstimator) -> Target:
     """Wrap the model and data in a Target object.
@@ -131,7 +133,7 @@ def test_run_attack_lira():
 
     print(np.unique(target.y_test, return_counts=True))
     print(np.unique(model.predict(target.x_test), return_counts=True))
-    metadata = model.run_attack(target, "lira", RES_DIR,"lira_res")
+    metadata = model.run_attack(target, "lira", RES_DIR, "lira_res")
     clean()
     assert len(metadata) > 0  # something has been added
 
@@ -143,7 +145,7 @@ def test_run_attack_worstcase():
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
     assert not disclosive
-    metadata = model.run_attack(target, "worst_case", RES_DIR,"wc_res")
+    metadata = model.run_attack(target, "worst_case", RES_DIR, "wc_res")
     clean()
     assert len(metadata) > 0  # something has been added
 
@@ -164,8 +166,7 @@ def test_attack_args():
     """tests the attack arguments class"""
     fname = "aia_example"
     attack_obj = attribute_attack.AttributeAttack(
-        output_dir="output_attribute",
-        report_name=fname
+        output_dir="output_attribute", report_name=fname
     )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
@@ -173,8 +174,7 @@ def test_attack_args():
 
     fname = "liraa"
     attack_obj = likelihood_attack.LIRAAttack(
-        output_dir="output_lira",
-        report_name=fname
+        output_dir="output_lira", report_name=fname
     )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
@@ -182,9 +182,8 @@ def test_attack_args():
 
     fname = "wca"
     attack_obj = worst_case_attack.WorstCaseAttack(
-        output_dir="output_worstcase",
-        report_name=fname
-        )
+        output_dir="output_worstcase", report_name=fname
+    )
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
     assert fname == attack_obj.report_name
