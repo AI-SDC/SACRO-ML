@@ -6,22 +6,22 @@ Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf
 
 from __future__ import annotations
 
-import os
 import argparse
 import importlib
 import json
 import logging
+import os
 import uuid
 from collections.abc import Iterable
 from datetime import datetime
 
 import numpy as np
 import sklearn
+from pypdf import PdfWriter
 from scipy.stats import norm
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from pypdf import PdfWriter
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -477,14 +477,14 @@ class LIRAAttack(Attack):
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
         report_dest = os.path.join(self.output_dir, self.report_name)
-        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
 
         pdf_report = report.create_lr_report(output)
-        if os.path.exists(report_dest+".pdf"):
-            old_pdf=report_dest+".pdf"
-            new_pdf=report_dest+"_new.pdf"
+        if os.path.exists(report_dest + ".pdf"):
+            old_pdf = report_dest + ".pdf"
+            new_pdf = report_dest + "_new.pdf"
             pdf_report.output(new_pdf)
             merger = PdfWriter()
             for pdf in [old_pdf, new_pdf]:
@@ -493,13 +493,13 @@ class LIRAAttack(Attack):
             merger.close()
             os.remove(new_pdf)
         else:
-            pdf_report.output(report_dest+".pdf")
+            pdf_report.output(report_dest + ".pdf")
         os.remove(report_dest + "_log_roc.png")
         logger.info(
-            "Wrote pdf report to %s and json report to %s", 
-            report_dest+".pdf",
-            report_dest+".json"
-            )
+            "Wrote pdf report to %s and json report to %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
 
         return output
 
@@ -680,9 +680,7 @@ def main():
         dest="output_dir",
         default="output_lira",
         required=False,
-        help=(
-            "Folder name where output files are stored. Default = %(default)s."
-        ),
+        help=("Folder name where output files are stored. Default = %(default)s."),
     )
 
     parser.add_argument(

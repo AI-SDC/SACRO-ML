@@ -4,10 +4,10 @@ Attribute inference attacks.
 
 from __future__ import annotations
 
-import os
 import argparse
 import json
 import logging
+import os
 import uuid
 from datetime import datetime
 
@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import multiprocess as mp
 import numpy as np
 from fpdf import FPDF
+from pypdf import PdfWriter
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
-from pypdf import PdfWriter
 
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
@@ -47,13 +47,13 @@ class AttributeAttack(Attack):
         """Constructs an object to execute an attribute inference attack.
 
         Parameters
-        ----------        
+        ----------
         n_cpu: int
             number of CPUs used to run the attack
         output_dir: str
             name of the directory where outputs are stored
         report_name: str
-            name of the pdf and json output reports        
+            name of the pdf and json output reports
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         target_path: str
@@ -111,23 +111,23 @@ class AttributeAttack(Attack):
         report_dest = os.path.join(self.output_dir, self.report_name)
         logger.info(
             "Starting reports, pdf report_name = %s, joson report name =%s",
-            report_dest+".pdf",
-            report_dest + ".json"
-            )
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        json_attack_formatter =  GenerateJSONModule(report_dest + ".json")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
         json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
         pdf_report = create_aia_report(output, report_dest)
-        if os.path.exists(report_dest+".pdf"):
-            old_pdf=report_dest+".pdf"
-            new_pdf=report_dest+"_new.pdf"
+        if os.path.exists(report_dest + ".pdf"):
+            old_pdf = report_dest + ".pdf"
+            new_pdf = report_dest + "_new.pdf"
             pdf_report.output(new_pdf)
             merger = PdfWriter()
             for pdf in [old_pdf, new_pdf]:
@@ -136,14 +136,14 @@ class AttributeAttack(Attack):
             merger.close()
             os.remove(new_pdf)
         else:
-            pdf_report.output(report_dest+".pdf")
-        os.remove(report_dest+ "_cat_frac.png")
-        os.remove(report_dest+ "_cat_risk.png")
+            pdf_report.output(report_dest + ".pdf")
+        os.remove(report_dest + "_cat_frac.png")
+        os.remove(report_dest + "_cat_risk.png")
         logger.info(
-            "Wrote pdf report to %s and json report to %s", 
-            report_dest+".pdf",
-            report_dest+".json"
-            )
+            "Wrote pdf report to %s and json report to %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
