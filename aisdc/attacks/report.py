@@ -1,7 +1,7 @@
 """Code for automatic report generation"""
-import os
 import abc
 import json
+import os
 
 import numpy as np
 import pylab as plt
@@ -236,11 +236,15 @@ def create_mia_report(attack_output: dict) -> FPDF:
     else:
         do_dummy = True
 
-    dest_log_roc= os.path.join(
-        metadata['experiment_details']['output_dir'],
-        metadata['experiment_details']['report_name']) + "_log_roc.png"
+    dest_log_roc = (
+        os.path.join(
+            metadata["experiment_details"]["output_dir"],
+            metadata["experiment_details"]["report_name"],
+        )
+        + "_log_roc.png"
+    )
     _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
-        # _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
+    # _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
 
     pdf = FPDF()
     pdf.add_page()
@@ -306,11 +310,12 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     return pdf
 
+
 def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> None:
     """creates pdf and appends contents if it already exists"""
-    if os.path.exists(report_dest+".pdf"):
-        old_pdf=report_dest + ".pdf"
-        new_pdf=report_dest + "_new.pdf"
+    if os.path.exists(report_dest + ".pdf"):
+        old_pdf = report_dest + ".pdf"
+        new_pdf = report_dest + "_new.pdf"
         pdf_report.output(new_pdf)
         merger = PdfWriter()
         for pdf in [old_pdf, new_pdf]:
@@ -319,12 +324,13 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
         merger.close()
         os.remove(new_pdf)
     else:
-        pdf_report.output(report_dest+".pdf")
-    if attack_type in ('WorstCaseAttack', 'LikelihoodAttack'):
+        pdf_report.output(report_dest + ".pdf")
+    if attack_type in ("WorstCaseAttack", "LikelihoodAttack"):
         os.remove(report_dest + "_log_roc.png")
     elif attack_type == "WorstCaseAttack":
-        os.remove(report_dest+ "_cat_frac.png")
-        os.remove(report_dest+ "_cat_risk.png")
+        os.remove(report_dest + "_cat_frac.png")
+        os.remove(report_dest + "_cat_risk.png")
+
 
 def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
     if log_roc is not None:
@@ -332,6 +338,7 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
         subtitle(pdf_obj, "Log ROC")
         pdf_obj.image(log_roc, x=None, y=None, w=0, h=140, type="", link="")
         pdf_obj.set_font("arial", "", 12)
+
 
 def create_json_report(output):
     """Create a report in json format for injestion by other tools"""
@@ -370,9 +377,13 @@ def create_lr_report(output: dict) -> FPDF:
     ][0]
     # mia_metrics = output["attack_metrics"][0]
     metadata = output["metadata"]
-    dest_log_roc= os.path.join(
-        metadata['experiment_details']['output_dir'],
-        metadata['experiment_details']['report_name']) + "_log_roc.png"
+    dest_log_roc = (
+        os.path.join(
+            metadata["experiment_details"]["output_dir"],
+            metadata["experiment_details"]["report_name"],
+        )
+        + "_log_roc.png"
+    )
     _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()
     pdf.add_page()
