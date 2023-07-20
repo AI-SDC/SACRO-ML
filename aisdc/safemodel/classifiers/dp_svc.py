@@ -137,7 +137,9 @@ class DPSVC:
 
         if self.gamma == 0.0:
             self.gamma = SMALL_NUMBER
-            local_logger.warning('gamma value passed in was zero, set to %g', SMALL_NUMBER)
+            local_logger.warning(
+                "gamma value passed in was zero, set to %g", SMALL_NUMBER
+            )
         self.dpsvc_gamma = 1.0 / np.sqrt(
             2.0 * self.gamma
         )  # alternative parameterisation
