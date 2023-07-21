@@ -32,6 +32,7 @@ setup(
         "tensorflow~=2.12.0",
         "tensorflow_privacy==0.8.10",
         "uuid~=1.30",
+        "pypdf~=3.12.2",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
