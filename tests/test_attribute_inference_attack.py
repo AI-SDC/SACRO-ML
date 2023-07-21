@@ -10,6 +10,7 @@ python -m examples.attribute_inference_example
 """
 import json
 import os
+import shutil
 import sys
 
 # ignore unused imports because it depends on whether data file is present
@@ -21,7 +22,6 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
 )
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,
@@ -34,8 +34,11 @@ from tests.test_attacks_via_safemodel import get_target
 
 def cleanup_file(name: str):
     """removes unwanted files or directory"""
-    if os.path.exists(name) and os.path.isfile(name):  # h5
-        os.remove(name)
+    if os.path.exists(name):
+        if os.path.isfile(name):
+            os.remove(name)
+        elif os.path.isdir(name):
+            shutil.rmtree(name)
 
 
 def common_setup():
@@ -43,7 +46,11 @@ def common_setup():
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
-    attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
+    attack_obj = attribute_attack.AttributeAttack(
+        n_cpu=7,
+        output_dir="test_output_aia",
+        report_name="test_attribute_attack",
+    )
     return target, attack_obj
 
 
@@ -95,8 +102,7 @@ def test_AIA_on_nursery():
     target, attack_obj = common_setup()
     attack_obj.attack(target)
 
-    g = GenerateJSONModule("test_attribute_attack.json")
-    output = attack_obj.make_report(g)
+    output = attack_obj.make_report()
     output = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
 
@@ -104,10 +110,11 @@ def test_AIA_on_nursery_from_cmd():
     """tests running AIA on the nursery data
     with an added continuous feature"""
     target, _ = common_setup()
-    target.save(path="tests/test_aia_target")
+    target.save(path="test_aia_target")
 
     config = {
         "n_cpu": 7,
+        "output_dir": "test_output_aia",
         "report_name": "commandline_aia_exampl1_report",
     }
     with open("tests/test_config_aia_cmd.json", "w", encoding="utf-8") as f:
@@ -116,21 +123,15 @@ def test_AIA_on_nursery_from_cmd():
     os.system(
         f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
         "--attack-config-json-file-name tests/test_config_aia_cmd.json "
-        "--attack-target-folder-path tests/test_aia_target "
+        "--attack-target-folder-path test_aia_target "
     )
 
 
 def test_cleanup():
     """tidies up any files created"""
     files_made = (
-        "delete-me.json",
-        "aia_example.json",
-        "aia_example.pdf",
-        "aia_report_cat_frac.png",
-        "aia_report_cat_risk.png",
-        "aia_report_quant_risk.png",
-        "aia_report.pdf",
-        "aia_report.json",
+        "test_output_aia/",
+        "test_aia_target/",
         "test_attribute_attack.json",
         "tests/test_config_aia_cmd.json",
     )

@@ -3,6 +3,7 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
 """
 import json
 import os
+import shutil
 import sys
 from unittest.mock import patch
 
@@ -18,8 +19,11 @@ from aisdc.attacks.target import Target
 
 def clean_up(name):
     """removes unwanted files or directory"""
-    if os.path.exists(name) and os.path.isfile(name):
-        os.remove(name)
+    if os.path.exists(name):
+        if os.path.isfile(name):
+            os.remove(name)
+        elif os.path.isdir(name):
+            shutil.rmtree(name)
 
 
 def test_config_file_arguments_parsin():
@@ -29,7 +33,8 @@ def test_config_file_arguments_parsin():
         "n_dummy_reps": 2,
         "p_thresh": 0.06,
         "test_prop": 0.4,
-        "report_name": "programmatically_worstcase_report_test",
+        "output_dir": "test_output_worstcase",
+        "report_name": "programmatically_worstcase_example1_test",
     }
     with open("config_worstcase_test.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(config))
@@ -66,6 +71,8 @@ def test_attack_from_predictions_cmd():
         "n_dummy_reps": 2,
         "p_thresh": 0.05,
         "test_prop": 0.5,
+        "output_dir": "test_output_worstcase",
+        "report_name": "commandline_worstcase_example1_report",
         "training_preds_filename": "ypred_train.csv",
         "test_preds_filename": "ypred_test.csv",
         "attack_metric_success_name": "P_HIGHER_AUC",
@@ -110,7 +117,7 @@ def test_report_worstcase():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-10reps",
+        output_dir="test_output_worstcase",
     )
     attack_obj.attack(target)
     # attack_obj.make_dummy_data() cause exception when used like this!
@@ -124,7 +131,7 @@ def test_report_worstcase():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-1rep",
+        output_dir="test_output_worstcase",
     )
     attack_obj.attack(target)
     _ = attack_obj.make_report()
@@ -151,7 +158,7 @@ def test_attack_with_correct_feature():
         training_preds_filename=None,
         test_preds_filename=None,
         test_prop=0.5,
-        report_name="test-1rep",
+        report_name="test-1rep-programmatically_worstcase_example4_test",
         include_model_correct_feature=True,
     )
     attack_obj.attack(target)
@@ -187,7 +194,8 @@ def test_attack_from_predictions():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        output_dir="test_output_worstcase",
+        report_name="test-10reps-programmatically_worstcase_example5_test",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -221,7 +229,8 @@ def test_attack_from_predictions_no_dummy():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        output_dir="test_output_worstcase",
+        report_name="test-10reps-programmatically_worstcase_example6_test",
     )
 
     assert attack_obj.training_preds_filename == "ypred_train.csv"
@@ -241,7 +250,8 @@ def test_dummy_data():
         training_preds_filename="ypred_train.csv",
         test_preds_filename="ypred_test.csv",
         test_prop=0.5,
-        report_name="test-10reps",
+        output_dir="test_output_worstcase",
+        report_name="test-10reps-programmatically_worstcase_example7_test",
     )
 
     attack_obj.make_dummy_data()
@@ -349,17 +359,13 @@ def test_main():
 def test_cleanup():
     """gets rid of files created during tests"""
     names = [
-        "worstcase_report.pdf",
-        "log_roc.png",
-        "worstcase_report.json",
+        "test_output_worstcase/",
+        "output_worstcase/",
+        "test_worstcase_target/",
         "test_preds.csv",
         "train_preds.csv",
         "ypred_test.csv",
         "ypred_train.csv",
-        "test-1rep.pdf",
-        "test-1rep.json",
-        "test-10reps.pdf",
-        "test-10reps.json",
     ]
     for name in names:
         clean_up(name)

@@ -41,9 +41,6 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.attack_report_formatter import (
-    GenerateJSONModule,  # pylint: disable = import-error
-)
 from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
@@ -78,7 +75,8 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 # [TRE] Example 1: sets up the attack
 attack_obj = LIRAAttack(
     n_shadow_models=100,
-    report_name="lira_example1_report",
+    output_dir="outputs_lira",
+    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
 )
 
@@ -86,9 +84,7 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report(
-    GenerateJSONModule("lira_attack.json")
-)  # also makes .pdf and .json files
+output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
@@ -115,7 +111,8 @@ print("****************************")
 # [TRE] Example 2: sets up the attack with fail-fast option
 attack_obj = LIRAAttack(
     n_shadow_models=100,
-    report_name="lira_example2_report",
+    output_dir="outputs_lira",
+    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
@@ -125,9 +122,7 @@ attack_obj = LIRAAttack(
 attack_obj.attack(target)
 
 # [TRE] Get the output
-output = attack_obj.make_report(
-    GenerateJSONModule("lira_attack.json")
-)  # also makes .pdf and .json files
+output = attack_obj.make_report()  # also makes .pdf and .json files
 
 # [TRE] Accesses attack metrics and metadata
 attack_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
@@ -167,7 +162,7 @@ np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter="
 np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
 
 # [Researcher] Dump the target model and target data
-target.save(path="lira_target")
+target.save(path="target_model_for_lira")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
@@ -178,7 +173,8 @@ os.system(f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack --hel
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
-    "--report-name commandline_lira_example1_report "
+    "--output-dir outputs_lira "
+    # "report-name report_lira "
     "--n-shadow-models 100 "
 )
 
@@ -186,7 +182,8 @@ os.system(
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
-    "--report-name commandline_lira_example2_report "
+    "--output-dir outputs_lira "
+    "--report-name report_lira "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
     "--n-shadow-rows-confidences-min 10 "
@@ -201,7 +198,8 @@ os.system(
 # Example 3 to demonstrate running attack from configuration file only
 config = {
     "n_shadow_models": 150,
-    "report_name": "commandline_lira_example3_report",
+    "output_dir": "outputs_lira",
+    # "report_name": "report_lira",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -216,13 +214,14 @@ with open("config_lira_cmd1.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd1.json "
-    "--attack-target-folder-path lira_target "
+    "--attack-target-folder-path target_model_for_lira "
 )
 
 # Example 4 to demonstrate running attack from configuration file only with fail fail fast option
 config = {
     "n_shadow_models": 150,
-    "report_name": "commandline_lira_example4_report",
+    "output_dir": "outputs_lira",
+    # "report_name": "report_lira",
     "shadow_models_fail_fast": True,
     "n_shadow_rows_confidences_min": 10,
     "training_data_filename": "train_data.csv",
@@ -239,7 +238,7 @@ with open("config_lira_cmd2.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_lira_cmd2.json "
-    "--attack-target-folder-path lira_target "
+    "--attack-target-folder-path target_model_for_lira "
 )
 
 

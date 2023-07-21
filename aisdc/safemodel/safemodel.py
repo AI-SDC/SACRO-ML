@@ -16,7 +16,6 @@ from typing import Any
 import joblib
 from dictdiffer import diff
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import AttributeAttack
 from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
@@ -763,6 +762,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self,
         target: Target = None,
         attack_name: str = "worst_case",
+        outputdir: str = "RES",
         filename: str = "undefined",
     ) -> dict:
         """Runs a specified attack on the trained model and saves a report to file.
@@ -788,7 +788,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
-        g = GenerateJSONModule(filename)
         if attack_name == "worst_case":
             attack_obj = WorstCaseAttack(
                 n_reps=10,
@@ -797,20 +796,28 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 training_preds_filename=None,
                 test_preds_filename=None,
                 test_prop=0.5,
-                report_name=None,
+                output_dir=outputdir,
+                report_name=filename,
             )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "lira":
-            attack_obj = LIRAAttack(n_shadow_models=100, report_name=None)
+            attack_obj = LIRAAttack(
+                n_shadow_models=100,
+                output_dir=outputdir,
+                report_name=filename,
+            )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "attribute":
-            attack_obj = AttributeAttack(report_name=None)
+            attack_obj = AttributeAttack(
+                output_dir=outputdir,
+                report_name=filename,
+            )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         else:
             metadata = {}

@@ -104,7 +104,8 @@ if __name__ == "__main__":
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "worst_case")
 
@@ -115,7 +116,8 @@ if __name__ == "__main__":
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example2_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "worst_case")
 
@@ -126,7 +128,8 @@ if __name__ == "__main__":
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example3_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "training_preds_filename": "train_preds.csv",
         "test_preds_filename": "test_preds.csv",
         "attack_metric_success_name": "P_HIGHER_AUC",
@@ -140,7 +143,8 @@ if __name__ == "__main__":
     # Adding two lira attack configuration dictionaries to the JSON file
     config = {
         "n_shadow_models": 100,
-        "report_name": "lira_example1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "training_data_filename": "train_data.csv",
         "test_data_filename": "test_data.csv",
         "training_preds_filename": "train_preds.csv",
@@ -152,7 +156,8 @@ if __name__ == "__main__":
 
     config = {
         "n_shadow_models": 150,
-        "report_name": "lira_example2_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "shadow_models_fail_fast": True,
         "n_shadow_rows_confidences_min": 10,
         "training_data_filename": "train_data.csv",
@@ -168,7 +173,8 @@ if __name__ == "__main__":
     # having multiple attack configurations
     config = {
         "n_shadow_models": 120,
-        "report_name": "lira_example3_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "shadow_models_fail_fast": True,
         "n_shadow_rows_confidences_min": 10,
         "training_data_filename": "train_data.csv",
@@ -185,16 +191,14 @@ if __name__ == "__main__":
     # Adding an attribute inference attack configuration dictionary to the JSON file
     config = {
         "n_cpu": 2,
-        "report_name": "aia_exampl1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "attribute")
 
     # Instantiating MultipleAttacks object specifying a single configuration file
     # (with multiple attacks configurations) and a single JSON output file
-    attack_obj = MultipleAttacks(
-        config_filename="single_config.json",
-        output_filename="single_output_progammatic.json",
-    )
+    attack_obj = MultipleAttacks(config_filename="single_config.json")
     attack_obj.attack(target)
 
     # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
@@ -208,5 +212,4 @@ if __name__ == "__main__":
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
         "--attack-config-json-file-name single_config.json "
         "--attack-target-folder-path target "
-        "--attack-output-json-file-name single_output_cmd.json "
     )

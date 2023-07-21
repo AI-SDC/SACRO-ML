@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import uuid
 from datetime import datetime
 
@@ -32,9 +33,12 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    def __init__(
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
-        report_name: str = None,
+        output_dir: str = "output_attribute",
+        report_name: str = "aia_report",
         n_cpu: int = max(1, mp.cpu_count() - 1),
         attack_config_json_file_name: str = None,
         target_path: str = None,
@@ -43,22 +47,27 @@ class AttributeAttack(Attack):
 
         Parameters
         ----------
-        report_name: str
-            name of the JSON output report
         n_cpu: int
             number of CPUs used to run the attack
+        output_dir: str
+            name of the directory where outputs are stored
+        report_name: str
+            name of the pdf and json output reports
         attack_config_json_file_name: str
             name of the configuration file to load parameters
         target_path: str
             path to the saved trained target model and target data
         """
         super().__init__()
-        self.report_name = report_name
         self.n_cpu = n_cpu
+        self.output_dir = output_dir
+        self.report_name = report_name
         self.attack_config_json_file_name = attack_config_json_file_name
         self.target_path = target_path
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
@@ -85,7 +94,7 @@ class AttributeAttack(Attack):
 
         self.metadata["attack"] = str(self)
 
-    def make_report(self, json_attack_formatter=None) -> dict:
+    def make_report(self) -> dict:
         """Create the report.
 
         Creates the output report. If self.report_name is not None, it will also save the
@@ -98,21 +107,29 @@ class AttributeAttack(Attack):
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, report_name = %s", self.report_name)
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        logger.info(
+            "Starting reports, pdf report name = %s, json report name = %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if json_attack_formatter is not None:
-            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
+        json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
+        json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
-        if self.report_name is not None:
-            pdf = create_aia_report(output)
-            pdf.output(f"{self.report_name}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
+        pdf_report = create_aia_report(output, report_dest)
+        report.add_output_to_pdf(report_dest, pdf_report, "AttributeAttack")
+        logger.info(
+            "Wrote pdf report to %s and json report to %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -632,7 +649,7 @@ def _run_attack_from_configfile(args):
     target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack(target)
-    attack_obj.make_report(GenerateJSONModule("aia_attack_from_configfile.json"))
+    attack_obj.make_report()
 
 
 def main():
