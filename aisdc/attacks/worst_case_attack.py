@@ -1,5 +1,5 @@
 """
-worst_case_attack.py
+Worst_case_attack.py.
 
 Runs a worst case attack based upon predictive probabilities stored in two .csv files
 """
@@ -8,114 +8,184 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import uuid
-from collections.abc import Hashable
 from datetime import datetime
 from typing import Any
 
 import numpy as np
-import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
-from aisdc.attacks.attack import Attack, ConfigFile
-from aisdc.attacks.dataset import Data
+from aisdc.attacks.attack import Attack
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.failfast import FailFast
+from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 
 P_THRESH = 0.05
 
 
-class WorstCaseAttackArgs:
-    """Arguments for worst case"""
-
-    def __init__(self, **kwargs):
-        self.__dict__["n_reps"] = 10
-        self.__dict__["p_thresh"] = 0.05
-        self.__dict__["n_dummy_reps"] = 1
-        self.__dict__["train_beta"] = 2
-        self.__dict__["test_beta"] = 2
-        self.__dict__["test_prop"] = 0.3
-        self.__dict__["n_rows_in"] = 1000
-        self.__dict__["n_rows_out"] = 1000
-        self.__dict__["training_preds_filename"] = None
-        self.__dict__["test_preds_filename"] = None
-        self.__dict__["report_name"] = None
-        self.__dict__["include_model_correct_feature"] = False
-        self.__dict__["sort_probs"] = True
-        self.__dict__["mia_attack_model"] = RandomForestClassifier
-        self.__dict__["mia_attack_model_hyp"] = {
-            "min_samples_split": 20,
-            "min_samples_leaf": 10,
-            "max_depth": 5,
-        }
-        self.__dict__["attack_metric_success_name"] = "P_HIGHER_AUC"
-        self.__dict__["attack_metric_success_thresh"] = 0.05
-        self.__dict__["attack_metric_success_comp_type"] = "lte"
-        self.__dict__["attack_metric_success_count_thresh"] = 5
-        self.__dict__["attack_fail_fast"] = False
-        self.__dict__["attack_config_json_file_name"] = None
-        self.__dict__.update(kwargs)
-        # Reading parameters from a json file
-        if self.__dict__["attack_config_json_file_name"] is not None:
-            configfile_obj = ConfigFile(self.__dict__["attack_config_json_file_name"])
-            configfile_obj.load_config_file_into_dict(self.__dict__)
-        # deleted for not enabling to appear in the output file
-        del self.__dict__["attack_config_json_file_name"]
-
-    def __str__(self):
-        return ",".join(
-            [f"{str(key)}: {str(value)}" for key, value in self.__dict__.items()]
-        )
-
-    def set_param(self, key: Hashable, value: Any) -> None:
-        """Set a parameter"""
-        self.__dict__[key] = value
-
-    def get_args(self) -> dict:
-        """Return arguments"""
-        return self.__dict__
-
-
 class WorstCaseAttack(Attack):
-    """Class to wrap the worst case attack code"""
+    """Class to wrap the worst case attack code."""
 
-    def __init__(self, args: WorstCaseAttackArgs = WorstCaseAttackArgs()):
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+        self,
+        n_reps: int = 10,
+        p_thresh: float = 0.05,
+        n_dummy_reps: int = 1,
+        train_beta: int = 1,
+        test_beta: int = 1,
+        test_prop: float = 0.2,
+        n_rows_in: int = 1000,
+        n_rows_out: int = 1000,
+        training_preds_filename: str = None,
+        test_preds_filename: str = None,
+        output_dir: str = "output_worstcase",
+        report_name: str = "report_worstcase",
+        include_model_correct_feature: bool = False,
+        sort_probs: bool = True,
+        mia_attack_model: Any = RandomForestClassifier,
+        mia_attack_model_hyp: dict = None,
+        attack_metric_success_name: str = "P_HIGHER_AUC",
+        attack_metric_success_thresh: float = 0.05,
+        attack_metric_success_comp_type: str = "lte",
+        attack_metric_success_count_thresh: int = 5,
+        attack_fail_fast: bool = False,
+        attack_config_json_file_name: str = None,
+        target_path: str = None,
+    ) -> None:
+        """Constructs an object to execute a worst case attack.
+
+        Parameters
+        ----------
+        n_reps : int
+            number of attacks to run -- in each iteration an attack model
+            is trained on a different subset of the data
+        p_thresh : float
+            threshold to determine significance of things. For instance auc_p_value and pdif_vals
+        n_dummy_reps : int
+            number of baseline (dummy) experiments to do
+        train_beta : int
+            value of b for beta distribution used to sample the in-sample (training) probabilities
+        test_beta : int
+            value of b for beta distribution used to sample the out-of-sample (test) probabilities
+        test_prop : float
+            proportion of data to use as a test set for the attack model
+        n_rows_in : int
+            number of rows for in-sample (training data)
+        n_rows_out : int
+            number of rows for out-of-sample (test data)
+        training_preds_filename : str
+            name of the file to keep predictions of the training data (in-sample)
+        test_preds_filename : str
+            name of the file to keep predictions of the test data (out-of-sample)
+        output_dir : str
+            name of the directory where outputs are stored
+        report_name : str
+            name of the pdf and json output reports
+        include_model_correct_feature : bool
+            inclusion of additional feature to hold whether or not the target model
+            made a correct prediction for each example
+        sort_probs : bool
+            true in case require to sort combine preds (from training and test)
+            to have highest probabilities in the first column
+        mia_attack_model : Any
+            name of the attack model such as RandomForestClassifier
+        mia_attack_model_hyp : dict
+            dictionary of hyper parameters for the mia_attack_model
+            such as min_sample_split, min_samples_leaf etc
+        attack_metric_success_name : str
+            name of metric to compute for the attack being successful
+        attack_metric_success_thresh : float
+            threshold for a given metric to measure attack being successful or not
+        attack_metric_success_comp_type : str
+            threshold comparison operator (i.e., gte: greater than or equal to, gt:
+            greater than, lte: less than or equal to, lt: less than,
+            eq: equal to and not_eq: not equal to)
+        attack_metric_success_count_thresh : int
+            a counter to record how many times an attack was successful
+            given that the threshold has fulfilled criteria for a given comparison type
+        attack_fail_fast : bool
+            If true it stops repetitions earlier based on the given attack metric
+            (i.e., attack_metric_success_name) considering the comparison type
+            (attack_metric_success_comp_type) satisfying a threshold
+            (i.e., attack_metric_success_thresh) for n
+            (attack_metric_success_count_thresh) number of times
+        attack_config_json_file_name : str
+            name of the configuration file to load parameters
+        target_path : str
+            path to the saved trained target model and target data
+        """
+
+        super().__init__()
+        self.n_reps = n_reps
+        self.p_thresh = p_thresh
+        self.n_dummy_reps = n_dummy_reps
+        self.train_beta = train_beta
+        self.test_beta = test_beta
+        self.test_prop = test_prop
+        self.n_rows_in = n_rows_in
+        self.n_rows_out = n_rows_out
+        self.training_preds_filename = training_preds_filename
+        self.test_preds_filename = test_preds_filename
+        self.output_dir = output_dir
+        self.report_name = report_name
+        self.include_model_correct_feature = include_model_correct_feature
+        self.sort_probs = sort_probs
+        self.mia_attack_model = mia_attack_model
+        if mia_attack_model_hyp is None:
+            self.mia_attack_model_hyp = {
+                "min_samples_split": 20,
+                "min_samples_leaf": 10,
+                "max_depth": 5,
+            }
+        else:
+            self.mia_attack_model_hyp = mia_attack_model_hyp
+        self.attack_metric_success_name = attack_metric_success_name
+        self.attack_metric_success_thresh = attack_metric_success_thresh
+        self.attack_metric_success_comp_type = attack_metric_success_comp_type
+        self.attack_metric_success_count_thresh = attack_metric_success_count_thresh
+        self.attack_fail_fast = attack_fail_fast
+        self.attack_config_json_file_name = attack_config_json_file_name
+        self.target_path = target_path
+        # Updating parameters from a configuration json file
+        if self.attack_config_json_file_name is not None:
+            self._update_params_from_config_file()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.attack_metrics = None
         self.attack_metric_failfast_summary = None
         self.dummy_attack_metrics = None
         self.dummy_attack_metric_failfast_summary = None
         self.metadata = None
-        self.args = args
 
     def __str__(self):
         return "WorstCase attack"
 
-    def attack(self, dataset: Data, target_model: sklearn.base.BaseEstimator) -> None:
-        """Programmatic attack entry point
+    def attack(self, target: Target) -> None:
+        """Programmatic attack entry point.
 
-        To be used when code has access to data class and trained target model
+        To be used when code has access to Target class and trained target model
 
         Parameters
         ----------
-        dataset: attacks.dataset.Data
-            dataset as a Data class object
-        target_model: sklearn.base.BaseEstimator
-            target model that inherits from an sklearn BaseEstimator
+        target : attacks.target.Target
+            target as a Target class object
         """
-        train_preds = target_model.predict_proba(dataset.x_train)
-        test_preds = target_model.predict_proba(dataset.x_test)
+        train_preds = target.model.predict_proba(target.x_train)
+        test_preds = target.model.predict_proba(target.x_test)
         train_correct = None
         test_correct = None
-        if self.args.include_model_correct_feature:
-            train_correct = 1 * (
-                dataset.y_train == target_model.predict(dataset.x_train)
-            )
-            test_correct = 1 * (dataset.y_test == target_model.predict(dataset.x_test))
+        if self.include_model_correct_feature:
+            train_correct = 1 * (target.y_train == target.model.predict(target.x_train))
+            test_correct = 1 * (target.y_test == target.model.predict(target.x_test))
 
         self.attack_from_preds(
             train_preds,
@@ -125,15 +195,15 @@ class WorstCaseAttack(Attack):
         )
 
     def attack_from_prediction_files(self):
-        """Start an attack from saved prediction files
+        """Start an attack from saved prediction files.
 
         To be used when only saved predictions are available.
 
         Filenames for the saved prediction files to be specified in the arguments provided
         in the constructor
         """
-        train_preds = np.loadtxt(self.args.training_preds_filename, delimiter=",")
-        test_preds = np.loadtxt(self.args.test_preds_filename, delimiter=",")
+        train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
+        test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
         self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(  # pylint: disable=too-many-locals
@@ -145,16 +215,14 @@ class WorstCaseAttack(Attack):
     ) -> None:
         """
         Runs the attack based upon the predictions in train_preds and test_preds, and the params
-        stored in self.args
+        stored in self.args.
 
         Parameters
         ----------
-
-        train_preds: np.ndarray
+        train_preds : np.ndarray
             Array of train predictions. One row per example, one column per class (i.e. 2)
-        test_preds:  np.ndarray
+        test_preds : np.ndarray
             Array of test predictions. One row per example, one column per class (i.e. 2)
-
         """
         logger = logging.getLogger("attack-from-preds")
         logger.info("Running main attack repetitions")
@@ -171,13 +239,16 @@ class WorstCaseAttack(Attack):
 
         self.dummy_attack_metrics = []
         self.dummy_attack_metric_failfast_summary = []
-        if self.args.n_dummy_reps > 0:
+        if self.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
             n_train_rows = len(train_preds)
             n_test_rows = len(test_preds)
-            for _ in range(self.args.n_dummy_reps):
+            for _ in range(self.n_dummy_reps):
                 d_train_preds, d_test_preds = self.generate_arrays(
-                    n_train_rows, n_test_rows, self.args.train_beta, self.args.test_beta
+                    n_train_rows,
+                    n_test_rows,
+                    self.train_beta,
+                    self.test_beta,
                 )
                 temp_attack_metric_dict = self.run_attack_reps(
                     d_train_preds, d_test_preds
@@ -204,16 +275,17 @@ class WorstCaseAttack(Attack):
         """Prepare training data and labels for attack model
         Combines the train and test preds into a single numpy array (optionally) sorting each
         row to have the highest probabilities in the first column. Constructs a label array that
-        has ones corresponding to training rows and zeros to testing rows."""
+        has ones corresponding to training rows and zeros to testing rows.
+        """
         logger = logging.getLogger("prep-attack-data")
-        if self.args.sort_probs:
+        if self.sort_probs:
             logger.info("Sorting probabilities to leave highest value in first column")
             train_preds = -np.sort(-train_preds, axis=1)
             test_preds = -np.sort(-test_preds, axis=1)
 
         logger.info("Creating MIA data")
 
-        if self.args.include_model_correct_feature and train_correct is not None:
+        if self.include_model_correct_feature and train_correct is not None:
             train_preds = np.hstack((train_preds, train_correct[:, None]))
             test_preds = np.hstack((test_preds, test_correct[:, None]))
 
@@ -230,25 +302,25 @@ class WorstCaseAttack(Attack):
         test_correct: np.ndarray = None,
     ) -> dict:
         """
-        Run actual attack reps from train and test predictions
+        Run actual attack reps from train and test predictions.
 
         Parameters
         ----------
-        train_preds: np.ndarray
+        train_preds : np.ndarray
             predictions from the model on training (in-sample) data
-        test_preds: np.ndarray
+        test_preds : np.ndarray
             predictions from the model on testing (out-of-sample) data
 
         Returns
         -------
-        mia_metrics_dict: dict
+        mia_metrics_dict : dict
             a dictionary with two items including mia_metrics
             (a list of metric across repetitions) and failfast_metric_summary object
             (an object of FailFast class) to maintain summary of
             fail/success of attacks for a given metric of failfast option
         """
-        self.args.set_param("n_rows_in", len(train_preds))
-        self.args.set_param("n_rows_out", len(test_preds))
+        self.n_rows_in = len(train_preds)
+        self.n_rows_out = len(test_preds)
         logger = logging.getLogger("attack-reps")
         mi_x, mi_y = self._prepare_attack_data(
             train_preds, test_preds, train_correct, test_correct
@@ -256,16 +328,14 @@ class WorstCaseAttack(Attack):
 
         mia_metrics = []
 
-        failfast_metric_summary = FailFast(self.args)
+        failfast_metric_summary = FailFast(self)
 
-        for rep in range(self.args.n_reps):
-            logger.info("Rep %d of %d", rep + 1, self.args.n_reps)
+        for rep in range(self.n_reps):
+            logger.info("Rep %d of %d", rep + 1, self.n_reps)
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-                mi_x, mi_y, test_size=self.args.test_prop, stratify=mi_y
+                mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
             )
-            attack_classifier = self.args.mia_attack_model(
-                **self.args.mia_attack_model_hyp
-            )
+            attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
             attack_classifier.fit(mi_train_x, mi_train_y)
             y_pred_proba, y_test = metrics.get_probabilities(
                 attack_classifier, mi_test_x, mi_test_y, permute_rows=True
@@ -273,7 +343,7 @@ class WorstCaseAttack(Attack):
 
             mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
 
-            if self.args.include_model_correct_feature and train_correct is not None:
+            if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
                 yeom_preds = mi_test_x[:, -1]
                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
@@ -286,8 +356,8 @@ class WorstCaseAttack(Attack):
             failfast_metric_summary.check_attack_success(mia_metrics[rep])
 
             if (
-                failfast_metric_summary.check_overall_attack_success(self.args)
-                and self.args.attack_fail_fast
+                failfast_metric_summary.check_overall_attack_success(self)
+                and self.attack_fail_fast
             ):
                 break
 
@@ -300,52 +370,49 @@ class WorstCaseAttack(Attack):
         return mia_metrics_dict
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
-        """Summarise metrics from a metric list
+        """Summarise metrics from a metric list.
+
+        Returns
+        -------
+        global_metrics : Dict
+            Dictionary of summary metrics
 
         Arguments
         ---------
         attack_metrics: List
             list of attack metrics dictionaries
-
-        Returns
-        -------
-        global_metrics: Dict
-            Dictionary of summary metrics
-
         """
         global_metrics = {}
-        auc_p_vals = [
-            metrics.auc_p_val(
-                m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
-            )[0]
-            for m in attack_metrics
-        ]
+        if attack_metrics is not None and len(attack_metrics) != 0:
+            auc_p_vals = [
+                metrics.auc_p_val(
+                    m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
+                )[0]
+                for m in attack_metrics
+            ]
 
-        if len(attack_metrics) == 0:
-            return global_metrics
+            m = attack_metrics[0]
+            _, auc_std = metrics.auc_p_val(
+                0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
+            )
 
-        m = attack_metrics[0]
-        _, auc_std = metrics.auc_p_val(
-            0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
-        )
+            global_metrics[
+                "null_auc_3sd_range"
+            ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+            global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
+                auc_p_vals, self.p_thresh
+            )
+            global_metrics["n_sig_auc_p_vals_corrected"] = self._get_n_significant(
+                auc_p_vals, self.p_thresh, bh_fdr_correction=True
+            )
 
-        global_metrics[
-            "null_auc_3sd_range"
-        ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
-        global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
-            auc_p_vals, self.args.p_thresh
-        )
-        global_metrics["n_sig_auc_p_vals_corrected"] = self._get_n_significant(
-            auc_p_vals, self.args.p_thresh, bh_fdr_correction=True
-        )
-
-        pdif_vals = [np.exp(-m["PDIF01"]) for m in attack_metrics]
-        global_metrics["n_sig_pdif_vals"] = self._get_n_significant(
-            pdif_vals, self.args.p_thresh
-        )
-        global_metrics["n_sig_pdif_vals_corrected"] = self._get_n_significant(
-            pdif_vals, self.args.p_thresh, bh_fdr_correction=True
-        )
+            pdif_vals = [np.exp(-m["PDIF01"]) for m in attack_metrics]
+            global_metrics["n_sig_pdif_vals"] = self._get_n_significant(
+                pdif_vals, self.p_thresh
+            )
+            global_metrics["n_sig_pdif_vals_corrected"] = self._get_n_significant(
+                pdif_vals, self.p_thresh, bh_fdr_correction=True
+            )
 
         return global_metrics
 
@@ -369,18 +436,18 @@ class WorstCaseAttack(Attack):
         return n_sig_bh
 
     def _generate_array(self, n_rows: int, beta: float) -> np.ndarray:
-        """Generate a single array of predictions, used when doing baseline experiments
+        """Generate a single array of predictions, used when doing baseline experiments.
 
         Parameters
         ----------
-        n_rows: int
+        n_rows : int
             the number of rows worth of data to generate
-        beta: float
+        beta : float
             the beta parameter for sampling probabilities
 
         Returns
         -------
-        preds: np.ndarray
+        preds : np.ndarray
             Array of predictions. Two columns, n_rows rows
 
         Notes
@@ -388,7 +455,6 @@ class WorstCaseAttack(Attack):
 
         Examples
         --------
-
         """
 
         preds = np.zeros((n_rows, 2), float)
@@ -406,24 +472,24 @@ class WorstCaseAttack(Attack):
         train_beta: float = 2,
         test_beta: float = 2,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Generate train and test prediction arrays, used when computing baseline
+        """Generate train and test prediction arrays, used when computing baseline.
 
         Parameters
         ----------
-        n_rows_in: int
+        n_rows_in : int
             number of rows of in-sample (training) probabilities
-        n_rows_out: int
+        n_rows_out : int
             number of rows of out-of-sample (testing) probabilities
-        train_beta: float
+        train_beta : float
             beta value for generating train probabilities
-        test_beta: float:
+        test_beta : float:
             beta_value for generating test probabilities
 
         Returns
         -------
-        train_preds: np.ndarray
+        train_preds : np.ndarray
             Array of train predictions (n_rows x 2 columns)
-        test_preds: np.ndarray
+        test_preds : np.ndarray
             Array of test predictions (n_rows x 2 columns)
         """
         train_preds = self._generate_array(n_rows_in, train_beta)
@@ -431,11 +497,11 @@ class WorstCaseAttack(Attack):
         return train_preds, test_preds
 
     def make_dummy_data(self) -> None:
-        """Makes dummy data for testing functionality
+        """Makes dummy data for testing functionality.
 
         Parameters
         ----------
-        args: dict
+        args : dict
             Command line arguments
 
         Returns
@@ -443,34 +509,31 @@ class WorstCaseAttack(Attack):
 
         Notes
         -----
-
         Returns nothing but saves two .csv files
         """
         logger = logging.getLogger("dummy-data")
         logger.info(
             "Making dummy data with %d rows in and %d out",
-            self.args.n_rows_in,
-            self.args.n_rows_out,
+            self.n_rows_in,
+            self.n_rows_out,
         )
         logger.info("Generating rows")
         train_preds, test_preds = self.generate_arrays(
-            self.args.n_rows_in,
-            self.args.n_rows_out,
-            train_beta=self.args.train_beta,
-            test_beta=self.args.test_beta,
+            self.n_rows_in,
+            self.n_rows_out,
+            train_beta=self.train_beta,
+            test_beta=self.test_beta,
         )
         logger.info("Saving files")
-        np.savetxt(self.args.training_preds_filename, train_preds, delimiter=",")
-        np.savetxt(self.args.test_preds_filename, test_preds, delimiter=",")
+        np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
+        np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
     def _construct_metadata(self):
-        """Constructs the metadata object, after attacks"""
+        """Constructs the metadata object, after attacks."""
         self.metadata = {}
         # Store all args
         self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"].update(self.args.__dict__)
-        if "func" in self.metadata["experiment_details"]:
-            del self.metadata["experiment_details"]["func"]
+        self.metadata["experiment_details"] = self.get_params()
 
         self.metadata["attack"] = str(self)
 
@@ -481,7 +544,7 @@ class WorstCaseAttack(Attack):
         )
 
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
-        """Constructs the metadata object, after attacks"""
+        """Constructs the metadata object, after attacks."""
         dummy_attack_metrics_instances = []
 
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
@@ -491,7 +554,7 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the metadata object, after attacks"""
+        """Constructs the metadata object, after attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
@@ -506,7 +569,7 @@ class WorstCaseAttack(Attack):
         return attack_metrics_experiment
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
-        """Constructs the metadata object, after attacks"""
+        """Constructs the metadata object, after attacks."""
         dummy_attack_metrics_experiments = {}
 
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
@@ -528,7 +591,9 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_experiments
 
     def make_report(self) -> dict:
-        """Creates output dictionary structure"""
+        """Creates output dictionary structure and generates
+        pdf and json outputs if filenames are given.
+        """
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -541,55 +606,70 @@ class WorstCaseAttack(Attack):
             "dummy_attack_experiments_logger"
         ] = self._get_dummy_attack_metrics_experiments_instances()
 
-        # output_for_pdf = {}
-        # output_for_pdf["attack_metrics"] = self.attack_metrics
-        # output_for_pdf[
-        #     "dummy_attack_metrics"
-        # ] = self._unpack_dummy_attack_metrics_experiments_instances()
-        # output_for_pdf["metadata"] = self.metadata
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
+        json_report = report.create_json_report(output)
+        json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
 
-        if self.args.report_name is not None:
-            json_report = report.create_json_report(output)
-            with open(f"{self.args.report_name}.json", "w", encoding="utf-8") as f:
-                f.write(json_report)
-
-            # pdf_report = report.create_mia_report(output_for_pdf)
-            pdf_report = report.create_mia_report(output)
-            pdf_report.output(f"{self.args.report_name}.pdf", "F")
-
+        pdf_report = report.create_mia_report(output)
+        report.add_output_to_pdf(report_dest, pdf_report, "WorstCaseAttack")
         return output
 
 
 def _make_dummy_data(args):
-    """Initialise class and run dummy data creation"""
-    wc_args = WorstCaseAttackArgs(**args.__dict__)
-    wc_args.set_param("training_preds_filename", "train_preds.csv")
-    wc_args.set_param("test_preds_filename", "test_preds.csv")
-    attack_obj = WorstCaseAttack(wc_args)
+    """Initialise class and run dummy data creation."""
+    args.__dict__["training_preds_filename"] = "train_preds.csv"
+    args.__dict__["test_preds_filename"] = "test_preds.csv"
+    attack_obj = WorstCaseAttack(
+        train_beta=args.train_beta,
+        test_beta=args.test_beta,
+        n_rows_in=args.n_rows_in,
+        n_rows_out=args.n_rows_out,
+        training_preds_filename=args.training_preds_filename,
+        test_preds_filename=args.test_preds_filename,
+    )
     attack_obj.make_dummy_data()
 
 
 def _run_attack(args):
-    """Initialise class and run attack from prediction files"""
-    wc_args = WorstCaseAttackArgs(**args.__dict__)
-    attack_obj = WorstCaseAttack(wc_args)
+    """Initialise class and run attack from prediction files."""
+    attack_obj = WorstCaseAttack(
+        n_reps=args.n_reps,
+        p_thresh=args.p_thresh,
+        n_dummy_reps=args.n_dummy_reps,
+        train_beta=args.train_beta,
+        test_beta=args.test_beta,
+        test_prop=args.test_prop,
+        training_preds_filename=args.training_preds_filename,
+        test_preds_filename=args.test_preds_filename,
+        output_dir=args.output_dir,
+        report_name=args.report_name,
+        sort_probs=args.sort_probs,
+        attack_metric_success_name=args.attack_metric_success_name,
+        attack_metric_success_thresh=args.attack_metric_success_thresh,
+        attack_metric_success_comp_type=args.attack_metric_success_comp_type,
+        attack_metric_success_count_thresh=args.attack_metric_success_count_thresh,
+        attack_fail_fast=args.attack_fail_fast,
+    )
+    print(attack_obj.training_preds_filename)
     attack_obj.attack_from_prediction_files()
     _ = attack_obj.make_report()
 
 
 def _run_attack_from_configfile(args):
-    """Initialise class and run attack from prediction files
-    using config file"""
-    wc_args = WorstCaseAttackArgs(
+    """Initialise class and run attack from prediction files using config file."""
+    attack_obj = WorstCaseAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
+        target_path=str(args.target_path),
     )
-    attack_obj = WorstCaseAttack(wc_args)
-    attack_obj.attack_from_prediction_files()
+    target = Target()
+    target.load(attack_obj.target_path)
+    attack_obj.attack(target)
     _ = attack_obj.make_report()
 
 
 def main():
-    """main method to parse arguments and invoke relevant method"""
+    """Main method to parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(
         description=("Perform a worst case attack from saved model predictions")
@@ -627,10 +707,9 @@ def main():
         default=5,
         dest="train_beta",
         help=(
-            "Value of b parameter for beta distribution used to sample the in-sample "
-            "probabilities. "
-            "High values will give more extreme probabilities. Set this value higher than "
-            "--test-beta to see successful attacks. Default = %(default)f"
+            """Value of b parameter for beta distribution used to sample the in-sample
+            probabilities. High values will give more extreme probabilities. Set this
+            value higher than --test-beta to see successful attacks. Default = %(default)f"""
         ),
     )
 
@@ -708,14 +787,25 @@ def main():
     )
 
     attack_parser.add_argument(
+        "--output-dir",
+        type=str,
+        action="store",
+        dest="output_dir",
+        default="output_worstcase",
+        required=False,
+        help=("Directory name where output files are stored. Default = %(default)s."),
+    )
+
+    attack_parser.add_argument(
         "--report-name",
         type=str,
         action="store",
         dest="report_name",
-        default="worstcase_report",
+        default="report_worstcase",
         required=False,
         help=(
-            "Filename for the report output. Default = %(default)s. Code will append .pdf and .json"
+            """Filename for the pdf and json report outputs. Default = %(default)s.
+            Code will append .pdf and .json"""
         ),
     )
 
@@ -750,8 +840,7 @@ def main():
         default=5,
         dest="train_beta",
         help=(
-            "Value of b parameter for beta distribution used to sample the in-sample "
-            "probabilities. "
+            "Value of b parameter for beta distribution used to sample the in-sample probabilities."
             "High values will give more extreme probabilities. Set this value higher than "
             "--test-beta to see successful attacks. Default = %(default)f"
         ),
@@ -771,20 +860,8 @@ def main():
         ),
     )
 
-    # Not currently possible from the command line as we cannot compute the correctness
-    # of predictions. Possibly to be added in the future
-    # attack_parser.add_argument(
-    #     "--include-correct",
-    #     action="store",
-    #     type=bool,
-    #     required=False,
-    #     default=False,
-    #     dest='include_model_correct_feature',
-    #     help=(
-    #         "Whether or not to include an additional feature into the MIA attack model that "
-    #         "holds whether or not the target model made a correct predicion for each example."
-    #     ),
-    # )
+    # --include-correct feature not supported as not currently possible from the command line
+    # as we cannot compute the correctness of predictions.
 
     attack_parser.add_argument(
         "--sort-probs",
@@ -846,9 +923,8 @@ def main():
         required=False,
         dest="attack_metric_success_count_thresh",
         help=(
-            """for setting counter limit to stop further repetitions
-            given the attack is successful and the
-            --attack-fail-fast is true. Default = %(default)d"""
+            """for setting counter limit to stop further repetitions given the attack is
+             successful and the --attack-fail-fast is true. Default = %(default)d"""
         ),
     )
 
@@ -860,8 +936,7 @@ def main():
         help=(
             """to stop further repetitions when the given metric has fulfilled
             a criteria for a specified number of times (--attack-metric-success-count-thresh)
-            and this has a true status.
-            Default = %(default)s"""
+            and this has a true status. Default = %(default)s"""
         ),
     )
 
@@ -878,6 +953,20 @@ def main():
         default="config_worstcase_cmd.json",
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
+        ),
+    )
+
+    attack_parser_config.add_argument(
+        "-t",
+        "--attack-target-folder-path",
+        action="store",
+        required=True,
+        dest="target_path",
+        type=str,
+        default="worstcase_target",
+        help=(
+            """Name of the target directory to load the trained target model and the target data.
+            Default = %(default)s"""
         ),
     )
 

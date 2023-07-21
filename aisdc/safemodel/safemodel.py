@@ -14,15 +14,12 @@ from pickle import PicklingError
 from typing import Any
 
 import joblib
-
-# import tensorflow as tf
 from dictdiffer import diff
 
-from aisdc.attacks import attribute_attack, dataset, report, worst_case_attack
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    LIRAAttack,
-    LIRAAttackArgs,
-)
+from aisdc.attacks.attribute_attack import AttributeAttack
+from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.target import Target
+from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
@@ -37,26 +34,24 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
     ..
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
 
     Notes
     -----
-
-
     """
     if isinstance(cur_val, (int, float)):
         if cur_val < val:
@@ -82,26 +77,23 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
 
     Notes
     -----
-
-
     """
     if isinstance(cur_val, (int, float)):
         if cur_val > val:
@@ -124,31 +116,26 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """Checks equality value constraint.
 
-
-
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
 
     Notes
     -----
-
-
     """
     if cur_val != val:
         disclosive = True
@@ -167,25 +154,23 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
 
     Notes
     -----
-
-
     """
     if type(cur_val).__name__ != val:
         disclosive = True
@@ -204,24 +189,22 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     Attributes
     ----------
 
-    model_type: string
+    model_type : string
           A string describing the type of model. Default is "None".
     model:
           The Machine Learning Model.
     saved_model:
           A saved copy of the Machine Learning Model used for comparison.
-    ignore_items: list
+    ignore_items : list
           A list of items to ignore when comparing the model with the
           saved_model.
-    examine_separately_items: list
+    examine_separately_items : list
           A list of items to examine separately. These items are more
           complex datastructures that cannot be compared directly.
-    filename: string
+    filename : string
           A filename to save the model.
-    researcher: string
+    researcher : string
           The researcher user-id used for logging
-
-
 
     Notes
     -----
@@ -232,16 +215,12 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     >>> safeRFModel.fit(X, y)
     >>> safeRFModel.save(name="safe.pkl")
     >>> safeRFModel.preliminary_check()
-    >>> safeRFModel.request_release(filename="safe.pkl")
+    >>> safeRFModel.request_release(path="safe", ext="pkl", target=target)
     WARNING: model parameters may present a disclosure risk:
     - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
     Changed parameter min_samples_leaf = 5.
 
     Model parameters are within recommended ranges.
-
-
-
-
     """
 
     def __init__(self) -> None:
@@ -263,7 +242,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             self.researcher = "unknown"
 
     def get_params(self, deep=True):
-        """gets dictionary of parameter values
+        """Gets dictionary of parameter values
         restricted to those expected by base classifier.
         """
         the_params = {}
@@ -285,7 +264,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Parameters
         ----------
 
-        name: string
+        name : string
              The name of the file to save
 
         Returns
@@ -295,7 +274,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         -----
 
         No return value
-
 
         Optimizer is deliberately excluded.
         To prevent possible to restart training and thus
@@ -428,7 +406,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
         """Checks whether a current model parameter violates a safe rule.
-        Optionally fixes violations."""
+        Optionally fixes violations.
+        """
         disclosive: bool = False
         msg: str = ""
         operator: str = rule["operator"]
@@ -455,7 +434,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
         """Checks whether current model parameters violate a logical AND rule.
-        Optionally fixes violations."""
+        Optionally fixes violations.
+        """
         disclosive: bool = False
         msg: str = ""
         for arg in rule["subexpr"]:
@@ -482,31 +462,27 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         """Checks whether current model parameters violate the safe rules.
         Optionally fixes violations.
 
-
         Parameters
         ----------
 
-        verbose: bool
+        verbose : bool
              A boolean value to determine increased output level.
 
-        apply_constraints: bool
+        apply_constraints : bool
              A boolean to determine whether identified constraints are
              to be upheld and applied.
 
         Returns
         -------
 
-        msg: string
+        msg : string
            A message string
-        disclosive: bool
+        disclosive : bool
            A boolean value indicating whether the model is potentially
            disclosive.
 
-
         Notes
         -----
-
-
         """
         disclosive: bool = False
         msg: str = ""
@@ -538,7 +514,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     def get_current_and_saved_models(self) -> tuple[dict, dict]:
         """Makes a copy of self.__dict__
-        and splits it into dicts for the current and saved versions
+        and splits it into dicts for the current and saved versions.
         """
         current_model = {}
 
@@ -574,9 +550,10 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def examine_seperate_items(
         self, curr_vals: dict, saved_vals: dict
     ) -> tuple[str, bool]:
-        """comparison of more complex structures
+        """Comparison of more complex structures
         in the super class we just check these model-specific items exist
-        in both current and saved copies"""
+        in both current and saved copies.
+        """
         msg = ""
         disclosive = False
 
@@ -599,7 +576,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def posthoc_check(self) -> tuple[str, bool]:  # pylint: disable=too-many-branches
-        """Checks whether model has been interfered with since fit() was last run"""
+        """Checks whether model has been interfered with since fit() was last run."""
 
         disclosive = False
         msg = ""
@@ -656,32 +633,28 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
         """Placeholder function for additional posthoc checks e.g. keras this
-        version just checks that any lists have the same contents
-
+        version just checks that any lists have the same contents.
 
         Parameters
         ----------
 
-        curr_separate: python dictionary
+        curr_separate : python dictionary
 
-        saved_separate: python dictionary
-
+        saved_separate : python dictionary
 
         Returns
         -------
 
-        msg: string
+        msg : string
         A message string
-        disclosive: bool
+        disclosive : bool
         A boolean value to indicate whether the model is potentially disclosive.
-
 
         Notes
         -----
 
         posthoc checking makes sure that the two dicts have the same set of
         keys as defined in the list self.examine_separately
-
         """
 
         msg = ""
@@ -708,128 +681,81 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def request_release(
-        self, filename: str = "undefined", data_obj: dataset.Data = None
-    ) -> None:  # pylint: disable=too-many-branches
+    def request_release(self, path: str, ext: str, target: Target = None) -> None:
         """Saves model to filename specified and creates a report for the TRE
         output checkers.
 
         Parameters
         ----------
-
-        filename: string
-        The filename used to save the model
-
-        dataobj: object of type Data
-        Contains train/test data and encoding dictionary needed to run attacks
-
-        Returns
-        -------
-
+        path : string
+            Path to save the outputs.
+        ext : str
+            File extension defining the model saved format, e.g., "pkl" or "sav".
+        target : attacks.target.Target
+            Contains model and dataset information.
 
         Notes
         -----
-         1. The dataset object is saved in a file called filebase_data.json
-         (where filebase= filename without the extension)
-         for reference/use by the TRE.
-         Data should never be held or stored with the model.
-         Clearly filebase_data.json mst never leave the TRE.
-         2. If data_obj is not null, then worst case MIA and attribute inference
-         attacks are called via run_attack.
-         Outputs from the attacks will be stored in filebase_attack_res.json
-
-
-
+        If target is not null, then worst case MIA and attribute inference
+        attacks are called via run_attack.
         """
-        if filename == "undefined":  # pragma: no cover
-            print("You must provide the name of the file you want to save your model")
-            print("For security reasons, this will overwrite previous versions")
+        # perform checks
+        msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
+        msg_post, disclosive_post = self.posthoc_check()
+        # prepare results
+        output: dict = {
+            "researcher": self.researcher,
+            "model_type": self.model_type,
+            "details": msg_prel,
+        }
+        if hasattr(self, "k_anonymity"):
+            output["k_anonymity"] = str(self.k_anonymity)
+        if not disclosive_prel and not disclosive_post:
+            output["recommendation"] = "Proceed to next step of checking"
         else:
-            self.save(filename)
-            msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
-            msg_post, disclosive_post = self.posthoc_check()
-
-            output: dict = {
-                "researcher": self.researcher,
-                "model_type": self.model_type,
-                "model_save_file": self.model_save_file,
-                "details": msg_prel,
-            }
-            if hasattr(self, "k_anonymity"):
-                output["k_anonymity"] = f"{self.k_anonymity}"
-            if not disclosive_prel and not disclosive_post:
-                output[
-                    "recommendation"
-                ] = f"Run file {filename} through next step of checking procedure"
-            else:
-                output["recommendation"] = "Do not allow release"
-                output["reason"] = msg_prel + msg_post
-
-            ##Run attacks programmatically if possible
-            if data_obj is not None:
-                # make filenames and save a copy of the data
-                with open(
-                    os.path.splitext(filename)[0] + "_data.pickle", "wb"
-                ) as handle:
-                    pickle.dump(data_obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-                for attack_name in ["worst_case", "lira", "attribute"]:
-                    output[f"{attack_name}_results"] = self.run_attack(
-                        data_obj,
-                        attack_name,
-                        f"{os.path.splitext(filename)[0]}_{attack_name}_res",
-                    )
-
-            now = datetime.datetime.now()
-            self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
-            output["timestamp"] = self.timestamp
-
-            outputfilename = self.researcher + "_checkfile.json"
-            data = [output]
-            # load existing results
-            if os.path.isfile(outputfilename):
-                with open(outputfilename, newline="", encoding="utf-8") as file:
-                    try:
-                        data = json.load(file)
-                        data.append(output)
-                    except json.decoder.JSONDecodeError:  # pragma: no cover
-                        logger.warning(
-                            "File %s could not be loaded - overwiting", outputfilename
-                        )
-
-            # write to disk
-            try:
-                with open(outputfilename, "w", newline="", encoding="utf-8") as file:
-                    json.dump(data, file, indent=4, cls=report.NumpyArrayEncoder)
-            except TypeError:  # pragma: no cover
-                logger.warning(
-                    "Error: safemodel could not write non-serialisable "
-                    " outputs to file %s",
-                    outputfilename,
+            output["recommendation"] = "Do not allow release"
+            output["reason"] = msg_prel + msg_post
+        # Run attacks programmatically if possible
+        attack_results_filename = os.path.normpath(f"{path}/attack_results.json")
+        os.makedirs(os.path.dirname(attack_results_filename), exist_ok=True)
+        if target is not None:
+            for attack_name in ["worst_case", "lira", "attribute"]:
+                output[f"{attack_name}_results"] = self.run_attack(
+                    target, attack_name, attack_results_filename
                 )
+        # add timestamp
+        now = datetime.datetime.now()
+        self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+        output["timestamp"] = self.timestamp
+        data = [output]
+        # save output
+        if target is None:
+            target = Target(model=self)
+        target.add_safemodel_results(data)
+        target.save(path, ext)
 
     def run_attack(
         self,
-        data_obj: dataset.Data = None,
+        target: Target = None,
         attack_name: str = "worst_case",
+        outputdir: str = "RES",
         filename: str = "undefined",
     ) -> dict:
-        """Runs a specified attack on the trained model and saves a report to file
+        """Runs a specified attack on the trained model and saves a report to file.
 
         Parameters
         ----------
-        data_obj: Data
-        the dataset in the form of a Data object
-
-        attack_name: string
-
-        filebasename: string
-        Report will be saved to filebasename.json
-
+        target : Target
+            The target in the form of a Target object.
+        attack_name : str
+            Name of the attack to run.
+        filename : str
+            Name of a .json file to save report.
 
         Returns
         -------
-        dict of meta data results
+        dict
+            Metadata results.
 
         Notes
         -----
@@ -839,60 +765,44 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Single Attribute Inference: attributes
         """
         if attack_name == "worst_case":
-            attack_args = worst_case_attack.WorstCaseAttackArgs(
+            attack_obj = WorstCaseAttack(
                 n_reps=10,
-                # number of baseline (dummy) experiments to do
                 n_dummy_reps=1,
-                # Threshold to determine significance of things
                 p_thresh=0.05,
-                # Filename arguments needed by the code, meaningless if run programmatically
-                in_sample_filename=None,
-                out_sample_filename=None,
-                # Proportion of data to use as a test set for the attack model;
+                training_preds_filename=None,
+                test_preds_filename=None,
                 test_prop=0.5,
-                # Report name is None - don't make json or pdf files
-                report_name=None,
+                output_dir=outputdir,
+                report_name=filename,
             )
-            attack_obj = worst_case_attack.WorstCaseAttack(attack_args)
-            attack_obj.attack(dataset=data_obj, target_model=self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
-
         elif attack_name == "lira":
-            args = LIRAAttackArgs(
-                n_shadow_models=100, report_name="lira_example_report"
+            attack_obj = LIRAAttack(
+                n_shadow_models=100,
+                output_dir=outputdir,
+                report_name=filename,
             )
-            attack_obj = LIRAAttack(args)
-            attack_obj.attack(data_obj, self)
-            output = attack_obj.make_report()  # also makes .pdf and .json files
-            metadata = output["metadata"]
-
-        elif attack_name == "attribute":
-            attack_args = attribute_attack.AttributeAttackArgs(
-                report_name="aia_example"
-            )
-            attack_obj = attribute_attack.AttributeAttack(attack_args)
-            attack_obj.attack(data_obj, self)
+            attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
-
+        elif attack_name == "attribute":
+            attack_obj = AttributeAttack(
+                output_dir=outputdir,
+                report_name=filename,
+            )
+            attack_obj.attack(target)
+            output = attack_obj.make_report()
+            metadata = output["metadata"]
         else:
             metadata = {}
             metadata["outcome"] = "unrecognised attack type requested"
-
         print(f"attack {attack_name}, metadata {metadata}")
-
-        try:
-            with open(f"{filename}.json", "w", encoding="utf-8") as fp:
-                json.dump(metadata, fp, cls=report.NumpyArrayEncoder)
-        except TypeError:  # pragma: no cover
-            # not covered in tests as all atttacks prodice simple json so far
-            print(f"couldn't serialise metadata {metadata} for attack {attack_name}")
-
         return metadata
 
     def __str__(self) -> str:  # pragma: no cover
         """Returns string with model description.
-        No point writing a test, especially as it depends on username
+        No point writing a test, especially as it depends on username.
         """
         return self.model_type + " with parameters: " + str(self.__dict__)

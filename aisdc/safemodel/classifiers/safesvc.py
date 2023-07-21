@@ -32,14 +32,14 @@ class SafeSVC(SafeModel, DPSVC):
         self.examine_seperately_items = ["platt_transform", "svc"]
 
     def fit(self, train_features: np.ndarray, train_labels: np.ndarray) -> None:
-        """Do fit and then store model dict"""
+        """Do fit and then store model dict."""
         super().fit(train_features, train_labels)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """SVC specific checks"""
+        """SVC specific checks."""
         msg = ""
         disclosive = False
         for item in self.examine_seperately_items:

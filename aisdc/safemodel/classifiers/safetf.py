@@ -1,6 +1,6 @@
-""" work in progress to allow use of the DPModel classes
+"""Work in progress to allow use of the DPModel classes
  Jim smith 2022
- When ready, linting of  the imports will be enabled
+ When ready, linting of  the imports will be enabled.
 """
 
 
@@ -19,7 +19,7 @@ from ..safemodel import SafeModel
 
 
 class Safe_tf_DPModel(SafeModel, DPModel):
-    """Privacy Protected tensorflow_privacy DP-SGD subclass of Keras model"""
+    """Privacy Protected tensorflow_privacy DP-SGD subclass of Keras model."""
 
     # remove comment once model starts to be populated
     # pylint:disable=super-init-not-called
@@ -31,7 +31,7 @@ class Safe_tf_DPModel(SafeModel, DPModel):
         *args: any,
         **kwargs: any
     ) -> None:
-        """creates model and applies constraints to parameters"""
+        """Creates model and applies constraints to parameters."""
         # safemodel.__init__(self)
         # DPModel.__init__(self, **kwargs)
         # self.model_type: str = "tf_DPModel"

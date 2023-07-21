@@ -21,7 +21,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     def __init__(
         self, **kwargs: Any
     ) -> None:  # pylint: disable=too-many-instance-attributes
-        """Creates model and applies constraints to params"""
+        """Creates model and applies constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [
             "n_estimators",
@@ -65,7 +65,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     ) -> tuple[str, str]:
         """Random Forest-specific checks
         would benefit from refactoring into simpler blocks perhaps.
-        NOTE that this is never called if the model has not been fitted
+        NOTE that this is never called if the model has not been fitted.
         """
         msg = ""
         disclosive = False
@@ -119,13 +119,13 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
 
     # pylint: disable=arguments-differ
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
-        """Do fit and then store model dict"""
+        """Do fit and then store model dict."""
         super().fit(x, y)
         self.k_anonymity = self.get_k_anonymity(x)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def get_k_anonymity(self, x: np.ndarray) -> int:
-        """calculates the k-anonymity of a random forest model
+        """Calculates the k-anonymity of a random forest model
         as the minimum of the anonymity for each record.
         That is defined as the size of the set of records which
         appear in the same leaf as the record in every tree.

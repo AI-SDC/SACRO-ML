@@ -1,6 +1,5 @@
 """This module contains unit tests for SafeKerasModel."""
 
-import getpass
 import os
 import platform
 import shutil
@@ -31,9 +30,16 @@ ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 
 UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 
+RES_DIR = "RES"
+
+
+def clean():
+    """Removes unwanted results."""
+    shutil.rmtree(RES_DIR)
+
 
 def cleanup_file(name: str):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
     elif os.path.exists(name) and os.path.isdir(name):  # tf
@@ -56,7 +62,7 @@ def get_data():
 
 
 def make_small_model(num_hidden_layers=2):
-    "Make the keras model"
+    """Make the keras model."""
     # get data
     X, y, Xval, yval = get_data()
     # set seed and kernel initialisers for repeatability
@@ -81,8 +87,8 @@ def make_small_model(num_hidden_layers=2):
 
 
 def check_init_completed(model: SafeKerasModel):
-    """basic checks for things that happen
-    at end of correct init
+    """Basic checks for things that happen
+    at end of correct init.
     """
     rightname = "KerasModel"
     assert (
@@ -97,7 +103,7 @@ def check_init_completed(model: SafeKerasModel):
 
 def test_init_variants():
     """Test alternative ways of calling init
-    do just with single layer for speed of testing
+    do just with single layer for speed of testing.
     """
     # get data
     X, _, _, _ = get_data()
@@ -144,7 +150,7 @@ def test_init_variants():
 
 
 def test_same_configs():  # pylint: disable=too-many-locals
-    """check whether tests for equal configuration work"""
+    """Check whether tests for equal configuration work."""
 
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
     model2, _, _, _, _ = make_small_model(num_hidden_layers=2)
@@ -194,7 +200,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
 
 
 def test_same_weights():  # pylint : disable=too-many-locals
-    """check the same weights method catches differences"""
+    """Check the same weights method catches differences."""
     # make models to test
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
     model2, _, _, _, _ = make_small_model(num_hidden_layers=2)
@@ -229,7 +235,7 @@ def test_same_weights():  # pylint : disable=too-many-locals
 
 
 def test_DP_optimizer_checks():
-    """tests the various checks that DP optimiser was used"""
+    """Tests the various checks that DP optimiser was used."""
     # make model
     model1, _, _, _, _ = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -262,7 +268,7 @@ def test_DP_optimizer_checks():
 
 
 def test_DP_used():
-    """tests the various checks that DP optimiser was used"""
+    """Tests the various checks that DP optimiser was used."""
     # should pass aftyer model compiled **and** fitted with DP optimizer
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -285,7 +291,7 @@ def test_DP_used():
 
 
 def test_checkpoints_are_equal():
-    """test the check for checkpoint equality"""
+    """Test the check for checkpoint equality."""
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
@@ -327,7 +333,7 @@ def test_checkpoints_are_equal():
 
 
 def test_load():
-    """Tests the oading functionality"""
+    """Tests the oading functionality."""
 
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
@@ -357,7 +363,7 @@ def test_load():
 
 
 def test_keras_model_created():
-    "Test keras model"
+    """Test keras model."""
     model, _, _, _, _ = make_small_model()
     rightname = "KerasModel"
     assert (
@@ -368,7 +374,7 @@ def test_keras_model_created():
 
 
 def test_second_keras_model_created():
-    "Test second keras model"
+    """Test second keras model."""
     X, _, _, _ = get_data()
     tf.random.set_seed(12345)
     initializer = tf.keras.initializers.Zeros()
@@ -400,7 +406,7 @@ def test_second_keras_model_created():
 
 
 def test_keras_model_compiled_as_DP():
-    "Test Compile DP"
+    """Test Compile DP."""
     model, X, _, _, _ = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
@@ -466,7 +472,7 @@ def test_keras_basic_fit():
 
 
 def test_keras_save_actions():
-    "Test save action"
+    """Test save action."""
     # create, compile and train model
     model, X, y, Xval, yval = make_small_model()
 
@@ -714,7 +720,7 @@ def test_keras_unsafe_learning_rate():
 
 
 def test_create_checkfile():
-    """Test create checkfile"""
+    """Test create checkfile."""
     # create, compile and train model
     model, X, y, Xval, yval = make_small_model()
 
@@ -725,47 +731,33 @@ def test_create_checkfile():
     model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
-    names = ("safekeras.tf", "safekeras.h5")
-    for name in names:
-        # clear existing files
-        cleanup_file(name)
-        # save file
+    exts = ("tf", "h5")
+    for ext in exts:
+        name = os.path.normpath(f"{RES_DIR}/model.{ext}")
+        os.makedirs(os.path.dirname(name), exist_ok=True)
+        # check save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-
-        model.request_release(name)
+        clean()
+        # check release
+        model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-
-        researcher = getpass.getuser()
-        outputfilename = researcher + "_checkfile.json"
-        assert os.path.exists(
-            outputfilename
-        ), f"Failed test to save checkfile as {outputfilename}"
-
-        # Using readlines()
-        with open(outputfilename, encoding="utf-8") as file1:
-            lines = file1.readlines()
-
-        count = 0
-        # Strips the newline character
-        for line in lines:
-            count += 1
-            print(f"Line{count}: {line.strip()}")
-
-        # clean up
-        cleanup_file(name)
+        name = os.path.normpath(f"{RES_DIR}/target.json")
+        assert os.path.exists(name), "Failed test to save target.json"
+        clean()
 
     # now other versions which should not
-    names = ("safekeras.sav", "safekeras.pkl", "randomfilename", "undefined")
-    for name in names:
-        cleanup_file(name)
+    exts = ("sav", "pkl", "undefined")
+    for ext in exts:
+        name = os.path.normpath(f"{RES_DIR}/model.{ext}")
+        os.makedirs(os.path.dirname(name), exist_ok=True)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        cleanup_file(name)
+        clean()
 
 
 def test_posthoc_check():
-    """testing the posthoc checking function"""
+    """Testing the posthoc checking function."""
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -791,5 +783,5 @@ def test_posthoc_check():
 
 
 def test_final_cleanup():
-    """clean up any files let around by other tests"""
+    """Clean up any files let around by other tests."""
     cleanup_file("tfsaves")

@@ -21,7 +21,7 @@ repos:
 
   # Check for spelling
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.4
+    rev: v2.2.5
     hooks:
       - id: codespell
         args: ["-L", "fpr, tre, sav, provid"]
@@ -40,7 +40,7 @@ repos:
 
   # Sort includes
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.9.0
     hooks:
       - id: pyupgrade
 
@@ -53,7 +53,14 @@ repos:
 
   # Black format Python and notebooks
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black-jupyter
+
+  # Format docstrings
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: "v0.7.3"
+    hooks:
+      - id: pydocstringformatter
+        args: ["--style=numpydoc"]
 ...
