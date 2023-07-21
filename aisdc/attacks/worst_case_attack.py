@@ -782,7 +782,7 @@ def main():
         dest="output_dir",
         default="output_worstcase",
         required=False,
-        help=("Folder name where output files are stored. Default = %(default)s."),
+        help=("Directory name where output files are stored. Default = %(default)s."),
     )
 
     attack_parser.add_argument(

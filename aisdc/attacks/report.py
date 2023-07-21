@@ -244,7 +244,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
         + "_log_roc.png"
     )
     _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
-    # _roc_plot(mia_metrics, dummy_metrics, "log_roc.png")
 
     pdf = FPDF()
     pdf.add_page()
@@ -403,8 +402,8 @@ def create_lr_report(output: dict) -> FPDF:
         if key in MAPPINGS:
             value = MAPPINGS[key](value)
         line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
-    if dest_log_roc is not None:
-        pdf.add_page()
-        subtitle(pdf, "ROC Curve")
-        pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
+
+    pdf.add_page()
+    subtitle(pdf, "ROC Curve")
+    pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
     return pdf

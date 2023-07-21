@@ -467,7 +467,11 @@ class LIRAAttack(Attack):
             Dictionary containing all attack output
         """
         logger = logging.getLogger("reporting")
-        logger.info("Starting pdf report, report_name = %s", self.report_name)
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        logger.info("Starting reports, pdf report name = %s, joson report name =%s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -475,7 +479,6 @@ class LIRAAttack(Attack):
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        report_dest = os.path.join(self.output_dir, self.report_name)
         json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
@@ -667,7 +670,7 @@ def main():
         dest="output_dir",
         default="output_lira",
         required=False,
-        help=("Folder name where output files are stored. Default = %(default)s."),
+        help=("Directory name where output files are stored. Default = %(default)s."),
     )
 
     parser.add_argument(
@@ -678,7 +681,7 @@ def main():
         default="report_lira",
         required=False,
         help=(
-            """Filename for the pdf and json reports output. Default = %(default)s.
+            """Filename for the pdf and json output reports. Default = %(default)s.
             Code will append .pdf and .json"""
         ),
     )

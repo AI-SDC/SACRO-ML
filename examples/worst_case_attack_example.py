@@ -76,8 +76,8 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     test_prop=0.5,
     # name of the output directory
     output_dir="outputs_worstcase",
-    # # If report_name is given, it creates pdf and json files; however when it is None -
-    # # will create output files with default names 'report_worstcase'
+    # # If report_name is given, it creates pdf and json files with the specified name;
+    # # otherwise it create output files with default name 'report_worstcase'
     # report_name="programmatically_worstcase_example1_report",
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
