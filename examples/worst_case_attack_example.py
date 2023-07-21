@@ -18,7 +18,6 @@ Running
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.worst_case_attack_example
-
 """
 import json
 import os

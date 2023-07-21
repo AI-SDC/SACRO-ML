@@ -1,5 +1,5 @@
-"""test_worst_case_attack.py
-Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
+"""Test_worst_case_attack.py
+Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 import json
 import os
@@ -18,7 +18,7 @@ from aisdc.attacks.target import Target
 
 
 def clean_up(name):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name):
         if os.path.isfile(name):
             os.remove(name)
@@ -27,7 +27,7 @@ def clean_up(name):
 
 
 def test_config_file_arguments_parsin():
-    """tests reading parameters from the configuration file"""
+    """Tests reading parameters from the configuration file."""
     config = {
         "n_reps": 12,
         "n_dummy_reps": 2,
@@ -50,7 +50,7 @@ def test_config_file_arguments_parsin():
 
 
 def test_attack_from_predictions_cmd():
-    """Running attack using configuration file and prediction files"""
+    """Running attack using configuration file and prediction files."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
     model = SVC(gamma=0.1, probability=True)
@@ -95,7 +95,7 @@ def test_attack_from_predictions_cmd():
 
 
 def test_report_worstcase():
-    """tests worst case attack directly"""
+    """Tests worst case attack directly."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -138,7 +138,7 @@ def test_report_worstcase():
 
 
 def test_attack_with_correct_feature():
-    """Test the attack when the model correctness feature is used"""
+    """Test the attack when the model correctness feature is used."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -170,7 +170,7 @@ def test_attack_with_correct_feature():
 
 
 def test_attack_from_predictions():
-    """checks code that runs attacks from predictions"""
+    """Checks code that runs attacks from predictions."""
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
@@ -205,7 +205,7 @@ def test_attack_from_predictions():
 
 
 def test_attack_from_predictions_no_dummy():
-    """checks code that runs attacks from predictions"""
+    """Checks code that runs attacks from predictions."""
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
@@ -240,7 +240,7 @@ def test_attack_from_predictions_no_dummy():
 
 
 def test_dummy_data():
-    """test functionality around creating dummy data"""
+    """Test functionality around creating dummy data."""
     attack_obj = worst_case_attack.WorstCaseAttack(
         # How many attacks to run -- in each the attack model is trained on a different
         # subset of the data
@@ -258,7 +258,7 @@ def test_dummy_data():
 
 
 def test_attack_data_prep():
-    """test the method that prepares the attack data"""
+    """Test the method that prepares the attack data."""
     attack_obj = worst_case_attack.WorstCaseAttack()
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
@@ -279,9 +279,10 @@ def test_attack_data_prep():
 
 
 def test_attack_data_prep_with_correct_feature():
-    """test the method that prepares the attack data.
+    """Test the method that prepares the attack data.
     This time, testing that the model correctness values are added, are always
-    the final feature, and are not included in the sorting"""
+    the final feature, and are not included in the sorting.
+    """
     attack_obj = worst_case_attack.WorstCaseAttack(include_model_correct_feature=True)
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
@@ -315,7 +316,8 @@ def test_non_rf_mia():
     In this case, we set as a SVC. But we set probability to false. If the code does
     indeed try and use the SVC (as we want) it will fail as it will try and access
     the predict_proba which won't work if probability=False. Hence, if the code throws
-    an AttributeError we now it *is* trying to use the SVC"""
+    an AttributeError we now it *is* trying to use the SVC.
+    """
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
@@ -337,7 +339,7 @@ def test_non_rf_mia():
 
 
 def test_main():
-    """test invocation via command line"""
+    """Test invocation via command line."""
 
     # option 1
     testargs = ["prog", "make-dummy-data"]
@@ -357,7 +359,7 @@ def test_main():
 
 
 def test_cleanup():
-    """gets rid of files created during tests"""
+    """Gets rid of files created during tests."""
     names = [
         "test_output_worstcase/",
         "output_worstcase/",

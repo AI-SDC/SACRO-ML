@@ -1,6 +1,4 @@
-"""
-Attribute inference attacks.
-"""
+"""Attribute inference attacks."""
 
 from __future__ import annotations
 
@@ -47,15 +45,15 @@ class AttributeAttack(Attack):
 
         Parameters
         ----------
-        n_cpu: int
+        n_cpu : int
             number of CPUs used to run the attack
-        output_dir: str
+        output_dir : str
             name of the directory where outputs are stored
-        report_name: str
+        report_name : str
             name of the pdf and json output reports
-        attack_config_json_file_name: str
+        attack_config_json_file_name : str
             name of the configuration file to load parameters
-        target_path: str
+        target_path : str
             path to the saved trained target model and target data
         """
         super().__init__()
@@ -75,13 +73,13 @@ class AttributeAttack(Attack):
         return "Attribute inference attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack entry point
+        """Programmatic attack entry point.
 
         To be used when code has access to Target class and trained target model
 
         Parameters
         ----------
-        target: attacks.target.Target
+        target : attacks.target.Target
             target is a Target class object
         """
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
@@ -103,7 +101,7 @@ class AttributeAttack(Attack):
         Returns
         -------
 
-        output: dict
+        output : dict
             Dictionary containing all attack output.
         """
         output = {}
@@ -133,7 +131,7 @@ class AttributeAttack(Attack):
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the instances metric calculated, during attacks"""
+        """Constructs the instances metric calculated, during attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
@@ -145,7 +143,8 @@ class AttributeAttack(Attack):
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
     """Returns whether there is a unique maximum confidence value above
-    threshold."""
+    threshold.
+    """
     if len(confidences) > 0:
         max_conf = np.max(confidences)
         if max_conf < threshold:
@@ -413,7 +412,8 @@ def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dic
 
 def _is_categorical(target: Target, feature_id: int) -> bool:
     """Returns whether a feature is categorical.
-    For simplicity, assumes integer datatypes are categorical."""
+    For simplicity, assumes integer datatypes are categorical.
+    """
     encoding: str = target.features[feature_id]["encoding"]
     if encoding[:3] in ("str", "int") or encoding[:6] in ("onehot"):
         return True
@@ -454,28 +454,27 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
     Parameters
     ----------
 
-    target_model: BaseEstimator
+    target_model : BaseEstimator
         Trained target model.
-    feat_id: int
+    feat_id : int
         Index of missing feature.
-    feat_min: float
+    feat_min : float
         Minimum value of missing feature.
-    feat_max: float
+    feat_max : float
         Maximum value of missing feature.
-    sample: np.ndarray
+    sample : np.ndarray
         Original known feature vector.
-    c_min: float
+    c_min : float
         Defines the confidence threshold below which we say we don't care.
-    protection_limit: float
+    protection_limit : float
         Lower [upper] bound on estimated value must not be
         above[below] lower[upper] bounds e.g. 10% of value.
-    feat_n: int
+    feat_n : int
         Number of attribute values to test per sample.
 
     Returns
     -------
     A bool representing whether the quantitative feature is at risk for the sample.
-
     """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
@@ -547,7 +546,8 @@ def _get_bounds_risk(
     x_test: np.ndarray,
 ) -> dict:
     """Returns a dictionary containing the training and test set risks of a
-    quantitative feature."""
+    quantitative feature.
+    """
     risk: dict = {
         "name": feature_name,
         "train": _get_bounds_risk_for_feature(target_model, feature_id, x_train),
@@ -575,9 +575,7 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
 
 
 def _attribute_inference(target: Target, n_cpu: int) -> dict:
-    """
-    Execute attribute inference attacks on a target given a trained model.
-    """
+    """Execute attribute inference attacks on a target given a trained model."""
     # brute force attack categorical attributes using dataset unique values
     logger.debug("Attacking dataset: %s", target.name)
     logger.debug("Attacking categorical attributes...")
@@ -641,7 +639,7 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
 
 
 def _run_attack_from_configfile(args):
-    """Run a command line attack based on saved files described in .json file"""
+    """Run a command line attack based on saved files described in .json file."""
     attack_obj = AttributeAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
@@ -653,7 +651,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse args and invoke relevant code"""
+    """Main method to parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 
     subparsers = parser.add_subparsers()

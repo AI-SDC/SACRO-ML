@@ -1,7 +1,7 @@
 """
-loaders.py
+Loaders.py
 A set of useful handlers to pull in datasets common to the project and perform the appropriate
-pre-processing
+pre-processing.
 """
 
 # pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
@@ -32,7 +32,7 @@ logger.info("ROOT PROJECT FOLDER = %s", PROJECT_ROOT_FOLDER)
 
 
 class UnknownDataset(Exception):
-    """Exception raised if the user passes a name that we don't recognise"""
+    """Exception raised if the user passes a name that we don't recognise."""
 
 
 class DataNotAvailable(Exception):
@@ -49,17 +49,17 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     Parameters
     ----------
-    dataset_name: str
+    dataset_name : str
         The name of the dataset to load
-    data_folder: str
+    data_folder : str
         The name of the local folder in which data is stored.
 
     Returns
     -------
 
-    X: pd.DataFrame
+    X : pd.DataFrame
         The input dataframe -- rows are examples, columns variables
-    y: pd.DataFrame
+    y : pd.DataFrame
         the target dataframe -- has a single column containing the target values
 
     Notes
@@ -89,8 +89,6 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     --------
     >>> X, y = get_data_sklearn("mimic2-iaccd") # pull the mimic2-iaccd data
     >>> X, y = get_data_sklearn("minmax iris") # pull the iris data and round continuous features
-
-
     """
     logger.info("DATASET FOLDER = %s", data_folder)
 
@@ -155,9 +153,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
 
 def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    sklearn iris data - just first two classes
-    """
+    """Sklearn iris data - just first two classes."""
     X, y = load_iris(return_X_y=True, as_frame=True)
     X = X[y < 2]
     y = y[y < 2]
@@ -165,9 +161,7 @@ def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    The sklearn nursery dataset
-    """
+    """The sklearn nursery dataset."""
 
     data = fetch_openml(data_id=26, as_frame=True)
 
@@ -189,9 +183,7 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 def _images_to_ndarray(
     images_dir: str, number_to_load: int, label: int, flatten: bool = True
 ) -> Tuple[np.array, np.array]:
-    """
-    Grab number_to_load images from the images_dir and create a np array and label array
-    """
+    """Grab number_to_load images from the images_dir and create a np array and label array."""
     folder_path = images_dir + os.sep
     images_names = sorted(os.listdir(folder_path))
     images_names = images_names[:number_to_load]
@@ -215,7 +207,7 @@ def _medical_mnist_loader(  # pylint: disable = too-many-locals
     """
     Load Medical MNIST into pandas format
     borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
-    Creates a binary classification
+    Creates a binary classification.
     """
 
     base_folder = os.path.join(
@@ -278,7 +270,7 @@ def _synth_ae(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
-    https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long
+    https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.
     """
 
     file_path = os.path.join(
@@ -332,7 +324,7 @@ unzip it (7z) and then copy the .csv file into your data folder.
 def _indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Indian Liver Patient Dataset
-    https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long
+    https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long.
     """
     # (https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset)
     file_path = os.path.join(data_folder, "Indian Liver Patient Dataset (ILPD).csv")
@@ -377,7 +369,7 @@ and place it in the correct folder.
 def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     In-hospital mortality data from this study:
-        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
+        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
     """
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
@@ -411,9 +403,7 @@ and place it in the correct folder. It works with either the zip file or uncompr
 
 
 def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Loads the mimic_iaccd data and performs Alba's pre-processing
-    """
+    """Loads the mimic_iaccd data and performs Alba's pre-processing."""
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
@@ -469,12 +459,11 @@ def _texas_hospitals(
     # pylint: disable=too-many-statements, too-many-locals
     """
     Texas Hospitals Dataset
-    (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm)
+    (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm).
 
     Note: this has been tested repeated in the GRAIMatter project.
     However, for licensing reasons we cannot redistribute the data.
     Therefore it is omitted from CI test coverage and metrics.
-
     """
     file_list = [
         "PUDF-1Q2006-tab-delimited.zip",

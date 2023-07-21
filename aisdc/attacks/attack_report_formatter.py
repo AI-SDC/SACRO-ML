@@ -1,6 +1,4 @@
-"""
-Generate report for TREs from JSON file
-"""
+"""Generate report for TREs from JSON file."""
 
 import json
 import os
@@ -20,7 +18,7 @@ def cleanup_files_for_release(
 ):
     """
     Function that will move any files created throughout the release process and
-    sort them into appropriate folders
+    sort them into appropriate folders.
     """
 
     if not os.path.exists(release_dir):
@@ -43,9 +41,7 @@ def cleanup_files_for_release(
 
 
 class GenerateJSONModule:
-    """
-    Module that creates and appends to a JSON file
-    """
+    """Module that creates and appends to a JSON file."""
 
     def __init__(self, filename=None):
         self.filename = filename
@@ -63,7 +59,7 @@ class GenerateJSONModule:
                 f.write("")
 
     def add_attack_output(self, incoming_json, class_name):
-        """Add a section of JSON to the file which is already open"""
+        """Add a section of JSON to the file which is already open."""
 
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
@@ -86,11 +82,11 @@ class GenerateJSONModule:
             json.dump(file_data, f)
 
     def get_output_filename(self):
-        """Returns the filename of the JSON file which has been created"""
+        """Returns the filename of the JSON file which has been created."""
         return self.filename
 
     def clean_file(self):
-        """Delete the file if it exists"""
+        """Delete the file if it exists."""
         if os.path.exists(self.filename):
             os.remove(self.filename)
 
@@ -99,9 +95,7 @@ class GenerateJSONModule:
 
 
 class AnalysisModule:
-    """
-    Wrapper module for metrics analysis modules
-    """
+    """Wrapper module for metrics analysis modules."""
 
     def __init__(self):
         self.immediate_rejection = []
@@ -109,15 +103,11 @@ class AnalysisModule:
         self.support_release = []
 
     def process_dict(self):
-        """
-        Function that produces a risk summary output based on analysis in this module
-        """
+        """Function that produces a risk summary output based on analysis in this module."""
         raise NotImplementedError()
 
     def get_recommendation(self):
-        """
-        Function that returns the three recommendation buckets created by this module
-        """
+        """Function that returns the three recommendation buckets created by this module."""
         return self.immediate_rejection, self.support_rejection, self.support_release
 
     def __str__(self):
@@ -127,9 +117,7 @@ class AnalysisModule:
 class FinalRecommendationModule(
     AnalysisModule
 ):  # pylint: disable=too-many-instance-attributes
-    """
-    Module that generates the first layer of a recommendation report
-    """
+    """Module that generates the first layer of a recommendation report."""
 
     def __init__(self, report: dict):
         super().__init__()
@@ -279,9 +267,7 @@ class FinalRecommendationModule(
 
 
 class SummariseUnivariateMetricsModule(AnalysisModule):
-    """
-    Module that summarises a set of chosen univariate metrics from the output dictionary
-    """
+    """Module that summarises a set of chosen univariate metrics from the output dictionary."""
 
     def __init__(self, report: dict, metrics_list=None):
         super().__init__()
@@ -320,9 +306,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
 
 
 class SummariseAUCPvalsModule(AnalysisModule):
-    """
-    Module that summarises a list of AUC values
-    """
+    """Module that summarises a list of AUC values."""
 
     def __init__(self, report: dict, p_thresh: float = 0.05, correction: str = "bh"):
         super().__init__()
@@ -333,7 +317,8 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
     def _n_sig(self, p_val_list: list[float], correction: str = "none") -> int:
         """Compute the number of significant p-vals in a list with different corrections for
-        multiple testing"""
+        multiple testing.
+        """
 
         if correction == "none":
             return len(np.where(np.array(p_val_list) <= self.p_thresh)[0])
@@ -362,7 +347,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
         return metrics_list
 
     def process_dict(self):
-        """Process the dict to summarise the number of significant AUC p-values"""
+        """Process the dict to summarise the number of significant AUC p-values."""
         p_val_list = self._get_metrics_list()
         output = {
             "n_total": len(p_val_list),
@@ -378,10 +363,10 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
 
 class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
-    """Summarise the number of significant FDIF p-values"""
+    """Summarise the number of significant FDIF p-values."""
 
     def get_metric_list(self, input_dict: dict) -> list[float]:
-        """Get metrics_list from attack_instance_logger within JSON file"""
+        """Get metrics_list from attack_instance_logger within JSON file."""
         metric_list = []
         for _, iteration_value in input_dict["attack_instance_logger"].items():
             metric_list.append(iteration_value["PDIF01"])
@@ -393,9 +378,7 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
 
 
 class LogLogROCModule(AnalysisModule):
-    """
-    Module that generates a log-log plot
-    """
+    """Module that generates a log-log plot."""
 
     def __init__(self, report: dict, output_folder=None, include_mean=True):
         super().__init__()
@@ -405,7 +388,7 @@ class LogLogROCModule(AnalysisModule):
         self.include_mean = include_mean
 
     def process_dict(self):
-        """Create a roc plot for multiple repetitions"""
+        """Create a roc plot for multiple repetitions."""
         log_plot_names = []
 
         for k in self.report.keys():
@@ -456,9 +439,7 @@ class LogLogROCModule(AnalysisModule):
 
 
 class GenerateTextReport:
-    """
-    Module that generates a text report from a JSON input
-    """
+    """Module that generates a text report from a JSON input."""
 
     def __init__(self):
         self.text_out = []
@@ -471,9 +452,7 @@ class GenerateTextReport:
         self.support_release = []
 
     def _pretty_print(self, report: dict, title) -> str:
-        """
-        Function that formats JSON code to make it more readable for TREs
-        """
+        """Function that formats JSON code to make it more readable for TREs."""
 
         returned_string = str(title) + "\n"
 
@@ -484,9 +463,7 @@ class GenerateTextReport:
         return returned_string
 
     def _process_target_json(self):
-        """
-        Function that creates a summary of a target model JSON file
-        """
+        """Function that creates a summary of a target model JSON file."""
 
         model_params_of_interest = [
             "C",
@@ -535,9 +512,7 @@ class GenerateTextReport:
     def process_attack_target_json(
         self, attack_filename: str, target_filename: str = None
     ):
-        """
-        Function that creates a neat summary of an attack JSON file
-        """
+        """Function that creates a neat summary of an attack JSON file."""
         self.attack_json_filename = attack_filename
 
         with open(attack_filename, encoding="utf-8") as f:
@@ -597,9 +572,7 @@ class GenerateTextReport:
         release_dir="release_files",
         artefacts_dir="training_artefacts",
     ):
-        """
-        Function that takes the input strings collected and combines into a neat text file
-        """
+        """Function that takes the input strings collected and combines into a neat text file."""
 
         copy_of_text_out = self.text_out
         self.text_out = []

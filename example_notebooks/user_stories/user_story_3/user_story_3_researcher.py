@@ -1,9 +1,8 @@
 """
-User story 3 as researcher
+User story 3 as researcher.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
-
 """
 import os
 import pickle

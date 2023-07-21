@@ -1,7 +1,7 @@
 """
 Differentially private SVC
 James Liley
-21/03/22
+21/03/22.
 """
 import logging
 from typing import Any
@@ -21,7 +21,7 @@ local_logger.setLevel(logging.WARNING)
 
 class DPSVC:
     """
-    Wrapper for differentially private SVM, implemented according to the method in
+    Wrapper for differentially private SVM, implemented according to the method in.
 
     https://arxiv.org/pdf/0911.5708.pdf
 
@@ -49,7 +49,6 @@ class DPSVC:
     (1/2) ||w||_2 + C/n sum(l(y_i,f_w(x_i)))
 
     where l(x,y)=n*max(0,1- x.y), which is n-Lipschitz continuous in y (given x is in {-1,1})
-
     """
 
     def __init__(self, C=1.0, gamma="scale", dhat=1000, eps=10, **kwargs):
@@ -70,15 +69,13 @@ class DPSVC:
         self.set_params(**kwargs)
 
     def phi_hat(self, input_vector):
-        """Project a single feature"""
+        """Project a single feature."""
         vt1 = (self.rho * input_vector).sum(axis=1)
         vt = (self.dhat ** (-0.5)) * np.column_stack((np.cos(vt1), np.sin(vt1)))
         return vt.reshape(2 * self.dhat)
 
     def phi_hat_multi(self, input_features):
-        """
-        Compute feature space for a matrix of inputs
-        """
+        """Compute feature space for a matrix of inputs."""
         # TODO: could this be vectorised?
         n_data, _ = input_features.shape
         phi_hat = np.zeros((n_data, 2 * self.dhat), float)
@@ -99,9 +96,7 @@ class DPSVC:
         return np.dot(phi_hat_x, phi_hat_y.T)
 
     def fit(self, train_features: Any, train_labels: Any) -> None:
-        """
-        Fit the model
-        """
+        """Fit the model."""
 
         # Check that the data passed is np.ndarray
         if not isinstance(train_features, np.ndarray) or not isinstance(
@@ -183,9 +178,7 @@ class DPSVC:
         )  # was called ptransform
 
     def set_params(self, **kwargs) -> None:
-        """
-        Set params
-        """
+        """Set params."""
         for key, value in kwargs.items():
             if key == "gamma":
                 self.gamma = value
@@ -197,25 +190,19 @@ class DPSVC:
                 local_logger.warning("Unsupported parameter: %s", key)
 
     def _raw_outputs(self, test_features: Any) -> np.ndarray:
-        """
-        Get the raw output, used by predict and predict_proba
-        """
+        """Get the raw output, used by predict and predict_proba."""
         projected_features = self.phi_hat_multi(test_features)
         out = np.dot(projected_features, self.noisy_weights) + self.intercept
         return out
 
     def predict(self, test_features: Any) -> np.ndarray:
-        """
-        Make predictions
-        """
+        """Make predictions."""
         out = self._raw_outputs(test_features)
         out = 1 * (out > 0)
         return out  # Predictions
 
     def predict_proba(self, test_features: Any) -> np.ndarray:
-        """
-        Predictive probabilities
-        """
+        """Predictive probabilities."""
         out = self._raw_outputs(test_features)
         pred_probs = self.platt_transform.predict_proba(out.reshape(-1, 1))
         return pred_probs

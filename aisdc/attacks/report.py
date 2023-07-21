@@ -1,4 +1,4 @@
-"""Code for automatic report generation"""
+"""Code for automatic report generation."""
 import abc
 import json
 import os
@@ -76,10 +76,10 @@ GLOSSARY = {
 
 
 class NumpyArrayEncoder(json.JSONEncoder):
-    """Json encoder that can cope with numpy arrays"""
+    """Json encoder that can cope with numpy arrays."""
 
     def default(self, o):
-        """If an object is an np.ndarray, convert to list"""
+        """If an object is an np.ndarray, convert to list."""
         if isinstance(o, np.ndarray):
             return o.tolist()
         if isinstance(o, np.int64):
@@ -92,7 +92,7 @@ class NumpyArrayEncoder(json.JSONEncoder):
 
 
 def _write_dict(pdf, input_dict, indent=0, border=BORDER):
-    """Write a dictionary to the pdf"""
+    """Write a dictionary to the pdf."""
     for key, value in input_dict.items():
         pdf.set_font("arial", "B", 14)
         pdf.cell(75, 5, key, border, 1, "L")
@@ -103,7 +103,7 @@ def _write_dict(pdf, input_dict, indent=0, border=BORDER):
 
 
 def title(pdf, text, border=BORDER, font_size=24, font_style="B"):
-    """Write a title block"""
+    """Write a title block."""
     pdf.set_font("arial", font_style, font_size)
     pdf.ln(h=5)
     pdf.cell(0, 0, text, border, 1, "C")
@@ -113,7 +113,7 @@ def title(pdf, text, border=BORDER, font_size=24, font_style="B"):
 def subtitle(
     pdf, text, indent=10, border=BORDER, font_size=12, font_style="B"
 ):  # pylint: disable = too-many-arguments
-    """Write a subtitle block"""
+    """Write a subtitle block."""
     pdf.cell(indent, border=border)
     pdf.set_font("arial", font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
@@ -122,7 +122,7 @@ def subtitle(
 def line(
     pdf, text, indent=0, border=BORDER, font_size=11, font_style="", font="arial"
 ):  # pylint: disable = too-many-arguments
-    """Write a standard block"""
+    """Write a standard block."""
     if indent > 0:
         pdf.cell(indent, border=border)
     pdf.set_font(font, font_style, font_size)
@@ -130,7 +130,7 @@ def line(
 
 
 def _roc_plot_single(metrics, save_name):
-    """Create a roc_plot for a single experiment"""
+    """Create a roc_plot for a single experiment."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
     plt.plot(metrics["fpr"], metrics["tpr"], "r", linewidth=2)
@@ -144,7 +144,7 @@ def _roc_plot_single(metrics, save_name):
 
 
 def _roc_plot(metrics, dummy_metrics, save_name):
-    """Create a roc plot for multiple repetitions"""
+    """Create a roc plot for multiple repetitions."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
     if dummy_metrics is None or len(dummy_metrics) == 0:
@@ -197,12 +197,12 @@ def _roc_plot(metrics, dummy_metrics, save_name):
 
 
 def create_mia_report(attack_output: dict) -> FPDF:
-    """make a worst case membership inference report
+    """Make a worst case membership inference report.
 
     Parameters
     ----------
 
-    attack_output: dict
+    attack_output : dict
         dictionary with following items
 
             metadata: dict
@@ -217,9 +217,8 @@ def create_mia_report(attack_output: dict) -> FPDF:
     Returns
     -------
 
-    pdf: fpdf.FPDF
+    pdf : fpdf.FPDF
         fpdf document object
-
     """
     # dummy_metrics = attack_output["dummy_attack_metrics"]
     dummy_metrics = []
@@ -311,7 +310,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
 
 def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> None:
-    """creates pdf and appends contents if it already exists"""
+    """Creates pdf and appends contents if it already exists."""
     if os.path.exists(report_dest + ".pdf"):
         old_pdf = report_dest + ".pdf"
         new_pdf = report_dest + "_new.pdf"
@@ -340,18 +339,18 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
 
 
 def create_json_report(output):
-    """Create a report in json format for injestion by other tools"""
+    """Create a report in json format for injestion by other tools."""
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
     return json.dumps(output, cls=NumpyArrayEncoder)
 
 
 def create_lr_report(output: dict) -> FPDF:
-    """make a lira membership inference report
+    """Make a lira membership inference report.
 
     Parameters
     ----------
 
-    output: dict
+    output : dict
         dictionary with following items
 
         metadata: dict
@@ -366,9 +365,8 @@ def create_lr_report(output: dict) -> FPDF:
     Returns
     -------
 
-    pdf: fpdf.FPDF
+    pdf : fpdf.FPDF
         fpdf document object
-
     """
     mia_metrics = [
         v

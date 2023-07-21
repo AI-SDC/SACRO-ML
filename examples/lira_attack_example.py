@@ -22,13 +22,11 @@ The steps are as follows:
         in the previous two steps, as well as specifications for the shadow models.
      5. The attack is run with a command line command, creating a report.
 
-
 Running
 -------
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.lira_attack_example
-
 """
 # pylint: disable = duplicate-code
 

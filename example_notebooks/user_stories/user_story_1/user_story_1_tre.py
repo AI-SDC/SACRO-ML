@@ -1,9 +1,8 @@
 """
-User story 1 as TRE
+User story 1 as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
-
 """
 import argparse
 
@@ -11,9 +10,7 @@ from aisdc.attacks.attack_report_formatter import GenerateTextReport
 
 
 def generate_report(directory, attack_results, target, outfile):
-    """
-    Generate report based on target model
-    """
+    """Generate report based on target model."""
 
     print()
     print("Acting as TRE...")
@@ -30,7 +27,7 @@ def generate_report(directory, attack_results, target, outfile):
 
 
 def main():
-    """main method to parse arguments and then invoke report generstion"""
+    """Main method to parse arguments and then invoke report generstion."""
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"

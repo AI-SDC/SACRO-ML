@@ -9,7 +9,6 @@ Running
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.MIAandAIA_attacks_example
-
 """
 
 import json
