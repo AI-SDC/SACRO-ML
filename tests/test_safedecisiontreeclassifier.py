@@ -26,14 +26,14 @@ def get_data():
 
 
 def test_reporting():
-    """Check that getting report name requires name"""
+    """Check that getting report name requires name."""
     correct_msg = "Error - get_reporting_string: No 'name' given"
     msg = reporting.get_reporting_string()
     assert msg == correct_msg
 
 
 def test_decision_trees_are_equal():
-    """test the code that compares two decision trees"""
+    """Test the code that compares two decision trees."""
     x1, y = get_data()
     model1 = SafeDecisionTreeClassifier(random_state=1)
     model1.fit(x1, y)
@@ -70,9 +70,9 @@ def test_decision_trees_are_equal():
 
 
 def test_get_tree_k_anonymity():
-    """getting k_anonymity
+    """Getting k_anonymity
     50 data points randomly split in 2, single layer
-    so k should be ~25
+    so k should be ~25.
     """
     x = np.random.rand(50, 2)
     y = np.ones(50)
@@ -226,9 +226,10 @@ def test_decisiontree_hacked_postfit():
 
 
 def test_data_hiding():
-    """what if the hacking was really obscure
+    """What if the hacking was really obscure
     like putting something in the exceptions list
-     then adding data to current and saved copies"""
+     then adding data to current and saved copies.
+    """
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=5)
     model.fit(x, y)

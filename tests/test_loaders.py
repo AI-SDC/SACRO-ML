@@ -1,9 +1,9 @@
-"""test_loaders.py
+"""Test_loaders.py
 Series of functions to use with pytest to check the loaders classes
 Most use just the truncated files with first five examples of each class for brevity.
 Please access the datasets from the sources listed in preprocessing/loaders.py
 Please acknowledge those sources in any publications.
-Jim Smith 2022
+Jim Smith 2022.
 """
 import os
 import shutil
@@ -35,7 +35,7 @@ preprocessing = ("standard", "minmax", "round")
 
 def test_get_sklearn_dataset():
     """Test ability to load some standard datasets
-    These loaders only return binary versions
+    These loaders only return binary versions.
     """
     # test preprocessing with iris for speed
     # just gets first two classes
@@ -56,7 +56,7 @@ def test_get_sklearn_dataset():
 
 
 def test_data_absent():
-    """Tests exceptions raised when datasets have not been downloaded"""
+    """Tests exceptions raised when datasets have not been downloaded."""
     # mimic2
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("mimic2-iaccd")
@@ -99,15 +99,16 @@ def test_data_absent():
 
 
 def test_mimic():
-    """load the mimic2 dataset"""
+    """Load the mimic2 dataset."""
     x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
     assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (1064, 1)
 
 
 def test_in_hospital():
-    """tests loading the in hospital mortality data
-    in two different ways"""
+    """Tests loading the in hospital mortality data
+    in two different ways.
+    """
 
     zip_file_name = os.path.join(DATA_FOLDER, "doi_10.5061_dryad.0p2ngf1zd__v5.zip")
     new_file_name = os.path.join(DATA_FOLDER, "doi_10.5061_dryad.0p2ngf1zd__v5.renamed")
@@ -128,7 +129,7 @@ def test_in_hospital():
 
 
 def test_mnist():
-    """tests loading medical mnist data from different sources"""
+    """Tests loading medical mnist data from different sources."""
     # mnist 100
     # this ne assumes the zip file is present
     x_df, y_df = loaders.get_data_sklearn("medical-mnist-ab-v-br-100", DATA_FOLDER)
@@ -161,21 +162,21 @@ def test_mnist():
 
 
 def test_indian_liver():
-    """the indian liver dataloader"""
+    """The indian liver dataloader."""
     x_df, y_df = loaders.get_data_sklearn("indian liver", DATA_FOLDER)
     assert x_df.shape == (11, 10), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (11, 1)
 
 
 def test_texas():
-    """the texas dataset has quite restrictive licenses arounbd copying.
+    """The texas dataset has quite restrictive licenses arounbd copying.
     Therefore it is omitted from the CI testing.
-    This code was fully tested during the GRAIMatter project
+    This code was fully tested during the GRAIMatter project.
     """
 
 
 def test_synth_ae():
-    """tests different versions of the  synthetic A&E dataset"""
+    """Tests different versions of the  synthetic A&E dataset."""
     x_df, y_df = loaders.get_data_sklearn("synth-ae", DATA_FOLDER)
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)

@@ -1,6 +1,6 @@
-""" safekeras.py:
+"""Safekeras.py:
  Jim Smith, Andrew McCarty and Richard Preen
- UWE 2022
+ UWE 2022.
 """
 # general imports
 
@@ -43,7 +43,7 @@ DP_CLASS_STRING2 = (
 
 
 def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
-    """Checks if two models havethe same architecture"""
+    """Checks if two models havethe same architecture."""
     num_layers = len(m1.layers)
     if len(m2.layers) != num_layers:
         errstr = get_reporting_string(name="different_layer_count")
@@ -76,7 +76,7 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
 
 
 def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
-    """checks if two nets with same architecture havethe same weights"""
+    """Checks if two nets with same architecture havethe same weights."""
     num_layers = len(m1.layers)
     if num_layers != len(m2.layers):
         return False, "different numbers of layers"
@@ -96,10 +96,10 @@ def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
 
 
 def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
-    """compares two checkpoints saved with tensorflow save_model
+    """Compares two checkpoints saved with tensorflow save_model
     On the assumption that the optimiser is not going to be saved,
     and that the model is going to be saved in frozen form
-    this only checks the architecture and weights layer by layer
+    this only checks the architecture and weights layer by layer.
     """
     msg = ""
     same = True
@@ -133,7 +133,7 @@ def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
 
 
 def check_DP_used(optimizer) -> Tuple[bool, str]:
-    """checks whether the DP optimizer was actually the one used"""
+    """Checks whether the DP optimizer was actually the one used."""
 
     key_needed = "_was_dp_gradients_called"
     critical_val = optimizer.__dict__.get(key_needed, "missing")
@@ -160,8 +160,8 @@ def check_DP_used(optimizer) -> Tuple[bool, str]:
 
 
 def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
-    """checks if the model's optimizer is in our white-list
-    default setting is not allowed
+    """Checks if the model's optimizer is in our white-list
+    default setting is not allowed.
     """
     allowed = False
     opt_type = str(type(optimizer))
@@ -174,7 +174,7 @@ def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
 
 
 def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
-    """checks whether optimizer is one of tensorflow's DP versions"""
+    """Checks whether optimizer is one of tensorflow's DP versions."""
     DPused = False
     reason = "None"
     if "_was_dp_gradients_called" not in optimizer.__dict__:
@@ -187,7 +187,7 @@ def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
 
 def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
     """
-    reads model from file in appropriate format.
+    Reads model from file in appropriate format.
     Optimizer is deliberately excluded in the save.
     This is to prevent possibility of restarting training,
     which could offer possible back door into attacks.
@@ -220,12 +220,12 @@ def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
 class SafeKerasModel(KerasModel, SafeModel):
     """Privacy Protected Wrapper around  tf.keras.Model class from tensorflow 2.8
     disabling pylont warnings about number of instance attributes
-    as this is necessarily complex
+    as this is necessarily complex.
     """
 
     # pylint: disable=too-many-instance-attributes
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params"""
+        """Creates model and applies constraints to params."""
 
         # the_args = args
         the_kwargs = kwargs
@@ -293,7 +293,8 @@ class SafeKerasModel(KerasModel, SafeModel):
         self, num_examples: int, batch_size: int = 0, epochs: int = 0
     ) -> Tuple[bool, str]:
         """Checks if epsilon is sufficient for Differential Privacy
-        Provides feedback to user if epsilon is not sufficient"""
+        Provides feedback to user if epsilon is not sufficient.
+        """
         privacy = compute_dp_sgd_privacy(
             n=num_examples,
             batch_size=batch_size,
@@ -308,7 +309,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         self, num_samples: int, batch_size: int, epochs: int
     ) -> Tuple[bool, str]:
         """Computes the level of privacy guarantee is within recommended limits,
-        and produces feedback"
+        and produces feedback".
         """
         msg = ""
         ok = False
@@ -440,7 +441,7 @@ class SafeKerasModel(KerasModel, SafeModel):
     def posthoc_check(self, verbose: bool = True) -> Tuple[str, bool]:
         """Checks whether model should be considered unsafe
         for example, has been changed since fit() was last run,
-        or does not meet DP policy
+        or does not meet DP policy.
         """
 
         disclosive = False
@@ -515,7 +516,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         Parameters
         ----------
 
-        name: string
+        name : string
              The name of the file to save
 
         Returns
@@ -525,7 +526,6 @@ class SafeKerasModel(KerasModel, SafeModel):
         -----
 
         No return value
-
 
         Optimizer is deliberately excluded.
         To prevent possible to restart training and thus

@@ -1,21 +1,21 @@
-"""methods to producte standard reporting strings"""
+"""Methods to producte standard reporting strings."""
 
 
 def get_reporting_string(**kwargs):
-    """returns a standard formatted string from a diction of f-strings.
+    """Returns a standard formatted string from a diction of f-strings.
 
     Parameters
     ----------
 
-    name: string
+    name : string
          The dictionary key and the name of the string to return.
-    all-the-keywords: Any Type
+    all-the-keywords : Any Type
          one or more values expected in the f-string.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A standard message string.
 
     Notes
@@ -23,7 +23,6 @@ def get_reporting_string(**kwargs):
 
     Sometimes an f-string has no parameters.
     Sometimes there are multiple parameters embedded in the f-string.
-
     """
     the_kwargs = kwargs
 

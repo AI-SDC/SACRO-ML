@@ -1,9 +1,8 @@
 """
-User story 1 as researcher
+User story 1 as researcher.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
-
 """
 import logging
 import os
@@ -20,9 +19,7 @@ from aisdc.safemodel.classifiers import (
 
 
 def main():
-    """
-    Create and train a model to be released
-    """
+    """Create and train a model to be released."""
     directory = "training_artefacts/"
     print("Creating directory for training artefacts")
 

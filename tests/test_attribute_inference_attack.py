@@ -6,7 +6,6 @@ Running
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.attribute_inference_example
-
 """
 import json
 import os
@@ -33,7 +32,7 @@ from tests.test_attacks_via_safemodel import get_target
 
 
 def cleanup_file(name: str):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name):
         if os.path.isfile(name):
             os.remove(name)
@@ -42,7 +41,7 @@ def cleanup_file(name: str):
 
 
 def common_setup():
-    """basic commands to get ready to test some code"""
+    """Basic commands to get ready to test some code."""
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
@@ -55,7 +54,7 @@ def common_setup():
 
 
 def test_attack_args():
-    """tests methods in the attack_args class"""
+    """Tests methods in the attack_args class."""
     _, attack_obj = common_setup()
     attack_obj.__dict__["newkey"] = True
     thedict = attack_obj.__dict__
@@ -63,7 +62,7 @@ def test_attack_args():
 
 
 def test_unique_max():
-    """tests the _unique_max helper function"""
+    """Tests the _unique_max helper function."""
     has_unique = (0.3, 0.5, 0.2)
     no_unique = (0.5, 0.5)
     assert _unique_max(has_unique, 0.0) is True
@@ -72,8 +71,8 @@ def test_unique_max():
 
 
 def test_categorical_via_modified_attack_brute_force():
-    """test lots of functionality for categoricals
-    using code from brute_force but without multiprocessing
+    """Test lots of functionality for categoricals
+    using code from brute_force but without multiprocessing.
     """
     target, _ = common_setup()
 
@@ -87,9 +86,9 @@ def test_categorical_via_modified_attack_brute_force():
 
 
 def test_continuous_via_modified_bounds_risk():
-    """tests a lot of the code for continuous variables
+    """Tests a lot of the code for continuous variables
     via a copy of the _get_bounds_risk()
-    modified not to use multiprocessing
+    modified not to use multiprocessing.
     """
     target, _ = common_setup()
     _ = _get_bounds_risk(target.model, "dummy", 8, target.x_train, target.x_test)
@@ -97,8 +96,9 @@ def test_continuous_via_modified_bounds_risk():
 
 # test below covers a lot of the plotting etc.
 def test_AIA_on_nursery():
-    """tests running AIA on the nursery data
-    with an added continuous feature"""
+    """Tests running AIA on the nursery data
+    with an added continuous feature.
+    """
     target, attack_obj = common_setup()
     attack_obj.attack(target)
 
@@ -107,8 +107,9 @@ def test_AIA_on_nursery():
 
 
 def test_AIA_on_nursery_from_cmd():
-    """tests running AIA on the nursery data
-    with an added continuous feature"""
+    """Tests running AIA on the nursery data
+    with an added continuous feature.
+    """
     target, _ = common_setup()
     target.save(path="test_aia_target")
 
@@ -128,7 +129,7 @@ def test_AIA_on_nursery_from_cmd():
 
 
 def test_cleanup():
-    """tidies up any files created"""
+    """Tidies up any files created."""
     files_made = (
         "test_output_aia/",
         "test_aia_target/",

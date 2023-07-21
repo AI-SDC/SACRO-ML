@@ -9,7 +9,6 @@ Invoke this code from the root AI-SDC folder.
 However to run this test file, it will be required to install pytest package
 using 'pip install pytest' and then run following
 python -m pytest .\tests\test_multiple_attacks.py
-
 """
 import json
 import os
@@ -34,7 +33,7 @@ from tests.test_attacks_via_safemodel import get_target
 
 
 def cleanup_file(name: str):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name):
         if os.path.isfile(name):
             os.remove(name)
@@ -43,7 +42,7 @@ def cleanup_file(name: str):
 
 
 def common_setup():
-    """basic commands to get ready to test some code"""
+    """Basic commands to get ready to test some code."""
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
@@ -54,7 +53,7 @@ def common_setup():
 
 
 def create_single_config_file():
-    """creates single configuration file using multiple attack configuration"""
+    """Creates single configuration file using multiple attack configuration."""
     # instantiating a configfile object to add configurations
     configfile_obj = ConfigFile(
         filename="test_single_config.json",
@@ -167,7 +166,7 @@ def create_single_config_file():
 
 
 def test_configfile_number():
-    """tests number of attack configurations in a configuration file"""
+    """Tests number of attack configurations in a configuration file."""
     configfile_obj = create_single_config_file()
     configfile_data = configfile_obj.read_config_file()
     assert len(configfile_data) == 8
@@ -175,7 +174,7 @@ def test_configfile_number():
 
 
 def test_multiple_attacks_programmatic():
-    """tests programmatically running attacks using a single configuration configuration file"""
+    """Tests programmatically running attacks using a single configuration configuration file."""
     target, attack_obj = common_setup()
     _ = create_single_config_file()
     attack_obj.attack(target)
@@ -184,8 +183,9 @@ def test_multiple_attacks_programmatic():
 
 
 def test_multiple_attacks_cmd():
-    """tests running multiple attacks (MIA and AIA) on the nursery data
-    with an added continuous feature"""
+    """Tests running multiple attacks (MIA and AIA) on the nursery data
+    with an added continuous feature.
+    """
     target, _ = common_setup()
     target.save(path="tests/test_multiple_target")
     _ = create_single_config_file()
@@ -198,7 +198,7 @@ def test_multiple_attacks_cmd():
 
 
 def test_cleanup():
-    """tidies up any files created"""
+    """Tidies up any files created."""
     files_made = (
         "test_single_config.json",
         "outputs_multiple_attacks",

@@ -17,7 +17,7 @@ def decision_trees_are_equal(
     tree1: DecisionTreeClassifier, tree2: DecisionTreeClassifier
 ) -> tuple[bool, str]:
     """Compares two estimators of type sklearn.tree
-    e.g. two decisionTreeClassifiers
+    e.g. two decisionTreeClassifiers.
     """
     msg = ""
     same = True
@@ -62,7 +62,8 @@ def decision_tree_internal_trees_are_equal(
     tree1_tree: Any, tree2_tree: Any
 ) -> tuple[bool, str]:
     """Tests for equality of the internal structures in a sklearn.tree._tree
-    e.g. the structure, feature and threshold in each internal node etc."""
+    e.g. the structure, feature and threshold in each internal node etc.
+    """
 
     same = True
     msg = ""
@@ -117,7 +118,7 @@ def decision_tree_internal_trees_are_equal(
 
 
 def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
-    """returns the smallest number of data items in any leaf"""
+    """Returns the smallest number of data items in any leaf."""
     leaves = thetree.apply(X)
     uniqs_counts = np.unique(leaves, return_counts=True)
     k_anonymity = np.min(uniqs_counts[1])
@@ -168,7 +169,7 @@ class SafeDecisionTreeClassifier(
     def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """Decision Tree-specific checks"""
+        """Decision Tree-specific checks."""
         # call the super function to deal with any items that are lists
         # just in case we add any in the future
         msg, disclosive = super().additional_checks(curr_separate, saved_separate)
@@ -191,7 +192,7 @@ class SafeDecisionTreeClassifier(
     def fit(  # pylint: disable=arguments-differ
         self, x: np.ndarray, y: np.ndarray
     ) -> None:
-        """Do fit and then store k-anonymity and  model dict"""
+        """Do fit and then store k-anonymity and  model dict."""
         super().fit(x, y)
         # calculate k-anonymity her since we have the tainigf data
         leaves = self.apply(x)

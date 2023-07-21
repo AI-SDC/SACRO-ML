@@ -56,4 +56,11 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black-jupyter
+
+  # Format docstrings
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: "v0.7.3"
+    hooks:
+      - id: pydocstringformatter
+        args: ["--style=numpydoc"]
 ...

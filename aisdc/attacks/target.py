@@ -1,4 +1,4 @@
-"""target.py - information storage about the target model and data"""
+"""Target.py - information storage about the target model and data."""
 
 from __future__ import annotations
 
@@ -17,14 +17,14 @@ logger = logging.getLogger("target")
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
-    """Stores information about the target model and data"""
+    """Stores information about the target model and data."""
 
     def __init__(self, model: sklearn.base.BaseEstimator | None = None) -> None:
         """Store information about a target model and associated data.
 
         Parameters
         ----------
-        model: sklearn.base.BaseEstimator | None
+        model : sklearn.base.BaseEstimator | None
             Trained target model. Any class that implements the
             sklearn.base.BaseEstimator interface (i.e. has fit, predict and
             predict_proba methods)
@@ -91,7 +91,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         x_test: np.ndarray,
         y_test: np.ndarray,
     ) -> None:
-        """Add a processed and split dataset"""
+        """Add a processed and split dataset."""
         self.x_train = x_train
         self.y_train = np.array(y_train, int)
         self.x_test = x_test
@@ -117,7 +117,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         x_test_orig: np.ndarray,
         y_test_orig: np.ndarray,
     ) -> None:
-        """Add original unprocessed dataset"""
+        """Add original unprocessed dataset."""
         self.x_orig = x_orig
         self.y_orig = y_orig
         self.x_train_orig = x_train_orig

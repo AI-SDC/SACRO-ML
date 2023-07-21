@@ -1,6 +1,6 @@
 """Jim Smith October 2022
 tests to pick up odd cases not otherwise covered
-in code in the attacks folder
+in code in the attacks folder.
 """
 
 import numpy as np
@@ -15,7 +15,7 @@ BORDER = 0
 
 
 def test_superclass():
-    """Test that the exceptions are raised if the superclass is called in error"""
+    """Test that the exceptions are raised if the superclass is called in error."""
     model = SafeDecisionTreeClassifier()
     target = Target(model=model)
     my_attack = attack.Attack()
@@ -26,8 +26,8 @@ def test_superclass():
 
 
 def test_NumpyArrayEncoder():
-    """conversion routine
-    from reports.py
+    """Conversion routine
+    from reports.py.
     """
 
     i32 = np.int32(2)
@@ -49,7 +49,7 @@ def test_NumpyArrayEncoder():
 
 
 def test_line():
-    """code from report.py"""
+    """Code from report.py."""
     pdf = FPDF()
     pdf.add_page()
     report.line(pdf, "foo")
@@ -57,7 +57,7 @@ def test_line():
 
 
 def test_dict():
-    """code from report.py"""
+    """Code from report.py."""
     pdf = FPDF()
     pdf.add_page()
     mydict = {"a": "hello", "b": "world"}

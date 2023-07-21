@@ -1,7 +1,7 @@
 """
 Tests attacks called via safemodel classes
 uses a subsampled nursery dataset as this tests more of the attack code
-currently using random forests
+currently using random forests.
 """
 import os
 import shutil
@@ -22,14 +22,15 @@ RES_DIR = "RES"
 
 
 def clean():
-    """Removes unwanted results"""
+    """Removes unwanted results."""
     if os.path.exists(RES_DIR):
         shutil.rmtree(RES_DIR)
 
 
 def get_target(model: sklearn.base.BaseEstimator) -> Target:
     """Wrap the model and data in a Target object.
-    Uses A randomly sampled 10+10% of the nursery data set."""
+    Uses A randomly sampled 10+10% of the nursery data set.
+    """
 
     nursery_data = fetch_openml(data_id=26, as_frame=True)
     x = np.asarray(nursery_data.data, dtype=str)
@@ -111,7 +112,7 @@ def get_target(model: sklearn.base.BaseEstimator) -> Target:
 
 
 def test_attacks_via_request_release():
-    """make vulnerable,hacked model then call request_release"""
+    """Make vulnerable,hacked model then call request_release."""
     # build a broken model and hack it so lots of reasons to fail and be vulnerable
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=10, min_samples_leaf=1)
     target = get_target(model)
@@ -123,7 +124,7 @@ def test_attacks_via_request_release():
 
 
 def test_run_attack_lira():
-    """calls the lira attack via safemodel"""
+    """Calls the lira attack via safemodel."""
     # build a model
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)
@@ -139,7 +140,7 @@ def test_run_attack_lira():
 
 
 def test_run_attack_worstcase():
-    """calls the worst case attack via safemodel"""
+    """Calls the worst case attack via safemodel."""
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
@@ -151,7 +152,7 @@ def test_run_attack_worstcase():
 
 
 def test_run_attack_attribute():
-    """calls the attribute  attack via safemodel"""
+    """Calls the attribute  attack via safemodel."""
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
@@ -163,7 +164,7 @@ def test_run_attack_attribute():
 
 
 def test_attack_args():
-    """tests the attack arguments class"""
+    """Tests the attack arguments class."""
     fname = "aia_example"
     attack_obj = attribute_attack.AttributeAttack(
         output_dir="output_attribute", report_name=fname
@@ -193,7 +194,7 @@ def test_attack_args():
 
 
 def test_run_attack_unknown():
-    """calls an unknown attack via safemodel"""
+    """Calls an unknown attack via safemodel."""
     # build a model
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
     target = get_target(model)

@@ -1,4 +1,4 @@
-"""attack.py - base class for an attack object"""
+"""Attack.py - base class for an attack object."""
 
 import inspect
 import json
@@ -7,20 +7,20 @@ from aisdc.attacks.target import Target
 
 
 class Attack:
-    """Base (abstract) class to represent an attack"""
+    """Base (abstract) class to represent an attack."""
 
     def __init__(self):
         self.attack_config_json_file_name = None
 
     def attack(self, target: Target) -> None:
-        """Method to run an attack"""
+        """Method to run an attack."""
         raise NotImplementedError
 
     def __str__(self):
         raise NotImplementedError
 
     def _update_params_from_config_file(self) -> None:
-        """Reads a configuration file and loads it into a dictionary object"""
+        """Reads a configuration file and loads it into a dictionary object."""
         with open(self.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
         for key, value in config.items():
@@ -28,7 +28,7 @@ class Attack:
 
     @classmethod
     def _get_param_names(cls):
-        """Get parameter names"""
+        """Get parameter names."""
         init_signature = inspect.signature(cls.__init__)
         parameters = [
             p.name

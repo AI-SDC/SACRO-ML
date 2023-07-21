@@ -1,13 +1,14 @@
-"""test_worst_case_attack.py
-Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
+"""Test_worst_case_attack.py
+Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
 
 def test_parse_boolean_argument():
-    """test all comparison operators and both options for attack
+    """Test all comparison operators and both options for attack
     being successful and not successful given a metric and
-    comparison operator with a threshold value"""
+    comparison operator with a threshold value.
+    """
     metrics = {}
     metrics["ACC"] = 0.9
     metrics["AUC"] = 0.8
@@ -125,10 +126,11 @@ def test_parse_boolean_argument():
 
 
 def test_attack_success_fail_counts_and_overall_attack_success():
-    """test success and fail counts of attacks for a given threshold
+    """Test success and fail counts of attacks for a given threshold
     of a given metric based on a given comparison operation and
     also test overall attack successes using
-    count threshold of attack being successful or not successful"""
+    count threshold of attack being successful or not successful.
+    """
     metrics = {}
     metrics["ACC"] = 0.9
     metrics["AUC"] = 0.8

@@ -1,6 +1,4 @@
-"""
-Test the metrics
-"""
+"""Test the metrics."""
 
 import math
 import unittest
@@ -26,27 +24,19 @@ PREDICTED_PROBS = np.array(
 
 
 class DummyClassifier:
-    """
-    Mocks the predict and predict_proba methods
-    """
+    """Mocks the predict and predict_proba methods."""
 
     def predict(self, _):
-        """
-        return dummy predictions
-        """
+        """Return dummy predictions."""
         return PREDICTED_CLASS
 
     def predict_proba(self, _):
-        """
-        return dummy predicted probabilities
-        """
+        """Return dummy predicted probabilities."""
         return PREDICTED_PROBS
 
 
 class TestInputExceptions(unittest.TestCase):
-    """
-    Test that the metrics.py errors with a helpful error message if an invalid shape is supplied
-    """
+    """Test that the metrics.py errors with a helpful error message if an invalid shape is supplied."""
 
     def _create_fake_test_data(self):
         y_test = np.zeros(4)
@@ -54,27 +44,21 @@ class TestInputExceptions(unittest.TestCase):
         return y_test
 
     def test_wrong_shape(self):
-        """
-        Test the check which ensures y_pred_proba is of shape [:,:]
-        """
+        """Test the check which ensures y_pred_proba is of shape [:,:]."""
         y_test = self._create_fake_test_data()
         with pytest.raises(ValueError):
             y_pred_proba = np.zeros((4, 2, 2))
             get_metrics(y_pred_proba, y_test)
 
     def test_wrong_size(self):
-        """
-        Test the check which ensures y_pred_proba is of size (:,2)
-        """
+        """Test the check which ensures y_pred_proba is of size (:,2)."""
         y_test = self._create_fake_test_data()
         with pytest.raises(ValueError):
             y_pred_proba = np.zeros((4, 4))
             get_metrics(y_pred_proba, y_test)
 
     def test_valid_input(self):
-        """
-        Test to make sure a valid array does not throw an exception
-        """
+        """Test to make sure a valid array does not throw an exception."""
         y_test = self._create_fake_test_data()
         y_pred_proba = np.zeros((4, 2))
 
@@ -82,14 +66,12 @@ class TestInputExceptions(unittest.TestCase):
 
 
 class TestProbabilities(unittest.TestCase):
-    """
-    Test the checks on the input parameters of the get_probabilites function
-    """
+    """Test the checks on the input parameters of the get_probabilites function."""
 
     def test_permute_rows_errors(self):
         """
         Test to make sure an error is thrown when permute_rows is set to True,
-        but no y_test is supplied
+        but no y_test is supplied.
         """
         clf = DummyClassifier()
         testX = []
@@ -98,9 +80,7 @@ class TestProbabilities(unittest.TestCase):
             get_probabilities(clf, testX, permute_rows=True)
 
     def test_permute_rows_with_permute_rows(self):
-        """
-        Test permute_rows = True succeeds
-        """
+        """Test permute_rows = True succeeds."""
 
         clf = DummyClassifier()
         testX = np.zeros((4, 2))
@@ -109,9 +89,7 @@ class TestProbabilities(unittest.TestCase):
         get_probabilities(clf, testX, testY, permute_rows=True)
 
     def test_permute_rows_without_permute_rows(self):
-        """
-        Test permute_rows = False succeeds
-        """
+        """Test permute_rows = False succeeds."""
 
         clf = DummyClassifier()
         testX = np.zeros((4, 2))
@@ -120,14 +98,10 @@ class TestProbabilities(unittest.TestCase):
 
 
 class TestMetrics(unittest.TestCase):
-    """
-    Test the metrics with some dummy predictions
-    """
+    """Test the metrics with some dummy predictions."""
 
     def test_metrics(self):
-        """
-        Test each individual metric with dummy data
-        """
+        """Test each individual metric with dummy data."""
         clf = DummyClassifier()
         testX = []
         testy = TRUE_CLASS
@@ -146,7 +120,7 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(metrics["AUC"], 8 / 9)
 
     def test_mia_extremecase(self):
-        """test the extreme case mia in metrics.py"""
+        """Test the extreme case mia in metrics.py."""
 
         # create actual values
         y = np.zeros(50000)
@@ -166,12 +140,10 @@ class TestMetrics(unittest.TestCase):
 
 
 class TestFPRatTPR(unittest.TestCase):
-    """
-    Test code that computes TPR at fixed FPR
-    """
+    """Test code that computes TPR at fixed FPR."""
 
     def test_tpr(self):
-        """Test tpr at fpr"""
+        """Test tpr at fpr."""
         y_true = TRUE_CLASS
         y_score = PREDICTED_PROBS[:, 1]
 
@@ -190,10 +162,10 @@ class TestFPRatTPR(unittest.TestCase):
 
 
 class Test_Div(unittest.TestCase):
-    """tests the _div functionality"""
+    """Tests the _div functionality."""
 
     def test_div(self):
-        """test div for y=1 and 0"""
+        """Test div for y=1 and 0."""
         result = _div(8.0, 1.0, 99.0)
         self.assertAlmostEqual(result, 8.0)
         result2 = _div(8.0, 0.0, 99.0)
@@ -201,14 +173,10 @@ class Test_Div(unittest.TestCase):
 
 
 class TestExtreme(unittest.TestCase):
-    """
-    Test the extreme metrics
-    """
+    """Test the extreme metrics."""
 
     def test_extreme_default(self):
-        """
-        Tets with the dummy data
-        """
+        """Tets with the dummy data."""
         pred_probs = DummyClassifier().predict_proba(None)[:, 1]
         maxd, mind, mmd, _ = min_max_disc(TRUE_CLASS, pred_probs)
 
@@ -220,9 +188,7 @@ class TestExtreme(unittest.TestCase):
         self.assertAlmostEqual(mmd, 1.0)
 
     def test_extreme_higer_prop(self):
-        """
-        Tets with the dummy data but increase proportion to 0.5
-        """
+        """Tets with the dummy data but increase proportion to 0.5."""
         pred_probs = DummyClassifier().predict_proba(None)[:, 1]
         maxd, mind, mmd, _ = min_max_disc(TRUE_CLASS, pred_probs, x_prop=0.5)
 

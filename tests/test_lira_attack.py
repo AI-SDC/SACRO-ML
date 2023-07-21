@@ -1,5 +1,5 @@
-"""test_lira_attack.py
-Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>
+"""Test_lira_attack.py
+Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>.
 """
 # pylint: disable = duplicate-code
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__file__)
 
 
 def clean_up(name):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name):
         if os.path.isfile(name):
             os.remove(name)
@@ -40,32 +40,32 @@ def clean_up(name):
 
 
 class TestDummyClassifier(TestCase):
-    """Test the dummy classifier class"""
+    """Test the dummy classifier class."""
 
     @classmethod
     def setUpClass(cls):
-        """Create a dummy classifier object"""
+        """Create a dummy classifier object."""
         cls.dummy = DummyClassifier()
         cls.X = np.array([[0.2, 0.8], [0.7, 0.3]])
 
     def test_predict_proba(self):
-        """Test the predict_proba method"""
+        """Test the predict_proba method."""
         pred_probs = self.dummy.predict_proba(self.X)
         assert np.array_equal(pred_probs, self.X)
 
     def test_predict(self):
-        """Test the predict method"""
+        """Test the predict method."""
         expected_output = np.array([1, 0])
         pred = self.dummy.predict(self.X)
         assert np.array_equal(pred, expected_output)
 
 
 class TestLiraAttack(TestCase):
-    """Test the LIRA attack code"""
+    """Test the LIRA attack code."""
 
     @classmethod
     def setUpClass(cls):
-        """Setup the common things for the class"""
+        """Setup the common things for the class."""
         logger.info("Setting up test class")
         X, y = load_breast_cancer(return_X_y=True, as_frame=False)
         cls.train_X, cls.test_X, cls.train_y, cls.test_y = train_test_split(
@@ -99,7 +99,7 @@ class TestLiraAttack(TestCase):
         )
 
     def test_lira_attack(self):
-        """tests the lira code two ways"""
+        """Tests the lira code two ways."""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
@@ -123,8 +123,9 @@ class TestLiraAttack(TestCase):
         assert n_shadow_models_trained == n_shadow_models
 
     def test_check_and_update_dataset(self):
-        """test the code that removes items from test set with classes
-        not present in training set"""
+        """Test the code that removes items from test set with classes
+        not present in training set.
+        """
 
         attack_obj = LIRAAttack(n_shadow_models=N_SHADOW_MODELS)
 
@@ -152,7 +153,7 @@ class TestLiraAttack(TestCase):
         self.assertSetEqual(class_diff, {5})
 
     def test_main_example(self):
-        """test command line example"""
+        """Test command line example."""
         testargs = [
             "prog",
             "run-example",
@@ -165,7 +166,7 @@ class TestLiraAttack(TestCase):
             likelihood_attack.main()
 
     def test_main_config(self):
-        """test command line with a config file"""
+        """Test command line with a config file."""
         testargs = [
             "prog",
             "run-attack",
@@ -180,7 +181,7 @@ class TestLiraAttack(TestCase):
             likelihood_attack.main()
 
     def test_main_from_configfile(self):
-        """test command line with a config file"""
+        """Test command line with a config file."""
         testargs = [
             "prog",
             "run-attack-from-configfile",
@@ -193,13 +194,13 @@ class TestLiraAttack(TestCase):
             likelihood_attack.main()
 
     def test_main_example_data(self):
-        """test command line example data creation"""
+        """Test command line example data creation."""
         testargs = ["prog", "setup-example-data"]  # , "--j", "tests/lrconfig.json"]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
     def test_lira_attack_failfast_example(self):
-        """tests the lira code two ways"""
+        """Tests the lira code two ways."""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
@@ -212,7 +213,7 @@ class TestLiraAttack(TestCase):
         attack_obj.example()
 
     def test_lira_attack_failfast_from_scratch1(self):
-        """Test by training a model from scratch"""
+        """Test by training a model from scratch."""
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
@@ -230,7 +231,7 @@ class TestLiraAttack(TestCase):
         assert n_shadow_models_trained == n_shadow_models
 
     def test_lira_attack_failfast_from_scratch2(self):
-        """Test by training a model from scratch"""
+        """Test by training a model from scratch."""
         attack_obj = LIRAAttack(
             n_shadow_models=150,
             output_dir="test_output_lira",
@@ -249,7 +250,7 @@ class TestLiraAttack(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """cleans up various files made during the tests"""
+        """Cleans up various files made during the tests."""
         names = [
             "test_output_lira/",
             "output_lira/",
