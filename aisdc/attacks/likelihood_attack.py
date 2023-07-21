@@ -468,7 +468,8 @@ class LIRAAttack(Attack):
         """
         logger = logging.getLogger("reporting")
         report_dest = os.path.join(self.output_dir, self.report_name)
-        logger.info("Starting reports, pdf report name = %s, joson report name =%s",
+        logger.info(
+            "Starting reports, pdf report name = %s, joson report name =%s",
             report_dest + ".pdf",
             report_dest + ".json",
         )
