@@ -36,7 +36,9 @@ class DummyClassifier:
 
 
 class TestInputExceptions(unittest.TestCase):
-    """Test that the metrics.py errors with a helpful error message if an invalid shape is supplied."""
+    """Test that the metrics.py errors with a helpful error message if an
+    invalid shape is supplied.
+    """
 
     def _create_fake_test_data(self):
         y_test = np.zeros(4)
