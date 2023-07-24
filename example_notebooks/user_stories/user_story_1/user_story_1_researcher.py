@@ -4,8 +4,13 @@ User story 1 as researcher.
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
 
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
 python -m example_notebooks.user_stories.user_story_1.user_story_1_researcher
 """
+
 import logging
 import os
 
@@ -15,12 +20,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import (
-    SafeDecisionTreeClassifier,  # pylint: disable=import-error
+from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
+    SafeDecisionTreeClassifier,
 )
 
 
-def main():
+def main(): # pylint: disable=too-many-statements, disable=too-many-locals
     """Create and train a model to be released."""
     directory = "training_artefacts/"
     print("Creating directory for training artefacts")
@@ -84,7 +89,7 @@ def main():
     # Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
-    msg, disclosive = model.preliminary_check()
+    _, _ = model.preliminary_check()
 
     # Wrap the model and data in a Target object
     target = Target(model=model)
@@ -103,7 +108,7 @@ def main():
 
     # Researcher can check for themselves whether their model passes individual disclosure checks
     SAVE_PATH = directory
-    SAVE_FILENAME="direct_results"    
+    SAVE_FILENAME="direct_results"
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")
@@ -121,7 +126,8 @@ def main():
                 logging.info(" %s : %s", key, val)
 
     # when researcher is satisfied the call request release()
-    # if they pass in the target model object the code will automatically run checks for the TRE staff
+    # if they pass in the target model object the code will automatically
+    # run checks for the TRE staff
     print("===> now running attacks implicitly via request_release()")
     model.request_release(path=SAVE_PATH, ext="pkl", target=target)
 

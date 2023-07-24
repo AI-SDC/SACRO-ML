@@ -19,10 +19,16 @@ import pickle
 
 import numpy as np
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule, GenerateTextReport
-from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
+    GenerateTextReport,
+)
+from aisdc.attacks.likelihood_attack import ( # pylint: disable=import-error
+    LIRAAttack,
+)
 from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
+from aisdc.attacks.worst_case_attack import (  # pylint: disable=import-error
+    WorstCaseAttack,
+)
 
 
 def generate_report(
@@ -35,7 +41,7 @@ def generate_report(
     attack_output_name,
     target_filename,
     outfile,
-):
+):  # pylint: disable=too-many-arguments, disable=too-many-locals
     """Generate report based on target model."""
 
     print()
@@ -47,17 +53,16 @@ def generate_report(
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__file__)
-
-    # Suppress messages from AI-SDC -- comment out these lines to see all the aisdc logging statements
+    # Suppress messages from AI-SDC -- comment out these lines to
+    # see all the aisdc logging statements
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
     model_filename = os.path.join(directory, target_model)
     print("Reading target model from " + model_filename)
-    target_model = pickle.load(open(model_filename, "rb"))
+    with open(model_filename, "rb") as f:
+        target_model = pickle.load(f)
 
     print("Reading training/testing data from ./" + directory)
     trainX = np.loadtxt(os.path.join(directory, x_train))
@@ -75,7 +80,7 @@ def generate_report(
     )
     wca.attack(target)
 
-    json_out = wca.make_report()
+    _ = wca.make_report()
 
     lira_config = {
         "training_data_filename": "train_data.csv",
@@ -97,13 +102,13 @@ def generate_report(
     )
 
     lira_attack_obj.attack(target)
-    output = lira_attack_obj.make_report()
+    _ = lira_attack_obj.make_report()
 
     target.save(os.path.join(directory, "target"))
 
     t = GenerateTextReport()
     t.process_attack_target_json(
-        os.path.join(directory, attack_output_name) + ".json", 
+        os.path.join(directory, attack_output_name) + ".json",
         target_filename=os.path.join(directory, target_filename)
     )
 

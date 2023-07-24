@@ -26,7 +26,8 @@ def generate_report(directory, target_model_filepath):
 
     filename = os.path.join(directory, target_model_filepath)
     print("Reading target model from " + filename)
-    _ = pickle.load(open(filename, "rb"))
+    with open(filename, "rb") as f:
+        _ = pickle.load(f)
 
     print("Attacks cannot be run since the original dataset cannot be recreated")
     print("AISDC cannot provide any help to TRE")

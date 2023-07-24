@@ -7,7 +7,6 @@ import datetime
 import getpass
 import json
 import logging
-import os
 import pathlib
 import pickle
 from pickle import PicklingError

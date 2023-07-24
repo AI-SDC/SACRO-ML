@@ -16,7 +16,6 @@ import pickle
 
 import numpy as np
 import pandas as pd
-from scipy.io.arff import loadarff
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -83,4 +82,5 @@ print(f"Testing accuracy on disclosive model: {test_acc:.2f}")
 
 filename = os.path.join(directory, "disclosive_random_forest.sav")
 print("Saving disclosive model to " + filename)
-pickle.dump(target_model, open(filename, "wb"))
+with open(filename, "wb") as f:
+    pickle.dump(target_model, f)
