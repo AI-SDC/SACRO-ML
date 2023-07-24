@@ -3,6 +3,12 @@ User story 2 (best case) as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
+python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 """
 
 import argparse

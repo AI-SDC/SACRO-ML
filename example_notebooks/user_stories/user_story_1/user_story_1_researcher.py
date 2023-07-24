@@ -3,6 +3,8 @@ User story 1 as researcher.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+
+python -m example_notebooks.user_stories.user_story_1.user_story_1_researcher
 """
 import logging
 import os
@@ -101,13 +103,14 @@ def main():
 
     # Researcher can check for themselves whether their model passes individual disclosure checks
     SAVE_PATH = directory
+    SAVE_FILENAME="direct_results"    
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")
-    results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
+    # results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, results_filename)
+        metadata = model.run_attack(target, attack_name, SAVE_PATH, SAVE_FILENAME)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):

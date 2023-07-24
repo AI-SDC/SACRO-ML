@@ -3,8 +3,14 @@ User story 7 as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
+python -m example_notebooks.user_stories.user_story_7.user_story_7_tre
 """
 
+import os
 import argparse
 import pickle
 
@@ -18,7 +24,7 @@ def generate_report(directory, target_model_filepath):
     )
     print()
 
-    filename = directory + target_model_filepath
+    filename = os.path.join(directory, target_model_filepath)
     print("Reading target model from " + filename)
     _ = pickle.load(open(filename, "rb"))
 
@@ -40,7 +46,7 @@ def main():
         action="store",
         dest="training_artefacts_directory",
         required=False,
-        default="training_artefacts/",
+        default="training_artefacts",
         help=(
             "Folder containing training artefacts produced by researcher. Default = %(default)s."
         ),
@@ -52,7 +58,7 @@ def main():
         action="store",
         dest="target_model",
         required=False,
-        default="/model.pkl",
+        default="model.pkl",
         help=("Filename of target model. Default = %(default)s."),
     )
 
