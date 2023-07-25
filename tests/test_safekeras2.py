@@ -733,7 +733,7 @@ def test_create_checkfile():
     # start with .tf and .h5 which should work
     exts = ("tf", "h5")
     for ext in exts:
-        name = os.path.normpath(os.path.join(f"{RES_DIR})",f"model.{ext}"))
+        name = os.path.normpath(os.path.join(f"{RES_DIR}",f"model.{ext}"))
         os.makedirs(os.path.dirname(name), exist_ok=True)
         # check save file
         model.save(name)
