@@ -3,6 +3,7 @@ User story 7 as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+
 Running
 -------
 
@@ -10,8 +11,8 @@ Invoke this code from the root AI-SDC folder with
 python -m example_notebooks.user_stories.user_story_7.user_story_7_tre
 """
 
-import os
 import argparse
+import os
 import pickle
 
 

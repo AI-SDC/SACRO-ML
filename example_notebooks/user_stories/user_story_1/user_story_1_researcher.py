@@ -25,7 +25,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 )
 
 
-def main(): # pylint: disable=too-many-statements, disable=too-many-locals
+def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     """Create and train a model to be released."""
     directory = "training_artefacts/"
     print("Creating directory for training artefacts")
@@ -108,7 +108,7 @@ def main(): # pylint: disable=too-many-statements, disable=too-many-locals
 
     # Researcher can check for themselves whether their model passes individual disclosure checks
     SAVE_PATH = directory
-    SAVE_FILENAME="direct_results"
+    SAVE_FILENAME = "direct_results"
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")

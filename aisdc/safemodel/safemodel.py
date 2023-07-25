@@ -747,7 +747,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             The target in the form of a Target object.
         attack_name : str
             Name of the attack to run.
-        output_dir: str
+        output_dir : str
             Name of the directory to store .json and .pdf output reports
         report_name : str
             Name of a .json file to save report.

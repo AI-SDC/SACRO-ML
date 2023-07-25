@@ -32,7 +32,7 @@ def generate_report(
     attack_results,
     target_filename,
     outfile,
-): # pylint: disable=too-many-locals, disable=too-many-arguments
+):  # pylint: disable=too-many-locals, disable=too-many-arguments
     """Generate report based on target model."""
 
     print()
