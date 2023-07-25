@@ -1,23 +1,24 @@
 # Changelog
 
-## Development
+## Version 1.0.6 (Jul 21, 2023)
 
 Changes:
+*    Update package dependencies ([#187](https://github.com/AI-SDC/AI-SDC/pull/187))
+*    Fix bug when `n_dummy_reps=0` in worst case attack ([#191](https://github.com/AI-SDC/AI-SDC/pull/191))
 *    Add ability to save target model and data to `target.json` ([#171](https://github.com/AI-SDC/AI-SDC/pull/171), [#175](https://github.com/AI-SDC/AI-SDC/pull/175), [#176](https://github.com/AI-SDC/AI-SDC/pull/176), [#177](https://github.com/AI-SDC/AI-SDC/pull/177))
 *    Add safemodel SDC results to `target.json` and `attack_results.json` ([#180](https://github.com/AI-SDC/AI-SDC/pull/180))
 *    Add generalisation error to `target.json` ([#183](https://github.com/AI-SDC/AI-SDC/pull/183))
-*    Update package dependencies ([#187](https://github.com/AI-SDC/AI-SDC/pull/187))
-*    Append attack outputs to a single results file ([#173](https://github.com/AI-SDC/AI-SDC/pull/173))
 *    Refactor attack argument handling ([#174](https://github.com/AI-SDC/AI-SDC/pull/174))
+*    Append attack outputs to a single results file ([#173](https://github.com/AI-SDC/AI-SDC/pull/173))
+*    Attack outputs written to specified folder ([#208](https://github.com/AI-SDC/AI-SDC/pull/208))
 *    Add ability to run membership inference attacks from the command line using config and target files ([#182](https://github.com/AI-SDC/AI-SDC/pull/182))
 *    Add ability to run attribute inference attacks from the command line using config and target files ([#188](https://github.com/AI-SDC/AI-SDC/pull/188))
 *    Add ability to run multiple attacks from a config file ([#200](https://github.com/AI-SDC/AI-SDC/pull/200))
-*    Fix bug when `n_dummy_reps=0` in worst case attack ([#191](https://github.com/AI-SDC/AI-SDC/pull/191))
 *    Add user story examples ([#194](https://github.com/AI-SDC/AI-SDC/pull/194))
 *    Improve attack formatter summary generation ([#179](https://github.com/AI-SDC/AI-SDC/pull/179))
 *    Attack formatter moves files generated for release into subfolders ([#197](https://github.com/AI-SDC/AI-SDC/pull/197))
 *    Fix a minor bug in the attack formatter ([#204](https://github.com/AI-SDC/AI-SDC/pull/204))
-*    Improve tests ([#196](https://github.com/AI-SDC/AI-SDC/pull/196), [#199](https://github.com/AI-SDC/AI-SDC/pull/199), [#205](https://github.com/AI-SDC/AI-SDC/pull/205))
+*    Improve tests ([#196](https://github.com/AI-SDC/AI-SDC/pull/196), [#199](https://github.com/AI-SDC/AI-SDC/pull/199))
 
 ## Version 1.0.5 (Jun 5, 2023)
 

@@ -1,4 +1,4 @@
-""" code to test the file attacks/target.py """
+"""Code to test the file attacks/target.py."""
 
 import builtins
 import io
@@ -63,7 +63,7 @@ def test_target(cleanup_files):  # pylint:disable=too-many-locals,unused-argumen
     """
     Returns a randomly sampled 10+10% of
     the nursery data set as a Target object
-    if needed fetches it from openml and saves. it
+    if needed fetches it from openml and saves. it.
     """
 
     nursery_data = fetch_openml(data_id=26, as_frame=True)

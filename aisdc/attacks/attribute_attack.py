@@ -1,12 +1,11 @@
-"""
-Attribute inference attacks.
-"""
+"""Attribute inference attacks."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import logging
+import os
 import uuid
 from datetime import datetime
 
@@ -32,9 +31,12 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    def __init__(
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
-        report_name: str = None,
+        output_dir: str = "output_attribute",
+        report_name: str = "aia_report",
         n_cpu: int = max(1, mp.cpu_count() - 1),
         attack_config_json_file_name: str = None,
         target_path: str = None,
@@ -43,22 +45,27 @@ class AttributeAttack(Attack):
 
         Parameters
         ----------
-        report_name: str
-            name of the JSON output report
-        n_cpu: int
+        n_cpu : int
             number of CPUs used to run the attack
-        attack_config_json_file_name: str
+        output_dir : str
+            name of the directory where outputs are stored
+        report_name : str
+            name of the pdf and json output reports
+        attack_config_json_file_name : str
             name of the configuration file to load parameters
-        target_path: str
+        target_path : str
             path to the saved trained target model and target data
         """
         super().__init__()
-        self.report_name = report_name
         self.n_cpu = n_cpu
+        self.output_dir = output_dir
+        self.report_name = report_name
         self.attack_config_json_file_name = attack_config_json_file_name
         self.target_path = target_path
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
@@ -66,13 +73,13 @@ class AttributeAttack(Attack):
         return "Attribute inference attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack entry point
+        """Programmatic attack entry point.
 
         To be used when code has access to Target class and trained target model
 
         Parameters
         ----------
-        target: attacks.target.Target
+        target : attacks.target.Target
             target is a Target class object
         """
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
@@ -85,7 +92,7 @@ class AttributeAttack(Attack):
 
         self.metadata["attack"] = str(self)
 
-    def make_report(self, json_attack_formatter=None) -> dict:
+    def make_report(self) -> dict:
         """Create the report.
 
         Creates the output report. If self.report_name is not None, it will also save the
@@ -94,29 +101,37 @@ class AttributeAttack(Attack):
         Returns
         -------
 
-        output: dict
+        output : dict
             Dictionary containing all attack output.
         """
         output = {}
-        logger.info("Starting report, report_name = %s", self.report_name)
+        report_dest = os.path.join(self.output_dir, self.report_name)
+        logger.info(
+            "Starting reports, pdf report name = %s, json report name = %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
 
-        if json_attack_formatter is not None:
-            json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-            json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
+        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
+        json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
+        json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
-        if self.report_name is not None:
-            pdf = create_aia_report(output)
-            pdf.output(f"{self.report_name}.pdf", "F")
-            logger.info("Wrote pdf report to %s", f"{self.report_name}.pdf")
+        pdf_report = create_aia_report(output, report_dest)
+        report.add_output_to_pdf(report_dest, pdf_report, "AttributeAttack")
+        logger.info(
+            "Wrote pdf report to %s and json report to %s",
+            report_dest + ".pdf",
+            report_dest + ".json",
+        )
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the instances metric calculated, during attacks"""
+        """Constructs the instances metric calculated, during attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
@@ -128,7 +143,8 @@ class AttributeAttack(Attack):
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
     """Returns whether there is a unique maximum confidence value above
-    threshold."""
+    threshold.
+    """
     if len(confidences) > 0:
         max_conf = np.max(confidences)
         if max_conf < threshold:
@@ -396,7 +412,8 @@ def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dic
 
 def _is_categorical(target: Target, feature_id: int) -> bool:
     """Returns whether a feature is categorical.
-    For simplicity, assumes integer datatypes are categorical."""
+    For simplicity, assumes integer datatypes are categorical.
+    """
     encoding: str = target.features[feature_id]["encoding"]
     if encoding[:3] in ("str", "int") or encoding[:6] in ("onehot"):
         return True
@@ -437,28 +454,27 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
     Parameters
     ----------
 
-    target_model: BaseEstimator
+    target_model : BaseEstimator
         Trained target model.
-    feat_id: int
+    feat_id : int
         Index of missing feature.
-    feat_min: float
+    feat_min : float
         Minimum value of missing feature.
-    feat_max: float
+    feat_max : float
         Maximum value of missing feature.
-    sample: np.ndarray
+    sample : np.ndarray
         Original known feature vector.
-    c_min: float
+    c_min : float
         Defines the confidence threshold below which we say we don't care.
-    protection_limit: float
+    protection_limit : float
         Lower [upper] bound on estimated value must not be
         above[below] lower[upper] bounds e.g. 10% of value.
-    feat_n: int
+    feat_n : int
         Number of attribute values to test per sample.
 
     Returns
     -------
     A bool representing whether the quantitative feature is at risk for the sample.
-
     """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
@@ -530,7 +546,8 @@ def _get_bounds_risk(
     x_test: np.ndarray,
 ) -> dict:
     """Returns a dictionary containing the training and test set risks of a
-    quantitative feature."""
+    quantitative feature.
+    """
     risk: dict = {
         "name": feature_name,
         "train": _get_bounds_risk_for_feature(target_model, feature_id, x_train),
@@ -558,9 +575,7 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
 
 
 def _attribute_inference(target: Target, n_cpu: int) -> dict:
-    """
-    Execute attribute inference attacks on a target given a trained model.
-    """
+    """Execute attribute inference attacks on a target given a trained model."""
     # brute force attack categorical attributes using dataset unique values
     logger.debug("Attacking dataset: %s", target.name)
     logger.debug("Attacking categorical attributes...")
@@ -624,7 +639,7 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
 
 
 def _run_attack_from_configfile(args):
-    """Run a command line attack based on saved files described in .json file"""
+    """Run a command line attack based on saved files described in .json file."""
     attack_obj = AttributeAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
@@ -632,11 +647,11 @@ def _run_attack_from_configfile(args):
     target = Target()
     target.load(attack_obj.target_path)
     attack_obj.attack(target)
-    attack_obj.make_report(GenerateJSONModule("aia_attack_from_configfile.json"))
+    attack_obj.make_report()
 
 
 def main():
-    """Main method to parse args and invoke relevant code"""
+    """Main method to parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 
     subparsers = parser.add_subparsers()

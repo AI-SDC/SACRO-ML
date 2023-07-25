@@ -1,4 +1,4 @@
-"""failfast.py - class to evaluate metric for fail fast option"""
+"""Failfast.py - class to evaluate metric for fail fast option."""
 
 from __future__ import annotations
 
@@ -22,16 +22,16 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
 
     # pylint: disable=too-many-branches
     def check_attack_success(self, metric_dict: dict) -> bool:
-        """A function to check if attack was successful for a given metric
+        """A function to check if attack was successful for a given metric.
 
         Parameters
         ----------
-        metric_dict: dict
+        metric_dict : dict
             a dictionary with all computed metric values
 
         Returns
         -------
-        success_status: bool
+        success_status : bool
             a boolean value is returned based on the comparison for a given threshold
 
         Notes
@@ -70,22 +70,22 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.fail_count += 1
 
     def get_success_count(self) -> int:
-        """Returns a count of attack being successful"""
+        """Returns a count of attack being successful."""
         return self.success_count
 
     def get_fail_count(self):
-        """Returns a count of attack being not successful"""
+        """Returns a count of attack being not successful."""
         return self.fail_count
 
     def get_attack_summary(self) -> dict:
-        """Returns a dictionary of counts of attack being successful and not successful"""
+        """Returns a dictionary of counts of attack being successful and not successful."""
         summary = {}
         summary["success_count"] = self.success_count
         summary["fail_count"] = self.fail_count
         return summary
 
     def check_overall_attack_success(self, attack_obj: Any) -> bool:
-        """Returns true if the attack is successful for a given success count threshold"""
+        """Returns true if the attack is successful for a given success count threshold."""
         overall_success_status = False
         if self.success_count >= attack_obj.attack_metric_success_count_thresh:
             overall_success_status = True

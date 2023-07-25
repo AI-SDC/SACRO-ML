@@ -1,6 +1,4 @@
-"""
-Calculate metrics.
-"""
+"""Calculate metrics."""
 
 from __future__ import annotations
 
@@ -18,20 +16,22 @@ VAR_THRESH = 1e-2
 
 def _div(x: float, y: float, default: float) -> float:
     """Solve the problem of division by 0 and round up.
-    If y is non-zero, perform x/y and round to 8dp. If it is zero, return the default
+
+    If y is non-zero, perform x/y and round to 8dp. If it is zero, return the
+    default.
 
     Parameters
     ----------
-    x: float
+    x : float
         numerator
-    y: float
+    y : float
         denominator
-    default: float
+    default : float
         return value if y == 0
 
     Returns
     -------
-    division: float
+    division : float
         x / y, or default if y == 0
     """
     if y != 0:
@@ -48,23 +48,24 @@ def _tpr_at_fpr(
     fpr_perc: bool = False,
 ) -> float:
     """Compute the TPR at a fixed FPR.
-    In particular, returns the TPR value corresponding to a particular FPR. Uses interpolation
-    to fill in gaps.
+
+    In particular, returns the TPR value corresponding to a particular FPR.
+    Uses interpolation to fill in gaps.
 
     Parameters
     ----------
-    y_true: Iterable[float]
+    y_true : Iterable[float]
         actual class labels
-    y_score: Iterable[float]
+    y_score : Iterable[float]
         predicted score
-    fpr: float
+    fpr : float
         false positive rate at which to compute true positive rate
-    fpr_perc: bool
+    fpr_perc : bool
         if the fpr is defined as a percentage
 
     Returns
     -------
-    tpr: float
+    tpr : float
         true positive rate at fpr
     """
 
@@ -82,22 +83,22 @@ def _tpr_at_fpr(
 
 
 def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
-    """ "Compute variance of AUC under assumption of uniform probabilities
-    uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf
+    """Compute variance of AUC under assumption of uniform probabilities
+    uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf.
 
     Parameters
     ----------
 
-    auc: float
+    auc : float
         auc value at which to compute the variance
-    num_pos: int
+    num_pos : int
         number of positive examples
-    num_neg: int
+    num_neg : int
         number of negative examples
 
     Returns
     -------
-    var: float
+    var : float
         null variance of AUC
     """
     p_xxy = p_xyy = 1 / 3
@@ -126,27 +127,27 @@ def min_max_disc(
 
     Parameters
     ----------
-    y: np.ndarray
+    y : np.ndarray
         true labels
-    yp: np.ndarray
+    yp : np.ndarray
         probabilities of labels, or monotonic transformation of probabilties
-    xprop: float
+    xprop : float
         proportion of samples with highest- and lowest- probability of membership to be
         considered
-    logp: bool
+    logp : bool
         convert p-values to log(p).
 
     Returns
     -------
-    maxd: float
+    maxd : float
         frequency of y=1 amongst proportion xprop of individuals with highest assessed
         membership probability
-    mind: float
+    mind : float
         frequency of y=1 amongst proportion xprop of individuals with lowest assessed
         membership probability
-    mmd: float
+    mmd : float
         difference between maxd and mind
-    pval: float
+    pval : float
         p-value or log-p value corresponding to mmd against null hypothesis that random
         variables corresponding to y and yp are independent.
 
@@ -188,22 +189,22 @@ def min_max_disc(
 
 
 def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
-    """Compute the p-value for a given AUC
+    """Compute the p-value for a given AUC.
 
     Parameters
     ----------
-    auc: float
+    auc : float
         Observed AUC value
-    n_pos: int
+    n_pos : int
         Number of positive examples
-    n_neg: int
+    n_neg : int
         Number of negative examples
 
     Returns
     -------
-    auc_p: float
+    auc_p : float
         p-value of observing an AUC > auc by chance
-    auc_std: float
+    auc_std : float
         standard deviation of the NULL AUC diustribution (mean = 0.5)
     """
     auc_std = np.sqrt(_expected_auc_var(0.5, n_pos, n_neg))
@@ -223,18 +224,18 @@ def get_probabilities(  # pylint: disable=too-many-locals
 
     Parameters
     ----------
-    clf: sklearn.Model
+    clf : sklearn.Model
         trained model
-    X_test: np.ndarray
+    X_test : np.ndarray
         test data matrix
-    y_test: np.ndarray
+    y_test : np.ndarray
         test data labels
-    permute_rows: boolean
+    permute_rows : boolean
         a flag to indicate whether rows should be permuted
 
     Returns
     -------
-    y_pred_proba: a list of probabilities for each sample in the dataset
+    y_pred_proba : a list of probabilities for each sample in the dataset
 
     Notes
     -----
@@ -265,19 +266,20 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
 ):
     """
     Calculate metrics, including attacker advantage for MIA binary.
+
     Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
-    which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy
+    which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy.
 
     Parameters
     ----------
-    y_test: np.ndarray
+    y_test : np.ndarray
         test data labels
-    y_pred_proba: np.ndarray of shape [x,2] and type float
+    y_pred_proba : np.ndarray of shape [x,2] and type float
         predicted probabilities
 
     Returns
     -------
-    metrics: dict
+    metrics : dict
         dictionary of metric values
 
     Notes

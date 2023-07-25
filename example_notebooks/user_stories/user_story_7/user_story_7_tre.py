@@ -1,9 +1,8 @@
 """
-User story 7 as TRE
+User story 7 as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
-
 """
 
 import argparse
@@ -11,7 +10,7 @@ import pickle
 
 
 def generate_report(directory, target_model_filepath):
-    """main method to parse arguments and then invoke report generation"""
+    """Main method to parse arguments and then invoke report generation."""
     print()
     print("Acting as TRE...")
     print(
@@ -28,7 +27,7 @@ def generate_report(directory, target_model_filepath):
 
 
 def main():
-    """main method to parse arguments and then invoke report generation"""
+    """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"

@@ -1,5 +1,5 @@
-"""test_generate_report.py
-Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>
+"""Test_generate_report.py
+Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 import json
 import os
@@ -20,7 +20,7 @@ from aisdc.attacks.attack_report_formatter import (
 
 
 def get_test_report():
-    """create a mock attack result dictionary for use with tests"""
+    """Create a mock attack result dictionary for use with tests."""
     json_formatted = {
         "log_id": 1024,
         "metadata": {"attack": "WorstCase"},
@@ -50,7 +50,7 @@ def get_test_report():
 
 
 def get_target_report():
-    """create a mock target model dictionary for use with tests"""
+    """Create a mock target model dictionary for use with tests."""
     target_formatted = {
         "data_name": "",
         "n_samples": 12960,
@@ -66,16 +66,16 @@ def get_target_report():
 
 
 def clean_up(name):
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
     if os.path.exists(name) and os.path.isfile(name):
         os.remove(name)
 
 
 class TestGenerateReport(unittest.TestCase):
-    """class which tests the attack_report_formatter.py file"""
+    """Class which tests the attack_report_formatter.py file."""
 
     def process_json_from_file(self, json_formatted):
-        """function which handles file input/output from the process_json function"""
+        """Function which handles file input/output from the process_json function."""
         filename = "test.json"
         output_filename = "results.txt"
 
@@ -95,7 +95,7 @@ class TestGenerateReport(unittest.TestCase):
         return data
 
     def test_not_implemented(self):
-        """test to make sure analysis module fails expectedly when functions are called directly"""
+        """Test to make sure analysis module fails expectedly when functions are called directly."""
         a = AnalysisModule()
         with pytest.raises(NotImplementedError):
             a.process_dict()
@@ -104,7 +104,7 @@ class TestGenerateReport(unittest.TestCase):
             str(a)
 
     def test_json_formatter(self):
-        """test which tests the GenerateJSONModule"""
+        """Test which tests the GenerateJSONModule."""
         g = GenerateJSONModule()
         filename = g.get_output_filename()
         self.assertIsNotNone(filename)
@@ -135,7 +135,7 @@ class TestGenerateReport(unittest.TestCase):
         clean_up(test_filename)
 
     def test_process_attack_target_json(self):
-        """test which tests the process_attack_target_json function"""
+        """Test which tests the process_attack_target_json function."""
         target_report = get_target_report()
         target_json = "target.json"
 
@@ -181,7 +181,7 @@ class TestGenerateReport(unittest.TestCase):
         clean_up(output_filename)
 
     def test_whitespace_in_filenames(self):
-        """test to make sure whitespace is removed from the output file when creating the report"""
+        """Test to make sure whitespace is removed from the output file when creating the report."""
         json_formatted = get_test_report()
 
         filename = "test.json"
@@ -202,7 +202,7 @@ class TestGenerateReport(unittest.TestCase):
         clean_up("filename_should_be_changed.txt")
 
     def test_move_files(self):
-        """test the move_files parameter inside export_to_file"""
+        """Test the move_files parameter inside export_to_file."""
         filename = "test.json"
         output_filename = "results.txt"
         dummy_model = "dummy_model.txt"
@@ -265,16 +265,16 @@ class TestGenerateReport(unittest.TestCase):
         clean_up("training_artefacts")
 
     def test_complete_runthrough(self):
-        """test the full process_json file end-to-end when valid parameters are passed"""
+        """Test the full process_json file end-to-end when valid parameters are passed."""
         json_formatted = get_test_report()
         _ = self.process_json_from_file(json_formatted)
 
 
 class TestFinalRecommendationModule(unittest.TestCase):
-    """class which tests the FinalRecommendatiionModule inside attack_report_formatter.py"""
+    """Class which tests the FinalRecommendatiionModule inside attack_report_formatter.py."""
 
     def test_instance_based(self):
-        """test the process_json function when the target model is an instance based model"""
+        """Test the process_json function when the target model is an instance based model."""
         json_formatted = get_test_report()
         f = FinalRecommendationModule(json_formatted)
         f.process_dict()
@@ -309,7 +309,7 @@ class TestFinalRecommendationModule(unittest.TestCase):
         self.assertIn("Model is kNN", immediate_rejection)
 
     def test_min_samples_leaf(self):
-        """test the process_json function when the target model includes decision trees"""
+        """Test the process_json function when the target model includes decision trees."""
 
         # test when min_samples_leaf > 5
         json_formatted = get_test_report()
@@ -339,7 +339,7 @@ class TestFinalRecommendationModule(unittest.TestCase):
         self.assertIn("Min samples per leaf", support_rejection)
 
     def test_statistically_significant(self):
-        """test the statistically significant AUC p-values check in FinalRecommendationModule"""
+        """Test the statistically significant AUC p-values check in FinalRecommendationModule."""
         json_formatted = get_test_report()
         json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
             "attack_instance_logger"
@@ -393,19 +393,17 @@ class TestFinalRecommendationModule(unittest.TestCase):
         self.assertIn("Attack AUC <= threshold", support_release)
 
     def test_print(self):
-        """test the FinalRecommendationModule printing"""
+        """Test the FinalRecommendationModule printing."""
         json_formatted = get_test_report()
         f = FinalRecommendationModule(json_formatted)
         self.assertEqual("Final Recommendation", str(f))
 
 
 class TestSummariseUnivariateMetricsModule(unittest.TestCase):
-    """
-    Class which tests the SummariseUnivariateMetricsModule inside attack_report_formatter.py
-    """
+    """Class which tests the SummariseUnivariateMetricsModule inside attack_report_formatter.py."""
 
     def test_univariate_metrics_module(self):
-        """test the SummariseUnivariateMetricsModule"""
+        """Test the SummariseUnivariateMetricsModule."""
         json_formatted = get_test_report()
 
         auc_value = 0.8
@@ -445,19 +443,17 @@ class TestSummariseUnivariateMetricsModule(unittest.TestCase):
         self.assertEqual("Summary of Univarite Metrics", str(f))
 
     def test_print(self):
-        """test the SummariseUnivariateMetricsModule printing"""
+        """Test the SummariseUnivariateMetricsModule printing."""
         json_formatted = get_test_report()
         f = SummariseUnivariateMetricsModule(json_formatted)
         self.assertEqual("Summary of Univarite Metrics", str(f))
 
 
 class TestSummariseAUCPvalsModule(unittest.TestCase):
-    """
-    Class which tests the SummariseAUCPvalsModule inside attack_report_formatter.py
-    """
+    """Class which tests the SummariseAUCPvalsModule inside attack_report_formatter.py."""
 
     def test_auc_pvals_module(self):
-        """test the SummariseAUCPvalsModule"""
+        """Test the SummariseAUCPvalsModule."""
         json_formatted = get_test_report()
         f = SummariseAUCPvalsModule(json_formatted)
         _ = str(f)
@@ -492,19 +488,17 @@ class TestSummariseAUCPvalsModule(unittest.TestCase):
         f = SummariseAUCPvalsModule(json_formatted)
 
     def test_print(self):
-        """test the SummariseAUCPvalsModule printing"""
+        """Test the SummariseAUCPvalsModule printing."""
         json_formatted = get_test_report()
         f = SummariseAUCPvalsModule(json_formatted)
         self.assertIn("Summary of AUC p-values", str(f))
 
 
 class TestSummariseFDIFPvalsModule(unittest.TestCase):
-    """
-    Class which tests the SummariseFDIFPvalsModule inside attack_report_formatter.py
-    """
+    """Class which tests the SummariseFDIFPvalsModule inside attack_report_formatter.py."""
 
     def test_fdif_pvals_module(self):
-        """test the SummariseFDIFPvalsModule"""
+        """Test the SummariseFDIFPvalsModule."""
         json_formatted = get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         returned = f.process_dict()
@@ -519,19 +513,17 @@ class TestSummariseFDIFPvalsModule(unittest.TestCase):
         self.assertEqual(10, len(returned))
 
     def test_print(self):
-        """test the SummariseFDIFPvalsModule printing"""
+        """Test the SummariseFDIFPvalsModule printing."""
         json_formatted = get_test_report()
         f = SummariseFDIFPvalsModule(json_formatted)
         self.assertIn("Summary of FDIF p-values", str(f))
 
 
 class TestLogLogROCModule(unittest.TestCase):
-    """
-    Class which tests the LogLogROCModule inside attack_report_formatter.py
-    """
+    """Class which tests the LogLogROCModule inside attack_report_formatter.py."""
 
     def test_loglog_roc_module(self):
-        """test the LogLogROCModule"""
+        """Test the LogLogROCModule."""
         json_formatted = get_test_report()
         f = LogLogROCModule(json_formatted)
         returned = f.process_dict()
@@ -556,7 +548,7 @@ class TestLogLogROCModule(unittest.TestCase):
         clean_up(output_file)
 
     def test_loglog_multiple_files(self):
-        """test the LogLogROCModule with multiple tests"""
+        """Test the LogLogROCModule with multiple tests."""
         out_json = get_test_report()
         out_json_copy = get_test_report()
         out_json_copy["log_id"] = 2048
@@ -578,7 +570,7 @@ class TestLogLogROCModule(unittest.TestCase):
         clean_up(output_file_2)
 
     def test_print(self):
-        """test the LogLogROCModule printing"""
+        """Test the LogLogROCModule printing."""
         json_formatted = get_test_report()
         f = LogLogROCModule(json_formatted)
         self.assertEqual("ROC Log Plot", str(f))

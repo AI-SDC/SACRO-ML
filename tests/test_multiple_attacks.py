@@ -9,10 +9,10 @@ Invoke this code from the root AI-SDC folder.
 However to run this test file, it will be required to install pytest package
 using 'pip install pytest' and then run following
 python -m pytest .\tests\test_multiple_attacks.py
-
 """
 import json
 import os
+import shutil
 import sys
 
 # ignore unused imports because it depends on whether data file is present
@@ -33,25 +33,27 @@ from tests.test_attacks_via_safemodel import get_target
 
 
 def cleanup_file(name: str):
-    """removes unwanted files or directory"""
-    if os.path.exists(name) and os.path.isfile(name):  # h5
-        os.remove(name)
+    """Removes unwanted files or directory."""
+    if os.path.exists(name):
+        if os.path.isfile(name):
+            os.remove(name)
+        elif os.path.isdir(name):
+            shutil.rmtree(name)
 
 
 def common_setup():
-    """basic commands to get ready to test some code"""
+    """Basic commands to get ready to test some code."""
     model = RandomForestClassifier(bootstrap=False)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
     attack_obj = MultipleAttacks(
         config_filename="test_single_config.json",
-        output_filename="test_single_output.json",
     )
     return target, attack_obj
 
 
 def create_single_config_file():
-    """creates single configuration file using multiple attack configuration"""
+    """Creates single configuration file using multiple attack configuration."""
     # instantiating a configfile object to add configurations
     configfile_obj = ConfigFile(
         filename="test_single_config.json",
@@ -65,7 +67,8 @@ def create_single_config_file():
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "worst_case")
 
@@ -76,7 +79,8 @@ def create_single_config_file():
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example2_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "worst_case")
 
@@ -87,7 +91,8 @@ def create_single_config_file():
         "test_prop": 0.5,
         "train_beta": 5,
         "test_beta": 2,
-        "report_name": "worstcase_example3_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "training_preds_filename": "train_preds.csv",
         "test_preds_filename": "test_preds.csv",
         "attack_metric_success_name": "P_HIGHER_AUC",
@@ -101,7 +106,8 @@ def create_single_config_file():
     # Adding two different lira attack configuration dictionaries to the JSON file
     config = {
         "n_shadow_models": 100,
-        "report_name": "lira_example1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "training_data_filename": "train_data.csv",
         "test_data_filename": "test_data.csv",
         "training_preds_filename": "train_preds.csv",
@@ -113,7 +119,8 @@ def create_single_config_file():
 
     config = {
         "n_shadow_models": 150,
-        "report_name": "lira_example2_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "shadow_models_fail_fast": True,
         "n_shadow_rows_confidences_min": 10,
         "training_data_filename": "train_data.csv",
@@ -131,7 +138,8 @@ def create_single_config_file():
     # having multiple attack configurations
     config = {
         "n_shadow_models": 120,
-        "report_name": "lira_example3_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
         "shadow_models_fail_fast": True,
         "n_shadow_rows_confidences_min": 10,
         "training_data_filename": "train_data.csv",
@@ -149,55 +157,52 @@ def create_single_config_file():
     # from an existing configuration file to the JSON configuration file
     config = {
         "n_cpu": 2,
-        "report_name": "aia_exampl1_report",
+        "output_dir": "outputs_multiple_attacks",
+        "report_name": "report_multiple_attacks",
     }
     configfile_obj.add_config(config, "attribute")
+    os.remove("test_lira_config.json")
     return configfile_obj
 
 
 def test_configfile_number():
-    """tests number of attack configurations in a configuration file"""
+    """Tests number of attack configurations in a configuration file."""
     configfile_obj = create_single_config_file()
     configfile_data = configfile_obj.read_config_file()
     assert len(configfile_data) == 8
+    os.remove("test_single_config.json")
 
 
 def test_multiple_attacks_programmatic():
-    """tests programmatically running attacks using a single configuration configuration file"""
+    """Tests programmatically running attacks using a single configuration configuration file."""
     target, attack_obj = common_setup()
+    _ = create_single_config_file()
     attack_obj.attack(target)
     print(attack_obj)
+    os.remove("test_single_config.json")
 
 
 def test_multiple_attacks_cmd():
-    """tests running multiple attacks (MIA and AIA) on the nursery data
-    with an added continuous feature"""
+    """Tests running multiple attacks (MIA and AIA) on the nursery data
+    with an added continuous feature.
+    """
     target, _ = common_setup()
     target.save(path="tests/test_multiple_target")
+    _ = create_single_config_file()
 
     os.system(
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
-        "--attack-config-json-file-name tests/test_single_config_cmd.json "
+        "--attack-config-json-file-name test_single_config.json "
         "--attack-target-folder-path tests/test_multiple_target "
-        "--attack-output-json-file-name tests/test_single_output_cmd.json "
     )
 
 
 def test_cleanup():
-    """tidies up any files created"""
+    """Tidies up any files created."""
     files_made = (
-        "test_lira_config.json",
         "test_single_config.json",
-        "test_single_output.json",
-        "worstcase_example1_report.pdf",
-        "worstcase_example2_report.pdf",
-        "worstcase_example3_report.pdf",
-        "lira_example1_report.pdf",
-        "lira_example2_report.pdf",
-        "lira_example3_report.pdf",
-        "aia_exampl1_report.pdf",
-        "tests/test_single_config_cmd.json",
-        "tests/test_single_output_cmd.json",
+        "outputs_multiple_attacks",
+        "tests/test_multiple_target",
     )
     for fname in files_made:
         cleanup_file(fname)

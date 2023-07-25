@@ -1,4 +1,4 @@
-""" tests for fnctionality in super class"""
+"""Tests for fnctionality in super class."""
 import copy
 import json
 import os
@@ -16,13 +16,13 @@ ok_start = get_reporting_string(name="within_recommended_ranges")
 
 
 class DummyClassifier:
-    """Dummy Classifier that always returns predictions of zero"""
+    """Dummy Classifier that always returns predictions of zero."""
 
     # pylint: disable=too-many-arguments
     def __init__(
         self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", keyA=True, keyB=True
     ):
-        """dummy init"""
+        """Dummy init."""
         self.at_least_5f = at_least_5f
         self.at_most_5i = at_most_5i
         self.exactly_boo = exactly_boo
@@ -30,10 +30,10 @@ class DummyClassifier:
         self.keyB = keyB
 
     def fit(self, x: np.ndarray, y: np.ndarray):
-        """dummy fit"""
+        """Dummy fit."""
 
     def predict(self, x: np.ndarray):  # pragma: no cover
-        """predict all ones"""
+        """Predict all ones."""
         return np.ones(x.shape[0])
 
 
@@ -79,17 +79,17 @@ class SafeDummyClassifier(
         self.newthing = ["myStringKey", "aString", "myIntKey", "42"]
 
     def set_params(self, **kwargs):  # pragma: no cover
-        """sets params"""
+        """Sets params."""
         for key, val in kwargs.items():  # pylint:disable=unused-variable
             self.key = val  # pylint:disable=attribute-defined-outside-init
 
     def fit(self, x: np.ndarray, y: np.ndarray):
-        """dummy fit"""
+        """Dummy fit."""
         self.saved_model = copy.deepcopy(self.__dict__)
 
 
 def test_params_checks_ok():
-    """test parameter  checks ok"""
+    """Test parameter  checks ok."""
     model = SafeDummyClassifier()
 
     correct_msg = ok_start
@@ -102,7 +102,7 @@ def test_params_checks_ok():
 
 
 def test_params_checks_too_low():
-    """test parameter  checks too low"""
+    """Test parameter  checks too low."""
     model = SafeDummyClassifier()
 
     model.at_least_5f = 4.0
@@ -118,7 +118,7 @@ def test_params_checks_too_low():
 
 
 def test_params_checks_too_high():
-    """test parameter  checks too high"""
+    """Test parameter  checks too high."""
     model = SafeDummyClassifier()
 
     model.at_most_5i = 6
@@ -131,7 +131,7 @@ def test_params_checks_too_high():
 
 
 def test_params_checks_not_equal():
-    """test parameter  checks not equal"""
+    """Test parameter  checks not equal."""
     model = SafeDummyClassifier()
 
     model.exactly_boo = "foo"
@@ -147,7 +147,7 @@ def test_params_checks_not_equal():
 
 
 def test_params_checks_wrong_type_str():
-    """test parameter  checks wrong type - strings given"""
+    """Test parameter  checks wrong type - strings given."""
     model = SafeDummyClassifier()
 
     model.at_least_5f = "five"
@@ -185,7 +185,7 @@ def test_params_checks_wrong_type_str():
 
 
 def test_params_checks_wrong_type_float():
-    """test parameter  checks wrong_type_float"""
+    """Test parameter  checks wrong_type_float."""
     model = SafeDummyClassifier()
 
     model.exactly_boo = 5.0
@@ -210,7 +210,7 @@ def test_params_checks_wrong_type_float():
 
 
 def test_params_checks_wrong_type_int():
-    """test parameter  checks wrong_type_intt"""
+    """Test parameter  checks wrong_type_intt."""
     model = SafeDummyClassifier()
 
     model.exactly_boo = 5
@@ -242,7 +242,7 @@ def test_params_checks_wrong_type_int():
 
 
 def test_check_unknown_param():
-    """checks handling of malformed json rule"""
+    """Checks handling of malformed json rule."""
     # pylint:disable=protected-access,no-member
     model = SafeDummyClassifier()
     _, _ = model.preliminary_check()
@@ -259,8 +259,8 @@ def test_check_unknown_param():
 
 
 def test_check_model_param_or():
-    """tests or conditions in rules.json
-    the and condition is tested by the decision tree tests
+    """Tests or conditions in rules.json
+    the and condition is tested by the decision tree tests.
     """
     # ok
     model = SafeDummyClassifier()
@@ -305,7 +305,7 @@ def test_check_model_param_or():
 
 
 def test_saves():
-    """checks that save functions as expected"""
+    """Checks that save functions as expected."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -334,7 +334,7 @@ def test_saves():
 
 
 def test_loads():
-    """basic check that making, changing,saving,loading model works"""
+    """Basic check that making, changing,saving,loading model works."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -361,7 +361,7 @@ def test_loads():
 
 
 def test__apply_constraints():
-    """tests constraints can be applied as expected"""
+    """Tests constraints can be applied as expected."""
 
     # wrong type
     model = SafeDummyClassifier()
@@ -452,8 +452,8 @@ def test__apply_constraints():
 
 
 def test_get_saved_model_exception():
-    """tests the exception handling
-    in get_current_and_saved_models()
+    """Tests the exception handling
+    in get_current_and_saved_models().
     """
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
@@ -469,10 +469,10 @@ def test_get_saved_model_exception():
 
 
 def test_generic_additional_tests():
-    """checks the class generic additional tests
+    """Checks the class generic additional tests
     for this purpose SafeDummyClassifier()
     defines
-    self.newthing = {"myStringKey": "aString", "myIntKey": 42}
+    self.newthing = {"myStringKey": "aString", "myIntKey": 42}.
     """
     model = SafeDummyClassifier()
     x, y = get_data()
@@ -513,7 +513,7 @@ def test_generic_additional_tests():
 
 
 def test_request_release_without_attacks():
-    """checks requestrelease code works and check the content of the json file"""
+    """Checks requestrelease code works and check the content of the json file."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)

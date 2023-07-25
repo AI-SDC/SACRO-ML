@@ -18,7 +18,6 @@ Running
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.worst_case_attack_example
-
 """
 import json
 import os
@@ -30,9 +29,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import (
-    GenerateJSONModule,  # pylint: disable = import-error
-)
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -77,10 +73,11 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     test_preds_filename=None,
     # Proportion of data to use as a test set for the attack model;
     test_prop=0.5,
-    # If Report name is given so it creates Json file; however when it is None -
-    # don't make json file
-    report_name="programmatically_worstcase_example1_report",
-    # Setting the name of metric to compute failures
+    # name of the output directory
+    output_dir="outputs_worstcase",
+    # # If report_name is given, it creates pdf and json files with the specified name;
+    # # otherwise it create output files with default name 'report_worstcase'
+    # report_name="programmatically_worstcase_example1_report",
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
     attack_metric_success_thresh=0.05,
@@ -100,7 +97,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
 attack_obj.attack(target)
 
 # [TRE] Grab the output
-output = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
+output = attack_obj.make_report()
 metadata = output["metadata"]
 # [TRE] explore the metrics
 # For how many of the reps is the AUC p-value significant, with and without FDR correction. A
@@ -165,7 +162,8 @@ config = {
     "test_prop": 0.5,
     "train_beta": 5,
     "test_beta": 2,
-    "report_name": "programmatically_worstcase_example2_report",
+    "output_dir": "outputs_worstcase",
+    # "report_name": "report_worstcase"
 }
 
 with open("config_worstcase.json", "w", encoding="utf-8") as f:
@@ -181,7 +179,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
 attack_obj.attack(target)
 
 # [TRE] Grab the output
-output = attack_obj.make_report(GenerateJSONModule("worst_case_attack.json"))
+output = attack_obj.make_report()
 metadata = output["metadata"]
 # [TRE] explore the metrics
 # For how many of the reps is the AUC p-value significant, with and without FDR correction. A
@@ -249,7 +247,7 @@ np.savetxt("train_preds.csv", train_preds, delimiter=",")
 np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
 # [Researcher] Dump the target model and target data
-target.save(path="worstcase_target")
+target.save(path="target_model_worstcase")
 
 # [TRE] Runs the attack. This would be done on the command line, here we do that with os.system
 # [TRE] First they access the help to work out which parameters they need to set
@@ -262,7 +260,8 @@ os.system(
     "--training-preds-filename train_preds.csv "
     "--test-preds-filename test_preds.csv "
     "--n-reps 10 "
-    "--report-name commandline_worstcase_example1_report "
+    "--output-dir outputs_worstcase "
+    # "--report-name commandline_report_worstcase "
     "--n-dummy-reps 1 "
     "--test-prop 0.1 "
     "--train-beta 5 "
@@ -288,7 +287,8 @@ config = {
     "test_prop": 0.5,
     "train_beta": 5,
     "test_beta": 2,
-    "report_name": "commandline_worstcase_example2_report",
+    "output_dir": "outputs_worstcase",
+    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
     "attack_metric_success_name": "P_HIGHER_AUC",
@@ -304,7 +304,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_worstcase_cmd.json "
-    "--attack-target-folder-path worstcase_target "
+    "--attack-target-folder-path target_model_worstcase "
 )
 
 # Example 3: Worstcase attack by passing a configuratation file name for loading parameters
@@ -315,7 +315,8 @@ config = {
     "test_prop": 0.5,
     "train_beta": 5,
     "test_beta": 2,
-    "report_name": "commandline_worstcase_example3_report",
+    "output_dir": "outputs_worstcase",
+    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
 }
@@ -326,7 +327,7 @@ with open("config_worstcase_cmd.json", "w", encoding="utf-8") as f:
 os.system(
     f"{sys.executable} -m aisdc.attacks.worst_case_attack run-attack-from-configfile "
     "--attack-config-json-file-name config_worstcase_cmd.json "
-    "--attack-target-folder-path worstcase_target "
+    "--attack-target-folder-path target_model_worstcase "
 )
 
 # [TRE] The code produces a .pdf report (example_report.pdf) and a .json file (example_report.json)

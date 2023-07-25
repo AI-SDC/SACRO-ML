@@ -1,6 +1,4 @@
-"""
-Test the various models we have defined
-"""
+"""Test the various models we have defined."""
 
 import unittest
 
@@ -22,14 +20,10 @@ def get_data():
 
 
 class TestDPSVC(unittest.TestCase):
-    """
-    Test the differentially private SVC
-    """
+    """Test the differentially private SVC."""
 
     def test_run(self):
-        """
-        Test the model runs
-        """
+        """Test the model runs."""
         dpsvc = SafeSVC()
         svc = SVC(kernel="rbf", gamma="scale", C=1.0, probability=True)
         x, y = get_data()
@@ -91,7 +85,7 @@ class TestDPSVC(unittest.TestCase):
         self.assertTrue(errstr in str(context.exception))
 
     def test_svc_gamma_zero(self):
-        """SafeSupportVectorClassifier still makes predictions if we provide daft params"""
+        """SafeSupportVectorClassifier still makes predictions if we provide daft params."""
         x, y = get_data()
         model = SafeSVC(gamma=0.0, eps=0.0)
         model.fit(x, y)
@@ -99,7 +93,7 @@ class TestDPSVC(unittest.TestCase):
         assert len(predictions) == len(x)
 
     def test_svc_gamma_auto(self):
-        """SafeSupportVectorClassifier still makes predictions if we provide daft params"""
+        """SafeSupportVectorClassifier still makes predictions if we provide daft params."""
         x, y = get_data()
         model = SafeSVC(gamma="auto")
         model.fit(x, y)

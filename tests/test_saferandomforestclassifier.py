@@ -15,16 +15,16 @@ EXPECTED_ACC = 0.9470198675496688  # 5 estimators, min_samples_leaf 5
 
 
 class DummyClassifier:
-    """Dummy Classifier that always returns predictions of zero"""
+    """Dummy Classifier that always returns predictions of zero."""
 
     def __init__(self):
-        """empty init"""
+        """Empty init."""
 
     def fit(self, x: np.ndarray, y: np.ndarray):
-        """empty fit"""
+        """Empty fit."""
 
     def predict(self, x: np.ndarray):
-        """predict all ones"""
+        """Predict all ones."""
 
     #     return np.ones(x.shape[0])
 
@@ -165,8 +165,9 @@ def test_randomforest_hacked_postfit():
 
 
 def test_not_fitted():
-    """posthoc_check() called on unfitred model
-    could have anything injected in classifier parameters"""
+    """Posthoc_check() called on unfitred model
+    could have anything injected in classifier parameters.
+    """
     unfitted_model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
 
     # not fitted
@@ -179,8 +180,8 @@ def test_not_fitted():
 
 
 def test_randomforest_modeltype_changed():
-    """model type has been changed after fit()
-    in this this case to hide some data
+    """Model type has been changed after fit()
+    in this this case to hide some data.
     """
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
@@ -212,7 +213,7 @@ def test_randomforest_modeltype_changed():
 
 
 def test_randomforest_hacked_postfit_trees_removed():
-    """tests various combinations of removing trees"""
+    """Tests various combinations of removing trees."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     # code that checks estimators_ : one other or both missing or different number or size
@@ -244,7 +245,7 @@ def test_randomforest_hacked_postfit_trees_removed():
 
 
 def test_randomforest_hacked_postfit_trees_swapped():
-    """trees swapped with those from a different random forest"""
+    """Trees swapped with those from a different random forest."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     diffsizemodel = SafeRandomForestClassifier(
@@ -280,7 +281,7 @@ def test_randomforest_hacked_postfit_trees_swapped():
 
 
 def test_randomforest_hacked_postfit_moretrees():
-    """trees added after fit"""
+    """Trees added after fit."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     diffsizemodel = SafeRandomForestClassifier(random_state=1, n_estimators=10)

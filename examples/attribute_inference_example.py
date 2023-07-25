@@ -6,7 +6,6 @@ Running
 
 Invoke this code from the root AI-SDC folder with
 python -m examples.attribute_inference_example
-
 """
 
 import json
@@ -20,9 +19,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.attack_report_formatter import (
-    GenerateJSONModule,  # pylint: disable = import-error
-)
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 
 # pylint: disable = duplicate-code
@@ -95,16 +91,16 @@ if __name__ == "__main__":
 
     # [TRE] Create the attack object with attack parameters
     attack_obj = attribute_attack.AttributeAttack(
-        n_cpu=2, report_name="programmatic_aia_report"
+        n_cpu=2,
+        output_dir="outputs_aia",
+        # pdf_report_name="report_aia",
     )
 
     # [TRE] Run the attack
     attack_obj.attack(target)
 
     # [TRE] Grab the output
-    output = attack_obj.make_report(
-        GenerateJSONModule("attribute_inference_attack.json")
-    )  # also makes .pdf and .json files
+    output = attack_obj.make_report()  # also makes .pdf and .json files
     output = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
     # [TRE] explore the metrics
@@ -133,7 +129,8 @@ if __name__ == "__main__":
     # Example 1 to demonstrate running attack from configuration and target files
     config = {
         "n_cpu": 2,
-        "report_name": "commandline_aia_exampl1_report",
+        "output_dir": "outputs_aia",
+        # "report_name": "report_aia",
     }
 
     with open("config_aia_cmd.json", "w", encoding="utf-8") as f:

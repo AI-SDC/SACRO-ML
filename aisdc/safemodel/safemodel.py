@@ -16,7 +16,6 @@ from typing import Any
 import joblib
 from dictdiffer import diff
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.attribute_attack import AttributeAttack
 from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
@@ -35,26 +34,24 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
     ..
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
 
     Notes
     -----
-
-
     """
     if isinstance(cur_val, (int, float)):
         if cur_val < val:
@@ -80,26 +77,23 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
 
     Notes
     -----
-
-
     """
     if isinstance(cur_val, (int, float)):
         if cur_val > val:
@@ -122,31 +116,26 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     """Checks equality value constraint.
 
-
-
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
 
     Notes
     -----
-
-
     """
     if cur_val != val:
         disclosive = True
@@ -165,25 +154,23 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     Parameters
     ----------
 
-    key: string
+    key : string
          The dictionary key to examine.
-    val: Any Type
+    val : Any Type
          The expected value of the key.
-    cur_val: Any Type
+    cur_val : Any Type
          The current value of the key.
 
     Returns
     -------
 
-    msg: string
+    msg : string
          A message string.
-    disclosive: bool
+    disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
 
     Notes
     -----
-
-
     """
     if type(cur_val).__name__ != val:
         disclosive = True
@@ -202,24 +189,22 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     Attributes
     ----------
 
-    model_type: string
+    model_type : string
           A string describing the type of model. Default is "None".
     model:
           The Machine Learning Model.
     saved_model:
           A saved copy of the Machine Learning Model used for comparison.
-    ignore_items: list
+    ignore_items : list
           A list of items to ignore when comparing the model with the
           saved_model.
-    examine_separately_items: list
+    examine_separately_items : list
           A list of items to examine separately. These items are more
           complex datastructures that cannot be compared directly.
-    filename: string
+    filename : string
           A filename to save the model.
-    researcher: string
+    researcher : string
           The researcher user-id used for logging
-
-
 
     Notes
     -----
@@ -236,10 +221,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     Changed parameter min_samples_leaf = 5.
 
     Model parameters are within recommended ranges.
-
-
-
-
     """
 
     def __init__(self) -> None:
@@ -261,7 +242,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             self.researcher = "unknown"
 
     def get_params(self, deep=True):
-        """gets dictionary of parameter values
+        """Gets dictionary of parameter values
         restricted to those expected by base classifier.
         """
         the_params = {}
@@ -283,7 +264,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Parameters
         ----------
 
-        name: string
+        name : string
              The name of the file to save
 
         Returns
@@ -293,7 +274,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         -----
 
         No return value
-
 
         Optimizer is deliberately excluded.
         To prevent possible to restart training and thus
@@ -426,7 +406,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
         """Checks whether a current model parameter violates a safe rule.
-        Optionally fixes violations."""
+        Optionally fixes violations.
+        """
         disclosive: bool = False
         msg: str = ""
         operator: str = rule["operator"]
@@ -453,7 +434,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
         """Checks whether current model parameters violate a logical AND rule.
-        Optionally fixes violations."""
+        Optionally fixes violations.
+        """
         disclosive: bool = False
         msg: str = ""
         for arg in rule["subexpr"]:
@@ -480,31 +462,27 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         """Checks whether current model parameters violate the safe rules.
         Optionally fixes violations.
 
-
         Parameters
         ----------
 
-        verbose: bool
+        verbose : bool
              A boolean value to determine increased output level.
 
-        apply_constraints: bool
+        apply_constraints : bool
              A boolean to determine whether identified constraints are
              to be upheld and applied.
 
         Returns
         -------
 
-        msg: string
+        msg : string
            A message string
-        disclosive: bool
+        disclosive : bool
            A boolean value indicating whether the model is potentially
            disclosive.
 
-
         Notes
         -----
-
-
         """
         disclosive: bool = False
         msg: str = ""
@@ -536,7 +514,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     def get_current_and_saved_models(self) -> tuple[dict, dict]:
         """Makes a copy of self.__dict__
-        and splits it into dicts for the current and saved versions
+        and splits it into dicts for the current and saved versions.
         """
         current_model = {}
 
@@ -572,9 +550,10 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def examine_seperate_items(
         self, curr_vals: dict, saved_vals: dict
     ) -> tuple[str, bool]:
-        """comparison of more complex structures
+        """Comparison of more complex structures
         in the super class we just check these model-specific items exist
-        in both current and saved copies"""
+        in both current and saved copies.
+        """
         msg = ""
         disclosive = False
 
@@ -597,7 +576,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def posthoc_check(self) -> tuple[str, bool]:  # pylint: disable=too-many-branches
-        """Checks whether model has been interfered with since fit() was last run"""
+        """Checks whether model has been interfered with since fit() was last run."""
 
         disclosive = False
         msg = ""
@@ -654,32 +633,28 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
         """Placeholder function for additional posthoc checks e.g. keras this
-        version just checks that any lists have the same contents
-
+        version just checks that any lists have the same contents.
 
         Parameters
         ----------
 
-        curr_separate: python dictionary
+        curr_separate : python dictionary
 
-        saved_separate: python dictionary
-
+        saved_separate : python dictionary
 
         Returns
         -------
 
-        msg: string
+        msg : string
         A message string
-        disclosive: bool
+        disclosive : bool
         A boolean value to indicate whether the model is potentially disclosive.
-
 
         Notes
         -----
 
         posthoc checking makes sure that the two dicts have the same set of
         keys as defined in the list self.examine_separately
-
         """
 
         msg = ""
@@ -763,17 +738,18 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         self,
         target: Target = None,
         attack_name: str = "worst_case",
+        outputdir: str = "RES",
         filename: str = "undefined",
     ) -> dict:
         """Runs a specified attack on the trained model and saves a report to file.
 
         Parameters
         ----------
-        target: Target
+        target : Target
             The target in the form of a Target object.
-        attack_name: str
+        attack_name : str
             Name of the attack to run.
-        filename: str
+        filename : str
             Name of a .json file to save report.
 
         Returns
@@ -788,7 +764,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Worst_Case Membership inference: worst_case
         Single Attribute Inference: attributes
         """
-        g = GenerateJSONModule(filename)
         if attack_name == "worst_case":
             attack_obj = WorstCaseAttack(
                 n_reps=10,
@@ -797,20 +772,28 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 training_preds_filename=None,
                 test_preds_filename=None,
                 test_prop=0.5,
-                report_name=None,
+                output_dir=outputdir,
+                report_name=filename,
             )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "lira":
-            attack_obj = LIRAAttack(n_shadow_models=100, report_name=None)
+            attack_obj = LIRAAttack(
+                n_shadow_models=100,
+                output_dir=outputdir,
+                report_name=filename,
+            )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "attribute":
-            attack_obj = AttributeAttack(report_name=None)
+            attack_obj = AttributeAttack(
+                output_dir=outputdir,
+                report_name=filename,
+            )
             attack_obj.attack(target)
-            output = attack_obj.make_report(g)
+            output = attack_obj.make_report()
             metadata = output["metadata"]
         else:
             metadata = {}
@@ -820,6 +803,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     def __str__(self) -> str:  # pragma: no cover
         """Returns string with model description.
-        No point writing a test, especially as it depends on username
+        No point writing a test, especially as it depends on username.
         """
         return self.model_type + " with parameters: " + str(self.__dict__)
