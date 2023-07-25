@@ -22,9 +22,7 @@ import numpy as np
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
     GenerateTextReport,
 )
-from aisdc.attacks.likelihood_attack import ( # pylint: disable=import-error
-    LIRAAttack,
-)
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable=import-error
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.attacks.worst_case_attack import (  # pylint: disable=import-error
     WorstCaseAttack,
@@ -76,7 +74,7 @@ def generate_report(
 
     # Run the attack
     wca = WorstCaseAttack(
-        n_dummy_reps=10, output_dir = directory, report_name=attack_output_name
+        n_dummy_reps=10, output_dir=directory, report_name=attack_output_name
     )
     wca.attack(target)
 
@@ -97,8 +95,8 @@ def generate_report(
     lira_attack_obj = LIRAAttack(
         n_shadow_models=100,
         attack_config_json_file_name=os.path.join(directory, "lira_config.json"),
-        output_dir= directory,
-        report_name = attack_output_name,
+        output_dir=directory,
+        report_name=attack_output_name,
     )
 
     lira_attack_obj.attack(target)
@@ -109,7 +107,7 @@ def generate_report(
     t = GenerateTextReport()
     t.process_attack_target_json(
         os.path.join(directory, attack_output_name) + ".json",
-        target_filename=os.path.join(directory, target_filename)
+        target_filename=os.path.join(directory, target_filename),
     )
 
     t.export_to_file(
