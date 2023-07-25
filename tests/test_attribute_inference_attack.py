@@ -32,6 +32,7 @@ from tests.test_attacks_via_safemodel import get_target
 
 # pylint: disable = duplicate-code
 
+
 class TestAttributeInferenceAttack(unittest.TestCase):
     """Class which tests the AttributeInferenceAttack module."""
 
