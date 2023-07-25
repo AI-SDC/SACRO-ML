@@ -103,7 +103,7 @@ class TestLiraAttack(TestCase):
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
-            attack_config_json_file_name=os.path.join("tests","lrconfig.json"),
+            attack_config_json_file_name=os.path.join("tests", "lrconfig.json"),
         )
         attack_obj.setup_example_data()
         attack_obj.attack_from_config()
@@ -171,7 +171,7 @@ class TestLiraAttack(TestCase):
             "prog",
             "run-attack",
             "-j",
-            os.path.join("tests","lrconfig.json"),
+            os.path.join("tests", "lrconfig.json"),
             "--output-dir",
             "test_output_lira",
             "--report-name",
@@ -186,7 +186,7 @@ class TestLiraAttack(TestCase):
             "prog",
             "run-attack-from-configfile",
             "-j",
-            os.path.join("tests","lrconfig_cmd.json"),
+            os.path.join("tests", "lrconfig_cmd.json"),
             "-t",
             "test_lira_target",
         ]
@@ -195,7 +195,10 @@ class TestLiraAttack(TestCase):
 
     def test_main_example_data(self):
         """Test command line example data creation."""
-        testargs = ["prog", "setup-example-data"]  # , "--j", os.path.join("tests","lrconfig.json")]
+        testargs = [
+            "prog",
+            "setup-example-data",
+        ]  # , "--j", os.path.join("tests","lrconfig.json")]
         with patch.object(sys, "argv", testargs):
             likelihood_attack.main()
 
@@ -204,7 +207,7 @@ class TestLiraAttack(TestCase):
         attack_obj = LIRAAttack(
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
-            attack_config_json_file_name=os.path.join("tests","lrconfig.json"),
+            attack_config_json_file_name=os.path.join("tests", "lrconfig.json"),
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
         )
@@ -218,7 +221,7 @@ class TestLiraAttack(TestCase):
             n_shadow_models=N_SHADOW_MODELS,
             output_dir="test_output_lira",
             report_name="lira_example2_failfast_report",
-            attack_config_json_file_name=os.path.join("tests","lrconfig.json"),
+            attack_config_json_file_name=os.path.join("tests", "lrconfig.json"),
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
         )
@@ -236,7 +239,7 @@ class TestLiraAttack(TestCase):
             n_shadow_models=150,
             output_dir="test_output_lira",
             report_name="lira_example3_failfast_report",
-            attack_config_json_file_name=os.path.join("tests","lrconfig.json"),
+            attack_config_json_file_name=os.path.join("tests", "lrconfig.json"),
             shadow_models_fail_fast=True,
             n_shadow_rows_confidences_min=10,
         )

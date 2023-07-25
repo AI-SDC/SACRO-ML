@@ -139,11 +139,13 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "n_cpu": 7,
             "report_name": "commandline_aia_exampl1_report",
         }
-        with open(os.path.join("tests","test_config_aia_cmd.json"), "w", encoding="utf-8") as f:
+        with open(
+            os.path.join("tests", "test_config_aia_cmd.json"), "w", encoding="utf-8"
+        ) as f:
             f.write(json.dumps(config))
 
-        cmd_json = os.path.join("tests","test_config_aia_cmd.json")
-        aia_target = os.path.join("tests","test_aia_target")
+        cmd_json = os.path.join("tests", "test_config_aia_cmd.json")
+        aia_target = os.path.join("tests", "test_aia_target")
         os.system(
             f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
             f"--attack-config-json-file-name {cmd_json} "
@@ -163,8 +165,8 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "aia_report.json",
             "aia_attack_from_configfile.json",
             "test_attribute_attack.json",
-            os.path.join("tests","test_config_aia_cmd.json"),
-            os.path.join("tests","test_aia_target/"),
+            os.path.join("tests", "test_config_aia_cmd.json"),
+            os.path.join("tests", "test_aia_target/"),
             "output_attribute",
         )
         for fname in files_made:
