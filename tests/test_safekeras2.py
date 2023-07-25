@@ -322,7 +322,7 @@ def test_checkpoints_are_equal():
     assert same is False, msg
 
     # coping with trashed files
-    cleanup_file(os.path.join("fit","tf/saved_model.pb"))
+    cleanup_file(os.path.join("fit", "tf/saved_model.pb"))
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
     assert same is False, msg
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
@@ -742,14 +742,14 @@ def test_create_checkfile():
         # check release
         model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        name = os.path.normpath(os.path.join(f"{RES_DIR}","target.json"))
+        name = os.path.normpath(os.path.join(f"{RES_DIR}", "target.json"))
         assert os.path.exists(name), "Failed test to save target.json"
         clean()
 
     # now other versions which should not
     exts = ("sav", "pkl", "undefined")
     for ext in exts:
-        name = os.path.normpath(os.path.join(f"{RES_DIR}",f"model.{ext}"))
+        name = os.path.normpath(os.path.join(f"{RES_DIR}", f"model.{ext}"))
         os.makedirs(os.path.dirname(name), exist_ok=True)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
@@ -772,7 +772,7 @@ def test_posthoc_check():
 
     # change optimizer and some other settings
     # in way that stresses lots of routes
-    cleanup_file(os.path.join("tfsaves","fit_model.tf"))
+    cleanup_file(os.path.join("tfsaves", "fit_model.tf"))
     model.epochs = 1000
     model.optimizer = tf.keras.optimizers.get("SGD")
     _, disclosive = model.posthoc_check()
