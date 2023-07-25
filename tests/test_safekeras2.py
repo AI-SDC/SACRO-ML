@@ -742,7 +742,7 @@ def test_create_checkfile():
         # check release
         model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        name = os.path.normpath(ps.path.join(f"{RES_DIR}","target.json"))
+        name = os.path.normpath(os.path.join(f"{RES_DIR}","target.json"))
         assert os.path.exists(name), "Failed test to save target.json"
         clean()
 
