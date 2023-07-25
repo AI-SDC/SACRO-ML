@@ -30,7 +30,7 @@ logger = logging.getLogger(__file__)
 
 def clean_up(name):
 <<<<<<< HEAD
-    """removes unwanted files or directory"""
+    """Removes unwanted files or directory."""
 =======
 <<<<<<< HEAD
     """Removes unwanted files or directory."""
