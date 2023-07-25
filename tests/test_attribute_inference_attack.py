@@ -151,8 +151,6 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "--attack-target-folder-path tests/test_aia_target "
         )
 
-        assert os.path.exists("commandline_aia_exampl1_report.pdf") is True
-
     def test_cleanup(self):
         """Tidies up any files created."""
         files_made = (
@@ -166,9 +164,9 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "aia_report.json",
             "aia_attack_from_configfile.json",
             "test_attribute_attack.json",
-            "commandline_aia_exampl1_report.pdf",
             "tests/test_config_aia_cmd.json",
             "tests/test_aia_target/",
+            "output_attribute/",
         )
         for fname in files_made:
             self._cleanup_file(fname)

@@ -253,6 +253,7 @@ class TestLiraAttack(TestCase):
         names = [
             "test_output_lira/",
             "output_lira/",
+            "outputs_lira/",
             "test_lira_target/",
             "test_preds.csv",
             "config.json",

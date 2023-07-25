@@ -2,6 +2,7 @@
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 import unittest
+import shutil
 
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
@@ -128,6 +129,8 @@ class TestFailFast(unittest.TestCase):
 
         self.assertEqual(0, failfast_Obj.get_fail_count())
 
+        shutil.rmtree("output_worstcase/")
+
     def test_attack_success_fail_counts_and_overall_attack_success(self):
         """Test success and fail counts of attacks for a given threshold
         of a given metric based on a given comparison operation and
@@ -159,3 +162,6 @@ class TestFailFast(unittest.TestCase):
         self.assertEqual(3, failfast_Obj.get_success_count())
         self.assertEqual(2, failfast_Obj.get_fail_count())
         self.assertTrue(failfast_Obj.check_overall_attack_success(attack_obj))
+
+        shutil.rmtree("output_worstcase/")
+        

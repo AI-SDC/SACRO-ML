@@ -3,6 +3,8 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 import json
 import os
+import glob
+import shutil
 import unittest
 
 import pytest
@@ -67,8 +69,13 @@ def get_target_report():
 
 def clean_up(name):
     """Removes unwanted files or directory."""
-    if os.path.exists(name) and os.path.isfile(name):
+    if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
+    elif os.path.exists(name) and os.path.isdir(name):  # tf
+        files = glob.glob(name + "*")
+        for f in files:
+            os.remove(f)
+        shutil.rmtree(name)
 
 
 class TestGenerateReport(unittest.TestCase):
@@ -257,12 +264,8 @@ class TestGenerateReport(unittest.TestCase):
 
         clean_up(filename)
         clean_up(output_filename)
-        clean_up(os.path.join("release_dir", dummy_model))
-        clean_up(os.path.join("release_dir", filename))
-        clean_up(os.path.join("release_dir", output_filename))
-        clean_up("release_dir")
-        clean_up(os.path.join("training_artefacts", png_file))
-        clean_up("training_artefacts")
+        clean_up("release_dir/") 
+        clean_up("training_artefacts/")
 
     def test_complete_runthrough(self):
         """Test the full process_json file end-to-end when valid parameters are passed."""
