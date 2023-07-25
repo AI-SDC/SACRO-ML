@@ -1,9 +1,9 @@
 """Test_generate_report.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
+import glob
 import json
 import os
-import glob
 import shutil
 import unittest
 
@@ -264,7 +264,7 @@ class TestGenerateReport(unittest.TestCase):
 
         clean_up(filename)
         clean_up(output_filename)
-        clean_up("release_dir/") 
+        clean_up("release_dir/")
         clean_up("training_artefacts/")
 
     def test_complete_runthrough(self):

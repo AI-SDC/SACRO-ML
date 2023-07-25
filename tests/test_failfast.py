@@ -1,8 +1,8 @@
 """Test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
-import unittest
 import shutil
+import unittest
 
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
@@ -165,4 +165,3 @@ class TestFailFast(unittest.TestCase):
         self.assertTrue(failfast_Obj.check_overall_attack_success(attack_obj))
 
         shutil.rmtree("output_worstcase/")
-        
