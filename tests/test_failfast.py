@@ -130,7 +130,7 @@ class TestFailFast(unittest.TestCase):
 
         self.assertEqual(0, failfast_Obj.get_fail_count())
 
-        shutil.rmtree("output_worstcase/")
+        shutil.rmtree("output_worstcase")
 
     def test_attack_success_fail_counts_and_overall_attack_success(self):
         """Test success and fail counts of attacks for a given threshold
@@ -164,5 +164,5 @@ class TestFailFast(unittest.TestCase):
         self.assertEqual(2, failfast_Obj.get_fail_count())
         self.assertTrue(failfast_Obj.check_overall_attack_success(attack_obj))
 
-        shutil.rmtree("output_worstcase/")
+        shutil.rmtree("output_worstcase")
         

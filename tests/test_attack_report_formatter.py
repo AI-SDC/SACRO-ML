@@ -3,7 +3,6 @@ Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
 import json
 import os
-import glob
 import shutil
 import unittest
 
@@ -72,9 +71,6 @@ def clean_up(name):
     if os.path.exists(name) and os.path.isfile(name):  # h5
         os.remove(name)
     elif os.path.exists(name) and os.path.isdir(name):  # tf
-        files = glob.glob(name + "*")
-        for f in files:
-            os.remove(f)
         shutil.rmtree(name)
 
 
@@ -264,8 +260,8 @@ class TestGenerateReport(unittest.TestCase):
 
         clean_up(filename)
         clean_up(output_filename)
-        clean_up("release_dir/") 
-        clean_up("training_artefacts/")
+        clean_up("release_dir")
+        clean_up("training_artefacts")
 
     def test_complete_runthrough(self):
         """Test the full process_json file end-to-end when valid parameters are passed."""
@@ -539,11 +535,11 @@ class TestLogLogROCModule(unittest.TestCase):
 
         clean_up(output_file)
 
-        f = LogLogROCModule(json_formatted, output_folder="./")
+        f = LogLogROCModule(json_formatted, output_folder=".")
         returned = f.process_dict()
 
         output_file = (
-            f"./{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
+            f"{json_formatted['log_id']}-{json_formatted['metadata']['attack']}.png"
         )
         self.assertIn(output_file, returned)
         assert os.path.exists(output_file) is True
