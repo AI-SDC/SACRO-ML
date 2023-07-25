@@ -5,10 +5,6 @@ import unittest
 
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 1d547c30a7f75230fcfa4f9a3034360dfdf8c062
 class TestFailFast(unittest.TestCase):
     """Class which tests the fail fast functionality of the WortCaseAttack module."""
 
