@@ -5,15 +5,18 @@ import unittest
 
 from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 1d547c30a7f75230fcfa4f9a3034360dfdf8c062
 class TestFailFast(unittest.TestCase):
-    """
-    Class which tests the fail fast functionality of the WortCaseAttack module
-    """
+    """Class which tests the fail fast functionality of the WortCaseAttack module."""
 
     def test_parse_boolean_argument(self):
-        """test all comparison operators and both options for attack
+        """Test all comparison operators and both options for attack
         being successful and not successful given a metric and
-        comparison operator with a threshold value"""
+        comparison operator with a threshold value.
+        """
         metrics = {}
         metrics["ACC"] = 0.9
         metrics["AUC"] = 0.8
@@ -130,10 +133,11 @@ class TestFailFast(unittest.TestCase):
         self.assertEqual(0, failfast_Obj.get_fail_count())
 
     def test_attack_success_fail_counts_and_overall_attack_success(self):
-        """test success and fail counts of attacks for a given threshold
+        """Test success and fail counts of attacks for a given threshold
         of a given metric based on a given comparison operation and
         also test overall attack successes using
-        count threshold of attack being successful or not successful"""
+        count threshold of attack being successful or not successful.
+        """
         metrics = {}
         metrics["ACC"] = 0.9
         metrics["AUC"] = 0.8

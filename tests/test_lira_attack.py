@@ -29,7 +29,15 @@ N_SHADOW_MODELS = 20
 logger = logging.getLogger(__file__)
 
 def clean_up(name):
+<<<<<<< HEAD
     """removes unwanted files or directory"""
+=======
+<<<<<<< HEAD
+    """Removes unwanted files or directory."""
+=======
+    """Removes unwanted files or directory."""
+>>>>>>> development
+>>>>>>> 1d547c30a7f75230fcfa4f9a3034360dfdf8c062
     if os.path.exists(name):
         if os.path.isfile(name):
             os.remove(name)

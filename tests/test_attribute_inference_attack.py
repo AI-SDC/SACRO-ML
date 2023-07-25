@@ -33,12 +33,10 @@ from tests.test_attacks_via_safemodel import get_target
 # pylint: disable = duplicate-code
 
 class TestAttributeInferenceAttack(unittest.TestCase):
-    """
-    Class which tests the AttributeInferenceAttack module
-    """
+    """Class which tests the AttributeInferenceAttack module."""
 
     def _cleanup_file(self, name: str):
-        """removes unwanted files or directory"""
+        """Removes unwanted files or directory."""
         if os.path.exists(name) and os.path.isfile(name):  # h5
             os.remove(name)
         elif os.path.exists(name) and os.path.isdir(name):  # tf
@@ -48,7 +46,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             shutil.rmtree(name)
 
     def _common_setup(self):
-        """basic commands to get ready to test some code"""
+        """Basic commands to get ready to test some code."""
         model = RandomForestClassifier(bootstrap=False)
         target = get_target(model)
         model.fit(target.x_train, target.y_train)
@@ -56,7 +54,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         return target, attack_obj
 
     def test_attack_args(self):
-        """tests methods in the attack_args class"""
+        """Tests methods in the attack_args class."""
         _, attack_obj = self._common_setup()
         attack_obj.__dict__["newkey"] = True
         thedict = attack_obj.__dict__
@@ -64,7 +62,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         self.assertTrue(thedict["newkey"])
 
     def test_unique_max(self):
-        """tests the _unique_max helper function"""
+        """Tests the _unique_max helper function."""
         has_unique = (0.3, 0.5, 0.2)
         no_unique = (0.5, 0.5)
         self.assertTrue(_unique_max(has_unique, 0.0))
@@ -72,8 +70,8 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         self.assertFalse(_unique_max(no_unique, 0.0))
 
     def test_categorical_via_modified_attack_brute_force(self):
-        """test lots of functionality for categoricals
-        using code from brute_force but without multiprocessing
+        """Test lots of functionality for categoricals
+        using code from brute_force but without multiprocessing.
         """
         target, _ = self._common_setup()
 
@@ -101,9 +99,9 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         self.assertEqual(0, t_high_correct)
 
     def test_continuous_via_modified_bounds_risk(self):
-        """tests a lot of the code for continuous variables
+        """Tests a lot of the code for continuous variables
         via a copy of the _get_bounds_risk()
-        modified not to use multiprocessing
+        modified not to use multiprocessing.
         """
         target, _ = self._common_setup()
         returned = _get_bounds_risk(
@@ -119,8 +117,9 @@ class TestAttributeInferenceAttack(unittest.TestCase):
 
     # test below covers a lot of the plotting etc.
     def test_AIA_on_nursery(self):
-        """tests running AIA on the nursery data
-        with an added continuous feature"""
+        """Tests running AIA on the nursery data
+        with an added continuous feature.
+        """
         target, attack_obj = self._common_setup()
         attack_obj.attack(target)
 
@@ -132,8 +131,9 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         self.assertIn("categorical", keys)
 
     def test_AIA_on_nursery_from_cmd(self):
-        """tests running AIA on the nursery data
-        with an added continuous feature"""
+        """Tests running AIA on the nursery data
+        with an added continuous feature.
+        """
         target, _ = self._common_setup()
         target.save(path="tests/test_aia_target")
 
@@ -153,7 +153,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         assert os.path.exists("commandline_aia_exampl1_report.pdf") is True
 
     def test_cleanup(self):
-        """tidies up any files created"""
+        """Tidies up any files created."""
         files_made = (
             "delete-me.json",
             "aia_example.json",
