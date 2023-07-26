@@ -3,18 +3,24 @@ User story 2 (best case) as TRE.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
+python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 """
 
 import argparse
-import logging
-import os
 import pickle
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
+    GenerateTextReport,
+)
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 
 
@@ -26,7 +32,7 @@ def generate_report(
     attack_results,
     target_filename,
     outfile,
-):
+):  # pylint: disable=too-many-locals, disable=too-many-arguments
     """Generate report based on target model."""
 
     print()
@@ -38,7 +44,8 @@ def generate_report(
 
     filename = directory + target_model
     print("Reading target model from " + filename)
-    target_model = pickle.load(open(filename, "rb"))
+    with open(filename, "rb") as f:
+        target_model = pickle.load(f)
 
     print("Reading training/testing indices from ./" + directory)
     indices_train = np.loadtxt(directory + train_indices)

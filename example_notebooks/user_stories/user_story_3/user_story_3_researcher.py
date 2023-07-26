@@ -3,13 +3,19 @@ User story 3 as researcher.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
+
+Running
+-------
+
+Invoke this code from the root AI-SDC folder with
+python -m example_notebooks.user_stories.user_story_3.user_story_3_researcher
 """
+
 import os
 import pickle
 
 import numpy as np
 import pandas as pd
-from scipy.io.arff import loadarff
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -19,7 +25,7 @@ print()
 print("Acting as researcher...")
 print()
 
-directory = "training_artefacts/"
+directory = "training_artefacts"
 print("Creating directory for training artefacts")
 
 if not os.path.exists(directory):
@@ -50,10 +56,10 @@ trainX, testX, trainy, testy = train_test_split(
 )
 
 print("Saving training/testing data to ./" + directory)
-np.savetxt(directory + "trainX.txt", trainX, fmt="%d")
-np.savetxt(directory + "trainy.txt", trainy, fmt="%d")
-np.savetxt(directory + "testX.txt", testX, fmt="%d")
-np.savetxt(directory + "testy.txt", testy, fmt="%d")
+np.savetxt(os.path.join(directory, "trainX.txt"), trainX, fmt="%d")
+np.savetxt(os.path.join(directory, "trainy.txt"), trainy, fmt="%d")
+np.savetxt(os.path.join(directory, "testX.txt"), testX, fmt="%d")
+np.savetxt(os.path.join(directory, "testy.txt"), testy, fmt="%d")
 
 # These hyperparameters lead to a dangerously disclosive trained model
 DISCLOSIVE_HYPERPARAMETERS = {}
@@ -74,6 +80,7 @@ test_acc = accuracy_score(testy, target_model.predict(testX))
 print(f"Training accuracy on disclosive model: {train_acc:.2f}")
 print(f"Testing accuracy on disclosive model: {test_acc:.2f}")
 
-filename = directory + "/disclosive_random_forest.sav"
+filename = os.path.join(directory, "disclosive_random_forest.sav")
 print("Saving disclosive model to " + filename)
-pickle.dump(target_model, open(filename, "wb"))
+with open(filename, "wb") as f:
+    pickle.dump(target_model, f)

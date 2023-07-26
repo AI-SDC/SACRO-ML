@@ -181,7 +181,7 @@ os.system(
     f"{sys.executable} -m aisdc.attacks.likelihood_attack run-attack "
     "--attack-config-json-file-name lira_config.json "
     "--output-dir outputs_lira "
-    "--report-name report_lira "
+    # "--report-name report_lira "
     "--n-shadow-models 100 "
     "--shadow-models-fail-fast "
     "--n-shadow-rows-confidences-min 10 "

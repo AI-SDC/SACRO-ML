@@ -93,7 +93,7 @@ if __name__ == "__main__":
     attack_obj = attribute_attack.AttributeAttack(
         n_cpu=2,
         output_dir="outputs_aia",
-        # pdf_report_name="report_aia",
+        # report_name="report_aia",
     )
 
     # [TRE] Run the attack
