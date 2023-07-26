@@ -328,6 +328,14 @@ def test_checkpoints_are_equal():
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
     assert same is False, msg
 
+    same, msg = safekeras.check_checkpoint_equality("hello", "fit2.tf")
+    assert same is False
+    assert "error_reloading_model_v1" in msg
+
+    same, msg = safekeras.check_checkpoint_equality("fit2.tf", "hello")
+    assert same is False
+    assert "error_reloading_model_v2" in msg
+
     for name in ("fit.tf", "fit2.tf", "refit.tf"):
         cleanup_file(name)
 
