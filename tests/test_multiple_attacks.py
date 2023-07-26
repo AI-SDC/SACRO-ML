@@ -187,13 +187,14 @@ def test_multiple_attacks_cmd():
     with an added continuous feature.
     """
     target, _ = common_setup()
-    target.save(path="tests/test_multiple_target")
+    target.save(path=os.path.join("tests", "test_multiple_target"))
     _ = create_single_config_file()
 
+    multiple_target = os.path.join("tests", "test_multiple_target")
     os.system(
         f"{sys.executable} -m aisdc.attacks.multiple_attacks run-attack-from-configfile "
         "--attack-config-json-file-name test_single_config.json "
-        "--attack-target-folder-path tests/test_multiple_target "
+        f"--attack-target-folder-path {multiple_target} "
     )
 
 
@@ -202,7 +203,7 @@ def test_cleanup():
     files_made = (
         "test_single_config.json",
         "outputs_multiple_attacks",
-        "tests/test_multiple_target",
+        os.path.join("tests", "test_multiple_target"),
     )
     for fname in files_made:
         cleanup_file(fname)

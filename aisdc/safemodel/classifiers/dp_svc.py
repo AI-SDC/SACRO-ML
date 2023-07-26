@@ -13,6 +13,7 @@ from sklearn.svm import SVC
 local_logger = logging.getLogger(__file__)
 local_logger.setLevel(logging.WARNING)
 
+SMALL_NUMBER = 1e-16  # used to set gamma value if zero to avoid divide by zero
 
 # pylint: disable = invalid-name
 # pylint: disable=R0902: too-many-instance-attributes
@@ -129,9 +130,15 @@ class DPSVC:
         elif self.gamma == "auto":
             self.gamma = 1.0 / n_features
 
+        if self.gamma == 0.0:
+            self.gamma = SMALL_NUMBER
+            local_logger.warning(
+                "gamma value passed in was zero, set to %g", SMALL_NUMBER
+            )
         self.dpsvc_gamma = 1.0 / np.sqrt(
             2.0 * self.gamma
         )  # alternative parameterisation
+
         local_logger.info(
             "Gamma = %f (dp parameterisation = %f)", self.gamma, self.dpsvc_gamma
         )

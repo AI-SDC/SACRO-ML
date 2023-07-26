@@ -1,6 +1,5 @@
 """Test the metrics."""
 
-import math
 import unittest
 
 import numpy as np
@@ -64,7 +63,17 @@ class TestInputExceptions(unittest.TestCase):
         y_test = self._create_fake_test_data()
         y_pred_proba = np.zeros((4, 2))
 
-        get_metrics(y_pred_proba, y_test)
+        returned = get_metrics(y_pred_proba, y_test)
+
+        acc = returned["ACC"]
+        auc = returned["AUC"]
+        p_auc = returned["P_HIGHER_AUC"]
+        tpr = returned["TPR"]
+
+        self.assertAlmostEqual(0.75, acc)
+        self.assertAlmostEqual(0.5, auc)
+        self.assertAlmostEqual(0.5, p_auc)
+        self.assertAlmostEqual(0.0, tpr)
 
 
 class TestProbabilities(unittest.TestCase):
@@ -88,7 +97,16 @@ class TestProbabilities(unittest.TestCase):
         testX = np.zeros((4, 2))
         testY = np.zeros((4, 2))
 
-        get_probabilities(clf, testX, testY, permute_rows=True)
+        returned = get_probabilities(clf, testX, testY, permute_rows=True)
+
+        # Check the function returns two arguments
+        self.assertEqual(2, len(returned))
+
+        # Check that the second argument is the same shape as testY
+        self.assertEqual(testY.shape, returned[1].shape)
+
+        # Check that the function is returning the right thing: predict_proba
+        self.assertEqual(clf.predict_proba(testX).shape, returned[0].shape)
 
     def test_permute_rows_without_permute_rows(self):
         """Test permute_rows = False succeeds."""
@@ -96,7 +114,10 @@ class TestProbabilities(unittest.TestCase):
         clf = DummyClassifier()
         testX = np.zeros((4, 2))
 
-        get_probabilities(clf, testX, permute_rows=False)
+        y_pred_proba = get_probabilities(clf, testX, permute_rows=False)
+
+        # Check the function returns pnly y_pred_proba
+        self.assertEqual(clf.predict_proba(testX).shape, y_pred_proba.shape)
 
 
 class TestMetrics(unittest.TestCase):
@@ -134,11 +155,11 @@ class TestMetrics(unittest.TestCase):
 
         # right predictions - triggers override for very small logp
         _, _, _, pval = min_max_disc(y, right)
-        assert pval == -115.13
+        self.assertEqual(-115.13, pval)
 
         # wrong predictions - probaility very close to 1 so logp=0
         _, _, _, pval = min_max_disc(y, wrong)
-        assert math.isclose(pval, 0.0)
+        self.assertAlmostEqual(0.0, pval)
 
 
 class TestFPRatTPR(unittest.TestCase):
