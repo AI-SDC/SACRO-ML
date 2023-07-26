@@ -322,7 +322,7 @@ def test_checkpoints_are_equal():
     assert same is False, msg
 
     # coping with trashed files
-    cleanup_file(os.path.join("fit", "tf/saved_model.pb"))
+    cleanup_file("fit.tf/saved_model.pb")
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
     assert same is False, msg
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
