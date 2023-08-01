@@ -29,44 +29,44 @@
    - NB this assumes their classifier outputs probabilities.
 
 ## User Story 4 (not implemented yet): User does not use safeXClassifier, or provide dataset object
-### but does provide description of pre-processing, 
-### and provides output probabilities for the train and test set they have used (and true classes?) 
-- We cannot assume that the TRE has the capability to get the right bits of pre-processing code from their source code.  
-- Do we insist on this (would be needed for ‘outside world’)? what if this is commercially sensitive?  
-- TRE can in theory run LIRA and worst-case but not attribute inference attacks. 
-  - There is a risk that they have misidentified the train/test splits to give us ones which make the classifier look less disclosive 
-  - But this probably falls outside our remit? 
-- Recommend reject???   
--We could automate generalisation (as lower bound) and  worst case attacks if they give output probabilities 
-   – so we need to specify format 
-- TRE would need actual copies of processed data to run LIRA 
+### but does provide description of pre-processing,
+### and provides output probabilities for the train and test set they have used (and true classes?)
+- We cannot assume that the TRE has the capability to get the right bits of pre-processing code from their source code.
+- Do we insist on this (would be needed for ‘outside world’)? what if this is commercially sensitive?
+- TRE can in theory run LIRA and worst-case but not attribute inference attacks.
+  - There is a risk that they have misidentified the train/test splits to give us ones which make the classifier look less disclosive
+  - But this probably falls outside our remit?
+- Recommend reject???
+-We could automate generalisation (as lower bound) and  worst case attacks if they give output probabilities
+   – so we need to specify format
+- TRE would need actual copies of processed data to run LIRA
 
 **THIS would be the version that let people use R **
 
-## User Story 5 (not implemented yet):  User creates differentially private algorithm (not via our code) and provides sufficient details to create data object. 
-- How do we know what the actual epsilon value is? 
-- If it is a keras model we can reload and query it if they have stored the training object as part of the model save (we need epochs, dataset size, L2 norm clip, noise values).    
-  -  But then their stored model probably has disclosive values in anyway … 
-  -   So would have to delete before release. 
-  - And anyway, are keras models safe against attacks that change ‘trainable’ to true for different layers and then do repeated queries viz, attacks of federated learning. 
-- If it is non keras then do, we take it on trust?? 
-  - Probably yes that comes under safe researcher?? 
+## User Story 5 (not implemented yet):  User creates differentially private algorithm (not via our code) and provides sufficient details to create data object.
+- How do we know what the actual epsilon value is?
+- If it is a keras model we can reload and query it if they have stored the training object as part of the model save (we need epochs, dataset size, L2 norm clip, noise values).
+  -  But then their stored model probably has disclosive values in anyway …
+  -   So would have to delete before release.
+  - And anyway, are keras models safe against attacks that change ‘trainable’ to true for different layers and then do repeated queries viz, attacks of federated learning.
+- If it is non keras then do, we take it on trust??
+  - Probably yes that comes under safe researcher??
 
-- TRE can recreate processed training and test sets and run attacks. 
-- Does the actual epsilon value matter if we are doing that? 
-   - Yes probably, because it is the sort of thing a TRE may well set as a policy. 
+- TRE can recreate processed training and test sets and run attacks.
+- Does the actual epsilon value matter if we are doing that?
+   - Yes probably, because it is the sort of thing a TRE may well set as a policy.
 
 ## User Story 6 (not implemented yet): Worst Case
-- User makes R model for a tree-based classifier that we have not experimented with.  
-- TREs get researcher to provide at minimum the processed train and test files. 
+- User makes R model for a tree-based classifier that we have not experimented with.
+- TREs get researcher to provide at minimum the processed train and test files.
 
-- From those we can’t run LIRA (because what would shadow models be?) 
--  but we can  worst-case from the command line or a script if their model outputs probabilities. 
--  And we can measure generalisation error. 
--  But not attribute inference. 
-- We have no way of checking against class disclosure e.g. all training items in a specific subgroup ending in a ‘pure’ node. 
+- From those we can’t run LIRA (because what would shadow models be?)
+-  but we can  worst-case from the command line or a script if their model outputs probabilities.
+-  And we can measure generalisation error.
+-  But not attribute inference.
+- We have no way of checking against class disclosure e.g. all training items in a specific subgroup ending in a ‘pure’ node.
 
-- Very hard to check and recommend release 
+- Very hard to check and recommend release
 
 ## 7: User provides safemodel with no data
 - User loads in data and pre-processes out with Target object
