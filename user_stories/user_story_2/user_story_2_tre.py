@@ -51,7 +51,7 @@ def generate_report(
     indices_train = np.loadtxt(directory + train_indices)
     indices_test = np.loadtxt(directory + test_indices)
 
-    filename = "user_stories_resources/dataset_26_nursery.csv"
+    filename = "../user_stories_resources/dataset_26_nursery.csv"
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 

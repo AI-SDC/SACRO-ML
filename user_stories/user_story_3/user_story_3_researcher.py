@@ -31,7 +31,7 @@ print("Creating directory for training artefacts")
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-filename = "user_stories_resources/dataset_26_nursery.csv"
+filename = "../user_stories_resources/dataset_26_nursery.csv"
 print("Reading data from " + filename)
 data = pd.read_csv(filename)
 

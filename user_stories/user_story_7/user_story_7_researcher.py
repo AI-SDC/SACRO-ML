@@ -1,5 +1,5 @@
 """
-User story 2 (best case) as researcher.
+User story 7 as researcher.
 
 Details can be found here:
 https://github.com/AI-SDC/AI-SDC/issues/141
@@ -8,7 +8,7 @@ Running
 -------
 
 Invoke this code from the root AI-SDC folder with
-python -m example_notebooks.user_stories.user_story_2.user_story_2_researcher
+python -m example_notebooks.user_stories.user_story_7.user_story_7_researcher
 """
 
 import logging
@@ -26,7 +26,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 
 
 def main():  # pylint: disable=too-many-locals
-    """Create and train a model to be released."""
+    """Create and train model to be released."""
     directory = "training_artefacts/"
     print("Creating directory for training artefacts")
 
@@ -37,7 +37,7 @@ def main():  # pylint: disable=too-many-locals
     print("Acting as researcher...")
     print()
 
-    filename = "user_stories_resources/dataset_26_nursery.csv"
+    filename = "../user_stories_resources/dataset_26_nursery.csv"
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -58,21 +58,11 @@ def main():  # pylint: disable=too-many-locals
         [24, 25, 26],  # health
     ]
 
-    row_indices = np.arange(np.shape(x)[0])
-
-    # [Researcher] Split into training and test sets
+    # Split into training and test sets
     # target model train / test split - these are strings
-    (
-        x_train_orig,
-        x_test_orig,
-        y_train_orig,
-        y_test_orig,
-        indices_train,
-        indices_test,
-    ) = train_test_split(
+    (x_train_orig, x_test_orig, y_train_orig, y_test_orig) = train_test_split(
         x,
         y,
-        row_indices,
         test_size=0.5,
         stratify=y,
         shuffle=True,
@@ -91,7 +81,7 @@ def main():  # pylint: disable=too-many-locals
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
-    # Build a model and request its release
+    # Build a model
     model = SafeDecisionTreeClassifier(random_state=1)
     model.fit(x_train, y_train)
     model.request_release(path=directory, ext="pkl")
@@ -105,12 +95,7 @@ def main():  # pylint: disable=too-many-locals
         target.add_feature(data.columns[i], indices[i], "onehot")
 
     # NOTE: we assume here that the researcher does not use the target.save() function
-    # and instead provides only the model and the list of indices
-    # which have been used to split the dataset
-
-    print("Saving training/testing indices to ./" + directory)
-    np.savetxt(directory + "indices_train.txt", indices_train, fmt="%d")
-    np.savetxt(directory + "indices_test.txt", indices_test, fmt="%d")
+    # and instead provides only the model
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
