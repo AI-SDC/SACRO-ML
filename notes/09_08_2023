@@ -1,0 +1,26 @@
+# Apologies
+
+# Agenda
+## 1 Update
+## 2 Actions from last week
+  - [ ] **ACTION ALL**: Read and contribute to the discussions,
+   **if you don't understand it, say so** because poor explanations lead to poor experiments
+  - [ ] **ACTION ALL**: add suggestions (and links) to datasets for simple/complex tasks
+  - [ ] **ACTION SM**: add links to review papers  and the github repo listing papers (maybe as an other discussion thread?)
+  - [ ] **ACTION SM**: identify most commnoly used datasets and add links in discussion
+  - [ ] **ACTION ACB**: put a link to the GRAIMatter run scripts into the discussions so they can be adapted
+  - [ ] **ACTION RP/YJ/DSM**: identify and create issues for scripts needed to do the experiments
+  - [ ] **ACTION CC**: Findout expected date for access to non-TRE AWS we can all have acces to
+  - [ ] **ACTION CC & JS**: Identify options for storing results so we can all access them and after project ends
+     - RP pointeo ut these could get hiuge if we are not careful
+  - [ ] **DECISION**: In most cases, especially for complex models, we don't need repeat runs creating multiple target models with the same hyper-paramters.
+     - GRAIMatter taught us that predicting behavour from hyper-paramters is hard because its the interaction between algorithm(especially when stochastic) hyper-parameters and dataset that leads to a (non)disclosive model.
+     - In other words, what we want to know is whether we can make a risk assessment for a  specific model.
+     - NB: That includes doing repeated attacks on that model, because we want to know in some sense how *stable* attacks are. 
+# 3. Ongoing actions
+  - [ ] user stories **YJ & JS** 
+  - [ ] PR issue 125 ** SM**
+  - [ ] re-prioritising issues **JS**
+# 3. Sprint 3
+# 4. AOB
+# 5. Next week's chair
