@@ -12,8 +12,8 @@ python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 """
 
 import argparse
-import pickle
 import os
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -53,7 +53,7 @@ def generate_report(
     indices_train = np.loadtxt(os.path.join(directory, train_indices))
     indices_test = np.loadtxt(os.path.join(directory, test_indices))
 
-    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
+    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -109,12 +109,14 @@ def generate_report(
 
     t = GenerateTextReport()
     t.process_attack_target_json(
-        os.path.join(directory,attack_results), target_filename=os.path.join(directory,target_filename)
+        os.path.join(directory, attack_results),
+        target_filename=os.path.join(directory, target_filename),
     )
 
-    t.export_to_file(output_filename=os.path.join(directory,outfile), move_files=True)
+    t.export_to_file(output_filename=os.path.join(directory, outfile), move_files=True)
 
-    print("Results written to " + str(os.path.join(directory,outfile)))
+    print("Results written to " + str(os.path.join(directory, outfile)))
+
 
 def main():
     """Main method to parse arguments and then invoke report generation."""

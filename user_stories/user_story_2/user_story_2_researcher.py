@@ -36,7 +36,7 @@ def main():  # pylint: disable=too-many-locals
     print()
     print("Acting as researcher...")
     print()
-    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
+    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -108,8 +108,8 @@ def main():  # pylint: disable=too-many-locals
     # which have been used to split the dataset
 
     print("Saving training/testing indices to " + directory)
-    np.savetxt(os.path.join(directory,"indices_train.txt"), indices_train, fmt="%d")
-    np.savetxt(os.path.join(directory,"indices_test.txt"), indices_test, fmt="%d")
+    np.savetxt(os.path.join(directory, "indices_train.txt"), indices_train, fmt="%d")
+    np.savetxt(os.path.join(directory, "indices_test.txt"), indices_test, fmt="%d")
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)

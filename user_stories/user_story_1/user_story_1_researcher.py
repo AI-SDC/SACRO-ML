@@ -37,8 +37,8 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     print("Acting as researcher...")
     print()
 
-    print(os.getcwd())    
-    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
+    print(os.getcwd())
+    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
