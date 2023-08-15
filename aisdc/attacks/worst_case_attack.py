@@ -38,6 +38,7 @@ class WorstCaseAttack(Attack):
     def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
         n_reps: int = 10,
+        reproduce_split: Union[int, Iterable[int], None] = 5, #if list parsed, needs to be of length n_reps
         p_thresh: float = 0.05,
         n_dummy_reps: int = 1,
         train_beta: int = 1,
@@ -68,6 +69,9 @@ class WorstCaseAttack(Attack):
         n_reps : int
             number of attacks to run -- in each iteration an attack model
             is trained on a different subset of the data
+        reproduce_split : int
+            varible that controls the reproducibility of the data split.
+            It can be an integer or a list of integers of length n_reps. Default : 5.
         p_thresh : float
             threshold to determine significance of things. For instance auc_p_value and pdif_vals
         n_dummy_reps : int
@@ -126,6 +130,23 @@ class WorstCaseAttack(Attack):
 
         super().__init__()
         self.n_reps = n_reps
+        self.reproduce_split = reproduce_split
+        if isinstance(reproduce_split, int):
+            reproduce_split = [reproduce_split]
+            reproduce_split += [x**2 for x in range(reproduce_split[0], reproduce_split[0]+n_reps-1)] #re-assign the value of reproduce_split to be ready for the next round
+        else:
+            reproduce_split = list(dict.fromkeys(reproduce_split)) #remove potential duplicates
+            if len(reproduce_split)==n_reps:
+               pass
+            elif len(reproduce_split)>n_reps:
+                print('split',reproduce_split, 'nreps',n_reps)
+                reproduce_split = list(reproduce_split)[0:n_reps]
+                print("WARNING: the length of the parameter 'reproduce_split' is longer than n_reps. Values have been removed.")
+            else: 
+                reproduce_split += [reproduce_split[-1]*x for x in range(2, (n_reps-len(reproduce_split)+2))] #assign values to match length of n_reps
+                print("WARNING: the length of the parameter 'reproduce_split' is shorter than n_reps. Vales have been added.")
+            print('reproduce split now', reproduce_split)
+        self.reproduce_split = reproduce_split
         self.p_thresh = p_thresh
         self.n_dummy_reps = n_dummy_reps
         self.train_beta = train_beta
@@ -329,11 +350,12 @@ class WorstCaseAttack(Attack):
         mia_metrics = []
 
         failfast_metric_summary = FailFast(self)
-
+        
         for rep in range(self.n_reps):
-            logger.info("Rep %d of %d", rep + 1, self.n_reps)
+            logger.info("Rep %d of %d split %d", rep + 1, self.n_reps, self.reproduce_split[rep])
             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-                mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
+                mi_x, mi_y, test_size=self.test_prop, stratify=mi_y,
+                random_state=self.reproduce_split[rep],  shuffle=True
             )
             attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
             attack_classifier.fit(mi_train_x, mi_train_y)
