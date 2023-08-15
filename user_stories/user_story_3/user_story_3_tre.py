@@ -69,7 +69,7 @@ def generate_report(
     testy = np.loadtxt(os.path.join(directory, y_test))
 
     target = Target(model=target_model)
-    # Wrap the training and test data into the Data object
+    # Wrap the training and test data into the Target object
     target.add_processed_data(trainX, trainy, testX, testy)
 
     # Run the attack

@@ -27,7 +27,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 
 def main():  # pylint: disable=too-many-locals
     """Create and train model to be released."""
-    directory = "training_artefacts/"
+    directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
@@ -37,7 +37,7 @@ def main():  # pylint: disable=too-many-locals
     print("Acting as researcher...")
     print()
 
-    filename = "../user_stories_resources/dataset_26_nursery.csv"
+    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 

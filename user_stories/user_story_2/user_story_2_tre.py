@@ -13,6 +13,7 @@ python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 
 import argparse
 import pickle
+import os
 
 import numpy as np
 import pandas as pd
@@ -40,18 +41,19 @@ def generate_report(
     print(
         "(when instructions on how to recreate the dataset have been provided by the researcher)"
     )
+    print(directory)
     print()
 
-    filename = directory + target_model
+    filename = os.path.join(directory, target_model)
     print("Reading target model from " + filename)
     with open(filename, "rb") as f:
         target_model = pickle.load(f)
 
-    print("Reading training/testing indices from ./" + directory)
-    indices_train = np.loadtxt(directory + train_indices)
-    indices_test = np.loadtxt(directory + test_indices)
+    print("Reading training/testing indices from " + directory)
+    indices_train = np.loadtxt(os.path.join(directory, train_indices))
+    indices_test = np.loadtxt(os.path.join(directory, test_indices))
 
-    filename = "../user_stories_resources/dataset_26_nursery.csv"
+    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -107,13 +109,12 @@ def generate_report(
 
     t = GenerateTextReport()
     t.process_attack_target_json(
-        directory + attack_results, target_filename=directory + target_filename
+        os.path.join(directory,attack_results), target_filename=os.path.join(directory,target_filename)
     )
 
-    t.export_to_file(output_filename=directory + outfile, move_files=True)
+    t.export_to_file(output_filename=os.path.join(directory,outfile), move_files=True)
 
-    print("Results written to " + directory + outfile)
-
+    print("Results written to " + str(os.path.join(directory,outfile)))
 
 def main():
     """Main method to parse arguments and then invoke report generation."""
@@ -129,7 +130,7 @@ def main():
         action="store",
         dest="training_artefacts_directory",
         required=False,
-        default="training_artefacts/",
+        default="training_artefacts",
         help=(
             "Folder containing training artefacts produced by researcher. Default = %(default)s."
         ),
@@ -141,7 +142,7 @@ def main():
         action="store",
         dest="target_model",
         required=False,
-        default="/model.pkl",
+        default="model.pkl",
         help=("Filename of target model. Default = %(default)s."),
     )
 

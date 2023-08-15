@@ -1,36 +1,37 @@
 ## User story 1: Ideal Case
-- User creates an object “mydata” of type aisdc.attacks.dataset.Data and provides a separate code file that does the translation between the data in the format provided and the data in the format to be input to the machine any model.
-- User creates a model “mymodel” from the safeXClassifier class and calls mymodel.fit().
-- User calls mymodel.preliminary_check() to make sure their hyper-parameters are within the TRE risk appetite for algorithm X.
-- User calls mymodel.run_attack(mydata) for different attack types and iterates over different hyper-parameters until they have an accurate model, and they interpret attack results as safe.
-- User calls myModel.request_release() with parameters modelsavefile.sav and  again passing the mydata object (without it request_release does not run attacks).
+- User creates an object "target" of type aisdc.attacks.target.Target and provides a separate code file that does the translation between the data in the format provided and the data in the format to be input to the machine any model.
+- User creates a model "model" from the safeXClassifier class and calls model.fit().
+- User calls model.preliminary_check() to make sure their hyper-parameters are within the TRE risk appetite for algorithm X.
+- User calls model.run_attack(target) for different attack types and iterates over different hyper-parameters until they have an accurate model, and they interpret attack results as safe.
+- User calls model.request_release() with parameters modelsavefile.sav and  again passing the target object (without it request_release does not run attacks).
   - LIRA, worst_case, and attribute_inference attacks are run automatically,
   - results are stored ready for the TRE output checkers to look at.
-  - System also saves the results of mymodel.posthoc_check() for poor practice, model edits etc.
+  - System also saves the results of model.posthoc_check() for poor practice, model edits etc.
 - TRE checker has everything they need to make a decision with no further processing.
 
 ## User story 2: Next Case
-- User provides Data object and code, uses safeXClassifier() but does not pass data object to request_release() or save processed form of data.
+- User provides Target object and code, uses safeXClassifier() but does not pass data object to request_release() or save processed form of data.
 - safeXClassifer report checks for class disclosure and TRE risk appetite for algorithm X.
 - TRE output checker has to manually recreate processed data using code provided.
 - TRE output checker is unable to run any attacks UNLESS they also know exactly which rows from the dataset were used for training and testing.
-- So dataset object needs to store those specific details OR use fixed values for seed (e.g. to sklearn.train_test_split() ) and be extremely transparent about how stratification was done).
+- So dataset object needs to store those specific details OR use fixed values for seed (e.g. to sklearn.train_test_split() ) and be extremely transparent about how stratification was done.
 - If TRE has enough info to recreate train/test processed data, then they can
-    -    run attacks from script.
+    - Run attacks from script.
     - Then the post-processing script
     - Then make a judgement.
 
 ## User Story 3: User provides dataset object but does not use safeXClassifier
 - In this case we don’t currently have any checking for TRE-approved hyper-parameters or for class disclosure.
   - But if it is a type where we have a safemodel version, we could create functionality to load it and then check hyper-parameters using existing code
-  - This raises the issue of whether safeModelClassifiers should have a load() option ?? – I;s currently commented out
+  - This raises the issue of whether safeModelClassifiers should have a load() option ?? – Is currently commented out
   - Could also provide method for checking for k-anonymity (and possible pure nodes) where appropriate by refactoring safemodels.
 - TREs need to manually configure and start scripts to do LIRA, Worst_Case and Attribute_Inference attacks
    - NB this assumes their classifier outputs probabilities.
 
-## User Story 4 (not implemented yet): User does not use safeXClassifier, or provide dataset object
+## User Story 4: User does not use safeXClassifier, or provide dataset object
 ### but does provide description of pre-processing,
 ### and provides output probabilities for the train and test set they have used (and true classes?)
+#### Status: in progress, still to create the TRE script
 - We cannot assume that the TRE has the capability to get the right bits of pre-processing code from their source code.
 - Do we insist on this (would be needed for ‘outside world’)? what if this is commercially sensitive?
 - TRE can in theory run LIRA and worst-case but not attribute inference attacks.
@@ -43,7 +44,8 @@
 
 **THIS would be the version that let people use R **
 
-## User Story 5 (not implemented yet):  User creates differentially private algorithm (not via our code) and provides sufficient details to create data object.
+## User Story 5:  User creates differentially private algorithm (not via our code) and provides sufficient details to create data object.
+#### Status: not implemented yet
 - How do we know what the actual epsilon value is?
 - If it is a keras model we can reload and query it if they have stored the training object as part of the model save (we need epochs, dataset size, L2 norm clip, noise values).
   -  But then their stored model probably has disclosive values in anyway …
@@ -56,7 +58,8 @@
 - Does the actual epsilon value matter if we are doing that?
    - Yes probably, because it is the sort of thing a TRE may well set as a policy.
 
-## User Story 6 (not implemented yet): Worst Case
+## User Story 6: Worst Case
+#### Status: not implemented yet
 - User makes R model for a tree-based classifier that we have not experimented with.
 - TREs get researcher to provide at minimum the processed train and test files.
 

@@ -27,7 +27,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 
 def main():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
-    directory = "training_artefacts/"
+    directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
@@ -36,8 +36,7 @@ def main():  # pylint: disable=too-many-locals
     print()
     print("Acting as researcher...")
     print()
-
-    filename = "../user_stories_resources/dataset_26_nursery.csv"
+    filename = os.path.join("..","user_stories_resources","dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -108,9 +107,9 @@ def main():  # pylint: disable=too-many-locals
     # and instead provides only the model and the list of indices
     # which have been used to split the dataset
 
-    print("Saving training/testing indices to ./" + directory)
-    np.savetxt(directory + "indices_train.txt", indices_train, fmt="%d")
-    np.savetxt(directory + "indices_test.txt", indices_test, fmt="%d")
+    print("Saving training/testing indices to " + directory)
+    np.savetxt(os.path.join(directory,"indices_train.txt"), indices_train, fmt="%d")
+    np.savetxt(os.path.join(directory,"indices_test.txt"), indices_test, fmt="%d")
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
