@@ -35,7 +35,7 @@ class WorstCaseAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable = too-many-arguments, too-many-locals, too-many-statements
         self,
         n_reps: int = 10,
         reproduce_split: Union[int, Iterable[int], None] = 5,
