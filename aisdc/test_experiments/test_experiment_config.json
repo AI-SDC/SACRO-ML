@@ -1,26 +1,71 @@
 {
     "datasets": [
-        "iris", "nursery"
+        "iris",
+        "nursery"
     ],
-    "classifiers" : [
-        ["sklearn.ensemble", "RandomForestClassifier"]
+    "classifiers": [
+        [
+            "sklearn.ensemble",
+            "RandomForestClassifier"
+        ]
     ],
-    "experiment_params" : {
+    "experiment_params": {
         "RandomForestClassifier": {
-            "bootstrap": [true, false],
-            "min_samples_split": [2, 5, 10, 20],
-            "min_samples_leaf": [1, 2, 5, 10, 20],
-            "n_estimators": [2, 5, 10, 50, 100, 200],
-            "criterion": ["gini","entropy"],
-            "max_depth": [2, 5, 10, null],
-            "class_weight": [null, "balanced"],
-            "max_features":["log2", "sqrt", null],
-            "n_jobs": [-1]
+            "bootstrap": [
+                true,
+                false
+            ],
+            "min_samples_split": [
+                2,
+                5,
+                10,
+                20
+            ],
+            "min_samples_leaf": [
+                1,
+                2,
+                5,
+                10,
+                20
+            ],
+            "n_estimators": [
+                2,
+                5,
+                10,
+                50,
+                100,
+                200
+            ],
+            "criterion": [
+                "gini",
+                "entropy"
+            ],
+            "max_depth": [
+                2,
+                5,
+                10,
+                null
+            ],
+            "class_weight": [
+                null,
+                "balanced"
+            ],
+            "max_features": [
+                "log2",
+                "sqrt",
+                null
+            ],
+            "n_jobs": [
+                -1
+            ]
         }
     },
     "results_filename": "test_RandomForest_results_indianliver.csv",
     "n_reps": 1,
     "path": "/mnt/c/Users/acrespi001/source/repos/AI-SDC/aisdc/test_experiments",
     "reproduce_split": 42,
-    "scenarios": ["WorstCase", "lira"]
+    "scenarios": [
+        "WorstCase",
+        "lira"
+    ]
 }
