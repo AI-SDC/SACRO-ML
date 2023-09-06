@@ -1,6 +1,5 @@
 {
     "datasets": [
-        "iris",
         "nursery"
     ],
     "classifiers": [
@@ -11,49 +10,9 @@
     ],
     "experiment_params": {
         "RandomForestClassifier": {
-            "bootstrap": [
-                true,
-                false
-            ],
-            "min_samples_split": [
-                2,
-                5,
-                10,
-                20
-            ],
-            "min_samples_leaf": [
-                1,
-                2,
-                5,
-                10,
-                20
-            ],
-            "n_estimators": [
-                2,
-                5,
-                10,
-                50,
-                100,
-                200
-            ],
             "criterion": [
                 "gini",
                 "entropy"
-            ],
-            "max_depth": [
-                2,
-                5,
-                10,
-                null
-            ],
-            "class_weight": [
-                null,
-                "balanced"
-            ],
-            "max_features": [
-                "log2",
-                "sqrt",
-                null
             ],
             "n_jobs": [
                 -1

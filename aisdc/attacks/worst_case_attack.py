@@ -11,7 +11,7 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Iterable, Union
+from typing import Any, Iterable
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier

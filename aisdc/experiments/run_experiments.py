@@ -43,6 +43,7 @@ class ResultsEntry:  # pylint: disable=too-few-public-methods
         repetition=None,
         params=None,
         target_metrics=None,
+        target_generalisation_error=None,
         mia_metrics=None,
         aia_metrics=None,
         lira_metrics=None,
@@ -79,7 +80,7 @@ class ResultsEntry:  # pylint: disable=too-few-public-methods
             "attack_classifier": attack_classifier_name,
             "attack_clf_file": attack_clf_file,
             "repetition": repetition,
-            #'full_id': full_id,
+            'target_generalisation_error': target_generalisation_error,
             "model_data_param_id": model_data_param_id,
             "param_id": param_id,
         }
@@ -200,7 +201,7 @@ def run_loop(
                 create_directory(target_model_path)
 
                 # LOAD or CREATE target model
-                if os.path.isfile(target_model_filename + "X"):
+                if os.path.isfile(target_model_filename):
                     # load the target model file
                     target_model = joblib.load(target_model_filename)
                 else:
@@ -219,7 +220,7 @@ def run_loop(
                 target.add_processed_data(train_X, train_y, test_X, test_y)
 
                 for scenario in scenarios:
-                    if scenario == "worst_case":
+                    if scenario == "worst_case" or scenario == "WorstCase":
                         attack_obj = worst_case_attack.WorstCaseAttack(
                             # How many attacks to run -- in each the attack model is
                             #  trained on a different
@@ -241,10 +242,11 @@ def run_loop(
                                 dataset_name=dataset,
                                 scenario_name=scenario,
                                 classifier_name=classifier_name,
+                                target_generalisation_error=target._Target__ge(),
                                 target_clf_file=target_model_filename,
-                                attack_classifier_name=attack_obj.get_params()[
+                                attack_classifier_name=str(attack_obj.get_params()[
                                     "mia_attack_model"
-                                ],  # pylint: disable = line-too-long
+                                ]()), # pylint: disable = line-too-long
                                 attack_clf_file=None,
                                 repetition=i,
                                 params=params,
