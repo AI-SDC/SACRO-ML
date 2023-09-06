@@ -80,7 +80,7 @@ class ResultsEntry:  # pylint: disable=too-few-public-methods
             "attack_classifier": attack_classifier_name,
             "attack_clf_file": attack_clf_file,
             "repetition": repetition,
-            'target_generalisation_error': target_generalisation_error,
+            "target_generalisation_error": target_generalisation_error,
             "model_data_param_id": model_data_param_id,
             "param_id": param_id,
         }
@@ -244,9 +244,9 @@ def run_loop(
                                 classifier_name=classifier_name,
                                 target_generalisation_error=target._Target__ge(),
                                 target_clf_file=target_model_filename,
-                                attack_classifier_name=str(attack_obj.get_params()[
-                                    "mia_attack_model"
-                                ]()), # pylint: disable = line-too-long
+                                attack_classifier_name=str(
+                                    attack_obj.get_params()["mia_attack_model"]()
+                                ),  # pylint: disable = line-too-long
                                 attack_clf_file=None,
                                 repetition=i,
                                 params=params,
