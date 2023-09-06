@@ -70,7 +70,7 @@ class WorstCaseAttack(Attack):
             number of attacks to run -- in each iteration an attack model
             is trained on a different subset of the data
         reproduce_split : int
-            varible that controls the reproducibility of the data split.
+            variable that controls the reproducibility of the data split.
             It can be an integer or a list of integers of length n_reps. Default : 5.
         p_thresh : float
             threshold to determine significance of things. For instance auc_p_value and pdif_vals
