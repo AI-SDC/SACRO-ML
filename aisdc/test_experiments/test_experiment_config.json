@@ -1,0 +1,30 @@
+{
+    "datasets": [
+        "nursery"
+    ],
+    "classifiers": [
+        [
+            "sklearn.ensemble",
+            "RandomForestClassifier"
+        ]
+    ],
+    "experiment_params": {
+        "RandomForestClassifier": {
+            "criterion": [
+                "gini",
+                "entropy"
+            ],
+            "n_jobs": [
+                -1
+            ]
+        }
+    },
+    "results_filename": "test_RandomForest_results_indianliver.csv",
+    "n_reps": 1,
+    "path": "/mnt/c/Users/acrespi001/source/repos/AI-SDC/aisdc/test_experiments",
+    "reproduce_split": 42,
+    "scenarios": [
+        "WorstCase",
+        "lira"
+    ]
+}
