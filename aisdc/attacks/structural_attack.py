@@ -22,6 +22,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from xgboost.sklearn import XGBClassifier
 
+from acro import ACRO
 
 from aisdc import metrics
 from aisdc.attacks import report
@@ -31,8 +32,8 @@ from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("structural_attack")
 
-P_THRESH = 0.05
 
 TREE_BASED_MODELS = ['DecisionTreeClassifier','RandomForestClassifier','XGBClassifier']
 
@@ -43,32 +44,27 @@ class StructuralAttack(Attack):
 
     def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
-        n_rows_in: int = 1000,
-        n_rows_out: int = 1000,
-        training_preds_filename: str = None,
-        test_preds_filename: str = None,
-        output_dir: str = "output_structural",
-        report_name: str = "report_structural",
-        include_model_correct_feature: bool = False,
-        sort_probs: bool = True,
-        attack_metric_success_name: str = "P_HIGHER_AUC",
-        attack_metric_success_thresh: float = 0.05,
-        attack_metric_success_comp_type: str = "lte",
-        attack_metric_success_count_thresh: int = 5,
-        attack_fail_fast: bool = False,
-        attack_config_json_file_name: str = None,
+        # n_rows_in: int = 1000,
+        # n_rows_out: int = 1000,
+        # training_preds_filename: str = None,
+        # test_preds_filename: str = None,
+        # output_dir: str = "output_structural",
+        # report_name: str = "report_structural",
+        # include_model_correct_feature: bool = False,
+        # sort_probs: bool = True,
+        # attack_metric_success_name: str = "P_HIGHER_AUC",
+        # attack_metric_success_thresh: float = 0.05,
+        # attack_metric_success_comp_type: str = "lte",
+        # attack_metric_success_count_thresh: int = 5,
+        # attack_fail_fast: bool = False,
+        # attack_config_json_file_name: str = None,
+        risk_appetite_config:str="default",
         target_path: str = None,
     ) -> None:
         """Constructs an object to execute a structural attack.
 
         Parameters
         ----------
-        p_thresh : float
-            threshold to determine significance of things. For instance auc_p_value and pdif_vals
-        n_rows_in : int
-            number of rows for in-sample (training data)
-        n_rows_out : int
-            number of rows for out-of-sample (test data)
         training_preds_filename : str
             name of the file to keep predictions of the training data (in-sample)
         test_preds_filename : str
@@ -77,59 +73,30 @@ class StructuralAttack(Attack):
             name of the directory where outputs are stored
         report_name : str
             name of the pdf and json output reports
-        include_model_correct_feature : bool
-            inclusion of additional feature to hold whether or not the target model
-            made a correct prediction for each example
-        sort_probs : bool
-            true in case require to sort combine preds (from training and test)
-            to have highest probabilities in the first column
-
-        attack_metric_success_name : str
-            name of metric to compute for the attack being successful
-        attack_metric_success_thresh : float
-            threshold for a given metric to measure attack being successful or not
-        attack_metric_success_comp_type : str
-            threshold comparison operator (i.e., gte: greater than or equal to, gt:
-            greater than, lte: less than or equal to, lt: less than,
-            eq: equal to and not_eq: not equal to)
-        attack_metric_success_count_thresh : int
-            a counter to record how many times an attack was successful
-            given that the threshold has fulfilled criteria for a given comparison type
-
         attack_config_json_file_name : str
             name of the configuration file to load parameters
         target_path : str
             path to the saved trained target model and target data
+        risk_appetite_config:str
+            path to yaml file specifying TRE risk appetite
         """
 
         super().__init__()
+        self.target:Target=None
         
-#         self.p_thresh = p_thresh
-#         self.n_rows_in = n_rows_in
-#         self.n_rows_out = n_rows_out
-#         self.training_preds_filename = training_preds_filename
-#         self.test_preds_filename = test_preds_filename
-#         self.output_dir = output_dir
-#         self.report_name = report_name
-#         self.include_model_correct_feature = include_model_correct_feature
- 
-#         self.attack_metric_success_name = attack_metric_success_name
-#         self.attack_metric_success_thresh = attack_metric_success_thresh
-#         self.attack_metric_success_comp_type = attack_metric_success_comp_type
-#         self.attack_metric_success_count_thresh = attack_metric_success_count_thresh
-
-#         self.attack_config_json_file_name = attack_config_json_file_name
-#         self.target_path = target_path
-#         # Updating parameters from a configuration json file
-#         if self.attack_config_json_file_name is not None:
-#             self._update_params_from_config_file()
-#         if not os.path.exists(self.output_dir):
-#             os.makedirs(self.output_dir)
-#         self.attack_metrics = None
-#         self.attack_metric_failfast_summary = None
-#         self.dummy_attack_metrics = None
-#         self.dummy_attack_metric_failfast_summary = None
-#         self.metadata = None
+        #make dummy acro object and use it to extract risk appetite
+        myacro=ACRO(risk_appetite_config)
+        self.THRESHOLD = myacro.config["safe_threshold"]
+        self.DOF_THRESHOLD = myacro.config["safe_dof_threshold"] 
+        del(myacro)
+        
+        #metrics
+        self.DoF_risk = 0
+        self.k_anonymity_risk=0
+        self.class_disclosure_risk=0
+        self.unnecessary_risk = 0
+        logger.info(f'Thresholds for count {self.THRESHOLD} and DoF {self.DOF_THRESHOLD}')
+        
 
     def __str__(self):
         return "Structural attack"
@@ -144,48 +111,110 @@ class StructuralAttack(Attack):
         target : attacks.target.Target
             target as a Target class object
         """
-        
-        #what type of classifier have we got?
+        self.target=target
         model_type="unknown"
-        if isinstance(target.model,DecisionTreeClassifier):
-            model_type = 'DecisionTreeClassifier'
-        elif isinstance(target.model,RandomForestClassifier):
-            model_type = 'RandomForestClassifier'
-        elif isinstance(target.model,XGBClassifier):
-            model_type = 'XGBClassifier'           
-        retstr= f"model type is {model_type}\n"
-        #for key,val in target.model.__dict__.items():
-        #    retstr += f" {key}: {val} \n"
-        retstr
-        
-        if model_type in TREE_BASED_MODELS:
-            return f'could do more, \n{retstr}'
+        if target.model is not None:
+            self.model_type = target.model
         else:
-            return f'static attacks not currently implemented for models of type {type(target.model)}'
-
-        #TODO
-        ## import k-anonymity code
-        ## return sets of co-existing traing set items
+            errstr = ("cannot currently call StructuralAttack.attack() "
+                      "unless the target contains a trained model"
+                     )
+            raise NotImplementedError(errstr)
+        if isinstance(target.model,DecisionTreeClassifier):
+            self.decision_tree_whitebox_attack()
+        elif isinstance(target.model,RandomForestClassifier):
+            self.random_forest_attack()
+        elif isinstance(target.model,XGBClassifier):
+            self.xgboost_attack()
+        else:
+            retstr= ("no current strural attacks "
+                     f"for models of type {model_type}\n"
+                    )
+            logger.warning( retstr)
         
-        
-        train_preds = target.model.predict_proba(target.x_train)
-        test_preds = target.model.predict_proba(target.x_test)
-        # train_correct = None
-        # test_correct = None
-        # if self.include_model_correct_feature:
-        #     train_correct = 1 * (target.y_train == target.model.predict(target.x_train))
-        #     test_correct = 1 * (target.y_test == target.model.predict(target.x_test))
+    def decision_tree_whitebox_attack(self)->None:
+        """ Structural attacks on decision trees
+        To be used when target model and training set are provided
+        Tests for:
+        - k-anonymity
+        - class disclosure 
+        - uneccessarily risky hyper-paramter combinations
+        - residual degrees of freedom
+        """
 
+        #get tree structure
+        dtree = self.target.model
+        n_nodes = dtree.tree_.node_count
+        left = dtree.tree_.children_left
+        right = dtree.tree_.children_right
+        is_leaf=np.zeros(n_nodes,dtype=int)
+        for node_id in range( n_nodes):
+            if left[node_id] == right[node_id]:
+                is_leaf[node_id]=1
+        
+        #degrees of freedom
+        n_internal_nodes = n_nodes - is_leaf.sum()
+        n_params= 2*n_internal_nodes #feature id and threshold
+        self.residual_dof = self.target.x_train.shape[0]- n_params
+        if self.residual_dof < self.DOF_THRESHOLD:
+            self.DoF_risk = 1
+        logger.info(f'degrees of freedom for this decision tree is {self.residual_dof}, '
+                   f'so DoF risk is {self.DoF_risk}')
+  
+        #find out which leaf nodes training data ends up in
+        X = self.target.x_train
+        y = self.target.y_train
+        assert X.shape[0]==len(y),'data shape mismatch'
+        destinations = dtree.apply(X)             
+        
+        # k-anonymity data
+        uniqs_counts = np.unique(destinations, return_counts=True)
+        leaves= uniqs_counts[0]
+        n_leaves= len(leaves)
+        #sanity check
+        assert n_leaves == is_leaf.sum(),'mismatch counting leaves'
+        #logger.info(f'There are {n_leaves} leaves in the tree')
+        self.k_anonymity = np.min(uniqs_counts[1])
+        if self.k_anonymity < self.THRESHOLD:
+            self.k_anonymity_risk = 1
+        logger.info(f'minimum k-anonymity for this tree is {self.k_anonymity} '
+                   f'so k-anonymity risk is {self.k_anonymity_risk}')
+        
+        #class disclosure
+        leaf_membership = {}
+        labels = np.unique(y,return_counts=False)
+        n_classes = dtree.n_classes_
+        #sanity checks
+        assert n_classes == len(labels),'class count mismatch'
+        assert (dtree.classes_ == labels).all(),'class label mismatch'    
+        for leafidx in leaves:
+            #initialise and zero dict to hold membership counts
+            leaf_membership[leafidx]={}
+            counts = {}
+            for label in labels:
+                counts[label]= 0
+            for idx,val in enumerate(y):
+                if destinations[idx] == leafidx:
+                    counts[val] += 1
+            leaf_membership[leafidx]=counts
+
+        self.failing_regions = 0
+        for key,val in leaf_membership.items():
+            #logger.info(f'Leaf {key}, membership {val}')
+            risky=False
+            for label,count in val.items():
+                #logger.info(f'key {key} label {label} count {count}')
+                if count >0 and count <self.THRESHOLD:
+                    risky=True
+                    break
+            if risky:
+                self.failing_regions +=1
+        if self.failing_regions:
+            self.class_disclosure_risk=1
+        logger.info(f' for this tree there are {self.failing_regions} problematic regions'
+                    f' so class disclosure risk = {self.class_disclosure_risk}')
+ 
             
-            
-            
-            
-        # self.attack_from_preds(
-        #     train_preds,
-        #     test_preds,
-        #     train_correct=train_correct,
-        #     test_correct=test_correct,
-        # )
 
     def attack_from_prediction_files(self):
         """Start an attack from saved prediction files.
