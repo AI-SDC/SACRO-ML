@@ -1,6 +1,6 @@
 import numpy as np
-
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+
 
 def process_dataset(data):
     y = np.asarray(data["class"])
@@ -26,8 +26,8 @@ def process_dataset(data):
     # one-hot encoding of features and integer encoding of label
 
     returned = {}
-    returned['x_transformed'] = x_transformed
-    returned['y_transformed'] = y_transformed
-    returned['indices'] = indices
+    returned["x_transformed"] = x_transformed
+    returned["y_transformed"] = y_transformed
+    returned["indices"] = indices
 
     return returned

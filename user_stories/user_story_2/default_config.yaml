@@ -15,4 +15,3 @@ attack_output_name: "attack_output"
 # User story 2
 train_indices: "indices_train.txt"
 test_indices: "indices_test.txt"
-

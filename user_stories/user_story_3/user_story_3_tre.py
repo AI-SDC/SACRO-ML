@@ -16,9 +16,9 @@ import json
 import logging
 import os
 import pickle
-import yaml
 
 import numpy as np
+import yaml
 
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
     GenerateTextReport,
@@ -119,6 +119,7 @@ def generate_report(
 
     print("Results written to " + os.path.join(directory, outfile))
 
+
 def main():
     """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
@@ -134,9 +135,7 @@ def main():
         dest="config_file",
         required=False,
         default="default_config.yaml",
-        help = (
-            "Name of yaml configuration file"
-        )
+        help=("Name of yaml configuration file"),
     )
 
     args = parser.parse_args()
@@ -145,19 +144,23 @@ def main():
         with open(args.config_file, encoding="utf-8") as handle:
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
     except AttributeError as error:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error message is {error}")
+        print(
+            "Invalid command. Try --help to get more details"
+            f"error message is {error}"
+        )
 
     generate_report(
-        config['training_artefacts_dir'],
-        config['target_model'],
-        config['x_train_path'],
-        config['y_train_path'],
-        config['x_test_path'],
-        config['y_test_path'],
-        config['attack_output_name'],
-        config['target_results'],
-        config['outfile'],
+        config["training_artefacts_dir"],
+        config["target_model"],
+        config["x_train_path"],
+        config["y_train_path"],
+        config["x_test_path"],
+        config["y_test_path"],
+        config["attack_output_name"],
+        config["target_results"],
+        config["outfile"],
     )
+
 
 if __name__ == "__main__":  # pragma:no cover
     main()

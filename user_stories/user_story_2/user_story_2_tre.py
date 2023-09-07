@@ -14,10 +14,11 @@ python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 import argparse
 import os
 import pickle
-import yaml
 
 import numpy as np
 import pandas as pd
+import yaml
+from data_processing_researcher import process_dataset
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
@@ -25,7 +26,6 @@ from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-er
 )
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 
-from data_processing_researcher import process_dataset
 
 def generate_report(
     dataset_filename,
@@ -61,20 +61,20 @@ def generate_report(
 
     returned = process_dataset(data)
 
-    x = returned['x']
-    y = returned['y']
-    indices = returned['indices']
-    indices_train = returned['indices_train']
-    indices_test = returned['indices_test']
-    x_train_orig = returned['x_train_orig']
-    y_train_orig = returned['y_train_orig']
-    x_test_orig = returned['x_test_orig']
-    y_test_orig = returned['y_test_orig']
-    x_train = returned['x_train']
-    y_train = returned['y_train']
-    x_test = returned['x_test']
-    y_test = returned['y_test']
-    n_features = returned['n_features']
+    x = returned["x"]
+    y = returned["y"]
+    indices = returned["indices"]
+    indices_train = returned["indices_train"]
+    indices_test = returned["indices_test"]
+    x_train_orig = returned["x_train_orig"]
+    y_train_orig = returned["y_train_orig"]
+    x_test_orig = returned["x_test_orig"]
+    y_test_orig = returned["y_test_orig"]
+    x_train = returned["x_train"]
+    y_train = returned["y_train"]
+    x_test = returned["x_test"]
+    y_test = returned["y_test"]
+    n_features = returned["n_features"]
 
     # Wrap the model and data in a Target object
     target = Target(model=target_model)
@@ -101,6 +101,7 @@ def generate_report(
 
     print("Results written to " + str(os.path.join(directory, outfile)))
 
+
 def main():
     """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
@@ -116,9 +117,7 @@ def main():
         dest="config_file",
         required=False,
         default="default_config.yaml",
-        help = (
-            "Name of yaml configuration file"
-        )
+        help=("Name of yaml configuration file"),
     )
 
     args = parser.parse_args()
@@ -127,18 +126,22 @@ def main():
         with open(args.config_file, encoding="utf-8") as handle:
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
     except AttributeError as error:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error message is {error}")
+        print(
+            "Invalid command. Try --help to get more details"
+            f"error message is {error}"
+        )
 
     generate_report(
-        config['dataset_filename'],
-        config['training_artefacts_dir'],
-        config['target_model'],
-        config['train_indices'],
-        config['test_indices'],
-        config['attack_results'],
-        config['target_results'],
-        config['outfile'],
+        config["dataset_filename"],
+        config["training_artefacts_dir"],
+        config["target_model"],
+        config["train_indices"],
+        config["test_indices"],
+        config["attack_results"],
+        config["target_results"],
+        config["outfile"],
     )
+
 
 if __name__ == "__main__":  # pragma:no cover
     main()
