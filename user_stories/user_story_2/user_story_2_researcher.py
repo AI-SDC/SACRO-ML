@@ -16,7 +16,7 @@ import os
 
 import numpy as np
 import pandas as pd
-
+from data_processing_researcher import process_dataset
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
@@ -24,7 +24,6 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
 
-from data_processing_researcher import process_dataset
 
 def main():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
@@ -45,8 +44,8 @@ def main():  # pylint: disable=too-many-locals
 
     returned = process_dataset(data)
 
-    x_transformed = returned['x_transformed']
-    y_transformed = returned['y_transformed']
+    x_transformed = returned["x_transformed"]
+    y_transformed = returned["y_transformed"]
 
     n_features = np.shape(x_transformed)[1]
 
@@ -70,7 +69,7 @@ def main():  # pylint: disable=too-many-locals
         shuffle=True,
     )
 
-    indices = returned['indices']
+    indices = returned["indices"]
 
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
