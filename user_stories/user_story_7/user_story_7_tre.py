@@ -14,7 +14,8 @@ python -m example_notebooks.user_stories.user_story_7.user_story_7_tre
 import argparse
 import os
 import pickle
-
+import pathlib
+import yaml
 
 def generate_report(directory, target_model_filepath):
     """Main method to parse arguments and then invoke report generation."""
@@ -43,34 +44,26 @@ def main():
     )
 
     parser.add_argument(
-        "--training_artefacts_directory",
+        "--config_file",
         type=str,
         action="store",
-        dest="training_artefacts_directory",
+        dest="config_file",
         required=False,
-        default="training_artefacts",
-        help=(
-            "Folder containing training artefacts produced by researcher. Default = %(default)s."
-        ),
-    )
-
-    parser.add_argument(
-        "--target_model",
-        type=str,
-        action="store",
-        dest="target_model",
-        required=False,
-        default="model.pkl",
-        help=("Filename of target model. Default = %(default)s."),
+        default="default_config.yaml",
+        help = (
+            "Name of yaml configuration file"
+        )
     )
 
     args = parser.parse_args()
 
     try:
-        generate_report(args.training_artefacts_directory, args.target_model)
-    except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+        with open(args.config_file, encoding="utf-8") as handle:
+            config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
+    except AttributeError as error:  # pragma:no cover
+        print("Invalid command. Try --help to get more details" f"error message is {error}")
 
+    generate_report(config['training_artefacts_dir'], config['target_model'])
 
 if __name__ == "__main__":  # pragma:no cover
     main()

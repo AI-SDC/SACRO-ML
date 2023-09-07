@@ -11,11 +11,12 @@ Invoke this code from the root AI-SDC folder with
 python -m example_notebooks.user_stories.user_story_1.user_story_1_tre
 """
 import argparse
+import os
+import yaml
 
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
     GenerateTextReport,
 )
-
 
 def generate_report(directory, attack_results, target, outfile):
     """Generate report based on target model."""
@@ -25,17 +26,19 @@ def generate_report(directory, attack_results, target, outfile):
     print()
 
     t = GenerateTextReport()
+
+    attack_pathname = os.path.join(directory, attack_results)
     t.process_attack_target_json(
-        directory + attack_results, target_filename=directory + target
+        attack_pathname, target_filename=attack_pathname
     )
 
-    t.export_to_file(output_filename=directory + outfile, move_files=True)
+    out_pathname = os.path.join(directory, outfile)
+    t.export_to_file(output_filename=out_pathname, move_files=True)
 
-    print("Results written to " + directory + outfile)
-
+    print("Results written to " + out_pathname)
 
 def main():
-    """Main method to parse arguments and then invoke report generstion."""
+    """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -43,61 +46,31 @@ def main():
     )
 
     parser.add_argument(
-        "--training_artefacts_directory",
+        "--config_file",
         type=str,
         action="store",
-        dest="training_artefacts_directory",
+        dest="config_file",
         required=False,
-        default="training_artefacts/",
-        help=(
-            "Folder containing training artefacts produced by researcher. Default = %(default)s."
-        ),
-    )
-
-    parser.add_argument(
-        "--attack_results",
-        type=str,
-        action="store",
-        dest="attack_results",
-        required=False,
-        default="attack_results.json",
-        help=("Filename for the saved JSON attack output. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--target_results",
-        type=str,
-        action="store",
-        dest="target_results",
-        required=False,
-        default="target.json",
-        help=("Filename for the saved JSON model output. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--outfile",
-        type=str,
-        action="store",
-        dest="outfile",
-        required=False,
-        default="summary.txt",
-        help=(
-            "Filename for the final results to be written to. Default = %(default)s."
-        ),
+        default="default_config.yaml",
+        help = (
+            "Name of yaml configuration file"
+        )
     )
 
     args = parser.parse_args()
 
     try:
-        generate_report(
-            args.training_artefacts_directory,
-            args.attack_results,
-            args.target_results,
-            args.outfile,
-        )
-    except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+        with open(args.config_file, encoding="utf-8") as handle:
+            config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
+    except AttributeError as error:  # pragma:no cover
+        print("Invalid command. Try --help to get more details" f"error message is {error}")
 
+    generate_report(
+        config['training_artefacts_dir'],
+        config['attack_results'],
+        config['target_results'],
+        config['outfile'],
+    )
 
 if __name__ == "__main__":  # pragma:no cover
     main()

@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import pickle
+import yaml
 
 import numpy as np
 
@@ -118,7 +119,6 @@ def generate_report(
 
     print("Results written to " + os.path.join(directory, outfile))
 
-
 def main():
     """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
@@ -128,118 +128,36 @@ def main():
     )
 
     parser.add_argument(
-        "--training_artefacts_directory",
+        "--config_file",
         type=str,
         action="store",
-        dest="training_artefacts_directory",
+        dest="config_file",
         required=False,
-        default="training_artefacts",
-        help=(
-            "Folder containing training artefacts produced by researcher. Default = %(default)s."
-        ),
-    )
-
-    parser.add_argument(
-        "--target_model",
-        type=str,
-        action="store",
-        dest="target_model",
-        required=False,
-        default="disclosive_random_forest.sav",
-        help=("Filename of target model. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--x_train_path",
-        type=str,
-        action="store",
-        dest="x_train_path",
-        required=False,
-        default="trainX.txt",
-        help=("Filename for the saved training data. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--y_train_path",
-        type=str,
-        action="store",
-        dest="y_train_path",
-        required=False,
-        default="trainy.txt",
-        help=("Filename for the saved training labels. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--x_test_path",
-        type=str,
-        action="store",
-        dest="x_test_path",
-        required=False,
-        default="testX.txt",
-        help=("Filename for the saved testiing data. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--y_test_path",
-        type=str,
-        action="store",
-        dest="y_test_path",
-        required=False,
-        default="testy.txt",
-        help=("Filename for the saved testing labels. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--attack_output_name",
-        type=str,
-        action="store",
-        dest="attack_output_name",
-        required=False,
-        default="attack_output",
-        help=(
-            "Filename for the attack JSON output to be written to. Default = %(default)s."
-        ),
-    )
-
-    parser.add_argument(
-        "--target_results",
-        type=str,
-        action="store",
-        dest="target_results",
-        required=False,
-        default="target/target.json",
-        help=("Filename for the saved JSON model output. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--outfile",
-        type=str,
-        action="store",
-        dest="outfile",
-        required=False,
-        default="summary.txt",
-        help=(
-            "Filename for the final results to be written to. Default = %(default)s."
-        ),
+        default="default_config.yaml",
+        help = (
+            "Name of yaml configuration file"
+        )
     )
 
     args = parser.parse_args()
 
     try:
-        generate_report(
-            args.training_artefacts_directory,
-            args.target_model,
-            args.x_train_path,
-            args.y_train_path,
-            args.x_test_path,
-            args.y_test_path,
-            args.attack_output_name,
-            args.target_results,
-            args.outfile,
-        )
-    except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+        with open(args.config_file, encoding="utf-8") as handle:
+            config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
+    except AttributeError as error:  # pragma:no cover
+        print("Invalid command. Try --help to get more details" f"error message is {error}")
 
+    generate_report(
+        config['training_artefacts_dir'],
+        config['target_model'],
+        config['x_train_path'],
+        config['y_train_path'],
+        config['x_test_path'],
+        config['y_test_path'],
+        config['attack_output_name'],
+        config['target_results'],
+        config['outfile'],
+    )
 
 if __name__ == "__main__":  # pragma:no cover
     main()

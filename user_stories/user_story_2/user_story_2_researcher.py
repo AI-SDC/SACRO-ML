@@ -16,14 +16,15 @@ import os
 
 import numpy as np
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
 
+from data_processing_researcher import process_dataset
 
 def main():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
@@ -42,49 +43,34 @@ def main():  # pylint: disable=too-many-locals
 
     print()
 
-    y = np.asarray(data["class"])
-    x = np.asarray(data.drop(columns=["class"], inplace=False))
+    returned = process_dataset(data)
 
-    n_features = np.shape(x)[1]
-    indices: list[list[int]] = [
-        [0, 1, 2],  # parents
-        [3, 4, 5, 6, 7],  # has_nurs
-        [8, 9, 10, 11],  # form
-        [12, 13, 14, 15],  # children
-        [16, 17, 18],  # housing
-        [19, 20],  # finance
-        [21, 22, 23],  # social
-        [24, 25, 26],  # health
-    ]
+    x_transformed = returned['x_transformed']
+    y_transformed = returned['y_transformed']
 
-    row_indices = np.arange(np.shape(x)[0])
+    n_features = np.shape(x_transformed)[1]
+
+    row_indices = np.arange(np.shape(x_transformed)[0])
 
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
     (
-        x_train_orig,
-        x_test_orig,
-        y_train_orig,
-        y_test_orig,
+        x_train,
+        x_test,
+        y_train,
+        y_test,
         indices_train,
         indices_test,
     ) = train_test_split(
-        x,
-        y,
+        x_transformed,
+        y_transformed,
         row_indices,
         test_size=0.5,
-        stratify=y,
+        stratify=y_transformed,
         shuffle=True,
     )
 
-    # Preprocess dataset
-    # one-hot encoding of features and integer encoding of labels
-    label_enc = LabelEncoder()
-    feature_enc = OneHotEncoder()
-    x_train = feature_enc.fit_transform(x_train_orig).toarray()
-    y_train = label_enc.fit_transform(y_train_orig)
-    x_test = feature_enc.transform(x_test_orig).toarray()
-    y_test = label_enc.transform(y_test_orig)
+    indices = returned['indices']
 
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
@@ -99,7 +85,7 @@ def main():  # pylint: disable=too-many-locals
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    target.add_raw_data(x_transformed, y_transformed)
     for i in range(n_features):
         target.add_feature(data.columns[i], indices[i], "onehot")
 

@@ -14,6 +14,7 @@ python -m example_notebooks.user_stories.user_story_2.user_story_2_tre
 import argparse
 import os
 import pickle
+import yaml
 
 import numpy as np
 import pandas as pd
@@ -24,8 +25,10 @@ from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-er
 )
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 
+from data_processing_researcher import process_dataset
 
 def generate_report(
+    dataset_filename,
     directory,
     target_model,
     train_indices,
@@ -53,44 +56,25 @@ def generate_report(
     indices_train = np.loadtxt(os.path.join(directory, train_indices))
     indices_test = np.loadtxt(os.path.join(directory, test_indices))
 
-    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
-    print("Reading data from " + filename)
-    data = pd.read_csv(filename)
+    print("Reading data from " + dataset_filename)
+    data = pd.read_csv(dataset_filename)
 
-    print()
+    returned = process_dataset(data)
 
-    print(data.head())
-    print(indices_test[:10])
-    print(indices_train[:10])
-
-    y = np.asarray(data["class"])
-    x = np.asarray(data.drop(columns=["class"], inplace=False))
-
-    n_features = np.shape(x)[1]
-    indices: list[list[int]] = [
-        [0, 1, 2],  # parents
-        [3, 4, 5, 6, 7],  # has_nurs
-        [8, 9, 10, 11],  # form
-        [12, 13, 14, 15],  # children
-        [16, 17, 18],  # housing
-        [19, 20],  # finance
-        [21, 22, 23],  # social
-        [24, 25, 26],  # health
-    ]
-
-    x_train_orig = np.asarray([x[int(i)] for i in indices_train])
-    y_train_orig = np.asarray([y[int(i)] for i in indices_train])
-    x_test_orig = np.asarray([x[int(i)] for i in indices_test])
-    y_test_orig = np.asarray([y[int(i)] for i in indices_test])
-
-    # Preprocess dataset
-    # one-hot encoding of features and integer encoding of labels
-    label_enc = LabelEncoder()
-    feature_enc = OneHotEncoder()
-    x_train = feature_enc.fit_transform(x_train_orig).toarray()
-    y_train = label_enc.fit_transform(y_train_orig)
-    x_test = feature_enc.transform(x_test_orig).toarray()
-    y_test = label_enc.transform(y_test_orig)
+    x = returned['x']
+    y = returned['y']
+    indices = returned['indices']
+    indices_train = returned['indices_train']
+    indices_test = returned['indices_test']
+    x_train_orig = returned['x_train_orig']
+    y_train_orig = returned['y_train_orig']
+    x_test_orig = returned['x_test_orig']
+    y_test_orig = returned['y_test_orig']
+    x_train = returned['x_train']
+    y_train = returned['y_train']
+    x_test = returned['x_test']
+    y_test = returned['y_test']
+    n_features = returned['n_features']
 
     # Wrap the model and data in a Target object
     target = Target(model=target_model)
@@ -117,7 +101,6 @@ def generate_report(
 
     print("Results written to " + str(os.path.join(directory, outfile)))
 
-
 def main():
     """Main method to parse arguments and then invoke report generation."""
     parser = argparse.ArgumentParser(
@@ -127,94 +110,35 @@ def main():
     )
 
     parser.add_argument(
-        "--training_artefacts_directory",
+        "--config_file",
         type=str,
         action="store",
-        dest="training_artefacts_directory",
+        dest="config_file",
         required=False,
-        default="training_artefacts",
-        help=(
-            "Folder containing training artefacts produced by researcher. Default = %(default)s."
-        ),
-    )
-
-    parser.add_argument(
-        "--target_model",
-        type=str,
-        action="store",
-        dest="target_model",
-        required=False,
-        default="model.pkl",
-        help=("Filename of target model. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--train_indices",
-        type=str,
-        action="store",
-        dest="train_indices",
-        required=False,
-        default="indices_train.txt",
-        help=("Filename for the saved training indices. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--test_indices",
-        type=str,
-        action="store",
-        dest="test_indices",
-        required=False,
-        default="indices_test.txt",
-        help=("Filename for the saved testing indices. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--attack_results",
-        type=str,
-        action="store",
-        dest="attack_results",
-        required=False,
-        default="attack_results.json",
-        help=("Filename for the saved JSON attack output. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--target_results",
-        type=str,
-        action="store",
-        dest="target_results",
-        required=False,
-        default="target.json",
-        help=("Filename for the saved JSON model output. Default = %(default)s."),
-    )
-
-    parser.add_argument(
-        "--outfile",
-        type=str,
-        action="store",
-        dest="outfile",
-        required=False,
-        default="summary.txt",
-        help=(
-            "Filename for the final results to be written to. Default = %(default)s."
-        ),
+        default="default_config.yaml",
+        help = (
+            "Name of yaml configuration file"
+        )
     )
 
     args = parser.parse_args()
 
     try:
-        generate_report(
-            args.training_artefacts_directory,
-            args.target_model,
-            args.train_indices,
-            args.test_indices,
-            args.attack_results,
-            args.target_results,
-            args.outfile,
-        )
-    except AttributeError as e:  # pragma:no cover
-        print("Invalid command. Try --help to get more details" f"error mesge is {e}")
+        with open(args.config_file, encoding="utf-8") as handle:
+            config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
+    except AttributeError as error:  # pragma:no cover
+        print("Invalid command. Try --help to get more details" f"error message is {error}")
 
+    generate_report(
+        config['dataset_filename'],
+        config['training_artefacts_dir'],
+        config['target_model'],
+        config['train_indices'],
+        config['test_indices'],
+        config['attack_results'],
+        config['target_results'],
+        config['outfile'],
+    )
 
 if __name__ == "__main__":  # pragma:no cover
     main()
