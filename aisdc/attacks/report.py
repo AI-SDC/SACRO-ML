@@ -328,7 +328,7 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
         if os.path.exists(path):
             os.remove(path)
     elif attack_type == "AttributeAttack":
-        path = report_dest + "_cat_frac.png"        
+        path = report_dest + "_cat_frac.png"
         if os.path.exists(path):
             os.remove(path)
 
