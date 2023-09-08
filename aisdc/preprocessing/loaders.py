@@ -281,11 +281,15 @@ def _synth_ae(
         help_message = f"""
 Data file {file_path} does not exist. Please download the file from:
 https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e
-unzip it (7z) and then copy the .csv file into your data folder.
+
+Alternatively, download the file directly from the following URL:
+https://nhsengland-direct-uploads.s3-eu-west-1.amazonaws.com/A%26E+Synthetic+Data.7z
+
+Unzip it (7z) and then copy the .csv file into your data folder.
     """
         raise DataNotAvailable(help_message)
 
-    input_data = pd.read_csv(file_path, nrows=n_rows)
+    input_data = pd.r   ead_csv(file_path, nrows=n_rows)
     columns_to_drop = [
         "AE_Arrive_Date",
         "AE_Arrive_HourOfDay",
@@ -369,7 +373,7 @@ and place it in the correct folder.
 def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     In-hospital mortality data from this study:
-        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
+        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
     """
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
@@ -383,6 +387,9 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
 and place it in the correct folder. It works with either the zip file or uncompressed.
+Alternatively download the data file from this URL:
+        https://datadryad.org/stash/downloads/file_stream/773992
+and then change the name of the file 773992 to data01.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -403,7 +410,7 @@ and place it in the correct folder. It works with either the zip file or uncompr
 
 
 def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Loads the mimic_iaccd data and performs Alba's pre-processing."""
+    """Loads the mimic_iaccd data and performs pre-processing."""
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
@@ -459,31 +466,28 @@ def _texas_hospitals(
     # pylint: disable=too-many-statements, too-many-locals
     """
     Texas Hospitals Dataset
-    (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm).
-
-    Note: this has been tested repeated in the GRAIMatter project.
-    However, for licensing reasons we cannot redistribute the data.
-    Therefore it is omitted from CI test coverage and metrics.
+    https://www.dshs.texas.gov/texas-health-care-information-collection/health-data-researcher-information/texas-inpatient-public-use # pylint: disable=line-too-long
+  
+    Download the tab-delimited files for each quarter from
+    2006, 2007, 2008 and 2009.
+    Note: This data is free to download.
     """
     file_list = [
-        "PUDF-1Q2006-tab-delimited.zip",
-        "PUDF-1Q2007-tab-delimited.zip",
-        "PUDF-1Q2008-tab-delimited.zip",
-        "PUDF-1Q2009-tab-delimited.zip",
-        "PUDF-2Q2006-tab-delimited.zip",
-        "PUDF-2Q2007-tab-delimited.zip",
-        "PUDF-2Q2008-tab-delimited.zip",
-        "PUDF-2Q2009-tab-delimited.zip",
-        "PUDF-3Q2006-tab-delimited.zip",
-        "PUDF-3Q2007-tab-delimited.zip",
-        "PUDF-3Q2008-tab-delimited.zip",
-        "PUDF-3Q2009-tab-delimited.zip",
-        "PUDF-4Q2006-tab-delimited.zip",
-        "PUDF-4Q2007-tab-delimited.zip",
-        "PUDF-4Q2008-tab-delimited.zip",
-        "PUDF-4Q2009-tab-delimited.zip",
-    ]
-
+        "PUDF 1Q2006 tab-delimited.zip",
+        "PUDF 1Q2007 tab-delimited.zip",
+        "PUDF 1Q2009 tab-delimited.zip",
+        "PUDF 2Q2006 tab-delimited.zip",
+        "PUDF 2Q2007 tab-delimited.zip",
+        "PUDF 2Q2009 tab-delimited.zip",
+        "PUDF 3Q2006 tab-delimited.zip",
+        "PUDF 3Q2007 tab-delimited.zip",
+        "PUDF 4Q2006 tab-delimited.zip",
+        "PUDF 4Q2007 tab-delimited.zip",
+        "PUDF 4Q2009 tab-delimited.zip",
+        "PUDF1Q08_update_tab.zip",
+        "PUDF2Q08_update_tab.zip",
+        "PUDF3Q08_update_tab.zip"
+        ]
     files_path = [os.path.join(data_folder, "TexasHospitals", f) for f in file_list]
 
     found = [os.path.exists(file_path) for file_path in files_path]
