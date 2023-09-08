@@ -289,7 +289,7 @@ Unzip it (7z) and then copy the .csv file into your data folder.
     """
         raise DataNotAvailable(help_message)
 
-    input_data = pd.r   ead_csv(file_path, nrows=n_rows)
+    input_data = pd.read_csv(file_path, nrows=n_rows)
     columns_to_drop = [
         "AE_Arrive_Date",
         "AE_Arrive_HourOfDay",
