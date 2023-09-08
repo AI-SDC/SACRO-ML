@@ -25,18 +25,18 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 )
 
 
-def main():  # pylint: disable=too-many-locals
+def run_user_story():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        os.makedirs(directory)        
 
     print()
     print("Acting as researcher...")
     print()
-    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
+    filename = os.path.join(".", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -47,29 +47,22 @@ def main():  # pylint: disable=too-many-locals
     x_transformed = returned["x_transformed"]
     y_transformed = returned["y_transformed"]
 
-    n_features = np.shape(x_transformed)[1]
+    n_features = returned['n_features_raw_data']
 
-    row_indices = np.arange(np.shape(x_transformed)[0])
+    train_indices = set(returned['train_indices'])
 
-    # [Researcher] Split into training and test sets
-    # target model train / test split - these are strings
-    (
-        x_train,
-        x_test,
-        y_train,
-        y_test,
-        indices_train,
-        indices_test,
-    ) = train_test_split(
-        x_transformed,
-        y_transformed,
-        row_indices,
-        test_size=0.5,
-        stratify=y_transformed,
-        shuffle=True,
-    )
+    x_train = []
+    x_test = []
+    y_train = []
+    y_test = []
 
-    indices = returned["indices"]
+    for i, label in enumerate(y_transformed):
+        if i in train_indices:
+            x_train.append(x_transformed[i])
+            y_train.append(label)
+        else:
+            x_test.append(x_transformed[i])
+            y_test.append(label)
 
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
@@ -84,17 +77,17 @@ def main():  # pylint: disable=too-many-locals
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(x_transformed, y_transformed)
-    for i in range(n_features):
-        target.add_feature(data.columns[i], indices[i], "onehot")
+    # target.add_raw_data(x_transformed, y_transformed)
+    # for i in range(n_features):
+    #     target.add_feature(data.columns[i], indices[i], "onehot")
 
     # NOTE: we assume here that the researcher does not use the target.save() function
     # and instead provides only the model and the list of indices
     # which have been used to split the dataset
 
-    print("Saving training/testing indices to " + directory)
-    np.savetxt(os.path.join(directory, "indices_train.txt"), indices_train, fmt="%d")
-    np.savetxt(os.path.join(directory, "indices_test.txt"), indices_test, fmt="%d")
+    # print("Saving training/testing indices to " + directory)
+    # np.savetxt(os.path.join(directory, "indices_train.txt"), indices_train, fmt="%d")
+    # np.savetxt(os.path.join(directory, "indices_test.txt"), indices_test, fmt="%d")
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
@@ -103,6 +96,5 @@ def main():  # pylint: disable=too-many-locals
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-
 if __name__ == "__main__":
-    main()
+    run_user_story()

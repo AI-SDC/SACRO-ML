@@ -1,9 +1,15 @@
+user_story: 2
+
 training_artefacts_dir: "training_artefacts"
 target_model: "model.pkl"
 target_results: "target.json"
 outfile: "summary.txt"
 attack_results: "attack_results.json"
-dataset_filename: "../user_stories_resources/dataset_26_nursery.csv"
+dataset_filename: "./user_stories_resources/dataset_26_nursery.csv"
+
+# User story 2
+# train_indices: "indices_train.txt"
+# test_indices: "indices_test.txt"
 
 # User story 3
 x_train_path: "trainX.txt"
@@ -11,7 +17,3 @@ y_train_path: "trainy.txt"
 x_test_path: "testX.txt"
 y_test_path: "testy.txt"
 attack_output_name: "attack_output"
-
-# User story 2
-train_indices: "indices_train.txt"
-test_indices: "indices_test.txt"

@@ -13,7 +13,6 @@ python -m example_notebooks.user_stories.user_story_7.user_story_7_tre
 
 import argparse
 import os
-import pathlib
 import pickle
 
 import yaml
@@ -37,8 +36,12 @@ def generate_report(directory, target_model_filepath):
     print("AISDC cannot provide any help to TRE")
 
 
-def main():
+def run_user_story(config: dict):
     """Main method to parse arguments and then invoke report generation."""
+
+    generate_report(config["training_artefacts_dir"], config["target_model"])
+
+if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -66,8 +69,4 @@ def main():
             f"error message is {error}"
         )
 
-    generate_report(config["training_artefacts_dir"], config["target_model"])
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
+    run_user_story(config)

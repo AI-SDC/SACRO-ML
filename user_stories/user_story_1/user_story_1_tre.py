@@ -38,8 +38,17 @@ def generate_report(directory, attack_results, target, outfile):
     print("Results written to " + out_pathname)
 
 
-def main():
+def run_user_story(config: dict):
     """Main method to parse arguments and then invoke report generation."""
+
+    generate_report(
+        config["training_artefacts_dir"],
+        config["attack_results"],
+        config["target_results"],
+        config["outfile"],
+    )
+
+if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -67,13 +76,4 @@ def main():
             f"error message is {error}"
         )
 
-    generate_report(
-        config["training_artefacts_dir"],
-        config["attack_results"],
-        config["target_results"],
-        config["outfile"],
-    )
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
+    run_user_story(config)

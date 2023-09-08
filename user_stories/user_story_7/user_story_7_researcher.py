@@ -24,8 +24,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
 
-
-def main():  # pylint: disable=too-many-locals
+def run_user_story():  # pylint: disable=too-many-locals
     """Create and train model to be released."""
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
@@ -37,7 +36,7 @@ def main():  # pylint: disable=too-many-locals
     print("Acting as researcher...")
     print()
 
-    filename = os.path.join("..", "user_stories_resources", "dataset_26_nursery.csv")
+    filename = os.path.join(".", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
@@ -104,6 +103,5 @@ def main():  # pylint: disable=too-many-locals
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-
 if __name__ == "__main__":
-    main()
+    run_user_story()

@@ -47,8 +47,6 @@ def generate_report(
     print("Acting as TRE...")
     print()
 
-    directory = "training_artefacts"
-
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -64,14 +62,14 @@ def generate_report(
         target_model = pickle.load(f)
 
     print("Reading training/testing data from ./" + directory)
-    trainX = np.loadtxt(os.path.join(directory, x_train))
-    trainy = np.loadtxt(os.path.join(directory, y_train))
-    testX = np.loadtxt(os.path.join(directory, x_test))
-    testy = np.loadtxt(os.path.join(directory, y_test))
+    train_x = np.loadtxt(os.path.join(directory, x_train))
+    train_y = np.loadtxt(os.path.join(directory, y_train))
+    test_x = np.loadtxt(os.path.join(directory, x_test))
+    test_y = np.loadtxt(os.path.join(directory, y_test))
 
     target = Target(model=target_model)
     # Wrap the training and test data into the Target object
-    target.add_processed_data(trainX, trainy, testX, testy)
+    target.add_processed_data(train_x, train_y, test_x, test_y)
 
     # Run the attack
     wca = WorstCaseAttack(
@@ -120,8 +118,23 @@ def generate_report(
     print("Results written to " + os.path.join(directory, outfile))
 
 
-def main():
+def run_user_story(config: dict):
     """Main method to parse arguments and then invoke report generation."""
+
+    generate_report(
+        config["training_artefacts_dir"],
+        config["target_model"],
+        config["x_train_path"],
+        config["y_train_path"],
+        config["x_test_path"],
+        config["y_test_path"],
+        config["attack_output_name"],
+        config["target_results"],
+        config["outfile"],
+    )
+
+
+if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -149,18 +162,4 @@ def main():
             f"error message is {error}"
         )
 
-    generate_report(
-        config["training_artefacts_dir"],
-        config["target_model"],
-        config["x_train_path"],
-        config["y_train_path"],
-        config["x_test_path"],
-        config["y_test_path"],
-        config["attack_output_name"],
-        config["target_results"],
-        config["outfile"],
-    )
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
+    run_user_story(config)

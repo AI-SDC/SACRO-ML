@@ -18,7 +18,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import yaml
-from data_processing_researcher import process_dataset
+from .data_processing_researcher import process_dataset
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
@@ -31,8 +31,6 @@ def generate_report(
     dataset_filename,
     directory,
     target_model,
-    train_indices,
-    test_indices,
     attack_results,
     target_filename,
     outfile,
@@ -52,36 +50,54 @@ def generate_report(
     with open(filename, "rb") as f:
         target_model = pickle.load(f)
 
-    print("Reading training/testing indices from " + directory)
-    indices_train = np.loadtxt(os.path.join(directory, train_indices))
-    indices_test = np.loadtxt(os.path.join(directory, test_indices))
-
     print("Reading data from " + dataset_filename)
     data = pd.read_csv(dataset_filename)
 
     returned = process_dataset(data)
+    n_features = returned['n_features_raw_data']
+    x_transformed = returned['x_transformed']
+    y_transformed = returned['y_transformed']
+    train_indices = set(returned['train_indices'])
 
-    x = returned["x"]
-    y = returned["y"]
-    indices = returned["indices"]
-    indices_train = returned["indices_train"]
-    indices_test = returned["indices_test"]
-    x_train_orig = returned["x_train_orig"]
-    y_train_orig = returned["y_train_orig"]
-    x_test_orig = returned["x_test_orig"]
-    y_test_orig = returned["y_test_orig"]
-    x_train = returned["x_train"]
-    y_train = returned["y_train"]
-    x_test = returned["x_test"]
-    y_test = returned["y_test"]
-    n_features = returned["n_features"]
+    x_train = []
+    x_test = []
+    y_train = []
+    y_test = []
+
+    for i, label in enumerate(y_transformed):
+        if i in train_indices:
+            x_train.append(x_transformed[i])
+            y_train.append(label)
+        else:
+            x_test.append(x_transformed[i])
+            y_test.append(label)
+
+    x_train = np.array(x_train)
+    y_train = np.array(y_train)
+    x_test = np.array(x_test)
+    y_test = np.array(y_test)
+
+    # x = returned["x"]
+    # y = returned["y"]
+    # indices = returned["indices"]
+    # indices_train = returned["indices_train"]
+    # indices_test = returned["indices_test"]
+    # x_train_orig = returned["x_train_orig"]
+    # y_train_orig = returned["y_train_orig"]
+    # x_test_orig = returned["x_test_orig"]
+    # y_test_orig = returned["y_test_orig"]
+    # x_train = returned["x_train"]
+    # y_train = returned["y_train"]
+    # x_test = returned["x_test"]
+    # y_test = returned["y_test"]
+    # n_features = returned["n_features"]
 
     # Wrap the model and data in a Target object
     target = Target(model=target_model)
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
-    for i in range(n_features):
-        target.add_feature(data.columns[i], indices[i], "onehot")
+    # target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    # for i in range(n_features):
+    #     target.add_feature(data.columns[i], indices[i], "onehot")
 
     SAVE_PATH = directory
 
@@ -102,8 +118,18 @@ def generate_report(
     print("Results written to " + str(os.path.join(directory, outfile)))
 
 
-def main():
+def run_user_story(config: dict):
     """Main method to parse arguments and then invoke report generation."""
+    generate_report(
+        config["dataset_filename"],
+        config["training_artefacts_dir"],
+        config["target_model"],
+        config["attack_results"],
+        config["target_results"],
+        config["outfile"],
+    )
+
+if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -131,17 +157,4 @@ def main():
             f"error message is {error}"
         )
 
-    generate_report(
-        config["dataset_filename"],
-        config["training_artefacts_dir"],
-        config["target_model"],
-        config["train_indices"],
-        config["test_indices"],
-        config["attack_results"],
-        config["target_results"],
-        config["outfile"],
-    )
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
+    run_user_story(config)
