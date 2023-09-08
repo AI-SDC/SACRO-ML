@@ -24,6 +24,7 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
 
+
 def run_user_story():  # pylint: disable=too-many-locals
     """Create and train model to be released."""
     directory = "training_artefacts"
@@ -102,6 +103,7 @@ def run_user_story():  # pylint: disable=too-many-locals
     logging.info("y_train shape = %s", np.shape(target.y_train))
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
+
 
 if __name__ == "__main__":
     run_user_story()

@@ -1,6 +1,6 @@
 import argparse
-import yaml
 
+import yaml
 from user_story_1 import user_story_1_tre
 from user_story_2 import user_story_2_tre
 from user_story_3 import user_story_3_tre
@@ -8,9 +8,7 @@ from user_story_7 import user_story_7_tre
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description=(
-            "Run user stories code from a config file"
-        )
+        description=("Run user stories code from a config file")
     )
 
     parser.add_argument(
@@ -34,7 +32,7 @@ if __name__ == "__main__":
             f"error message is {error}"
         )
 
-    user_story = config['user_story']
+    user_story = config["user_story"]
     if user_story == 1:
         user_story_1_tre.run_user_story(config)
     elif user_story == 2:
@@ -44,4 +42,6 @@ if __name__ == "__main__":
     elif user_story == 7:
         user_story_7_tre.run_user_story(config)
     else:
-        raise NotImplementedError('User story %s has not been implemented' % (user_story))
+        raise NotImplementedError(
+            "User story %s has not been implemented" % (user_story)
+        )

@@ -18,13 +18,14 @@ import pickle
 import numpy as np
 import pandas as pd
 import yaml
-from .data_processing_researcher import process_dataset
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
     GenerateTextReport,
 )
 from aisdc.attacks.target import Target  # pylint: disable=import-error
+
+from .data_processing_researcher import process_dataset
 
 
 def generate_report(
@@ -54,10 +55,10 @@ def generate_report(
     data = pd.read_csv(dataset_filename)
 
     returned = process_dataset(data)
-    n_features = returned['n_features_raw_data']
-    x_transformed = returned['x_transformed']
-    y_transformed = returned['y_transformed']
-    train_indices = set(returned['train_indices'])
+    n_features = returned["n_features_raw_data"]
+    x_transformed = returned["x_transformed"]
+    y_transformed = returned["y_transformed"]
+    train_indices = set(returned["train_indices"])
 
     x_train = []
     x_test = []
@@ -128,6 +129,7 @@ def run_user_story(config: dict):
         config["target_results"],
         config["outfile"],
     )
+
 
 if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(

@@ -48,6 +48,7 @@ def run_user_story(config: dict):
         config["outfile"],
     )
 
+
 if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(

@@ -41,6 +41,7 @@ def run_user_story(config: dict):
 
     generate_report(config["training_artefacts_dir"], config["target_model"])
 
+
 if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
         description=(

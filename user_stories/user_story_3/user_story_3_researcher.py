@@ -21,6 +21,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
+
 def run_user_story():
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
@@ -81,6 +82,7 @@ def run_user_story():
     print("Saving disclosive model to " + filename)
     with open(filename, "wb") as f:
         pickle.dump(target_model, f)
+
 
 if __name__ == "__main__":
     run_user_story()
