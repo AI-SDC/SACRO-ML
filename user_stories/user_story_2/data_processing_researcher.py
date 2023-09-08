@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
+
 def process_dataset(data):
     y = np.asarray(data["class"])
     x = np.asarray(data.drop(columns=["class"], inplace=False))
@@ -32,7 +33,7 @@ def process_dataset(data):
     )
 
     returned = {}
-    returned['n_features_raw_data'] = n_features_raw_data
+    returned["n_features_raw_data"] = n_features_raw_data
     returned["x_transformed"] = x_transformed
     returned["y_transformed"] = y_transformed
     returned["train_indices"] = train_indices

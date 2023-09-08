@@ -31,7 +31,7 @@ def run_user_story():  # pylint: disable=too-many-locals
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
-        os.makedirs(directory)        
+        os.makedirs(directory)
 
     print()
     print("Acting as researcher...")
@@ -47,9 +47,9 @@ def run_user_story():  # pylint: disable=too-many-locals
     x_transformed = returned["x_transformed"]
     y_transformed = returned["y_transformed"]
 
-    n_features = returned['n_features_raw_data']
+    n_features = returned["n_features_raw_data"]
 
-    train_indices = set(returned['train_indices'])
+    train_indices = set(returned["train_indices"])
 
     x_train = []
     x_test = []
@@ -95,6 +95,7 @@ def run_user_story():  # pylint: disable=too-many-locals
     logging.info("y_train shape = %s", np.shape(target.y_train))
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
+
 
 if __name__ == "__main__":
     run_user_story()
