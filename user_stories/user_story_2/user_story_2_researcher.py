@@ -17,7 +17,6 @@ import os
 import numpy as np
 import pandas as pd
 from data_processing_researcher import process_dataset
-from sklearn.model_selection import train_test_split
 
 from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
@@ -40,14 +39,10 @@ def run_user_story():  # pylint: disable=too-many-locals
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
-    print()
-
     returned = process_dataset(data)
 
     x_transformed = returned["x_transformed"]
     y_transformed = returned["y_transformed"]
-
-    n_features = returned["n_features_raw_data"]
 
     train_indices = set(returned["train_indices"])
 
@@ -77,17 +72,10 @@ def run_user_story():  # pylint: disable=too-many-locals
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    # target.add_raw_data(x_transformed, y_transformed)
-    # for i in range(n_features):
-    #     target.add_feature(data.columns[i], indices[i], "onehot")
 
     # NOTE: we assume here that the researcher does not use the target.save() function
     # and instead provides only the model and the list of indices
     # which have been used to split the dataset
-
-    # print("Saving training/testing indices to " + directory)
-    # np.savetxt(os.path.join(directory, "indices_train.txt"), indices_train, fmt="%d")
-    # np.savetxt(os.path.join(directory, "indices_test.txt"), indices_test, fmt="%d")
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)

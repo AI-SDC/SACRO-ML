@@ -27,11 +27,11 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 
 def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     """Create and train a model to be released."""
-    directory = "training_artefacts"
+    save_directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
 
     print()
     print("Acting as researcher...")
@@ -108,15 +108,14 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
     # Researcher can check for themselves whether their model passes individual disclosure checks
-    SAVE_PATH = directory
-    SAVE_FILENAME = "direct_results"
+    save_filename = "direct_results"
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")
     # results_filename = os.path.normpath(f"{SAVE_PATH}/direct_results.json")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, SAVE_PATH, SAVE_FILENAME)
+        metadata = model.run_attack(target, attack_name, save_directory, save_filename)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):
@@ -130,9 +129,9 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     # if they pass in the target model object the code will automatically
     # run checks for the TRE staff
     print("===> now running attacks implicitly via request_release()")
-    model.request_release(path=SAVE_PATH, ext="pkl", target=target)
+    model.request_release(path=save_directory, ext="pkl", target=target)
 
-    print(f"Please see the files generated in: {SAVE_PATH}")
+    print(f"Please see the files generated in: {save_directory}")
 
 
 if __name__ == "__main__":
