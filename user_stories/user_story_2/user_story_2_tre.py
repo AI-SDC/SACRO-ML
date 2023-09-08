@@ -26,6 +26,7 @@ from aisdc.attacks.target import Target  # pylint: disable=import-error
 
 from .data_processing_researcher import process_dataset
 
+
 def generate_report(
     dataset_filename,
     directory,
@@ -78,7 +79,7 @@ def generate_report(
     # Wrap the model and data in a Target object
     target = Target(model=target_model)
     target.add_processed_data(x_train, y_train, x_test, y_test)
-  
+
     # TRE calls request_release()
     print("===> now running attacks implicitly via request_release()")
     target_model.request_release(path=directory, ext="pkl", target=target)
