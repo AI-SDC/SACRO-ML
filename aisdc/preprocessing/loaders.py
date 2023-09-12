@@ -149,6 +149,10 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         return _nursery()
     if dataset_name == "iris":
         return _iris()
+    if dataset_name.startswith("openml"):
+        data_id = dataset_name.split("_")[1]
+        dataset_name = "_".join(dataset_name.split("_")[2:])
+        return _openml_dataset(data_id)
     raise UnknownDataset(dataset_name)
 
 
@@ -177,6 +181,26 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return feature_dataframe, target_dataframe
 
+def _openml_dataset(openml_id: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Fetch any dataset from openml through sklearn.
+    The dataset name should be on the format of 
+    openml_<id>_<dataset name>
+      where id is the openml identifier and
+      dataset name is the name to recognise it."""
+
+    data = fetch_openml(data_id=openml_id, as_frame=True)
+
+    target_encoder = LabelEncoder()
+    target_vals = target_encoder.fit_transform(data["target"].values)
+    target_dataframe = pd.DataFrame({"target": target_vals})
+
+    feature_encoder = OneHotEncoder()
+    x_encoded = feature_encoder.fit_transform(data["data"]).toarray()
+    feature_dataframe = pd.DataFrame(
+        x_encoded, columns=feature_encoder.get_feature_names_out()
+    )
+
+    return feature_dataframe, target_dataframe
 
 # Patched to support non-flattened images. Same behaviour as before except if called with
 # flatten=False explicitly.
@@ -274,7 +298,7 @@ def _synth_ae(
     """
 
     file_path = os.path.join(
-        data_folder, "AE_England_synthetic.csv"  #'A&E Synthetic Data.csv'
+        data_folder, 'A&E Synthetic Data.csv' #"AE_England_synthetic.csv"
     )
 
     if not os.path.exists(file_path):
@@ -414,13 +438,16 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
-    file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
+        #file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
+    file_path = os.path.join(data_folder, "full_cohort_data.csv")
+    print(file_path, os.path.exists(file_path))
 
     if not os.path.exists(file_path):
         help_message = f"""
         The MIMIC2-iaccd data is not available in {data_folder}.
         The following file should exist: {file_path}.
-        Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
+        Please download from https://physionet.org/files/mimic2-iaccd/1.0/full_cohort_data.csv?download
+        and rename the file to full_cohort_data.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -488,7 +515,7 @@ def _texas_hospitals(
         "PUDF2Q08_update_tab.zip",
         "PUDF3Q08_update_tab.zip"
         ]
-    files_path = [os.path.join(data_folder, "TexasHospitals", f) for f in file_list]
+    files_path = [os.path.join(data_folder, f) for f in file_list]
 
     found = [os.path.exists(file_path) for file_path in files_path]
     not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
@@ -547,9 +574,12 @@ and place it in the correct folder.
                 )
                 for i in ZipFile(f).namelist()
                 if "base" in i
-            ][0]
-            df.dropna(inplace=True)
-            tmp.extend(list(df.PRINC_SURG_PROC_CODE))
+            ]
+            if len(df)<1:
+                print(f"WARNING: {f} could not be loaded.")
+            else:
+                df[0].dropna(inplace=True)
+                tmp.extend(list(df[0].PRINC_SURG_PROC_CODE))
         princ_surg_proc_keep = [k for k, v in Counter(tmp).most_common(10)]
         # remove unnecessary variables
         del tmp
