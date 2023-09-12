@@ -1,5 +1,5 @@
 """
-RESEARCHER EXAMPLE FOR USER STORY 3
+RESEARCHER EXAMPLE FOR USER STORY 3.
 
 This file is an example of a researcher creating/training a machine learning model and to be
 released form a secure environment
@@ -16,7 +16,6 @@ Steps:
 - Reasercher saves the model manually (e.g. using pickle, not through request_release() or similar)
 - Researcher emails (or otherwise contacts) TRE to request the model be released
 - TREs will use this model and data to test the model themselves
-
 """
 
 import os
@@ -30,7 +29,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 
-def run_user_story(): # pylint: disable=too-many-locals
+def run_user_story():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
 
     # This section is not necessary but helpful - cleans up files that are created by aisdc
@@ -90,6 +89,7 @@ def run_user_story(): # pylint: disable=too-many-locals
     print("Saving model to " + filename)
     with open(filename, "wb") as file:
         pickle.dump(target_model, file)
+
 
 if __name__ == "__main__":
     run_user_story()

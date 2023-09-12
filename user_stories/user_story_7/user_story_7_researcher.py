@@ -1,5 +1,5 @@
 """
-RESEARCHER EXAMPLE FOR USER STORY 7
+RESEARCHER EXAMPLE FOR USER STORY 7.
 
 This file is an example of a researcher creating/training a machine learning model and to be
 released form a secure environment
@@ -18,7 +18,6 @@ Steps:
 - Researcher creates and trains a classifier on this data
 - Reasercher saves the model manually (e.g. using pickle, not through request_release() or similar)
 - Researcher does not save the training/testing data, and therefore the TRE cannot verify the model
-
 """
 
 
@@ -100,7 +99,9 @@ def run_user_story():  # pylint: disable=too-many-locals
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(data, labels, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    target.add_raw_data(
+        data, labels, x_train_orig, y_train_orig, x_test_orig, y_test_orig
+    )
     for i in range(n_features):
         target.add_feature(data_df.columns[i], indices[i], "onehot")
 

@@ -1,10 +1,10 @@
 """
-RESEARCHER EXAMPLE FOR USER STORY 1
+RESEARCHER EXAMPLE FOR USER STORY 1.
 
 This file is an example of a researcher creating/training a machine learning model and requesting
 for it to be released.
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a classifier 
+This specific example uses the nursery dataset: data is read in and pre-processed, and a classifier
 is trained and tested on this dataset.
 
 This example follows User Story 1
@@ -15,7 +15,6 @@ Steps:
 - Researcher creates and trains a classifier
 - Researcher runs experiments themselves to check if their model is disclosive or not
 - Once satisfied, researcher calls request_release() to make it ready for TRE output checking
-
 """
 
 import logging
@@ -30,6 +29,7 @@ from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
     SafeDecisionTreeClassifier,
 )
+
 
 def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     """Create and train a model to be released."""
@@ -103,7 +103,9 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(data, labels, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    target.add_raw_data(
+        data, labels, x_train_orig, y_train_orig, x_test_orig, y_test_orig
+    )
     for i in range(n_features):
         target.add_feature(data_df.columns[i], indices[i], "onehot")
 
@@ -146,6 +148,7 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
 
     # The files generated can be found in this file location
     print(f"Please see the files generated in: {save_directory}")
+
 
 if __name__ == "__main__":
     main()

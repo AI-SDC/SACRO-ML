@@ -1,13 +1,12 @@
 """
-TRE SCRIPT FOR USER STORY 1
+TRE SCRIPT FOR USER STORY 1.
 
 This file contains the code needed to run user story 1
 
-To run: change the user_story key inside the .yaml config file to '1', and run the 
+To run: change the user_story key inside the .yaml config file to '1', and run the
 'generate_disclosure_risk_report.py' file
 
 NOTE: you should not need to change this file at all, set all parameters via the .yaml file
-
 """
 
 import argparse
@@ -19,6 +18,7 @@ from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-er
     GenerateTextReport,
 )
 
+
 def generate_report(directory, attack_results, target, outfile):
     """Generate report based on target model."""
 
@@ -29,13 +29,15 @@ def generate_report(directory, attack_results, target, outfile):
     text_report = GenerateTextReport()
 
     attack_pathname = os.path.join(directory, attack_results)
-    text_report.process_attack_target_json(attack_pathname,
-        target_filename=os.path.join(directory, target))
+    text_report.process_attack_target_json(
+        attack_pathname, target_filename=os.path.join(directory, target)
+    )
 
     out_pathname = os.path.join(directory, outfile)
     text_report.export_to_file(output_filename=out_pathname, move_files=True)
 
     print("Results written to " + out_pathname)
+
 
 def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
@@ -46,6 +48,7 @@ def run_user_story(release_config: dict):
         release_config["target_results"],
         release_config["outfile"],
     )
+
 
 if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(

@@ -1,5 +1,5 @@
 """
-TRE SCRIPT FOR USER STORY 7
+TRE SCRIPT FOR USER STORY 7.
 
 This file contains the code needed to run user story 7
 
@@ -11,7 +11,6 @@ To run: change the user_story key inside the .yaml config file to '7', and run t
 'generate_disclosure_risk_report.py' file
 
 NOTE: you should not need to change this file at all, set all parameters via the .yaml file
-
 """
 
 import argparse
@@ -42,7 +41,9 @@ def generate_report(directory, target_model_filepath):
 def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
 
-    generate_report(release_config["training_artefacts_dir"], release_config["target_model"])
+    generate_report(
+        release_config["training_artefacts_dir"], release_config["target_model"]
+    )
 
 
 if __name__ == "__main__":  # pragma:no cover
