@@ -1,6 +1,5 @@
 ##**********************************************************************
-##  Example of overfitted model in R                                ####
-##  James Liley
+##  Example of model to be released in R                            ####
 ##**********************************************************************
 
 # Set random seed ####
@@ -31,9 +30,8 @@ infert_test=infert[index_test,]
 
 
 # Overfitted logistic regression model ####
-mod=suppressWarnings(glm(case~(education+age + .)^2,
+model=suppressWarnings(glm(case~(education+age + .)^2,
         data=infert_train,family=binomial(link="logit")))
-
 
 # Predictions on training and test sets ####
 pred_train=suppressWarnings(predict(mod,infert_train,type="response"))
@@ -53,6 +51,9 @@ colnames(output_train)=c("rowID","true_label","probability")
 output_test=cbind(index_test,infert_test$case,pred_test)
 colnames(output_test)=c("rowID","true_label","probability")
 
-# Save to file (in working directory) ####
+# Save data to file (in working directory) ####
 write.csv(output_train,file="./output_train.csv",row.names=FALSE)
 write.csv(output_test,file="./output_test.csv",row.names=FALSE)
+
+# Save model to file (in working directory) ###
+saveRDS(model, file = "./model.rds")

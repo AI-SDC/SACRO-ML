@@ -20,6 +20,7 @@ import yaml
 from user_story_1 import user_story_1_tre
 from user_story_2 import user_story_2_tre
 from user_story_3 import user_story_3_tre
+from user_story_4 import user_story_4_tre
 from user_story_7 import user_story_7_tre
 
 if __name__ == "__main__":
@@ -55,6 +56,8 @@ if __name__ == "__main__":
         user_story_2_tre.run_user_story(config)
     elif user_story == 3:
         user_story_3_tre.run_user_story(config)
+    elif user_story == 4:
+        user_story_4_tre.run_user_story(config)
     elif user_story == 7:
         user_story_7_tre.run_user_story(config)
     else:

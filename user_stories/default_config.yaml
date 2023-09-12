@@ -5,7 +5,7 @@
 # All other parameters need to be set by either the researcher or TRE
 
 # Scenario to be run
-user_story: 1
+user_story: 4
 
 ### Details of experiments and files - please replace these with the relevant filenames
 
@@ -33,3 +33,7 @@ y_train_path: "y_train.txt"
 x_test_path: "x_test.txt"
 y_test_path: "y_test.txt"
 attack_output_name: "attack_output"
+
+# User story 4 - replace with path to csv files
+train_probabilities: "output_train.csv"
+test_probabilities: "output_test.csv"
