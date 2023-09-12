@@ -1,5 +1,5 @@
 """
-TRE SCRIPT FOR USER STORY 4
+TRE SCRIPT FOR USER STORY 4.
 
 This file contains the code needed to run user story 4
 
@@ -7,7 +7,6 @@ To run: change the user_story key inside the .yaml config file to '4', and run t
 'generate_disclosure_risk_report.py' file
 
 NOTE: you should not need to change this file at all, set all parameters via the .yaml file
-
 """
 
 import argparse
@@ -51,8 +50,8 @@ def generate_report(
     test_proba = pd.read_csv(test_probabilities)
 
     def sort_prob_row(row):
-        label = row['true_label']
-        prob = row['probability']
+        label = row["true_label"]
+        prob = row["probability"]
 
         if label == 0:
             return prob
@@ -62,24 +61,22 @@ def generate_report(
     zero_class_test = train_proba.apply(sort_prob_row, axis=1)
 
     output_train = pd.DataFrame()
-    output_train['prob_0'] = zero_class_train
-    output_train['prob_1'] = 1 - zero_class_train
+    output_train["prob_0"] = zero_class_train
+    output_train["prob_1"] = 1 - zero_class_train
 
     output_test = pd.DataFrame()
-    output_test['prob_0'] = zero_class_test
-    output_test['prob_1'] = 1 - zero_class_test
+    output_test["prob_0"] = zero_class_test
+    output_test["prob_1"] = 1 - zero_class_test
 
     # Run the attack
     wca = WorstCaseAttack(
-        n_dummy_reps=10,
-        output_dir=directory,
-        report_name=attack_output_name
+        n_dummy_reps=10, output_dir=directory, report_name=attack_output_name
     )
     wca.attack_from_preds(
         train_preds=np.array(output_train),
         test_preds=np.array(output_test),
-        train_correct=train_proba['true_label'],
-        test_correct=test_proba['true_label']
+        train_correct=train_proba["true_label"],
+        test_correct=test_proba["true_label"],
     )
 
     # Write results to a file
@@ -103,8 +100,8 @@ def run_user_story(release_config: dict):
 
     generate_report(
         release_config["training_artefacts_dir"],
-        release_config['train_probabilities'],
-        release_config['test_probabilities'],
+        release_config["train_probabilities"],
+        release_config["test_probabilities"],
         release_config["attack_output_name"],
         release_config["outfile"],
     )
