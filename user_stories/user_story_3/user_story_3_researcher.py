@@ -1,14 +1,22 @@
 """
-User story 3 as researcher.
+RESEARCHER EXAMPLE FOR USER STORY 3
 
-Details can be found here:
-https://github.com/AI-SDC/AI-SDC/issues/141
+This file is an example of a researcher creating/training a machine learning model and to be
+released form a secure environment
 
-Running
--------
+This specific example uses the nursery dataset: data is read in and pre-processed, and a classifier
+is trained and tested on this dataset.
 
-Invoke this code from the root AI-SDC folder with
-python -m example_notebooks.user_stories.user_story_3.user_story_3_researcher
+This example follows User Story 3
+
+Steps:
+
+- Researcher creates and pre-processes a dataset
+- Researcher creates and trains a classifier on this data
+- Reasercher saves the model manually (e.g. using pickle, not through request_release() or similar)
+- Researcher emails (or otherwise contacts) TRE to request the model be released
+- TREs will use this model and data to test the model themselves
+
 """
 
 import os
@@ -22,18 +30,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 
-def run_user_story():
+def run_user_story(): # pylint: disable=too-many-locals
+    """Create and train a model to be released."""
+
+    # This section is not necessary but helpful - cleans up files that are created by aisdc
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    # Read in and pre-process the dataset - replace this with your data reading/pre-processing code
     filename = os.path.join(".", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
-
-    print()
 
     target_encoder = LabelEncoder()
     target_vals = target_encoder.fit_transform(data["class"].values)
@@ -46,43 +56,40 @@ def run_user_story():
         x_encoded, columns=feature_encoder.get_feature_names_out()
     )
 
-    trainX, testX, trainy, testy = train_test_split(
+    x_train, x_test, y_train, y_test = train_test_split(
         feature_dataframe.values,
         target_dataframe.values.flatten(),
         test_size=0.7,
         random_state=42,
     )
 
+    # Save the training and test data to a file which a TRE can access
     print("Saving training/testing data to ./" + directory)
-    np.savetxt(os.path.join(directory, "trainX.txt"), trainX, fmt="%d")
-    np.savetxt(os.path.join(directory, "trainy.txt"), trainy, fmt="%d")
-    np.savetxt(os.path.join(directory, "testX.txt"), testX, fmt="%d")
-    np.savetxt(os.path.join(directory, "testy.txt"), testy, fmt="%d")
+    np.savetxt(os.path.join(directory, "x_train.txt"), x_train, fmt="%d")
+    np.savetxt(os.path.join(directory, "y_train.txt"), y_train, fmt="%d")
+    np.savetxt(os.path.join(directory, "x_test.txt"), x_test, fmt="%d")
+    np.savetxt(os.path.join(directory, "y_test.txt"), y_test, fmt="%d")
 
-    # These hyperparameters lead to a dangerously disclosive trained model
-    DISCLOSIVE_HYPERPARAMETERS = {}
-    DISCLOSIVE_HYPERPARAMETERS["min_samples_split"] = 2
-    DISCLOSIVE_HYPERPARAMETERS["min_samples_leaf"] = 1
-    DISCLOSIVE_HYPERPARAMETERS["max_depth"] = None
-    DISCLOSIVE_HYPERPARAMETERS["bootstrap"] = False
+    # Create, train and test a model - replace this with your training and testing code
+    hyperparameters = {}
+    hyperparameters["min_samples_split"] = 5
+    hyperparameters["min_samples_leaf"] = 5
+    hyperparameters["max_depth"] = None
+    hyperparameters["bootstrap"] = False
 
-    print(
-        "Training disclosive model with the following hyperparameters: "
-        + str(DISCLOSIVE_HYPERPARAMETERS)
-    )
-    target_model = RandomForestClassifier(**DISCLOSIVE_HYPERPARAMETERS)
-    target_model.fit(trainX, trainy)
+    target_model = RandomForestClassifier(**hyperparameters)
+    target_model.fit(x_train, y_train)
 
-    train_acc = accuracy_score(trainy, target_model.predict(trainX))
-    test_acc = accuracy_score(testy, target_model.predict(testX))
-    print(f"Training accuracy on disclosive model: {train_acc:.2f}")
-    print(f"Testing accuracy on disclosive model: {test_acc:.2f}")
+    train_acc = accuracy_score(y_train, target_model.predict(x_train))
+    test_acc = accuracy_score(y_test, target_model.predict(x_test))
+    print(f"Training accuracy on model: {train_acc:.2f}")
+    print(f"Testing accuracy on model: {test_acc:.2f}")
 
+    # Save your model somewhere a TRE can access
     filename = os.path.join(directory, "model.pkl")
-    print("Saving disclosive model to " + filename)
-    with open(filename, "wb") as f:
-        pickle.dump(target_model, f)
-
+    print("Saving model to " + filename)
+    with open(filename, "wb") as file:
+        pickle.dump(target_model, file)
 
 if __name__ == "__main__":
     run_user_story()

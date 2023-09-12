@@ -1,14 +1,17 @@
 """
-User story 7 as TRE.
+TRE SCRIPT FOR USER STORY 7
 
-Details can be found here:
-https://github.com/AI-SDC/AI-SDC/issues/141
+This file contains the code needed to run user story 7
 
-Running
--------
+NOTE: this user story will not produce an output, this user story covers cases where the
+researcher has not provided enough information
+See user stories 1, 2 or 3 for guidance on what you need to release a model
 
-Invoke this code from the root AI-SDC folder with
-python -m example_notebooks.user_stories.user_story_7.user_story_7_tre
+To run: change the user_story key inside the .yaml config file to '7', and run the
+'generate_disclosure_risk_report.py' file
+
+NOTE: you should not need to change this file at all, set all parameters via the .yaml file
+
 """
 
 import argparse
@@ -29,17 +32,17 @@ def generate_report(directory, target_model_filepath):
 
     filename = os.path.join(directory, target_model_filepath)
     print("Reading target model from " + filename)
-    with open(filename, "rb") as f:
-        _ = pickle.load(f)
+    with open(filename, "rb") as file:
+        _ = pickle.load(file)
 
     print("Attacks cannot be run since the original dataset cannot be recreated")
     print("AISDC cannot provide any help to TRE")
 
 
-def run_user_story(config: dict):
+def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
 
-    generate_report(config["training_artefacts_dir"], config["target_model"])
+    generate_report(release_config["training_artefacts_dir"], release_config["target_model"])
 
 
 if __name__ == "__main__":  # pragma:no cover

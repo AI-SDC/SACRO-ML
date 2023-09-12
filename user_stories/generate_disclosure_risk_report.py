@@ -1,3 +1,19 @@
+"""
+TRE script to run the code to do the disclosure risk checking for a
+machine learning model that has been trained by a researcher
+
+Researchers should fill out the relevant parameters in the .yaml file, which should be in the same
+directory as this file
+
+TREs can change the script that is run using the user_story parameter at the top of the file
+
+To run this code:
+    python generate_disclosure_risk_report.py (with the .yaml file in the same directory)
+
+NOTE: you should not need to change this file at all
+
+"""
+
 import argparse
 
 import yaml
@@ -43,5 +59,5 @@ if __name__ == "__main__":
         user_story_7_tre.run_user_story(config)
     else:
         raise NotImplementedError(
-            "User story %s has not been implemented" % (user_story)
+            f"User story {user_story} has not been implemented"
         )

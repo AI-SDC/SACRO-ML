@@ -1,14 +1,13 @@
 """
-User story 3 as TRE.
+TRE SCRIPT FOR USER STORY 3
 
-Details can be found here:
-https://github.com/AI-SDC/AI-SDC/issues/141
+This file contains the code needed to run user story 3
 
-Running
--------
+To run: change the user_story key inside the .yaml config file to '3', and run the
+'generate_disclosure_risk_report.py' file
 
-Invoke this code from the root AI-SDC folder with
-python -m example_notebooks.user_stories.user_story_3.user_story_3_tre
+NOTE: you should not need to change this file at all, set all parameters via the .yaml file
+
 """
 
 import argparse
@@ -56,19 +55,21 @@ def generate_report(
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
 
+    # Read the model to be released as supplied by the researcher
     model_filename = os.path.join(directory, target_model)
     print("Reading target model from " + model_filename)
-    with open(model_filename, "rb") as f:
-        target_model = pickle.load(f)
+    with open(model_filename, "rb") as file:
+        target_model = pickle.load(file)
 
+    # Read the training/testing data as supplied by the researcher
     print("Reading training/testing data from ./" + directory)
     train_x = np.loadtxt(os.path.join(directory, x_train))
     train_y = np.loadtxt(os.path.join(directory, y_train))
     test_x = np.loadtxt(os.path.join(directory, x_test))
     test_y = np.loadtxt(os.path.join(directory, y_test))
 
-    target = Target(model=target_model)
     # Wrap the training and test data into the Target object
+    target = Target(model=target_model)
     target.add_processed_data(train_x, train_y, test_x, test_y)
 
     # Run the attack
@@ -79,6 +80,7 @@ def generate_report(
 
     _ = wca.make_report()
 
+    # Define a configuration file for the attacks to be run
     lira_config = {
         "training_data_filename": "train_data.csv",
         "test_data_filename": "test_data.csv",
@@ -88,9 +90,10 @@ def generate_report(
         "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
     }
 
-    with open(os.path.join(directory, "lira_config.json"), "w", encoding="utf-8") as f:
-        f.write(json.dumps(lira_config))
+    with open(os.path.join(directory, "lira_config.json"), "w", encoding="utf-8") as file:
+        file.write(json.dumps(lira_config))
 
+    # Run the LIRA attack to test disclosure risk
     lira_attack_obj = LIRAAttack(
         n_shadow_models=100,
         attack_config_json_file_name=os.path.join(directory, "lira_config.json"),
@@ -103,13 +106,13 @@ def generate_report(
 
     target.save(os.path.join(directory, "target"))
 
-    t = GenerateTextReport()
-    t.process_attack_target_json(
+    text_report = GenerateTextReport()
+    text_report.process_attack_target_json(
         os.path.join(directory, attack_output_name) + ".json",
-        target_filename=os.path.join(directory, target_filename),
+        target_filename=os.path.join(directory, "target", target_filename),
     )
 
-    t.export_to_file(
+    text_report.export_to_file(
         output_filename=os.path.join(directory, outfile),
         move_files=True,
         model_filename=model_filename,
@@ -118,19 +121,19 @@ def generate_report(
     print("Results written to " + os.path.join(directory, outfile))
 
 
-def run_user_story(config: dict):
+def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
 
     generate_report(
-        config["training_artefacts_dir"],
-        config["target_model"],
-        config["x_train_path"],
-        config["y_train_path"],
-        config["x_test_path"],
-        config["y_test_path"],
-        config["attack_output_name"],
-        config["target_results"],
-        config["outfile"],
+        release_config["training_artefacts_dir"],
+        release_config["target_model"],
+        release_config["x_train_path"],
+        release_config["y_train_path"],
+        release_config["x_test_path"],
+        release_config["y_test_path"],
+        release_config["attack_output_name"],
+        release_config["target_results"],
+        release_config["outfile"],
     )
 
 

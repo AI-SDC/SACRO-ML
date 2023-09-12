@@ -1,15 +1,15 @@
 """
-User story 1 as TRE.
+TRE SCRIPT FOR USER STORY 1
 
-Details can be found here:
-https://github.com/AI-SDC/AI-SDC/issues/141
+This file contains the code needed to run user story 1
 
-Running
--------
+To run: change the user_story key inside the .yaml config file to '1', and run the 
+'generate_disclosure_risk_report.py' file
 
-Invoke this code from the root AI-SDC folder with
-python -m example_notebooks.user_stories.user_story_1.user_story_1_tre
+NOTE: you should not need to change this file at all, set all parameters via the .yaml file
+
 """
+
 import argparse
 import os
 
@@ -19,7 +19,6 @@ from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-er
     GenerateTextReport,
 )
 
-
 def generate_report(directory, attack_results, target, outfile):
     """Generate report based on target model."""
 
@@ -27,27 +26,26 @@ def generate_report(directory, attack_results, target, outfile):
     print("Acting as TRE...")
     print()
 
-    t = GenerateTextReport()
+    text_report = GenerateTextReport()
 
     attack_pathname = os.path.join(directory, attack_results)
-    t.process_attack_target_json(attack_pathname, target_filename=attack_pathname)
+    text_report.process_attack_target_json(attack_pathname,
+        target_filename=os.path.join(directory, target))
 
     out_pathname = os.path.join(directory, outfile)
-    t.export_to_file(output_filename=out_pathname, move_files=True)
+    text_report.export_to_file(output_filename=out_pathname, move_files=True)
 
     print("Results written to " + out_pathname)
 
-
-def run_user_story(config: dict):
+def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
 
     generate_report(
-        config["training_artefacts_dir"],
-        config["attack_results"],
-        config["target_results"],
-        config["outfile"],
+        release_config["training_artefacts_dir"],
+        release_config["attack_results"],
+        release_config["target_results"],
+        release_config["outfile"],
     )
-
 
 if __name__ == "__main__":  # pragma:no cover
     parser = argparse.ArgumentParser(
