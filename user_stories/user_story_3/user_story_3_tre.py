@@ -1,5 +1,5 @@
 """
-TRE SCRIPT FOR USER STORY 3
+TRE SCRIPT FOR USER STORY 3.
 
 This file contains the code needed to run user story 3
 
@@ -7,7 +7,6 @@ To run: change the user_story key inside the .yaml config file to '3', and run t
 'generate_disclosure_risk_report.py' file
 
 NOTE: you should not need to change this file at all, set all parameters via the .yaml file
-
 """
 
 import argparse
@@ -90,7 +89,9 @@ def generate_report(
         "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
     }
 
-    with open(os.path.join(directory, "lira_config.json"), "w", encoding="utf-8") as file:
+    with open(
+        os.path.join(directory, "lira_config.json"), "w", encoding="utf-8"
+    ) as file:
         file.write(json.dumps(lira_config))
 
     # Run the LIRA attack to test disclosure risk

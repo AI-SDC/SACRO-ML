@@ -1,10 +1,10 @@
 """
-RESEARCHER EXAMPLE FOR USER STORY 2
+RESEARCHER EXAMPLE FOR USER STORY 2.
 
-This file is an example of a researcher creating/training a machine learning model and to 
+This file is an example of a researcher creating/training a machine learning model and to
 be released form a secure environment
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a 
+This specific example uses the nursery dataset: data is read in and pre-processed, and a
 classifier is trained and tested on this dataset.
 
 This example follows User Story 2
@@ -15,7 +15,6 @@ Steps:
 - Researcher creates and trains a classifier on this data
 - Researcher emails (or otherwise contacts) TRE to request the model be released
 - TREs will use this code/functions to test the model themselves
-
 """
 
 import logging
@@ -54,10 +53,10 @@ def run_user_story():  # pylint: disable=too-many-locals
     # (see data_processing_researcher.py)
     # Use the output of this function to split the data into training/testing sets
     # NOTE: to use this user story/script, the process_dataset function MUST:
-        # take a single parameter (the data to be processed)
-        # return a dictionary
-        # which contains the keys
-        #   ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
+    # take a single parameter (the data to be processed)
+    # return a dictionary
+    # which contains the keys
+    #   ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
     # as in this example
 
     returned = process_dataset(data)
@@ -105,6 +104,7 @@ def run_user_story():  # pylint: disable=too-many-locals
     logging.info("y_train shape = %s", np.shape(target.y_train))
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
+
 
 if __name__ == "__main__":
     run_user_story()
