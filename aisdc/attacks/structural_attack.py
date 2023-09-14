@@ -31,11 +31,83 @@ from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
+#import aisdc.safemodel.classifiers.safedecisiontreeclassifier as safedt
+#import aisdc.safemodel.classifiers.saferandomforestclassifier as saferf
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("structural_attack")
 
 
 TREE_BASED_MODELS = ['DecisionTreeClassifier','RandomForestClassifier','XGBClassifier']
+
+
+
+def unnecessary_risk(model:BaseEstimator,target_type:str)->Bool:
+    """
+    Checks whether a model's hyper-parameters against
+    a set of rules that predict the top 20% most risky.
+    
+    This check is designed to assess whether a model is
+    likely to be **unnecessarily** risky, i.e.,
+    whether it is highly likely that a different combination of hyper-parameters
+    would have led to model with similar or better accuracy on the task
+    but with lower membership inference risk.
+    
+    The rules applied from an experimental study using a grid search in which:
+    - max_features was one-hot encoded from the set [None, log2, sqrt]
+    - splitter was encoded using 0=best, 1=random
+    
+    The target models created were then subject to membership inference attacks (MIA) and the 
+    hyper-param combinations rank-ordered according to MIA AUC.
+    Then a decision tree trained to recognise whether hyper-params combintions were in the 20% most risky.
+    The rules below were extracted from that tree for the 'least risky' nodes
+   
+    """
+    # Returns 1 if high risk, otherwise 0
+    
+    #all three types support max_depth
+    max_depth = float(model.max_depth) if model.max_depth  else 500
+    if target_type in ['rf','xgboost']:
+        n_estimators = model.n_estimators
+    if target_type in ['dt','rf']:
+        max_features = model.max_features
+        min_samples_leaf = model.min_samples_leaf
+        min_samples_split = model.min_samples_split
+        
+    
+    if target_type == "rf":
+        max_features= model.max_features
+        
+        if max_depth > 3.5 and n_estimators > 35 and max_features != None:
+            return 1
+        if max_depth > 3.5 and n_estimators > 35 and min_samples_split <= 15 and max_features == None and model.bootstrap:
+            return 1
+        if max_depth > 7.5 and 15 < n_estimators <= 35 and min_samples_leaf <= 15 and not model.bootstrap:
+            return 1
+    elif target_type == "dt":
+        splitter = model.splitter
+        if max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15:
+            return 1
+        if splitter == "best" and max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split > 15:
+            return 1
+        if splitter == "best" and max_depth > 7.5 and 7.5 < min_samples_leaf <= 15 and max_features == None:
+            return 1
+        if splitter == "best" and 3.5 < max_depth <= 7.5 and max_features == None and min_samples_leaf <= 7.5:
+            return 1
+        if splitter == "random" and max_depth > 7.5 and min_samples_leaf <= 7.5 and max_features == None:
+            return 1
+    elif target_type == "xgboost":
+        
+        if max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and model.min_child_weight <= 1.5:
+            return 1
+        if max_depth > 3.5 and n_estimators > 12.5 and model.min_child_weight <= 3:
+            return 1
+        if max_depth > 3.5 and n_estimators > 62.5 and 3 < model.min_child_weight <= 6:
+            return 1
+    return 0
+    
+
+
 
 class StructuralAttack(Attack):
     """Class to wrap a number of attacks based on the static structure of a model."""
@@ -44,20 +116,6 @@ class StructuralAttack(Attack):
 
     def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
-        # n_rows_in: int = 1000,
-        # n_rows_out: int = 1000,
-        # training_preds_filename: str = None,
-        # test_preds_filename: str = None,
-        # output_dir: str = "output_structural",
-        # report_name: str = "report_structural",
-        # include_model_correct_feature: bool = False,
-        # sort_probs: bool = True,
-        # attack_metric_success_name: str = "P_HIGHER_AUC",
-        # attack_metric_success_thresh: float = 0.05,
-        # attack_metric_success_comp_type: str = "lte",
-        # attack_metric_success_count_thresh: int = 5,
-        # attack_fail_fast: bool = False,
-        # attack_config_json_file_name: str = None,
         risk_appetite_config:str="default",
         target_path: str = None,
     ) -> None:
@@ -65,16 +123,8 @@ class StructuralAttack(Attack):
 
         Parameters
         ----------
-        training_preds_filename : str
-            name of the file to keep predictions of the training data (in-sample)
-        test_preds_filename : str
-            name of the file to keep predictions of the test data (out-of-sample)
-        output_dir : str
-            name of the directory where outputs are stored
         report_name : str
             name of the pdf and json output reports
-        attack_config_json_file_name : str
-            name of the configuration file to load parameters
         target_path : str
             path to the saved trained target model and target data
         risk_appetite_config:str
@@ -127,7 +177,7 @@ class StructuralAttack(Attack):
         elif isinstance(target.model,XGBClassifier):
             self.xgboost_attack()
         else:
-            retstr= ("no current strural attacks "
+            retstr= ("no current structural attacks "
                      f"for models of type {model_type}\n"
                     )
             logger.warning( retstr)
@@ -151,14 +201,16 @@ class StructuralAttack(Attack):
         for node_id in range( n_nodes):
             if left[node_id] == right[node_id]:
                 is_leaf[node_id]=1
+        n_leaves = is_leaf.sum()
         
         #degrees of freedom
-        n_internal_nodes = n_nodes - is_leaf.sum()
+        n_internal_nodes = n_nodes - n_leaves
         n_params= 2*n_internal_nodes #feature id and threshold
+        n_params += n_leaves*( dtree.n_classes_ -1)#probability distribution
         self.residual_dof = self.target.x_train.shape[0]- n_params
         if self.residual_dof < self.DOF_THRESHOLD:
             self.DoF_risk = 1
-        logger.info(f'degrees of freedom for this decision tree is {self.residual_dof}, '
+        logger.debug(f'degrees of freedom for this decision tree is {self.residual_dof}, '
                    f'so DoF risk is {self.DoF_risk}')
   
         #find out which leaf nodes training data ends up in
@@ -177,7 +229,7 @@ class StructuralAttack(Attack):
         self.k_anonymity = np.min(uniqs_counts[1])
         if self.k_anonymity < self.THRESHOLD:
             self.k_anonymity_risk = 1
-        logger.info(f'minimum k-anonymity for this tree is {self.k_anonymity} '
+        logger.debug(f'minimum k-anonymity for this tree is {self.k_anonymity} '
                    f'so k-anonymity risk is {self.k_anonymity_risk}')
         
         #class disclosure
@@ -209,187 +261,195 @@ class StructuralAttack(Attack):
                     break
             if risky:
                 self.failing_regions +=1
+                #logger.debug(f'risky region: {key}:{val}')
         if self.failing_regions:
             self.class_disclosure_risk=1
-        logger.info(f' for this tree there are {self.failing_regions} problematic regions'
+        logger.debug(f' for this tree there are {self.failing_regions} problematic regions'
                     f' so class disclosure risk = {self.class_disclosure_risk}')
  
-            
+        # unnecessary risk arising from poor hyper-parameter combination.
+        self.unnecessary_risk = unnecessary_risk(self.target.model,'dt')
+        logger.debug(f'It is {self.unnecessary_risk==1} '
+                     'that this model represents an unnecessary risk.'
+                   )
+    
+    
 
-    def attack_from_prediction_files(self):
-        """Start an attack from saved prediction files.
+#     def attack_from_prediction_files(self):
+#         """Start an attack from saved prediction files.
 
-        To be used when only saved predictions are available.
+#         To be used when only saved predictions are available.
 
-        Filenames for the saved prediction files to be specified in the arguments provided
-        in the constructor
-        """
-        train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
-        test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
-        self.attack_from_preds(train_preds, test_preds)
+#         Filenames for the saved prediction files to be specified in the arguments provided
+#         in the constructor
+#         """
+#         train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
+#         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
+#         self.attack_from_preds(train_preds, test_preds)
 
-    def attack_from_preds(  # pylint: disable=too-many-locals
-        self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
-        train_correct: np.ndarray = None,
-        test_correct: np.ndarray = None,
-    ) -> None:
-        """
-        Runs the attack based upon the predictions in train_preds and test_preds, and the params
-        stored in self.args.
+#     def attack_from_preds(  # pylint: disable=too-many-locals
+#         self,
+#         train_preds: np.ndarray,
+#         test_preds: np.ndarray,
+#         train_correct: np.ndarray = None,
+#         test_correct: np.ndarray = None,
+#     ) -> None:
+#         """
+#         Runs the attack based upon the predictions in train_preds and test_preds, and the params
+#         stored in self.args.
+#         This means that it is only possible to run blackbox attacks
 
-        Parameters
-        ----------
-        train_preds : np.ndarray
-            Array of train predictions. One row per example, one column per class (i.e. 2)
-        test_preds : np.ndarray
-            Array of test predictions. One row per example, one column per class (i.e. 2)
-        """
-        logger = logging.getLogger("attack-from-preds")
-        logger.info("Running main attack repetitions")
-        attack_metric_dict = self.run_attack_reps(
-            train_preds,
-            test_preds,
-            train_correct=train_correct,
-            test_correct=test_correct,
-        )
-        self.attack_metrics = attack_metric_dict["mia_metrics"]
-        self.attack_metric_failfast_summary = attack_metric_dict[
-            "failfast_metric_summary"
-        ]
+#         Parameters
+#         ----------
+#         train_preds : np.ndarray
+#             Array of train predictions. One row per example, one column per class (i.e. 2)
+#         test_preds : np.ndarray
+#             Array of test predictions. One row per example, one column per class (i.e. 2)
+#         """
+#         logger = logging.getLogger("attack-from-preds")
+#         logger.info("Running main attack repetitions")
+#         attack_metric_dict = self.run_attack_reps(
+#             train_preds,
+#             test_preds,
+#             train_correct=train_correct,
+#             test_correct=test_correct,
+#         )
+#         self.attack_metrics = attack_metric_dict["mia_metrics"]
+#         self.attack_metric_failfast_summary = attack_metric_dict[
+#             "failfast_metric_summary"
+#         ]
 
-        self.dummy_attack_metrics = []
-        self.dummy_attack_metric_failfast_summary = []
-        if self.n_dummy_reps > 0:
-            logger.info("Running dummy attack reps")
-            n_train_rows = len(train_preds)
-            n_test_rows = len(test_preds)
-            for _ in range(self.n_dummy_reps):
-                d_train_preds, d_test_preds = self.generate_arrays(
-                    n_train_rows,
-                    n_test_rows,
-                    self.train_beta,
-                    self.test_beta,
-                )
-                temp_attack_metric_dict = self.run_attack_reps(
-                    d_train_preds, d_test_preds
-                )
-                temp_metrics = temp_attack_metric_dict["mia_metrics"]
-                temp_metric_failfast_summary = temp_attack_metric_dict[
-                    "failfast_metric_summary"
-                ]
+#         self.dummy_attack_metrics = []
+#         self.dummy_attack_metric_failfast_summary = []
+#         if self.n_dummy_reps > 0:
+#             logger.info("Running dummy attack reps")
+#             n_train_rows = len(train_preds)
+#             n_test_rows = len(test_preds)
+#             for _ in range(self.n_dummy_reps):
+#                 d_train_preds, d_test_preds = self.generate_arrays(
+#                     n_train_rows,
+#                     n_test_rows,
+#                     self.train_beta,
+#                     self.test_beta,
+#                 )
+#                 temp_attack_metric_dict = self.run_attack_reps(
+#                     d_train_preds, d_test_preds
+#                 )
+#                 temp_metrics = temp_attack_metric_dict["mia_metrics"]
+#                 temp_metric_failfast_summary = temp_attack_metric_dict[
+#                     "failfast_metric_summary"
+#                 ]
 
-                self.dummy_attack_metrics.append(temp_metrics)
-                self.dummy_attack_metric_failfast_summary.append(
-                    temp_metric_failfast_summary
-                )
+#                 self.dummy_attack_metrics.append(temp_metrics)
+#                 self.dummy_attack_metric_failfast_summary.append(
+#                     temp_metric_failfast_summary
+#                 )
 
-        logger.info("Finished running attacks")
+#         logger.info("Finished running attacks")
 
-    def _prepare_attack_data(
-        self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
-        train_correct: np.ndarray = None,
-        test_correct: np.ndarray = None,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Prepare training data and labels for attack model
-        Combines the train and test preds into a single numpy array (optionally) sorting each
-        row to have the highest probabilities in the first column. Constructs a label array that
-        has ones corresponding to training rows and zeros to testing rows.
-        """
-        logger = logging.getLogger("prep-attack-data")
-        if self.sort_probs:
-            logger.info("Sorting probabilities to leave highest value in first column")
-            train_preds = -np.sort(-train_preds, axis=1)
-            test_preds = -np.sort(-test_preds, axis=1)
+#     def _prepare_attack_data(
+#         self,
+#         train_preds: np.ndarray,
+#         test_preds: np.ndarray,
+#         train_correct: np.ndarray = None,
+#         test_correct: np.ndarray = None,
+#     ) -> tuple[np.ndarray, np.ndarray]:
+#         """Prepare training data and labels for attack model
+#         Combines the train and test preds into a single numpy array (optionally) sorting each
+#         row to have the highest probabilities in the first column. Constructs a label array that
+#         has ones corresponding to training rows and zeros to testing rows.
+#         """
+#         logger = logging.getLogger("prep-attack-data")
+#         if self.sort_probs:
+#             logger.info("Sorting probabilities to leave highest value in first column")
+#             train_preds = -np.sort(-train_preds, axis=1)
+#             test_preds = -np.sort(-test_preds, axis=1)
 
-        logger.info("Creating MIA data")
+#         logger.info("Creating MIA data")
 
-        if self.include_model_correct_feature and train_correct is not None:
-            train_preds = np.hstack((train_preds, train_correct[:, None]))
-            test_preds = np.hstack((test_preds, test_correct[:, None]))
+#         if self.include_model_correct_feature and train_correct is not None:
+#             train_preds = np.hstack((train_preds, train_correct[:, None]))
+#             test_preds = np.hstack((test_preds, test_correct[:, None]))
 
-        mi_x = np.vstack((train_preds, test_preds))
-        mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
+#         mi_x = np.vstack((train_preds, test_preds))
+#         mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
 
-        return (mi_x, mi_y)
+#         return (mi_x, mi_y)
 
-    def run_attack_reps(  # pylint: disable = too-many-locals
-        self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
-        train_correct: np.ndarray = None,
-        test_correct: np.ndarray = None,
-    ) -> dict:
-        """
-        Run actual attack reps from train and test predictions.
+#     def run_attack_reps(  # pylint: disable = too-many-locals
+#         self,
+#         train_preds: np.ndarray,
+#         test_preds: np.ndarray,
+#         train_correct: np.ndarray = None,
+#         test_correct: np.ndarray = None,
+#     ) -> dict:
+#         """
+#         Run actual attack reps from train and test predictions.
 
-        Parameters
-        ----------
-        train_preds : np.ndarray
-            predictions from the model on training (in-sample) data
-        test_preds : np.ndarray
-            predictions from the model on testing (out-of-sample) data
+#         Parameters
+#         ----------
+#         train_preds : np.ndarray
+#             predictions from the model on training (in-sample) data
+#         test_preds : np.ndarray
+#             predictions from the model on testing (out-of-sample) data
 
-        Returns
-        -------
-        mia_metrics_dict : dict
-            a dictionary with two items including mia_metrics
-            (a list of metric across repetitions) and failfast_metric_summary object
-            (an object of FailFast class) to maintain summary of
-            fail/success of attacks for a given metric of failfast option
-        """
-        self.n_rows_in = len(train_preds)
-        self.n_rows_out = len(test_preds)
-        logger = logging.getLogger("attack-reps")
-        mi_x, mi_y = self._prepare_attack_data(
-            train_preds, test_preds, train_correct, test_correct
-        )
+#         Returns
+#         -------
+#         mia_metrics_dict : dict
+#             a dictionary with two items including mia_metrics
+#             (a list of metric across repetitions) and failfast_metric_summary object
+#             (an object of FailFast class) to maintain summary of
+#             fail/success of attacks for a given metric of failfast option
+#         """
+#         self.n_rows_in = len(train_preds)
+#         self.n_rows_out = len(test_preds)
+#         logger = logging.getLogger("attack-reps")
+#         mi_x, mi_y = self._prepare_attack_data(
+#             train_preds, test_preds, train_correct, test_correct
+#         )
 
-        mia_metrics = []
+#         mia_metrics = []
 
-        failfast_metric_summary = FailFast(self)
+#         failfast_metric_summary = FailFast(self)
 
-        for rep in range(self.n_reps):
-            logger.info("Rep %d of %d", rep + 1, self.n_reps)
-            mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-                mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
-            )
-            attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
-            attack_classifier.fit(mi_train_x, mi_train_y)
-            y_pred_proba, y_test = metrics.get_probabilities(
-                attack_classifier, mi_test_x, mi_test_y, permute_rows=True
-            )
+#         for rep in range(self.n_reps):
+#             logger.info("Rep %d of %d", rep + 1, self.n_reps)
+#             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
+#                 mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
+#             )
+#             attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
+#             attack_classifier.fit(mi_train_x, mi_train_y)
+#             y_pred_proba, y_test = metrics.get_probabilities(
+#                 attack_classifier, mi_test_x, mi_test_y, permute_rows=True
+#             )
 
-            mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
+#             mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
 
-            if self.include_model_correct_feature and train_correct is not None:
-                # Compute the Yeom TPR and FPR
-                yeom_preds = mi_test_x[:, -1]
-                tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
-                mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
-                mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
-                mia_metrics[-1]["yeom_advantage"] = (
-                    mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
-                )
+#             if self.include_model_correct_feature and train_correct is not None:
+#                 # Compute the Yeom TPR and FPR
+#                 yeom_preds = mi_test_x[:, -1]
+#                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
+#                 mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
+#                 mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
+#                 mia_metrics[-1]["yeom_advantage"] = (
+#                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
+#                 )
 
-            failfast_metric_summary.check_attack_success(mia_metrics[rep])
+#             failfast_metric_summary.check_attack_success(mia_metrics[rep])
 
-            if (
-                failfast_metric_summary.check_overall_attack_success(self)
-                and self.attack_fail_fast
-            ):
-                break
+#             if (
+#                 failfast_metric_summary.check_overall_attack_success(self)
+#                 and self.attack_fail_fast
+#             ):
+#                 break
 
-        logger.info("Finished simulating attacks")
+#         logger.info("Finished simulating attacks")
 
-        mia_metrics_dict = {}
-        mia_metrics_dict["mia_metrics"] = mia_metrics
-        mia_metrics_dict["failfast_metric_summary"] = failfast_metric_summary
+#         mia_metrics_dict = {}
+#         mia_metrics_dict["mia_metrics"] = mia_metrics
+#         mia_metrics_dict["failfast_metric_summary"] = failfast_metric_summary
 
-        return mia_metrics_dict
+#         return mia_metrics_dict
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list.
@@ -438,117 +498,6 @@ class StructuralAttack(Attack):
 
         return global_metrics
 
-    def _get_n_significant(self, p_val_list, p_thresh, bh_fdr_correction=False):
-        """
-        Helper method to determine if values within a list of p-values are significant at
-        p_thresh. Can perform multiple testing correction.
-        """
-        if not bh_fdr_correction:
-            return sum(
-                1 for p in p_val_list if p <= p_thresh
-            )  # pylint: disable = consider-using-generator
-        p_val_list = np.asarray(sorted(p_val_list))
-        n_vals = len(p_val_list)
-        hoch_vals = np.array([(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)])
-        bh_sig_list = p_val_list <= hoch_vals
-        if any(bh_sig_list):
-            n_sig_bh = (np.where(bh_sig_list)[0]).max() + 1
-        else:
-            n_sig_bh = 0
-        return n_sig_bh
-
-    def _generate_array(self, n_rows: int, beta: float) -> np.ndarray:
-        """Generate a single array of predictions, used when doing baseline experiments.
-
-        Parameters
-        ----------
-        n_rows : int
-            the number of rows worth of data to generate
-        beta : float
-            the beta parameter for sampling probabilities
-
-        Returns
-        -------
-        preds : np.ndarray
-            Array of predictions. Two columns, n_rows rows
-
-        Notes
-        -----
-
-        Examples
-        --------
-        """
-
-        preds = np.zeros((n_rows, 2), float)
-        for row_idx in range(n_rows):
-            train_class = np.random.choice(2)
-            train_prob = np.random.beta(1, beta)
-            preds[row_idx, train_class] = train_prob
-            preds[row_idx, 1 - train_class] = 1 - train_prob
-        return preds
-
-    def generate_arrays(
-        self,
-        n_rows_in: int,
-        n_rows_out: int,
-        train_beta: float = 2,
-        test_beta: float = 2,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Generate train and test prediction arrays, used when computing baseline.
-
-        Parameters
-        ----------
-        n_rows_in : int
-            number of rows of in-sample (training) probabilities
-        n_rows_out : int
-            number of rows of out-of-sample (testing) probabilities
-        train_beta : float
-            beta value for generating train probabilities
-        test_beta : float:
-            beta_value for generating test probabilities
-
-        Returns
-        -------
-        train_preds : np.ndarray
-            Array of train predictions (n_rows x 2 columns)
-        test_preds : np.ndarray
-            Array of test predictions (n_rows x 2 columns)
-        """
-        train_preds = self._generate_array(n_rows_in, train_beta)
-        test_preds = self._generate_array(n_rows_out, test_beta)
-        return train_preds, test_preds
-
-    def make_dummy_data(self) -> None:
-        """Makes dummy data for testing functionality.
-
-        Parameters
-        ----------
-        args : dict
-            Command line arguments
-
-        Returns
-        -------
-
-        Notes
-        -----
-        Returns nothing but saves two .csv files
-        """
-        logger = logging.getLogger("dummy-data")
-        logger.info(
-            "Making dummy data with %d rows in and %d out",
-            self.n_rows_in,
-            self.n_rows_out,
-        )
-        logger.info("Generating rows")
-        train_preds, test_preds = self.generate_arrays(
-            self.n_rows_in,
-            self.n_rows_out,
-            train_beta=self.train_beta,
-            test_beta=self.test_beta,
-        )
-        logger.info("Saving files")
-        np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
-        np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
     def _construct_metadata(self):
         """Constructs the metadata object, after attacks."""
@@ -565,15 +514,6 @@ class StructuralAttack(Attack):
             self._unpack_dummy_attack_metrics_experiments_instances()
         )
 
-    def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
-        """Constructs the metadata object, after attacks."""
-        dummy_attack_metrics_instances = []
-
-        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metrics_instances += temp_dummy_attack_metrics
-
-        return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
         """Constructs the metadata object, after attacks."""
