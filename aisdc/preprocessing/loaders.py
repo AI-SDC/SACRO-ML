@@ -181,12 +181,14 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return feature_dataframe, target_dataframe
 
+
 def _openml_dataset(openml_id: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch any dataset from openml through sklearn.
-    The dataset name should be on the format of 
+    The dataset name should be on the format of
     openml_<id>_<dataset name>
       where id is the openml identifier and
-      dataset name is the name to recognise it."""
+      dataset name is the name to recognise it.
+    """
 
     data = fetch_openml(data_id=openml_id, as_frame=True)
 
@@ -201,6 +203,7 @@ def _openml_dataset(openml_id: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
     )
 
     return feature_dataframe, target_dataframe
+
 
 # Patched to support non-flattened images. Same behaviour as before except if called with
 # flatten=False explicitly.
@@ -298,7 +301,7 @@ def _synth_ae(
     """
 
     file_path = os.path.join(
-        data_folder, 'A&E Synthetic Data.csv' #"AE_England_synthetic.csv"
+        data_folder, "A&E Synthetic Data.csv"  # "AE_England_synthetic.csv"
     )
 
     if not os.path.exists(file_path):
@@ -397,7 +400,7 @@ and place it in the correct folder.
 def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     In-hospital mortality data from this study:
-        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
+        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
     """
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
@@ -438,7 +441,7 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
-        #file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
+    # file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
     file_path = os.path.join(data_folder, "full_cohort_data.csv")
     print(file_path, os.path.exists(file_path))
 
@@ -493,8 +496,8 @@ def _texas_hospitals(
     # pylint: disable=too-many-statements, too-many-locals
     """
     Texas Hospitals Dataset
-    https://www.dshs.texas.gov/texas-health-care-information-collection/health-data-researcher-information/texas-inpatient-public-use # pylint: disable=line-too-long
-  
+    https://www.dshs.texas.gov/texas-health-care-information-collection/health-data-researcher-information/texas-inpatient-public-use # pylint: disable=line-too-long.
+
     Download the tab-delimited files for each quarter from
     2006, 2007, 2008 and 2009.
     Note: This data is free to download.
@@ -513,8 +516,8 @@ def _texas_hospitals(
         "PUDF 4Q2009 tab-delimited.zip",
         "PUDF1Q08_update_tab.zip",
         "PUDF2Q08_update_tab.zip",
-        "PUDF3Q08_update_tab.zip"
-        ]
+        "PUDF3Q08_update_tab.zip",
+    ]
     files_path = [os.path.join(data_folder, f) for f in file_list]
 
     found = [os.path.exists(file_path) for file_path in files_path]
@@ -575,7 +578,7 @@ and place it in the correct folder.
                 for i in ZipFile(f).namelist()
                 if "base" in i
             ]
-            if len(df)<1:
+            if len(df) < 1:
                 print(f"WARNING: {f} could not be loaded.")
             else:
                 df[0].dropna(inplace=True)
