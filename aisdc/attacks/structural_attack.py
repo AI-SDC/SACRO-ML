@@ -80,9 +80,11 @@ def unnecessary_risk(model:BaseEstimator,target_type:str)->Bool:
         
         if max_depth > 3.5 and n_estimators > 35 and max_features != None:
             return 1
-        if max_depth > 3.5 and n_estimators > 35 and min_samples_split <= 15 and max_features == None and model.bootstrap:
+        if (max_depth > 3.5 and n_estimators > 35 and min_samples_split <= 15 and
+            max_features == None and model.bootstrap):
             return 1
-        if max_depth > 7.5 and 15 < n_estimators <= 35 and min_samples_leaf <= 15 and not model.bootstrap:
+        if (max_depth > 7.5 and 15 < n_estimators <= 35 and 
+            min_samples_leaf <= 15 and not model.bootstrap):
             return 1
     elif target_type == "dt":
         splitter = model.splitter
