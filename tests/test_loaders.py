@@ -107,6 +107,7 @@ def test_mimic():
     except DataNotAvailable:
         pass
 
+
 def test_in_hospital():
     """Tests loading the in hospital mortality data
     in two different ways.
