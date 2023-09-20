@@ -188,6 +188,7 @@ def test_synth_ae():
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
 
+
 def test_openml():
     """Tests different versions of the  synthetic A&E dataset."""
     x_df, y_df = loaders.get_data_sklearn("openml_1464", DATA_FOLDER)
