@@ -301,7 +301,7 @@ def _synth_ae(
     """
 
     file_path = os.path.join(
-        data_folder, "A&E Synthetic Data.csv"  # "AE_England_synthetic.csv"
+        data_folder, "AE_England_synthetic.csv"
     )
 
     if not os.path.exists(file_path):
@@ -441,8 +441,7 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
-    # file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
-    file_path = os.path.join(data_folder, "full_cohort_data.csv")
+    file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
     print(file_path, os.path.exists(file_path))
 
     if not os.path.exists(file_path):

@@ -100,12 +100,12 @@ def test_data_absent():
 
 def test_mimic():
     """Load the mimic2 dataset."""
-    try:
-        x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
-        assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
-        assert y_df.shape == (1064, 1)
-    except DataNotAvailable:
-        pass
+    # try:
+    x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
+    assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (1064, 1)
+    # except DataNotAvailable:
+    #     pass
 
 def test_in_hospital():
     """Tests loading the in hospital mortality data
@@ -179,17 +179,10 @@ def test_texas():
 
 def test_synth_ae():
     """Tests different versions of the  synthetic A&E dataset."""
-    try:
-        x_df, y_df = loaders.get_data_sklearn("synth-ae", DATA_FOLDER)
-        assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
-        assert y_df.shape == (8, 1)
-    except DataNotAvailable:
-        pass
+    x_df, y_df = loaders.get_data_sklearn("synth-ae", DATA_FOLDER)
+    assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (8, 1)
 
-    # synthae-small
-    try:
-        x_df, y_df = loaders.get_data_sklearn("synth-ae-small", DATA_FOLDER)
-        assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
-        assert y_df.shape == (8, 1)
-    except DataNotAvailable:
-        pass
+    x_df, y_df = loaders.get_data_sklearn("synth-ae-small", DATA_FOLDER)
+    assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (8, 1)
