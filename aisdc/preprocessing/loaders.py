@@ -300,9 +300,7 @@ def _synth_ae(
     https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.
     """
 
-    file_path = os.path.join(
-        data_folder, "AE_England_synthetic.csv"
-    )
+    file_path = os.path.join(data_folder, "AE_England_synthetic.csv")
 
     if not os.path.exists(file_path):
         help_message = f"""
