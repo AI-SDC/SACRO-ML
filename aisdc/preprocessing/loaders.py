@@ -638,3 +638,120 @@ and place it in the correct folder.
     labels = pd.DataFrame({var: encoded_labels})
 
     return (tx_data, labels)
+
+def _RDMP( # pylint: disable=too-many-locals, too-many-statements
+    data_folder: str,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    def find_age(row):
+        date_ = pd.to_datetime('01/06/2020')
+        if row.date_of_death!=row.date_of_death:
+            age = np.floor((date_-row.date_of_birth).days/365.25)
+        else:
+            age = np.floor((row.date_of_death-row.date_of_birth).days/365.25)
+        return age
+
+    def hospital_days(row):
+        if row.DischargeDate==row.DischargeDate:
+            t = row.DischargeDate-row.AdmissionDate
+            days = t.days+round(((t.seconds/60)/60)/24)
+        else:
+            days = 0
+        return days
+
+    processed_data_file = "rdmp_binary.csv"
+    os.path.join(data_folder, "RDMP")
+    if os.path.exists(os.path.join(data_folder, "RDMP", processed_data_file)):
+        logger.info("Loading processed RDMP file.")
+        # load texas data processed csv file
+        df = pd.read_csv(
+            os.path.join(data_folder, "RDMP", processed_data_file)
+        )
+    else:
+        logger.info("Processing RDMP synthetic data")
+        file_list = ['CarotidArteryScan.csv', 'Demography.csv', 'HospitalAdmissions.csv']
+        files_path = [os.path.join(data_folder, "RDMP", f) for f in file_list]
+        found = [os.path.exists(file_path) for file_path in files_path]
+        not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
+
+        if not all(found):
+            help_message = f"""
+            Some or all data files do not exist. Please download the files from RDMP,
+        and place it in the correct folder.
+
+            Missing files are:
+            {not_found}
+            """
+        raise DataNotAvailable(help_message)
+
+        # Load data
+        headers0 = ['R_CC_STEN_A', 'R_CC_STEN_B', 'R_CC_STEN_C', 'R_CC_STEN_D', 'R_CC_STEN_S',# pylint: disable=unreachable
+         'L_IC_STEN_A', 'L_IC_STEN_B', 'L_IC_STEN_C', 'L_IC_STEN_D', 'L_IC_STEN_S', 'R_IC_STEN_A',
+         'R_IC_STEN_B', 'R_IC_STEN_C', 'R_IC_STEN_D', 'R_IC_STEN_S', 'PatientID','L_CC_STEN_S',
+         'L_CC_STEN_D', 'L_CC_STEN_B',  'L_BD_RATIO', 'L_AC_RATIO', 'R_BD_RATIO', 'R_AC_RATIO',
+         'L_CC_STENOSIS', 'L_CC_PEAK_SYS', 'L_CC_END_DIA', 'L_IC_STENOSIS','L_IC_PEAK_SYS', 
+         'L_IC_END_DIA', 'L_EC_STENOSIS', 'L_PLAQUE','L_SYMPTOMS', 'L_BRUIT', 'L_CC_STEN_A', 
+         'ON_STEN_STUDY', 'R_VERT_ARTERY', 'R_BRUIT', 'R_SYMPTOMS', 'R_PLAQUE','L_CC_STEN_C',
+         'R_EC_STENOSIS', 'R_IC_PEAK_SYS', 'R_IC_STENOSIS', 'R_CC_END_DIA', 'R_CC_PEAK_SYS', 
+         'R_CC_STENOSIS', 'L_VERT_ARTERY', 'R_IC_END_DIA']
+        headers1 = ['chi', 'sex', 'current_address_L2', 'date_of_death', 'date_of_birth']
+        headers2 = ['chi','AdmissionDate', 'DischargeDate', 'MainCondition',
+        'OtherCondition1', 'OtherCondition2', 
+                    'OtherCondition3',
+                    'MainOperation', 'MainOperationB', 'OtherOperation1', 'OtherOperation1B',
+                    'OtherOperation2', 
+                    'OtherOperation2B', 'OtherOperation3', 'OtherOperation3B']
+
+        #Process first file
+        df = pd.read_csv(files_path[0], usecols=headers0)
+        #Change name to be the same in all files
+        df.rename(columns={'PatientID':'chi'}, inplace=True)
+        df = df.groupby(['chi']).max()
+
+        #Process second file
+        df_ = pd.read_csv(files_path[1], usecols=headers1)
+        df_['date_of_birth']=pd.to_datetime(df_['date_of_birth'])
+        df_['date_of_death']=pd.to_datetime(df_['date_of_death'])
+        df_ = df_.groupby(['chi']).max()
+
+        #Merge first and second file
+        df = df.merge(df_, how='inner', on='chi', suffixes=(False, False))
+        del df_
+
+        #Process third file
+        df__ = pd.read_csv(files_path[2], usecols=headers2)
+        df__['AdmissionDate']=pd.to_datetime(df__['AdmissionDate'])
+        df__['DischargeDate']=pd.to_datetime(df__['DischargeDate'])
+        df__['days_in_hospital'] = df__.apply(hospital_days, axis=1)
+        number_stays = df__.groupby(['chi']).count()['AdmissionDate']
+        dih = df__.groupby(['chi'])['days_in_hospital'].sum()
+        nc = df__.groupby(['chi'])[[x for x in df__.columns if 'Condition' in x]].count().mean(axis=1) # pylint: disable=line-too-long
+        no = df__.groupby(['chi'])[[x for x in df__.columns if 'Operation' in x]].count().sum(axis=1) # pylint: disable=line-too-long
+        df__.drop(columns=[x for x in df__.columns if 'Date' in x or 'Operation' in x or 'Condition' in x], inplace=True) # pylint: disable=line-too-long
+        df__ = pd.DataFrame()
+        df__['days_in_hospital'] = dih
+        df__['average_number_conditions'] = nc
+        df__['total_number_operations'] = no
+        df__['number_admissions'] = number_stays
+
+        #merge the third file
+        df = df.merge(df__, how='inner', on='chi', suffixes=(False, False))
+
+        #Final processing after merging
+        df['death'] = [1 if x else 0 for x in pd.notna(df.date_of_death)]
+        df['age'] = df.apply(find_age, axis=1).astype('int64')
+        df.drop(columns=['date_of_birth', 'date_of_death'], inplace=True)
+
+        #save the dataframe
+        df.to_csv(os.path.join(data_folder, "RDMP", processed_data_file))
+
+    labels = df['death']
+    df.drop(columns=['death'], inplace=True)
+
+    #OneHotEncoder
+    for col in df.columns:
+        if df[col].dtypes in ('bool', 'object'):
+            encoder = LabelEncoder()
+            df[col] = encoder.fit_transform(df[col].values)
+
+    return (df, labels)
