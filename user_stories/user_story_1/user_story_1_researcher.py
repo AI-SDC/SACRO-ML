@@ -135,7 +135,7 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     # Modify/re-run all of the above code until you're happy with the model you've created
     # If the tests do not pass, try changing the model or hyperparameters until the tests pass
 
-    # when you are satisfied and ready to release your model, call the request release() funciton
+    # when you are satisfied and ready to release your model, call the request release() function
     # with the Target class you created above
     # This code will run checks for the TRE staff
 
