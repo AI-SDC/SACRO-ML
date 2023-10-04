@@ -39,7 +39,42 @@ logger = logging.getLogger("structural_attack")
 
 
 TREE_BASED_MODELS = ['DecisionTreeClassifier','RandomForestClassifier','XGBClassifier']
+def get_rf_k_anonymity(model: RandomForestClassifier, x: np.ndarray) -> int:
+    """Calculates the k-anonymity of a random forest model
+    as the minimum of the anonymity for each record.
+    That is defined as the size of the set of records which
+    appear in the same leaf as the record in every tree.
+    """
 
+    # dataset must be 2-D
+    assert len(x.shape) == 2
+
+    num_records = x.shape[0]
+    num_trees = model.n_estimators
+    k_anon_val = np.zeros(num_records, dtype=int)
+
+    # ending leaf node by record(row) and tree (column)
+    all_leaves = np.zeros((num_records, num_trees), dtype=int)
+    for this_tree in range(num_trees):
+        this_leaves = model.estimators_[this_tree].apply(x)
+        for record in range(num_records):
+            all_leaves[record][this_tree] = this_leaves[record]
+
+    for record in range(num_records):
+        # start by assuming everything co-occurs
+        appears_together = list(range(0, num_records))
+        # iterate through trees
+        for this_tree in range(num_trees):
+            this_leaf = all_leaves[record][this_tree]
+
+            together = copy.copy(appears_together)
+            # removing records which go to other leaves
+            for other_record in together:
+                if all_leaves[other_record][this_tree] != this_leaf:
+                    appears_together.remove(other_record)
+
+        k_anon_val[record] = len(appears_together)
+    return k_anon_val.min()
 
 
 def unnecessary_risk(model:BaseEstimator,target_type:str)->Bool:
@@ -120,6 +155,8 @@ class StructuralAttack(Attack):
         self,
         risk_appetite_config:str="default",
         target_path: str = None,
+        output_dir = "outputs_structural",
+        report_name="report_structural"
     ) -> None:
         """Constructs an object to execute a structural attack.
 
@@ -135,20 +172,26 @@ class StructuralAttack(Attack):
 
         super().__init__()
         self.target:Target=None
+        self.target_path = target_path
         
         #make dummy acro object and use it to extract risk appetite
         myacro=ACRO(risk_appetite_config)
+        self.risk_appetite_config= risk_appetite_config
         self.THRESHOLD = myacro.config["safe_threshold"]
         self.DOF_THRESHOLD = myacro.config["safe_dof_threshold"] 
         del(myacro)
         
         #metrics
+        self.attack_metrics= ['DoF_risk','k_anonymity_risk','class_disclosure_risk','unnecessry_risk']
         self.DoF_risk = 0
         self.k_anonymity_risk=0
         self.class_disclosure_risk=0
         self.unnecessary_risk = 0
         logger.info(f'Thresholds for count {self.THRESHOLD} and DoF {self.DOF_THRESHOLD}')
         
+        #paths for reporting
+        self.output_dir= output_dir 
+        self.report_name = report_name
 
     def __str__(self):
         return "Structural attack"
@@ -172,18 +215,63 @@ class StructuralAttack(Attack):
                       "unless the target contains a trained model"
                      )
             raise NotImplementedError(errstr)
-        if isinstance(target.model,DecisionTreeClassifier):
-            self.decision_tree_whitebox_attack()
-        elif isinstance(target.model,RandomForestClassifier):
-            self.random_forest_attack()
-        elif isinstance(target.model,XGBClassifier):
-            self.xgboost_attack()
+        # if isinstance(target.model,DecisionTreeClassifier):
+        #     self.decision_tree_whitebox_attack()
+        # elif isinstance(target.model,RandomForestClassifier):
+        #     self.random_forest_attack()
+        # elif isinstance(target.model,XGBClassifier):
+        #     self.xgboost_attack()
+        # else:
+        #     retstr= ("no current structural attacks "
+        #              f"for models of type {model_type}\n"
+        #             )
+        #     logger.warning( retstr)
+        # get proba values for training data    
+        x = self.target.x_train
+        y = self.target.y_train
+        if len(y.shape)==1:
+            n_classes = len( np.unique(y))
         else:
-            retstr= ("no current structural attacks "
-                     f"for models of type {model_type}\n"
-                    )
-            logger.warning( retstr)
+            nclasses=y.shape[1]
+        n_rows=x.shape[0]
+        assert x.shape[0]==len(y),'length mismatch between trainx and trainy'
+        self.yprobs = self.target.model.predict_proba(x)
         
+        #only equivalance classes and membership once as potentially slow
+        if isinstance(target.model,DecisionTreeClassifier):
+            equiv = self.dt_get_equivalence_classes()
+            self.equiv_classes= equiv[0]
+            self.equiv_counts =equiv[1]
+            self.equiv_members = equiv[2]
+        else:
+            uniques = np.unique(self.yprobs,axis=0,return_counts=True)
+            self.equiv_classes = uniques[0]
+            self.equiv_counts = uniques[1]
+            self.equiv_members = self.get_equivalence_membership()
+ 
+            
+    def dt_get_equivalence_classes(self)->tuple:
+        """ to complete"""
+        destinations = self.target.model.apply(self.target.x_train)
+        ret_tuple= np.unique(destinations,return_counts=True)
+        #print(f'leaves and counts:\n{ret_tuple}\n')
+        leaves = ret_tuple[0]
+        counts= ret_tuple[1]
+        members = []
+        for leaf in leaves:
+            ingroup = np.asarray(destinations==leaf).nonzero()[0]
+            print(f'ingroup {ingroup},count {len(ingroup)}')
+            members.append(ingroup)
+        return [leaves,counts,members]
+
+    def get_equivalence_membership(self)->list:
+        """ to complete"""
+        members=[]
+        for prob_vals in self.equiv_classes:
+            ingroup = np.unique(np.asarray(self.yprobs==prob_vals).nonzero()[0])
+            members.append(ingroup)
+        return members
+    
     def decision_tree_whitebox_attack(self)->None:
         """ Structural attacks on decision trees
         To be used when target model and training set are provided
@@ -275,183 +363,63 @@ class StructuralAttack(Attack):
                      'that this model represents an unnecessary risk.'
                    )
     
-    
+#     def random_forest_attack(self)->None:
+#         """ runs structural attacks on random forests """
+        
+#         forest = self.target.model
+#         x= self.target.x_train
+        
+#         # k-anonymity
+#         kval = get_rf_k_anonymity(forest,x)
+#         if kval < self.THRESHOLD:
+#             self.k_anonymity_risk= 1
+        
+#         # class disclosure- step 1 get prediction probabilities
+#         yprobs = forest.prediction_proba(x).sort()
+#         assert isinstance(np.ndarray, yprobs)
+#         assert yprobs.shape[0] == x.shape[0]
+#         assert yprobs.shape[1] == forest._n_classes
+        
+        
+#         #class disclosure step 2:next sort prediction_probs by first col
+#         #then second etc preserving rows
+#         # method from https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column
+#         sorted_probs = yprobs[np.lexsort(([yprobs[:, i] for i in range(yprobs.shape[1]-1, -1, -1)]))]
+        
+#         #class disclosure step 3:loop through all similarity groups
+#         group_first = 0
+#         group_last= 0
+#         while group_last<sorted_probs.shape[0] -1:
+#             possible_next=group_last+1
+#             #get group of records with identical prob_a values
+#             while sorted_probs[possible_next]==sorted_probs[group_first]
+#                 group_last +=1
+#                 possible_next +=1
+            
+        
+        
+#         # unnecessary risk arising from poor hyper-parameter combination.
+#         self.unnecessary_risk = unnecessary_risk(forest,'rf')
+#         logger.debug(f'It is {self.unnecessary_risk==1} '
+#                      'that this model represents an unnecessary risk.'
+#                    )
+        
+#     def xgboost_attack(self)->None:
+#         """ runs structural attacks on xgboost forests """
+        
+        
+#         #not srue class disclosure is meaningful
+        
+        
+#         # unnecessary risk arising from poor hyper-parameter combination.
+#         self.unnecessary_risk = unnecessary_risk(self.target.model,'xgboost')
+#         logger.debug(f'It is {self.unnecessary_risk==1} '
+#                      'that this model represents an unnecessary risk.'
+#                    )
+        
+        
 
-#     def attack_from_prediction_files(self):
-#         """Start an attack from saved prediction files.
 
-#         To be used when only saved predictions are available.
-
-#         Filenames for the saved prediction files to be specified in the arguments provided
-#         in the constructor
-#         """
-#         train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
-#         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
-#         self.attack_from_preds(train_preds, test_preds)
-
-#     def attack_from_preds(  # pylint: disable=too-many-locals
-#         self,
-#         train_preds: np.ndarray,
-#         test_preds: np.ndarray,
-#         train_correct: np.ndarray = None,
-#         test_correct: np.ndarray = None,
-#     ) -> None:
-#         """
-#         Runs the attack based upon the predictions in train_preds and test_preds, and the params
-#         stored in self.args.
-#         This means that it is only possible to run blackbox attacks
-
-#         Parameters
-#         ----------
-#         train_preds : np.ndarray
-#             Array of train predictions. One row per example, one column per class (i.e. 2)
-#         test_preds : np.ndarray
-#             Array of test predictions. One row per example, one column per class (i.e. 2)
-#         """
-#         logger = logging.getLogger("attack-from-preds")
-#         logger.info("Running main attack repetitions")
-#         attack_metric_dict = self.run_attack_reps(
-#             train_preds,
-#             test_preds,
-#             train_correct=train_correct,
-#             test_correct=test_correct,
-#         )
-#         self.attack_metrics = attack_metric_dict["mia_metrics"]
-#         self.attack_metric_failfast_summary = attack_metric_dict[
-#             "failfast_metric_summary"
-#         ]
-
-#         self.dummy_attack_metrics = []
-#         self.dummy_attack_metric_failfast_summary = []
-#         if self.n_dummy_reps > 0:
-#             logger.info("Running dummy attack reps")
-#             n_train_rows = len(train_preds)
-#             n_test_rows = len(test_preds)
-#             for _ in range(self.n_dummy_reps):
-#                 d_train_preds, d_test_preds = self.generate_arrays(
-#                     n_train_rows,
-#                     n_test_rows,
-#                     self.train_beta,
-#                     self.test_beta,
-#                 )
-#                 temp_attack_metric_dict = self.run_attack_reps(
-#                     d_train_preds, d_test_preds
-#                 )
-#                 temp_metrics = temp_attack_metric_dict["mia_metrics"]
-#                 temp_metric_failfast_summary = temp_attack_metric_dict[
-#                     "failfast_metric_summary"
-#                 ]
-
-#                 self.dummy_attack_metrics.append(temp_metrics)
-#                 self.dummy_attack_metric_failfast_summary.append(
-#                     temp_metric_failfast_summary
-#                 )
-
-#         logger.info("Finished running attacks")
-
-#     def _prepare_attack_data(
-#         self,
-#         train_preds: np.ndarray,
-#         test_preds: np.ndarray,
-#         train_correct: np.ndarray = None,
-#         test_correct: np.ndarray = None,
-#     ) -> tuple[np.ndarray, np.ndarray]:
-#         """Prepare training data and labels for attack model
-#         Combines the train and test preds into a single numpy array (optionally) sorting each
-#         row to have the highest probabilities in the first column. Constructs a label array that
-#         has ones corresponding to training rows and zeros to testing rows.
-#         """
-#         logger = logging.getLogger("prep-attack-data")
-#         if self.sort_probs:
-#             logger.info("Sorting probabilities to leave highest value in first column")
-#             train_preds = -np.sort(-train_preds, axis=1)
-#             test_preds = -np.sort(-test_preds, axis=1)
-
-#         logger.info("Creating MIA data")
-
-#         if self.include_model_correct_feature and train_correct is not None:
-#             train_preds = np.hstack((train_preds, train_correct[:, None]))
-#             test_preds = np.hstack((test_preds, test_correct[:, None]))
-
-#         mi_x = np.vstack((train_preds, test_preds))
-#         mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
-
-#         return (mi_x, mi_y)
-
-#     def run_attack_reps(  # pylint: disable = too-many-locals
-#         self,
-#         train_preds: np.ndarray,
-#         test_preds: np.ndarray,
-#         train_correct: np.ndarray = None,
-#         test_correct: np.ndarray = None,
-#     ) -> dict:
-#         """
-#         Run actual attack reps from train and test predictions.
-
-#         Parameters
-#         ----------
-#         train_preds : np.ndarray
-#             predictions from the model on training (in-sample) data
-#         test_preds : np.ndarray
-#             predictions from the model on testing (out-of-sample) data
-
-#         Returns
-#         -------
-#         mia_metrics_dict : dict
-#             a dictionary with two items including mia_metrics
-#             (a list of metric across repetitions) and failfast_metric_summary object
-#             (an object of FailFast class) to maintain summary of
-#             fail/success of attacks for a given metric of failfast option
-#         """
-#         self.n_rows_in = len(train_preds)
-#         self.n_rows_out = len(test_preds)
-#         logger = logging.getLogger("attack-reps")
-#         mi_x, mi_y = self._prepare_attack_data(
-#             train_preds, test_preds, train_correct, test_correct
-#         )
-
-#         mia_metrics = []
-
-#         failfast_metric_summary = FailFast(self)
-
-#         for rep in range(self.n_reps):
-#             logger.info("Rep %d of %d", rep + 1, self.n_reps)
-#             mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-#                 mi_x, mi_y, test_size=self.test_prop, stratify=mi_y
-#             )
-#             attack_classifier = self.mia_attack_model(**self.mia_attack_model_hyp)
-#             attack_classifier.fit(mi_train_x, mi_train_y)
-#             y_pred_proba, y_test = metrics.get_probabilities(
-#                 attack_classifier, mi_test_x, mi_test_y, permute_rows=True
-#             )
-
-#             mia_metrics.append(metrics.get_metrics(y_pred_proba, y_test))
-
-#             if self.include_model_correct_feature and train_correct is not None:
-#                 # Compute the Yeom TPR and FPR
-#                 yeom_preds = mi_test_x[:, -1]
-#                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
-#                 mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
-#                 mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
-#                 mia_metrics[-1]["yeom_advantage"] = (
-#                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
-#                 )
-
-#             failfast_metric_summary.check_attack_success(mia_metrics[rep])
-
-#             if (
-#                 failfast_metric_summary.check_overall_attack_success(self)
-#                 and self.attack_fail_fast
-#             ):
-#                 break
-
-#         logger.info("Finished simulating attacks")
-
-#         mia_metrics_dict = {}
-#         mia_metrics_dict["mia_metrics"] = mia_metrics
-#         mia_metrics_dict["failfast_metric_summary"] = failfast_metric_summary
-
-#         return mia_metrics_dict
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list.
@@ -464,39 +432,15 @@ class StructuralAttack(Attack):
         Arguments
         ---------
         attack_metrics: List
-            list of attack metrics dictionaries
+            list of attack metrics to be reported
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
-            auc_p_vals = [
-                metrics.auc_p_val(
-                    m["AUC"], m["n_pos_test_examples"], m["n_neg_test_examples"]
-                )[0]
-                for m in attack_metrics
-            ]
-
-            m = attack_metrics[0]
-            _, auc_std = metrics.auc_p_val(
-                0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
-            )
-
-            global_metrics[
-                "null_auc_3sd_range"
-            ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
-            global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
-                auc_p_vals, self.p_thresh
-            )
-            global_metrics["n_sig_auc_p_vals_corrected"] = self._get_n_significant(
-                auc_p_vals, self.p_thresh, bh_fdr_correction=True
-            )
-
-            pdif_vals = [np.exp(-m["PDIF01"]) for m in attack_metrics]
-            global_metrics["n_sig_pdif_vals"] = self._get_n_significant(
-                pdif_vals, self.p_thresh
-            )
-            global_metrics["n_sig_pdif_vals_corrected"] = self._get_n_significant(
-                pdif_vals, self.p_thresh, bh_fdr_correction=True
-            )
+            global_metrics["DoF_risk"] =self.DoF_risk
+            global_metrics["k_anonymity_risk"]= self.k_anonymity_risk
+            global_metrics["class_disclosure_risk"]=self.class_disclosure_risk
+            global_metrics["unnecessary_risk"]= self.unnecessary_risk 
+            
 
         return global_metrics
 
@@ -507,14 +451,10 @@ class StructuralAttack(Attack):
         # Store all args
         self.metadata["experiment_details"] = {}
         self.metadata["experiment_details"] = self.get_params()
-
         self.metadata["attack"] = str(self)
-
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
-        self.metadata["baseline_global_metrics"] = self._get_global_metrics(
-            self._unpack_dummy_attack_metrics_experiments_instances()
-        )
+################################################
 
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -522,37 +462,19 @@ class StructuralAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
-        for rep, _ in enumerate(self.attack_metrics):
-            attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+        #for rep, name in enumerate(self.attack_metrics):
+        #    #attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
+        #    attack_metrics_instances["instance_" + str(name)] = self.__dict__.[name]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment[
-            "attack_metric_failfast_summary"
-        ] = self.attack_metric_failfast_summary.get_attack_summary()
+        attack_metrics_experiment["DoF_risk"] =self.DoF_risk
+        attack_metrics_experiment["k_anonymity_risk"]= self.k_anonymity_risk
+        attack_metrics_experiment["class_disclosure_risk"]=self.class_disclosure_risk
+        attack_metrics_experiment["unnecessary_risk"]= self.unnecessary_risk 
 
         return attack_metrics_experiment
 
-    def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
-        """Constructs the metadata object, after attacks."""
-        dummy_attack_metrics_experiments = {}
 
-        for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metric_instances = {}
-            for rep, _ in enumerate(temp_dummy_attack_metrics):
-                dummy_attack_metric_instances[
-                    "instance_" + str(rep)
-                ] = temp_dummy_attack_metrics[rep]
-            temp = {}
-            temp["attack_instance_logger"] = dummy_attack_metric_instances
-            temp[
-                "attack_metric_failfast_summary"
-            ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
-            dummy_attack_metrics_experiments[
-                "dummy_attack_metrics_experiment_" + str(exp_rep)
-            ] = temp
-
-        return dummy_attack_metrics_experiments
 
     def make_report(self) -> dict:
         """Creates output dictionary structure and generates
@@ -566,54 +488,32 @@ class StructuralAttack(Attack):
         output["metadata"] = self.metadata
 
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        output[
-            "dummy_attack_experiments_logger"
-        ] = self._get_dummy_attack_metrics_experiments_instances()
+        # output[
+        #     "dummy_attack_experiments_logger"
+        # ] = self._get_dummy_attack_metrics_experiments_instances()
 
         report_dest = os.path.join(self.output_dir, self.report_name)
         json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
-        json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
+        json_attack_formatter.add_attack_output(json_report, "StructuralAttack")
 
-        pdf_report = report.create_mia_report(output)
-        report.add_output_to_pdf(report_dest, pdf_report, "WorstCaseAttack")
+        #pdf_report = report.create_mia_report(output)
+        #report.add_output_to_pdf(report_dest, pdf_report, "StructuralAttack")
         return output
 
 
-def _make_dummy_data(args):
-    """Initialise class and run dummy data creation."""
-    args.__dict__["training_preds_filename"] = "train_preds.csv"
-    args.__dict__["test_preds_filename"] = "test_preds.csv"
-    attack_obj = WorstCaseAttack(
-        train_beta=args.train_beta,
-        test_beta=args.test_beta,
-        n_rows_in=args.n_rows_in,
-        n_rows_out=args.n_rows_out,
-        training_preds_filename=args.training_preds_filename,
-        test_preds_filename=args.test_preds_filename,
-    )
-    attack_obj.make_dummy_data()
 
 
 def _run_attack(args):
     """Initialise class and run attack from prediction files."""
-    attack_obj = WorstCaseAttack(
-        n_reps=args.n_reps,
-        p_thresh=args.p_thresh,
-        n_dummy_reps=args.n_dummy_reps,
-        train_beta=args.train_beta,
-        test_beta=args.test_beta,
-        test_prop=args.test_prop,
-        training_preds_filename=args.training_preds_filename,
-        test_preds_filename=args.test_preds_filename,
+    
+    #        risk_appetite_config:str="default",
+    #    target_path: str = None,
+    attack_obj = StructuralAttack(
+        risk_appetite_config:=args.risk_appetite_config,
+        target_path=args.target_path,
         output_dir=args.output_dir,
         report_name=args.report_name,
-        sort_probs=args.sort_probs,
-        attack_metric_success_name=args.attack_metric_success_name,
-        attack_metric_success_thresh=args.attack_metric_success_thresh,
-        attack_metric_success_comp_type=args.attack_metric_success_comp_type,
-        attack_metric_success_count_thresh=args.attack_metric_success_count_thresh,
-        attack_fail_fast=args.attack_fail_fast,
     )
     print(attack_obj.training_preds_filename)
     attack_obj.attack_from_prediction_files()
@@ -622,8 +522,9 @@ def _run_attack(args):
 
 def _run_attack_from_configfile(args):
     """Initialise class and run attack from prediction files using config file."""
-    attack_obj = WorstCaseAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
+    
+    attack_obj = StructuralAttack(
+        risk_appetite_config=str(args.risk_appetite_config),
         target_path=str(args.target_path),
     )
     target = Target()
@@ -636,126 +537,19 @@ def main():
     """Main method to parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(
-        description=("Perform a worst case attack from saved model predictions")
+        description=("Perform a structural  attack from saved model predictions")
     )
 
     subparsers = parser.add_subparsers()
-    dummy_parser = subparsers.add_parser("make-dummy-data")
-    dummy_parser.add_argument(
-        "--num-rows-in",
-        action="store",
-        dest="n_rows_in",
-        type=int,
-        required=False,
-        default=1000,
-        help=("How many rows to generate in the in-sample file. Default = %(default)d"),
-    )
-
-    dummy_parser.add_argument(
-        "--num-rows-out",
-        action="store",
-        dest="n_rows_out",
-        type=int,
-        required=False,
-        default=1000,
-        help=(
-            "How many rows to generate in the out-of-sample file. Default = %(default)d"
-        ),
-    )
-
-    dummy_parser.add_argument(
-        "--train-beta",
-        action="store",
-        type=float,
-        required=False,
-        default=5,
-        dest="train_beta",
-        help=(
-            """Value of b parameter for beta distribution used to sample the in-sample
-            probabilities. High values will give more extreme probabilities. Set this
-            value higher than --test-beta to see successful attacks. Default = %(default)f"""
-        ),
-    )
-
-    dummy_parser.add_argument(
-        "--test-beta",
-        action="store",
-        type=float,
-        required=False,
-        default=2,
-        dest="test_beta",
-        help=(
-            "Value of b parameter for beta distribution used to sample the out-of-sample "
-            "probabilities. High values will give more extreme probabilities. Set this value "
-            "lower than --train-beta to see successful attacks. Default = %(default)f"
-        ),
-    )
-
-    dummy_parser.set_defaults(func=_make_dummy_data)
 
     attack_parser = subparsers.add_parser("run-attack")
-    attack_parser.add_argument(
-        "-i",
-        "--training-preds-filename",
-        action="store",
-        dest="training_preds_filename",
-        required=False,
-        type=str,
-        default="train_preds.csv",
-        help=(
-            "csv file containing the predictive probabilities (one column per class) for the "
-            "training data (one row per training example). Default = %(default)s"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "-o",
-        "--test-preds-filename",
-        action="store",
-        dest="test_preds_filename",
-        required=False,
-        type=str,
-        default="test_preds.csv",
-        help=(
-            "csv file containing the predictive probabilities (one column per class) for the "
-            "non-training data (one row per training example). Default = %(default)s"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "-r",
-        "--n-reps",
-        type=int,
-        required=False,
-        default=5,
-        action="store",
-        dest="n_reps",
-        help=(
-            "Number of repetitions (splitting data into attack model training and testing "
-            "partitions to perform. Default = %(default)d"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "-t",
-        "--test-prop",
-        type=float,
-        required=False,
-        default=0.3,
-        action="store",
-        dest="test_prop",
-        help=(
-            "Proportion of examples to be used for testing when fiting the attack model. "
-            "Default = %(default)f"
-        ),
-    )
 
     attack_parser.add_argument(
         "--output-dir",
         type=str,
         action="store",
         dest="output_dir",
-        default="output_worstcase",
+        default="output_structural",
         required=False,
         help=("Directory name where output files are stored. Default = %(default)s."),
     )
@@ -765,7 +559,7 @@ def main():
         type=str,
         action="store",
         dest="report_name",
-        default="report_worstcase",
+        default="report_structural",
         required=False,
         help=(
             """Filename for the pdf and json report outputs. Default = %(default)s.
@@ -773,136 +567,38 @@ def main():
         ),
     )
 
-    attack_parser.add_argument(
-        "--n-dummy-reps",
-        type=int,
-        action="store",
-        dest="n_dummy_reps",
-        default=1,
-        required=False,
-        help=(
-            "Number of dummy datasets to sample. Each will be assessed with --n-reps train and "
-            "test splits. Set to 0 to do no baseline calculations. Default = %(default)d"
-        ),
-    )
 
     attack_parser.add_argument(
-        "--p-thresh",
-        action="store",
-        type=float,
-        default=P_THRESH,
-        required=False,
-        dest="p_thresh",
-        help=("P-value threshold for significance testing. Default = %(default)f"),
-    )
-
-    attack_parser.add_argument(
-        "--train-beta",
-        action="store",
-        type=float,
-        required=False,
-        default=5,
-        dest="train_beta",
-        help=(
-            "Value of b parameter for beta distribution used to sample the in-sample probabilities."
-            "High values will give more extreme probabilities. Set this value higher than "
-            "--test-beta to see successful attacks. Default = %(default)f"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--test-beta",
-        action="store",
-        type=float,
-        required=False,
-        default=2,
-        dest="test_beta",
-        help=(
-            "Value of b parameter for beta distribution used to sample the out-of-sample "
-            "probabilities. High values will give more extreme probabilities. Set this value "
-            "lower than --train-beta to see successful attacks. Default = %(default)f"
-        ),
-    )
-
-    # --include-correct feature not supported as not currently possible from the command line
-    # as we cannot compute the correctness of predictions.
-
-    attack_parser.add_argument(
-        "--sort-probs",
-        action="store",
-        type=bool,
-        default=True,
-        required=False,
-        dest="sort_probs",
-        help=(
-            "Whether or not to sort the output probabilities (per row) before "
-            "using them to train the attack model. Default = %(default)f"
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--attack-metric-success-name",
+        "--risk-appetite-filename",
         action="store",
         type=str,
-        default="P_HIGHER_AUC",
+        default="default",
         required=False,
-        dest="attack_metric_success_name",
+        dest="risk_appetite_config",
         help=(
-            """for computing attack success/failure based on
-            --attack-metric-success-thresh option. Default = %(default)s"""
+            """provide the name of the dataset-specific risk appetite filename
+            using --risk-appetite-filename Default = %(default)s"""
         ),
     )
 
     attack_parser.add_argument(
-        "--attack-metric-success-thresh",
+        "--target-path",
         action="store",
         type=float,
-        default=0.05,
+        default=None,
         required=False,
-        dest="attack_metric_success_thresh",
+        dest="target_path",
         help=(
-            """for defining threshold value to measure attack success
-            for the metric defined by argument --fail-metric-name option. Default = %(default)f"""
+            """Provide the path to the stored target usinmg
+             --target-path option. Default = %(default)f"""
         ),
     )
 
-    attack_parser.add_argument(
-        "--attack-metric-success-comp-type",
-        action="store",
-        type=str,
-        default="lte",
-        required=False,
-        dest="attack_metric_success_comp_type",
-        help=(
-            """for computing attack success/failure based on
-            --attack-metric-success-thresh option. Default = %(default)s"""
-        ),
-    )
 
-    attack_parser.add_argument(
-        "--attack-metric-success-count-thresh",
-        action="store",
-        type=int,
-        default=2,
-        required=False,
-        dest="attack_metric_success_count_thresh",
-        help=(
-            """for setting counter limit to stop further repetitions given the attack is
-             successful and the --attack-fail-fast is true. Default = %(default)d"""
-        ),
-    )
 
-    attack_parser.add_argument(
-        "--attack-fail-fast",
-        action="store_true",
-        required=False,
-        dest="attack_fail_fast",
-        help=(
-            """to stop further repetitions when the given metric has fulfilled
-            a criteria for a specified number of times (--attack-metric-success-count-thresh)
-            and this has a true status. Default = %(default)s"""
-        ),
-    )
+
+
+
 
     attack_parser.set_defaults(func=_run_attack)
 
@@ -914,7 +610,7 @@ def main():
         required=True,
         dest="attack_config_json_file_name",
         type=str,
-        default="config_worstcase_cmd.json",
+        default="config_structural_cmd.json",
         help=(
             "Name of the .json file containing details for the run. Default = %(default)s"
         ),
@@ -927,7 +623,7 @@ def main():
         required=True,
         dest="target_path",
         type=str,
-        default="worstcase_target",
+        default="structural_target",
         help=(
             """Name of the target directory to load the trained target model and the target data.
             Default = %(default)s"""
