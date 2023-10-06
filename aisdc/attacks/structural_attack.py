@@ -168,8 +168,12 @@ def get_model_param_count(model: BaseEstimator) -> int:
             n_params += get_tree_parameter_count(member)
     # TO-DO define these for xgb, logistic regression, SVC and others
     elif isinstance(model, XGBClassifier):
-        pass
-
+        df = model.get_booster().trees_to_dataframe()
+        n_trees = df["Tree"].max()
+        total = len(df)
+        n_leaves = len(df[df.Feature == "Leaf"])
+        # 2 per internal node, one per clas in leaves, one weight per tree
+        n_params = 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
     else:
         pass
 
@@ -183,6 +187,7 @@ class StructuralAttack(Attack):
 
     def __init__(  # pylint: disable = too-many-arguments, too-many-locals
         self,
+        attack_config_json_file_name: str = None,
         risk_appetite_config: str = "default",
         target_path: str = None,
         output_dir="outputs_structural",
@@ -204,7 +209,7 @@ class StructuralAttack(Attack):
         logger = logging.getLogger("structural_attack")
         self.target: Target = None
         self.target_path = target_path
-
+        self.attack_config_json_file_name = attack_config_json_file_name
         # disclosure risk
         self.k_anonymity_risk = 0
         self.DoF_risk = 0
@@ -221,6 +226,8 @@ class StructuralAttack(Attack):
             "Thresholds for count %i and Dof %i", self.THRESHOLD, self.DOF_THRESHOLD
         )
         del myacro
+        if self.attack_config_json_file_name is not None:
+            self._update_params_from_config_file()
 
         # metrics
         self.attack_metrics = [
@@ -434,7 +441,7 @@ def _run_attack_from_configfile(args):
     """Initialise class and run attack  using config file."""
 
     attack_obj = StructuralAttack(
-        risk_appetite_config=str(args.risk_appetite_config),
+        attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
     )
     target = Target()

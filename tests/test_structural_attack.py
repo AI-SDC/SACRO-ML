@@ -1,6 +1,8 @@
 """Test_worst_case_attack.py
 Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
 """
+import json
+
 # import json
 import os
 import shutil
@@ -8,7 +10,7 @@ import sys
 from unittest.mock import patch
 
 # import numpy as np
-# import pytest
+import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -160,6 +162,19 @@ def test_unnecessary_risk():
     ), f"should be non-disclosive with {model.get_params}"
 
 
+def test_non_trees():
+    """Test  behaviour if model type not tree-based."""
+    param_dict = {"probability": True}
+    target = get_target("svc", **param_dict)
+    myattack = sa.StructuralAttack()
+    myattack.attack(target)
+    # remove model
+    target.model = None
+    with pytest.raises(NotImplementedError):
+        myattack2 = sa.StructuralAttack()
+        myattack2.attack(target)
+
+
 def test_dt():
     """Test for decision tree classifier."""
 
@@ -237,6 +252,35 @@ def test_rf():
 
 def test_xgb():
     """Test for xgboost."""
+    # non-disclosive
+    param_dict = {"max_depth": 1, "min_child_weight": 50, "n_estimators": 5}
+    target = get_target("xgb", **param_dict)
+    myattack = sa.StructuralAttack()
+    myattack.attack(target)
+    assert (
+        myattack.DoF_risk == 0
+    ), "should be no DoF risk with small xgb of decision stumps"
+    assert (
+        myattack.k_anonymity_risk == 0
+    ), "should be no k-anonymity risk with min_samples_leaf 150"
+    assert (
+        myattack.class_disclosure_risk == 0
+    ), "no class disclosure risk for stumps with min child weight 50"
+    assert myattack.unnecessary_risk == 0, "not unnecessary risk if max_depth < 3.5"
+
+    # highly disclosive
+    param_dict2 = {"max_depth": 50, "n_estimators": 100, "min_child_weight": 1}
+    target2 = get_target("xgb", **param_dict2)
+    myattack2 = sa.StructuralAttack()
+    myattack2.attack(target2)
+    assert myattack2.DoF_risk == 1, "should be  DoF risk with xgb of deep trees"
+    assert (
+        myattack2.k_anonymity_risk == 1
+    ), "should be  k-anonymity risk with depth 50 and min_child_weight 1"
+    assert (
+        myattack2.class_disclosure_risk == 1
+    ), "should be class disclosure risk with xgb lots of deep trees"
+    assert myattack2.unnecessary_risk == 1, " unnecessary risk with these xgb params"
 
 
 def test_reporting():
@@ -266,13 +310,23 @@ def test_main_example():
     ]
     with patch.object(sys, "argv", testargs):
         sa.main()
+    config = {
+        "output_dir": "test_output_structural2",
+        "report_name": "structural_test",
+    }
+    with open("config_structural_test.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(config))
     testargs = [
         "prog",
         "run-attack-from-configfile",
         "--attack-config-json-file-name",
-        "foo.json",
+        "config_structural_test.json",
         "--attack-target-folder-path",
         "dt.sav",
     ]
     with patch.object(sys, "argv", testargs):
         sa.main()
+
+    clean_up("dt.sav")
+    clean_up("test_output_sa")
+    clean_up("config_structural_test.json")
