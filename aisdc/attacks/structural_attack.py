@@ -53,12 +53,12 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
     The rules below were extracted from that tree for the 'least risky' nodes
     """
     # Returns 1 if high risk, otherwise 0
-    unnecessary_risk = 0
-    max_depth = float(model.max_depth) if model.max_depth else 500
     if not isinstance(
         model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
     ):
         return 0  # no experimental evidence to support rejection
+    unnecessary_risk = 0
+    max_depth = float(model.max_depth) if model.max_depth else 500
 
     # pylint:disable=chained-comparison,too-many-boolean-expressions
     if isinstance(model, DecisionTreeClassifier):
@@ -160,8 +160,9 @@ def get_model_param_count(model: BaseEstimator) -> int:
 
     if isinstance(model, DecisionTreeClassifier):
         n_params = get_tree_parameter_count(model)
-    elif isinstance(model, (RandomForestClassifier, AdaBoostClassifier)) and isinstance(
-        model.estimator, DecisionTreeClassifier
+    elif isinstance(model, RandomForestClassifier) or (
+        isinstance(model, AdaBoostClassifier)
+        and isinstance(model.estimator, DecisionTreeClassifier)
     ):
         for member in model.estimators_:
             n_params += get_tree_parameter_count(member)
@@ -227,7 +228,7 @@ class StructuralAttack(Attack):
             "k_anonymity_risk",
             "class_disclosure_risk",
             "lowvals_cd_risk",
-            "unnecessry_risk",
+            "unnecessary_risk",
         ]
         self.yprobs = []
 
@@ -259,11 +260,6 @@ class StructuralAttack(Attack):
         # get proba values for training data
         x = self.target.x_train
         y = self.target.y_train
-        # if len(y.shape) == 1:
-        #     n_classes = len(np.unique(y))
-        # else:
-        #     nclasses = y.shape[1]
-        # n_rows = x.shape[0]
         assert x.shape[0] == len(y), "length mismatch between trainx and trainy"
         self.yprobs = self.target.model.predict_proba(x)
 
@@ -278,6 +274,10 @@ class StructuralAttack(Attack):
         errstr = "len mismatch between equiv classes and "
         assert len(equiv_classes) == len(equiv_counts), errstr + "counts"
         assert len(equiv_classes) == len(equiv_members), errstr + "membership"
+        # print(f'equiv_classes is {equiv_classes}\n'
+        #   f'equiv_counts is {equiv_counts}\n'
+        #   #f'equiv_members is {equiv_members}\n'
+        #  )
 
         # now assess the risk
         # Degrees of Freedom
@@ -315,7 +315,14 @@ class StructuralAttack(Attack):
             ingroup = np.asarray(destinations == leaf).nonzero()[0]
             # print(f'ingroup {ingroup},count {len(ingroup)}')
             members.append(ingroup)
-        return [leaves, counts, members]
+
+        equiv_classes = np.zeros((len(leaves), self.target.model.n_classes_))
+        for group in range(len(leaves)):
+            sample_id = members[group][0]
+            sample = self.target.x_train[sample_id]
+            proba = self.target.model.predict_proba(sample.reshape(1, -1))
+            equiv_classes[group] = proba
+        return [equiv_classes, counts, members]
 
     def get_equivalence_classes(self) -> tuple:
         """
@@ -439,9 +446,7 @@ def _run_attack_from_configfile(args):
 def main():
     """Main method to parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
-    parser = argparse.ArgumentParser(
-        description=("Perform a structural  attack from saved model predictions")
-    )
+    parser = argparse.ArgumentParser(description="Perform a structural  attack")
 
     subparsers = parser.add_subparsers()
 
@@ -486,7 +491,7 @@ def main():
     attack_parser.add_argument(
         "--target-path",
         action="store",
-        type=float,
+        type=str,
         default=None,
         required=False,
         dest="target_path",
