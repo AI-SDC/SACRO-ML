@@ -42,7 +42,7 @@ def get_data():
 def test_randomforest_unchanged():
     """SafeRandomForestClassifier using recommended values."""
     x, y = get_data()
-    model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
+    model = SafeRandomForestClassifier(random_state=1, n_estimators=5,min_samples_leaf=5)
     model.fit(x, y)
     assert model.score(x, y) == EXPECTED_ACC
     msg, disclosive = model.preliminary_check()
@@ -66,7 +66,7 @@ def test_randomforest_recommended():
 def test_randomforest_unsafe_1():
     """SafeRandomForestClassifier with unsafe changes."""
     x, y = get_data()
-    model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
+    model = SafeRandomForestClassifier(random_state=1, n_estimators=5,min_samples_leaf=5)
     model.bootstrap = False
     model.fit(x, y)
     msg, disclosive = model.preliminary_check()
@@ -114,7 +114,7 @@ def test_randomforest_unsafe_3():
 def test_randomforest_save():
     """SafeRandomForestClassifier model saving."""
     x, y = get_data()
-    model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
+    model = SafeRandomForestClassifier(random_state=1, n_estimators=5,min_samples_leaf=5)
     model.fit(x, y)
     # test pickle
     model.save("rf_test.pkl")
@@ -136,7 +136,7 @@ def test_randomforest_save():
 def test_randomforest_hacked_postfit():
     """SafeRandomForestClassifier changes made to parameters after fit() called."""
     x, y = get_data()
-    model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
+    model = SafeRandomForestClassifier(random_state=1, n_estimators=5,min_samples_leaf=5)
     model.bootstrap = False
     model.fit(x, y)
     model.bootstrap = True
