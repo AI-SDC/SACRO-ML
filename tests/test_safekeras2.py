@@ -1,11 +1,9 @@
 """This module contains unit tests for SafeKerasModel."""
 
+from __future__ import annotations
+
 import os
-
-# import platform
 import shutil
-
-# shut tensorflow up
 import warnings
 
 import numpy as np
