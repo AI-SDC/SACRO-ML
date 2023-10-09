@@ -50,7 +50,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                 the_kwds[key] = val
         RandomForestClassifier.__init__(self, **the_kwds)
         self.model_type: str = "RandomForestClassifier"
-        super().preliminary_check(apply_constraints=True, verbose=True)
+        super().preliminary_check(apply_constraints=False, verbose=True)
         self.ignore_items = [
             "model_save_file",
             "ignore_items",
