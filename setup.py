@@ -33,6 +33,8 @@ setup(
         "tensorflow_privacy==0.8.10",
         "uuid~=1.30",
         "pypdf~=3.12.2",
+        "xgboost~=1.7.6",
+        "acro==0.4.3",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
