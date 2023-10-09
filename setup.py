@@ -19,7 +19,7 @@ setup(
     url="https://github.com/AI-SDC/AI-SDC",
     packages=find_packages(exclude=["tests"]),
     package_data={"aisdc.safemodel": ["rules.json"]},
-    python_requires=">=3.8,<3.12",
+    python_requires=">=3.9,<3.11",
     install_requires=[
         "dictdiffer~=0.9.0",
         "fpdf~=1.7.2",
@@ -44,7 +44,6 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
