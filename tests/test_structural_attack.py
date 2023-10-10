@@ -1,9 +1,10 @@
 """Test_worst_case_attack.py
 Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
 """
-import json
 
-# import json
+from __future__ import annotations
+
+import json
 import os
 import shutil
 import sys

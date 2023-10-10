@@ -3,6 +3,8 @@ tests to pick up odd cases not otherwise covered
 in code in the attacks folder.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import pytest
 from fpdf import FPDF

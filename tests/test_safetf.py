@@ -2,6 +2,8 @@
     Not currently implemented.
 """
 
+from __future__ import annotations
+
 import pytest
 
 from aisdc.safemodel.classifiers import safetf

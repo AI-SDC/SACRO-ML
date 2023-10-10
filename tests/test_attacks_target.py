@@ -1,5 +1,7 @@
 """Code to test the file attacks/target.py."""
 
+from __future__ import annotations
+
 import builtins
 import io
 import os

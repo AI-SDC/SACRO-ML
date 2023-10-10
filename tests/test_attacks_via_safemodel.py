@@ -3,6 +3,9 @@ Tests attacks called via safemodel classes
 uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests.
 """
+
+from __future__ import annotations
+
 import os
 import shutil
 

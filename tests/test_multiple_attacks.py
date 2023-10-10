@@ -10,6 +10,9 @@ However to run this test file, it will be required to install pytest package
 using 'pip install pytest' and then run following
 python -m pytest .\tests\test_multiple_attacks.py
 """
+
+from __future__ import annotations
+
 import json
 import os
 import shutil

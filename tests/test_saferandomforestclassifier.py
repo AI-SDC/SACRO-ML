@@ -1,5 +1,7 @@
 """This module contains unit tests for the SafeRandomForestClassifier."""
 
+from __future__ import annotations
+
 import copy
 import os
 import pickle
