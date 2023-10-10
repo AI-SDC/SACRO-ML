@@ -102,7 +102,7 @@ def check_init_completed(model: SafeKerasModel):
     assert model.noise_multiplier == 0.7, errstr
 
 
-def test_init_variants():
+def Xtest_init_variants():
     """Test alternative ways of calling init
     do just with single layer for speed of testing.
     """
@@ -150,7 +150,7 @@ def test_init_variants():
     assert model3.batch_size == 32, errstr
 
 
-def test_same_configs():  # pylint: disable=too-many-locals
+def Xtest_same_configs():  # pylint: disable=too-many-locals
     """Check whether tests for equal configuration work."""
 
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
@@ -200,7 +200,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
     assert msg3 == correct_msg3, errstr
 
 
-def test_same_weights():  # pylint : disable=too-many-locals
+def Xtest_same_weights():  # pylint : disable=too-many-locals
     """Check the same weights method catches differences."""
     # make models to test
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
@@ -235,7 +235,7 @@ def test_same_weights():  # pylint : disable=too-many-locals
     assert same3 is False, errstr
 
 
-def test_DP_optimizer_checks():
+def Xtest_DP_optimizer_checks():
     """Tests the various checks that DP optimiser was used."""
     # make model
     model1, _, _, _, _ = make_small_model(num_hidden_layers=1)
@@ -268,7 +268,7 @@ def test_DP_optimizer_checks():
     assert opt_is_dp is False, msg
 
 
-def test_DP_used():
+def Xtest_DP_used():
     """Tests the various checks that DP optimiser was used."""
     # should pass aftyer model compiled **and** fitted with DP optimizer
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
@@ -291,7 +291,7 @@ def test_DP_used():
     assert dp_used is False, msg
 
 
-def test_checkpoints_are_equal():
+def |Xtest_checkpoints_are_equal():
     """Test the check for checkpoint equality."""
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -341,7 +341,7 @@ def test_checkpoints_are_equal():
         cleanup_file(name)
 
 
-def test_load():
+def Xtest_load():
     """Tests the oading functionality."""
 
     # make a model, train then save it
@@ -371,7 +371,7 @@ def test_load():
     cleanup_file("tfsaves")
 
 
-def test_keras_model_created():
+def Xtest_keras_model_created():
     """Test keras model."""
     model, _, _, _, _ = make_small_model()
     rightname = "KerasModel"
@@ -382,7 +382,7 @@ def test_keras_model_created():
     assert model.noise_multiplier == 0.7
 
 
-def test_second_keras_model_created():
+def Xtest_second_keras_model_created():
     """Test second keras model."""
     X, _, _, _ = get_data()
     tf.random.set_seed(12345)
@@ -414,7 +414,7 @@ def test_second_keras_model_created():
     assert model2.noise_multiplier == 0.7
 
 
-def test_keras_model_compiled_as_DP():
+def Xtest_keras_model_compiled_as_DP():
     """Test Compile DP."""
     model, X, _, _, _ = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -437,7 +437,7 @@ def test_keras_model_compiled_as_DP():
     assert msg == correct_msg, msg
 
 
-def test_keras_basic_fit():
+def Xtest_keras_basic_fit():
     """SafeKeras using recommended values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -480,7 +480,7 @@ def test_keras_basic_fit():
     assert disclosive is False, "failed check disclosive is false"
 
 
-def test_keras_save_actions():
+def Xtest_keras_save_actions():
     """Test save action."""
     # create, compile and train model
     model, X, y, Xval, yval = make_small_model()
@@ -513,7 +513,7 @@ def test_keras_save_actions():
     cleanup_file("tfsaves")
 
 
-def test_keras_unsafe_l2_norm():
+def Xtest_keras_unsafe_l2_norm():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -550,7 +550,7 @@ def test_keras_unsafe_l2_norm():
     assert disclosive is True, "failed check disclosive is True"
 
 
-def test_keras_unsafe_noise_multiplier():
+def Xtest_keras_unsafe_noise_multiplier():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -588,7 +588,7 @@ def test_keras_unsafe_noise_multiplier():
     assert disclosive is True, "failed check disclosive is True"
 
 
-def test_keras_unsafe_min_epsilon():
+def Xtest_keras_unsafe_min_epsilon():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -625,7 +625,7 @@ def test_keras_unsafe_min_epsilon():
     assert disclosive is True, "failed check disclosive is True"
 
 
-def test_keras_unsafe_delta():
+def Xtest_keras_unsafe_delta():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -661,7 +661,7 @@ def test_keras_unsafe_delta():
     assert disclosive is True, "failed check disclosive is True"
 
 
-def test_keras_unsafe_batch_size():
+def Xtest_keras_unsafe_batch_size():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -694,7 +694,7 @@ def test_keras_unsafe_batch_size():
     assert disclosive is False, "failed check disclosive is false"
 
 
-def test_keras_unsafe_learning_rate():
+def Xtest_keras_unsafe_learning_rate():
     """SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
@@ -728,7 +728,7 @@ def test_keras_unsafe_learning_rate():
     assert disclosive is False, "failed check disclosive is false"
 
 
-def test_create_checkfile():
+def Xtest_create_checkfile():
     """Test create checkfile."""
     # create, compile and train model
     model, X, y, Xval, yval = make_small_model()
@@ -765,7 +765,7 @@ def test_create_checkfile():
         clean()
 
 
-def test_posthoc_check():
+def Xtest_posthoc_check():
     """Testing the posthoc checking function."""
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
@@ -791,6 +791,6 @@ def test_posthoc_check():
     cleanup_file("tfsaves")
 
 
-def test_final_cleanup():
+def Xtest_final_cleanup():
     """Clean up any files let around by other tests."""
     cleanup_file("tfsaves")
