@@ -34,6 +34,7 @@ setup(
         "uuid~=1.30",
         "pypdf~=3.12.2",
         "xgboost~=1.7.6",
+        "statsmodels==0.13.5",
         "acro==0.4.3",
     ],
     classifiers=[
