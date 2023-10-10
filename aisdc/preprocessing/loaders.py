@@ -576,10 +576,10 @@ and place it in the correct folder.
             df.dropna(inplace=True)
             # merge data
             tx_data = pd.concat([tx_data, df])
-        # remove uncessary variables
+        # remove unnecessary variables
         del df
 
-        # Risk moratality, make it binary
+        # Risk mortality, make it binary
         # 1 Minor
         # 2 Moderate
         # 3 Major
