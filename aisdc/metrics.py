@@ -130,7 +130,7 @@ def min_max_disc(
     y : np.ndarray
         true labels
     yp : np.ndarray
-        probabilities of labels, or monotonic transformation of probabilties
+        probabilities of labels, or monotonic transformation of probabilities
     xprop : float
         proportion of samples with highest- and lowest- probability of membership to be
         considered
