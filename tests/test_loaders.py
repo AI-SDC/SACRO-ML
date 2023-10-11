@@ -5,6 +5,9 @@ Please access the datasets from the sources listed in preprocessing/loaders.py
 Please acknowledge those sources in any publications.
 Jim Smith 2022.
 """
+
+from __future__ import annotations
+
 import os
 import shutil
 

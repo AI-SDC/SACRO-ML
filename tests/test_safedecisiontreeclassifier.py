@@ -1,5 +1,7 @@
 """This module contains unit tests for the SafeDecisionTreeClassifier."""
 
+from __future__ import annotations
+
 import os
 import pickle
 
@@ -89,7 +91,7 @@ def test_get_tree_k_anonymity():
 def test_decisiontree_unchanged():
     """SafeDecisionTreeClassifier using unchanged values."""
     x, y = get_data()
-    model = SafeDecisionTreeClassifier(random_state=1)
+    model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=5)
     model.fit(x, y)
     assert model.score(x, y) == 0.9668874172185431
     msg, disclosive = model.preliminary_check()
@@ -101,7 +103,9 @@ def test_decisiontree_unchanged():
 def test_decisiontree_safe_recommended():
     """SafeDecisionTreeClassifier using recommended values."""
     x, y = get_data()
-    model = SafeDecisionTreeClassifier(random_state=1)
+    model = SafeDecisionTreeClassifier(
+        random_state=1, max_depth=10, min_samples_leaf=10
+    )
     model.min_samples_leaf = 5
     model.fit(x, y)
     assert model.score(x, y) == 0.9668874172185431
@@ -114,7 +118,9 @@ def test_decisiontree_safe_recommended():
 def test_decisiontree_safe_1():
     """SafeDecisionTreeClassifier with safe changes."""
     x, y = get_data()
-    model = SafeDecisionTreeClassifier(random_state=1)
+    model = SafeDecisionTreeClassifier(
+        random_state=1, max_depth=10, min_samples_leaf=10
+    )
     model.min_samples_leaf = 10
     model.fit(x, y)
     assert model.score(x, y) == 0.9536423841059603
@@ -139,7 +145,9 @@ def test_decisiontree_safe_2():
 def test_decisiontree_unsafe_1():
     """SafeDecisionTreeClassifier with unsafe changes."""
     x, y = get_data()
-    model = SafeDecisionTreeClassifier(random_state=1)
+    model = SafeDecisionTreeClassifier(
+        random_state=1, max_depth=10, min_samples_leaf=10
+    )
     model.min_samples_leaf = 1
     model.fit(x, y)
     assert model.score(x, y) == 1
@@ -153,16 +161,17 @@ def test_decisiontree_unsafe_1():
     assert disclosive is True
 
 
-def test_decisiontree_unsafe_2():
-    """SafeDecisionTreeClassifier with unsafe changes - automatically fixed."""
-    x, y = get_data()
-    model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=1)
-    model.fit(x, y)
-    assert model.score(x, y) == 0.9668874172185431
-    msg, disclosive = model.preliminary_check()
-    correct_msg = "Model parameters are within recommended ranges.\n"
-    assert msg == correct_msg
-    assert disclosive is False
+# no longer relevant because of changed default functionality of priminary_checK()
+# def test_decisiontree_unsafe_2():
+#     """SafeDecisionTreeClassifier with unsafe changes - automatically fixed."""
+#     x, y = get_data()
+#     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=1)
+#     model.fit(x, y)
+#     assert model.score(x, y) == 0.9668874172185431
+#     msg, disclosive = model.preliminary_check()
+#     correct_msg = "Model parameters are within recommended ranges.\n"
+#     assert msg == correct_msg
+#     assert disclosive is False
 
 
 def test_decisiontree_save():
