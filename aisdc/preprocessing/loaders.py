@@ -145,14 +145,14 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         return _synth_ae(data_folder)
     if dataset_name == "synth-ae-small":
         return _synth_ae(data_folder, 200)
+    if dataset_name == "synth-ae-large":
+        return _synth_ae(data_folder, 500000)
+    if dataset_name == "synth-ae-extra-large":
+        return _synth_ae(data_folder, 2000000)
     if dataset_name == "nursery":
         return _nursery()
     if dataset_name == "iris":
         return _iris()
-    if dataset_name.startswith("openml"):
-        data_id = dataset_name.split("_")[1]
-        dataset_name = "_".join(dataset_name.split("_")[2:])
-        return _openml_dataset(data_id)
     raise UnknownDataset(dataset_name)
 
 
@@ -180,30 +180,6 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
     )
 
     return feature_dataframe, target_dataframe
-
-
-def _openml_dataset(openml_id: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Fetch any dataset from openml through sklearn.
-    The dataset name should be on the format of
-    openml_<id>_<dataset name>
-      where id is the openml identifier and
-      dataset name is the name to recognise it.
-    """
-
-    data = fetch_openml(data_id=openml_id, as_frame=True)
-
-    target_encoder = LabelEncoder()
-    target_vals = target_encoder.fit_transform(data["target"].values)
-    target_dataframe = pd.DataFrame({"target": target_vals})
-
-    feature_encoder = OneHotEncoder()
-    x_encoded = feature_encoder.fit_transform(data["data"]).toarray()
-    feature_dataframe = pd.DataFrame(
-        x_encoded, columns=feature_encoder.get_feature_names_out()
-    )
-
-    return feature_dataframe, target_dataframe
-
 
 # Patched to support non-flattened images. Same behaviour as before except if called with
 # flatten=False explicitly.
