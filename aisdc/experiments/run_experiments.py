@@ -255,7 +255,7 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                             )
                     elif scenario.lower() == "lira":
                         # Create config file for the likelihood attack
-                        # this file gets overwitten everytime a new set of
+                        # this file gets overwritten every time a new set of
                         #   classfier + params
                         config = {
                             "training_data_filename": "train_data.csv",
