@@ -6,13 +6,12 @@ classifier and generate a results table to summarise them.
 
 import argparse
 import hashlib
+import importlib
 import json
+import logging
 import os
 import sys
 from itertools import product
-
-import importlib
-import logging
 from typing import TypedDict
 
 import joblib
@@ -20,12 +19,12 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
-from aisdc.preprocessing import loaders  # pylint: disable = import-error
-from aisdc.attacks.structural_attack import ( # pylint: disable = import-error
+from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
+from aisdc.attacks.structural_attack import (  # pylint: disable = import-error
     StructuralAttack,
 )
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
+from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.preprocessing import loaders  # pylint: disable = import-error
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
@@ -35,7 +34,7 @@ logger = logging.getLogger(__file__)
 class ResultsEntry:  # pylint: disable=too-few-public-methods, too-many-locals, too-many-branches
     """Class that experimental results are put into. Provides them back as a dataframe."""
 
-    def __init__( # pylint: disable=too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         model_data_param_id,
         param_id,
@@ -110,7 +109,7 @@ def read_experiment_config_file(experiment_config_file: str) -> TypedDict:
         return json.loads(config_handle.read())
 
 
-def run_loop(# pylint: disable=too-many-locals, too-many-branches, too-many-statements
+def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     experiment_config_file: str,
 ) -> pd.DataFrame:
     """
@@ -203,7 +202,7 @@ def run_loop(# pylint: disable=too-many-locals, too-many-branches, too-many-stat
                     # Train the target model
                     target_model.fit(train_X, train_y)
                     # save the target model
-                    #joblib.dump(target_model, target_model_filename)
+                    # joblib.dump(target_model, target_model_filename)
 
                 # Compute the predictions on the training and test sets
                 # train_preds = target_model.predict_proba(train_X)
@@ -237,7 +236,7 @@ def run_loop(# pylint: disable=too-many-locals, too-many-branches, too-many-stat
                                 dataset_name=dataset,
                                 scenario_name=scenario,
                                 classifier_name=classifier_name,
-                                target_generalisation_error=target._Target__ge(), # pylint: disable=protected-access
+                                target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
                                 target_clf_file=target_model_filename,
                                 attack_classifier_name=str(
                                     attack_obj.get_params()["mia_attack_model"]()
@@ -264,7 +263,7 @@ def run_loop(# pylint: disable=too-many-locals, too-many-branches, too-many-stat
                             "training_preds_filename": "train_preds.csv",
                             "test_preds_filename": "test_preds.csv",
                             "target_model": classifier_strings,
-                            "target_model_hyp": params
+                            "target_model_hyp": params,
                         }
 
                         with open("lira_config.json", "w", encoding="utf-8") as f:
@@ -287,49 +286,50 @@ def run_loop(# pylint: disable=too-many-locals, too-many-branches, too-many-stat
                         del metrics["roc_thresh"]
 
                         attack_results = ResultsEntry(  # f'full_id_{i}',
-                                model_data_param_id=target_model_id,
-                                param_id=param_id,
-                                dataset_name=dataset,
-                                scenario_name=scenario,
-                                classifier_name=classifier_name,
-                                target_generalisation_error=target._Target__ge(),# pylint: disable=protected-access
-                                target_clf_file=target_model_filename,
-                                attack_classifier_name=str(
-                                    attack_obj.get_params()["target_model"][0][1]
-                                ),  # pylint: disable = line-too-long
-                                attack_clf_file=None,
-                                params=params,
-                                target_metrics=None,
-                                attack_metrics=metrics
-                            )
+                            model_data_param_id=target_model_id,
+                            param_id=param_id,
+                            dataset_name=dataset,
+                            scenario_name=scenario,
+                            classifier_name=classifier_name,
+                            target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
+                            target_clf_file=target_model_filename,
+                            attack_classifier_name=str(
+                                attack_obj.get_params()["target_model"][0][1]
+                            ),  # pylint: disable = line-too-long
+                            attack_clf_file=None,
+                            params=params,
+                            target_metrics=None,
+                            attack_metrics=metrics,
+                        )
                         results = pd.concat(
-                                [results, attack_results.to_dataframe()],
-                                ignore_index=True,
-                                sort=False,
-                            )
+                            [results, attack_results.to_dataframe()],
+                            ignore_index=True,
+                            sort=False,
+                        )
                     elif scenario.lower() == "structural":
                         # run the attack
                         attack_obj = StructuralAttack(target_path="dt.sav")
                         attack_obj.attack(target)
-                        attack_obj._construct_metadata # pylint: disable=pointless-statement, disable=protected-access
+                        attack_obj._construct_metadata  # pylint: disable=pointless-statement, disable=protected-access
 
                         attack_results = ResultsEntry(  # f'full_id_{i}',
-                                model_data_param_id=target_model_id,
-                                param_id=param_id,
-                                dataset_name=dataset,
-                                scenario_name=scenario,
-                                classifier_name=classifier_name,
-                                target_generalisation_error=target._Target__ge(), # pylint: disable=protected-access
-                                target_clf_file=target_model_filename,
-                                params=params,
-                                attack_metrics=attack_obj._get_global_metrics(attack_obj.attack_metrics) # pylint: disable = line-too-long, protected-access
-                            )
+                            model_data_param_id=target_model_id,
+                            param_id=param_id,
+                            dataset_name=dataset,
+                            scenario_name=scenario,
+                            classifier_name=classifier_name,
+                            target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
+                            target_clf_file=target_model_filename,
+                            params=params,
+                            attack_metrics=attack_obj._get_global_metrics(
+                                attack_obj.attack_metrics
+                            ),  # pylint: disable = line-too-long, protected-access
+                        )
                         results = pd.concat(
-                                [results, attack_results.to_dataframe()],
-                                ignore_index=True,
-                                sort=False,
-                            )
-
+                            [results, attack_results.to_dataframe()],
+                            ignore_index=True,
+                            sort=False,
+                        )
 
     results.to_csv(results_filename, index=False)
     return results
