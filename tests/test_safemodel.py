@@ -1,4 +1,7 @@
 """Tests for fnctionality in super class."""
+
+from __future__ import annotations
+
 import copy
 import json
 import os
@@ -523,8 +526,8 @@ def test_request_release_without_attacks():
     # no file provided, has k_anonymity
 
     RES_DIR = "RES"
-    json_filename = os.path.normpath(f"{RES_DIR}/target.json")
-    model_filename = os.path.normpath(f"{RES_DIR}/model.pkl")
+    json_filename = os.path.normpath(os.path.join(f"{RES_DIR}", "target.json"))
+    model_filename = os.path.normpath(os.path.join(f"{RES_DIR}", "model.pkl"))
 
     model.request_release(path=RES_DIR, ext="pkl")
 

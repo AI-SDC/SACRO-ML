@@ -1,6 +1,9 @@
 """Test_worst_case_attack.py
 Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
 """
+
+from __future__ import annotations
+
 import json
 import os
 import shutil
@@ -361,9 +364,9 @@ def test_main():
 def test_cleanup():
     """Gets rid of files created during tests."""
     names = [
-        "test_output_worstcase/",
-        "output_worstcase/",
-        "test_worstcase_target/",
+        "test_output_worstcase",
+        "output_worstcase",
+        "test_worstcase_target",
         "test_preds.csv",
         "train_preds.csv",
         "ypred_test.csv",

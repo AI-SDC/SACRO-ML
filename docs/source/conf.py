@@ -13,7 +13,7 @@ sys.path.insert(1, os.path.abspath("../../attacks/"))
 project = "GRAIMATTER"
 copyright = "2023, GRAIMATTER and SACRO Project Team"
 author = "GRAIMATTER and SACRO Project Team"
-release = "1.0.6"
+release = "1.1.0"
 
 # -- General configuration ---------------------------------------------------
 

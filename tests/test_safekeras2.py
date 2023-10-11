@@ -1,10 +1,9 @@
 """This module contains unit tests for SafeKerasModel."""
 
-import os
-import platform
-import shutil
+from __future__ import annotations
 
-# shut tensorflow up
+import os
+import shutil
 import warnings
 
 import numpy as np
@@ -26,10 +25,10 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 EPOCHS = 1
 n_classes = 4
 # expected accuracy
-ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
-
-UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
-
+# ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
+ACC = 0.3583333492279053
+# UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
+UNSAFE_ACC = 0.3583333492279053
 RES_DIR = "RES"
 
 
@@ -327,6 +326,14 @@ def test_checkpoints_are_equal():
     assert same is False, msg
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
     assert same is False, msg
+
+    same, msg = safekeras.check_checkpoint_equality("hello", "fit2.tf")
+    assert same is False
+    assert "Error re-loading  model from" in msg
+
+    same, msg = safekeras.check_checkpoint_equality("fit2.tf", "hello")
+    assert same is False
+    assert "Error re-loading  model from" in msg
 
     for name in ("fit.tf", "fit2.tf", "refit.tf"):
         cleanup_file(name)

@@ -7,7 +7,6 @@ import datetime
 import getpass
 import json
 import logging
-import os
 import pathlib
 import pickle
 from pickle import PicklingError
@@ -716,12 +715,11 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             output["recommendation"] = "Do not allow release"
             output["reason"] = msg_prel + msg_post
         # Run attacks programmatically if possible
-        attack_results_filename = os.path.normpath(f"{path}/attack_results.json")
-        os.makedirs(os.path.dirname(attack_results_filename), exist_ok=True)
+        attack_results_filename = "attack_results"
         if target is not None:
             for attack_name in ["worst_case", "lira", "attribute"]:
                 output[f"{attack_name}_results"] = self.run_attack(
-                    target, attack_name, attack_results_filename
+                    target, attack_name, path, attack_results_filename
                 )
         # add timestamp
         now = datetime.datetime.now()
@@ -737,9 +735,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def run_attack(
         self,
         target: Target = None,
-        attack_name: str = "worst_case",
-        outputdir: str = "RES",
-        filename: str = "undefined",
+        attack_name: str = None,
+        output_dir: str = "RES",
+        report_name: str = "undefined",
     ) -> dict:
         """Runs a specified attack on the trained model and saves a report to file.
 
@@ -749,7 +747,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             The target in the form of a Target object.
         attack_name : str
             Name of the attack to run.
-        filename : str
+        output_dir : str
+            Name of the directory to store .json and .pdf output reports
+        report_name : str
             Name of a .json file to save report.
 
         Returns
@@ -772,8 +772,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 training_preds_filename=None,
                 test_preds_filename=None,
                 test_prop=0.5,
-                output_dir=outputdir,
-                report_name=filename,
+                output_dir=output_dir,
+                report_name=report_name,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()
@@ -781,16 +781,16 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         elif attack_name == "lira":
             attack_obj = LIRAAttack(
                 n_shadow_models=100,
-                output_dir=outputdir,
-                report_name=filename,
+                output_dir=output_dir,
+                report_name=report_name,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()
             metadata = output["metadata"]
         elif attack_name == "attribute":
             attack_obj = AttributeAttack(
-                output_dir=outputdir,
-                report_name=filename,
+                output_dir=output_dir,
+                report_name=report_name,
             )
             attack_obj.attack(target)
             output = attack_obj.make_report()

@@ -78,13 +78,13 @@ if __name__ == "__main__":
 
     # [TRE / Researcher] Perform disclosure checks
     SAVE_DIR = "mytest"
-    SAVE_FiLENAME = "direct_results"
+    SAVE_FILENAME = "direct_results"
 
     # check direct method
     print("==========> first running attacks explicitly via run_attack()")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, SAVE_DIR, SAVE_FiLENAME)
+        metadata = model.run_attack(target, attack_name, SAVE_DIR, SAVE_FILENAME)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):

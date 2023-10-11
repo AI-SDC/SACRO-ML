@@ -1,5 +1,7 @@
 """Test the data interface code."""
 
+from __future__ import annotations
+
 import unittest
 
 import pandas as pd

@@ -324,10 +324,17 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
     else:
         pdf_report.output(report_dest + ".pdf")
     if attack_type in ("WorstCaseAttack", "LikelihoodAttack"):
-        os.remove(report_dest + "_log_roc.png")
+        path = report_dest + "_log_roc.png"
+        if os.path.exists(path):
+            os.remove(path)
     elif attack_type == "AttributeAttack":
-        os.remove(report_dest + "_cat_frac.png")
-        os.remove(report_dest + "_cat_risk.png")
+        path = report_dest + "_cat_frac.png"
+        if os.path.exists(path):
+            os.remove(path)
+
+        path = report_dest + "_cat_risk.png"
+        if os.path.exists(path):
+            os.remove(path)
 
 
 def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):

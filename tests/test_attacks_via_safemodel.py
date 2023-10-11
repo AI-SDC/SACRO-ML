@@ -3,6 +3,9 @@ Tests attacks called via safemodel classes
 uses a subsampled nursery dataset as this tests more of the attack code
 currently using random forests.
 """
+
+from __future__ import annotations
+
 import os
 import shutil
 
@@ -126,7 +129,7 @@ def test_attacks_via_request_release():
 def test_run_attack_lira():
     """Calls the lira attack via safemodel."""
     # build a model
-    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5, min_samples_leaf=10)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
@@ -141,7 +144,7 @@ def test_run_attack_lira():
 
 def test_run_attack_worstcase():
     """Calls the worst case attack via safemodel."""
-    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5, min_samples_leaf=20)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
@@ -153,7 +156,7 @@ def test_run_attack_worstcase():
 
 def test_run_attack_attribute():
     """Calls the attribute  attack via safemodel."""
-    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5)
+    model = SafeDecisionTreeClassifier(random_state=1, max_depth=5, min_samples_leaf=10)
     target = get_target(model)
     model.fit(target.x_train, target.y_train)
     _, disclosive = model.preliminary_check()
