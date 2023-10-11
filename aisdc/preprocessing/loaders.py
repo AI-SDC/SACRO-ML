@@ -181,6 +181,7 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return feature_dataframe, target_dataframe
 
+
 # Patched to support non-flattened images. Same behaviour as before except if called with
 # flatten=False explicitly.
 def _images_to_ndarray(
