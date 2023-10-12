@@ -1,5 +1,7 @@
 """This module contains unit tests for the SafeDecisionTreeClassifier."""
 
+from __future__ import annotations
+
 import os
 import pickle
 

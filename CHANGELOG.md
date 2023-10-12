@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 1.1.0 (Oct 11, 2023)
+
+Changes:
+*    Add automatic formatting of docstrings ([#210](https://github.com/AI-SDC/AI-SDC/pull/210))
+*    Update user stories ([#217](https://github.com/AI-SDC/AI-SDC/pull/217))
+*    Add module to run experiments with attacks and gather data ([#224](https://github.com/AI-SDC/AI-SDC/pull/224))
+*    Fix bug in report.py: error removing a file that does not exist ([#227](https://github.com/AI-SDC/AI-SDC/pull/227))
+*    Add structural attack for traditional and other risk measures ([#232](https://github.com/AI-SDC/AI-SDC/pull/232))
+*    Fix package installation for Python 3.8, 3.9, 3.10 ([#234](https://github.com/AI-SDC/AI-SDC/pull/234))
+
 ## Version 1.0.6 (Jul 21, 2023)
 
 Changes:
