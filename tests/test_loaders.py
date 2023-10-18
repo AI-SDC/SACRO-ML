@@ -28,7 +28,6 @@ datasets = (
     "indian liver",
     "synth-ae",
     "synth-ae-small",
-    "RDMP",
     "nursery",
     "iris",
 )
@@ -91,10 +90,6 @@ def test_data_absent():
     # synthae-small
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae-small")
-
-    # RDMP
-    with pytest.raises(DataNotAvailable):
-        _, _ = loaders.get_data_sklearn("RDMP")
 
     # unknown
     with pytest.raises(UnknownDataset):
