@@ -147,6 +147,8 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         return _nursery()
     if dataset_name == "iris":
         return _iris()
+    if dataset_name == "RDMP":
+        return _RDMP(data_folder)
     raise UnknownDataset(dataset_name)
 
 

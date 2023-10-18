@@ -91,6 +91,10 @@ def test_data_absent():
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae-small")
 
+    # RDMP
+    with pytest.raises(DataNotAvailable):
+        _, _ = loaders.get_data_sklearn("RDMP")
+
     # unknown
     with pytest.raises(UnknownDataset):
         _, _ = loaders.get_data_sklearn("no such dataset")
