@@ -1,13 +1,11 @@
-"""
-This module presents example attacks a TRE checker may perform.
-"""
+"""This module presents example attacks a TRE checker may perform."""
 
-import sys
-import os
 import logging
+import os
 import pickle
-import numpy as np
+import sys
 
+import numpy as np
 from aisdc.attacks.dataset import Data
 from aisdc.attacks.worst_case_attack import WorstCaseAttack, WorstCaseAttackArgs
 from aisdc.generate_report import process_json

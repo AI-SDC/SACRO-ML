@@ -11,12 +11,12 @@
         * Modify safemodels `request_release()` to add the target model information to the `Target` class and create the `TARGET.json` above. [Assigned: JS/RP]
         * Redirect safemodel info/outputs from `*checkfile.txt` to `TARGET.json`. Update the safemodel example(s) [Issue [#158](https://github.com/AI-SDC/AI-SDC/issues/158)] [Assigned: JS/RP - phase1]
         * Add generalisation error reporting to safemodels (and include in `TARGET.json`) [Issue [#150](https://github.com/AI-SDC/AI-SDC/issues/150)] [Assigned: JS/RP - phase1]
-    * Create `ATTACK_RESULTS.json` 
+    * Create `ATTACK_RESULTS.json`
         * Redirect attack output to a single file instead of creating individual files for each attack [Assigned: YJ - phase1]
         * Add the ability to produce `ATTACK_RESULTS.json` from the command line with `TARGET.json` and `ATTACK_CONFIG.json` [Assigned: SM- phase2]
         * Add the user story where a path to predicted probabilities are included in `TARGET.json` instead of raw data to help support R etc. [Assigned: YJ- - phase3]
         * Refactor the attacks and ensure consistency of output format (including AIA) [Issue [#147](https://github.com/AI-SDC/AI-SDC/issues/147)] [Assigned: - phase3]
-    * Improve `summary.txt` 
+    * Improve `summary.txt`
         * Report generation should produce `summary.txt` by taking as input the `TARGET.json` and `ATTACK_RESULTS.json` files (*depends on completion of above*) [Issue [#152](https://github.com/AI-SDC/AI-SDC/issues/152)] [Assigned: YJ/SR -phase 2 ]
         * Refactor analysis modules to ensure code re-use [Issue [#127](https://github.com/AI-SDC/AI-SDC/issues/127)] [Assigned: YJ-phase3]
         * Improve the summary recommendations; how? is this sufficient/completed? (*needs discussion*) [Issue [#110](https://github.com/AI-SDC/AI-SDC/issues/110)] [Assigned: YJ-phase3]

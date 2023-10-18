@@ -3,16 +3,16 @@ This module presents example model training a TRE researcher may perform.
 Uses RandomForestClassifier from sklearn.
 """
 
-import pickle
 import os
-import pandas as pd
-import numpy as np
+import pickle
 
+import numpy as np
+import pandas as pd
 from scipy.io.arff import loadarff
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 DIR = "training_artefacts/"
 print("Creating directory for training artefacts")

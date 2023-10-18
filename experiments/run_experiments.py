@@ -16,8 +16,6 @@ from typing import TypedDict
 
 import joblib
 import pandas as pd
-from sklearn.model_selection import train_test_split
-
 from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
 from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
 from aisdc.attacks.structural_attack import (  # pylint: disable = import-error
@@ -25,6 +23,7 @@ from aisdc.attacks.structural_attack import (  # pylint: disable = import-error
 )
 from aisdc.attacks.target import Target  # pylint: disable = import-error
 from aisdc.preprocessing import loaders  # pylint: disable = import-error
+from sklearn.model_selection import train_test_split
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
@@ -162,7 +161,7 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
         # load data
 
         ROOT_FOLDER = os.path.dirname(os.path.dirname(__file__))
-        data_folder = os.path.join(ROOT_FOLDER,'experiments','data')
+        data_folder = os.path.join(ROOT_FOLDER, "experiments", "data")
         features, labels = loaders.get_data_sklearn(dataset, data_folder=data_folder)
         features = features.values
 

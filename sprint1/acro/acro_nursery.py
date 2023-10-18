@@ -1,6 +1,6 @@
 """
 ACRO Tests
-Copyright : Maha Albashir, Richard Preen, Jim Smith 2023
+Copyright : Maha Albashir, Richard Preen, Jim Smith 2023.
 """
 
 # import libraries
@@ -8,9 +8,8 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy.io.arff import loadarff
-
 from acro import ACRO, add_constant
+from scipy.io.arff import loadarff
 
 # ### Instantiate ACRO by making an acro object
 print(
@@ -32,16 +31,16 @@ The dataset used in this notebook is the nursery dataset from OpenML.
  - The path might need to be changed if the data has been downloaded and stored elsewhere.
  - for example use:
     path = os.path.join("data", "nursery.arff")
-   if the data is in a sub-folder of your work folder
+   if the data is in a sub-folder of your work folder.
 """
 
 
 """
-commented out version to load from web
+Commented out version to load from web
 # from sklearn.datasets import fetch_openml
 # data = fetch_openml(data_id=26, as_frame=True)
 # df = data.data
-# df["recommend"] = data.target
+# df["recommend"] = data.target.
 """
 
 # Version to load data from local directory
@@ -56,9 +55,9 @@ print("\n Data loaded, these are the first five rows")
 print(df.head())
 
 
-""" Convert 'more than 3' children to random between 4 and 10
+"""Convert 'more than 3' children to random between 4 and 10
 Change the children column from categorical to numeric
-in order to be able to test some of the ACRO functions that require a numeric feature
+in order to be able to test some of the ACRO functions that require a numeric feature.
 """
 print("\nChanging number of children to integer type")
 df["children"].replace(to_replace={"more": "4"}, inplace=True)
@@ -111,7 +110,7 @@ print(safe_table)
 """
 ACRO crosstab with aggregation function
 Mean() in this case
-Then how Max and Min are not allowed by the code
+Then how Max and Min are not allowed by the code.
 """
 print(
     "\nIllustration of crosstab using an aggregation function " "- mean in this case."
@@ -155,7 +154,7 @@ Again there is an industry-standard package in python, this time called **statsm
  - Note that statsmodels can be called using an 'R-like' format
    (using an 'r' suffix on the command names)
  - most statsmodels functions return a "results object",
-   which has a "summary" function that produces printable/saveable outputs
+   which has a "summary" function that produces printable/saveable outputs.
 """
 print(
     "\nThe next set of examples illustrate acro wrappers "
@@ -164,7 +163,7 @@ print(
 
 """
 Start by manipulating the nursery data to get two numeric variables
- - The 'recommend' column is converted to an integer scale
+ - The 'recommend' column is converted to an integer scale.
 """
 
 df["recommend"].replace(
@@ -190,7 +189,7 @@ ACRO OLS
  - Now we perform a the linear regression between recommend and children.
  - This version includes a constant (intercept)
  - This is just to show how the regression is done using ACRO.
- - **No correlation is expected to be seen by using these variables**
+ - **No correlation is expected to be seen by using these variables**.
 """
 
 y = new_df["recommend"]
@@ -205,7 +204,7 @@ print(results.summary())
 """
 ACRO OLSR
 This is an example of ordinary least squares regression using the 'R-like' statsmodels api,
-i.e. from a formula and dataframe using ACRO
+i.e. from a formula and dataframe using ACRO.
 """
 print("\nAnd same, but  passing a formula instead of two arrays")
 results = acro.olsr(formula="recommend ~ children", data=new_df)
@@ -233,7 +232,7 @@ print(results.summary())
 
 """
 ACRO Logit
-This is an example of logistic regression using ACRO using the statmodels function
+This is an example of logistic regression using ACRO using the statmodels function.
 """
 print("\n Example of a logit regression")
 results = acro.logit(y, x)
@@ -242,7 +241,7 @@ print(results.summary())
 
 
 """
-ACRO functionality to let users manage their outputs
+ACRO functionality to let users manage their outputs.
 
 1: List current ACRO outputs
  This is an example of using the print_output function to list all the outputs created so far
@@ -262,7 +261,7 @@ acro.print_outputs()
  - Currently, all outputs names contain timestamp;
    that is the time when the output was created.
  - The output name can be taken from the outputs listed by the print_outputs function,
- - or by listing the results and choosing the specific output that needs to be removed
+ - or by listing the results and choosing the specific output that needs to be removed.
 """
 print("\nNow removing two disclosive outputs")
 output_1 = list(acro.results.keys())[1]
@@ -275,7 +274,7 @@ acro.remove_output(output_4)
 """
 3: Rename ACRO outputs before finalising
  This is an example of renaming the outputs to provide a more descriptive name.
- The timestamp associated with the output name will not get overwritten
+ The timestamp associated with the output name will not get overwritten.
 """
 print("\nUsers can rename output files to something more informative")
 acro.rename_output(list(acro.results.keys())[2], "pivot_table")
@@ -294,7 +293,7 @@ acro.add_comments(list(acro.results.keys())[0], "6 cells were suppressed in this
 
 """
 5: Add an unsupported output to the list of outputs
- This is an example to add an unsupported outputs (such as images) to the list of outputs
+ This is an example to add an unsupported outputs (such as images) to the list of outputs.
 """
 print("\nUsers can add files produced by an analysis aCRO doesn't cover")
 acro.custom_output(
@@ -308,7 +307,7 @@ acro.custom_output(
  which the users must call at the end of each session.
  - It takes each output and saves it to a CSV file.
  - It also saves the SDC analysis for each output to a json file or Excel file
-   (depending on the extension of the name of the file provided as an input to the function)
+   (depending on the extension of the name of the file provided as an input to the function).
 """
 print(
     "\nUsers MUST call finalise to send their outputs to the checkers"
