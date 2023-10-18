@@ -28,6 +28,7 @@ datasets = (
     "indian liver",
     "synth-ae",
     "synth-ae-small",
+    "RDMP",
     "nursery",
     "iris",
 )
