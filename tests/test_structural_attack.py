@@ -13,7 +13,7 @@ from unittest.mock import patch
 # import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -45,6 +45,8 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
         target_model = RandomForestClassifier(**kwparams)
     elif modeltype == "xgb":
         target_model = XGBClassifier(**kwparams)
+    elif modeltype == "adaboost":
+        target_model = AdaBoostClassifier(**kwparams)
     # should get polite error but not DoF yet
     elif modeltype == "svc":
         target_model = SVC(**kwparams)
@@ -208,6 +210,43 @@ def test_dt():
     assert (
         myattack.unnecessary_risk == 1
     ), " unnecessary risk with unlimited depth and min_samples_leaf 5"
+
+
+def test_adaboost():
+    """Test for adaboost classifier."""
+
+    # 'non' disclosive'
+    # - base estimator =None => DecisionTreeClassifier with max_depth 1
+    # also set THRESHOLD to 4
+    param_dict = {"n_estimators": 2, "base_estimator": None}
+    target = get_target("adaboost", **param_dict)
+    myattack = sa.StructuralAttack()
+    myattack.THRESHOLD = 2
+    myattack.attack(target)
+    assert myattack.DoF_risk == 0, "should be no DoF risk with just 2 decision stumps"
+    assert (
+        myattack.k_anonymity_risk == 0
+    ), "should be no k-anonymity risk with only 2 stumps"
+    assert myattack.class_disclosure_risk == 0, "no class disclosure risk for 2 stumps"
+    assert myattack.unnecessary_risk == 0, " unnecessary risk not defined for adaboost"
+
+    # highly disclosive
+    kwargs = {"max_depth": None, "min_samples_leaf": 2}
+    param_dict2 = {
+        "base_estimator": DecisionTreeClassifier(**kwargs),
+        "n_estimators": 1000,
+    }
+    target = get_target("adaboost", **param_dict2)
+    myattack2 = sa.StructuralAttack()
+    myattack2.attack(target)
+    assert myattack2.DoF_risk == 1, "should be  DoF risk with adaboost of deep trees"
+    assert (
+        myattack2.k_anonymity_risk == 1
+    ), "should be  k-anonymity risk with adaboost unlimited depth and min_samples_leaf 2"
+    assert (
+        myattack2.class_disclosure_risk == 1
+    ), "should be class disclosure risk with adaboost unlimited depth and min_samples_leaf 2"
+    assert myattack2.unnecessary_risk == 0, " unnecessary risk not define for adaboost"
 
 
 def test_rf():
