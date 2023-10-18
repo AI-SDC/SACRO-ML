@@ -94,7 +94,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("standard"):
         sub_name = dataset_name.split("standard")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_mean = feature_df[column].mean()
             col_std = np.sqrt(feature_df[column].var())
@@ -104,7 +104,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("minmax"):
         sub_name = dataset_name.split("minmax")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_min = feature_df[column].min()
             col_range = feature_df[column].max() - col_min
@@ -115,7 +115,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name.startswith("round"):
         sub_name = dataset_name.split("round")[1].strip()
         logger.debug(sub_name)
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         column_dtype = feature_df.dtypes  # pylint: disable = no-member
 
         for i, column in enumerate(feature_df.columns):
@@ -139,22 +139,14 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         )
     if dataset_name == "indian liver":
         return _indian_liver(data_folder)
-    if dataset_name == "texas hospitals 10":
-        return _texas_hospitals(data_folder)
     if dataset_name == "synth-ae":
         return _synth_ae(data_folder)
     if dataset_name == "synth-ae-small":
         return _synth_ae(data_folder, 200)
-    if dataset_name == "synth-ae-large":
-        return _synth_ae(data_folder, 500000)
-    if dataset_name == "synth-ae-extra-large":
-        return _synth_ae(data_folder, 2000000)
     if dataset_name == "nursery":
         return _nursery()
     if dataset_name == "iris":
         return _iris()
-    if dataset_name == "RDMP":
-        return _RDMP(data_folder)
     raise UnknownDataset(dataset_name)
 
 

@@ -26,7 +26,6 @@ datasets = (
     "medical-mnist-ab-v-br-500",
     "medical-mnist-all-100",
     "indian liver",
-    "texas hospitals 10",
     "synth-ae",
     "synth-ae-small",
     "nursery",
@@ -84,10 +83,6 @@ def test_data_absent():
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("indian liver")
 
-    # texas
-    with pytest.raises(DataNotAvailable):
-        _, _ = loaders.get_data_sklearn("texas hospitals 10")
-
     # synth-ae
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae")
@@ -95,10 +90,6 @@ def test_data_absent():
     # synthae-small
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae-small")
-
-    # RDMP
-    with pytest.raises(DataNotAvailable):
-        _, _ = loaders.get_data_sklearn("RDMP")
 
     # unknown
     with pytest.raises(UnknownDataset):
