@@ -643,4 +643,3 @@ and place it in the correct folder.
     labels = pd.DataFrame({var: encoded_labels})
 
     return (tx_data, labels)
-    
