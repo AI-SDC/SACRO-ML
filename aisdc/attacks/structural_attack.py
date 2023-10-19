@@ -160,12 +160,20 @@ def get_model_param_count(model: BaseEstimator) -> int:
 
     if isinstance(model, DecisionTreeClassifier):
         n_params = get_tree_parameter_count(model)
-    elif isinstance(model, RandomForestClassifier) or (
-        isinstance(model, AdaBoostClassifier)
-        and isinstance(model.estimator, DecisionTreeClassifier)
-    ):
+
+    elif isinstance(model, RandomForestClassifier):
         for member in model.estimators_:
             n_params += get_tree_parameter_count(member)
+
+    elif isinstance(model, AdaBoostClassifier):
+        try:  # sklearn v1.2+
+            base = model.estimator
+        except AttributeError:  # sklearn version <1.2
+            base = model.base_estimator
+        if isinstance(base, DecisionTreeClassifier):
+            for member in model.estimators_:
+                n_params += get_tree_parameter_count(member)
+
     # TO-DO define these for xgb, logistic regression, SVC and others
     elif isinstance(model, XGBClassifier):
         df = model.get_booster().trees_to_dataframe()
@@ -281,10 +289,11 @@ class StructuralAttack(Attack):
         errstr = "len mismatch between equiv classes and "
         assert len(equiv_classes) == len(equiv_counts), errstr + "counts"
         assert len(equiv_classes) == len(equiv_members), errstr + "membership"
-        # print(f'equiv_classes is {equiv_classes}\n'
-        #   f'equiv_counts is {equiv_counts}\n'
-        #   #f'equiv_members is {equiv_members}\n'
-        #  )
+        print(
+            f"equiv_classes is {equiv_classes}\n"
+            f"equiv_counts is {equiv_counts}\n"
+            #   #f'equiv_members is {equiv_members}\n'
+        )
 
         # now assess the risk
         # Degrees of Freedom

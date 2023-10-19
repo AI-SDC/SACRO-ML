@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.1.1 (Oct 19, 2023)
+
+Changes:
+*   Update notebook example paths ([#237](https://github.com/AI-SDC/AI-SDC/pull/237))
+*   Fix AdaBoostClassifier structural attack ([#242](https://github.com/AI-SDC/AI-SDC/pull/242))
+*   Move experiments module and configs to separate repository ([#229](https://github.com/AI-SDC/AI-SDC/pull/229))
+
 ## Version 1.1.0 (Oct 11, 2023)
 
 Changes:

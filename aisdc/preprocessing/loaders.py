@@ -94,7 +94,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("standard"):
         sub_name = dataset_name.split("standard")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_mean = feature_df[column].mean()
             col_std = np.sqrt(feature_df[column].var())
@@ -104,7 +104,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("minmax"):
         sub_name = dataset_name.split("minmax")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_min = feature_df[column].min()
             col_range = feature_df[column].max() - col_min
@@ -115,7 +115,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name.startswith("round"):
         sub_name = dataset_name.split("round")[1].strip()
         logger.debug(sub_name)
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         column_dtype = feature_df.dtypes  # pylint: disable = no-member
 
         for i, column in enumerate(feature_df.columns):
@@ -139,8 +139,6 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         )
     if dataset_name == "indian liver":
         return _indian_liver(data_folder)
-    if dataset_name == "texas hospitals 10":
-        return _texas_hospitals(data_folder)
     if dataset_name == "synth-ae":
         return _synth_ae(data_folder)
     if dataset_name == "synth-ae-small":
@@ -273,15 +271,17 @@ def _synth_ae(
     https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.
     """
 
-    file_path = os.path.join(
-        data_folder, "AE_England_synthetic.csv"  #'A&E Synthetic Data.csv'
-    )
+    file_path = os.path.join(data_folder, "AE_England_synthetic.csv")
 
     if not os.path.exists(file_path):
         help_message = f"""
 Data file {file_path} does not exist. Please download the file from:
 https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e
-unzip it (7z) and then copy the .csv file into your data folder.
+
+Alternatively, download the file directly from the following URL:
+https://nhsengland-direct-uploads.s3-eu-west-1.amazonaws.com/A%26E+Synthetic+Data.7z
+
+Unzip it (7z) and then copy the .csv file into your data folder.
     """
         raise DataNotAvailable(help_message)
 
@@ -383,6 +383,9 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
 and place it in the correct folder. It works with either the zip file or uncompressed.
+Alternatively download the data file from this URL:
+        https://datadryad.org/stash/downloads/file_stream/773992
+and then change the name of the file 773992 to data01.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -403,17 +406,19 @@ and place it in the correct folder. It works with either the zip file or uncompr
 
 
 def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Loads the mimic_iaccd data and performs Alba's pre-processing."""
+    """Loads the mimic_iaccd data and performs pre-processing."""
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
     file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
+    print(file_path, os.path.exists(file_path))
 
     if not os.path.exists(file_path):
         help_message = f"""
         The MIMIC2-iaccd data is not available in {data_folder}.
         The following file should exist: {file_path}.
-        Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
+        Please download from https://physionet.org/files/mimic2-iaccd/1.0/full_cohort_data.csv?download
+        and rename the file to full_cohort_data.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -459,32 +464,29 @@ def _texas_hospitals(
     # pylint: disable=too-many-statements, too-many-locals
     """
     Texas Hospitals Dataset
-    (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm).
+    https://www.dshs.texas.gov/texas-health-care-information-collection/health-data-researcher-information/texas-inpatient-public-use # pylint: disable=line-too-long.
 
-    Note: this has been tested repeated in the GRAIMatter project.
-    However, for licensing reasons we cannot redistribute the data.
-    Therefore it is omitted from CI test coverage and metrics.
+    Download the tab-delimited files for each quarter from
+    2006, 2007, 2008 and 2009.
+    Note: This data is free to download.
     """
     file_list = [
-        "PUDF-1Q2006-tab-delimited.zip",
-        "PUDF-1Q2007-tab-delimited.zip",
-        "PUDF-1Q2008-tab-delimited.zip",
-        "PUDF-1Q2009-tab-delimited.zip",
-        "PUDF-2Q2006-tab-delimited.zip",
-        "PUDF-2Q2007-tab-delimited.zip",
-        "PUDF-2Q2008-tab-delimited.zip",
-        "PUDF-2Q2009-tab-delimited.zip",
-        "PUDF-3Q2006-tab-delimited.zip",
-        "PUDF-3Q2007-tab-delimited.zip",
-        "PUDF-3Q2008-tab-delimited.zip",
-        "PUDF-3Q2009-tab-delimited.zip",
-        "PUDF-4Q2006-tab-delimited.zip",
-        "PUDF-4Q2007-tab-delimited.zip",
-        "PUDF-4Q2008-tab-delimited.zip",
-        "PUDF-4Q2009-tab-delimited.zip",
+        "PUDF 1Q2006 tab-delimited.zip",
+        "PUDF 1Q2007 tab-delimited.zip",
+        "PUDF 1Q2009 tab-delimited.zip",
+        "PUDF 2Q2006 tab-delimited.zip",
+        "PUDF 2Q2007 tab-delimited.zip",
+        "PUDF 2Q2009 tab-delimited.zip",
+        "PUDF 3Q2006 tab-delimited.zip",
+        "PUDF 3Q2007 tab-delimited.zip",
+        "PUDF 4Q2006 tab-delimited.zip",
+        "PUDF 4Q2007 tab-delimited.zip",
+        "PUDF 4Q2009 tab-delimited.zip",
+        "PUDF1Q08_update_tab.zip",
+        "PUDF2Q08_update_tab.zip",
+        "PUDF3Q08_update_tab.zip",
     ]
-
-    files_path = [os.path.join(data_folder, "TexasHospitals", f) for f in file_list]
+    files_path = [os.path.join(data_folder, f) for f in file_list]
 
     found = [os.path.exists(file_path) for file_path in files_path]
     not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
@@ -543,9 +545,12 @@ and place it in the correct folder.
                 )
                 for i in ZipFile(f).namelist()
                 if "base" in i
-            ][0]
-            df.dropna(inplace=True)
-            tmp.extend(list(df.PRINC_SURG_PROC_CODE))
+            ]
+            if len(df) < 1:
+                print(f"WARNING: {f} could not be loaded.")
+            else:
+                df[0].dropna(inplace=True)
+                tmp.extend(list(df[0].PRINC_SURG_PROC_CODE))
         princ_surg_proc_keep = [k for k, v in Counter(tmp).most_common(10)]
         # remove unnecessary variables
         del tmp

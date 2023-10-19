@@ -26,7 +26,6 @@ datasets = (
     "medical-mnist-ab-v-br-500",
     "medical-mnist-all-100",
     "indian liver",
-    "texas hospitals 10",
     "synth-ae",
     "synth-ae-small",
     "nursery",
@@ -84,10 +83,6 @@ def test_data_absent():
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("indian liver")
 
-    # texas
-    with pytest.raises(DataNotAvailable):
-        _, _ = loaders.get_data_sklearn("texas hospitals 10")
-
     # synth-ae
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae")
@@ -103,9 +98,12 @@ def test_data_absent():
 
 def test_mimic():
     """Load the mimic2 dataset."""
+    # try:
     x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
     assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (1064, 1)
+    # except DataNotAvailable:
+    #     pass
 
 
 def test_in_hospital():
@@ -184,7 +182,6 @@ def test_synth_ae():
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
 
-    # synthae-small
     x_df, y_df = loaders.get_data_sklearn("synth-ae-small", DATA_FOLDER)
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
