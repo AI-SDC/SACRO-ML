@@ -1,3 +1,29 @@
+## User Stories Instructions
+This folder contains example guides of how the aisdc package can be used by both a researcher and a TRE. The user guides ahve been split into 7 'user stories', each designed to fit a different use-case.
+Which user story should be used can be found using the following flow chart and using the descriptions below.
+
+Once the appropriate user story has been selected, the researcher should use the user_story_[x]\user_story_[x]_researcher.py as a guide to create appropriate models and metadata files for testing and release.
+
+If using Python, researchers should follow the 'user_story_1' example to maximise the chances of their model being released.
+
+If using R, researchers should follow the 'user_story_4' example to maximise the chances of their model being released.
+
+If both Python and R are available, researchers should preferrably use Python as more evidence against disclosivity risk can be established with this package using Python.
+
+Once the researcher has provided all required model and data, TREs should fill out the 'default_config.yaml' file included in this repository with required experiment parameters.
+
+The following command can then be run:
+
+python generate_disclosure_risk_report.py
+
+This will create a folder called 'release_files', inside which the results of the experiments can be found
+
+Alternatively, create a new configuration file using the same format in the 'default_config.yaml' file, and pass this file to the script using the following command:
+
+python generate_disclosure_risk_report.py --config_file [config_file_name]
+
+![User Stories](user_stories_flow_chart.drawio.png)
+
 ## User story 1: Ideal Case
 - User creates an object "target" of type aisdc.attacks.target.Target and provides a separate code file that does the translation between the data in the format provided and the data in the format to be input to the machine any model.
 - User creates a model "model" from the safeXClassifier class and calls model.fit().
@@ -29,9 +55,7 @@
    - NB this assumes their classifier outputs probabilities.
 
 ## User Story 4: User does not use safeXClassifier, or provide dataset object
-### but does provide description of pre-processing,
-### and provides output probabilities for the train and test set they have used (and true classes?)
-#### Status: in progress, still to create the TRE script
+### but does provide description of pre-processing, and provides output probabilities for the train and test set they have used
 - We cannot assume that the TRE has the capability to get the right bits of pre-processing code from their source code.
 - Do we insist on this (would be needed for ‘outside world’)? what if this is commercially sensitive?
 - TRE can in theory run LIRA and worst-case but not attribute inference attacks.
@@ -45,7 +69,7 @@
 **THIS would be the version that let people use R **
 
 ## User Story 5:  User creates differentially private algorithm (not via our code) and provides sufficient details to create data object.
-#### Status: not implemented yet
+#### Status: not yet implemented
 - How do we know what the actual epsilon value is?
 - If it is a keras model we can reload and query it if they have stored the training object as part of the model save (we need epochs, dataset size, L2 norm clip, noise values).
   -  But then their stored model probably has disclosive values in anyway …
@@ -59,7 +83,7 @@
    - Yes probably, because it is the sort of thing a TRE may well set as a policy.
 
 ## User Story 6: Worst Case
-#### Status: not implemented yet
+#### Status: not yet implemented
 - User makes R model for a tree-based classifier that we have not experimented with.
 - TREs get researcher to provide at minimum the processed train and test files.
 
@@ -71,7 +95,7 @@
 
 - Very hard to check and recommend release
 
-## 7: User provides safemodel with no data
+## Uesr Story 7: User provides safemodel with no data
 - User loads in data and pre-processes out with Target object
 - User uses SafeDecisionTreeClassifier
 - User calls request_release() themselves, but does not pass data object to request_release() or save processed form of data.
