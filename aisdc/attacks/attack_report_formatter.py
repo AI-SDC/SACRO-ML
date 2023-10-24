@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
 import pprint
 import shutil
 from datetime import date
-import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
