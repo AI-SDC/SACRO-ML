@@ -1,5 +1,5 @@
 ## User Stories Instructions
-This folder contains example guides of how the aisdc package can be used by both a researcher and a TRE. The user guides ahve been split into 7 'user stories', each designed to fit a different use-case.
+This folder contains example guides of how the aisdc package can be used by both a researcher and a TRE. The user guides have been split into 7 'user stories', each designed to fit a different use-case.
 Which user story should be used can be found using the following flow chart and using the descriptions below.
 
 Once the appropriate user story has been selected, the researcher should use the user_story_[x]\user_story_[x]_researcher.py as a guide to create appropriate models and metadata files for testing and release.
@@ -8,7 +8,7 @@ If using Python, researchers should follow the 'user_story_1' example to maximis
 
 If using R, researchers should follow the 'user_story_4' example to maximise the chances of their model being released.
 
-If both Python and R are available, researchers should preferrably use Python as more evidence against disclosivity risk can be established with this package using Python.
+If both Python and R are available, researchers should preferably use Python as more evidence against disclosivity risk can be established with this package using Python.
 
 Once the researcher has provided all required model and data, TREs should fill out the 'default_config.yaml' file included in this repository with required experiment parameters.
 
@@ -95,7 +95,7 @@ python generate_disclosure_risk_report.py --config_file [config_file_name]
 
 - Very hard to check and recommend release
 
-## Uesr Story 7: User provides safemodel with no data
+## User Story 7: User provides safemodel with no data
 - User loads in data and pre-processes out with Target object
 - User uses SafeDecisionTreeClassifier
 - User calls request_release() themselves, but does not pass data object to request_release() or save processed form of data.
