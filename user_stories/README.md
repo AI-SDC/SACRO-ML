@@ -13,7 +13,7 @@ Each user story consists of at least 2 files:
   > - **user_story_[x]_tre.py**  Example on how to perfom attacks and generate a report.
 
 Extra examples on how to use [safemodels](https://github.com/AI-SDC/AI-SDC/tree/development/example_notebooks) and perform [attacks](https://github.com/AI-SDC/AI-SDC/tree/development/examples) can be found following the corresponding links.
-  
+
 ## Programming languages
 
 Athough, AI-SDC tools is written in Python, some projects may use a different programming langugage to create their target model. However, where possible Python should be preferred as more extensive risk-disclosure testing has been performed.
@@ -55,7 +55,7 @@ The user can perform attacks to check the viability of their model for release a
 
 The user is familiar with AI-SDC tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model. Moreover, the user created the `Target` object provided by AI-SDC tools. This ensures an easier process to generate the data and metadata files required for the model release.
 
-In this example, the user does not use the function `request_release` and does not provided all the data and metadata files required for output check. Which means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fullfilled, the output checker can run attacks, generate reports and make a decision on model release. 
+In this example, the user does not use the function `request_release` and does not provided all the data and metadata files required for output check. Which means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fullfilled, the output checker can run attacks, generate reports and make a decision on model release.
 
 
 ### User Story 3: User provides dataset object but does not use SafeModel
