@@ -1,4 +1,4 @@
-# User strory 2
+# User story 2
 
 ## SafeModel and Target object only
 

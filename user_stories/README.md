@@ -6,17 +6,17 @@ The following diagram is intended to identify the closest use-case match to proj
 ![User Stories](user_stories_flow_chart.drawio.png)
 
 ## General description
-The user stories are coding examples intended to maximise the chances of a successful and smooth Machine Learning (ML) model egress from the TRE. These guides are useful to create appropiate ML models and metadata files necessary for output checking of the ML model prior the egress. Saving time and effort, and ultimately optimising costs.
+The user stories are coding examples intended to maximise the chances of a successful and smooth Machine Learning (ML) model egress from the TRE. These guides are useful to create appropriate ML models and metadata files necessary for output checking of the ML model prior the egress. Saving time and effort, and ultimately optimising costs.
 
 Each user story consists of at least 2 files:
   > - **user_story_[x]_researcher.[py/R]**  Example on how to generate a ML model for the TRE users/researchers.
-  > - **user_story_[x]_tre.py**  Example on how to perfom attacks and generate a report.
+  > - **user_story_[x]_tre.py**  Example on how to perform attacks and generate a report.
 
 Extra examples on how to use [safemodels](https://github.com/AI-SDC/AI-SDC/tree/development/example_notebooks) and perform [attacks](https://github.com/AI-SDC/AI-SDC/tree/development/examples) can be found following the corresponding links.
 
 ## Programming languages
 
-Athough, AI-SDC tools is written in Python, some projects may use a different programming langugage to create their target model. However, where possible Python should be preferred as more extensive risk-disclosure testing has been performed.
+Although, AI-SDC tools is written in Python, some projects may use a different programming language to create their target model. However, where possible Python should be preferred as more extensive risk-disclosure testing has been performed.
 
 While most of the stories are Python examples, `user_story_4` is written in R.
 
@@ -25,9 +25,9 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 **For researchers or users**
 1. Select the best use-story match to the project.
 2. Familirise with the relevant user-stroy example, both for researchers and TRE. Understanding how the process work both sides will increase the changes of smooth project.
-3. Pre-process data and generate the ML model as appropiate for the project inside the TRE. Remeber to follow the researcher relevant user story example code (**user_story_[x]_researcher.[py/R]**).
+3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the researcher relevant user story example code (**user_story_[x]_researcher.[py/R]**).
 4. Make sure you generated all metadata, data and files required for output checking.
-5. Fill out the `default_config.yaml` with the appropiate fields. An example of this file can be found [here](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
+5. Fill out the `default_config.yaml` with the appropriate fields. An example of this file can be found [here](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
 6. Run the command `python generate_disclosure_risk_report.py`. This will create a **release_files** where the all the required files, data and metadata for egress are placed.
 
 *Alternative to steps 5 and 6*
@@ -56,7 +56,7 @@ The user can perform attacks to check the viability of their model for release a
 
 The user is familiar with AI-SDC tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model. Moreover, the user created the `Target` object provided by AI-SDC tools. This ensures an easier process to generate the data and metadata files required for the model release.
 
-In this example, the user does not use the function `request_release` and does not provided all the data and metadata files required for output check. Which means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fullfilled, the output checker can run attacks, generate reports and make a decision on model release.
+In this example, the user does not use the function `request_release` and does not provided all the data and metadata files required for output check. Which means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fulfilled, the output checker can run attacks, generate reports and make a decision on model release.
 
 
 ### User Story 3: User provides dataset object but does not use SafeModel
