@@ -24,9 +24,9 @@ import pickle
 import numpy as np
 import pandas as pd
 from data_processing_researcher import process_dataset
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+
 
 def run_user_story():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
