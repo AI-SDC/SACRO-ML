@@ -1,13 +1,5 @@
-# User story 2
+### User Story 8: User provides safemodel with no data
 
-## SafeModel and Target object only
+In this example, a user builds a model but does not use a SafeModel, and does not wrap their training/testing data in a Target object. The user only provides a description of the pre-processing which has been done.
 
-- User provides Target object and code, uses safeXClassifier() but does not pass data object to request_release() or save processed form of data.
-- safeXClassifer report checks for class disclosure and TRE risk appetite for algorithm X.
-- TRE output checker has to manually recreate processed data using code provided.
-- TRE output checker is unable to run any attacks UNLESS they also know exactly which rows from the dataset were used for training and testing.
-- So dataset object needs to store those specific details OR use fixed values for seed (e.g. to sklearn.train_test_split() ) and be extremely transparent about how stratification was done.
-- If TRE has enough info to recreate train/test processed data, then they can
-    - Run attacks from script.
-    - Then the post-processing script
-    - Then make a judgement.
+Unfortunately, at this point, we cannot provide a recommendation to either release or reject the model. The researcher should be prompted to either wrap their data in a Target object, or provide a copy of their training and testing data.
