@@ -36,7 +36,8 @@ def generate_report(directory, target_model_filepath):
 
     print("Attacks cannot be run since the original dataset cannot be recreated")
     print("AISDC cannot provide any help to TRE")
-
+    print("In future, the researcher should use the Target.save() function or provide")
+    print("copies of their training data")
 
 def run_user_story(release_config: dict):
     """Main method to parse arguments and then invoke report generation."""
