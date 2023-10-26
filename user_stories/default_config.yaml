@@ -5,7 +5,7 @@
 # All other parameters need to be set by either the researcher or TRE
 
 # Scenario to be run
-user_story: 4
+user_story: 3
 
 ### Details of experiments and files - please replace these with the relevant filenames
 

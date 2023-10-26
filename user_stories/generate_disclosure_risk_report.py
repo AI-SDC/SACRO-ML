@@ -21,6 +21,7 @@ from user_story_2 import user_story_2_tre
 from user_story_3 import user_story_3_tre
 from user_story_4 import user_story_4_tre
 from user_story_7 import user_story_7_tre
+from user_story_8 import user_story_8_tre
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -59,5 +60,7 @@ if __name__ == "__main__":
         user_story_4_tre.run_user_story(config)
     elif user_story == 7:
         user_story_7_tre.run_user_story(config)
+    elif user_story == 8:
+        user_story_8_tre.run_user_story(config)
     else:
         raise NotImplementedError(f"User story {user_story} has not been implemented")
