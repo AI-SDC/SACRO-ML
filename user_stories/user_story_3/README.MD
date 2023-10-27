@@ -1,10 +1,7 @@
 # User story 3
 
-# No SafeModel but Target object employed
+# User provides dataset object but does not use SafeModel
 
-- In this case we don’t currently have any checking for TRE-approved hyper-parameters or for class disclosure.
-  - But if it is a type where we have a safemodel version, we could create functionality to load it and then check hyper-parameters using existing code
-  - This raises the issue of whether safeModelClassifiers should have a load() option ?? – Is currently commented out
-  - Could also provide method for checking for k-anonymity (and possible pure nodes) where appropriate by refactoring safemodels.
-- TREs need to manually configure and start scripts to do LIRA, Worst_Case and Attribute_Inference attacks
-   - NB this assumes their classifier outputs probabilities.
+There exist a vast number of classifiers available and only for a few the SafeModle wrapper exists. Therefore, for some purposes will not be possible to use the SafeModel class.
+
+However, the user has provided a copy of their training data alongside the model to be released. By using this package, the TRE can therefore check the hyperparameters of the model, as well as running attacks and generating reports which will help the TRE to make a decision regarding whether the model should be released.
