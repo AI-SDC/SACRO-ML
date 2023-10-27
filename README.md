@@ -10,7 +10,7 @@ A collection of tools and resources for managing the statistical disclosure cont
 
 ### User Guides
 
-A collection of user guides can be found in the 'user_stories' folder of this repository. These guides include configurable examples from the perspective of both a researcher and a TRE, with separate scripts for each. Instructions on how to use each of these scripts and which scripts to use are included in the README of the 'user_stories' folder.
+A collection of user guides can be found in the 'user_stories' folder of this repository. These guides include configurable examples from the perspective of both a researcher and a TRE, with separate scripts for each. Instructions on how to use each of these scripts and which scripts to use are included in the README of the ['user_stories'](https://github.com/AI-SDC/AI-SDC/tree/user_story_visibility/user_stories) folder.
 
 ## Content
 
