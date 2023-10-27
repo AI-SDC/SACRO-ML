@@ -1,12 +1,12 @@
 # User Stories
-In this section there are code examples of how the AI-SDC tools can be used by both a researchers or Trusted Research Environment (TRE) users and a TRE output checkers. Each project is unique and therefore how AI-SDC tools are applied may vary from case to case. The user guides have been split into 8 'user stories', each designed to fit a different use-case.
+In this section there are code examples of how the AI-SDC tools can be used by both a researchers in Trusted Research Environment (TRE) and a TRE output checkers. Each project is unique and therefore how AI-SDC tools are applied may vary from case to case. The user guides have been split into 8 'user stories', each designed to fit a different use-case.
 
 The following diagram is intended to identify the closest use-case match to projects:
 
 ![User Stories](user_stories_flow_chart.drawio.png)
 
 ## General description
-The user stories are coding examples intended to maximise the chances of a successful and smooth Machine Learning (ML) model egress from the TRE. These guides are useful to create appropriate ML models and metadata files necessary for output checking of the ML model prior the egress. Saving time and effort, and ultimately optimising costs.
+The user stories are coding examples intended to maximise the chances of  successfully and smoothly egressing a Machine Learning (ML) model from the TRE. These guides are useful to create appropriate ML models and the metadata files necessary for output checking of the ML model prior to the egress. Saving time and effort, and ultimately optimising costs.
 
 Each user story consists of at least 2 files:
   > - **user_story_[x]_researcher_template.[py/R]**  Example on how to generate a ML model for the TRE users/researchers.
@@ -24,11 +24,11 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 
 **For researchers or users**
 1. Select the best use-story match to the project.
-2. Familirise with the relevant user-stroy example, both for researchers and TRE. Understanding how the process work both sides will increase the changes of smooth project.
-3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the researcher relevant user story example code (**user_story_[x]_researcher.[py/R]**).
+2. Familiarise yourself with the relevant user-story example, and discuss this with the TRE. Understanding how the process work for both sides will increase the changes of smooth project.
+3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the relevant researcher  user story example code (**user_story_[x]_researcher.[py/R]**).
 4. Make sure you generated all metadata, data and files required for output checking.
 5. Fill out the `default_config.yaml` with the appropriate fields. An example of this file can be found [here](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
-6. Run the command `python generate_disclosure_risk_report.py`. This will create a **release_files** where the all the required files, data and metadata for egress are placed.
+6. Run the command `python generate_disclosure_risk_report.py`. This will create a folder of **release_files** where the all the required files, data and metadata for egress are placed.
 
 *Alternative to steps 5 and 6*
 
@@ -36,8 +36,8 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 6. Run the command `python generate_disclosure_risk_report.py --config <your_config_file_name>`.
 
 **For TRE output checkers**
-1. Select the best use-story match to the project. This should have been agreed with the user/researcher beforehand preferably.
-2. Familirise with the relevant user-stroy example, both for researchers and TRE. Understanding how the process work both sides will increase the changes of smooth project.
+1. Select the best use-story match to the project. Preferably, this should have been agreed with the user/researcher beforehand.
+2. Familiarise yourself with the relevant user-story example, both for researchers and TRE. Understanding how the process work both sides will increase the chances of a smoothly running project.
 3. Once the researcher/user requests the ML model egress, perform attacks according to corresponding **user_story_[x]_tre.py** example.
 4. Look at the reports produced and make a judgment for model egress.
 
