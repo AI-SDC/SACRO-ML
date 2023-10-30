@@ -21,6 +21,7 @@ from user_story_2 import user_story_2_tre
 from user_story_3 import user_story_3_tre
 from user_story_4 import user_story_4_tre
 from user_story_7 import user_story_7_tre
+from user_story_8 import user_story_8_tre
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -49,7 +50,11 @@ if __name__ == "__main__":
         )
 
     user_story = config["user_story"]
-    if user_story == 1:
+    if user_story == "UNDEFINED":
+        print(
+            "User story not selected, please select a user story by referring to user_stories_flow_chart.png and adding the relevant number to the the first line of 'default_config.yaml'"
+        )
+    elif user_story == 1:
         user_story_1_tre.run_user_story(config)
     elif user_story == 2:
         user_story_2_tre.run_user_story(config)
@@ -59,5 +64,7 @@ if __name__ == "__main__":
         user_story_4_tre.run_user_story(config)
     elif user_story == 7:
         user_story_7_tre.run_user_story(config)
+    elif user_story == 8:
+        user_story_8_tre.run_user_story(config)
     else:
         raise NotImplementedError(f"User story {user_story} has not been implemented")

@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.1.2 (Oct 30, 2023)
+
+Changes:
+*   Fix a bug related to the `rules.json` path when running from package ([#247](https://github.com/AI-SDC/AI-SDC/pull/247))
+*   Update user stories ([#247](https://github.com/AI-SDC/AI-SDC/pull/247))
+
 ## Version 1.1.1 (Oct 19, 2023)
 
 Changes:

@@ -1,0 +1,36 @@
+TARGET MODEL SUMMARY
+model_name: RandomForestClassifier
+number of samples used to train: 12960
+max_depth: 10
+min_samples_split: 20
+min_samples_leaf: 10
+n_estimators: 100
+
+ATTACK JSON RESULTS
+Final score (scale of 0-5, where 0 is least disclosive and 5 is recommend rejection)
+4
+
+
+Immediate rejection recommended for the following reason:
+None
+
+Evidence supporting rejection:
+>10% AUC are statistically significant in experiment WorstCaseAttack_ff7197ef-162d-45c2-80d9-f3b895e3c421
+>10% AUC are statistically significant in experiment LikelihoodAtack_59c1c9b4-00e0-4b64-91d7-b2ef96935300
+
+Evidence supporting release:
+Min samples per leaf > 5
+Attack AUC <= threshold of 0.65 in experiment WorstCaseAttack_ff7197ef-162d-45c2-80d9-f3b895e3c421
+Attack AUC <= threshold of 0.65 in experiment LikelihoodAtack_59c1c9b4-00e0-4b64-91d7-b2ef96935300
+
+
+==============================
+DESCRIPTION OF FILES
+Please note: this is a draft of a possible output that could be produced - feedback is appreciated!
+final_score (or summary risk level): a score from 0-5
+     a score of 5 means the model is highly disclosive
+     a score of 1 (or an empty file) means the model is not found to be disclosive
+score_breakdown: for each of the tests that were run and indicated a disclosive model, a score of the impact on risk is provided (1-5, 5 is most disclosive).
+     This list is used to calculate the final_score above
+score_descriptions: for each tests that were run and indicated a disclosive model, a description of the test is provided
+     This information can be used by the researcher to improve their models
