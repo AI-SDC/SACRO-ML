@@ -1,13 +1,13 @@
 """
-TRE SCRIPT FOR USER STORY 7.
+TRE SCRIPT FOR USER STORY 8.
 
-This file contains the code needed to run user story 7
+This file contains the code needed to run user story 8
 
 NOTE: this user story will not produce an output, this user story covers cases where the
 researcher has not provided enough information
 See user stories 1, 2 or 3 for guidance on what you need to release a model
 
-To run: change the user_story key inside the .yaml config file to '7', and run the
+To run: change the user_story key inside the .yaml config file to '8', and run the
 'generate_disclosure_risk_report.py' file
 
 NOTE: you should not need to change this file at all, set all parameters via the .yaml file
