@@ -50,8 +50,10 @@ if __name__ == "__main__":
         )
 
     user_story = config["user_story"]
-    if user_story == 'UNDEFINED':
-        print("User story not selected, please select a user story by referring to user_stories_flow_chart.png and adding the relevant number to the the first line of 'default_config.yaml'")
+    if user_story == "UNDEFINED":
+        print(
+            "User story not selected, please select a user story by referring to user_stories_flow_chart.png and adding the relevant number to the the first line of 'default_config.yaml'"
+        )
     elif user_story == 1:
         user_story_1_tre.run_user_story(config)
     elif user_story == 2:
