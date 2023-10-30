@@ -5,7 +5,7 @@
 # All other parameters need to be set by either the researcher or TRE
 
 # Scenario to be run
-user_story: <x>
+user_story: UNDEFINED
 
 ### Details of experiments and files - please replace these with the relevant filenames
 

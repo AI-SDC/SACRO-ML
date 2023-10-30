@@ -28,7 +28,8 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the relevant researcher  user story example code (**user_story_[x]_researcher.[py/R]**).
 4. Make sure you generated all metadata, data and files required for output checking.
 5. Fill out the `default_config.yaml` with the appropriate fields. An example of this file can be found [here](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
-6. Run the command `python generate_disclosure_risk_report.py`. This will create a folder of **release_files** where the all the required files, data and metadata for egress are placed.
+6. Run the command `python generate_disclosure_risk_report.py`. 
+7. View all the required output files in the **release_files** folder, where the all the required files, data and metadata for egress are placed. A folder called **training_artefacts** is also created, this will include training and testing data and any detailed results of attacks.
 
 *Alternative to steps 5 and 6*
 
@@ -43,7 +44,7 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 
 ## The user stories in detail
 
-Unless otherwise specified, the stories are for Python ML models.
+Unless otherwise specified, the stories are for Python machine learning models.
 
 ### User story 1: Ideal Case
 
