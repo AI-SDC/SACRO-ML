@@ -92,9 +92,25 @@ dataset = 'minmax mimic2-iaccd'
 
 # Need a df for
 always_cols = ['model_data_param_id']
-temp_plot_metric = agg_df[agg_df['scenario'] == 'WorstCase'].loc[:, always_cols + [plot_metric]].set_index('model_data_param_id')
+temp_plot_metric = agg_df[agg_df['scenario'] == 'WorstCase'].loc[:, always_cols + [plot_metric, "dataset"]].set_index('model_data_param_id')
 temp_structural_metric = agg_df[agg_df['scenario'] == 'Structural'].loc[:, always_cols + [structural_metric]].set_index('model_data_param_id')
 plot_df= temp_plot_metric.join(temp_structural_metric, how='left')
 import pylab as plt
 plt.scatter(plot_df['attack_AUC'], plot_df['attack_k_anonymity_risk'], c=plot_df['attack_k_anonymity_risk'])
+# %%
+import seaborn as sns
+sns.set_theme(style="dark")
+
+# Load the example tips dataset
+tips = sns.load_dataset("tips")
+
+# Draw a nested violinplot and split the violins for easier comparison
+sns.violinplot(data=tips, x="day", y="total_bill", hue="smoker",
+               split=True, inner="quart", fill=False,
+               palette={"Yes": "g", "No": ".35"})
+# %%
+chart = sns.violinplot(data=plot_df, x="dataset", y="attack_AUC", hue="attack_k_anonymity_risk",
+               split=True, inner="quart", fill=False,
+               palette={1: "g", 0: ".35"})
+chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right')
 # %%
