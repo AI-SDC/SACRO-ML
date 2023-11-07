@@ -11,5 +11,5 @@
 - [ ] Add the user story where a path to predicted probabilities are included in TARGET.json instead of raw data to help support R etc. [Assigned: YJ- - phase3]
 - [ ] NOT ASSIGNED: Refactor the attacks and ensure consistency of output format (including AIA) [Issue #147] [Assigned: - phase3]
 - [ ] (in progress) Report generation should produce summary.txt by taking as input the TARGET.json and ATTACK_RESULTS.json files (depends on completion of above) [Issue #152] [Assigned: YJ/SR -phase 2 ]
-- [ ] (in progress) Refactor analysis modules to ensure code re-use [Issue #127] [Assigned: YJ-phase3]
+- [ ] (in progress) Refactor analysis modules to ensure code reuse [Issue #127] [Assigned: YJ-phase3]
 - [ ] (in progress) Improve the summary recommendations; how? is this sufficient/completed? (needs discussion) [Issue #110] [Assigned: YJ-phase3]
