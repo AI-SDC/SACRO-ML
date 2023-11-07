@@ -195,3 +195,5 @@ g.map(sns.violinplot,'dataset', 'attack_metric_value', hue=full_df['structural_m
         inner="quart", fill=False,
         palette={1: "g", 0: ".35"} # green when value is 1, grey otherwise
 )
+
+# %%
