@@ -4,16 +4,15 @@ Uses SafeRandomForestClassifier from aisdc.
 """
 
 import os
-import pandas as pd
+
 import numpy as np
-
-from scipy.io.arff import loadarff
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-
+import pandas as pd
 from aisdc.attacks.dataset import Data
 from aisdc.safemodel.classifiers import SafeRandomForestClassifier
+from scipy.io.arff import loadarff
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 DIR = "training_artefacts/"
 print("\nCreating directory for training artefacts")

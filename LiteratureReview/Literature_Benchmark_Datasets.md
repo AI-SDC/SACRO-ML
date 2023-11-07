@@ -34,4 +34,4 @@ A Survey](https://dl.acm.org/doi/pdf/10.1145/3523273)
    |Membership Advantage (MA)|$AR-FPR$|
    |Attack F1-Score|$\frac{2\times AP\times AR}{AP-AR}$|
    |Attack AUC|$\frac{\textnormal{}}{\textnormal{}}$|
-   
+
