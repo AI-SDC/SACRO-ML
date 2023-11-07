@@ -1,13 +1,18 @@
 # %%
 import os
 import glob
-import pandas as pd
 import logging
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+sns.set_theme(style="dark")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 DATA_PATH = '/Users/simonr04/sacro_results'
 GLOB_PATTERN = 'DT_*.csv'
+P_THRESH = 0.05
 # %%
 file_list = glob.glob(
     os.path.join(DATA_PATH, GLOB_PATTERN)
@@ -85,32 +90,52 @@ n_rows_actual = len(agg_df)
 
 assert n_rows_actual == n_rows_predicted
 
+# %% Add any additional columns required
+agg_df['attack_sig_AUC'] = (agg_df['attack_P_HIGHER_AUC'] <= P_THRESH)
+agg_df['attack_sig_FDIF01'] = (np.exp(-agg_df['attack_PDIF01']) <= P_THRESH)
+
+# %% Define some useful things
+structural_metrics = [
+    'attack_k_anonymity_risk',
+    'attack_DoF_risk',
+    'attack_class_disclosure_risk',
+    'attack_unnecessary_risk',
+    'attack_lowvals_cd_risk'
+]
+
+attack_metrics = [
+    'attack_AUC',
+    'attack_FDIF01',
+    'attack_sig_AUC',
+    'attack_sig_FDIF01'
+]
 # %% Example, plot miAUC for a single dataset, stratified by a strucutral risk metric
-plot_metric = 'attack_AUC'
-structural_metric = 'attack_k_anonymity_risk'
 dataset = 'minmax mimic2-iaccd'
-
-# Need a df for
 always_cols = ['model_data_param_id']
-temp_plot_metric = agg_df[agg_df['scenario'] == 'WorstCase'].loc[:, always_cols + [plot_metric, "dataset"]].set_index('model_data_param_id')
-temp_structural_metric = agg_df[agg_df['scenario'] == 'Structural'].loc[:, always_cols + [structural_metric]].set_index('model_data_param_id')
-plot_df= temp_plot_metric.join(temp_structural_metric, how='left')
 import pylab as plt
-plt.scatter(plot_df['attack_AUC'], plot_df['attack_k_anonymity_risk'], c=plot_df['attack_k_anonymity_risk'])
-# %%
-import seaborn as sns
-sns.set_theme(style="dark")
+fig, axes = plt.subplots(len(attack_metrics), len(structural_metrics), figsize=(20, 20))
 
-# Load the example tips dataset
-tips = sns.load_dataset("tips")
+for row_idx, plot_metric in enumerate(attack_metrics):
+    for col_idx, structural_metric in enumerate(structural_metrics):
 
-# Draw a nested violinplot and split the violins for easier comparison
-sns.violinplot(data=tips, x="day", y="total_bill", hue="smoker",
+        temp_plot_metric = agg_df[agg_df['scenario'] == 'WorstCase'].loc[:, always_cols + [plot_metric, "dataset"]].set_index('model_data_param_id')
+        temp_structural_metric = agg_df[agg_df['scenario'] == 'Structural'].loc[:, always_cols + [structural_metric]].set_index('model_data_param_id')
+        plot_df= temp_plot_metric.join(temp_structural_metric, how='left')
+
+        
+        chart = sns.violinplot(data=plot_df, x="dataset", y=plot_metric, hue=structural_metric,
                split=True, inner="quart", fill=False,
-               palette={"Yes": "g", "No": ".35"})
+               palette={1: "g", 0: ".35"}, ax=axes[row_idx, col_idx])
+        chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right')
+
+        plot_title = f'{dataset}-{plot_metric}-{structural_metric}'
+        chart.set_title(plot_title)
 # %%
-chart = sns.violinplot(data=plot_df, x="dataset", y="attack_AUC", hue="attack_k_anonymity_risk",
-               split=True, inner="quart", fill=False,
-               palette={1: "g", 0: ".35"})
-chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right')
-# %%
+# Seaborn provides really useful methods for grids of plots
+# Below attempts to use this. For a particular combination of classifier x mia_metric we
+# want a row of plots. The row should have one column per structural metric and one violin
+# plot per dataset
+# To do this, we need to pivot the relevant columns
+attack_metric = attack_metrics[0]
+cols_to_use = ['model_data_param_id', 'dataset', attack_metric] + structural_metrics
+non_pivot_df = agg_df[]
