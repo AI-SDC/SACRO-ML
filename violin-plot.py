@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 # %% Parameters to modify
 DATA_PATH = '/Users/simonr04/sacro_results' # where are the results .csv files
-GLOB_PATTERN = 'DT_*.csv' # which results .csv files to load
-# GLOB_PATTERN = 'xgboost_*.csv'
+# GLOB_PATTERN = 'DT_*.csv' # which results .csv files to load
+GLOB_PATTERN = 'xgboost_*.csv'
 P_THRESH = 0.05 # Threshold for binary p-value significance evaluation
 ATTACK_SCENARIO = 'lira' # Which Attack scenario are we analysing
 
