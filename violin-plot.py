@@ -10,6 +10,7 @@ import logging
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import pylab as plt
 
 # %% Setup logging and seaborn
 sns.set_theme(style="dark")
@@ -67,32 +68,28 @@ COLS_TO_AVERAGE = [
 
 # These are the columns that are constant (or don't matter), we just take the first value
 # If only files from a single classifier are used, then these will be classifier specific
-# TODO: make classifier-specific lists and then select accordingly?
-CONSTANT_COLS = [ # decision tree columns
-        'dataset',
-        'target_classifier', 'target_clf_file',
-        'attack_classifier', 'attack_clf_file', 'repetition',
-        'target_generalisation_error', 
-        #'model_data_param_id', 
-        'param_id',
-        'criterion', 'splitter', 'max_depth', 'min_samples_split',
-        'min_samples_leaf', 'max_features', 'class_weight', 'attack_TPR',
-        'attack_n_pos_test_examples',
-        'attack_n_neg_test_examples', 'mia_hyp_min_samples_split',
-        'mia_hyp_min_samples_leaf', 'mia_hyp_max_depth'
-]
+# NOTE: this operation will remove all hyper-parameter columns
 
-# And this for xgboost
-# CONSTANT_COLS = ['dataset', 'target_classifier', 'target_clf_file',
-#        'attack_classifier', 'attack_clf_file', 'repetition',
-#        'target_generalisation_error', 'param_id',
-#        'n_estimators', 'max_depth', 'booster', 'use_label_encoder',
-#        'min_child_weight', 'verbosity']
+CONSTANT_COLS = [
+    'dataset',
+    'target_classifier',
+    'target_clf_file',
+    'attack_classifier',
+    'attack_clf_file',
+    'repetition',
+    'target_generalisation_error',
+    'param_id',
+    'attack_n_pos_test_examples',
+    'attack_n_neg_test_examples',
+    'mia_hyp_min_samples_split',
+    'mia_hyp_min_samples_leaf',
+    'mia_hyp_max_depth'
+]
 
 # Make an aggregation object and perform the aggregations
 aggregations = {}
 for col_name in CONSTANT_COLS:
-    aggregations[col_name] = 'first' # any agg will work
+    aggregations[col_name] = 'first' # any agg that can handle chars will work
 for col_name in COLS_TO_AVERAGE:
     aggregations[col_name] = 'mean'
 
@@ -118,9 +115,8 @@ n_rows_actual = len(agg_df)
 assert n_rows_actual == n_rows_predicted
 
 # %% Add any additional columns required
-# Here two additional metrics are added with binary significance values in
-agg_df['attack_sig_AUC'] = (agg_df['attack_P_HIGHER_AUC'] <= P_THRESH)
-agg_df['attack_sig_FDIF01'] = (np.exp(-agg_df['attack_PDIF01']) <= P_THRESH)
+agg_df.loc[agg_df['attack_P_HIGHER_AUC'] < 1e-6, 'attack_P_HIGHER_AUC'] = 1e-6
+agg_df['attack_mlogp_auc'] = (-np.log(agg_df['attack_P_HIGHER_AUC']))
 
 # %% Define the metrics of interest
 
@@ -136,9 +132,10 @@ structural_metrics = [
 # These are the attack metrics to use (add others / remove / whatever)
 attack_metrics = [
     'attack_AUC',
+    'attack_mlogp_auc',
     'attack_FDIF01',
-    'attack_sig_AUC',
-    'attack_sig_FDIF01'
+    'attack_PDIF01',
+    'attack_Advantage'
 ]
 
 # %%
@@ -172,12 +169,15 @@ attack_metric_df = pd.melt(attack_metric_df, id_vars=unique_cols)
 structural_metric_df.rename(columns={'variable': 'structural_metric_name', 'value': 'structural_metric_value'}, inplace=True)
 attack_metric_df.rename(columns={'variable': 'attack_metric_name', 'value': 'attack_metric_value'}, inplace=True)
 
-# Set the index to be the id and dataset
-structural_metric_df.set_index(unique_cols, inplace=True)
-attack_metric_df.set_index(unique_cols, inplace=True)
-
+# %%
 # Do an outer join to get all combinations
-full_df = attack_metric_df.join(structural_metric_df, how='outer')
+full_df = pd.merge(
+    attack_metric_df,
+    structural_metric_df,
+    how='outer',
+    left_on=['model_data_param_id', 'dataset'],
+    right_on=['model_data_param_id', 'dataset']
+)
 
 # Put the index back as columns
 full_df.reset_index(inplace=True)
@@ -193,7 +193,40 @@ g = sns.FacetGrid(
 
 g.map(sns.violinplot,'dataset', 'attack_metric_value', hue=full_df['structural_metric_value'], split=True,
         inner="quart", fill=False,
-        palette={1: "g", 0: ".35"} # green when value is 1, grey otherwise
+        palette={1: "r", 0: ".35"}, # blue when value is 1, grey otherwise
+        linewidth=3
 )
+g.tick_params('x', rotation=90)
 
+
+# %% Code to make a scatter plot for one of the violins
+# Pick your favourite dataset, structural metric and attack metric
+dataset = 'minmax mimic2-iaccd'
+structural_metric = 'attack_class_disclosure_risk'
+attack_metric = 'attack_Advantage'
+
+plot_cols = ['model_data_param_id', 'structural_metric_value', 'attack_metric_value']
+sub_df = full_df.loc[
+    (full_df['dataset'] == dataset) &
+    (full_df['structural_metric_name'] == structural_metric) &
+    (full_df['attack_metric_name'] == attack_metric)
+    , plot_cols]
+sub_df.rename(columns={'structural_metric_value': structural_metric, 'attack_metric_value': attack_metric}, inplace=True)
+
+# Get the target model generalisation error
+temp = agg_df.loc[
+    (agg_df['scenario'] == ATTACK_SCENARIO) &
+    (agg_df['dataset'] == dataset)
+    , ['model_data_param_id', 'target_generalisation_error']]
+
+plot_df = pd.merge(sub_df, temp, how='left', on='model_data_param_id')
+sns.set(font_scale=1.0)
+sns.scatterplot(
+    plot_df,
+    x='target_generalisation_error',
+    y=attack_metric,
+    hue=structural_metric,
+    alpha=0.5
+)
+plt.title(f'Dataset = {dataset}, attack type = {ATTACK_SCENARIO}')
 # %%
