@@ -16,12 +16,8 @@ from typing import TypedDict
 
 import joblib
 import pandas as pd
-#from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-#from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
-#from aisdc.attacks.structural_attack import (  # pylint: disable = import-error
-#    StructuralAttack,
-#)
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from experiments.metrics import get_metrics # pylint: disable=import-error
+#from aisdc.attacks.target import Target  # pylint: disable = import-error
 from aisdc.preprocessing import loaders  # pylint: disable = import-error
 from sklearn.model_selection import train_test_split
 
@@ -38,8 +34,8 @@ class ResultsEntry:  # pylint: disable=too-few-public-methods, too-many-locals, 
         model_data_param_id,
         param_id,
         dataset_name,
-        scenario_name,
-        classifier_name,
+        scenario_name=None,
+        classifier_name=None,
         target_clf_file=None,
         attack_classifier_name=None,
         attack_clf_file=None,
@@ -211,141 +207,31 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                 # test_preds = target_model.predict_proba(test_X)
 
                 # Wrap the model and data in a Target object
-                target = Target(model=target_model)
-                target.add_processed_data(train_X, train_y, test_X, test_y)
+                #target = Target(model=target_model)
+                #target.add_processed_data(train_X, train_y, test_X, test_y)
 
-                for scenario in scenarios:
-                    logger.info("Attack scenario: %s", scenario)
-                    if scenario.lower() == "worst_case" or scenario == "WorstCase":
-                        attack_obj = worst_case_attack.WorstCaseAttack(
-                            # How many attacks to run -- in each the attack model is
-                            #  trained on a different
-                            # subset of the data
-                            n_reps=10,
-                            output_dir=f"outputs_worstcase_{target_model_id}",
-                        )
-                        # [TRE] Run the attack
-                        attack_obj.attack(target)
-                        # [TRE] Grab the output
-                        # output = attack_obj.make_report()
-                        
-                        # Get target metrics
-                        target_metrics = {f"target_{key}": val for key, val in \
-                            get_metrics(target_classifier, test_X, test_y).items()}
-                        target_train_metrics = {f"target_train_{key}": val for key, val in \
-                            get_metrics(target_classifier, train_X, train_y).items()}
-                        target_metrics = {**target_metrics, **target_train_metrics}
-                        
-                        for i, repetition in enumerate(attack_obj.attack_metrics):
-                            del repetition["fpr"]
-                            del repetition["tpr"]
-                            del repetition["roc_thresh"]
-                            attack_results = ResultsEntry(  # f'full_id_{i}',
+                # Get target metrics
+                target_metrics = {f"target_{key}": val for key, val in \
+                            get_metrics(target_model, test_X, test_y).items()}
+                target_train_metrics = {f"target_train_{key}": val for key, val in \
+                            get_metrics(target_model, train_X, train_y).items()}
+                target_metrics = {**target_metrics, **target_train_metrics}           
+
+                attack_results = ResultsEntry(  # f'full_id_{i}',
                                 model_data_param_id=target_model_id,
                                 param_id=param_id,
                                 dataset_name=dataset,
-                                scenario_name=scenario,
                                 classifier_name=classifier_name,
-                                target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
                                 target_clf_file=target_model_filename,
-                                attack_classifier_name=str(
-                                    attack_obj.get_params()["mia_attack_model"]()
-                                ),  # pylint: disable = line-too-long
-                                attack_clf_file=None,
-                                repetition=i,
                                 params=params,
                                 target_metrics=target_metrics,
-                                attack_metrics=repetition,
-                                mia_hyp=attack_obj.get_params()["mia_attack_model_hyp"],
                             )
-                            results = pd.concat(
+                results = pd.concat(
                                 [results, attack_results.to_dataframe()],
                                 ignore_index=True,
                                 sort=False,
                             )
-                        try:
-                            os.rmdir(f"outputs_worstcase_{target_model_id}")
-                        except:
-                            print(f"Directory outputs_worstcase_{target_model_id} already removed")
-                    elif scenario.lower() == "lira":
-                        # Create config file for the likelihood attack
-                        # this file gets overwritten every time a new set of
-                        #   classfier + params
-                        config = {
-                            "training_data_filename": "train_data.csv",
-                            "test_data_filename": "test_data.csv",
-                            "training_preds_filename": "train_preds.csv",
-                            "test_preds_filename": "test_preds.csv",
-                            "target_model": classifier_strings,
-                            "target_model_hyp": params,
-                        }
-
-                        with open("lira_config_"+str(target_model_id)+".json", "w", encoding="utf-8") as f:
-                            f.write(json.dumps(config))
-
-                        # set up the attack
-                        attack_obj = LIRAAttack(
-                            n_shadow_models=100,
-                            output_dir="outputs_lira",
-                            # report_name="report_lira",
-                            attack_config_json_file_name="lira_config_"+str(target_model_id)+".json",
-                        )
-
-                        # run the attack
-                        attack_obj.attack(target)
-
-                        metrics = attack_obj.attack_metrics[0]
-                        del metrics["fpr"]
-                        del metrics["tpr"]
-                        del metrics["roc_thresh"]
-
-                        attack_results = ResultsEntry(  # f'full_id_{i}',
-                            model_data_param_id=target_model_id,
-                            param_id=param_id,
-                            dataset_name=dataset,
-                            scenario_name=scenario,
-                            classifier_name=classifier_name,
-                            target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
-                            target_clf_file=target_model_filename,
-                            attack_classifier_name=str(
-                                attack_obj.get_params()["target_model"][0][1]
-                            ),  # pylint: disable = line-too-long
-                            attack_clf_file=None,
-                            params=params,
-                            target_metrics=target_metrics,
-                            attack_metrics=metrics,
-                        )
-                        results = pd.concat(
-                            [results, attack_results.to_dataframe()],
-                            ignore_index=True,
-                            sort=False,
-                        )
-                        os.remove("lira_config_"+str(target_model_id)+".json")
-                    elif scenario.lower() == "structural":
-                        # run the attack
-                        attack_obj = StructuralAttack(target_path="dt.sav")
-                        attack_obj.attack(target)
-                        attack_obj._construct_metadata  # pylint: disable=pointless-statement, disable=protected-access
-
-                        attack_results = ResultsEntry(  # f'full_id_{i}',
-                            model_data_param_id=target_model_id,
-                            param_id=param_id,
-                            dataset_name=dataset,
-                            scenario_name=scenario,
-                            classifier_name=classifier_name,
-                            target_generalisation_error=target._Target__ge(),  # pylint: disable=protected-access
-                            target_clf_file=target_model_filename,
-                            params=params,
-                            target_metrics=target_metrics,
-                            attack_metrics=attack_obj._get_global_metrics(
-                                attack_obj.attack_metrics
-                            ),  # pylint: disable = line-too-long, protected-access
-                        )
-                        results = pd.concat(
-                            [results, attack_results.to_dataframe()],
-                            ignore_index=True,
-                            sort=False,
-                        )
+                        
 
     results.to_csv(results_filename, index=False)
     return results

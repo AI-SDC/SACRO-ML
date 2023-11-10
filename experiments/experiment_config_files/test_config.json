@@ -1,0 +1,37 @@
+{
+    "datasets": [
+        "iris"
+    ],
+    "classifiers": [
+        [
+            "sklearn.tree",
+            "DecisionTreeClassifier"
+        ]
+    ],
+    "experiment_params": {
+        "DecisionTreeClassifier": {
+            "criterion": [
+                "gini"
+            ],
+            "class_weight": [
+                "balanced"
+            ]
+        }
+    },
+    "results_filename": "test_experiments.csv",
+    "path": "experiments",
+    "include_correct_pred_term": true,
+    "mia_classifier": [
+        "sklearn.ensemble",
+        "RandomForestClassifier"
+    ],
+    "mia_classifier_hyp": {
+        "min_samples_split": 20,
+        "min_samples_leaf": 10,
+        "max_depth": 5
+    },
+    "reproduce_split": 42,
+    "scenarios": [
+    ]
+}
+
