@@ -14,5 +14,5 @@ ST hs created milestone for release 1.0.5
   - if we are going to have a 'higher level' config file where you specify what attacks you run, is that the same for reseachers as for the TRE output checkers.
   -
 Plans for next sprint
-- need user stories JS/MA to co-ordinate
+- need user stories JS/MA to coordinate
 -
