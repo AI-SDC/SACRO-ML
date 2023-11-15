@@ -258,7 +258,9 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                         try:
                             os.rmdir(f"outputs_worstcase_{target_model_id}")
                         except:
-                            print(f"Directory outputs_worstcase_{target_model_id} already removed")
+                            print(
+                                f"Directory outputs_worstcase_{target_model_id} already removed"
+                            )
                     elif scenario.lower() == "lira":
                         # Create config file for the likelihood attack
                         # this file gets overwritten every time a new set of
@@ -272,7 +274,11 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                             "target_model_hyp": params,
                         }
 
-                        with open("lira_config_"+str(target_model_id)+".json", "w", encoding="utf-8") as f:
+                        with open(
+                            "lira_config_" + str(target_model_id) + ".json",
+                            "w",
+                            encoding="utf-8",
+                        ) as f:
                             f.write(json.dumps(config))
 
                         # set up the attack
@@ -280,7 +286,9 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                             n_shadow_models=100,
                             output_dir="outputs_lira",
                             # report_name="report_lira",
-                            attack_config_json_file_name="lira_config_"+str(target_model_id)+".json",
+                            attack_config_json_file_name="lira_config_"
+                            + str(target_model_id)
+                            + ".json",
                         )
 
                         # run the attack
@@ -312,7 +320,7 @@ def run_loop(  # pylint: disable=too-many-locals, too-many-branches, too-many-st
                             ignore_index=True,
                             sort=False,
                         )
-                        os.remove("lira_config_"+str(target_model_id)+".json")
+                        os.remove("lira_config_" + str(target_model_id) + ".json")
                     elif scenario.lower() == "structural":
                         # run the attack
                         attack_obj = StructuralAttack(target_path="dt.sav")

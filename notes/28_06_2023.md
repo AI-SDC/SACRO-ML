@@ -27,7 +27,7 @@ SM, SR, CC, MA
      some of the work in the Rezaie 'Difficulty of MI' paper but using our metrics
      - obviously we need to agree what to measure first :)
    - **Action** JL to consider whether using tests for proportions of train/test  records in top T% gives different information to FDIF/PFDIF
-5. Identifed blocker: establishing shared language between WP1/TREs and WP5
+5. Identified blocker: establishing shared language between WP1/TREs and WP5
     - Recognised there are many calls on FRs time so have reached out to other people involved in WP1
     - **Action**: JS to revise the doc linking risks from ML models to more familiar SDC terms
     - UPDATE: revised version distributed to WP5 team 3rd July
