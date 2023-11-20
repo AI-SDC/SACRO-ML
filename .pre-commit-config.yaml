@@ -33,7 +33,7 @@ repos:
 
   # Autoremoves unused imports
   - repo: https://github.com/hadialqattan/pycln
-    rev: "v2.3.0"
+    rev: "v2.4.0"
     hooks:
       - id: pycln
         stages: [manual]
@@ -53,7 +53,7 @@ repos:
 
   # Black format Python and notebooks
   - repo: https://github.com/psf/black
-    rev: 23.10.1
+    rev: 23.11.0
     hooks:
       - id: black-jupyter
 
