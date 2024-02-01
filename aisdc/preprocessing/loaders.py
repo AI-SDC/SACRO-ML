@@ -72,7 +72,6 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     medical-mnist-ab-v-br-500 (requires data download)
     medical-mnist-all-100 (requires data download)
     indian liver (requires data download)
-    texas hospitals 10 (requires data download)
     synth-ae (requires data download)
     synth-ae-small (requires data download)
     nursery (downloads automatically)
@@ -139,16 +138,22 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         )
     if dataset_name == "indian liver":
         return _indian_liver(data_folder)
-    if dataset_name == "texas hospitals 10":
-        return _texas_hospitals(data_folder)
     if dataset_name == "synth-ae":
         return _synth_ae(data_folder)
     if dataset_name == "synth-ae-small":
         return _synth_ae(data_folder, 200)
+    if dataset_name == "synth-ae-large":
+        return _synth_ae(data_folder, 500000)
+    if dataset_name == "synth-ae-extra-large":
+        return _synth_ae(data_folder, 2000000)
+    if dataset_name == "synth-ae-XXL":
+        return _synth_ae(data_folder, 50000000)
     if dataset_name == "nursery":
         return _nursery()
     if dataset_name == "iris":
         return _iris()
+    if dataset_name == "RDMP":
+        return _RDMP(data_folder)
     raise UnknownDataset(dataset_name)
 
 
@@ -273,15 +278,17 @@ def _synth_ae(
     https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.
     """
 
-    file_path = os.path.join(
-        data_folder, "AE_England_synthetic.csv"  #'A&E Synthetic Data.csv'
-    )
+    file_path = os.path.join(data_folder, "AE_England_synthetic.csv")
 
     if not os.path.exists(file_path):
         help_message = f"""
 Data file {file_path} does not exist. Please download the file from:
 https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e
-unzip it (7z) and then copy the .csv file into your data folder.
+
+Alternatively, download the file directly from the following URL:
+https://nhsengland-direct-uploads.s3-eu-west-1.amazonaws.com/A%26E+Synthetic+Data.7z
+
+Unzip it (7z) and then copy the .csv file into your data folder.
     """
         raise DataNotAvailable(help_message)
 
@@ -375,6 +382,7 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
     # download, and where to store
     files = ["data01.csv", "doi_10.5061_dryad.0p2ngf1zd__v5.zip"]
     file_path = [os.path.join(data_folder, f) for f in files]
+    print(file_path)
 
     if not any(  # pylint: disable=use-a-generator
         [os.path.exists(fp) for fp in file_path]
@@ -383,6 +391,9 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
 and place it in the correct folder. It works with either the zip file or uncompressed.
+Alternatively download the data file from this URL:
+        https://datadryad.org/stash/downloads/file_stream/773992
+and then change the name of the file 773992 to data01.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -403,17 +414,19 @@ and place it in the correct folder. It works with either the zip file or uncompr
 
 
 def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Loads the mimic_iaccd data and performs Alba's pre-processing."""
+    """Loads the mimic_iaccd data and performs pre-processing."""
 
     # Check the data has been downloaded. If not throw an exception with instructions on how to
     # download, and where to store
     file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
+    print(file_path, os.path.exists(file_path))
 
     if not os.path.exists(file_path):
         help_message = f"""
         The MIMIC2-iaccd data is not available in {data_folder}.
         The following file should exist: {file_path}.
-        Please download from https://physionet.org/content/mimic2-iaccd/1.0/full_cohort_data.csv
+        Please download from https://physionet.org/files/mimic2-iaccd/1.0/full_cohort_data.csv?download
+        and rename the file to full_cohort_data.csv.
         """
         raise DataNotAvailable(help_message)
 
@@ -453,208 +466,22 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return (X, y)
 
 
-def _texas_hospitals(
+
+def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:  # pragma: no cover
-    # pylint: disable=too-many-statements, too-many-locals
-    """
-    Texas Hospitals Dataset
-    (https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm).
-
-    Note: this has been tested repeated in the GRAIMatter project.
-    However, for licensing reasons we cannot redistribute the data.
-    Therefore it is omitted from CI test coverage and metrics.
-    """
-    file_list = [
-        "PUDF-1Q2006-tab-delimited.zip",
-        "PUDF-1Q2007-tab-delimited.zip",
-        "PUDF-1Q2008-tab-delimited.zip",
-        "PUDF-1Q2009-tab-delimited.zip",
-        "PUDF-2Q2006-tab-delimited.zip",
-        "PUDF-2Q2007-tab-delimited.zip",
-        "PUDF-2Q2008-tab-delimited.zip",
-        "PUDF-2Q2009-tab-delimited.zip",
-        "PUDF-3Q2006-tab-delimited.zip",
-        "PUDF-3Q2007-tab-delimited.zip",
-        "PUDF-3Q2008-tab-delimited.zip",
-        "PUDF-3Q2009-tab-delimited.zip",
-        "PUDF-4Q2006-tab-delimited.zip",
-        "PUDF-4Q2007-tab-delimited.zip",
-        "PUDF-4Q2008-tab-delimited.zip",
-        "PUDF-4Q2009-tab-delimited.zip",
-    ]
-
-    files_path = [os.path.join(data_folder, "TexasHospitals", f) for f in file_list]
-
-    found = [os.path.exists(file_path) for file_path in files_path]
-    not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
-
-    processed_data_file = "texas_data10_rm_binary.csv"
-    if not all(found):
-        help_message = f"""
-    Some or all data files do not exist. Please accept their terms & conditions,then download the
-    tab delimited files from each quarter during 2006-2009 from:
-    https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm
-and place it in the correct folder.
-
-    Missing files are:
-    {not_found}
-        """
-        raise DataNotAvailable(help_message)
-
-    if not os.path.exists(
-        os.path.join(data_folder, "TexasHospitals", processed_data_file)
-    ):
-        logger.info("Processing Texas Hospitals data (2006-2009)")
-
-        # Load data
-        columns_names = [
-            "THCIC_ID",  # Provider ID. Unique identifier assigned to the provider by DSHS.
-            # Hospitals with fewer than 50 discharges have been aggregated into the
-            # Provider ID '999999'
-            "DISCHARGE_QTR",  # yyyyQm
-            "TYPE_OF_ADMISSION",
-            "SOURCE_OF_ADMISSION",
-            "PAT_ZIP",  # Patient’s five-digit ZIP code
-            "PUBLIC_HEALTH_REGION",  # Public Health Region of patient’s address
-            "PAT_STATUS",  # Code indicating patient status as of the ending date of service for
-            # the period of care reported
-            "SEX_CODE",
-            "RACE",
-            "ETHNICITY",
-            "LENGTH_OF_STAY",
-            "PAT_AGE",  # Code indicating age of patient in days or years on date of discharge.
-            "PRINC_DIAG_CODE",  # diagnosis code for the principal diagnosis
-            "E_CODE_1",  # external cause of injury
-            "PRINC_SURG_PROC_CODE",  # Code for the principal surgical or other procedure performed
-            # during the period covered by the bill
-            "RISK_MORTALITY",  # Assignment of a risk of mortality score from the All Patient
-            # Refined (APR) Diagnosis Related Group (DRG)
-            "ILLNESS_SEVERITY",  # Assignment of a severity of illness score from the All Patient
-            # Refined (APR) Diagnosis RelatedGroup (DRG
-            "RECORD_ID",
-        ]
-        # obtain the 100 most frequent procedures
-        tmp = []
-        for f in files_path:
-            df = [
-                pd.read_csv(
-                    ZipFile(f).open(i), sep="\t", usecols=["PRINC_SURG_PROC_CODE"]
-                )
-                for i in ZipFile(f).namelist()
-                if "base" in i
-            ][0]
-            df.dropna(inplace=True)
-            tmp.extend(list(df.PRINC_SURG_PROC_CODE))
-        princ_surg_proc_keep = [k for k, v in Counter(tmp).most_common(10)]
-        # remove unnecessary variables
-        del tmp
-
-        # Load the data
-        tx_data = pd.DataFrame()
-        for f in files_path:
-            df = [
-                pd.read_csv(ZipFile(f).open(i), sep="\t", usecols=columns_names)
-                for i in ZipFile(f).namelist()
-                if "base" in i
-            ][0]
-            # keep only those rows with one of the 10 most common principal surgical procedure
-            df = df[df["PRINC_SURG_PROC_CODE"].isin(princ_surg_proc_keep)]
-            # clean up data
-            df.dropna(inplace=True)
-            df.replace("`", pd.NA, inplace=True)
-            df.replace("*", pd.NA, inplace=True)
-            # replace sex to numeric
-            df.SEX_CODE.replace("M", 0, inplace=True)
-            df.SEX_CODE.replace("F", 1, inplace=True)
-            df.SEX_CODE.replace("U", 2, inplace=True)
-            # set to numerical variable
-            for d_code in set(list(df.DISCHARGE_QTR)):
-                df.DISCHARGE_QTR.replace(
-                    d_code, "".join(d_code.split("Q")), inplace=True
-                )
-            df.dropna(inplace=True)
-            # merge data
-            tx_data = pd.concat([tx_data, df])
-        # remove uncessary variables
-        del df
-
-        # Risk moratality, make it binary
-        # 1 Minor
-        # 2 Moderate
-        # 3 Major
-        # 4 Extreme
-        tx_data.RISK_MORTALITY.astype(int)
-        tx_data.RISK_MORTALITY.replace(1, 0, inplace=True)
-        tx_data.RISK_MORTALITY.replace(2, 0, inplace=True)
-        tx_data.RISK_MORTALITY.replace(3, 1, inplace=True)
-        tx_data.RISK_MORTALITY.replace(4, 1, inplace=True)
-
-        # renumber non-numerical codes for cols
-        cols = ["PRINC_DIAG_CODE", "SOURCE_OF_ADMISSION", "E_CODE_1"]
-        for col in cols:
-            tmp = list(
-                {
-                    x
-                    for x in tx_data[col]
-                    if not str(x).isdigit() and not isinstance(x, float)
-                }  # pylint: disable=consider-using-set-comprehension
-            )
-            n = max(
-                list(
-                    {
-                        int(x)
-                        for x in tx_data[col]
-                        if str(x).isdigit() or isinstance(x, float)
-                    }  # pylint: disable=consider-using-set-comprehension
-                )
-            )
-            for i, x in enumerate(tmp):
-                tx_data[col].replace(x, n + i, inplace=True)
-        del tmp, n
-        # set index
-        tx_data.set_index("RECORD_ID", inplace=True)
-        # final check and drop of NAs
-        tx_data.dropna(inplace=True)
-        # convert all data to numerical
-        tx_data = tx_data.astype(int)
-        # save csv file
-        tx_data.to_csv(os.path.join(data_folder, "TexasHospitals", processed_data_file))
-    else:
-        logger.info("Loading processed Texas Hospitals data (2006-2009) csv file.")
-        # load texas data processed csv file
-        tx_data = pd.read_csv(
-            os.path.join(data_folder, "TexasHospitals", processed_data_file)
-        )
-
-    # extract target
-    var = "RISK_MORTALITY"
-    labels = tx_data[var]
-    # Drop the column that contains the labels
-    tx_data.drop([var], axis=1, inplace=True)
-
-    label_encoder = LabelEncoder()
-    encoded_labels = label_encoder.fit_transform(labels.values)
-    labels = pd.DataFrame({var: encoded_labels})
-
-    return (tx_data, labels)
-
-def _RDMP( # pylint: disable=too-many-locals, too-many-statements
-    data_folder: str,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     def find_age(row):
-        date_ = pd.to_datetime('01/06/2020')
-        if row.date_of_death!=row.date_of_death:
-            age = np.floor((date_-row.date_of_birth).days/365.25)
+        date_ = pd.to_datetime("01/06/2020")
+        if row.date_of_death != row.date_of_death:
+            age = np.floor((date_ - row.date_of_birth).days / 365.25)
         else:
-            age = np.floor((row.date_of_death-row.date_of_birth).days/365.25)
+            age = np.floor((row.date_of_death - row.date_of_birth).days / 365.25)
         return age
 
     def hospital_days(row):
-        if row.DischargeDate==row.DischargeDate:
-            t = row.DischargeDate-row.AdmissionDate
-            days = t.days+round(((t.seconds/60)/60)/24)
+        if row.DischargeDate == row.DischargeDate:
+            t = row.DischargeDate - row.AdmissionDate
+            days = t.days + round(((t.seconds / 60) / 60) / 24)
         else:
             days = 0
         return days
@@ -663,16 +490,20 @@ def _RDMP( # pylint: disable=too-many-locals, too-many-statements
     os.path.join(data_folder, "RDMP")
     if os.path.exists(os.path.join(data_folder, "RDMP", processed_data_file)):
         logger.info("Loading processed RDMP file.")
-        # load texas data processed csv file
-        df = pd.read_csv(
-            os.path.join(data_folder, "RDMP", processed_data_file)
-        )
+        # load processed csv file
+        df = pd.read_csv(os.path.join(data_folder, "RDMP", processed_data_file))
     else:
         logger.info("Processing RDMP synthetic data")
-        file_list = ['CarotidArteryScan.csv', 'Demography.csv', 'HospitalAdmissions.csv']
+        file_list = [
+            "CarotidArteryScan.csv",
+            "Demography.csv",
+            "HospitalAdmissions.csv",
+        ]
         files_path = [os.path.join(data_folder, "RDMP", f) for f in file_list]
         found = [os.path.exists(file_path) for file_path in files_path]
-        not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
+        not_found = [
+            file_path for file_path in files_path if not os.path.exists(file_path)
+        ]
 
         if not all(found):
             help_message = f"""
@@ -682,75 +513,148 @@ def _RDMP( # pylint: disable=too-many-locals, too-many-statements
             Missing files are:
             {not_found}
             """
-        raise DataNotAvailable(help_message)
+            raise DataNotAvailable(help_message)
 
         # Load data
-        headers0 = ['R_CC_STEN_A', 'R_CC_STEN_B', 'R_CC_STEN_C', 'R_CC_STEN_D', 'R_CC_STEN_S',# pylint: disable=unreachable
-         'L_IC_STEN_A', 'L_IC_STEN_B', 'L_IC_STEN_C', 'L_IC_STEN_D', 'L_IC_STEN_S', 'R_IC_STEN_A',
-         'R_IC_STEN_B', 'R_IC_STEN_C', 'R_IC_STEN_D', 'R_IC_STEN_S', 'PatientID','L_CC_STEN_S',
-         'L_CC_STEN_D', 'L_CC_STEN_B',  'L_BD_RATIO', 'L_AC_RATIO', 'R_BD_RATIO', 'R_AC_RATIO',
-         'L_CC_STENOSIS', 'L_CC_PEAK_SYS', 'L_CC_END_DIA', 'L_IC_STENOSIS','L_IC_PEAK_SYS', 
-         'L_IC_END_DIA', 'L_EC_STENOSIS', 'L_PLAQUE','L_SYMPTOMS', 'L_BRUIT', 'L_CC_STEN_A', 
-         'ON_STEN_STUDY', 'R_VERT_ARTERY', 'R_BRUIT', 'R_SYMPTOMS', 'R_PLAQUE','L_CC_STEN_C',
-         'R_EC_STENOSIS', 'R_IC_PEAK_SYS', 'R_IC_STENOSIS', 'R_CC_END_DIA', 'R_CC_PEAK_SYS', 
-         'R_CC_STENOSIS', 'L_VERT_ARTERY', 'R_IC_END_DIA']
-        headers1 = ['chi', 'sex', 'current_address_L2', 'date_of_death', 'date_of_birth']
-        headers2 = ['chi','AdmissionDate', 'DischargeDate', 'MainCondition',
-        'OtherCondition1', 'OtherCondition2', 
-                    'OtherCondition3',
-                    'MainOperation', 'MainOperationB', 'OtherOperation1', 'OtherOperation1B',
-                    'OtherOperation2', 
-                    'OtherOperation2B', 'OtherOperation3', 'OtherOperation3B']
+        headers0 = [
+            "R_CC_STEN_A",
+            "R_CC_STEN_B",
+            "R_CC_STEN_C",
+            "R_CC_STEN_D",
+            "R_CC_STEN_S",  # pylint: disable=unreachable
+            "L_IC_STEN_A",
+            "L_IC_STEN_B",
+            "L_IC_STEN_C",
+            "L_IC_STEN_D",
+            "L_IC_STEN_S",
+            "R_IC_STEN_A",
+            "R_IC_STEN_B",
+            "R_IC_STEN_C",
+            "R_IC_STEN_D",
+            "R_IC_STEN_S",
+            "PatientID",
+            "L_CC_STEN_S",
+            "L_CC_STEN_D",
+            "L_CC_STEN_B",
+            "L_BD_RATIO",
+            "L_AC_RATIO",
+            "R_BD_RATIO",
+            "R_AC_RATIO",
+            "L_CC_STENOSIS",
+            "L_CC_PEAK_SYS",
+            "L_CC_END_DIA",
+            "L_IC_STENOSIS",
+            "L_IC_PEAK_SYS",
+            "L_IC_END_DIA",
+            "L_EC_STENOSIS",
+            "L_PLAQUE",
+            "L_SYMPTOMS",
+            "L_BRUIT",
+            "L_CC_STEN_A",
+            "ON_STEN_STUDY",
+            "R_VERT_ARTERY",
+            "R_BRUIT",
+            "R_SYMPTOMS",
+            "R_PLAQUE",
+            "L_CC_STEN_C",
+            "R_EC_STENOSIS",
+            "R_IC_PEAK_SYS",
+            "R_IC_STENOSIS",
+            "R_CC_END_DIA",
+            "R_CC_PEAK_SYS",
+            "R_CC_STENOSIS",
+            "L_VERT_ARTERY",
+            "R_IC_END_DIA",
+        ]
+        headers1 = [
+            "chi",
+            "sex",
+            "current_address_L2",
+            "date_of_death",
+            "date_of_birth",
+        ]
+        headers2 = [
+            "chi",
+            "AdmissionDate",
+            "DischargeDate",
+            "MainCondition",
+            "OtherCondition1",
+            "OtherCondition2",
+            "OtherCondition3",
+            "MainOperation",
+            "MainOperationB",
+            "OtherOperation1",
+            "OtherOperation1B",
+            "OtherOperation2",
+            "OtherOperation2B",
+            "OtherOperation3",
+            "OtherOperation3B",
+        ]
 
-        #Process first file
-        df = pd.read_csv(files_path[0], usecols=headers0)
-        #Change name to be the same in all files
-        df.rename(columns={'PatientID':'chi'}, inplace=True)
-        df = df.groupby(['chi']).max()
+        # Process first file
+        df = pd.read_csv(files_path[0], usecols=headers0, encoding='ISO 8859-1')
+        # Change name to be the same in all files
+        df.rename(columns={"PatientID": "chi"}, inplace=True)
+        df = df.groupby(["chi"]).max()
 
-        #Process second file
+        # Process second file
         df_ = pd.read_csv(files_path[1], usecols=headers1)
-        df_['date_of_birth']=pd.to_datetime(df_['date_of_birth'])
-        df_['date_of_death']=pd.to_datetime(df_['date_of_death'])
-        df_ = df_.groupby(['chi']).max()
+        df_["date_of_birth"] = pd.to_datetime(df_["date_of_birth"])
+        df_["date_of_death"] = pd.to_datetime(df_["date_of_death"])
+        df_ = df_.groupby(["chi"]).max()
 
-        #Merge first and second file
-        df = df.merge(df_, how='inner', on='chi', suffixes=(False, False))
+        # Merge first and second file
+        df = df.merge(df_, how="inner", on="chi", suffixes=(False, False))
         del df_
 
-        #Process third file
-        df__ = pd.read_csv(files_path[2], usecols=headers2)
-        df__['AdmissionDate']=pd.to_datetime(df__['AdmissionDate'])
-        df__['DischargeDate']=pd.to_datetime(df__['DischargeDate'])
-        df__['days_in_hospital'] = df__.apply(hospital_days, axis=1)
-        number_stays = df__.groupby(['chi']).count()['AdmissionDate']
-        dih = df__.groupby(['chi'])['days_in_hospital'].sum()
-        nc = df__.groupby(['chi'])[[x for x in df__.columns if 'Condition' in x]].count().mean(axis=1) # pylint: disable=line-too-long
-        no = df__.groupby(['chi'])[[x for x in df__.columns if 'Operation' in x]].count().sum(axis=1) # pylint: disable=line-too-long
-        df__.drop(columns=[x for x in df__.columns if 'Date' in x or 'Operation' in x or 'Condition' in x], inplace=True) # pylint: disable=line-too-long
+        # Process third file
+        df__ = pd.read_csv(files_path[2], usecols=headers2, encoding='ISO 8859-1')
+        df__["AdmissionDate"] = pd.to_datetime(df__["AdmissionDate"])
+        df__["DischargeDate"] = pd.to_datetime(df__["DischargeDate"])
+        df__["days_in_hospital"] = df__.apply(hospital_days, axis=1)
+        number_stays = df__.groupby(["chi"]).count()["AdmissionDate"]
+        dih = df__.groupby(["chi"])["days_in_hospital"].sum()
+        nc = (
+            df__.groupby(["chi"])[[x for x in df__.columns if "Condition" in x]]
+            .count()
+            .mean(axis=1)
+        )  # pylint: disable=line-too-long
+        no = (
+            df__.groupby(["chi"])[[x for x in df__.columns if "Operation" in x]]
+            .count()
+            .sum(axis=1)
+        )  # pylint: disable=line-too-long
+        df__.drop(
+            columns=[
+                x
+                for x in df__.columns
+                if "Date" in x or "Operation" in x or "Condition" in x
+            ],
+            inplace=True,
+        )  # pylint: disable=line-too-long
         df__ = pd.DataFrame()
-        df__['days_in_hospital'] = dih
-        df__['average_number_conditions'] = nc
-        df__['total_number_operations'] = no
-        df__['number_admissions'] = number_stays
+        df__["days_in_hospital"] = dih
+        df__["average_number_conditions"] = nc
+        df__["total_number_operations"] = no
+        df__["number_admissions"] = number_stays
 
-        #merge the third file
-        df = df.merge(df__, how='inner', on='chi', suffixes=(False, False))
+        # merge the third file
+        df = df.merge(df__, how="inner", on="chi", suffixes=(False, False))
 
-        #Final processing after merging
-        df['death'] = [1 if x else 0 for x in pd.notna(df.date_of_death)]
-        df['age'] = df.apply(find_age, axis=1).astype('int64')
-        df.drop(columns=['date_of_birth', 'date_of_death'], inplace=True)
+        # Final processing after merging
+        df["death"] = [1 if x else 0 for x in pd.notna(df.date_of_death)]
+        df["age"] = df.apply(find_age, axis=1).astype("int64")
+        df.drop(columns=["date_of_birth", "date_of_death"], inplace=True)
 
-        #save the dataframe
+        # save the dataframe
         df.to_csv(os.path.join(data_folder, "RDMP", processed_data_file))
 
-    labels = df['death']
-    df.drop(columns=['death'], inplace=True)
+    labels = df["death"]
+    df.drop(columns=["death"], inplace=True)
 
-    #OneHotEncoder
+    # OneHotEncoder
     for col in df.columns:
-        if df[col].dtypes in ('bool', 'object'):
+        if df[col].dtypes in ("bool", "object"):
             encoder = LabelEncoder()
             df[col] = encoder.fit_transform(df[col].values)
 
