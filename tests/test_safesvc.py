@@ -1,5 +1,7 @@
 """Test the various models we have defined."""
 
+from __future__ import annotations
+
 import unittest
 
 import numpy as np

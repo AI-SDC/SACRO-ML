@@ -1,5 +1,28 @@
 # Changelog
 
+## Version 1.1.2 (Oct 30, 2023)
+
+Changes:
+*   Fix a bug related to the `rules.json` path when running from package ([#247](https://github.com/AI-SDC/AI-SDC/pull/247))
+*   Update user stories ([#247](https://github.com/AI-SDC/AI-SDC/pull/247))
+
+## Version 1.1.1 (Oct 19, 2023)
+
+Changes:
+*   Update notebook example paths ([#237](https://github.com/AI-SDC/AI-SDC/pull/237))
+*   Fix AdaBoostClassifier structural attack ([#242](https://github.com/AI-SDC/AI-SDC/pull/242))
+*   Move experiments module and configs to separate repository ([#229](https://github.com/AI-SDC/AI-SDC/pull/229))
+
+## Version 1.1.0 (Oct 11, 2023)
+
+Changes:
+*    Add automatic formatting of docstrings ([#210](https://github.com/AI-SDC/AI-SDC/pull/210))
+*    Update user stories ([#217](https://github.com/AI-SDC/AI-SDC/pull/217))
+*    Add module to run experiments with attacks and gather data ([#224](https://github.com/AI-SDC/AI-SDC/pull/224))
+*    Fix bug in report.py: error removing a file that does not exist ([#227](https://github.com/AI-SDC/AI-SDC/pull/227))
+*    Add structural attack for traditional and other risk measures ([#232](https://github.com/AI-SDC/AI-SDC/pull/232))
+*    Fix package installation for Python 3.8, 3.9, 3.10 ([#234](https://github.com/AI-SDC/AI-SDC/pull/234))
+
 ## Version 1.0.6 (Jul 21, 2023)
 
 Changes:

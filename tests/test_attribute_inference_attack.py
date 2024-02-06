@@ -8,6 +8,8 @@ Invoke this code from the root AI-SDC folder with
 python -m examples.attribute_inference_example
 """
 
+from __future__ import annotations
+
 import json
 import os
 import shutil

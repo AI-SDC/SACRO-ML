@@ -5,6 +5,9 @@ Please access the datasets from the sources listed in preprocessing/loaders.py
 Please acknowledge those sources in any publications.
 Jim Smith 2022.
 """
+
+from __future__ import annotations
+
 import os
 import shutil
 
@@ -95,9 +98,12 @@ def test_data_absent():
 
 def test_mimic():
     """Load the mimic2 dataset."""
+    # try:
     x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
     assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (1064, 1)
+    # except DataNotAvailable:
+    #     pass
 
 
 def test_in_hospital():
@@ -168,7 +174,6 @@ def test_synth_ae():
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
 
-    # synthae-small
     x_df, y_df = loaders.get_data_sklearn("synth-ae-small", DATA_FOLDER)
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)

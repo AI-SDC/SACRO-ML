@@ -93,7 +93,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("standard"):
         sub_name = dataset_name.split("standard")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_mean = feature_df[column].mean()
             col_std = np.sqrt(feature_df[column].var())
@@ -103,7 +103,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     if dataset_name.startswith("minmax"):
         sub_name = dataset_name.split("minmax")[1].strip()
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         for column in feature_df.columns:
             col_min = feature_df[column].min()
             col_range = feature_df[column].max() - col_min
@@ -114,7 +114,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name.startswith("round"):
         sub_name = dataset_name.split("round")[1].strip()
         logger.debug(sub_name)
-        feature_df, target_df = get_data_sklearn(sub_name)
+        feature_df, target_df = get_data_sklearn(sub_name, data_folder)
         column_dtype = feature_df.dtypes  # pylint: disable = no-member
 
         for i, column in enumerate(feature_df.columns):
@@ -465,8 +465,6 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return (X, y)
 
-
-
 def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -659,3 +657,189 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             df[col] = encoder.fit_transform(df[col].values)
 
     return (df, labels)
+=======
+def _texas_hospitals(
+    data_folder: str,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:  # pragma: no cover
+    # pylint: disable=too-many-statements, too-many-locals
+    """
+    Texas Hospitals Dataset
+    https://www.dshs.texas.gov/texas-health-care-information-collection/health-data-researcher-information/texas-inpatient-public-use # pylint: disable=line-too-long.
+
+    Download the tab-delimited files for each quarter from
+    2006, 2007, 2008 and 2009.
+    Note: This data is free to download.
+    """
+    file_list = [
+        "PUDF 1Q2006 tab-delimited.zip",
+        "PUDF 1Q2007 tab-delimited.zip",
+        "PUDF 1Q2009 tab-delimited.zip",
+        "PUDF 2Q2006 tab-delimited.zip",
+        "PUDF 2Q2007 tab-delimited.zip",
+        "PUDF 2Q2009 tab-delimited.zip",
+        "PUDF 3Q2006 tab-delimited.zip",
+        "PUDF 3Q2007 tab-delimited.zip",
+        "PUDF 4Q2006 tab-delimited.zip",
+        "PUDF 4Q2007 tab-delimited.zip",
+        "PUDF 4Q2009 tab-delimited.zip",
+        "PUDF1Q08_update_tab.zip",
+        "PUDF2Q08_update_tab.zip",
+        "PUDF3Q08_update_tab.zip",
+    ]
+    files_path = [os.path.join(data_folder, f) for f in file_list]
+
+    found = [os.path.exists(file_path) for file_path in files_path]
+    not_found = [file_path for file_path in files_path if not os.path.exists(file_path)]
+
+    processed_data_file = "texas_data10_rm_binary.csv"
+    if not all(found):
+        help_message = f"""
+    Some or all data files do not exist. Please accept their terms & conditions,then download the
+    tab delimited files from each quarter during 2006-2009 from:
+    https://www.dshs.texas.gov/THCIC/Hospitals/Download.shtm
+and place it in the correct folder.
+
+    Missing files are:
+    {not_found}
+        """
+        raise DataNotAvailable(help_message)
+
+    if not os.path.exists(
+        os.path.join(data_folder, "TexasHospitals", processed_data_file)
+    ):
+        logger.info("Processing Texas Hospitals data (2006-2009)")
+
+        # Load data
+        columns_names = [
+            "THCIC_ID",  # Provider ID. Unique identifier assigned to the provider by DSHS.
+            # Hospitals with fewer than 50 discharges have been aggregated into the
+            # Provider ID '999999'
+            "DISCHARGE_QTR",  # yyyyQm
+            "TYPE_OF_ADMISSION",
+            "SOURCE_OF_ADMISSION",
+            "PAT_ZIP",  # Patient’s five-digit ZIP code
+            "PUBLIC_HEALTH_REGION",  # Public Health Region of patient’s address
+            "PAT_STATUS",  # Code indicating patient status as of the ending date of service for
+            # the period of care reported
+            "SEX_CODE",
+            "RACE",
+            "ETHNICITY",
+            "LENGTH_OF_STAY",
+            "PAT_AGE",  # Code indicating age of patient in days or years on date of discharge.
+            "PRINC_DIAG_CODE",  # diagnosis code for the principal diagnosis
+            "E_CODE_1",  # external cause of injury
+            "PRINC_SURG_PROC_CODE",  # Code for the principal surgical or other procedure performed
+            # during the period covered by the bill
+            "RISK_MORTALITY",  # Assignment of a risk of mortality score from the All Patient
+            # Refined (APR) Diagnosis Related Group (DRG)
+            "ILLNESS_SEVERITY",  # Assignment of a severity of illness score from the All Patient
+            # Refined (APR) Diagnosis RelatedGroup (DRG
+            "RECORD_ID",
+        ]
+        # obtain the 100 most frequent procedures
+        tmp = []
+        for f in files_path:
+            df = [
+                pd.read_csv(
+                    ZipFile(f).open(i), sep="\t", usecols=["PRINC_SURG_PROC_CODE"]
+                )
+                for i in ZipFile(f).namelist()
+                if "base" in i
+            ]
+            if len(df) < 1:
+                print(f"WARNING: {f} could not be loaded.")
+            else:
+                df[0].dropna(inplace=True)
+                tmp.extend(list(df[0].PRINC_SURG_PROC_CODE))
+        princ_surg_proc_keep = [k for k, v in Counter(tmp).most_common(10)]
+        # remove unnecessary variables
+        del tmp
+
+        # Load the data
+        tx_data = pd.DataFrame()
+        for f in files_path:
+            df = [
+                pd.read_csv(ZipFile(f).open(i), sep="\t", usecols=columns_names)
+                for i in ZipFile(f).namelist()
+                if "base" in i
+            ][0]
+            # keep only those rows with one of the 10 most common principal surgical procedure
+            df = df[df["PRINC_SURG_PROC_CODE"].isin(princ_surg_proc_keep)]
+            # clean up data
+            df.dropna(inplace=True)
+            df.replace("`", pd.NA, inplace=True)
+            df.replace("*", pd.NA, inplace=True)
+            # replace sex to numeric
+            df.SEX_CODE.replace("M", 0, inplace=True)
+            df.SEX_CODE.replace("F", 1, inplace=True)
+            df.SEX_CODE.replace("U", 2, inplace=True)
+            # set to numerical variable
+            for d_code in set(list(df.DISCHARGE_QTR)):
+                df.DISCHARGE_QTR.replace(
+                    d_code, "".join(d_code.split("Q")), inplace=True
+                )
+            df.dropna(inplace=True)
+            # merge data
+            tx_data = pd.concat([tx_data, df])
+        # remove unnecessary variables
+        del df
+
+        # Risk mortality, make it binary
+        # 1 Minor
+        # 2 Moderate
+        # 3 Major
+        # 4 Extreme
+        tx_data.RISK_MORTALITY.astype(int)
+        tx_data.RISK_MORTALITY.replace(1, 0, inplace=True)
+        tx_data.RISK_MORTALITY.replace(2, 0, inplace=True)
+        tx_data.RISK_MORTALITY.replace(3, 1, inplace=True)
+        tx_data.RISK_MORTALITY.replace(4, 1, inplace=True)
+
+        # renumber non-numerical codes for cols
+        cols = ["PRINC_DIAG_CODE", "SOURCE_OF_ADMISSION", "E_CODE_1"]
+        for col in cols:
+            tmp = list(
+                {
+                    x
+                    for x in tx_data[col]
+                    if not str(x).isdigit() and not isinstance(x, float)
+                }  # pylint: disable=consider-using-set-comprehension
+            )
+            n = max(
+                list(
+                    {
+                        int(x)
+                        for x in tx_data[col]
+                        if str(x).isdigit() or isinstance(x, float)
+                    }  # pylint: disable=consider-using-set-comprehension
+                )
+            )
+            for i, x in enumerate(tmp):
+                tx_data[col].replace(x, n + i, inplace=True)
+        del tmp, n
+        # set index
+        tx_data.set_index("RECORD_ID", inplace=True)
+        # final check and drop of NAs
+        tx_data.dropna(inplace=True)
+        # convert all data to numerical
+        tx_data = tx_data.astype(int)
+        # save csv file
+        tx_data.to_csv(os.path.join(data_folder, "TexasHospitals", processed_data_file))
+    else:
+        logger.info("Loading processed Texas Hospitals data (2006-2009) csv file.")
+        # load texas data processed csv file
+        tx_data = pd.read_csv(
+            os.path.join(data_folder, "TexasHospitals", processed_data_file)
+        )
+
+    # extract target
+    var = "RISK_MORTALITY"
+    labels = tx_data[var]
+    # Drop the column that contains the labels
+    tx_data.drop([var], axis=1, inplace=True)
+
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(labels.values)
+    labels = pd.DataFrame({var: encoded_labels})
+
+    return (tx_data, labels)

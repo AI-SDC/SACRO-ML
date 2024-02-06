@@ -1,7 +1,10 @@
 """Generate report for TREs from JSON file."""
 
+from __future__ import annotations
+
 import json
 import os
+import pathlib
 import pprint
 import shutil
 from datetime import date
@@ -151,7 +154,8 @@ class FinalRecommendationModule(
 
     def _tree_min_samples_leaf(self, min_samples_leaf_score):
         # Find min samples per leaf requirement
-        risk_appetite_path = "./aisdc/safemodel/rules.json"
+        base_path = pathlib.Path(__file__).parents[1]
+        risk_appetite_path = os.path.join(base_path, "safemodel", "rules.json")
         min_samples_leaf_appetite = None
 
         with open(risk_appetite_path, "r+", encoding="utf-8") as f:
