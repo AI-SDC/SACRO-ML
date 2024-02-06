@@ -23,7 +23,6 @@ datasets = (
     "medical-mnist-ab-v-br-500",
     "medical-mnist-all-100",
     "indian liver",
-    "texas hospitals 10",
     "synth-ae",
     "synth-ae-small",
     "nursery",
@@ -80,10 +79,6 @@ def test_data_absent():
     # indian liver
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("indian liver")
-
-    # texas
-    with pytest.raises(DataNotAvailable):
-        _, _ = loaders.get_data_sklearn("texas hospitals 10")
 
     # synth-ae
     with pytest.raises(DataNotAvailable):
@@ -166,14 +161,6 @@ def test_indian_liver():
     x_df, y_df = loaders.get_data_sklearn("indian liver", DATA_FOLDER)
     assert x_df.shape == (11, 10), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (11, 1)
-
-
-def test_texas():
-    """The texas dataset has quite restrictive licenses arounbd copying.
-    Therefore it is omitted from the CI testing.
-    This code was fully tested during the GRAIMatter project.
-    """
-
 
 def test_synth_ae():
     """Tests different versions of the  synthetic A&E dataset."""
