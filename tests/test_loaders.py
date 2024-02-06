@@ -168,6 +168,7 @@ def test_indian_liver():
     assert x_df.shape == (11, 10), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (11, 1)
 
+
 def test_synth_ae():
     """Tests different versions of the  synthetic A&E dataset."""
     x_df, y_df = loaders.get_data_sklearn("synth-ae", DATA_FOLDER)
