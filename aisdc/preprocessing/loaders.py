@@ -465,6 +465,7 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return (X, y)
 
+
 def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -590,7 +591,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
         ]
 
         # Process first file
-        df = pd.read_csv(files_path[0], usecols=headers0, encoding='ISO 8859-1')
+        df = pd.read_csv(files_path[0], usecols=headers0, encoding="ISO 8859-1")
         # Change name to be the same in all files
         df.rename(columns={"PatientID": "chi"}, inplace=True)
         df = df.groupby(["chi"]).max()
@@ -606,7 +607,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
         del df_
 
         # Process third file
-        df__ = pd.read_csv(files_path[2], usecols=headers2, encoding='ISO 8859-1')
+        df__ = pd.read_csv(files_path[2], usecols=headers2, encoding="ISO 8859-1")
         df__["AdmissionDate"] = pd.to_datetime(df__["AdmissionDate"])
         df__["DischargeDate"] = pd.to_datetime(df__["DischargeDate"])
         df__["days_in_hospital"] = df__.apply(hospital_days, axis=1)
