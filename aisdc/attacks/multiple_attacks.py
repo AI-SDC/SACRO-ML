@@ -3,6 +3,7 @@ An entry point to run multiple attacks including MIA (worst-case and LIRA)
 and attribute inference attack using a single configuration file
 with multiple attack configuration.
 """
+
 from __future__ import annotations
 
 import argparse

@@ -437,9 +437,9 @@ class WorstCaseAttack(Attack):
                 0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
             )
 
-            global_metrics[
-                "null_auc_3sd_range"
-            ] = f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+            global_metrics["null_auc_3sd_range"] = (
+                f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+            )
             global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
                 auc_p_vals, self.p_thresh
             )
@@ -603,9 +603,9 @@ class WorstCaseAttack(Attack):
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment[
-            "attack_metric_failfast_summary"
-        ] = self.attack_metric_failfast_summary.get_attack_summary()
+        attack_metrics_experiment["attack_metric_failfast_summary"] = (
+            self.attack_metric_failfast_summary.get_attack_summary()
+        )
 
         return attack_metrics_experiment
 
@@ -617,14 +617,14 @@ class WorstCaseAttack(Attack):
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metric_instances = {}
             for rep, _ in enumerate(temp_dummy_attack_metrics):
-                dummy_attack_metric_instances[
-                    "instance_" + str(rep)
-                ] = temp_dummy_attack_metrics[rep]
+                dummy_attack_metric_instances["instance_" + str(rep)] = (
+                    temp_dummy_attack_metrics[rep]
+                )
             temp = {}
             temp["attack_instance_logger"] = dummy_attack_metric_instances
-            temp[
-                "attack_metric_failfast_summary"
-            ] = self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
+            temp["attack_metric_failfast_summary"] = (
+                self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
+            )
             dummy_attack_metrics_experiments[
                 "dummy_attack_metrics_experiment_" + str(exp_rep)
             ] = temp
@@ -643,9 +643,9 @@ class WorstCaseAttack(Attack):
         output["metadata"] = self.metadata
 
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        output[
-            "dummy_attack_experiments_logger"
-        ] = self._get_dummy_attack_metrics_experiments_instances()
+        output["dummy_attack_experiments_logger"] = (
+            self._get_dummy_attack_metrics_experiments_instances()
+        )
 
         report_dest = os.path.join(self.output_dir, self.report_name)
         json_attack_formatter = GenerateJSONModule(report_dest + ".json")
