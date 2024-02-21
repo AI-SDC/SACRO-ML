@@ -456,17 +456,6 @@ class GenerateTextReport:
         self.support_rejection = []
         self.support_release = []
 
-    def _pretty_print(self, report: dict, title) -> str:
-        """Function that formats JSON code to make it more readable for TREs."""
-
-        returned_string = str(title) + "\n"
-
-        for key in report.keys():
-            returned_string = returned_string + key + "\n"
-            returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
-
-        return returned_string
-
     def _process_target_json(self):
         """Function that creates a summary of a target model JSON file."""
 
@@ -514,6 +503,17 @@ class GenerateTextReport:
 
         self.text_out.append(output_string)
 
+    def pretty_print(self, report: dict, title) -> str:
+        """Function that formats JSON code to make it more readable for TREs."""
+
+        returned_string = str(title) + "\n"
+
+        for key in report.keys():
+            returned_string = returned_string + key + "\n"
+            returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
+
+        return returned_string
+
     def process_attack_target_json(
         self, attack_filename: str, target_filename: str = None
     ):
@@ -542,7 +542,7 @@ class GenerateTextReport:
             self.support_rejection += returned[1]
             self.support_release += returned[2]
 
-        output_string = self._pretty_print(output, "ATTACK JSON RESULTS")
+        output_string = self.pretty_print(output, "ATTACK JSON RESULTS")
 
         self.text_out.append(output_string)
 
