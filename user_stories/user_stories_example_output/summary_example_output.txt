@@ -7,9 +7,6 @@ min_samples_leaf: 10
 n_estimators: 100
 
 ATTACK JSON RESULTS
-Final score (scale of 0-5, where 0 is least disclosive and 5 is recommend rejection)
-4
-
 
 Immediate rejection recommended for the following reason:
 None

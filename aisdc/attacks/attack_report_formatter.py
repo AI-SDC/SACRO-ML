@@ -261,8 +261,8 @@ class FinalRecommendationModule(
 
         output = {}
 
-        msg = "Final score (scale of 0-5, where 0 is least disclosive and 5 is recommend rejection)"
-        output[msg] = summarised_score
+        # msg = "Final score (scale of 0-5, where 0 is least disclosive and 5 is recommend rejection)"
+        # output[msg] = summarised_score
 
         return output
 
