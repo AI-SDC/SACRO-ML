@@ -148,7 +148,7 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         g = GenerateTextReport()
-        g._pretty_print(example_report, 'Example Title')
+        g._pretty_print(example_report, "Example Title")
 
     def test_process_attack_target_json(self):
         """Test which tests the process_attack_target_json function."""
