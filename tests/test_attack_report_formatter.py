@@ -148,7 +148,11 @@ class TestGenerateReport(unittest.TestCase):
         }
 
         g = GenerateTextReport()
+<<<<<<< HEAD
         g.pretty_print(example_report, 'Example Title')
+=======
+        g._pretty_print(example_report, "Example Title")
+>>>>>>> dad7c79b5316f5271cdd5adbe469917dd7d5968f
 
     def test_process_attack_target_json(self):
         """Test which tests the process_attack_target_json function."""
