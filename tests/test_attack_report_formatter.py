@@ -28,7 +28,7 @@ def get_test_report():
     json_formatted = {
         "log_id": 1024,
         "metadata": {"attack": "WorstCase"},
-        "model_params": {"min_samples_leaf": 2},
+        "model_params": {"min_samples_leaf": 10},
         "model_name": "RandomForestClassifier",
         "WorstCaseAttack": {"attack_experiment_logger": {"attack_instance_logger": {}}},
     }
