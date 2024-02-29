@@ -64,9 +64,9 @@ df["children"].replace(to_replace={"more": "4"}, inplace=True)
 df["children"] = pd.to_numeric(df["children"])
 
 df["children"] = df.apply(
-    lambda row: row["children"]
-    if row["children"] in (1, 2, 3)
-    else np.random.randint(4, 10),
+    lambda row: (
+        row["children"] if row["children"] in (1, 2, 3) else np.random.randint(4, 10)
+    ),
     axis=1,
 )
 
