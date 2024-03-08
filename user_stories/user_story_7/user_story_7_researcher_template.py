@@ -20,7 +20,6 @@ Steps:
 - Researcher does not save the training/testing data, and therefore the TRE cannot verify the model
 """
 
-
 import logging
 import os
 

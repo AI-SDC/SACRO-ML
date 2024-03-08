@@ -1,4 +1,5 @@
 """Code for automatic report generation."""
+
 import abc
 import json
 import os

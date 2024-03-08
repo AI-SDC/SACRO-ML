@@ -1,6 +1,7 @@
 """Test_lira_attack.py
 Copyright (C) Jim Smith2022  <james.smith@uwe.ac.uk>.
 """
+
 # pylint: disable = duplicate-code
 
 from __future__ import annotations
