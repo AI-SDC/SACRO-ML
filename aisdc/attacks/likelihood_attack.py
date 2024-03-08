@@ -64,7 +64,7 @@ def _logit(p: float) -> float:
     If p is close to 0 or 1, evaluating the log will result in numerical instabilities.
     This code thresholds p at EPS and 1 - EPS where EPS defaults at 1e-16.
     """
-    if p > 1 - EPS:
+    if p > 1 - EPS: #pylint:disable=consider-using-min-builtin
         p = 1 - EPS
     p = max(p, EPS)
     li = np.log(p / (1 - p))
