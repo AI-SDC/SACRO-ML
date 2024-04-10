@@ -218,7 +218,7 @@ def test_adaboost():
     # 'non' disclosive'
     # - base estimator =None => DecisionTreeClassifier with max_depth 1
     # also set THRESHOLD to 4
-    param_dict = {"n_estimators": 2, "base_estimator": None}
+    param_dict = {"n_estimators": 2, "estimator": None}
     target = get_target("adaboost", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.THRESHOLD = 2
@@ -233,7 +233,7 @@ def test_adaboost():
     # highly disclosive
     kwargs = {"max_depth": None, "min_samples_leaf": 2}
     param_dict2 = {
-        "base_estimator": DecisionTreeClassifier(**kwargs),
+        "estimator": DecisionTreeClassifier(**kwargs),
         "n_estimators": 1000,
     }
     target = get_target("adaboost", **param_dict2)
