@@ -21,8 +21,8 @@ jobs:
 
       - name: Run sphinx
         run: |
-          pip install -r ./docs/requirements.txt
-          sphinx-build -D todo_include_todos=0 ./docs/source ./docs/_build/html/
+          pip install .[doc]
+          sphinx-build ./docs/source ./docs/_build/html/
 
       - name: Commit changes
         run: |

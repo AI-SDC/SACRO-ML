@@ -22,9 +22,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install and pytest
-        run: pip install . pytest
+      - name: Install
+        run: pip install .[test]
 
-      - name: Run pytest
+      - name: Run Tests
         run: pytest .
 ...

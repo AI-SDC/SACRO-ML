@@ -7,6 +7,35 @@ from setuptools import find_packages, setup
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
+ATTACKS_REQS = [
+    "acro==0.4.5",
+    "fpdf",
+    "pypdf",
+    "multiprocess",
+    "scikit-learn",
+]
+
+SAFEMODEL_REQS = [
+    "tensorflow>=2.14,<2.15",
+    "tensorflow-privacy==0.9.0",
+    "xgboost",
+    "dictdiffer",
+]
+
+DOC_REQS = [
+    "numpydoc",
+    "sphinx-autopackagesummary",
+    "sphinx-issues",
+    "sphinx-prompt",
+    "sphinx-rtd-theme",
+    "sphinx",
+]
+
+TEST_REQS = [
+    "pytest",
+    "pytest-cov",
+]
+
 setup(
     name="aisdc",
     version="1.1.3",
@@ -20,17 +49,12 @@ setup(
     packages=find_packages(exclude=["tests"]),
     package_data={"aisdc.safemodel": ["rules.json"]},
     python_requires=">=3.9,<3.12",
-    install_requires=[
-        "tensorflow>=2.14,<2.15",
-        "tensorflow-privacy==0.9.0",
-        "acro==0.4.5",
-        "xgboost",
-        "dictdiffer",
-        "fpdf",
-        "pypdf",
-        "multiprocess",
-        "pytest",
-    ],
+    install_requires=ATTACKS_REQS,
+    extras_require={
+        "safemodel": SAFEMODEL_REQS,
+        "doc": SAFEMODEL_REQS + DOC_REQS,
+        "test": SAFEMODEL_REQS + TEST_REQS,
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
