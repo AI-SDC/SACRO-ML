@@ -54,10 +54,10 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         self.ignore_items = [
             "model_save_file",
             "ignore_items",
-            "base_estimator_",  # this is an object
+            "estimator_",  # this is an object
             "timestamp",
         ]
-        self.examine_seperately_items = ["estimators_", "base_estimator"]
+        self.examine_seperately_items = ["estimators_", "estimator"]
         self.k_anonymity = 0
 
     def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
@@ -72,12 +72,12 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         # now the relevant random-forest specific things
         for item in self.examine_seperately_items:
             # template for class of things that make up forest
-            if item == "base_estimator":
+            if item == "estimator":
                 if type(curr_separate[item]) != type(saved_separate[item]):
                     # msg += get_reporting_string(name="basic_params_differ",length=1)
                     msg += get_reporting_string(
                         name="param_changed_from_to",
-                        key="base_estimator",
+                        key="estimator",
                         val=saved_separate[item],
                         cur_val=curr_separate[item],
                     )
