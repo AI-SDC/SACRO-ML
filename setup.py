@@ -19,7 +19,7 @@ setup(
     url="https://github.com/AI-SDC/AI-SDC",
     packages=find_packages(exclude=["tests"]),
     package_data={"aisdc.safemodel": ["rules.json"]},
-    python_requires=">=3.9,<3.12",
+    python_requires=">=3.9,<3.13",
     install_requires=[
         "tensorflow>=2.14,<2.15",
         "tensorflow-privacy==0.9.0",
@@ -40,6 +40,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
