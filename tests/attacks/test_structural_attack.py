@@ -5,12 +5,9 @@ Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
 from __future__ import annotations
 
 import json
-import os
-import shutil
 import sys
 from unittest.mock import patch
 
-# import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier

@@ -12,11 +12,9 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import sys
 import unittest
 
-import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error

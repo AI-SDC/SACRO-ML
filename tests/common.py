@@ -23,7 +23,9 @@ def clean(name):
             shutil.rmtree(name)
 
 
-def get_target(model: sklearn.base.BaseEstimator) -> Target:
+def get_target(  # pylint: disable=too-many-locals
+    model: sklearn.base.BaseEstimator,
+) -> Target:
     """
     Wrap the model and data in a Target object.
     Uses A randomly sampled 10+10% of the nursery data set.
