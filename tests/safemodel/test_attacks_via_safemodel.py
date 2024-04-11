@@ -12,7 +12,8 @@ import numpy as np
 
 from aisdc.attacks import attribute_attack, likelihood_attack, worst_case_attack
 from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
-from tests.attacks.common import clean, get_target
+
+from ..common import clean, get_target
 
 # pylint: disable=too-many-locals,bare-except,duplicate-code,unnecessary-dunder-call
 

@@ -21,7 +21,8 @@ from xgboost.sklearn import XGBClassifier
 
 import aisdc.attacks.structural_attack as sa
 from aisdc.attacks.target import Target
-from tests.attacks.common import clean
+
+from ..common import clean
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:

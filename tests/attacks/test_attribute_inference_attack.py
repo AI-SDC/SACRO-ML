@@ -25,7 +25,8 @@ from aisdc.attacks.attribute_attack import (
     _infer_categorical,
     _unique_max,
 )
-from tests.attacks.common import clean, get_target
+
+from ..common import clean, get_target
 
 # pylint: disable = duplicate-code
 

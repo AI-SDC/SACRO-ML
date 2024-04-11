@@ -14,7 +14,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
-from tests.attacks.common import clean
+
+from ..common import clean
 
 # pylint: disable=redefined-outer-name
 

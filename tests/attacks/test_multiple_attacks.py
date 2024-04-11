@@ -30,7 +30,8 @@ from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
     ConfigFile,
     MultipleAttacks,
 )
-from tests.attacks.common import get_target
+
+from ..common import get_target
 
 # pylint: disable = duplicate-code
 
