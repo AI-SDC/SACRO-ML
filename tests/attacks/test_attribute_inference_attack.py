@@ -16,13 +16,8 @@ import shutil
 import sys
 import unittest
 
-# ignore unused imports because it depends on whether data file is present
-from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import (  # pylint:disable=unused-import
-    LabelEncoder,
-    OneHotEncoder,
-)
 
 from aisdc.attacks import attribute_attack  # pylint: disable = import-error
 from aisdc.attacks.attribute_attack import (
@@ -30,20 +25,13 @@ from aisdc.attacks.attribute_attack import (
     _infer_categorical,
     _unique_max,
 )
-from tests.test_attacks_via_safemodel import get_target
+from tests.attacks.common import clean, get_target
 
 # pylint: disable = duplicate-code
 
 
 class TestAttributeInferenceAttack(unittest.TestCase):
     """Class which tests the AttributeInferenceAttack module."""
-
-    def _cleanup_file(self, name: str):
-        """Removes unwanted files or directory."""
-        if os.path.exists(name) and os.path.isfile(name):  # h5
-            os.remove(name)
-        elif os.path.exists(name) and os.path.isdir(name):  # tf
-            shutil.rmtree(name)
 
     def _common_setup(self):
         """Basic commands to get ready to test some code."""
@@ -114,6 +102,7 @@ class TestAttributeInferenceAttack(unittest.TestCase):
         # Check the value of the returned parameters
         self.assertEqual(0.0, returned["train"])
         self.assertEqual(0.0, returned["test"])
+        clean("output_attribute")
 
     # test below covers a lot of the plotting etc.
     def test_AIA_on_nursery(self):
@@ -172,4 +161,4 @@ class TestAttributeInferenceAttack(unittest.TestCase):
             "output_attribute",
         )
         for fname in files_made:
-            self._cleanup_file(fname)
+            clean(fname)

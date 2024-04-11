@@ -13,12 +13,12 @@ ATTACKS_REQS = [
     "pypdf",
     "multiprocess",
     "scikit-learn",
+    "xgboost",
 ]
 
 SAFEMODEL_REQS = [
     "tensorflow>=2.14,<2.15",
     "tensorflow-privacy==0.9.0",
-    "xgboost",
     "dictdiffer",
 ]
 

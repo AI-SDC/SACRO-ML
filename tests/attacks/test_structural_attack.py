@@ -21,15 +21,7 @@ from xgboost.sklearn import XGBClassifier
 
 import aisdc.attacks.structural_attack as sa
 from aisdc.attacks.target import Target
-
-
-def clean_up(name):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name):
-        if os.path.isfile(name):
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+from tests.attacks.common import clean
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
@@ -367,6 +359,7 @@ def test_main_example():
     with patch.object(sys, "argv", testargs):
         sa.main()
 
-    clean_up("dt.sav")
-    clean_up("test_output_sa")
-    clean_up("config_structural_test.json")
+    clean("dt.sav")
+    clean("test_output_sa")
+    clean("config_structural_test.json")
+    clean("outputs_structural")

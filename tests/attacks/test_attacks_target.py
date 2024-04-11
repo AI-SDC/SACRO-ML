@@ -14,8 +14,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
+from tests.attacks.common import clean
 
 # pylint: disable=redefined-outer-name
+
+RES_DIR = "save_test"
 
 
 def patch_open(open_func, files):
@@ -142,11 +145,11 @@ def test_target(cleanup_files):  # pylint:disable=too-many-locals,unused-argumen
     target.add_feature("dummy", indices[n_features - 1], "float")
 
     # [Researcher] Saves the target model and data
-    target.save("save_test")
+    target.save(RES_DIR)
 
     # [TRE] Loads the target model and data
     tre_target = Target()
-    tre_target.load("save_test")
+    tre_target.load(RES_DIR)
 
     assert tre_target.model.get_params() == target.model.get_params()
     assert tre_target.name == target.name
@@ -164,3 +167,5 @@ def test_target(cleanup_files):  # pylint:disable=too-many-locals,unused-argumen
     assert np.array_equal(tre_target.y_train_orig, target.y_train_orig)
     assert np.array_equal(tre_target.x_test_orig, target.x_test_orig)
     assert np.array_equal(tre_target.y_test_orig, target.y_test_orig)
+
+    clean(RES_DIR)

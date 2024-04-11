@@ -13,6 +13,7 @@ from sklearn import datasets
 
 from aisdc.safemodel.reporting import get_reporting_string
 from aisdc.safemodel.safemodel import SafeModel
+from tests.attacks.common import clean
 
 notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")
@@ -554,3 +555,5 @@ def test_request_release_without_attacks():
             "reason": reason,
             "timestamp": model.timestamp,
         } in json_data["safemodel"]
+
+    clean(RES_DIR)
