@@ -138,8 +138,8 @@ def _roc_plot_single(metrics, save_name):
     plt.xscale("log")
     plt.yscale("log")
     plt.grid()
-    plt.xlabel("True Positive Rate")
-    plt.ylabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.xlabel("False Positive Rate")
     plt.tight_layout()
     plt.savefig(save_name)
 
