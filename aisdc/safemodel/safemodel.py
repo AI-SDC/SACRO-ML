@@ -252,9 +252,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             pass  # not implemented yet
         return the_params
 
-    def save(
-        self, name: str = "undefined"
-    ) -> None:  # pylint: disable=too-many-branches
+    def save(self, name: str = "undefined") -> None:
         """Writes model to file in appropriate format.
 
         Note this is overloaded in SafeKerasClassifer
@@ -574,7 +572,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def posthoc_check(self) -> tuple[str, bool]:  # pylint: disable=too-many-branches
+    def posthoc_check(self) -> tuple[str, bool]:
         """Checks whether model has been interfered with since fit() was last run."""
 
         disclosive = False
@@ -628,7 +626,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         return msg, disclosive
 
-    def additional_checks(  # pylint: disable=too-many-branches
+    def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
         """Placeholder function for additional posthoc checks e.g. keras this

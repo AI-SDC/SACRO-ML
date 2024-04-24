@@ -195,7 +195,7 @@ class StructuralAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable = too-many-arguments
         self,
         attack_config_json_file_name: str = None,
         risk_appetite_config: str = "default",

@@ -15,7 +15,7 @@ from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 from ..common import clean, get_target
 
-# pylint: disable=too-many-locals,bare-except,duplicate-code,unnecessary-dunder-call
+# pylint: disable=duplicate-code,unnecessary-dunder-call
 
 RES_DIR = "RES"
 

@@ -76,7 +76,7 @@ class LIRAAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable = too-many-arguments
         self,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
@@ -192,7 +192,7 @@ class LIRAAttack(Attack):
         """
         logger = logging.getLogger("_check_and_update_dataset")
         y_train_new = []
-        classes = list(target.model.classes_)  # pylint: disable = protected-access
+        classes = list(target.model.classes_)
         for y in target.y_train:
             y_train_new.append(classes.index(y))
 
@@ -399,7 +399,7 @@ class LIRAAttack(Attack):
         )
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
 
-    def example(self) -> None:  # pylint: disable = too-many-locals
+    def example(self) -> None:
         """Runs an example attack using data from sklearn.
 
         Generates example data, trains a classifier and tuns the attack

@@ -11,10 +11,7 @@ import pytest
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import (  # pylint: disable = import-error, no-name-in-module
-    Dense,
-    Input,
-)
+from tensorflow.keras.layers import Dense, Input  # pylint: disable = import-error
 
 from aisdc.safemodel.classifiers import SafeKerasModel, safekeras
 from aisdc.safemodel.reporting import get_reporting_string

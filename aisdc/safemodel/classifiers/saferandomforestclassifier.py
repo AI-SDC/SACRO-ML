@@ -12,15 +12,13 @@ from ..reporting import get_reporting_string
 from ..safemodel import SafeModel
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
-# pylint: disable=too-many-ancestors,too-many-instance-attributes, unidiomatic-typecheck
+# pylint: disable=too-many-ancestors, unidiomatic-typecheck
 
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
 
-    def __init__(
-        self, **kwargs: Any
-    ) -> None:  # pylint: disable=too-many-instance-attributes
+    def __init__(self, **kwargs: Any) -> None:
         """Creates model and applies constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [
@@ -60,7 +58,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         self.examine_seperately_items = ["estimators_", "estimator"]
         self.k_anonymity = 0
 
-    def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
+    def additional_checks(  # pylint: disable=too-many-nested-blocks
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Random Forest-specific checks

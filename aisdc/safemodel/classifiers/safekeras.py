@@ -408,7 +408,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         # pylint can't cope that we first declared these via a dict :(
         self.num_samples = X.shape[0]  # pylint: disable=attribute-defined-outside-init
         self.epochs = epochs  # pylint: disable=attribute-defined-outside-init
-        self.batch_size = batch_size  # pylint: disable=attribute-defined-outside-init
+        self.batch_size = batch_size
         # make sure you are passing keywords through - but also checking batch size epochs
         ok, msg = self.check_epsilon(X.shape[0], batch_size, epochs)
 

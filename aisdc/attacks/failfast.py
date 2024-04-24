@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 
-class FailFast:  # pylint: disable=too-many-instance-attributes
+class FailFast:
     """Class to check attack being successful or not for a given metric
     Note: An object of a FailFast is stateful and instance members
     (success_count and fail_count) will preserve values
@@ -20,7 +20,6 @@ class FailFast:  # pylint: disable=too-many-instance-attributes
         self.success_count = 0
         self.fail_count = 0
 
-    # pylint: disable=too-many-branches
     def check_attack_success(self, metric_dict: dict) -> bool:
         """A function to check if attack was successful for a given metric.
 
