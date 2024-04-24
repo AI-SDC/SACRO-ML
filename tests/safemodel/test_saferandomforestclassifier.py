@@ -163,7 +163,7 @@ def test_randomforest_hacked_postfit():
     )
     part3 = ""  # get_reporting_string(
     #        name="param_changed_from_to",
-    #        key="base_estimator",
+    #        key="estimator",
     #        val="DecisionTreeClassifier()",
     #        cur_val="DecisionTreeClassifier()",
     #    )
@@ -196,9 +196,9 @@ def test_randomforest_modeltype_changed():
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     correct_msg = ""
-    # check code that tests base_estimator_
+    # check code that tests estimator_
     model.fit(x, y)
-    model.base_estimator = "DummyClassifier()"
+    model.estimator = "DummyClassifier()"
 
     # hide some data
     for i in range(5):  # changed lengths get picked up in different test
@@ -209,11 +209,11 @@ def test_randomforest_modeltype_changed():
     correct_msg = get_reporting_string(name="forest_estimators_differ", idx=5)
     correct_msg += get_reporting_string(
         name="param_changed_from_to",
-        key="base_estimator",
+        key="estimator",
         val="DecisionTreeClassifier()",
         cur_val="DummyClassifier()",
     )
-    #    correct_msg += ("structure base_estimator has 1 differences: [('change', '', "
+    #    correct_msg += ("structure estimator has 1 differences: [('change', '', "
     #                    "(DecisionTreeClassifier(), DecisionTreeClassifier()))]"
     #                   )
     print(f"Correct: {correct_msg} Actual: {msg}")
@@ -280,7 +280,7 @@ def test_randomforest_hacked_postfit_trees_swapped():
     part3 = get_reporting_string(name="forest_estimators_differ", idx=5)
     part4 = ""  # get_reporting_string(
     #        name="param_changed_from_to",
-    #        key="base_estimator",
+    #        key="estimator",
     #        val="DecisionTreeClassifier()",
     #        cur_val="DecisionTreeClassifier()",
     #    )
@@ -311,7 +311,7 @@ def test_randomforest_hacked_postfit_moretrees():
     part3 = get_reporting_string(name="different_num_estimators", num1=10, num2=5)
     part4 = ""  # get_reporting_string(
     #        name="param_changed_from_to",
-    #        key="base_estimator",
+    #        key="estimator",
     #        val="DecisionTreeClassifier()",
     #        cur_val="DecisionTreeClassifier()",
     #    )

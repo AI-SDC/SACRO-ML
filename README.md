@@ -33,59 +33,51 @@ A collection of user guides can be found in the 'user_stories' folder of this re
 
 Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 
-## Quick Start
-
-### Development
-
-Clone the repository and install the dependencies (safest in a virtual env):
-
-```
-$ git clone https://github.com/AI-SDC/AI-SDC.git
-$ cd AI-SDC
-$ pip install -r requirements.txt
-```
-
-Then run the tests:
-
-```
-$ pip install pytest
-$ pytest .
-```
-
-Or run an example:
-
-```
-$ python -m examples.lira_attack_example
-```
-
-### Installation / End-user
+## Installation / End-user
 
 [![PyPI package](https://img.shields.io/pypi/v/aisdc.svg)](https://pypi.org/project/aisdc)
 
-Install `aisdc` (safest in a virtual env) and manually copy the `examples` and `example_notebooks`.
+Install `aisdc` (safest in a virtual env) and manually copy the [`examples`](examples/) and [`example_notebooks`](example_notebooks/).
+
+To install only the base package, which includes the attacks used for assessing privacy:
 
 ```
 $ pip install aisdc
 ```
 
-Then to run an example:
+To install the base package and the safemodel package, which includes defensive wrappers for popular ML frameworks including [scikit-learn](https://scikit-learn.org) and [Keras](https://keras.io):
 
 ```
-$ python attribute_inference_example.py
+$ pip install aisdc[safemodel]
 ```
 
-Or start up `jupyter notebook` and run an example.
+## Running
 
-Alternatively, you can clone the repo and install:
+To run an example, simply execute the desired script or start up `jupyter notebook` and run one of the notebooks.
+
+For example, to run the `lira_attack_example.py`:
+
+```
+$ python -m lira_attack_example
+```
+
+## Development
+
+Clone the repository and install the local package including all dependencies (safest in a virtual env):
 
 ```
 $ git clone https://github.com/AI-SDC/AI-SDC.git
 $ cd AI-SDC
-$ pip install .
+$ pip install .[test]
+```
+
+Then run the tests:
+
+```
+$ pytest .
 ```
 
 ---
-
 
 This work was funded by UK Research and Innovation under Grant Numbers MC_PC_21033  and MC_PC_23006 as part of Phase 1 of the DARE UK (Data and Analytics Research Environments UK) programme (https://dareuk.org.uk/), delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automatic checking of Research Outputs (SACRO -MC_PC_23006) and   Guidelines and Resources for AI Model Access from TrusTEd Research environments (GRAIMATTER - MC_PC_21033).­ This project has also been supported by MRC and EPSRC [grant number MR/S010351/1]: PICTURES.
 
