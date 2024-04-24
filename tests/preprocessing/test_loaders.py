@@ -28,6 +28,10 @@ datasets = (
     "indian liver",
     "synth-ae",
     "synth-ae-small",
+    "synth-ae-large",
+    "synth-ae-extra-large",
+    "synth-ae-XXL-large",
+    "RDMP",
     "nursery",
     "iris",
 )
@@ -90,6 +94,22 @@ def test_data_absent():
     # synthae-small
     with pytest.raises(DataNotAvailable):
         _, _ = loaders.get_data_sklearn("synth-ae-small")
+
+    # synthae-large
+    with pytest.raises(DataNotAvailable):
+        _, _ = loaders.get_data_sklearn("synth-ae-large")
+
+    # synthae-large
+    with pytest.raises(DataNotAvailable):
+        _, _ = loaders.get_data_sklearn("synth-ae-extra-large")
+
+    # synthae-large
+    with pytest.raises(DataNotAvailable):
+        _, _ = loaders.get_data_sklearn("synth-ae-XXL")
+
+    # RDMP
+    with pytest.raises(DataNotAvailable):
+        _, _ = loaders.get_data_sklearn("RDMP")
 
     # unknown
     with pytest.raises(UnknownDataset):
@@ -169,13 +189,6 @@ def test_indian_liver():
     assert y_df.shape == (11, 1)
 
 
-def test_texas():
-    """The texas dataset has quite restrictive licenses arounbd copying.
-    Therefore it is omitted from the CI testing.
-    This code was fully tested during the GRAIMatter project.
-    """
-
-
 def test_synth_ae():
     """Tests different versions of the  synthetic A&E dataset."""
     x_df, y_df = loaders.get_data_sklearn("synth-ae", DATA_FOLDER)
@@ -185,3 +198,25 @@ def test_synth_ae():
     x_df, y_df = loaders.get_data_sklearn("synth-ae-small", DATA_FOLDER)
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
+
+    x_df, y_df = loaders.get_data_sklearn("synth-ae-large", DATA_FOLDER)
+    assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (8, 1)
+
+    x_df, y_df = loaders.get_data_sklearn("synth-ae-extra-large", DATA_FOLDER)
+    assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (8, 1)
+
+    x_df, y_df = loaders.get_data_sklearn("synth-ae-XXL", DATA_FOLDER)
+    assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
+    assert y_df.shape == (8, 1)
+
+
+# def test_rdmp():
+#     """The RDMP dataloader."""
+#     x_df, y_df = loaders.get_data_sklearn("RDMP", DATA_FOLDER)
+
+#     assert 'death' not in x_df.columns
+#     assert 'age' in x_df.columns
+
+#     assert y_df.shape[1] == 1
