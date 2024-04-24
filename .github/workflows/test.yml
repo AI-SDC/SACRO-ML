@@ -18,13 +18,21 @@ jobs:
 
       - name: Install
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install .[test]
 
-      - name: pytest and report coverage
+      - name: Generate coverage report
         run: |
           pytest --cov=./ --cov-report=xml
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./coverage/reports/
+          fail_ci_if_error: true
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 ...
