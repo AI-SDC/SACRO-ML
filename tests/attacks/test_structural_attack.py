@@ -5,12 +5,9 @@ Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
 from __future__ import annotations
 
 import json
-import os
-import shutil
 import sys
 from unittest.mock import patch
 
-# import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
@@ -22,14 +19,7 @@ from xgboost.sklearn import XGBClassifier
 import aisdc.attacks.structural_attack as sa
 from aisdc.attacks.target import Target
 
-
-def clean_up(name):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name):
-        if os.path.isfile(name):
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+from ..common import clean
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
@@ -218,7 +208,7 @@ def test_adaboost():
     # 'non' disclosive'
     # - base estimator =None => DecisionTreeClassifier with max_depth 1
     # also set THRESHOLD to 4
-    param_dict = {"n_estimators": 2, "base_estimator": None}
+    param_dict = {"n_estimators": 2, "estimator": None}
     target = get_target("adaboost", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.THRESHOLD = 2
@@ -233,7 +223,7 @@ def test_adaboost():
     # highly disclosive
     kwargs = {"max_depth": None, "min_samples_leaf": 2}
     param_dict2 = {
-        "base_estimator": DecisionTreeClassifier(**kwargs),
+        "estimator": DecisionTreeClassifier(**kwargs),
         "n_estimators": 1000,
     }
     target = get_target("adaboost", **param_dict2)
@@ -367,6 +357,7 @@ def test_main_example():
     with patch.object(sys, "argv", testargs):
         sa.main()
 
-    clean_up("dt.sav")
-    clean_up("test_output_sa")
-    clean_up("config_structural_test.json")
+    clean("dt.sav")
+    clean("test_output_sa")
+    clean("config_structural_test.json")
+    clean("outputs_structural")

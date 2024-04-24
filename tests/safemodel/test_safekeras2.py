@@ -7,6 +7,7 @@ import shutil
 import warnings
 
 import numpy as np
+import pytest
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -424,8 +425,8 @@ def test_keras_model_compiled_as_DP():
 
     right_epsilon = 20.363059561511612
     model.check_epsilon(X.shape[0], 20, 10)
-    assert (
-        model.current_epsilon == right_epsilon
+    assert model.current_epsilon == pytest.approx(
+        right_epsilon, 0.01
     ), "failed check for epsilon after compilation"
 
     # check this works

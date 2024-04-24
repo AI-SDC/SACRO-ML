@@ -119,6 +119,8 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
 
     elif isinstance(model, XGBClassifier):
         n_estimators = model.n_estimators
+        if n_estimators is None:
+            n_estimators = 1000
         if (
             (
                 max_depth > 3.5

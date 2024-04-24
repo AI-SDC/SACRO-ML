@@ -140,6 +140,16 @@ class TestGenerateReport(unittest.TestCase):
 
         clean_up(test_filename)
 
+    def test_pretty_print(self):
+        """Test which tests the pretty_print function with nested dictionaries."""
+        example_report = {
+            "example_a": "example_value",
+            "example_b": {"A": 1.0, "B": 1.0},
+        }
+
+        g = GenerateTextReport()
+        g.pretty_print(example_report, "Example Title")
+
     def test_process_attack_target_json(self):
         """Test which tests the process_attack_target_json function."""
         target_report = get_target_report()
