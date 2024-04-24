@@ -17,7 +17,7 @@ import unittest
 
 from sklearn.ensemble import RandomForestClassifier
 
-from aisdc.attacks import attribute_attack  # pylint: disable = import-error
+from aisdc.attacks import attribute_attack
 from aisdc.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,

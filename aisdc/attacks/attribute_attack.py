@@ -31,9 +31,7 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Class to wrap the attribute inference attack code."""
 
-    # pylint: disable=too-many-instance-attributes
-
-    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable = too-many-arguments
         self,
         output_dir: str = "output_attribute",
         report_name: str = "aia_report",
@@ -433,7 +431,7 @@ def _attack_brute_force(
     """
     logger.debug("Brute force attacking categorical features")
     args = [(target, feature_id, attack_threshold) for feature_id in features]
-    with mp.Pool(processes=n_cpu) as pool:  # pylint:disable=not-callable
+    with mp.Pool(processes=n_cpu) as pool:
         results = pool.starmap(_infer_categorical, args)
     return results
 
@@ -569,7 +567,7 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
         )
         for feature_id in features
     ]
-    with mp.Pool(processes=n_cpu) as pool:  # pylint:disable=not-callable
+    with mp.Pool(processes=n_cpu) as pool:
         results = pool.starmap(_get_bounds_risk, args)
     return results
 

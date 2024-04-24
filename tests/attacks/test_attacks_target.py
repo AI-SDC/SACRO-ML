@@ -62,7 +62,7 @@ def cleanup_files(monkeypatch):
             pass
 
 
-def test_target(cleanup_files):  # pylint:disable=too-many-locals,unused-argument
+def test_target(cleanup_files):  # pylint:disable=unused-argument
     """
     Returns a randomly sampled 10+10% of
     the nursery data set as a Target object

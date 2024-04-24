@@ -134,7 +134,7 @@ class WorstCaseAttack(Attack):
         if isinstance(reproduce_split, int):
             reproduce_split = [reproduce_split] + [
                 x**2 for x in range(reproduce_split, reproduce_split + n_reps - 1)
-            ]  # pylint: disable = line-too-long
+            ]
         else:
             reproduce_split = list(
                 dict.fromkeys(reproduce_split)
@@ -240,7 +240,7 @@ class WorstCaseAttack(Attack):
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
         self.attack_from_preds(train_preds, test_preds)
 
-    def attack_from_preds(  # pylint: disable=too-many-locals
+    def attack_from_preds(
         self,
         train_preds: np.ndarray,
         test_preds: np.ndarray,
@@ -463,9 +463,7 @@ class WorstCaseAttack(Attack):
         p_thresh. Can perform multiple testing correction.
         """
         if not bh_fdr_correction:
-            return sum(
-                1 for p in p_val_list if p <= p_thresh
-            )  # pylint: disable = consider-using-generator
+            return sum(1 for p in p_val_list if p <= p_thresh)
         p_val_list = np.asarray(sorted(p_val_list))
         n_vals = len(p_val_list)
         hoch_vals = np.array([(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)])

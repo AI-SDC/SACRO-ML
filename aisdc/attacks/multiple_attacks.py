@@ -14,14 +14,10 @@ import uuid
 from typing import Any
 
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attribute_attack import (
-    AttributeAttack,  # pylint: disable = import-error
-)
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
+from aisdc.attacks.attribute_attack import AttributeAttack
+from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
-from aisdc.attacks.worst_case_attack import (
-    WorstCaseAttack,  # pylint: disable = import-error
-)
+from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 
 class MultipleAttacks(Attack):
@@ -89,7 +85,7 @@ class MultipleAttacks(Attack):
         logger.info("Finished running attacks")
 
 
-class ConfigFile:  # pylint: disable = too-few-public-methods
+class ConfigFile:
     """Module that creates a single JSON configuration file."""
 
     def __init__(

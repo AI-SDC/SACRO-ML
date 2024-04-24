@@ -7,7 +7,7 @@ from __future__ import annotations
 import shutil
 import unittest
 
-from aisdc.attacks import failfast, worst_case_attack  # pylint: disable = import-error
+from aisdc.attacks import failfast, worst_case_attack
 
 
 class TestFailFast(unittest.TestCase):

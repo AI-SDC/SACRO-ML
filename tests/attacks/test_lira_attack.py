@@ -21,11 +21,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from aisdc.attacks import likelihood_attack
-from aisdc.attacks.likelihood_attack import (  # pylint: disable = import-error
-    DummyClassifier,
-    LIRAAttack,
-)
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks.likelihood_attack import DummyClassifier, LIRAAttack
+from aisdc.attacks.target import Target
 
 N_SHADOW_MODELS = 20
 

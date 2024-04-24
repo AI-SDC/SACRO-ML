@@ -129,7 +129,7 @@ def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
 
 class SafeDecisionTreeClassifier(
     SafeModel, DecisionTreeClassifier
-):  # pylint: disable=too-many-instance-attributes, too-many-ancestors
+):  # pylint: disable=too-many-ancestors
     """Privacy protected Decision Tree classifier."""
 
     def __init__(self, **kwargs: Any) -> None:

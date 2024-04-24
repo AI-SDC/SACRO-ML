@@ -26,10 +26,7 @@ from sklearn.preprocessing import (  # pylint:disable=unused-import
     OneHotEncoder,
 )
 
-from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
-    ConfigFile,
-    MultipleAttacks,
-)
+from aisdc.attacks.multiple_attacks import ConfigFile, MultipleAttacks
 
 from ..common import get_target
 
