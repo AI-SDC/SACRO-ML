@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 1.1.3 (Apr 26, 2024)
+
+Changes:
+*   Add built-in support for additional datasets ([#257](https://github.com/AI-SDC/AI-SDC/pull/257))
+*   Remove references to final score in outputs ([#259](https://github.com/AI-SDC/AI-SDC/pull/259))
+*   Update package dependencies: remove support for Python 3.8; add support for Python 3.11 ([#262](https://github.com/AI-SDC/AI-SDC/pull/262))
+*   Fix code coverage reporting ([#265](https://github.com/AI-SDC/AI-SDC/pull/265))
+*   Remove useless pylint suppression pragmas ([#269](https://github.com/AI-SDC/AI-SDC/pull/269))
+*   Fix axis labels in report ROC curve plot ([#270](https://github.com/AI-SDC/AI-SDC/pull/270))
+
 ## Version 1.1.2 (Oct 30, 2023)
 
 Changes:
