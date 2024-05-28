@@ -334,7 +334,7 @@ class LIRAAttack(Attack):
                 out_std += np.nanstd(out_scores)
             out_prob = -norm.logpdf(target_logit, out_mean, out_std)
 
-            if np.nanvar(out_scores) > 0:
+            if np.nanvar(out_scores) > EPS:
                 _, out_p_norm = shapiro(out_scores)
                 if out_p_norm <= 0.05:
                     n_normal += 1
