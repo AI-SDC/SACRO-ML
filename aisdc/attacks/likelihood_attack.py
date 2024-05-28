@@ -328,11 +328,10 @@ class LIRAAttack(Attack):
 
             out_scores = np.array(out_confidences[i])
             out_mean = 0
-            out_std = 0
+            out_std = EPS
             if not np.isnan(out_scores).all():
                 out_mean = np.nanmean(out_scores)
-                out_std = np.nanvar(out_scores)
-            out_std = np.sqrt(out_std + EPS)  # var can be zero in some cases
+                out_std += np.nanstd(out_scores)
             out_prob = -norm.logpdf(target_logit, out_mean, out_std)
 
             _, out_p_norm = shapiro(out_scores)
@@ -345,11 +344,10 @@ class LIRAAttack(Attack):
             elif self.mode == "online-carlini":
                 in_scores = np.array(in_confidences[i])
                 in_mean = 0
-                in_std = 0
+                in_std = EPS
                 if not np.isnan(in_scores).all():
                     in_mean = np.nanmean(in_scores)
-                    in_std = np.nanvar(in_scores)
-                in_std = np.sqrt(in_std + EPS)
+                    in_std += np.nanstd(in_scores)
                 in_prob = -norm.logpdf(target_logit, in_mean, in_std)
                 prob = in_prob - out_prob
                 mia_scores.append([prob, -prob])
