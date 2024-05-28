@@ -15,7 +15,7 @@ from datetime import datetime
 
 import numpy as np
 import sklearn
-from scipy.stats import norm
+from scipy.stats import norm, shapiro
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -319,6 +319,7 @@ class LIRAAttack(Attack):
         logger.info("Computing scores")
         mia_scores = []
         mia_labels = [1] * n_train_rows + [0] * (n_combined - n_train_rows)
+        n_normal = 0
 
         for i in range(n_combined):
             label = combined_y_train[i]
@@ -333,6 +334,10 @@ class LIRAAttack(Attack):
                 out_std = np.nanvar(out_scores)
             out_std = np.sqrt(out_std + EPS)  # var can be zero in some cases
             out_prob = -norm.logpdf(target_logit, out_mean, out_std)
+
+            _, out_p_norm = shapiro(out_scores)
+            if out_p_norm <= 0.05:
+                n_normal += 1
 
             if self.mode == "offline":
                 out_prob = norm.cdf(target_logit, loc=out_mean, scale=out_std)
@@ -362,6 +367,7 @@ class LIRAAttack(Attack):
             mia_clf, mia_scores, mia_labels, permute_rows=True
         )
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
+        self.attack_metrics[0]["n_normal"] = n_normal / n_combined
 
     def example(self) -> None:
         """Runs an example attack using data from sklearn.
