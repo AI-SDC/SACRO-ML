@@ -327,7 +327,7 @@ class LIRAAttack(Attack):
         n_normal = 0
 
         if self.fix_variance:
-            # requires conversion from a dict of diff size numpy arrays
+            # requires conversion from a dict of diff size proba lists
             out_arrays = list(out_confidences.values())
             out_combined = np.concatenate(out_arrays)
             out_std = np.nanstd(out_combined)
