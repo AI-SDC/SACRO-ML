@@ -1,6 +1,7 @@
 """Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf."""
 
 # pylint: disable = invalid-name
+# pylint: disable = too-many-branches
 
 from __future__ import annotations
 
@@ -92,6 +93,7 @@ class LIRAAttack(Attack):
         shadow_models_fail_fast: bool = False,
         target_path: str = None,
         mode: str = "offline",
+        fix_variance: bool = False,
     ) -> None:
         """Constructs an object to execute a LIRA attack.
 
@@ -131,6 +133,8 @@ class LIRAAttack(Attack):
             path to the saved trained target model and target data
         mode : str
             Attack mode: {"offline", "offline-carlini", "online-carlini"}
+        fix_variance : bool
+            Whether to use the global standard deviation or per record.
         """
         super().__init__()
         self.n_shadow_models = n_shadow_models
@@ -148,6 +152,7 @@ class LIRAAttack(Attack):
         self.shadow_models_fail_fast = shadow_models_fail_fast
         self.target_path = target_path
         self.mode = mode
+        self.fix_variance = fix_variance
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
         if not os.path.exists(self.output_dir):
@@ -321,6 +326,15 @@ class LIRAAttack(Attack):
         mia_labels = [1] * n_train_rows + [0] * (n_combined - n_train_rows)
         n_normal = 0
 
+        if self.fix_variance:
+            # requires conversion from a dict of diff size numpy arrays
+            out_arrays = list(out_confidences.values())
+            out_combined = np.concatenate(out_arrays)
+            out_std = np.nanstd(out_combined)
+            in_arrays = list(in_confidences.values())
+            in_combined = np.concatenate(in_arrays)
+            in_std = np.nanstd(in_combined)
+
         for i in range(n_combined):
             label = combined_y_train[i]
             target_conf = combined_target_preds[i, label]
@@ -328,11 +342,13 @@ class LIRAAttack(Attack):
 
             out_scores = np.array(out_confidences[i])
             out_mean = 0
-            out_std = EPS
             if not np.isnan(out_scores).all():
                 out_mean = np.nanmean(out_scores)
-                out_std += np.nanstd(out_scores)
-            out_prob = -norm.logpdf(target_logit, out_mean, out_std)
+                if not self.fix_variance:
+                    out_std = np.nanstd(out_scores)
+            elif not self.fix_variance:
+                out_std = 0
+            out_prob = -norm.logpdf(target_logit, out_mean, out_std + EPS)
 
             if np.nanvar(out_scores) > EPS:
                 _, out_p_norm = shapiro(out_scores)
@@ -340,16 +356,18 @@ class LIRAAttack(Attack):
                     n_normal += 1
 
             if self.mode == "offline":
-                out_prob = norm.cdf(target_logit, loc=out_mean, scale=out_std)
+                out_prob = norm.cdf(target_logit, loc=out_mean, scale=out_std + EPS)
                 mia_scores.append([1 - out_prob, out_prob])
             elif self.mode == "online-carlini":
                 in_scores = np.array(in_confidences[i])
                 in_mean = 0
-                in_std = EPS
                 if not np.isnan(in_scores).all():
                     in_mean = np.nanmean(in_scores)
-                    in_std += np.nanstd(in_scores)
-                in_prob = -norm.logpdf(target_logit, in_mean, in_std)
+                    if not self.fix_variance:
+                        in_std = np.nanstd(in_scores)
+                elif not self.fix_variance:
+                    in_std = 0
+                in_prob = -norm.logpdf(target_logit, in_mean, in_std + EPS)
                 prob = in_prob - out_prob
                 mia_scores.append([prob, -prob])
             elif self.mode == "offline-carlini":
