@@ -323,7 +323,7 @@ class LIRAAttack(Attack):
         # Do the test described in the paper in each case
         logger.info("Computing scores")
         mia_scores = []
-        mia_labels = [1] * n_train_rows + [0] * (n_combined - n_train_rows)
+        mia_labels = [1] * n_train_rows + [0] * n_shadow_rows
         n_normal = 0
 
         if self.fix_variance:
