@@ -279,7 +279,7 @@ class LIRAAttack(Attack):
         n_combined = n_train_rows + n_shadow_rows
         indices = np.arange(0, n_combined, 1)
 
-        # Combine taregt and shadow train, from which to sample datasets
+        # Combine target and shadow train, from which to sample datasets
         combined_X_train = np.vstack((X_target_train, X_shadow_train))
         combined_y_train = np.hstack((y_target_train, y_shadow_train))
         combined_target_preds = np.vstack((target_train_preds, shadow_train_preds))
