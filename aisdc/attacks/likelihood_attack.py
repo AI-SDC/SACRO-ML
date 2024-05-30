@@ -564,13 +564,15 @@ class LIRAAttack(Attack):
         logger.info("Loading test predictions form %s", self.test_preds_filename)
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
         assert len(test_preds) == len(test_X)
-        if self.target_model is not None:
-            clf_module_name, clf_class_name = self.target_model
-            module = importlib.import_module(clf_module_name)
-            clf_class = getattr(module, clf_class_name)
-            if self.target_model_hyp is not None:
-                clf_params = self.target_model_hyp
-                clf = clf_class(**clf_params)
+        if self.target_model is None:
+            raise ValueError("Target model cannot be None")
+        if self.target_model_hyp is None:
+            raise ValueError("Target model hyperparameters cannot be None")
+        clf_module_name, clf_class_name = self.target_model
+        module = importlib.import_module(clf_module_name)
+        clf_class = getattr(module, clf_class_name)
+        clf_params = self.target_model_hyp
+        clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
             clf, train_X, train_y, train_preds, test_X, test_y, test_preds
