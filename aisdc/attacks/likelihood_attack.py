@@ -558,7 +558,7 @@ class LIRAAttack(Attack):
             if self.target_model_hyp is not None:
                 clf_params = self.target_model_hyp
                 clf = clf_class(**clf_params)
-        logger.info("Created model: %s", str(clf))
+            logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
             clf, train_X, train_y, train_preds, test_X, test_y, test_preds
         )
