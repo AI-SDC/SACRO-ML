@@ -415,7 +415,3 @@ def test_main_example():
     clean("test_output_sa")
     clean("config_structural_test.json")
     clean("outputs_structural")
-
-
-def test_get_sklearnMLP_parameter_count():
-    """Test how sklearn.mlpClassifier is queried."""
