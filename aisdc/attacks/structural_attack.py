@@ -189,7 +189,7 @@ def get_model_param_count(model: BaseEstimator) -> int:
     elif isinstance(model, MLPClassifier):
         weights = model.coefs_  # dtype is list of numpy.ndarrays
         biasses = model.intercepts_  # dtype is list of numpy.ndarrays
-        n_params = sum([a.size for a in weights]) + sum([a.size for a in biasses])
+        n_params = sum(a.size for a in weights) + sum(a.size for a in biasses)
 
     else:
         pass
