@@ -298,11 +298,11 @@ class StructuralAttack(Attack):
         errstr = "len mismatch between equiv classes and "
         assert len(equiv_classes) == len(equiv_counts), errstr + "counts"
         assert len(equiv_classes) == len(equiv_members), errstr + "membership"
-        print(
-            f"equiv_classes is {equiv_classes}\n"
-            f"equiv_counts is {equiv_counts}\n"
-            #   #f'equiv_members is {equiv_members}\n'
-        )
+        # print(
+        #    f"equiv_classes is {equiv_classes}\n"
+        #    f"equiv_counts is {equiv_counts}\n"
+        #    #   #f'equiv_members is {equiv_members}\n'
+        # )
 
         # now assess the risk
         # Degrees of Freedom
@@ -361,7 +361,7 @@ class StructuralAttack(Attack):
         for prob_vals in equiv_classes:
             ingroup = np.unique(np.asarray(self.yprobs == prob_vals).nonzero()[0])
             members.append(ingroup)
-        print(equiv_counts)
+        # print(equiv_counts)
         return [equiv_classes, equiv_counts, members]
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
