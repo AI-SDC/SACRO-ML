@@ -12,6 +12,7 @@ import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
@@ -37,6 +38,8 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
         target_model = XGBClassifier(**kwparams)
     elif modeltype == "adaboost":
         target_model = AdaBoostClassifier(**kwparams)
+    elif modeltype == "mlpclassifier":
+        target_model = MLPClassifier(**kwparams)
     # should get polite error but not DoF yet
     elif modeltype == "svc":
         target_model = SVC(**kwparams)
@@ -311,6 +314,57 @@ def test_xgb():
         myattack2.class_disclosure_risk == 1
     ), "should be class disclosure risk with xgb lots of deep trees"
     assert myattack2.unnecessary_risk == 1, " unnecessary risk with these xgb params"
+
+
+def test_sklearnmlp():
+    """Test for sklearn MLPClassifier."""
+    # non-disclosive
+    safeparams = {
+        "hidden_layer_sizes": (10,),
+        "random_state": 12345,
+        "activation": "identity",
+        "max_iter": 1,
+    }
+    target = get_target("mlpclassifier", **safeparams)
+    myattack = sa.StructuralAttack()
+    myattack.attack(target)
+    paramstr = ""
+    for key, val in safeparams.items():
+        paramstr += f"{key}:{val}\n"
+    assert (
+        myattack.DoF_risk == 0
+    ), f"should be no DoF risk with small mlp with params {paramstr}"
+    assert (
+        myattack.k_anonymity_risk == 0
+    ), f"should be no k-anonymity risk with params {paramstr}"
+    assert (
+        myattack.class_disclosure_risk == 1
+    ), f"should be  class disclosure risk with params {paramstr}"
+    assert myattack.unnecessary_risk == 0, "not unnecessary risk for mlps at present"
+
+    # highly disclosive
+    unsafeparams = {
+        "hidden_layer_sizes": (50, 50),
+        "random_state": 12345,
+        "activation": "relu",
+        "max_iter": 100,
+    }
+    uparamstr = ""
+    for key, val in unsafeparams.items():
+        uparamstr += f"{key}:{val}\n"
+    target2 = get_target("mlpclassifier", **unsafeparams)
+    myattack2 = sa.StructuralAttack()
+    myattack2.attack(target2)
+    assert myattack2.DoF_risk == 1, f"should be  DoF risk with this MLP:\n{uparamstr}"
+    assert (
+        myattack2.k_anonymity_risk == 1
+    ), "559/560 records should have should be  k-anonymity 1 with this MLP:\n{uparamstr}"
+    assert (
+        myattack2.class_disclosure_risk == 1
+    ), "should be class disclosure risk with this MLP:\n{uparamstr}"
+    assert (
+        myattack2.unnecessary_risk == 0
+    ), " no unnecessary risk yet for MLPClassifiers"
 
 
 def test_reporting():

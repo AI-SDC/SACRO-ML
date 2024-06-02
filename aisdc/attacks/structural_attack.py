@@ -20,6 +20,7 @@ from acro import ACRO
 # tree-based model types currently supported
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
@@ -184,6 +185,12 @@ def get_model_param_count(model: BaseEstimator) -> int:
         n_leaves = len(df[df.Feature == "Leaf"])
         # 2 per internal node, one per clas in leaves, one weight per tree
         n_params = 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
+
+    elif isinstance(model, MLPClassifier):
+        weights = model.coefs_  # dtype is list of numpy.ndarrays
+        biasses = model.intercepts_  # dtype is list of numpy.ndarrays
+        n_params = sum(a.size for a in weights) + sum(a.size for a in biasses)
+
     else:
         pass
 
@@ -291,11 +298,11 @@ class StructuralAttack(Attack):
         errstr = "len mismatch between equiv classes and "
         assert len(equiv_classes) == len(equiv_counts), errstr + "counts"
         assert len(equiv_classes) == len(equiv_members), errstr + "membership"
-        print(
-            f"equiv_classes is {equiv_classes}\n"
-            f"equiv_counts is {equiv_counts}\n"
-            #   #f'equiv_members is {equiv_members}\n'
-        )
+        # print(
+        #    f"equiv_classes is {equiv_classes}\n"
+        #    f"equiv_counts is {equiv_counts}\n"
+        #    #   #f'equiv_members is {equiv_members}\n'
+        # )
 
         # now assess the risk
         # Degrees of Freedom
@@ -354,6 +361,7 @@ class StructuralAttack(Attack):
         for prob_vals in equiv_classes:
             ingroup = np.unique(np.asarray(self.yprobs == prob_vals).nonzero()[0])
             members.append(ingroup)
+        # print(equiv_counts)
         return [equiv_classes, equiv_counts, members]
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
