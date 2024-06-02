@@ -94,6 +94,7 @@ class LIRAAttack(Attack):
         target_path: str = None,
         mode: str = "offline",
         fix_variance: bool = False,
+        report_individual: bool = False,
     ) -> None:
         """Constructs an object to execute a LIRA attack.
 
@@ -135,6 +136,8 @@ class LIRAAttack(Attack):
             Attack mode: {"offline", "offline-carlini", "online-carlini"}
         fix_variance : bool
             Whether to use the global standard deviation or per record.
+        report_individual : bool
+            Whether to report metrics for each individual record.
         """
         super().__init__()
         self.n_shadow_models = n_shadow_models
@@ -153,6 +156,7 @@ class LIRAAttack(Attack):
         self.target_path = target_path
         self.mode = mode
         self.fix_variance = fix_variance
+        self.report_individual = report_individual
         if self.attack_config_json_file_name is not None:
             self._update_params_from_config_file()
         if not os.path.exists(self.output_dir):
@@ -273,6 +277,9 @@ class LIRAAttack(Attack):
         """
 
         logger = logging.getLogger("lr-scenario")
+        if self.shadow_models_fail_fast:
+            logger.warn("LiRA fail-fast functionality currently unsupported.")
+        logger.info("Training shadow models")
 
         n_train_rows, _ = X_target_train.shape
         n_shadow_rows, _ = X_shadow_train.shape
@@ -287,8 +294,8 @@ class LIRAAttack(Attack):
         out_confidences = {i: [] for i in range(n_combined)}
         in_confidences = {i: [] for i in range(n_combined)}
 
-        # Train N_SHADOW_MODELS shadow models
         logger.info("Training shadow models")
+
         for model_idx in range(self.n_shadow_models):
             if model_idx % 10 == 0:
                 logger.info("Trained %d models", model_idx)
@@ -320,8 +327,21 @@ class LIRAAttack(Attack):
                 else:
                     in_confidences[i].append(logit)
 
-        # Do the test described in the paper in each case
         logger.info("Computing scores")
+
+        result = {
+            "score": [],
+            "label": [],
+            "target_proba": [],
+            "target_logit": [],
+            "out_p_norm": [],
+            "out_prob": [],
+            "out_mean": [],
+            "out_std": [],
+            "in_prob": [],
+            "in_mean": [],
+            "in_std": [],
+        }
         mia_scores = []
         mia_labels = [1] * n_train_rows + [0] * n_shadow_rows
         n_normal = 0
@@ -335,6 +355,7 @@ class LIRAAttack(Attack):
             in_combined = np.concatenate(in_arrays)
             in_std = np.nanstd(in_combined)
 
+        # scpre each record in the member and non-member sets
         for i in range(n_combined):
             label = combined_y_train[i]
             target_conf = combined_target_preds[i, label]
@@ -350,6 +371,7 @@ class LIRAAttack(Attack):
                 out_std = 0
             out_prob = -norm.logpdf(target_logit, out_mean, out_std + EPS)
 
+            out_p_norm = np.NaN
             if np.nanvar(out_scores) > EPS:
                 _, out_p_norm = shapiro(out_scores)
                 if out_p_norm <= 0.05:
@@ -371,20 +393,38 @@ class LIRAAttack(Attack):
                 prob = in_prob - out_prob
                 mia_scores.append([prob, -prob])
             elif self.mode == "offline-carlini":
-                mia_scores.append([-out_prob, out_prob])
+                prob = out_prob
+                mia_scores.append([-prob, prob])
             else:
                 raise ValueError(f"Unsupported LiRA mode: {self.mode}")
 
-        mia_clf = DummyClassifier()
-        logger.info("Finished scenario")
+            if self.report_individual:
+                result["label"].append(label)
+                result["target_proba"].append(combined_target_preds[i])
+                result["target_logit"].append(target_logit)
+                result["out_p_norm"].append(out_p_norm)
+                result["out_prob"].append(out_prob)
+                result["out_mean"].append(out_mean)
+                result["out_std"].append(out_std + EPS)
+                if self.mode == "online_carlini":
+                    result["in_prob"].append(in_prob)
+                    result["in_mean"].append(in_mean)
+                    result["in_std"].append(in_std + EPS)
 
+        mia_clf = DummyClassifier()
         mia_scores = np.array(mia_scores)
         mia_labels = np.array(mia_labels)
         y_pred_proba, y_test = metrics.get_probabilities(
             mia_clf, mia_scores, mia_labels, permute_rows=True
         )
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
-        self.attack_metrics[0]["n_normal"] = n_normal / n_combined
+        self.attack_metrics[-1]["n_normal"] = n_normal / n_combined
+        if self.report_individual:
+            result["score"] = [score[0] for score in mia_scores]
+            result["member"] = mia_labels
+            self.attack_metrics[-1]["individual"] = result
+
+        logger.info("Finished scenario")
 
     def example(self) -> None:
         """Runs an example attack using data from sklearn.
