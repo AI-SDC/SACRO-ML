@@ -329,22 +329,23 @@ class LIRAAttack(Attack):
 
         logger.info("Computing scores")
 
-        result = {
-            "score": [],
-            "label": [],
-            "target_proba": [],
-            "target_logit": [],
-            "out_p_norm": [],
-            "out_prob": [],
-            "out_mean": [],
-            "out_std": [],
-            "in_prob": [],
-            "in_mean": [],
-            "in_std": [],
-        }
         mia_scores = []
         mia_labels = [1] * n_train_rows + [0] * n_shadow_rows
         n_normal = 0
+
+        if self.report_individual:
+            result = {}
+            result["score"] = []
+            result["label"] = []
+            result["target_logit"] = []
+            result["out_p_norm"] = []
+            result["out_prob"] = []
+            result["out_mean"] = []
+            result["out_std"] = []
+            if self.mode == "online_carlini":
+                result["in_prob"] = []
+                result["in_mean"] = []
+                result["in_std"] = []
 
         if self.fix_variance:
             # requires conversion from a dict of diff size proba lists
@@ -400,7 +401,6 @@ class LIRAAttack(Attack):
 
             if self.report_individual:
                 result["label"].append(label)
-                result["target_proba"].append(combined_target_preds[i])
                 result["target_logit"].append(target_logit)
                 result["out_p_norm"].append(out_p_norm)
                 result["out_prob"].append(out_prob)
@@ -420,7 +420,7 @@ class LIRAAttack(Attack):
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
         self.attack_metrics[-1]["n_normal"] = n_normal / n_combined
         if self.report_individual:
-            result["score"] = [score[0] for score in mia_scores]
+            result["score"] = [score[1] for score in mia_scores]
             result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = result
 
