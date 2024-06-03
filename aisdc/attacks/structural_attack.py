@@ -58,6 +58,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
         model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
     ):
         return 0  # no experimental evidence to support rejection
+
     unnecessary_risk = 0
     max_depth = float(model.max_depth) if model.max_depth else 500
 
@@ -119,21 +120,19 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
             unnecessary_risk = 1
 
     elif isinstance(model, XGBClassifier):
-        n_estimators = model.n_estimators
-        if n_estimators is None:
-            n_estimators = 1000
+        # checking whether params exist and using xgboost defaults if not using defaults
+        # from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+        # and here: https://xgboost.readthedocs.io/en/stable/parameter.html
+        n_estimators = int(model.n_estimators) if model.n_estimators else 100
+        max_depth = float(model.max_depth) if model.max_depth else 6
+        min_child_weight = (
+            float(model.min_child_weight) if model.min_child_weight else 1.0
+        )
+
         if (
-            (
-                max_depth > 3.5
-                and 3.5 < n_estimators <= 12.5
-                and model.min_child_weight <= 1.5
-            )
-            or (max_depth > 3.5 and n_estimators > 12.5 and model.min_child_weight <= 3)
-            or (
-                max_depth > 3.5
-                and n_estimators > 62.5
-                and 3 < model.min_child_weight <= 6
-            )
+            (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
+            or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
+            or (max_depth > 3.5 and n_estimators > 62.5 and 3 < min_child_weight <= 6)
         ):
             unnecessary_risk = 1
     return unnecessary_risk
