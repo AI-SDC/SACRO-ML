@@ -278,7 +278,7 @@ class LIRAAttack(Attack):
 
         logger = logging.getLogger("lr-scenario")
         if self.shadow_models_fail_fast:
-            logger.warn("LiRA fail-fast functionality currently unsupported.")
+            logger.warning("LiRA fail-fast functionality currently unsupported.")
         logger.info("Training shadow models")
 
         n_train_rows, _ = X_target_train.shape
@@ -347,7 +347,7 @@ class LIRAAttack(Attack):
                 result["in_mean"] = []
                 result["in_std"] = []
 
-        if self.fix_variance:
+        if self.fix_variance:  # use global standard deviations
             # requires conversion from a dict of diff size proba lists
             out_arrays = list(out_confidences.values())
             out_combined = np.concatenate(out_arrays)
@@ -358,20 +358,23 @@ class LIRAAttack(Attack):
 
         # scpre each record in the member and non-member sets
         for i in range(n_combined):
+            # get the target model behaviour on the record
             label = combined_y_train[i]
             target_conf = combined_target_preds[i, label]
             target_logit = _logit(target_conf)
 
+            # get the behaviour of the record when non-member
             out_scores = np.array(out_confidences[i])
             out_mean = 0
+            if not self.fix_variance:
+                out_std = 0
             if not np.isnan(out_scores).all():
                 out_mean = np.nanmean(out_scores)
                 if not self.fix_variance:
                     out_std = np.nanstd(out_scores)
-            elif not self.fix_variance:
-                out_std = 0
             out_prob = -norm.logpdf(target_logit, out_mean, out_std + EPS)
 
+            # test the non-member samples for normality
             out_p_norm = np.NaN
             if np.nanvar(out_scores) > EPS:
                 _, out_p_norm = shapiro(out_scores)
@@ -379,21 +382,26 @@ class LIRAAttack(Attack):
                     n_normal += 1
 
             if self.mode == "offline":
+                # probability of observing a confidence as high as the target model's
+                # under the null-hypothesis that the target point is a non-member
                 out_prob = norm.cdf(target_logit, loc=out_mean, scale=out_std + EPS)
                 mia_scores.append([1 - out_prob, out_prob])
             elif self.mode == "online-carlini":
+                # get the behaviour of the record when member
                 in_scores = np.array(in_confidences[i])
                 in_mean = 0
+                if not self.fix_variance:
+                    in_std = 0
                 if not np.isnan(in_scores).all():
                     in_mean = np.nanmean(in_scores)
                     if not self.fix_variance:
                         in_std = np.nanstd(in_scores)
-                elif not self.fix_variance:
-                    in_std = 0
                 in_prob = -norm.logpdf(target_logit, in_mean, in_std + EPS)
+                # compute the likelihood ratio
                 prob = in_prob - out_prob
                 mia_scores.append([prob, -prob])
             elif self.mode == "offline-carlini":
+                # probability the record is a non-member
                 prob = out_prob
                 mia_scores.append([-prob, prob])
             else:
@@ -411,6 +419,7 @@ class LIRAAttack(Attack):
                     result["in_mean"].append(in_mean)
                     result["in_std"].append(in_std + EPS)
 
+        # save metrics
         mia_clf = DummyClassifier()
         mia_scores = np.array(mia_scores)
         mia_labels = np.array(mia_labels)
