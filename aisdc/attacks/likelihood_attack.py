@@ -279,7 +279,6 @@ class LIRAAttack(Attack):
         logger = logging.getLogger("lr-scenario")
         if self.shadow_models_fail_fast:
             logger.warning("LiRA fail-fast functionality currently unsupported.")
-        logger.info("Training shadow models")
 
         n_train_rows, _ = X_target_train.shape
         n_shadow_rows, _ = X_shadow_train.shape
