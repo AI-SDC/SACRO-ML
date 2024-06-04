@@ -381,9 +381,12 @@ class LIRAAttack(Attack):
             # test the non-member samples for normality
             out_p_norm = np.NaN
             if np.nanvar(out_scores) > EPS:
-                _, out_p_norm = shapiro(out_scores)
-                if out_p_norm <= 0.05:
-                    n_normal += 1
+                try:
+                    _, out_p_norm = shapiro(out_scores)
+                    if out_p_norm <= 0.05:
+                        n_normal += 1
+                except ValueError:  # pragma: no cover
+                    pass
 
             if self.mode == "offline":
                 # probability of observing a confidence as high as the target model's
@@ -538,9 +541,6 @@ class LIRAAttack(Attack):
         attack_metrics_instances = {}
 
         for rep, _ in enumerate(self.attack_metrics):
-            self.attack_metrics[rep][
-                "n_shadow_models_trained"
-            ] = self.attack_failfast_shadow_models_trained
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
