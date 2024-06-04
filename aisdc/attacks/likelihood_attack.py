@@ -347,14 +347,18 @@ class LIRAAttack(Attack):
                 result["in_mean"] = []
                 result["in_std"] = []
 
-        if self.fix_variance:  # use global standard deviations
+        if self.fix_variance:  # compute global standard deviations
             # requires conversion from a dict of diff size proba lists
             out_arrays = list(out_confidences.values())
             out_combined = np.concatenate(out_arrays)
-            out_std = np.nanstd(out_combined)
+            global_out_std = 0
+            if not np.isnan(out_combined).all():
+                global_out_std = np.nanstd(out_combined)
             in_arrays = list(in_confidences.values())
             in_combined = np.concatenate(in_arrays)
-            in_std = np.nanstd(in_combined)
+            global_in_std = 0
+            if not np.isnan(in_combined).all():
+                global_in_std = np.nanstd(in_combined)
 
         # scpre each record in the member and non-member sets
         for i in range(n_combined):
@@ -366,12 +370,12 @@ class LIRAAttack(Attack):
             # get the behaviour of the record when non-member
             out_scores = np.array(out_confidences[i])
             out_mean = 0
-            if not self.fix_variance:
-                out_std = 0
+            out_std = 0
             if not np.isnan(out_scores).all():
                 out_mean = np.nanmean(out_scores)
-                if not self.fix_variance:
-                    out_std = np.nanstd(out_scores)
+                out_std = np.nanstd(out_scores)
+            if self.fix_variance:
+                out_std = global_out_std
             out_prob = -norm.logpdf(target_logit, out_mean, out_std + EPS)
 
             # test the non-member samples for normality
@@ -390,12 +394,12 @@ class LIRAAttack(Attack):
                 # get the behaviour of the record when member
                 in_scores = np.array(in_confidences[i])
                 in_mean = 0
-                if not self.fix_variance:
-                    in_std = 0
+                in_std = 0
                 if not np.isnan(in_scores).all():
                     in_mean = np.nanmean(in_scores)
-                    if not self.fix_variance:
-                        in_std = np.nanstd(in_scores)
+                    in_std = np.nanstd(in_scores)
+                if self.fix_variance:
+                    in_std = global_in_std
                 in_prob = -norm.logpdf(target_logit, in_mean, in_std + EPS)
                 # compute the likelihood ratio
                 prob = in_prob - out_prob
