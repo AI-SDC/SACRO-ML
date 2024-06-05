@@ -12,7 +12,7 @@ Each user story consists of at least 2 files:
   > - **user_story_[x]_researcher_template.[py/R]**  Example on how to generate a ML model for the TRE users/researchers.
   > - **user_story_[x]_tre.py**  Example on how to perform attacks and generate a report.
 
-Extra examples on how to use [safemodels](https://github.com/AI-SDC/AI-SDC/tree/development/example_notebooks) and perform [attacks](https://github.com/AI-SDC/AI-SDC/tree/development/examples) can be found following the corresponding links.
+Extra examples on how to use [safemodels](https://github.com/AI-SDC/AI-SDC/tree/main/examples/notebooks) and perform [attacks](https://github.com/AI-SDC/AI-SDC/tree/main/examples) can be found following the corresponding links.
 
 ## Programming languages
 
