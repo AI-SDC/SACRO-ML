@@ -1,4 +1,4 @@
-"""Target.py - information storage about the target model and data."""
+"""Stores information about the target model and data."""
 
 from __future__ import annotations
 

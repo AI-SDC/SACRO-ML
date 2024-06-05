@@ -1,8 +1,6 @@
-"""
-Worst_case_attack.py.
+"""Runs a worst case attack based upon predictive probabilities."""
 
-Runs a worst case attack based upon predictive probabilities stored in two .csv files
-"""  # pylint: disable = too-many-lines
+# pylint: disable = too-many-lines
 
 from __future__ import annotations
 
