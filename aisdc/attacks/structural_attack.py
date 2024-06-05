@@ -1,9 +1,7 @@
 """
-Structural_attack.py.
-
-Runs a number of 'static' structural attacks,based on:
-- the target model's properties
-- the TREs risk appetite as applied to tables and standard regressions
+Runs a number of 'static' structural attacks based on:
+(i) the target model's properties
+(ii) the TREs risk appetite as applied to tables and standard regressions.
 """
 
 from __future__ import annotations

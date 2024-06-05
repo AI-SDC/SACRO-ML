@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.abspath("../../attacks/"))
 
 # -- Project information -----------------------------------------------------
 
-project = "GRAIMATTER"
+project = "AI-SDC"
 copyright = "2024, GRAIMATTER and SACRO Project Team"
 author = "GRAIMATTER and SACRO Project Team"
 release = "1.1.3"

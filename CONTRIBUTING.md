@@ -1,4 +1,35 @@
-# General guidance for contributors
+# General Guidance for Contributors
+
+## Development
+
+Clone the repository and install the local package including all dependencies within a virtual environment:
+
+```
+$ git clone https://github.com/AI-SDC/AI-SDC.git
+$ cd AI-SDC
+$ pip install .[test]
+```
+
+Then to run the tests:
+
+```
+$ pytest .
+```
+
+## Directory Structure
+
+* `aisdc` Contains the aisdc source code.
+    - `attacks` Contains a variety of privacy attacks on machine learning models.
+    - `preprocessing` Contains preprocessing modules for test datasets.
+    - `safemodel` The safemodel wrappers for common machine learning models.
+* `docs` Contains Sphinx documentation files.
+* `examples` Contains examples of how to run the code contained in this repository.
+* `tests` Contains unit tests.
+* `user_stories` Contains user guides.
+
+## Documentation
+
+Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
 
 ## Style Guide
 
@@ -25,8 +56,6 @@ To install as a hook that executes with every `git commit`:
 ```
 $ pre-commit install
 ```
-
-*******************************************************************************
 
 ## Automatic Documentation
 
