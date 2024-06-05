@@ -1,7 +1,6 @@
 """
-Loaders.py
-A set of useful handlers to pull in datasets common to the project and perform the appropriate
-pre-processing.
+A set of useful handlers to pull in datasets common to the project and perform
+the appropriate pre-processing.
 """
 
 # pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
