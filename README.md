@@ -36,7 +36,7 @@ $ pip install aisdc[safemodel]
 
 To run an example, simply execute the desired script or start up `jupyter notebook` and run one of the notebooks.
 
-For example, to run the `lira_attack_example.py`:
+For example, to run the LiRA example:
 
 ```
 $ python -m lira_attack_example
