@@ -10,7 +10,7 @@ A collection of tools and resources for managing the [statistical disclosure con
 
 The `aisdc` package provides:
 * A variety of privacy attacks for assessing machine learning models.
-* The safemodel package: an open source wrapper for common machine learning models. It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
+* The safemodel package: a suite of open source wrappers for common machine learning frameworks, including [scikit-learn](https://scikit-learn.org) and [Keras](https://keras.io). It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
 
 A collection of user guides can be found in the [`user_stories`](user_stories) folder of this repository. These guides include configurable examples from the perspective of both a researcher and a TRE, with separate scripts for each. Instructions on how to use each of these scripts and which scripts to use are included in the README located in the folder.
 
@@ -26,7 +26,7 @@ To install only the base package, which includes the attacks used for assessing 
 $ pip install aisdc
 ```
 
-To install the base package and the safemodel package, which includes defensive wrappers for popular ML frameworks including [scikit-learn](https://scikit-learn.org) and [Keras](https://keras.io):
+To additionally install the safemodel package:
 
 ```
 $ pip install aisdc[safemodel]
