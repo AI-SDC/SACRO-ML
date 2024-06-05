@@ -1,5 +1,11 @@
 # Changelog
 
+Changes:
+*   Add support for scikit-learn MLPClassifier ([#276](https://github.com/AI-SDC/AI-SDC/pull/276))
+*   Use default XGBoost params if not defined in structural attacks ([#277](https://github.com/AI-SDC/AI-SDC/pull/277))
+*   Clean up documentation ([#282](https://github.com/AI-SDC/AI-SDC/pull/282))
+*   Clean up repository and update packaging ([#283](https://github.com/AI-SDC/AI-SDC/pull/283))
+
 ## Version 1.1.3 (Apr 26, 2024)
 
 Changes:
