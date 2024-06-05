@@ -16,4 +16,4 @@ The `notebooks` folder contains short tutorials on the basic concept of "safe_XX
 
 ## Risk Examples
 
-The `risk_examples` folder contains hypothetical examples of data leakage through machine learning models as described in the [Green Paper](https://doi.org/10.5281/zenodo.6896214).
+The `risk_examples` folder contains hypothetical examples of data leakage through machine learning models as described by [Jefferson et al. (2022)](https://doi.org/10.5281/zenodo.6896214).
