@@ -154,5 +154,5 @@ Example JSON output for LIRA attack is accessible from :download:`link <lira_exa
 Running MIA Attacks from Config File
 ====================================
 
-Both for worst case and LIRA attacks, examples presented `worst_case_attack_example <https://github.com/AI-SDC/AI-SDC/blob/development/examples/worst_case_attack_example.py/>`_
-and `lira_attack_example <https://github.com/AI-SDC/AI-SDC/blob/development/examples/lira_attack_example.py/>`_ in the AI-SDC explains most of the possible use of configuration files.
+Both for worst case and LIRA attacks, examples presented `worst_case_attack_example <https://github.com/AI-SDC/AI-SDC/blob/main/examples/worst_case_attack_example.py/>`_
+and `lira_attack_example <https://github.com/AI-SDC/AI-SDC/blob/main/examples/lira_attack_example.py/>`_ in the AI-SDC explains most of the possible use of configuration files.
