@@ -40,7 +40,7 @@ To run an example, simply execute the desired script or start up `jupyter notebo
 $ python -m lira_attack_example
 ```
 
----
+## Acknowledgement
 
 This work was funded by UK Research and Innovation under Grant Numbers MC_PC_21033 and MC_PC_23006 as part of Phase 1 of the [DARE UK](https://dareuk.org.uk) (Data and Analytics Research Environments UK) programme, delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automatic checking of Research Outputs (SACRO; MC_PC_23006) and Guidelines and Resources for AI Model Access from TrusTEd Research environments (GRAIMATTER; MC_PC_21033).­This project has also been supported by MRC and EPSRC [grant number MR/S010351/1]: PICTURES.
 
