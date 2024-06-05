@@ -366,7 +366,7 @@ class LIRAAttack(Attack):
             target_conf = combined_target_preds[i, label]
             target_logit = _logit(target_conf)
 
-            # get the probability the target logit is not a non-member
+            # compare the target logit with behaviour observed as a non-member
             out_scores = np.array(out_confidences[i])
             out_mean = 0
             out_std = 0
@@ -393,7 +393,7 @@ class LIRAAttack(Attack):
                 out_prob = norm.cdf(target_logit, loc=out_mean, scale=out_std + EPS)
                 mia_scores.append([1 - out_prob, out_prob])
             elif self.mode == "online-carlini":
-                # get the probability the target logit is not a member
+                # compare the target logit with behaviour observed as a member
                 in_scores = np.array(in_confidences[i])
                 in_mean = 0
                 in_std = 0
