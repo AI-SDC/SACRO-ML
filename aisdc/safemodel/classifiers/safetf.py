@@ -1,6 +1,6 @@
 """Work in progress to allow use of the DPModel classes
- Jim smith 2022
- When ready, linting of  the imports will be enabled.
+Jim smith 2022
+When ready, linting of  the imports will be enabled.
 """
 
 # pylint: disable=unused-import
@@ -28,7 +28,7 @@ class Safe_tf_DPModel(SafeModel, DPModel):
         noise_multiplier: float,
         use_xla: bool,
         *args: any,
-        **kwargs: any
+        **kwargs: any,
     ) -> None:
         """Creates model and applies constraints to parameters."""
         # safemodel.__init__(self)

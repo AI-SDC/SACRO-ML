@@ -117,9 +117,7 @@ class AnalysisModule:
         raise NotImplementedError()
 
 
-class FinalRecommendationModule(
-    AnalysisModule
-):  # pylint: disable=too-many-instance-attributes
+class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-instance-attributes
     """Module that generates the first layer of a recommendation report."""
 
     def __init__(self, report: dict):

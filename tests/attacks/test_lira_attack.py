@@ -138,10 +138,8 @@ class TestLiraAttack(TestCase):
         )
         unique_classes_pre = set(local_test_y)
         n_test_examples_pre = len(local_test_y)
-        local_target = (
-            attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
-                local_target
-            )
+        local_target = attack_obj._check_and_update_dataset(  # pylint:disable=protected-access
+            local_target
         )
 
         unique_classes_post = set(local_target.y_test)

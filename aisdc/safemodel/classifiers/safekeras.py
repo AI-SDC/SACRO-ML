@@ -1,10 +1,9 @@
 """Safekeras.py:
- Jim Smith, Andrew McCarty and Richard Preen
- UWE 2022.
+Jim Smith, Andrew McCarty and Richard Preen
+UWE 2022.
 """
 
 # general imports
-
 
 import os
 import warnings
@@ -219,10 +218,7 @@ def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
 
 
 class SafeKerasModel(KerasModel, SafeModel):
-    """Privacy Protected Wrapper around  tf.keras.Model class from tensorflow 2.8
-    disabling pylont warnings about number of instance attributes
-    as this is necessarily complex.
-    """
+    """Privacy Protected Wrapper around tf.keras.Model class from tensorflow 2.8."""
 
     # pylint: disable=too-many-instance-attributes
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -236,6 +232,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         ##inputs = kwargs.get("inputs","notFound")
         ##if inputs=="notFound":
         ##    inputs = args[0] if len(args) == 3 else None
+        inputs = None
         if "inputs" in kwargs.keys():  # pylint: disable=consider-iterating-dictionary
             inputs = the_kwargs["inputs"]
         elif len(args) == 3:  # defaults is for Model(input,outputs,names)
@@ -252,7 +249,8 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         # call the keras super class first as this comes first in chain
         super().__init__(  # pylint: disable=unexpected-keyword-arg
-            inputs=inputs, outputs=outputs  # pylint: disable=used-before-assignment
+            inputs=inputs,
+            outputs=outputs,  # pylint: disable=used-before-assignment
         )
 
         # set values where the user has supplied them
