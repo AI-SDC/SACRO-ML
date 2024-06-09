@@ -1,4 +1,4 @@
-"""This module contains unit tests for the SafeDecisionTreeClassifier."""
+"""Test SafeDecisionTreeClassifier."""
 
 from __future__ import annotations
 
@@ -190,7 +190,6 @@ def test_decisiontree_save():
     with open("dt_test.sav", "rb") as file:
         sav_model = joblib.load(file)
     assert sav_model.score(x, y) == 0.9470198675496688
-
     # cleanup
     for name in ("dt_test.pkl", "dt_test.sav"):
         if os.path.exists(name) and os.path.isfile(name):

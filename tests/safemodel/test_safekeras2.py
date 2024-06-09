@@ -1,9 +1,6 @@
-"""This module contains unit tests for SafeKerasModel."""
-
-from __future__ import annotations
+"""Test SafeKerasModel."""
 
 import os
-import shutil
 import warnings
 
 import numpy as np
@@ -11,7 +8,7 @@ import pytest
 import tensorflow as tf
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Dense, Input  # pylint: disable = import-error
+from tensorflow.keras.layers import Dense, Input  # pylint: disable=import-error
 
 from aisdc.safemodel.classifiers import SafeKerasModel, safekeras
 from aisdc.safemodel.reporting import get_reporting_string
@@ -28,19 +25,6 @@ ACC = 0.3583333492279053
 # UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 UNSAFE_ACC = 0.3583333492279053
 RES_DIR = "RES"
-
-
-def clean():
-    """Removes unwanted results."""
-    shutil.rmtree(RES_DIR)
-
-
-def cleanup_file(name: str):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name) and os.path.isfile(name):  # h5
-        os.remove(name)
-    elif os.path.exists(name) and os.path.isdir(name):  # tf
-        shutil.rmtree(name)
 
 
 def get_data():
@@ -266,7 +250,7 @@ def test_DP_optimizer_checks():
 
 def test_DP_used():
     """Tests the various checks that DP optimiser was used."""
-    # should pass aftyer model compiled **and** fitted with DP optimizer
+    # should pass after model compiled **and** fitted with DP optimizer
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
@@ -319,7 +303,6 @@ def test_checkpoints_are_equal():
     assert same is False, msg
 
     # coping with trashed files
-    cleanup_file("fit.tf/saved_model.pb")
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
     assert same is False, msg
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
@@ -332,9 +315,6 @@ def test_checkpoints_are_equal():
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "hello")
     assert same is False
     assert "Error re-loading  model from" in msg
-
-    for name in ("fit.tf", "fit2.tf", "refit.tf"):
-        cleanup_file(name)
 
 
 def test_load():
@@ -362,9 +342,6 @@ def test_load():
     ypred = "over-write-me"
     ypred = reloaded_model.predict(X)
     assert isinstance(ypred, np.ndarray)
-
-    cleanup_file("keras_save.tf")
-    cleanup_file("tfsaves")
 
 
 def test_keras_model_created():
@@ -490,23 +467,15 @@ def test_keras_save_actions():
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
     for name in names:
-        # clear existing files
-        cleanup_file(name)
         # save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        # clean up
-        cleanup_file(name)
 
     # now other versions which should not
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename", "undefined")
     for name in names:
-        cleanup_file(name)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        cleanup_file(name)
-    # cleeanup
-    cleanup_file("tfsaves")
 
 
 def test_keras_unsafe_l2_norm():
@@ -743,22 +712,19 @@ def test_create_checkfile():
         # check save file
         model.save(name)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        clean()
         # check release
         model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
         name = os.path.normpath(f"{RES_DIR}/target.json")
         assert os.path.exists(name), "Failed test to save target.json"
-        clean()
 
     # now other versions which should not
     exts = ("sav", "pkl", "undefined")
     for ext in exts:
-        name = os.path.normpath(f"{RES_DIR}/model.{ext}")
+        name = os.path.normpath(f"{RES_DIR}/cfmodel.{ext}")
         os.makedirs(os.path.dirname(name), exist_ok=True)
         model.save(name)
         assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
-        clean()
 
 
 def test_posthoc_check():
@@ -777,16 +743,7 @@ def test_posthoc_check():
 
     # change optimizer and some other settings
     # in way that stresses lots of routes
-    cleanup_file("tfsaves/fit_model.tf")
     model.epochs = 1000
     model.optimizer = tf.keras.optimizers.get("SGD")
     _, disclosive = model.posthoc_check()
     assert disclosive is True, "should pick up optimizer changed"
-
-    cleanup_file("keras_save.tf")
-    cleanup_file("tfsaves")
-
-
-def test_final_cleanup():
-    """Clean up any files let around by other tests."""
-    cleanup_file("tfsaves")

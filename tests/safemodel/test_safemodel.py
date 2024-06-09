@@ -1,6 +1,4 @@
-"""Tests for fnctionality in super class."""
-
-from __future__ import annotations
+"""Test safemodel super class."""
 
 import copy
 import json
@@ -13,8 +11,6 @@ from sklearn import datasets
 
 from aisdc.safemodel.reporting import get_reporting_string
 from aisdc.safemodel.safemodel import SafeModel
-
-from ..common import clean
 
 notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")
@@ -83,10 +79,10 @@ class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-man
 
     def set_params(self, **kwargs):  # pragma: no cover
         """Sets params."""
-        for key, val in kwargs.items():  # pylint:disable=unused-variable
+        for _, val in kwargs.items():
             self.key = val  # pylint:disable=attribute-defined-outside-init
 
-    def fit(self, x: np.ndarray, y: np.ndarray):
+    def fit(self, x: np.ndarray, y: np.ndarray):  # noqa: ARG002
         """Dummy fit."""
         self.saved_model = copy.deepcopy(self.__dict__)
 
@@ -330,11 +326,6 @@ def test_saves():
     model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
     model.save("unpicklable.sav")
 
-    # cleanup
-    for name in ("dummy.pkl", "dummy.sav", "unpicklable.pkl", "unpicklable.sav"):
-        if os.path.exists(name) and os.path.isfile(name):
-            os.remove(name)
-
 
 def test_loads():
     """Basic check that making, changing,saving,loading model works."""
@@ -356,11 +347,6 @@ def test_loads():
     with open("dummy.sav", "rb") as file:
         model2 = joblib.load(file)
     assert model2.exactly_boo == "this_should_be_present"
-
-    # cleanup
-    for name in ("dummy.pkl", "dummy.sav"):
-        if os.path.exists(name) and os.path.isfile(name):
-            os.remove(name)
 
 
 def test__apply_constraints():
@@ -554,5 +540,3 @@ def test_request_release_without_attacks():
             "reason": reason,
             "timestamp": model.timestamp,
         } in json_data["safemodel"]
-
-    clean(RES_DIR)

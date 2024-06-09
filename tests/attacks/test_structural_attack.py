@@ -1,8 +1,4 @@
-"""Test_worst_case_attack.py
-Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
-"""
-
-from __future__ import annotations
+"""Test structural attacks."""
 
 import json
 import sys
@@ -19,8 +15,6 @@ from xgboost.sklearn import XGBClassifier
 
 import aisdc.attacks.structural_attack as sa
 from aisdc.attacks.target import Target
-
-from ..common import clean
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
@@ -410,8 +404,3 @@ def test_main_example():
     ]
     with patch.object(sys, "argv", testargs):
         sa.main()
-
-    clean("dt.sav")
-    clean("test_output_sa")
-    clean("config_structural_test.json")
-    clean("outputs_structural")

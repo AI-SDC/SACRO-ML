@@ -1,11 +1,10 @@
 """Common utility functions for testing."""
 
-from __future__ import annotations
-
 import os
 import shutil
 
 import numpy as np
+import pytest
 import sklearn
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -13,23 +12,72 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
 
+folders = [
+    "RES",
+    "dt.sav",
+    "fit.tf",
+    "fit2.tf",
+    "keras_save.tf",
+    "output_attribute",
+    "output_lira",
+    "output_worstcase",
+    "outputs_lira",
+    "outputs_multiple_attacks",
+    "outputs_structural",
+    "refit.tf",
+    "safekeras.tf",
+    "save_test",
+    "test_lira_target",
+    "test_output_lira",
+    "test_output_sa",
+    "test_output_worstcase",
+    "test_worstcase_target",
+    "tfsaves",
+    "tests/test_aia_target",
+    "tests/test_multiple_target",
+]
+files = [
+    "config.json",
+    "config_structural_test.json",
+    "dummy.pkl",
+    "dummy.sav",
+    "safekeras.h5",
+    "test_data.csv",
+    "test_preds.csv",
+    "test_single_config.json",
+    "train_data.csv",
+    "train_preds.csv",
+    "unpicklable.pkl",
+    "unpicklable.sav",
+    "ypred_test.csv",
+    "ypred_train.csv",
+    "tests/test_config_aia_cmd.json",
+]
 
-def clean(name):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name):
-        if os.path.isfile(name):
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+
+@pytest.fixture(scope="function", autouse=True)
+def cleanup():
+    """Remove created files and directories."""
+    yield
+    for folder in folders:
+        try:
+            shutil.rmtree(folder)
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+    for file in files:
+        try:
+            os.remove(file)
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
 
 
-def get_target(  # pylint: disable=too-many-locals
-    model: sklearn.base.BaseEstimator,
-) -> Target:
+@pytest.fixture
+def get_target(request) -> Target:  # pylint: disable=too-many-locals
+    """Wrap the model and data in a Target object.
+
+    Uses a randomly sampled 10+10% of the nursery data set.
     """
-    Wrap the model and data in a Target object.
-    Uses A randomly sampled 10+10% of the nursery data set.
-    """
+    model: sklearn.BaseEstimator = request.param
 
     nursery_data = fetch_openml(data_id=26, as_frame=True)
     x = np.asarray(nursery_data.data, dtype=str)

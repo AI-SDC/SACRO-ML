@@ -1,66 +1,37 @@
-"""
-Test to run multiple attacks (MIA and AIA) using a single configuration file
-having different configuration settings (i.e. attack type or configuration parameters).
-
-Running
--------
-
-Invoke this code from the root AI-SDC folder.
-However to run this test file, it will be required to install pytest package
-using 'pip install pytest' and then run following
-python -m pytest .\tests\test_multiple_attacks.py
-"""
-
-from __future__ import annotations
+"""Test multiple attacks (MIA and AIA) using a single configuration file."""
 
 import json
 import os
-import shutil
 import sys
 
-# ignore unused imports because it depends on whether data file is present
-from sklearn.datasets import fetch_openml  # pylint:disable=unused-import
+import pytest
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import (  # pylint:disable=unused-import
-    LabelEncoder,
-    OneHotEncoder,
-)
 
 from aisdc.attacks.multiple_attacks import ConfigFile, MultipleAttacks
 
-from ..common import get_target
 
-# pylint: disable = duplicate-code
-
-
-def cleanup_file(name: str):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name):
-        if os.path.isfile(name):
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
+def pytest_generate_tests(metafunc):
+    """Generate target model for testing."""
+    if "get_target" in metafunc.fixturenames:
+        metafunc.parametrize(
+            "get_target", [RandomForestClassifier(bootstrap=False)], indirect=True
+        )
 
 
-def common_setup():
-    """Basic commands to get ready to test some code."""
-    model = RandomForestClassifier(bootstrap=False)
-    target = get_target(model)
-    model.fit(target.x_train, target.y_train)
-    attack_obj = MultipleAttacks(
-        config_filename="test_single_config.json",
-    )
+@pytest.fixture(name="common_setup")
+def fixture_common_setup(get_target):
+    """Get ready to test some code."""
+    target = get_target
+    target.model.fit(target.x_train, target.y_train)
+    attack_obj = MultipleAttacks(config_filename="test_single_config.json")
     return target, attack_obj
 
 
 def create_single_config_file():
-    """Creates single configuration file using multiple attack configuration."""
-    # instantiating a configfile object to add configurations
-    configfile_obj = ConfigFile(
-        filename="test_single_config.json",
-    )
+    """Create single config file using multiple attack configuration."""
+    configfile_obj = ConfigFile(filename="test_single_config.json")
 
-    # Example 1: Adding three different worst case configuration dictionaries to the JSON file
+    # Example 1: Add 3 different worst case configuration dictionaries to JSON
     config = {
         "n_reps": 10,
         "n_dummy_reps": 1,
@@ -104,7 +75,7 @@ def create_single_config_file():
     }
     configfile_obj.add_config(config, "worst_case")
 
-    # Adding two different lira attack configuration dictionaries to the JSON file
+    # Add 2 different lira attack configuration dictionaries to JSON
     config = {
         "n_shadow_models": 100,
         "output_dir": "outputs_multiple_attacks",
@@ -132,10 +103,10 @@ def create_single_config_file():
         "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
     }
     configfile_obj.add_config(config, "lira")
-    # adding explicitly wrong attack name to cover codecov test
+    # add explicitly wrong attack name to cover codecov test
     configfile_obj.add_config(config, "lirrra")
 
-    # Example 3: Adding a lira JSON configuration file to a configuration file
+    # Example 3: Add a lira JSON configuration file to a configuration file
     # having multiple attack configurations
     config = {
         "n_shadow_models": 120,
@@ -154,8 +125,8 @@ def create_single_config_file():
         f.write(json.dumps(config))
     configfile_obj.add_config("test_lira_config.json", "lira")
 
-    # Example 4: Adding a attribute configuration dictionary
-    # from an existing configuration file to the JSON configuration file
+    # Example 4: Add an attribute configuration dictionary
+    # from an existing configuration file to JSON
     config = {
         "n_cpu": 2,
         "output_dir": "outputs_multiple_attacks",
@@ -167,27 +138,25 @@ def create_single_config_file():
 
 
 def test_configfile_number():
-    """Tests number of attack configurations in a configuration file."""
+    """Test attack configurations in a configuration file."""
     configfile_obj = create_single_config_file()
     configfile_data = configfile_obj.read_config_file()
     assert len(configfile_data) == 8
     os.remove("test_single_config.json")
 
 
-def test_multiple_attacks_programmatic():
-    """Tests programmatically running attacks using a single configuration configuration file."""
-    target, attack_obj = common_setup()
+def test_multiple_attacks_programmatic(common_setup):
+    """Test programmatically running attacks using a single config file."""
+    target, attack_obj = common_setup
     _ = create_single_config_file()
     attack_obj.attack(target)
     print(attack_obj)
     os.remove("test_single_config.json")
 
 
-def test_multiple_attacks_cmd():
-    """Tests running multiple attacks (MIA and AIA) on the nursery data
-    with an added continuous feature.
-    """
-    target, _ = common_setup()
+def test_multiple_attacks_cmd(common_setup):
+    """Test multiple attacks (MIA and AIA) with a continuous feature."""
+    target, _ = common_setup
     target.save(path=os.path.join("tests", "test_multiple_target"))
     _ = create_single_config_file()
 
@@ -197,14 +166,3 @@ def test_multiple_attacks_cmd():
         "--attack-config-json-file-name test_single_config.json "
         f"--attack-target-folder-path {multiple_target} "
     )
-
-
-def test_cleanup():
-    """Tidies up any files created."""
-    files_made = (
-        "test_single_config.json",
-        "outputs_multiple_attacks",
-        os.path.join("tests", "test_multiple_target"),
-    )
-    for fname in files_made:
-        cleanup_file(fname)
