@@ -1,5 +1,7 @@
 """Test worst case attack."""
 
+from __future__ import annotations
+
 import json
 import os
 import sys

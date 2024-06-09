@@ -18,7 +18,7 @@ from aisdc.safemodel.classifiers.safedecisiontreeclassifier import (
 
 
 def get_data():
-    """Returns data for testing."""
+    """Return data for testing."""
     iris = datasets.load_iris()
     x = np.asarray(iris["data"], dtype=np.float64)
     y = np.asarray(iris["target"], dtype=np.float64)
@@ -48,32 +48,31 @@ def test_decision_trees_are_equal():
     # one or both untrained
     model3 = SafeDecisionTreeClassifier(random_state=1, max_depth=7)
     same, msg = decision_trees_are_equal(model1, model3)
-    assert same is False
+    assert not same
     assert len(msg) > 0
     same, msg = decision_trees_are_equal(model3, model1)
-    assert same is False
+    assert not same
     assert len(msg) > 0
     same, msg = decision_trees_are_equal(model3, model3)
-    assert same is True
-    # assert len(msg)>0
+    assert same
 
     # different
-    # x2=x1+1
     model3 = SafeDecisionTreeClassifier(random_state=1, max_depth=7)
     model3.criterion = "entropy"
     model3.fit(x1, y)
     same, msg = decision_trees_are_equal(model1, model3)
     print(f"diff msg = {msg}")
-    assert same is False
+    assert not same
 
     # wrong type
     same, _ = decision_trees_are_equal(model1, "aString")
-    assert same is False
+    assert not same
 
 
 def test_get_tree_k_anonymity():
-    """Getting k_anonymity
-    50 data points randomly split in 2, single layer
+    """Test getting k_anonymity.
+
+    50 data points randomly split in 2, single layer.
     so k should be ~25.
     """
     x = np.random.rand(50, 2)
@@ -84,12 +83,11 @@ def test_get_tree_k_anonymity():
     model = SafeDecisionTreeClassifier(random_state=1, max_depth=1)
     model.fit(x, y)
     k = get_tree_k_anonymity(model, x)
-    # print(f'k={k}')
     assert k > 10
 
 
 def test_decisiontree_unchanged():
-    """SafeDecisionTreeClassifier using unchanged values."""
+    """Test using unchanged values."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=5)
     model.fit(x, y)
@@ -97,11 +95,11 @@ def test_decisiontree_unchanged():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_decisiontree_safe_recommended():
-    """SafeDecisionTreeClassifier using recommended values."""
+    """Test using recommended values."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(
         random_state=1, max_depth=10, min_samples_leaf=10
@@ -112,11 +110,11 @@ def test_decisiontree_safe_recommended():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_decisiontree_safe_1():
-    """SafeDecisionTreeClassifier with safe changes."""
+    """Test safe changes."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(
         random_state=1, max_depth=10, min_samples_leaf=10
@@ -127,11 +125,11 @@ def test_decisiontree_safe_1():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_decisiontree_safe_2():
-    """SafeDecisionTreeClassifier with safe changes."""
+    """Test safe changes."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=10)
     model.fit(x, y)
@@ -139,11 +137,11 @@ def test_decisiontree_safe_2():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_decisiontree_unsafe_1():
-    """SafeDecisionTreeClassifier with unsafe changes."""
+    """Test unsafe changes."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(
         random_state=1, max_depth=10, min_samples_leaf=10
@@ -158,24 +156,11 @@ def test_decisiontree_unsafe_1():
         "min value of 5."
     )
     assert msg == correct_msg
-    assert disclosive is True
-
-
-# no longer relevant because of changed default functionality of priminary_checK()
-# def test_decisiontree_unsafe_2():
-#     """SafeDecisionTreeClassifier with unsafe changes - automatically fixed."""
-#     x, y = get_data()
-#     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=1)
-#     model.fit(x, y)
-#     assert model.score(x, y) == 0.9668874172185431
-#     msg, disclosive = model.preliminary_check()
-#     correct_msg = "Model parameters are within recommended ranges.\n"
-#     assert msg == correct_msg
-#     assert disclosive is False
+    assert disclosive
 
 
 def test_decisiontree_save():
-    """SafeDecisionTreeClassifier model saving."""
+    """Test model saving."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=50)
     model.fit(x, y)
@@ -197,7 +182,7 @@ def test_decisiontree_save():
 
 
 def test_decisiontree_hacked_postfit():
-    """SafeDecisionTreeClassifier changes made to parameters after fit() called."""
+    """Test changes made to parameters after fit() called."""
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=1)
     model.min_samples_leaf = 1
@@ -214,7 +199,7 @@ def test_decisiontree_hacked_postfit():
     correct_msg1 = reporting.get_reporting_string(name="within_recommended_ranges")
     print(f"correct msg1: {correct_msg1}\n", f"actual  msg1: {msg1}")
     assert msg1 == correct_msg1
-    assert disclosive is False
+    assert not disclosive
 
     # but on closer inspection not
     msg2, disclosive2 = model.posthoc_check()
@@ -230,13 +215,14 @@ def test_decisiontree_hacked_postfit():
     correct_msg2 = part1 + part2 + part3 + part4
     print(f"Correct msg2 : {correct_msg2}\n" f"actual mesg2 : {msg2}")
     assert msg2 == correct_msg2
-    assert disclosive2 is True
+    assert disclosive2
 
 
 def test_data_hiding():
-    """What if the hacking was really obscure
-    like putting something in the exceptions list
-     then adding data to current and saved copies.
+    """Test if the hacking was really obscure.
+
+    Example: putting something in the exceptions list then adding data to
+    current and saved copies.
     """
     x, y = get_data()
     model = SafeDecisionTreeClassifier(random_state=1, min_samples_leaf=5)

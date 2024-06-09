@@ -1,5 +1,7 @@
 """Test SafeKerasModel."""
 
+from __future__ import annotations
+
 import os
 import warnings
 
@@ -28,7 +30,7 @@ RES_DIR = "RES"
 
 
 def get_data():
-    """Returns data for testing."""
+    """Return data for testing."""
     iris = datasets.load_iris()
     xall = np.asarray(iris["data"], dtype=np.float64)
     yall = np.asarray(iris["target"], dtype=np.float64)
@@ -68,9 +70,7 @@ def make_small_model(num_hidden_layers=2):
 
 
 def check_init_completed(model: SafeKerasModel):
-    """Basic checks for things that happen
-    at end of correct init.
-    """
+    """Test basic checks for things that happen at end of correct init."""
     rightname = "KerasModel"
     assert (
         model.model_type == rightname
@@ -83,8 +83,9 @@ def check_init_completed(model: SafeKerasModel):
 
 
 def test_init_variants():
-    """Test alternative ways of calling init
-    do just with single layer for speed of testing.
+    """Test alternative ways of calling init.
+
+    Just with single layer for speed of testing.
     """
     # get data
     X, _, _, _ = get_data()
@@ -131,7 +132,7 @@ def test_init_variants():
 
 
 def test_same_configs():  # pylint: disable=too-many-locals
-    """Check whether tests for equal configuration work."""
+    """Test whether tests for equal configuration work."""
 
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
     model2, _, _, _, _ = make_small_model(num_hidden_layers=2)
@@ -143,7 +144,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
         f"model1 has {len(model1.layers)} layers, but\n"
         f"model2 has {len(model2.layers)} layers\n"
     )
-    assert same1 is False, errstr
+    assert not same1, errstr
     correct_msg1 = get_reporting_string(name="different_layer_count")
     errstr = f"msg    was: {msg1}\n" f"should be : {correct_msg1}"
     assert msg1 == correct_msg1, errstr
@@ -154,7 +155,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
     assert msg2 == correct_msg2, (
         rf"should report {correct_msg2}\," f" but   got    {msg2}.\n"
     )
-    assert same2 is True, "models are same!"
+    assert same2, "models are same!"
 
     # same layers, different widths
     input_data = Input(shape=X[0].shape)
@@ -171,7 +172,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
     check_init_completed(model1a)
     same3, msg3 = safekeras.same_configs(model1, model1a)
     errmsg = "Should report layers have different num nodes"
-    assert same3 is False, errmsg
+    assert not same3, errmsg
     correct_msg3 = get_reporting_string(name="layer_configs_differ", layer=1, length=1)
     correct_msg3 += get_reporting_string(
         name="param_changed_from_to", key="units", val="32", cur_val=64
@@ -181,7 +182,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
 
 
 def test_same_weights():  # pylint : disable=too-many-locals
-    """Check the same weights method catches differences."""
+    """Test the same weights method catches differences."""
     # make models to test
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
     model2, _, _, _, _ = make_small_model(num_hidden_layers=2)
@@ -199,11 +200,11 @@ def test_same_weights():  # pylint : disable=too-many-locals
 
     # same
     same1, _ = safekeras.same_weights(model1, model1)
-    assert same1 is True
+    assert same1
 
     # different num layers
     same2, _ = safekeras.same_weights(model1, model2)
-    assert same2 is False
+    assert not same2
 
     # different sized layers
     same3, _ = safekeras.same_weights(model1, model1a)
@@ -212,11 +213,11 @@ def test_same_weights():  # pylint : disable=too-many-locals
         f"  {len(model1.layers[1].get_weights()[0][0])} units"
         f" but model2 has {len(model1a.layers[1].get_weights()[0][0])}.\n"
     )
-    assert same3 is False, errstr
+    assert not same3, errstr
 
 
 def test_DP_optimizer_checks():
-    """Tests the various checks that DP optimiser was used."""
+    """Test the various checks that DP optimiser was used."""
     # make model
     model1, _, _, _, _ = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -233,9 +234,9 @@ def test_DP_optimizer_checks():
         model, _, _, _, _ = make_small_model(num_hidden_layers=1)
         model.compile(loss=loss, optimizer=oktype)
         opt_ok, msg = safekeras.check_optimizer_allowed(model.optimizer)
-        assert opt_ok is True, msg
+        assert opt_ok, msg
         opt_is_dp, _ = safekeras.check_optimizer_is_DP(model.optimizer)
-        assert opt_is_dp is True
+        assert opt_is_dp
 
     # not ok optimizer
     model, _, _, _, _ = make_small_model(num_hidden_layers=1)
@@ -243,13 +244,13 @@ def test_DP_optimizer_checks():
     # reset to not DP optimizer
     model.optimizer = tf.keras.optimizers.get("SGD")
     opt_ok, msg = safekeras.check_optimizer_allowed(model1.optimizer)
-    assert opt_ok is False, msg
+    assert not opt_ok, msg
     opt_is_dp, msg = safekeras.check_optimizer_is_DP(model1.optimizer)
-    assert opt_is_dp is False, msg
+    assert not opt_is_dp, msg
 
 
 def test_DP_used():
-    """Tests the various checks that DP optimiser was used."""
+    """Test the various checks that DP optimiser was used."""
     # should pass after model compiled **and** fitted with DP optimizer
     model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -257,10 +258,10 @@ def test_DP_used():
     )
     model1.compile(loss=loss)
     dp_used, msg = safekeras.check_DP_used(model1.optimizer)
-    assert dp_used is False
+    assert not dp_used
     model1.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
     dp_used, msg = safekeras.check_DP_used(model1.optimizer)
-    assert dp_used is True
+    assert dp_used
 
     # this model gets changed to non-DP by calling the superclass compile()
     # so should fail all the checks
@@ -268,7 +269,7 @@ def test_DP_used():
     super(SafeKerasModel, model2).compile(loss=loss, optimizer="SGD")
     model2.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
     dp_used, msg = safekeras.check_DP_used(model2.optimizer)
-    assert dp_used is False, msg
+    assert not dp_used, msg
 
 
 def test_checkpoints_are_equal():
@@ -285,12 +286,12 @@ def test_checkpoints_are_equal():
 
     # same arch, different weights
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "refit.tf")
-    assert same is False, msg
+    assert not same, msg
 
     # should be same
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit.tf")
     print(msg)
-    assert same is True, msg
+    assert same, msg
 
     # different architecture
     model2, X, y, Xval, yval = make_small_model(num_hidden_layers=3)
@@ -300,25 +301,25 @@ def test_checkpoints_are_equal():
 
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
     print(msg)
-    assert same is False, msg
+    assert not same, msg
 
     # coping with trashed files
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
-    assert same is False, msg
+    assert not same, msg
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "fit.tf")
-    assert same is False, msg
+    assert not same, msg
 
     same, msg = safekeras.check_checkpoint_equality("hello", "fit2.tf")
-    assert same is False
+    assert not same
     assert "Error re-loading  model from" in msg
 
     same, msg = safekeras.check_checkpoint_equality("fit2.tf", "hello")
-    assert same is False
+    assert not same
     assert "Error re-loading  model from" in msg
 
 
 def test_load():
-    """Tests the oading functionality."""
+    """Test the loading functionality."""
 
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
@@ -331,14 +332,14 @@ def test_load():
 
     # won't load with invalid names
     ok, _ = safekeras.load_safe_keras_model()
-    assert ok is False, "can't load with no model file name"
+    assert not ok, "can't load with no model file name"
 
     ok, _ = safekeras.load_safe_keras_model("keras_save.h5")
-    assert ok is False, "can only load from .tf file"
+    assert not ok, "can only load from .tf file"
 
     # should load fine with right name
     ok, reloaded_model = safekeras.load_safe_keras_model("keras_save.tf")
-    assert ok is True
+    assert ok
     ypred = "over-write-me"
     ypred = reloaded_model.predict(X)
     assert isinstance(ypred, np.ndarray)
@@ -411,7 +412,7 @@ def test_keras_model_compiled_as_DP():
 
 
 def test_keras_basic_fit():
-    """SafeKeras using recommended values."""
+    """Test SafeKeras using recommended values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -431,7 +432,7 @@ def test_keras_basic_fit():
         batch_size=X.shape[0],
         refine_epsilon=True,
     )
-    assert ok is False
+    assert not ok
 
     # now default (False)
     model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
@@ -450,7 +451,7 @@ def test_keras_basic_fit():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg, "failed check params are within range"
-    assert disclosive is False, "failed check disclosive is false"
+    assert not disclosive, "failed check disclosive is false"
 
 
 def test_keras_save_actions():
@@ -475,11 +476,11 @@ def test_keras_save_actions():
     names = ("safekeras.sav", "safekeras.pkl", "randomfilename", "undefined")
     for name in names:
         model.save(name)
-        assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
+        assert not os.path.exists(name), f"Failed test NOT to save model as {name}"
 
 
 def test_keras_unsafe_l2_norm():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -512,11 +513,11 @@ def test_keras_unsafe_l2_norm():
         "min value of 1.0."
     )
     assert msg == correct_msg, "failed check correct warning message"
-    assert disclosive is True, "failed check disclosive is True"
+    assert disclosive, "failed check disclosive is True"
 
 
 def test_keras_unsafe_noise_multiplier():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -550,11 +551,11 @@ def test_keras_unsafe_noise_multiplier():
     )
 
     assert msg == correct_msg, "failed check params are within range"
-    assert disclosive is True, "failed check disclosive is True"
+    assert disclosive, "failed check disclosive is True"
 
 
 def test_keras_unsafe_min_epsilon():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -587,11 +588,11 @@ def test_keras_unsafe_min_epsilon():
     )
 
     assert msg == correct_msg, "failed check correct warning message"
-    assert disclosive is True, "failed check disclosive is True"
+    assert disclosive, "failed check disclosive is True"
 
 
 def test_keras_unsafe_delta():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -623,11 +624,11 @@ def test_keras_unsafe_delta():
         "- parameter delta = 1e-06 identified as less than the recommended min value of 1e-05."
     )
     assert msg == correct_msg, "failed check params are within range"
-    assert disclosive is True, "failed check disclosive is True"
+    assert disclosive, "failed check disclosive is True"
 
 
 def test_keras_unsafe_batch_size():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -656,11 +657,11 @@ def test_keras_unsafe_batch_size():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg, "failed check params are within range"
-    assert disclosive is False, "failed check disclosive is false"
+    assert not disclosive, "failed check disclosive is false"
 
 
 def test_keras_unsafe_learning_rate():
-    """SafeKeras using unsafe values."""
+    """Test SafeKeras using unsafe values."""
     model, X, y, Xval, yval = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -690,7 +691,7 @@ def test_keras_unsafe_learning_rate():
     correct_msg = "Model parameters are within recommended ranges.\n"
 
     assert msg == correct_msg, "failed check warning message incorrect"
-    assert disclosive is False, "failed check disclosive is false"
+    assert not disclosive, "failed check disclosive is false"
 
 
 def test_create_checkfile():
@@ -724,11 +725,11 @@ def test_create_checkfile():
         name = os.path.normpath(f"{RES_DIR}/cfmodel.{ext}")
         os.makedirs(os.path.dirname(name), exist_ok=True)
         model.save(name)
-        assert os.path.exists(name) is False, f"Failed test NOT to save model as {name}"
+        assert not os.path.exists(name), f"Failed test NOT to save model as {name}"
 
 
 def test_posthoc_check():
-    """Testing the posthoc checking function."""
+    """Test the posthoc checking function."""
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
@@ -739,11 +740,11 @@ def test_posthoc_check():
 
     # should be ok
     _, disclosive = model.posthoc_check()
-    assert disclosive is False, "base config in tests should be ok"
+    assert not disclosive, "base config in tests should be ok"
 
     # change optimizer and some other settings
     # in way that stresses lots of routes
     model.epochs = 1000
     model.optimizer = tf.keras.optimizers.get("SGD")
     _, disclosive = model.posthoc_check()
-    assert disclosive is True, "should pick up optimizer changed"
+    assert disclosive, "should pick up optimizer changed"

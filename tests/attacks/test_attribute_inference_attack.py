@@ -74,7 +74,7 @@ def test_categorical_via_modified_attack_brute_force(common_setup):
     t_high_correct = t_high["train"][0]
     t_high_train_samples = t_high["train"][4]
     assert len(target.x_train) == t_high_train_samples
-    assert 0 == t_high_correct
+    assert t_high_correct == 0
 
 
 def test_continuous_via_modified_bounds_risk(common_setup):
@@ -82,10 +82,10 @@ def test_continuous_via_modified_bounds_risk(common_setup):
     target, _ = common_setup
     returned = _get_bounds_risk(target.model, "dummy", 8, target.x_train, target.x_test)
     # Check the number of parameters returned
-    assert 3 == len(returned.keys())
+    assert len(returned.keys()) == 3
     # Check the value of the returned parameters
-    assert 0 == returned["train"]
-    assert 0 == returned["test"]
+    assert returned["train"] == 0
+    assert returned["test"] == 0
 
 
 def test_AIA_on_nursery(common_setup):

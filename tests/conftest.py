@@ -25,6 +25,7 @@ folders = [
     "outputs_multiple_attacks",
     "outputs_structural",
     "refit.tf",
+    "release_dir",
     "safekeras.tf",
     "save_test",
     "test_lira_target",
@@ -32,31 +33,46 @@ folders = [
     "test_output_sa",
     "test_output_worstcase",
     "test_worstcase_target",
-    "tfsaves",
     "tests/test_aia_target",
     "tests/test_multiple_target",
+    "tfsaves",
+    "training_artefacts",
 ]
+
 files = [
+    "1024-WorstCase.png",
+    "2048-WorstCase.png",
+    "ATTACK_RESULTS09_06_2024.json",
+    "attack.txt",
     "config.json",
     "config_structural_test.json",
     "dummy.pkl",
     "dummy.sav",
+    "dummy_model.txt",
+    "example_filename.json",
+    "filename_should_be_changed.txt",
+    "filename_to_rewrite.json",
+    "results.txt",
+    "rf_test.pkl",
+    "rf_test.sav",
     "safekeras.h5",
+    "target.json",
+    "test.json",
     "test_data.csv",
     "test_preds.csv",
     "test_single_config.json",
+    "tests/test_config_aia_cmd.json",
     "train_data.csv",
     "train_preds.csv",
     "unpicklable.pkl",
     "unpicklable.sav",
     "ypred_test.csv",
     "ypred_train.csv",
-    "tests/test_config_aia_cmd.json",
 ]
 
 
-@pytest.fixture(scope="function", autouse=True)
-def cleanup():
+@pytest.fixture(name="cleanup", autouse=True)
+def _cleanup():
     """Remove created files and directories."""
     yield
     for folder in folders:
@@ -71,7 +87,7 @@ def cleanup():
             pass
 
 
-@pytest.fixture
+@pytest.fixture()
 def get_target(request) -> Target:  # pylint: disable=too-many-locals
     """Wrap the model and data in a Target object.
 

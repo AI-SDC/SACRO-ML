@@ -1,5 +1,7 @@
 """Test structural attacks."""
 
+from __future__ import annotations
+
 import json
 import sys
 from unittest.mock import patch
@@ -153,15 +155,15 @@ def test_unnecessary_risk():
 
 
 def test_non_trees():
-    """Test  behaviour if model type not tree-based."""
+    """Test behaviour if model type not tree-based."""
     param_dict = {"probability": True}
     target = get_target("svc", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
     # remove model
     target.model = None
+    myattack2 = sa.StructuralAttack()
     with pytest.raises(NotImplementedError):
-        myattack2 = sa.StructuralAttack()
         myattack2.attack(target)
 
 
