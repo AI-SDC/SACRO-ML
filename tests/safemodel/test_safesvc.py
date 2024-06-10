@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+import pytest
 from sklearn import datasets
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -13,7 +14,7 @@ from aisdc.safemodel.classifiers import SafeSVC
 
 
 def get_data():
-    """Returns data for testing."""
+    """Return data for testing."""
     cancer = datasets.load_breast_cancer()
     x = np.asarray(cancer["data"], dtype=np.float64)
     y = np.asarray(cancer["target"], dtype=np.float64)
@@ -38,26 +39,26 @@ class TestDPSVC(unittest.TestCase):
         sv_predictions = svc.predict(test_features)
 
         # Check that the two models have equal shape
-        self.assertTupleEqual(dp_predictions.shape, sv_predictions.shape)
+        assert dp_predictions.shape == sv_predictions.shape
 
         dp_predprob = dpsvc.predict_proba(test_features)
         sv_predprob = svc.predict_proba(test_features)
 
         # Check that the two models have equal shape
-        self.assertTupleEqual(dp_predprob.shape, sv_predprob.shape)
+        assert dp_predprob.shape == sv_predprob.shape
 
     def test_svc_recommended(self):
-        """SafeSupportVectorClassifier using recommended values."""
+        """Test using recommended values."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
         msg, disclosive = model.preliminary_check()
         correct_msg = "Model parameters are within recommended ranges.\n"
         assert msg == correct_msg
-        assert disclosive is False
+        assert not disclosive
 
     def test_svc_khat(self):
-        """SafeSupportVectorClassifier khat method."""
+        """Test khat method."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
@@ -66,28 +67,25 @@ class TestDPSVC(unittest.TestCase):
         _ = model.k_hat_svm(x, y_matrix)
 
     def test_svc_wrongdata(self):
-        """SafeSupportVectorClassifier with wrong datatypes."""
+        """Test with wrong datatypes."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         # wrong y datatype
-        with self.assertRaises(Exception) as context:
+        with pytest.raises(Exception, match="DPSCV needs np.ndarray inputs"):
             model.fit(x, 1)
-        self.assertTrue("DPSCV needs np.ndarray inputs" in str(context.exception))
 
         # wrong x datatype
-        with self.assertRaises(Exception) as context:
+        with pytest.raises(Exception, match="DPSCV needs np.ndarray inputs"):
             model.fit(1, 1)
-        self.assertTrue("DPSCV needs np.ndarray inputs" in str(context.exception))
 
         # wrong label values
         yplus = y + 5
         errstr = "DP SVC can only handle binary classification"
-        with self.assertRaises(Exception) as context:
+        with pytest.raises(Exception, match=errstr):
             model.fit(x, yplus)
-        self.assertTrue(errstr in str(context.exception))
 
     def test_svc_gamma_zero(self):
-        """SafeSupportVectorClassifier still makes predictions if we provide daft params."""
+        """Test predictions if we provide daft params."""
         x, y = get_data()
         model = SafeSVC(gamma=0.0, eps=0.0)
         model.fit(x, y)
@@ -95,14 +93,14 @@ class TestDPSVC(unittest.TestCase):
         assert len(predictions) == len(x)
 
     def test_svc_gamma_auto(self):
-        """SafeSupportVectorClassifier still makes predictions if we provide daft params."""
+        """Test predictions if we provide daft params."""
         x, y = get_data()
         model = SafeSVC(gamma="auto")
         model.fit(x, y)
         assert model.gamma == 1.0 / x.shape[1]
 
     def test_svc_setparams(self):
-        """SafeSupportVectorClassifier using unchanged values."""
+        """Test using unchanged values."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
@@ -121,7 +119,7 @@ class TestDPSVC(unittest.TestCase):
         # should log to file mewssage "Unsupported parameter: foo"
 
     def test_svc_unchanged(self):
-        """SafeSupportVectorClassifier using unchanged values."""
+        """Test using unchanged values."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
@@ -129,10 +127,10 @@ class TestDPSVC(unittest.TestCase):
         msg, disclosive = model.posthoc_check()
         correct_msg = ""
         assert msg == correct_msg
-        assert disclosive is False
+        assert not disclosive
 
     def test_svc_nonstd_params_changed_postfit(self):
-        """SafeSupportVectorClassifier with params changed after fit."""
+        """Test with params changed after fit."""
         x, y = get_data()
         model = SafeSVC(gamma=1.0)
         model.fit(x, y)
@@ -147,4 +145,4 @@ class TestDPSVC(unittest.TestCase):
         )
 
         assert msg == correct_msg
-        assert disclosive is True
+        assert disclosive

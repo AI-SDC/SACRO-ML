@@ -1,10 +1,4 @@
-"""Test_loaders.py
-Series of functions to use with pytest to check the loaders classes
-Most use just the truncated files with first five examples of each class for brevity.
-Please access the datasets from the sources listed in preprocessing/loaders.py
-Please acknowledge those sources in any publications.
-Jim Smith 2022.
-"""
+"""Test data loaders."""
 
 from __future__ import annotations
 
@@ -210,13 +204,3 @@ def test_synth_ae():
     x_df, y_df = loaders.get_data_sklearn("synth-ae-XXL", DATA_FOLDER)
     assert x_df.shape == (8, 16), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (8, 1)
-
-
-# def test_rdmp():
-#     """The RDMP dataloader."""
-#     x_df, y_df = loaders.get_data_sklearn("RDMP", DATA_FOLDER)
-
-#     assert 'death' not in x_df.columns
-#     assert 'age' in x_df.columns
-
-#     assert y_df.shape[1] == 1

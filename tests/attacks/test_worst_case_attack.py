@@ -1,12 +1,9 @@
-"""Test_worst_case_attack.py
-Copyright (C) Jim Smith 2022 <james.smith@uwe.ac.uk>.
-"""
+"""Test worst case attack."""
 
 from __future__ import annotations
 
 import json
 import os
-import shutil
 import sys
 from unittest.mock import patch
 
@@ -18,15 +15,6 @@ from sklearn.svm import SVC
 
 from aisdc.attacks import worst_case_attack
 from aisdc.attacks.target import Target
-
-
-def clean_up(name):
-    """Removes unwanted files or directory."""
-    if os.path.exists(name):
-        if os.path.isfile(name):
-            os.remove(name)
-        elif os.path.isdir(name):
-            shutil.rmtree(name)
 
 
 def test_config_file_arguments_parsin():
@@ -353,24 +341,3 @@ def test_main():
     testargs = ["prog", "run-attack"]
     with patch.object(sys, "argv", testargs):
         worst_case_attack.main()
-
-    # wrong args
-
-    # testargs = ["prog", "run-attack","--no-such-arg"]
-    # with patch.object(sys, 'argv', testargs):
-    #    worst_case_attack.main()
-
-
-def test_cleanup():
-    """Gets rid of files created during tests."""
-    names = [
-        "test_output_worstcase",
-        "output_worstcase",
-        "test_worstcase_target",
-        "test_preds.csv",
-        "train_preds.csv",
-        "ypred_test.csv",
-        "ypred_train.csv",
-    ]
-    for name in names:
-        clean_up(name)
