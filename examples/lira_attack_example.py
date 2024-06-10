@@ -1,8 +1,9 @@
 """Examples for using the likelihood ratio attack code.
 
-This code simulates a MIA attack providing the attacker with as much information as possible.
-i.e. they have a subset of rows that they _know_ were used for training. And a subset that they
-know were not. They also have query access to the target model.
+This code simulates a MIA attack providing the attacker with as much
+information as possible. That is, they have a subset of rows that they _know_
+were used for training. And a subset that they know were not. They also have
+query access to the target model.
 
 The attack proceeds as described in this paper:
 https://arxiv.org/pdf/2112.03570.pdf
@@ -22,11 +23,7 @@ The steps are as follows:
         in the previous two steps, as well as specifications for the shadow models.
      5. The attack is run with a command line command, creating a report.
 
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.lira_attack_example
+Below, [Researcher] and [TRE] are used to denote which task is performed by whom.
 """
 
 # pylint: disable = duplicate-code

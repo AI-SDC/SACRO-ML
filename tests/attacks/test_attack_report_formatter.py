@@ -70,7 +70,7 @@ class TestGenerateReport(unittest.TestCase):
     """Class which tests the attack_report_formatter.py file."""
 
     def process_json_from_file(self, json_formatted):
-        """Function which handles file input/output from the process_json function."""
+        """Handle file input/output from the process_json function."""
         filename = "test.json"
         output_filename = "results.txt"
 
@@ -278,7 +278,6 @@ class TestFinalRecommendationModule(unittest.TestCase):
 
     def test_min_samples_leaf(self):
         """Test process_json when the target model includes decision trees."""
-
         # test when min_samples_leaf > 5
         json_formatted = get_test_report()
 

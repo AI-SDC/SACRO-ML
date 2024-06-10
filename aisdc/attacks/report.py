@@ -198,7 +198,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     Parameters
     ----------
-
     attack_output : dict
         dictionary with following items
 
@@ -213,7 +212,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     Returns
     -------
-
     pdf : fpdf.FPDF
         fpdf document object
     """
@@ -307,7 +305,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
 
 def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> None:
-    """Creates pdf and appends contents if it already exists."""
+    """Create pdf and append contents if it already exists."""
     if os.path.exists(report_dest + ".pdf"):
         old_pdf = report_dest + ".pdf"
         new_pdf = report_dest + "_new.pdf"
@@ -353,7 +351,6 @@ def create_lr_report(output: dict) -> FPDF:
 
     Parameters
     ----------
-
     output : dict
         dictionary with following items
 
@@ -368,7 +365,6 @@ def create_lr_report(output: dict) -> FPDF:
 
     Returns
     -------
-
     pdf : fpdf.FPDF
         fpdf document object
     """
@@ -376,7 +372,6 @@ def create_lr_report(output: dict) -> FPDF:
         v
         for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
     ][0]
-    # mia_metrics = output["attack_metrics"][0]
     metadata = output["metadata"]
     dest_log_roc = (
         os.path.join(

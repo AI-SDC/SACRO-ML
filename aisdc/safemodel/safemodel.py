@@ -1,4 +1,4 @@
-"""This module contains prototypes of privacy safe model wrappers."""
+"""Prototypes of privacy safe model wrappers."""
 
 from __future__ import annotations
 
@@ -28,11 +28,10 @@ logger.setLevel(logging.DEBUG)
 
 
 def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
-    """Checks minimum value constraint.
+    """Check minimum value constraint.
 
     Parameters
     ----------
-
     key : string
          The dictionary key to examine.
     val : Any Type
@@ -43,14 +42,10 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
     Returns
     -------
-
     msg : string
          A message string.
     disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
-    Notes
-    -----
     """
     if isinstance(cur_val, (int, float)):
         if cur_val < val:
@@ -71,11 +66,10 @@ def check_min(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
 def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
-    """Checks maximum value constraint.
+    """Check maximum value constraint.
 
     Parameters
     ----------
-
     key : string
          The dictionary key to examine.
     val : Any Type
@@ -85,14 +79,10 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
     Returns
     -------
-
     msg : string
          A message string.
     disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
-    Notes
-    -----
     """
     if isinstance(cur_val, (int, float)):
         if cur_val > val:
@@ -113,11 +103,10 @@ def check_max(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
 def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
-    """Checks equality value constraint.
+    """Check equality value constraint.
 
     Parameters
     ----------
-
     key : string
          The dictionary key to examine.
     val : Any Type
@@ -127,14 +116,10 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
     Returns
     -------
-
     msg : string
          A message string.
     disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
-    Notes
-    -----
     """
     if cur_val != val:
         disclosive = True
@@ -148,11 +133,10 @@ def check_equal(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
 
 def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
-    """Checks the type of a value.
+    """Check the type of a value.
 
     Parameters
     ----------
-
     key : string
          The dictionary key to examine.
     val : Any Type
@@ -162,14 +146,10 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
 
     Returns
     -------
-
     msg : string
          A message string.
     disclosive : bool
          A boolean value indicating whether the model is potentially disclosive.
-
-    Notes
-    -----
     """
     if type(cur_val).__name__ != val:
         disclosive = True
@@ -187,7 +167,6 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     Attributes
     ----------
-
     model_type : string
           A string describing the type of model. Default is "None".
     model:
@@ -205,16 +184,21 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     researcher : string
           The researcher user-id used for logging
 
-    Notes
-    -----
-
     Examples
     --------
     >>> safeRFModel = SafeRandomForestClassifier()
-    >>> safeRFModel.fit(X, y)
-    >>> safeRFModel.save(name="safe.pkl")
+    >>> safeRFModel.fit(
+    ...     X, y
+    ... )
+    >>> safeRFModel.save(
+    ...     name="safe.pkl"
+    ... )
     >>> safeRFModel.preliminary_check()
-    >>> safeRFModel.request_release(path="safe", ext="pkl", target=target)
+    >>> safeRFModel.request_release(
+    ...     path="safe",
+    ...     ext="pkl",
+    ...     target=target,
+    ... )
     WARNING: model parameters may present a disclosure risk:
     - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
     Changed parameter min_samples_leaf = 5.
@@ -241,9 +225,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             self.researcher = "unknown"
 
     def get_params(self, deep=True):
-        """Gets dictionary of parameter values
-        restricted to those expected by base classifier.
-        """
+        """Get a dictionary of parameter values restricted to those expected."""
         the_params = {}
         for key, val in self.__dict__.items():
             if key in self.basemodel_paramnames:
@@ -253,30 +235,22 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return the_params
 
     def save(self, name: str = "undefined") -> None:
-        """Writes model to file in appropriate format.
+        """Write model to file in appropriate format.
 
         Note this is overloaded in SafeKerasClassifer
         to deal with tensorflow specifics.
 
         Parameters
         ----------
-
         name : string
              The name of the file to save
 
-        Returns
-        -------
-
         Notes
         -----
-
-        No return value
-
         Optimizer is deliberately excluded.
         To prevent possible to restart training and thus
         possible back door into attacks.
         """
-
         self.model_save_file = name
         if self.model_save_file == "undefined":
             print("You must input a name with extension to save the model.")
@@ -312,66 +286,14 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                             f"for models of type {self.model_type}."
                             f"Error message was {type_err}"
                         )
-                #                  Overloaded in safekeras
-                #                 elif suffix in ("h5", "tf") and self.model_type == "KerasModel":
-                #                     try:
-                #                         tf.keras.models.save_model(
-                #                             self,
-                #                             self.model_save_file,
-                #                             include_optimizer=False,
-                #                             # save_traces=False,
-                #                             save_format=suffix,
-                #                         )
-
-                #                     except (ImportError, NotImplementedError) as exception_err:
-                #                         print(
-                #                             "saving as a {suffix} file gave this error message:"
-                #                             f"{exception_err}"
-                #                         )
                 else:
                     print(
                         f"{suffix} file suffix currently not supported "
                         f"for models of type {self.model_type}.\n"
                     )
 
-    ## Load functionality not needed
-    # - provide directly by underlying pickle/joblib mechanisms
-    # and safekeras provides its own to deal with tensorflow
-
-    #     def load(self, name: str = "undefined") -> None:
-    #         """reads model from file in appropriate format.
-    #         Note that safekeras overloads this function.
-
-    #         Optimizer is deliberately excluded in the save
-    #         To prevent possible to restart training and thus
-    #         possible back door into attacks.
-    #         Thus optimizer cannot be loaded.
-    #         """
-    #         temp_file=None
-    #         self.model_load_file = name
-    #         if self.model_load_file == "undefined":
-    #             print("You must input a file name with extension to load a model.")
-    #         else:
-    #             thename = self.model_save_file.split(".")
-    #             suffix = self.model_save_file.split(".")[-1]
-
-    #             if suffix == ".pkl":  # load from pickle
-    #                 with open(self.model_load_file, "rb") as file:
-    #                     temp_file = pickle.load(self, file)
-    #             elif suffix == ".sav":  # load from joblib
-    #                 temp_file = joblib.load(self, self.model_save_file)
-    #             #safekeras overloads loads
-    #             elif suffix in ("h5","tf")  and self.model_type != "KerasModel":
-    #                 print("tensorflow objects saved as h5 or tf"
-    #                       "can only be loaded into models of type SafeKerasClassifier"
-    #                      )
-    #             else:
-    #                 print(f"loading from a {suffix} file is currently not supported")
-
-    #         return temp_file
-
     def __get_constraints(self) -> dict:
-        """Gets constraints relevant to the model type from the master read-only file."""
+        """Get constraints relevant to the model type from the a read-only file."""
         rules: dict = {}
         rule_path = pathlib.Path(__file__).with_name("rules.json")
         with open(rule_path, encoding="utf-8") as json_file:
@@ -382,7 +304,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def __apply_constraints(
         self, operator: str, key: str, val: Any, cur_val: Any
     ) -> str:
-        """Applies a safe rule for a given parameter."""
+        """Apply a safe rule for a given parameter."""
         if operator == "is_type":
             if (val == "int") and (type(cur_val).__name__ == "float"):
                 self.__dict__[key] = int(self.__dict__[key])
@@ -402,7 +324,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def __check_model_param(
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
-        """Checks whether a current model parameter violates a safe rule.
+        """Check whether a current model parameter violates a safe rule.
+
         Optionally fixes violations.
         """
         disclosive: bool = False
@@ -430,7 +353,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def __check_model_param_and(
         self, rule: dict, apply_constraints: bool
     ) -> tuple[str, bool]:
-        """Checks whether current model parameters violate a logical AND rule.
+        """Check whether current model parameters violate a logical AND rule.
+
         Optionally fixes violations.
         """
         disclosive: bool = False
@@ -443,7 +367,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def __check_model_param_or(self, rule: dict) -> tuple[str, bool]:
-        """Checks whether current model parameters violate a logical OR rule."""
+        """Check whether current model parameters violate a logical OR rule."""
         disclosive: bool = True
         msg: str = ""
         for arg in rule["subexpr"]:
@@ -456,12 +380,12 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def preliminary_check(
         self, verbose: bool = True, apply_constraints: bool = False
     ) -> tuple[str, bool]:
-        """Checks whether current model parameters violate the safe rules.
+        """Check whether current model parameters violate the safe rules.
+
         Optionally fixes violations.
 
         Parameters
         ----------
-
         verbose : bool
              A boolean value to determine increased output level.
 
@@ -471,15 +395,11 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         Returns
         -------
-
         msg : string
            A message string
         disclosive : bool
            A boolean value indicating whether the model is potentially
            disclosive.
-
-        Notes
-        -----
         """
         disclosive: bool = False
         msg: str = ""
@@ -510,16 +430,13 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def get_current_and_saved_models(self) -> tuple[dict, dict]:
-        """Makes a copy of self.__dict__
-        and splits it into dicts for the current and saved versions.
-        """
+        """Copy self.__dict__ and split into dicts for current and saved versions."""
         current_model = {}
 
         attribute_names_as_list = copy.copy(list(self.__dict__.keys()))
 
         for key in attribute_names_as_list:
             if key not in self.ignore_items:
-                # logger.debug(f'copying {key}')
                 try:
                     value = self.__dict__[key]  # jim added
                     current_model[key] = copy.deepcopy(value)
@@ -547,10 +464,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def examine_seperate_items(
         self, curr_vals: dict, saved_vals: dict
     ) -> tuple[str, bool]:
-        """Comparison of more complex structures
-        in the super class we just check these model-specific items exist
-        in both current and saved copies.
-        """
+        """Check model-specific items exist in both current and saved copies."""
         msg = ""
         disclosive = False
 
@@ -573,8 +487,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def posthoc_check(self) -> tuple[str, bool]:
-        """Checks whether model has been interfered with since fit() was last run."""
-
+        """Check whether model has been interfered with since fit() was last run."""
         disclosive = False
         msg = ""
 
@@ -629,19 +542,18 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, bool]:
-        """Placeholder function for additional posthoc checks e.g. keras this
+        """Perform additional posthoc checks.
+
+        Placeholder function for additional posthoc checks e.g. keras this
         version just checks that any lists have the same contents.
 
         Parameters
         ----------
-
         curr_separate : python dictionary
-
         saved_separate : python dictionary
 
         Returns
         -------
-
         msg : string
         A message string
         disclosive : bool
@@ -649,11 +561,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         Notes
         -----
-
         posthoc checking makes sure that the two dicts have the same set of
         keys as defined in the list self.examine_separately
         """
-
         msg = ""
         disclosive = False
         for item in self.examine_seperately_items:
@@ -679,8 +589,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return msg, disclosive
 
     def request_release(self, path: str, ext: str, target: Target = None) -> None:
-        """Saves model to filename specified and creates a report for the TRE
-        output checkers.
+        """Save model and create a report for the TRE output checkers.
 
         Parameters
         ----------
@@ -737,7 +646,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         output_dir: str = "RES",
         report_name: str = "undefined",
     ) -> dict:
-        """Runs a specified attack on the trained model and saves a report to file.
+        """Run a specified attack on the trained model and save report to file.
 
         Parameters
         ----------
@@ -800,7 +709,5 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         return metadata
 
     def __str__(self) -> str:  # pragma: no cover
-        """Returns string with model description.
-        No point writing a test, especially as it depends on username.
-        """
+        """Return string with model description."""
         return self.model_type + " with parameters: " + str(self.__dict__)

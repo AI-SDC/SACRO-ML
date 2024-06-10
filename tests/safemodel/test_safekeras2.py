@@ -133,7 +133,6 @@ def test_init_variants():
 
 def test_same_configs():  # pylint: disable=too-many-locals
     """Test whether tests for equal configuration work."""
-
     model1, X, _, _, _ = make_small_model(num_hidden_layers=1)
     model2, _, _, _, _ = make_small_model(num_hidden_layers=2)
     model2a, _, _, _, _ = make_small_model(num_hidden_layers=2)
@@ -320,7 +319,6 @@ def test_checkpoints_are_equal():
 
 def test_load():
     """Test the loading functionality."""
-
     # make a model, train then save it
     model, X, y, Xval, yval = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(

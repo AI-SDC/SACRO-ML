@@ -2,11 +2,10 @@
 
 
 def get_reporting_string(**kwargs):
-    """Returns a standard formatted string from a diction of f-strings.
+    """Return a standard formatted string from a dictionary of f-strings.
 
     Parameters
     ----------
-
     name : string
          The dictionary key and the name of the string to return.
     all-the-keywords : Any Type
@@ -14,13 +13,11 @@ def get_reporting_string(**kwargs):
 
     Returns
     -------
-
     msg : string
          A standard message string.
 
     Notes
     -----
-
     Sometimes an f-string has no parameters.
     Sometimes there are multiple parameters embedded in the f-string.
     """

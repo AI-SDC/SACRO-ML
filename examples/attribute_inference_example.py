@@ -1,12 +1,4 @@
-"""
-Example demonstrating the attribute inference attacks.
-
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.attribute_inference_example
-"""
+"""Example demonstrating the attribute inference attacks."""
 
 import json
 import os

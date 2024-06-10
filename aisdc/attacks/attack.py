@@ -1,4 +1,4 @@
-"""Attack.py - base class for an attack object."""
+"""Base class for an attack object."""
 
 import inspect
 import json
@@ -13,14 +13,15 @@ class Attack:
         self.attack_config_json_file_name = None
 
     def attack(self, target: Target) -> None:
-        """Method to run an attack."""
+        """Run an attack."""
         raise NotImplementedError
 
     def __str__(self):
+        """Return the string representation of an attack."""
         raise NotImplementedError
 
     def _update_params_from_config_file(self) -> None:
-        """Reads a configuration file and loads it into a dictionary object."""
+        """Read a configuration file and load it into a dictionary object."""
         with open(self.attack_config_json_file_name, encoding="utf-8") as f:
             config = json.loads(f.read())
         for key, value in config.items():
@@ -38,8 +39,7 @@ class Attack:
         return parameters
 
     def get_params(self):
-        """
-        Get parameters for this attack.
+        """Get parameters for this attack.
 
         Returns
         -------

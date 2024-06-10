@@ -34,7 +34,8 @@ preprocessing = ("standard", "minmax", "round")
 
 
 def test_get_sklearn_dataset():
-    """Test ability to load some standard datasets
+    """Test ability to load some standard datasets.
+
     These loaders only return binary versions.
     """
     # test preprocessing with iris for speed
@@ -121,10 +122,7 @@ def test_mimic():
 
 
 def test_in_hospital():
-    """Tests loading the in hospital mortality data
-    in two different ways.
-    """
-
+    """Tests loading the in hospital mortality data in two different ways."""
     zip_file_name = os.path.join(DATA_FOLDER, "doi_10.5061_dryad.0p2ngf1zd__v5.zip")
     new_file_name = os.path.join(DATA_FOLDER, "doi_10.5061_dryad.0p2ngf1zd__v5.renamed")
     # first attempt reads from zip file

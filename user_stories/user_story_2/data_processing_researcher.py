@@ -1,5 +1,4 @@
-"""
-SUPPORTING FILE FOR USER STORY 2.
+"""SUPPORTING FILE FOR USER STORY 2.
 
 This file is an example of a function created by a researcher that will pre-process a dataset
 
