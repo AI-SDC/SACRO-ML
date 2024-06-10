@@ -52,9 +52,7 @@ def get_data():
     return x, y
 
 
-class SafeDummyClassifier(
-    SafeModel, DummyClassifier
-):  # pylint:disable=too-many-instance-attributes
+class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-many-instance-attributes
     """Privacy protected dummy classifier."""
 
     def __init__(self, **kwargs) -> None:

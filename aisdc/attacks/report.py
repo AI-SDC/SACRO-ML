@@ -111,18 +111,14 @@ def title(pdf, text, border=BORDER, font_size=24, font_style="B"):
     pdf.ln(h=5)
 
 
-def subtitle(
-    pdf, text, indent=10, border=BORDER, font_size=12, font_style="B"
-):  # pylint: disable = too-many-arguments
+def subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style="B"):  # pylint: disable = too-many-arguments
     """Write a subtitle block."""
     pdf.cell(indent, border=border)
     pdf.set_font("arial", font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
 
 
-def line(
-    pdf, text, indent=0, border=BORDER, font_size=11, font_style="", font="arial"
-):  # pylint: disable = too-many-arguments
+def line(pdf, text, indent=0, border=BORDER, font_size=11, font_style="", font="arial"):  # pylint: disable = too-many-arguments
     """Write a standard block."""
     if indent > 0:
         pdf.cell(indent, border=border)
