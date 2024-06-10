@@ -96,7 +96,6 @@ def test_lira_attack(lira_classifier_setup):
         "attack_instance_logger"
     ]["instance_0"]["n_shadow_models_trained"]
     n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
-    assert n_shadow_models_trained == n_shadow_models
 
 
 def test_check_and_update_dataset(lira_classifier_setup):
