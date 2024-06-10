@@ -1,7 +1,7 @@
 """This is a template for implementing supplementary models
-   Obviously we have invented an sklearn ensemble called ModelToMakeSafer
-   Replace this with details of the model you wish to create a wrapper for
-   and then remove the comment which disables the pylint warning.
+Obviously we have invented an sklearn ensemble called ModelToMakeSafer
+Replace this with details of the model you wish to create a wrapper for
+and then remove the comment which disables the pylint warning.
 """
 
 # pylint: disable=duplicate-code

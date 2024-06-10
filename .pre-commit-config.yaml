@@ -31,35 +31,17 @@ repos:
                 .*\.ipynb
             )$
 
-  # Autoremoves unused imports
-  - repo: https://github.com/hadialqattan/pycln
-    rev: "v2.4.0"
+  # Ruff, the Python auto-correcting linter/formatter written in Rust
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.8
     hooks:
-      - id: pycln
-        stages: [manual]
-
-  # Sort includes
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
-    hooks:
-      - id: pyupgrade
-
-  # Upgrade old Python syntax
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-
-  # Black format Python and notebooks
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black-jupyter
+      - id: ruff
+        args: ["--fix", "--show-fixes"]
+      - id: ruff-format
 
   # Format docstrings
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: "v0.7.3"
+    rev: v0.7.3
     hooks:
       - id: pydocstringformatter
         args: ["--style=numpydoc"]

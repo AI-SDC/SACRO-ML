@@ -1,6 +1,4 @@
-"""Test_worst_case_attack.py
-Copyright (C) Jim Smith 2023 <james.smith@uwe.ac.uk>.
-"""
+"""Test structural attacks."""
 
 from __future__ import annotations
 
@@ -19,8 +17,6 @@ from xgboost.sklearn import XGBClassifier
 
 import aisdc.attacks.structural_attack as sa
 from aisdc.attacks.target import Target
-
-from ..common import clean
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
@@ -159,15 +155,15 @@ def test_unnecessary_risk():
 
 
 def test_non_trees():
-    """Test  behaviour if model type not tree-based."""
+    """Test behaviour if model type not tree-based."""
     param_dict = {"probability": True}
     target = get_target("svc", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
     # remove model
     target.model = None
+    myattack2 = sa.StructuralAttack()
     with pytest.raises(NotImplementedError):
-        myattack2 = sa.StructuralAttack()
         myattack2.attack(target)
 
 
@@ -410,8 +406,3 @@ def test_main_example():
     ]
     with patch.object(sys, "argv", testargs):
         sa.main()
-
-    clean("dt.sav")
-    clean("test_output_sa")
-    clean("config_structural_test.json")
-    clean("outputs_structural")

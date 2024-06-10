@@ -488,9 +488,9 @@ class LIRAAttack(Attack):
             if auc_p <= self.p_thresh
             else f"Not significant at p={self.p_thresh}"
         )
-        self.metadata["global_metrics"][
-            "null_auc_3sd_range"
-        ] = f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
+        self.metadata["global_metrics"]["null_auc_3sd_range"] = (
+            f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
+        )
 
         self.metadata["attack"] = str(self)
 
@@ -540,6 +540,9 @@ class LIRAAttack(Attack):
         attack_metrics_instances = {}
 
         for rep, _ in enumerate(self.attack_metrics):
+            self.attack_metrics[rep]["n_shadow_models_trained"] = (
+                self.attack_failfast_shadow_models_trained
+            )
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
 
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances

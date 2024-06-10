@@ -1,9 +1,8 @@
-"""This module contains unit tests for the SafeRandomForestClassifier."""
+"""Tests for the SafeRandomForestClassifier."""
 
 from __future__ import annotations
 
 import copy
-import os
 import pickle
 
 import joblib
@@ -28,11 +27,9 @@ class DummyClassifier:
     def predict(self, x: np.ndarray):
         """Predict all ones."""
 
-    #     return np.ones(x.shape[0])
-
 
 def get_data():
-    """Returns data for testing."""
+    """Return data for testing."""
     iris = datasets.load_iris()
     x = np.asarray(iris["data"], dtype=np.float64)
     y = np.asarray(iris["target"], dtype=np.float64)
@@ -42,7 +39,7 @@ def get_data():
 
 
 def test_randomforest_unchanged():
-    """SafeRandomForestClassifier using recommended values."""
+    """Test using recommended values."""
     x, y = get_data()
     model = SafeRandomForestClassifier(
         random_state=1, n_estimators=5, min_samples_leaf=5
@@ -52,11 +49,11 @@ def test_randomforest_unchanged():
     msg, disclosive = model.preliminary_check()
     correct_msg = get_reporting_string(name="within_recommended_ranges")
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_randomforest_recommended():
-    """SafeRandomForestClassifier using recommended values."""
+    """Test using recommended values."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     model.min_samples_leaf = 6
@@ -64,11 +61,11 @@ def test_randomforest_recommended():
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_randomforest_unsafe_1():
-    """SafeRandomForestClassifier with unsafe changes."""
+    """Test with unsafe changes."""
     x, y = get_data()
     model = SafeRandomForestClassifier(
         random_state=1, n_estimators=5, min_samples_leaf=5
@@ -82,11 +79,11 @@ def test_randomforest_unsafe_1():
         "fixed value of True."
     )
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is True
+    assert disclosive
 
 
 def test_randomforest_unsafe_2():
-    """SafeRandomForestClassifier with unsafe changes."""
+    """Test with unsafe changes."""
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     model.bootstrap = True
     model.min_samples_leaf = 2
@@ -97,11 +94,11 @@ def test_randomforest_unsafe_2():
         "min value of 5."
     )
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is True
+    assert disclosive
 
 
 def test_randomforest_unsafe_3():
-    """SafeRandomForestClassifier with unsafe changes."""
+    """Test with unsafe changes."""
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     model.bootstrap = False
     model.min_samples_leaf = 2
@@ -114,11 +111,11 @@ def test_randomforest_unsafe_3():
         "min value of 5."
     )
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is True
+    assert disclosive
 
 
 def test_randomforest_save():
-    """SafeRandomForestClassifier model saving."""
+    """Test model saving."""
     x, y = get_data()
     model = SafeRandomForestClassifier(
         random_state=1, n_estimators=5, min_samples_leaf=5
@@ -135,14 +132,9 @@ def test_randomforest_save():
         sav_model = joblib.load(file)
     assert sav_model.score(x, y) == EXPECTED_ACC
 
-    # cleanup
-    for name in ("rf_test.pkl", "rf_test.sav"):
-        if os.path.exists(name) and os.path.isfile(name):
-            os.remove(name)
-
 
 def test_randomforest_hacked_postfit():
-    """SafeRandomForestClassifier changes made to parameters after fit() called."""
+    """Test changes made to parameters after fit() called."""
     x, y = get_data()
     model = SafeRandomForestClassifier(
         random_state=1, n_estimators=5, min_samples_leaf=5
@@ -154,30 +146,22 @@ def test_randomforest_hacked_postfit():
     msg, disclosive = model.preliminary_check()
     correct_msg = get_reporting_string(name="within_recommended_ranges")
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is False
+    assert not disclosive
     # but more detailed analysis says not
     msg2, disclosive2 = model.posthoc_check()
     part1 = get_reporting_string(name="basic_params_differ", length=1)
     part2 = get_reporting_string(
         name="param_changed_from_to", key="bootstrap", val=False, cur_val=True
     )
-    part3 = ""  # get_reporting_string(
-    #        name="param_changed_from_to",
-    #        key="estimator",
-    #        val="DecisionTreeClassifier()",
-    #        cur_val="DecisionTreeClassifier()",
-    #    )
+    part3 = ""
     correct_msg2 = part1 + part2 + part3
-    # print(f'Correct: {correct_msg2}\n Actual: {msg2}')
 
     assert msg2 == correct_msg2, f"{msg2}\n should be {correct_msg2}"
-    assert disclosive2 is True
+    assert disclosive2
 
 
 def test_not_fitted():
-    """Posthoc_check() called on unfitred model
-    could have anything injected in classifier parameters.
-    """
+    """Test Posthoc_check() called on unfitted model."""
     unfitted_model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
 
     # not fitted
@@ -190,9 +174,7 @@ def test_not_fitted():
 
 
 def test_randomforest_modeltype_changed():
-    """Model type has been changed after fit()
-    in this this case to hide some data.
-    """
+    """Test model type has been changed after fit()."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     correct_msg = ""
@@ -205,7 +187,6 @@ def test_randomforest_modeltype_changed():
         model.estimators_[i] = x[i, :]
 
     msg, disclosive = model.posthoc_check()
-    # correct_msg += get_reporting_string(name="basic_params_differ",length=1)
     correct_msg = get_reporting_string(name="forest_estimators_differ", idx=5)
     correct_msg += get_reporting_string(
         name="param_changed_from_to",
@@ -213,17 +194,14 @@ def test_randomforest_modeltype_changed():
         val="DecisionTreeClassifier()",
         cur_val="DummyClassifier()",
     )
-    #    correct_msg += ("structure estimator has 1 differences: [('change', '', "
-    #                    "(DecisionTreeClassifier(), DecisionTreeClassifier()))]"
-    #                   )
     print(f"Correct: {correct_msg} Actual: {msg}")
 
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
-    assert disclosive is True, "should have been flagged as disclosive"
+    assert disclosive, "should have been flagged as disclosive"
 
 
 def test_randomforest_hacked_postfit_trees_removed():
-    """Tests various combinations of removing trees."""
+    """Test various combinations of removing trees."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     # code that checks estimators_ : one other or both missing or different number or size
@@ -233,7 +211,6 @@ def test_randomforest_hacked_postfit_trees_removed():
     the_estimators = model.__dict__.pop("estimators_")
     msg, disclosive = model.posthoc_check()
     correct_msg = get_reporting_string(name="current_item_removed", item="estimators_")
-    # print(f'Correct: {correct_msg} Actual: {msg}')
     assert disclosive, "should be flagged as disclosive"
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
 
@@ -241,7 +218,6 @@ def test_randomforest_hacked_postfit_trees_removed():
     _ = model.saved_model.pop("estimators_")
     msg, disclosive = model.posthoc_check()
     correct_msg = get_reporting_string(name="both_item_removed", item="estimators_")
-    # print(f'Correct: {correct_msg} Actual: {msg}')
     assert disclosive, "should be flagged as disclosive"
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
 
@@ -249,13 +225,12 @@ def test_randomforest_hacked_postfit_trees_removed():
     model.estimators_ = the_estimators
     msg, disclosive = model.posthoc_check()
     correct_msg = get_reporting_string(name="saved_item_removed", item="estimators_")
-    # print(f'Correct: {correct_msg} Actual: {msg}')
     assert disclosive, "should be flagged as disclosive"
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
 
 
 def test_randomforest_hacked_postfit_trees_swapped():
-    """Trees swapped with those from a different random forest."""
+    """Test trees swapped with those from a different random forest."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     diffsizemodel = SafeRandomForestClassifier(
@@ -278,20 +253,14 @@ def test_randomforest_hacked_postfit_trees_swapped():
         name="param_changed_from_to", key="max_depth", val="None", cur_val="2"
     )
     part3 = get_reporting_string(name="forest_estimators_differ", idx=5)
-    part4 = ""  # get_reporting_string(
-    #        name="param_changed_from_to",
-    #        key="estimator",
-    #        val="DecisionTreeClassifier()",
-    #        cur_val="DecisionTreeClassifier()",
-    #    )
+    part4 = ""
     correct_msg = part1 + part2 + part3 + part4
-    # print(f'Correct:\n{correct_msg} Actual:\n{msg}')
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
     assert disclosive, "should be flagged as disclosive"
 
 
 def test_randomforest_hacked_postfit_moretrees():
-    """Trees added after fit."""
+    """Test trees added after fit."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
     diffsizemodel = SafeRandomForestClassifier(random_state=1, n_estimators=10)
@@ -309,13 +278,7 @@ def test_randomforest_hacked_postfit_moretrees():
         name="param_changed_from_to", key="n_estimators", val="5", cur_val="10"
     )
     part3 = get_reporting_string(name="different_num_estimators", num1=10, num2=5)
-    part4 = ""  # get_reporting_string(
-    #        name="param_changed_from_to",
-    #        key="estimator",
-    #        val="DecisionTreeClassifier()",
-    #        cur_val="DecisionTreeClassifier()",
-    #    )
+    part4 = ""
     correct_msg = part1 + part2 + part3 + part4
-    # print(f'Correct:\n{correct_msg} Actual:\n{msg}')
     assert msg == correct_msg, f"{msg}\n should be {correct_msg}"
     assert disclosive, "should be flagged as disclosive"

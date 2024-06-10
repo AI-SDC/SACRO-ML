@@ -1,7 +1,4 @@
-"""Jim Smith October 2022
-tests to pick up odd cases not otherwise covered
-in code in the attacks folder.
-"""
+"""Tests to pick up odd cases not otherwise covered in code in the attacks folder."""
 
 from __future__ import annotations
 
@@ -24,13 +21,11 @@ def test_superclass():
     with pytest.raises(NotImplementedError):
         my_attack.attack(target)
     with pytest.raises(NotImplementedError):
-        print(str(my_attack))  # .__str__()
+        print(str(my_attack))
 
 
 def test_NumpyArrayEncoder():
-    """Conversion routine
-    from reports.py.
-    """
+    """Conversion routine from reports.py."""
 
     i32 = np.int32(2)
     i64 = np.int64(2)

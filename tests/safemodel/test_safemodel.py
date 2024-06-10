@@ -1,4 +1,4 @@
-"""Tests for fnctionality in super class."""
+"""Test safemodel super class."""
 
 from __future__ import annotations
 
@@ -13,8 +13,6 @@ from sklearn import datasets
 
 from aisdc.safemodel.reporting import get_reporting_string
 from aisdc.safemodel.safemodel import SafeModel
-
-from ..common import clean
 
 notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")
@@ -43,7 +41,7 @@ class DummyClassifier:
 
 
 def get_data():
-    """Returns data for testing."""
+    """Return data for testing."""
     iris = datasets.load_iris()
     x = np.asarray(iris["data"], dtype=np.float64)
     y = np.asarray(iris["target"], dtype=np.float64)
@@ -52,13 +50,11 @@ def get_data():
     return x, y
 
 
-class SafeDummyClassifier(
-    SafeModel, DummyClassifier
-):  # pylint:disable=too-many-instance-attributes
+class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-many-instance-attributes
     """Privacy protected dummy classifier."""
 
     def __init__(self, **kwargs) -> None:
-        """Creates model and applies constraints to params."""
+        """Create model and applies constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = (
             "at_least_5f",
@@ -84,17 +80,17 @@ class SafeDummyClassifier(
         self.newthing = ["myStringKey", "aString", "myIntKey", "42"]
 
     def set_params(self, **kwargs):  # pragma: no cover
-        """Sets params."""
-        for key, val in kwargs.items():  # pylint:disable=unused-variable
+        """Set params."""
+        for _, val in kwargs.items():
             self.key = val  # pylint:disable=attribute-defined-outside-init
 
-    def fit(self, x: np.ndarray, y: np.ndarray):
+    def fit(self, x: np.ndarray, y: np.ndarray):  # noqa: ARG002
         """Dummy fit."""
         self.saved_model = copy.deepcopy(self.__dict__)
 
 
 def test_params_checks_ok():
-    """Test parameter  checks ok."""
+    """Test parameter checks ok."""
     model = SafeDummyClassifier()
 
     correct_msg = ok_start
@@ -103,16 +99,16 @@ def test_params_checks_ok():
         f"exactly_boo is {model.exactly_boo} with type{type(model.exactly_boo).__name__}"
     )
     assert msg == ok_start, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_params_checks_too_low():
-    """Test parameter  checks too low."""
+    """Test parameter checks too low."""
     model = SafeDummyClassifier()
 
     model.at_least_5f = 4.0
     msg, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start + get_reporting_string(
         name="less_than_min_value",
         key="at_least_5f",
@@ -123,12 +119,12 @@ def test_params_checks_too_low():
 
 
 def test_params_checks_too_high():
-    """Test parameter  checks too high."""
+    """Test parameter checks too high."""
     model = SafeDummyClassifier()
 
     model.at_most_5i = 6
     msg, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start + get_reporting_string(
         name="greater_than_max_value", key="at_most_5i", cur_val=model.at_most_5i, val=5
     )
@@ -136,12 +132,12 @@ def test_params_checks_too_high():
 
 
 def test_params_checks_not_equal():
-    """Test parameter  checks not equal."""
+    """Test parameter checks not equal."""
     model = SafeDummyClassifier()
 
     model.exactly_boo = "foo"
     msg, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start + get_reporting_string(
         name="different_than_fixed_value",
         key="exactly_boo",
@@ -152,14 +148,14 @@ def test_params_checks_not_equal():
 
 
 def test_params_checks_wrong_type_str():
-    """Test parameter  checks wrong type - strings given."""
+    """Test parameter checks wrong type - strings given."""
     model = SafeDummyClassifier()
 
     model.at_least_5f = "five"
     model.at_most_5i = "five"
 
     msg, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start
     correct_msg += get_reporting_string(
         name="different_than_recommended_type",
@@ -190,14 +186,14 @@ def test_params_checks_wrong_type_str():
 
 
 def test_params_checks_wrong_type_float():
-    """Test parameter  checks wrong_type_float."""
+    """Test parameter checks wrong_type_float."""
     model = SafeDummyClassifier()
 
-    model.exactly_boo = 5.0
-    model.at_most_5i = 5.0
+    model.exactly_boo = 5
+    model.at_most_5i = 5
 
     _, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start
 
     correct_msg += get_reporting_string(
@@ -215,14 +211,14 @@ def test_params_checks_wrong_type_float():
 
 
 def test_params_checks_wrong_type_int():
-    """Test parameter  checks wrong_type_intt."""
+    """Test parameter checks wrong_type_intt."""
     model = SafeDummyClassifier()
 
     model.exactly_boo = 5
     model.at_least_5f = 5
 
     msg, disclosive = model.preliminary_check()
-    assert disclosive is True
+    assert disclosive
     correct_msg = notok_start
 
     correct_msg += get_reporting_string(
@@ -247,7 +243,7 @@ def test_params_checks_wrong_type_int():
 
 
 def test_check_unknown_param():
-    """Checks handling of malformed json rule."""
+    """Test handling of malformed json rule."""
     # pylint:disable=protected-access,no-member
     model = SafeDummyClassifier()
     _, _ = model.preliminary_check()
@@ -260,19 +256,20 @@ def test_check_unknown_param():
         cur_val="boo",
     )
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
 
 def test_check_model_param_or():
-    """Tests or conditions in rules.json
-    the and condition is tested by the decision tree tests.
+    """Test or conditions in rules.json.
+
+    The and condition is tested by the decision tree tests.
     """
     # ok
     model = SafeDummyClassifier()
     msg, disclosive = model.preliminary_check()
     correct_msg = ok_start
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
     part1 = get_reporting_string(
         name="different_than_fixed_value",
@@ -292,25 +289,25 @@ def test_check_model_param_or():
     correct_msg = ok_start + part1
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
     # or  branch 2
     model = SafeDummyClassifier(keyB=False)
     correct_msg = ok_start + part2
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
     # fail or
     model = SafeDummyClassifier(keyA=False, keyB=False)
     correct_msg = notok_start + part1 + part2
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is True
+    assert disclosive
 
 
 def test_saves():
-    """Checks that save functions as expected."""
+    """Test that save functions as expected."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -332,14 +329,9 @@ def test_saves():
     model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
     model.save("unpicklable.sav")
 
-    # cleanup
-    for name in ("dummy.pkl", "dummy.sav", "unpicklable.pkl", "unpicklable.sav"):
-        if os.path.exists(name) and os.path.isfile(name):
-            os.remove(name)
-
 
 def test_loads():
-    """Basic check that making, changing,saving,loading model works."""
+    """Test that making, changing, saving, loading model works."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -359,14 +351,9 @@ def test_loads():
         model2 = joblib.load(file)
     assert model2.exactly_boo == "this_should_be_present"
 
-    # cleanup
-    for name in ("dummy.pkl", "dummy.sav"):
-        if os.path.exists(name) and os.path.isfile(name):
-            os.remove(name)
 
-
-def test__apply_constraints():
-    """Tests constraints can be applied as expected."""
+def test_apply_constraints():
+    """Test constraints can be applied as expected."""
 
     # wrong type
     model = SafeDummyClassifier()
@@ -380,22 +367,22 @@ def test__apply_constraints():
 
     msg, _ = model.preliminary_check(verbose=True, apply_constraints=True)
 
-    assert model.at_least_5f == 5.0
+    assert model.at_least_5f == 5
     assert model.at_most_5i == 5
     assert model.exactly_boo == "boo"
 
     # checks that type changes happen correctly
     model = SafeDummyClassifier()
-    model.at_least_5f = int(6.0)
-    model.at_most_5i = float(4.2)
+    model.at_least_5f = 6
+    model.at_most_5i = 4.2
     model.exactly_boo = "five"
 
-    assert model.at_least_5f == int(6)
+    assert model.at_least_5f == 6
     assert model.at_most_5i == 4.2
     assert model.exactly_boo == "five"
 
     msg, _ = model.preliminary_check(verbose=True, apply_constraints=True)
-    assert model.at_least_5f == 6.0
+    assert model.at_least_5f == 6
     assert model.at_most_5i == 4
     assert model.exactly_boo == "boo"
 
@@ -403,7 +390,7 @@ def test__apply_constraints():
     correct_msg += get_reporting_string(
         name="different_than_recommended_type",
         key="at_least_5f",
-        cur_val=int(6),
+        cur_val=6,
         val="float",
     )
     correct_msg += get_reporting_string(
@@ -457,9 +444,7 @@ def test__apply_constraints():
 
 
 def test_get_saved_model_exception():
-    """Tests the exception handling
-    in get_current_and_saved_models().
-    """
+    """Test the exception handling in get_current_and_saved_models()."""
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
 
@@ -474,9 +459,9 @@ def test_get_saved_model_exception():
 
 
 def test_generic_additional_tests():
-    """Checks the class generic additional tests
-    for this purpose SafeDummyClassifier()
-    defines
+    """Test the class generic additional tests.
+
+    For this purpose SafeDummyClassifier() defines
     self.newthing = {"myStringKey": "aString", "myIntKey": 42}.
     """
     model = SafeDummyClassifier()
@@ -487,7 +472,7 @@ def test_generic_additional_tests():
     msg, disclosive = model.posthoc_check()
     correct_msg = ""
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is False
+    assert not disclosive
 
     # different lengths
     model.saved_model["newthing"] += ("extraA",)
@@ -500,7 +485,7 @@ def test_generic_additional_tests():
 
     correct_msg = "Warning: different counts of values for parameter newthing.\n"
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is True
+    assert disclosive
 
     # different thing in list
     model.newthing += ("extraB",)
@@ -514,11 +499,11 @@ def test_generic_additional_tests():
         f'{model.saved_model["newthing"]}'
     )
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
-    assert disclosive is True
+    assert disclosive
 
 
 def test_request_release_without_attacks():
-    """Checks requestrelease code works and check the content of the json file."""
+    """Test request release works and check the content of the json file."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -556,5 +541,3 @@ def test_request_release_without_attacks():
             "reason": reason,
             "timestamp": model.timestamp,
         } in json_data["safemodel"]
-
-    clean(RES_DIR)

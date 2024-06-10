@@ -25,7 +25,7 @@ PREDICTED_PROBS = np.array(
 
 
 class DummyClassifier:
-    """Mocks the predict and predict_proba methods."""
+    """Mock the predict and predict_proba methods."""
 
     def predict(self, _):
         """Return dummy predictions."""
@@ -37,9 +37,7 @@ class DummyClassifier:
 
 
 class TestInputExceptions(unittest.TestCase):
-    """Test that the metrics.py errors with a helpful error message if an
-    invalid shape is supplied.
-    """
+    """Test error message if an invalid shape is supplied."""
 
     def _create_fake_test_data(self):
         y_test = np.zeros(4)
@@ -49,47 +47,40 @@ class TestInputExceptions(unittest.TestCase):
     def test_wrong_shape(self):
         """Test the check which ensures y_pred_proba is of shape [:,:]."""
         y_test = self._create_fake_test_data()
-        with pytest.raises(ValueError):
-            y_pred_proba = np.zeros((4, 2, 2))
+        y_pred_proba = np.zeros((4, 2, 2))
+        with pytest.raises(ValueError, match="y_pred.*"):
             get_metrics(y_pred_proba, y_test)
 
     def test_wrong_size(self):
         """Test the check which ensures y_pred_proba is of size (:,2)."""
         y_test = self._create_fake_test_data()
-        with pytest.raises(ValueError):
-            y_pred_proba = np.zeros((4, 4))
+        y_pred_proba = np.zeros((4, 4))
+        with pytest.raises(ValueError, match=".*multiclass.*"):
             get_metrics(y_pred_proba, y_test)
 
     def test_valid_input(self):
         """Test to make sure a valid array does not throw an exception."""
         y_test = self._create_fake_test_data()
         y_pred_proba = np.zeros((4, 2))
-
         returned = get_metrics(y_pred_proba, y_test)
-
         acc = returned["ACC"]
         auc = returned["AUC"]
         p_auc = returned["P_HIGHER_AUC"]
         tpr = returned["TPR"]
-
-        self.assertAlmostEqual(0.75, acc)
-        self.assertAlmostEqual(0.5, auc)
-        self.assertAlmostEqual(0.5, p_auc)
-        self.assertAlmostEqual(0.0, tpr)
+        assert pytest.approx(acc) == 0.75
+        assert pytest.approx(auc) == 0.5
+        assert pytest.approx(p_auc) == 0.5
+        assert pytest.approx(tpr) == 0.0
 
 
 class TestProbabilities(unittest.TestCase):
     """Test the checks on the input parameters of the get_probabilites function."""
 
     def test_permute_rows_errors(self):
-        """
-        Test to make sure an error is thrown when permute_rows is set to True,
-        but no y_test is supplied.
-        """
+        """Test error when permute_rows is True, but no y_test is supplied."""
         clf = DummyClassifier()
         testX = []
-
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="not enough values to unpack.*"):
             get_probabilities(clf, testX, permute_rows=True)
 
     def test_permute_rows_with_permute_rows(self):
@@ -102,24 +93,21 @@ class TestProbabilities(unittest.TestCase):
         returned = get_probabilities(clf, testX, testY, permute_rows=True)
 
         # Check the function returns two arguments
-        self.assertEqual(2, len(returned))
+        assert len(returned) == 2
 
         # Check that the second argument is the same shape as testY
-        self.assertEqual(testY.shape, returned[1].shape)
+        assert testY.shape == returned[1].shape
 
         # Check that the function is returning the right thing: predict_proba
-        self.assertEqual(clf.predict_proba(testX).shape, returned[0].shape)
+        assert clf.predict_proba(testX).shape == returned[0].shape
 
     def test_permute_rows_without_permute_rows(self):
         """Test permute_rows = False succeeds."""
-
         clf = DummyClassifier()
         testX = np.zeros((4, 2))
-
         y_pred_proba = get_probabilities(clf, testX, permute_rows=False)
-
         # Check the function returns pnly y_pred_proba
-        self.assertEqual(clf.predict_proba(testX).shape, y_pred_proba.shape)
+        assert clf.predict_proba(testX).shape == y_pred_proba.shape
 
 
 class TestMetrics(unittest.TestCase):
@@ -132,17 +120,17 @@ class TestMetrics(unittest.TestCase):
         testy = TRUE_CLASS
         y_pred_proba = get_probabilities(clf, testX, testy, permute_rows=False)
         metrics = get_metrics(y_pred_proba, testy)
-        self.assertAlmostEqual(metrics["TPR"], 2 / 3)
-        self.assertAlmostEqual(metrics["FPR"], 1 / 3)
-        self.assertAlmostEqual(metrics["FAR"], 1 / 3)
-        self.assertAlmostEqual(metrics["TNR"], 2 / 3)
-        self.assertAlmostEqual(metrics["PPV"], 2 / 3)
-        self.assertAlmostEqual(metrics["NPV"], 2 / 3)
-        self.assertAlmostEqual(metrics["FNR"], 1 / 3)
-        self.assertAlmostEqual(metrics["ACC"], 4 / 6)
-        self.assertAlmostEqual(metrics["F1score"], (8 / 9) / (2 / 3 + 2 / 3))
-        self.assertAlmostEqual(metrics["Advantage"], 1 / 3)
-        self.assertAlmostEqual(metrics["AUC"], 8 / 9)
+        assert metrics["TPR"] == pytest.approx(2 / 3)
+        assert metrics["FPR"] == pytest.approx(1 / 3)
+        assert metrics["FAR"] == pytest.approx(1 / 3)
+        assert metrics["TNR"] == pytest.approx(2 / 3)
+        assert metrics["PPV"] == pytest.approx(2 / 3)
+        assert metrics["NPV"] == pytest.approx(2 / 3)
+        assert metrics["FNR"] == pytest.approx(1 / 3)
+        assert metrics["ACC"] == pytest.approx(4 / 6)
+        assert metrics["F1score"] == pytest.approx((8 / 9) / (2 / 3 + 2 / 3))
+        assert metrics["Advantage"] == pytest.approx(1 / 3)
+        assert metrics["AUC"] == pytest.approx(8 / 9)
 
     def test_mia_extremecase(self):
         """Test the extreme case mia in metrics.py."""
@@ -157,11 +145,11 @@ class TestMetrics(unittest.TestCase):
 
         # right predictions - triggers override for very small logp
         _, _, _, pval = min_max_disc(y, right)
-        self.assertEqual(-115.13, pval)
+        assert pval == -115.13
 
         # wrong predictions - probaility very close to 1 so logp=0
         _, _, _, pval = min_max_disc(y, wrong)
-        self.assertAlmostEqual(0.0, pval)
+        assert pytest.approx(pval) == 0
 
 
 class TestFPRatTPR(unittest.TestCase):
@@ -171,30 +159,29 @@ class TestFPRatTPR(unittest.TestCase):
         """Test tpr at fpr."""
         y_true = TRUE_CLASS
         y_score = PREDICTED_PROBS[:, 1]
-
         tpr = _tpr_at_fpr(y_true, y_score, fpr=0)
-        self.assertAlmostEqual(tpr, 2 / 3)
+        assert tpr == pytest.approx(2 / 3)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=0.001)
-        self.assertAlmostEqual(tpr, 2 / 3)
+        assert tpr == pytest.approx(2 / 3)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=0.1)
-        self.assertAlmostEqual(tpr, 2 / 3)
+        assert tpr == pytest.approx(2 / 3)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=0.4)
-        self.assertAlmostEqual(tpr, 1)
+        assert tpr == pytest.approx(1)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=1.0)
-        self.assertAlmostEqual(tpr, 1)
+        assert tpr == pytest.approx(1)
         tpr = _tpr_at_fpr(y_true, y_score, fpr_perc=True, fpr=100.0)
-        self.assertAlmostEqual(tpr, 1)
+        assert tpr == pytest.approx(1)
 
 
 class Test_Div(unittest.TestCase):
-    """Tests the _div functionality."""
+    """Test the _div functionality."""
 
     def test_div(self):
         """Test div for y=1 and 0."""
         result = _div(8.0, 1.0, 99.0)
-        self.assertAlmostEqual(result, 8.0)
+        assert result == pytest.approx(8.0)
         result2 = _div(8.0, 0.0, 99.0)
-        self.assertAlmostEqual(result2, 99.0)
+        assert result2 == pytest.approx(99.0)
 
 
 class TestExtreme(unittest.TestCase):
@@ -208,9 +195,9 @@ class TestExtreme(unittest.TestCase):
         # 10% of 6 is 1 so:
         # maxd should be 1 (the highest one is predicted as1)
         # mind should be 0 (the lowest one is not predicted as1)
-        self.assertAlmostEqual(maxd, 1.0)
-        self.assertAlmostEqual(mind, 0.0)
-        self.assertAlmostEqual(mmd, 1.0)
+        assert maxd == pytest.approx(1)
+        assert mind == pytest.approx(0)
+        assert mmd == pytest.approx(1)
 
     def test_extreme_higer_prop(self):
         """Tets with the dummy data but increase proportion to 0.5."""
@@ -220,6 +207,6 @@ class TestExtreme(unittest.TestCase):
         # 10% of 6 is 1 so:
         # maxd should be 1 (the highest one is predicted as1)
         # mind should be 0 (the lowest one is not predicted as1)
-        self.assertAlmostEqual(maxd, 2 / 3)
-        self.assertAlmostEqual(mind, 1 / 3)
-        self.assertAlmostEqual(mmd, 1 / 3)
+        assert maxd == pytest.approx(2 / 3)
+        assert mind == pytest.approx(1 / 3)
+        assert mmd == pytest.approx(1 / 3)
