@@ -91,11 +91,7 @@ def test_lira_attack(lira_classifier_setup):
         report_name="lira_example1_report",
     )
     attack_obj2.attack(target)
-    output2 = attack_obj2.make_report()
-    n_shadow_models_trained = output2["attack_experiment_logger"][
-        "attack_instance_logger"
-    ]["instance_0"]["n_shadow_models_trained"]
-    n_shadow_models = output2["metadata"]["experiment_details"]["n_shadow_models"]
+    _ = attack_obj2.make_report()
 
 
 def test_check_and_update_dataset(lira_classifier_setup):
