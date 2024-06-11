@@ -20,7 +20,6 @@ from aisdc.attacks.target import Target
 def test_config_file_arguments_parsin():
     """Tests reading parameters from the configuration file."""
     config = {
-        "reproduce_split": None,
         "n_reps": 12,
         "n_dummy_reps": 2,
         "p_thresh": 0.06,
@@ -112,11 +111,11 @@ def test_report_worstcase():
         output_dir="test_output_worstcase",
     )
     attack_obj.attack(target)
-    # attack_obj.make_dummy_data() cause exception when used like this!
     _ = attack_obj.make_report()
 
     # with one rep
     attack_obj = worst_case_attack.WorstCaseAttack(
+        reproduce_split=[5, 5],
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
