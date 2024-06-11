@@ -19,7 +19,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params."""
+        """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [
             "n_estimators",
@@ -61,9 +61,9 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     def additional_checks(  # pylint: disable=too-many-nested-blocks
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """Random Forest-specific checks
-        would benefit from refactoring into simpler blocks perhaps.
-        NOTE that this is never called if the model has not been fitted.
+        """Perform Random Forest specific checks.
+
+        NOTE: this is never called if the model has not been fitted.
         """
         msg = ""
         disclosive = False
@@ -72,7 +72,6 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
             # template for class of things that make up forest
             if item == "estimator":
                 if type(curr_separate[item]) != type(saved_separate[item]):
-                    # msg += get_reporting_string(name="basic_params_differ",length=1)
                     msg += get_reporting_string(
                         name="param_changed_from_to",
                         key="estimator",
@@ -117,18 +116,18 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
 
     # pylint: disable=arguments-differ
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
-        """Do fit and then store model dict."""
+        """Fit model and store model dict."""
         super().fit(x, y)
         self.k_anonymity = self.get_k_anonymity(x)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def get_k_anonymity(self, x: np.ndarray) -> int:
-        """Calculates the k-anonymity of a random forest model
-        as the minimum of the anonymity for each record.
+        """Calculate the k-anonymity of a random forest model.
+
+        The k-anonymity is the minimum of the anonymity for each record.
         That is defined as the size of the set of records which
         appear in the same leaf as the record in every tree.
         """
-
         # dataset must be 2-D
         assert len(x.shape) == 2
 

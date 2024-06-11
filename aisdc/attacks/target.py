@@ -1,4 +1,4 @@
-"""Stores information about the target model and data."""
+"""Store information about the target model and data."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ logger = logging.getLogger("target")
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
-    """Stores information about the target model and data."""
+    """Store information about the target model and data."""
 
     def __init__(self, model: sklearn.base.BaseEstimator | None = None) -> None:
         """Store information about a target model and associated data.
@@ -253,7 +253,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_numpy(path, target, "y_test_orig")
 
     def __ge(self) -> str:
-        """Returns the model generalisation error.
+        """Return the model generalisation error.
 
         Returns
         -------
@@ -276,7 +276,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         return "unknown"
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
-        """Saves the target class to persistent storage.
+        """Save the target class to persistent storage.
 
         Parameters
         ----------
@@ -308,7 +308,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             json.dump(target, fp, indent=4, cls=NumpyArrayEncoder)
 
     def load(self, path: str = "target") -> None:
-        """Loads the target class from persistent storage.
+        """Load the target class from persistent storage.
 
         Parameters
         ----------
@@ -342,7 +342,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.__load_data(path, target)
 
     def add_safemodel_results(self, data: list) -> None:
-        """Adds the results of safemodel disclosure checking.
+        """Add the results of safemodel disclosure checking.
 
         Parameters
         ----------
@@ -352,4 +352,5 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.safemodel = data
 
     def __str__(self):
+        """Return the name of the dataset used."""
         return self.name

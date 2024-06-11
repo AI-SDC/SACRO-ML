@@ -16,9 +16,7 @@ from ..safemodel import SafeModel
 def decision_trees_are_equal(
     tree1: DecisionTreeClassifier, tree2: DecisionTreeClassifier
 ) -> tuple[bool, str]:
-    """Compares two estimators of type sklearn.tree
-    e.g. two decisionTreeClassifiers.
-    """
+    """Compare two estimators of type sklearn.tree."""
     msg = ""
     same = True
 
@@ -36,7 +34,6 @@ def decision_trees_are_equal(
             msg += get_reporting_string(
                 name="basic_params_differ", length=num_differences
             )
-            # f"Warning: basic parameters differ in {len(match)} places:\n"
             for i in range(num_differences):
                 if match[i][0] == "change":
                     msg += f"parameter {match[i][1]} changed from {match[i][2][1]} "
@@ -52,7 +49,6 @@ def decision_trees_are_equal(
 
     except BaseException as error:  # pylint:disable=broad-except  #pragma:no cover
         msg += get_reporting_string(name="unable_to_check", error=error)
-        # f"Unable to check as an exception occurred: {error}"
         same = False
 
     return same, msg
@@ -61,10 +57,10 @@ def decision_trees_are_equal(
 def decision_tree_internal_trees_are_equal(
     tree1_tree: Any, tree2_tree: Any
 ) -> tuple[bool, str]:
-    """Tests for equality of the internal structures in a sklearn.tree._tree
-    e.g. the structure, feature and threshold in each internal node etc.
-    """
+    """Test for equality of the internal structures in a sklearn.tree._tree.
 
+    For example, the structure, feature and threshold in each internal node etc.
+    """
     same = True
     msg = ""
     tree_internal_att_names = (
@@ -102,28 +98,23 @@ def decision_tree_internal_trees_are_equal(
                         msg += get_reporting_string(
                             name="internal_attribute_differs", attr=attr
                         )
-                        # f"internal tree attribute {attr} differs\n"
                         same = False
                 else:
                     if t1val != t2val:
                         msg += get_reporting_string(
                             name="internal_attribute_differs", attr=attr
                         )
-                        # f"internal tree attribute {attr} differs\n"
                         same = False
     except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
-        # f"An exception occurred: {error}"
     return same, msg
 
 
 def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
-    """Returns the smallest number of data items in any leaf."""
+    """Return the smallest number of data items in any leaf."""
     leaves = thetree.apply(X)
     uniqs_counts = np.unique(leaves, return_counts=True)
     k_anonymity = np.min(uniqs_counts[1])
-    # print(f' leaf ids {uniqs_counts[0]} and counts {uniqs_counts[1]}'
-    #        f'the  k-anonymity of the tree is {k_anonymity}')
     return k_anonymity
 
 
@@ -131,7 +122,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: 
     """Privacy protected Decision Tree classifier."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params."""
+        """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [
             "criterion",
@@ -180,17 +171,12 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: 
             disclosive = True
         if len(curr_separate) > 1:
             msg += get_reporting_string(name="unexpected_item")
-            # (
-            #    "unexpected item in curr_seperate dict "
-            #    " passed by generic additional checks."
-            # )
-
         return msg, disclosive
 
     def fit(  # pylint: disable=arguments-differ
         self, x: np.ndarray, y: np.ndarray
     ) -> None:
-        """Do fit and then store k-anonymity and  model dict."""
+        """Fit model and store k-anonymity and model dict."""
         super().fit(x, y)
         # calculate k-anonymity her since we have the tainigf data
         leaves = self.apply(x)

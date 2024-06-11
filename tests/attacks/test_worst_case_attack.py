@@ -111,11 +111,11 @@ def test_report_worstcase():
         output_dir="test_output_worstcase",
     )
     attack_obj.attack(target)
-    # attack_obj.make_dummy_data() cause exception when used like this!
     _ = attack_obj.make_report()
 
     # with one rep
     attack_obj = worst_case_attack.WorstCaseAttack(
+        reproduce_split=[5, 5],
         n_reps=1,
         n_dummy_reps=1,
         p_thresh=0.05,
@@ -162,7 +162,6 @@ def test_attack_with_correct_feature():
 
 def test_attack_from_predictions():
     """Checks code that runs attacks from predictions."""
-
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -197,7 +196,6 @@ def test_attack_from_predictions():
 
 def test_attack_from_predictions_no_dummy():
     """Checks code that runs attacks from predictions."""
-
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -271,6 +269,7 @@ def test_attack_data_prep():
 
 def test_attack_data_prep_with_correct_feature():
     """Test the method that prepares the attack data.
+
     This time, testing that the model correctness values are added, are always
     the final feature, and are not included in the sorting.
     """
@@ -303,13 +302,13 @@ def test_attack_data_prep_with_correct_feature():
 
 
 def test_non_rf_mia():
-    """Tests that it is possible to set the attack model via the args
+    """Test that it is possible to set the attack model via the args.
+
     In this case, we set as a SVC. But we set probability to false. If the code does
     indeed try and use the SVC (as we want) it will fail as it will try and access
     the predict_proba which won't work if probability=False. Hence, if the code throws
     an AttributeError we now it *is* trying to use the SVC.
     """
-
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -331,7 +330,6 @@ def test_non_rf_mia():
 
 def test_main():
     """Test invocation via command line."""
-
     # option 1
     testargs = ["prog", "make-dummy-data"]
     with patch.object(sys, "argv", testargs):

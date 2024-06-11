@@ -1,14 +1,9 @@
-"""Examples for running multiple attacks including the 'Membership Inferene Attack'
-and the "Attribute Inference Attack" with a single configuration file have
-multiple configurations.
+"""Examples for running multiple attacks.
 
-In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
+Includes the Membership Inference Attack and the Attribute Inference Attack
+with a single configuration file have multiple configurations.
 
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.MIAandAIA_attacks_example
+Below, [Researcher] and [TRE] are used to denote which task is performed by whom.
 """
 
 import json

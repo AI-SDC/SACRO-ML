@@ -1,23 +1,19 @@
 """Examples for using the 'worst case' attack code.
 
-This code simulates a MIA attack providing the attacker with as much information as possible.
-i.e. they have a subset of rows that they _know_ were used for training. And a subset that they
-know were not. They also have query access to the target model.
+This code simulates a MIA attack providing the attacker with as much
+information as possible. That is, they have a subset of rows that they _know_
+were used for training. And a subset that they know were not. They also have
+query access to the target model.
 
-They pass the training and non-training rows through the target model to get the predictive
-probabilities. These are then used to train an _attack model_. And the attack model is evaluated
-to see how well it can predict whether or not other examples were in the training set or not.
+They pass the training and non-training rows through the target model to get
+the predictive probabilities. These are then used to train an _attack model_.
+And the attack model is evaluated to see how well it can predict whether or not
+other examples were in the training set or not.
 
-The code can be called from the command line, or accessed programmatically. Examples of both
-are shown below.
+The code can be called from the command line, or accessed programmatically.
+Examples of both are shown below.
 
-In the code, [Researcher] and [TRE] are used in comments to denote which bit is done by whom
-
-Running
--------
-
-Invoke this code from the root AI-SDC folder with
-python -m examples.worst_case_attack_example
+Below, [Researcher] and [TRE] are used to denote which task is performed by whom.
 """
 
 import json

@@ -23,7 +23,7 @@ LR_CMD_CONFIG = os.path.normpath("tests/attacks/lrconfig_cmd.json")
 
 @pytest.fixture(name="dummy_classifier_setup")
 def fixture_dummy_classifier_setup():
-    """Setup common things for DummyClassifier."""
+    """Set up common things for DummyClassifier."""
     dummy = DummyClassifier()
     X = np.array([[0.2, 0.8], [0.7, 0.3]])
     return dummy, X
@@ -46,7 +46,7 @@ def test_predict(dummy_classifier_setup):
 
 @pytest.fixture(name="lira_classifier_setup")
 def fixture_lira_classifier_setup():
-    """Setup common things for LiRA."""
+    """Set up common things for LiRA."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
     target_model = RandomForestClassifier(

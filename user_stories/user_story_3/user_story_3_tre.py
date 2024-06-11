@@ -1,12 +1,12 @@
-"""
-TRE SCRIPT FOR USER STORY 3.
+"""TRE SCRIPT FOR USER STORY 3.
 
-This file contains the code needed to run user story 3
+This file contains the code needed to run user story 3.
 
-To run: change the user_story key inside the .yaml config file to '3', and run the
-'generate_disclosure_risk_report.py' file
+To run: change the user_story key inside the .yaml config file to '3', and run
+the 'generate_disclosure_risk_report.py' file.
 
-NOTE: you should not need to change this file at all, set all parameters via the .yaml file
+NOTE: you should not need to change this file at all, set all parameters via
+the .yaml file.
 """
 
 import argparse
@@ -40,7 +40,6 @@ def generate_report(
     outfile,
 ):  # pylint: disable=too-many-arguments, disable=too-many-locals
     """Generate report based on target model."""
-
     print()
     print("Acting as TRE...")
     print()
@@ -123,8 +122,7 @@ def generate_report(
 
 
 def run_user_story(release_config: dict):
-    """Main method to parse arguments and then invoke report generation."""
-
+    """Run the user story, parsing arguments and then invoking report generation."""
     generate_report(
         release_config["training_artefacts_dir"],
         release_config["target_model"],
@@ -138,7 +136,7 @@ def run_user_story(release_config: dict):
     )
 
 
-if __name__ == "__main__":  # pragma:no cover
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
             "Generate a risk report after request_release() has been called by researcher"
@@ -160,7 +158,7 @@ if __name__ == "__main__":  # pragma:no cover
     try:
         with open(args.config_file, encoding="utf-8") as handle:
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
-    except AttributeError as error:  # pragma:no cover
+    except AttributeError as error:
         print(
             "Invalid command. Try --help to get more details"
             f"error message is {error}"

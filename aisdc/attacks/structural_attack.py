@@ -1,6 +1,7 @@
-"""
+"""Structural attacks.
+
 Runs a number of 'static' structural attacks based on:
-(i) the target model's properties
+(i) the target model's properties;
 (ii) the TREs risk appetite as applied to tables and standard regressions.
 """
 
@@ -31,27 +32,27 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
-    """
-    Checks whether a model's hyper-parameters against
-    a set of rules that predict the top 20% most risky.
+    """Check whether model hyperparameters are in the top 20% most risky.
 
-    This check is designed to assess whether a model is
-    likely to be **unnecessarily** risky, i.e.,
-    whether it is highly likely that a different combination of hyper-parameters
-    would have led to model with similar or better accuracy on the task
-    but with lower membership inference risk.
+    This check is designed to assess whether a model is likely to be
+    **unnecessarily** risky, i.e., whether it is highly likely that a different
+    combination of hyper-parameters would have led to model with similar or
+    better accuracy on the task but with lower membership inference risk.
 
     The rules applied from an experimental study using a grid search in which:
     - max_features was one-hot encoded from the set [None, log2, sqrt]
     - splitter was encoded using 0=best, 1=random
 
-    The target models created were then subject to membership inference attacks (MIA)
-    and the hyper-param combinations rank-ordered according to MIA AUC.
-    Then a decision tree trained to recognise whether
-    hyper-params combintions were in the 20% most risky.
-    The rules below were extracted from that tree for the 'least risky' nodes
+    The target models created were then subject to membership inference attacks
+    (MIA) and the hyper-param combinations rank-ordered according to MIA AUC.
+    Then a decision tree trained to recognise whether hyper-params combintions
+    were in the 20% most risky.  The rules below were extracted from that tree
+    for the 'least risky' nodes.
+
+    Notes
+    -----
+    Returns 1 if high risk, otherwise 0.
     """
-    # Returns 1 if high risk, otherwise 0
     if not isinstance(
         model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
     ):
@@ -118,7 +119,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
             unnecessary_risk = 1
 
     elif isinstance(model, XGBClassifier):
-        # checking whether params exist and using xgboost defaults if not using defaults
+        # check whether params exist and using xgboost defaults if not using defaults
         # from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
         # and here: https://xgboost.readthedocs.io/en/stable/parameter.html
         n_estimators = int(model.n_estimators) if model.n_estimators else 100
@@ -137,7 +138,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
 
 
 def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
-    """Reads the tree structure a returns the number of learned parameters."""
+    """Read the tree structure and return the number of learned parameters."""
     n_nodes = dtree.tree_.node_count
     left = dtree.tree_.children_left
     right = dtree.tree_.children_right
@@ -155,7 +156,7 @@ def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
 
 
 def get_model_param_count(model: BaseEstimator) -> int:
-    """Returns the number of trained parameters in a model."""
+    """Return the number of trained parameters in a model."""
     n_params = 0
 
     if isinstance(model, DecisionTreeClassifier):
@@ -195,7 +196,7 @@ def get_model_param_count(model: BaseEstimator) -> int:
 
 
 class StructuralAttack(Attack):
-    """Class to wrap a number of attacks based on the static structure of a model."""
+    """Structural attacks based on the static structure of a model."""
 
     # pylint: disable=too-many-instance-attributes
 
@@ -207,7 +208,7 @@ class StructuralAttack(Attack):
         output_dir="outputs_structural",
         report_name="report_structural",
     ) -> None:
-        """Constructs an object to execute a structural attack.
+        """Construct an object to execute a structural attack.
 
         Parameters
         ----------
@@ -218,7 +219,6 @@ class StructuralAttack(Attack):
         risk_appetite_config : str
             path to yaml file specifying TRE risk appetite
         """
-
         super().__init__()
         logger = logging.getLogger("structural_attack")
         self.target: Target = None
@@ -258,12 +258,13 @@ class StructuralAttack(Attack):
         self.report_name = report_name
 
     def __str__(self):
+        """Return the name of the attack."""
         return "Structural attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack entry point.
+        """Run structural attack.
 
-        To be used when code has access to Target class and trained target model
+        To be used when code has access to Target class and trained target model.
 
         Parameters
         ----------
@@ -295,11 +296,6 @@ class StructuralAttack(Attack):
         errstr = "len mismatch between equiv classes and "
         assert len(equiv_classes) == len(equiv_counts), errstr + "counts"
         assert len(equiv_classes) == len(equiv_members), errstr + "membership"
-        # print(
-        #    f"equiv_classes is {equiv_classes}\n"
-        #    f"equiv_counts is {equiv_counts}\n"
-        #    #   #f'equiv_members is {equiv_members}\n'
-        # )
 
         # now assess the risk
         # Degrees of Freedom
@@ -323,19 +319,14 @@ class StructuralAttack(Attack):
         self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD).astype(int)
 
     def dt_get_equivalence_classes(self) -> tuple:
-        """
-        Gets details of equivalence classes
-        based on white box inspection.
-        """
+        """Get details of equivalence classes based on white box inspection."""
         destinations = self.target.model.apply(self.target.x_train)
         ret_tuple = np.unique(destinations, return_counts=True)
-        # print(f'leaves and counts:\n{ret_tuple}\n')
         leaves = ret_tuple[0]
         counts = ret_tuple[1]
         members = []
         for leaf in leaves:
             ingroup = np.asarray(destinations == leaf).nonzero()[0]
-            # print(f'ingroup {ingroup},count {len(ingroup)}')
             members.append(ingroup)
 
         equiv_classes = np.zeros((len(leaves), self.target.model.n_classes_))
@@ -347,10 +338,7 @@ class StructuralAttack(Attack):
         return [equiv_classes, counts, members]
 
     def get_equivalence_classes(self) -> tuple:
-        """
-        Gets details of equivalence classes
-        based on black box observation of probabilities.
-        """
+        """Get details of equivalence classes based on predicted probabilities."""
         uniques = np.unique(self.yprobs, axis=0, return_counts=True)
         equiv_classes = uniques[0]
         equiv_counts = uniques[1]
@@ -358,21 +346,20 @@ class StructuralAttack(Attack):
         for prob_vals in equiv_classes:
             ingroup = np.unique(np.asarray(self.yprobs == prob_vals).nonzero()[0])
             members.append(ingroup)
-        # print(equiv_counts)
         return [equiv_classes, equiv_counts, members]
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
-        """Summarise metrics from a metric list.
+        """Get dictionary summarising metrics from a metric list.
+
+        Parameters
+        ----------
+        attack_metrics : List
+            list of attack metrics to be reported.
 
         Returns
         -------
         global_metrics : Dict
             Dictionary of summary metrics
-
-        Arguments
-        ---------
-        attack_metrics: List
-            list of attack metrics to be reported
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
@@ -385,7 +372,7 @@ class StructuralAttack(Attack):
         return global_metrics
 
     def _construct_metadata(self):
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object, after attacks."""
         self.metadata = {}
         # Store all args
         self.metadata["experiment_details"] = {}
@@ -395,14 +382,9 @@ class StructuralAttack(Attack):
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object, after attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
-
-        # for rep, name in enumerate(self.attack_metrics):
-        #    #attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
-        #    attack_metrics_instances["instance_" + str(name)] = self.__dict__.[name]
-
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         attack_metrics_experiment["DoF_risk"] = self.DoF_risk
         attack_metrics_experiment["k_anonymity_risk"] = self.k_anonymity_risk
@@ -412,34 +394,22 @@ class StructuralAttack(Attack):
         return attack_metrics_experiment
 
     def make_report(self) -> dict:
-        """Creates output dictionary structure and generates
-        pdf and json outputs if filenames are given.
-        """
+        """Create output dict and generate pdf and json if filenames are given."""
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
         self._construct_metadata()
         output["metadata"] = self.metadata
-
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        # output[
-        #     "dummy_attack_experiments_logger"
-        # ] = self._get_dummy_attack_metrics_experiments_instances()
-
         report_dest = os.path.join(self.output_dir, self.report_name)
         json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "StructuralAttack")
-
-        # pdf_report = report.create_mia_report(output)
-        # report.add_output_to_pdf(report_dest, pdf_report, "StructuralAttack")
         return output
 
 
 def _run_attack(args):
     """Initialise class and run attack."""
-
     attack_obj = StructuralAttack(
         risk_appetite_config=args.risk_appetite_config,
         target_path=args.target_path,
@@ -454,8 +424,7 @@ def _run_attack(args):
 
 
 def _run_attack_from_configfile(args):
-    """Initialise class and run attack  using config file."""
-
+    """Initialise class and run attack using config file."""
     attack_obj = StructuralAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
         target_path=str(args.target_path),
@@ -467,7 +436,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse arguments and invoke relevant method."""
+    """Parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(description="Perform a structural  attack")
 

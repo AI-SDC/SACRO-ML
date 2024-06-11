@@ -26,7 +26,6 @@ def test_superclass():
 
 def test_NumpyArrayEncoder():
     """Conversion routine from reports.py."""
-
     i32 = np.int32(2)
     i64 = np.int64(2)
     twoDarray = np.zeros((2, 2))

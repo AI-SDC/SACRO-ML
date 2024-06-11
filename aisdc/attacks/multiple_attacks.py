@@ -1,8 +1,4 @@
-"""
-An entry point to run multiple attacks including MIA (worst-case and LIRA)
-and attribute inference attack using a single configuration file
-with multiple attack configuration.
-"""
+"""Run multiple attacks including MIA and AIA using a single configuration file."""
 
 from __future__ import annotations
 
@@ -21,7 +17,7 @@ from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 
 class MultipleAttacks(Attack):
-    """Class to wrap the MIA and AIA attack codes."""
+    """Wrap the MIA and AIA attack codes."""
 
     def __init__(
         self,
@@ -29,21 +25,21 @@ class MultipleAttacks(Attack):
     ) -> None:
         super().__init__()
         self.config_filename = config_filename
-        """Constructs an object to execute a worst case attack.
+        """Construct an object to execute a worst case attack.
 
         Parameters
         ----------
         config_filename : str
-            name of the configuration file which has configurations in a single JSON file
-            to support running multiple attacks
+            name of the configuration file which has configurations in a single
+            JSON file to support running multiple attacks.
         """
 
     def __str__(self):
+        """Return the name of the attack."""
         return "Multiple Attacks (MIA and AIA) given configurations"
 
     def attack(self, target: Target) -> None:
-        """
-        Runs attacks from a Target object and a target model.
+        """Run attacks from a Target object and a target model.
 
         Parameters
         ----------
@@ -86,7 +82,7 @@ class MultipleAttacks(Attack):
 
 
 class ConfigFile:
-    """Module that creates a single JSON configuration file."""
+    """Create a single JSON configuration file."""
 
     def __init__(
         self,
@@ -102,7 +98,6 @@ class ConfigFile:
 
     def add_config(self, config_obj: Any, config_attack_type: str) -> None:
         """Add a section of JSON to the file which is already open."""
-
         # Read the contents of the file and then clear the file
         config_file_data = self.read_config_file()
 
@@ -119,9 +114,7 @@ class ConfigFile:
             f.write(json.dumps(config_file_data))
 
     def read_config_file(self) -> dict:
-        """Reads a JSON configuration file and returns dictionary
-        with a number of configuration objects.
-        """
+        """Read a JSON config file and return dict with configuration objects."""
         with open(self.filename, encoding="utf-8") as f:
             file_contents = f.read()
             if file_contents != "":
@@ -142,7 +135,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse args and invoke relevant code."""
+    """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 
     subparsers = parser.add_subparsers()

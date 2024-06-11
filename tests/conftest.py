@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from datetime import date
 
 import numpy as np
 import pytest
@@ -42,7 +43,6 @@ folders = [
 files = [
     "1024-WorstCase.png",
     "2048-WorstCase.png",
-    "ATTACK_RESULTS09_06_2024.json",
     "attack.txt",
     "config.json",
     "config_structural_test.json",
@@ -75,11 +75,17 @@ files = [
 def _cleanup():
     """Remove created files and directories."""
     yield
+
     for folder in folders:
         try:
             shutil.rmtree(folder)
         except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+    files.append(  # from attack_report_formater.py
+        "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
+    )
+
     for file in files:
         try:
             os.remove(file)

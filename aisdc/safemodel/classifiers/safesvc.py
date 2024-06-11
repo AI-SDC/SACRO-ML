@@ -15,7 +15,7 @@ class SafeSVC(SafeModel, DPSVC):
     """Privacy protected Support Vector Classifier."""
 
     def __init__(self, C=1.0, gamma="scale", dhat=1000, eps=10, **kwargs) -> None:
-        """Initialises a differentially private SVC."""
+        """Initialise a differentially private SVC."""
         SafeModel.__init__(self)
         DPSVC.__init__(self, C=C, gamma=gamma, dhat=dhat, eps=eps, **kwargs)
         self.model_type: str = "SVC"
@@ -32,7 +32,7 @@ class SafeSVC(SafeModel, DPSVC):
         self.examine_seperately_items = ["platt_transform", "svc"]
 
     def fit(self, train_features: np.ndarray, train_labels: np.ndarray) -> None:
-        """Do fit and then store model dict."""
+        """Fit model and store model dict."""
         super().fit(train_features, train_labels)
         self.saved_model = copy.deepcopy(self.__dict__)
 
@@ -49,10 +49,8 @@ class SafeSVC(SafeModel, DPSVC):
             if len(diffs_list) > 0:
                 disclosive = True
                 if len(diffs_list) == 1:
-                    msg += f"structure {item} has one difference.\n"  #: {diffs_list}"
+                    msg += f"structure {item} has one difference.\n"
                 else:
-                    msg += (
-                        f"structure {item} has several differences.\n"  #: {diffs_list}"
-                    )
+                    msg += f"structure {item} has several differences.\n"
 
         return msg, disclosive

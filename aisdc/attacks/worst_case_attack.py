@@ -1,4 +1,4 @@
-"""Runs a worst case attack based upon predictive probabilities."""
+"""Run a worst case attack based upon predictive probabilities."""
 
 # pylint: disable = too-many-lines
 
@@ -29,7 +29,7 @@ P_THRESH = 0.05
 
 
 class WorstCaseAttack(Attack):
-    """Class to wrap the worst case attack code."""
+    """Worst case attack."""
 
     # pylint: disable=too-many-instance-attributes
 
@@ -60,7 +60,7 @@ class WorstCaseAttack(Attack):
         attack_config_json_file_name: str = None,
         target_path: str = None,
     ) -> None:
-        """Constructs an object to execute a worst case attack.
+        """Construct an object to execute a worst case attack.
 
         Parameters
         ----------
@@ -125,7 +125,6 @@ class WorstCaseAttack(Attack):
         target_path : str
             path to the saved trained target model and target data
         """
-
         super().__init__()
         self.n_reps = n_reps
         self.reproduce_split = reproduce_split
@@ -134,9 +133,8 @@ class WorstCaseAttack(Attack):
                 x**2 for x in range(reproduce_split, reproduce_split + n_reps - 1)
             ]
         else:
-            reproduce_split = list(
-                dict.fromkeys(reproduce_split)
-            )  # remove potential duplicates
+            # remove potential duplicates
+            reproduce_split = list(dict.fromkeys(reproduce_split))
             if len(reproduce_split) == n_reps:
                 pass
             elif len(reproduce_split) > n_reps:
@@ -199,12 +197,13 @@ class WorstCaseAttack(Attack):
         self.metadata = None
 
     def __str__(self):
+        """Return name of attack."""
         return "WorstCase attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack entry point.
+        """Run worst case attack.
 
-        To be used when code has access to Target class and trained target model
+        To be used when code has access to Target class and trained target model.
 
         Parameters
         ----------
@@ -227,12 +226,12 @@ class WorstCaseAttack(Attack):
         )
 
     def attack_from_prediction_files(self):
-        """Start an attack from saved prediction files.
+        """Run attack from saved prediction files.
 
         To be used when only saved predictions are available.
 
-        Filenames for the saved prediction files to be specified in the arguments provided
-        in the constructor
+        Filenames for the saved prediction files to be specified in the
+        arguments provided in the constructor.
         """
         train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
@@ -245,16 +244,14 @@ class WorstCaseAttack(Attack):
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
     ) -> None:
-        """
-        Runs the attack based upon the predictions in train_preds and test_preds, and the params
-        stored in self.args.
+        """Run attack based upon the predictions in train_preds and test_preds.
 
         Parameters
         ----------
         train_preds : np.ndarray
-            Array of train predictions. One row per example, one column per class (i.e. 2)
+            Array of train predictions. One row per example, one column per class.
         test_preds : np.ndarray
-            Array of test predictions. One row per example, one column per class (i.e. 2)
+            Array of test predictions. One row per example, one column per class.
         """
         logger = logging.getLogger("attack-from-preds")
         logger.info("Running main attack repetitions")
@@ -304,10 +301,12 @@ class WorstCaseAttack(Attack):
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Prepare training data and labels for attack model
-        Combines the train and test preds into a single numpy array (optionally) sorting each
-        row to have the highest probabilities in the first column. Constructs a label array that
-        has ones corresponding to training rows and zeros to testing rows.
+        """Prepare training data and labels for attack model.
+
+        Combines the train and test preds into a single numpy array
+        (optionally) sorting each row to have the highest probabilities in the
+        first column. Constructs a label array that has ones corresponding to
+        training rows and zeros to testing rows.
         """
         logger = logging.getLogger("prep-attack-data")
         if self.sort_probs:
@@ -333,8 +332,7 @@ class WorstCaseAttack(Attack):
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
     ) -> dict:
-        """
-        Run actual attack reps from train and test predictions.
+        """Run actual attack reps from train and test predictions.
 
         Parameters
         ----------
@@ -411,15 +409,15 @@ class WorstCaseAttack(Attack):
     def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list.
 
+        Parameters
+        ----------
+        attack_metrics : List
+            list of attack metrics dictionaries
+
         Returns
         -------
         global_metrics : Dict
             Dictionary of summary metrics
-
-        Arguments
-        ---------
-        attack_metrics: List
-            list of attack metrics dictionaries
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
@@ -455,10 +453,10 @@ class WorstCaseAttack(Attack):
 
         return global_metrics
 
-    def _get_n_significant(self, p_val_list, p_thresh, bh_fdr_correction=False):
-        """
-        Helper method to determine if values within a list of p-values are significant at
-        p_thresh. Can perform multiple testing correction.
+    def _get_n_significant(self, p_val_list, p_thresh, bh_fdr_correction=False) -> int:
+        """Return number of p-values significant at p_thresh.
+
+        Can perform multiple testing correction.
         """
         if not bh_fdr_correction:
             return sum(1 for p in p_val_list if p <= p_thresh)
@@ -473,7 +471,7 @@ class WorstCaseAttack(Attack):
         return n_sig_bh
 
     def _generate_array(self, n_rows: int, beta: float) -> np.ndarray:
-        """Generate a single array of predictions, used when doing baseline experiments.
+        """Generate array of predictions, used when doing baseline experiments.
 
         Parameters
         ----------
@@ -486,14 +484,7 @@ class WorstCaseAttack(Attack):
         -------
         preds : np.ndarray
             Array of predictions. Two columns, n_rows rows
-
-        Notes
-        -----
-
-        Examples
-        --------
         """
-
         preds = np.zeros((n_rows, 2), float)
         for row_idx in range(n_rows):
             train_class = np.random.choice(2)
@@ -534,19 +525,16 @@ class WorstCaseAttack(Attack):
         return train_preds, test_preds
 
     def make_dummy_data(self) -> None:
-        """Makes dummy data for testing functionality.
+        """Make dummy data for testing functionality.
 
         Parameters
         ----------
         args : dict
             Command line arguments
 
-        Returns
-        -------
-
         Notes
         -----
-        Returns nothing but saves two .csv files
+        Returns nothing but saves two .csv files.
         """
         logger = logging.getLogger("dummy-data")
         logger.info(
@@ -566,7 +554,7 @@ class WorstCaseAttack(Attack):
         np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
     def _construct_metadata(self):
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object after attacks."""
         self.metadata = {}
         # Store all args
         self.metadata["experiment_details"] = {}
@@ -581,7 +569,7 @@ class WorstCaseAttack(Attack):
         )
 
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object after attacks."""
         dummy_attack_metrics_instances = []
 
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
@@ -591,7 +579,7 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object after attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
@@ -606,7 +594,7 @@ class WorstCaseAttack(Attack):
         return attack_metrics_experiment
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object after attacks."""
         dummy_attack_metrics_experiments = {}
 
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
@@ -628,9 +616,7 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_experiments
 
     def make_report(self) -> dict:
-        """Creates output dictionary structure and generates
-        pdf and json outputs if filenames are given.
-        """
+        """Create output dict and generate pdf and json if filenames are given."""
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -706,7 +692,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse arguments and invoke relevant method."""
+    """Parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(
         description=("Perform a worst case attack from saved model predictions")

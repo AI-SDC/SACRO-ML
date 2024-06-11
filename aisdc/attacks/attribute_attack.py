@@ -29,7 +29,7 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 
 
 class AttributeAttack(Attack):
-    """Class to wrap the attribute inference attack code."""
+    """Attribute inference attack."""
 
     def __init__(  # pylint: disable = too-many-arguments
         self,
@@ -39,7 +39,7 @@ class AttributeAttack(Attack):
         attack_config_json_file_name: str = None,
         target_path: str = None,
     ) -> None:
-        """Constructs an object to execute an attribute inference attack.
+        """Construct an object to execute an attribute inference attack.
 
         Parameters
         ----------
@@ -68,12 +68,13 @@ class AttributeAttack(Attack):
         self.metadata: dict = {}
 
     def __str__(self):
+        """Return the name of the attack."""
         return "Attribute inference attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack entry point.
+        """Run attribute inference attack.
 
-        To be used when code has access to Target class and trained target model
+        To be used when code has access to Target class and trained target model.
 
         Parameters
         ----------
@@ -83,22 +84,20 @@ class AttributeAttack(Attack):
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
 
     def _construct_metadata(self) -> None:
-        """Constructs the metadata object. Called by the reporting method."""
+        """Construct the metadata object."""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
         self.metadata["experiment_details"] = self.get_params()
-
         self.metadata["attack"] = str(self)
 
     def make_report(self) -> dict:
         """Create the report.
 
-        Creates the output report. If self.report_name is not None, it will also save the
-        information in json and pdf formats.
+        Creates the output report. If self.report_name is not None, it will
+        also save the information in json and pdf formats.
 
         Returns
         -------
-
         output : dict
             Dictionary containing all attack output.
         """
@@ -129,20 +128,16 @@ class AttributeAttack(Attack):
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the instances metric calculated, during attacks."""
+        """Construct the instances metric calculated, during attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
-
         attack_metrics_instances["instance_0"] = self.attack_metrics
-
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
 
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
-    """Returns whether there is a unique maximum confidence value above
-    threshold.
-    """
+    """Return if there is a unique maximum confidence value above threshold."""
     if len(confidences) > 0:
         max_conf = np.max(confidences)
         if max_conf < threshold:
@@ -157,7 +152,7 @@ def _unique_max(confidences: list[float], threshold: float) -> bool:
 def _get_inference_data(  # pylint: disable=too-many-locals
     target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
-    """Returns a dataset of each sample with the attributes to test."""
+    """Return a dataset of each sample with the attributes to test."""
     attack_feature: dict = target.features[feature_id]
     indices: list[int] = attack_feature["indices"]
     unique = np.unique(target.x_orig[:, feature_id])
@@ -198,11 +193,12 @@ def _infer(  # pylint: disable=too-many-locals
     threshold: float,
     memberset: bool,
 ) -> tuple[int, int, float, int, int]:
-    """
-    For each possible missing value, compute the confidence scores and
-    label with the target model; if the label matches the known target model
-    label for the original sample, and the highest confidence score is unique,
-    infer that attribute if the confidence score is greater than a threshold.
+    """Infer attribute.
+
+    For each possible missing value, compute the confidence scores and label
+    with the target model; if the label matches the known target model label
+    for the original sample, and the highest confidence score is unique, infer
+    that attribute if the confidence score is greater than a threshold.
     """
     logger.debug("Commencing attack on feature %d set %d", feature_id, int(memberset))
     correct: int = 0  # number of correct inferences made
@@ -234,7 +230,7 @@ def _infer(  # pylint: disable=too-many-locals
 
 
 def report_categorical(results: dict) -> str:
-    """Returns a string report of the categorical results."""
+    """Return a string report of the categorical results."""
     results = results["categorical"]
     msg = ""
     for feature in results:
@@ -256,7 +252,7 @@ def report_categorical(results: dict) -> str:
 
 
 def report_quantitative(results: dict) -> str:
-    """Returns a string report of the quantitative results."""
+    """Return a string report of the quantitative results."""
     results = results["quantitative"]
     msg = ""
     for feature in results:
@@ -269,7 +265,7 @@ def report_quantitative(results: dict) -> str:
 
 
 def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
-    """Generates bar chart showing quantitative value risk scores."""
+    """Generate a bar chart showing quantitative value risk scores."""
     logger.debug("Plotting quantitative feature risk scores")
     results = res["quantitative"]
     if len(results) < 1:  # pragma: no cover
@@ -306,7 +302,7 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
 def plot_categorical_risk(  # pylint: disable=too-many-locals
     res: dict, savefile: str = ""
 ) -> None:
-    """Generates bar chart showing categorical risk scores."""
+    """Generate a bar chart showing categorical risk scores."""
     logger.debug("Plotting categorical feature risk scores")
     results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
@@ -347,7 +343,7 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
 def plot_categorical_fraction(  # pylint: disable=too-many-locals
     res: dict, savefile: str = ""
 ) -> None:
-    """Generates bar chart showing fraction of dataset inferred."""
+    """Generate a bar chart showing fraction of dataset inferred."""
     logger.debug("Plotting categorical feature tranche sizes")
     results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
@@ -385,21 +381,8 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
         plt.show()
 
 
-# def plot_from_file(filename: str, savefile: str = "") -> None: #pragma: no cover
-#     """Loads a results save file and plots risk scores.
-#        Has been tested but not iuncluded in unit tests or coverage
-#        at this stage
-#     """
-#     logger.debug("Loading from results file: %s", filename)
-#     with open(filename + ".pickle", "rb") as handle:
-#         results = pickle.load(handle)
-#     plot_categorical_risk(results, savefile=savefile)
-#     plot_categorical_fraction(results, savefile=savefile)
-#     plot_quantitative_risk(results, savefile=savefile)
-
-
 def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dict:
-    """Returns the training and test set risks of a categorical feature."""
+    """Return the training and test set risks of a categorical feature."""
     result: dict = {
         "name": target.features[feature_id]["name"],
         "train": _infer(target, feature_id, threshold, True),
@@ -409,7 +392,8 @@ def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dic
 
 
 def _is_categorical(target: Target, feature_id: int) -> bool:
-    """Returns whether a feature is categorical.
+    """Return whether a feature is categorical.
+
     For simplicity, assumes integer datatypes are categorical.
     """
     encoding: str = target.features[feature_id]["encoding"]
@@ -424,10 +408,11 @@ def _attack_brute_force(
     n_cpu: int,
     attack_threshold: float = 0,
 ) -> list[dict]:
-    """
-    Performs a brute force attribute inference attack by computing the target
-    model confidence scores for every value in the list and making an inference
-    if there is a unique highest confidence score that exceeds attack_threshold.
+    """Perform a brute force attribute inference attack.
+
+    Computes the target model confidence scores for every value in the list and
+    makes an inference if there is a unique highest confidence score that
+    exceeds attack_threshold.
     """
     logger.debug("Brute force attacking categorical features")
     args = [(target, feature_id, attack_threshold) for feature_id in features]
@@ -446,12 +431,13 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
     protection_limit: float = 0.1,
     feat_n: int = 100,
 ) -> bool:
-    """Returns a bool based on conditions surrounding upper and lower bounds of
+    """Return whether a quantitative feature is at risk for the sample.
+
+    Returns a bool based on conditions surrounding upper and lower bounds of
     guesses that would lead to the same model confidence.
 
     Parameters
     ----------
-
     target_model : BaseEstimator
         Trained target model.
     feat_id : int
@@ -515,7 +501,7 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
 def _get_bounds_risk_for_feature(
     target_model: BaseEstimator, feature_id: int, samples: np.ndarray
 ) -> float:
-    """Returns the average feature risk score over a set of samples."""
+    """Return the average feature risk score over a set of samples."""
     feature_risk: int = 0
     n_samples: int = len(samples)
     feat_min: float = np.min(samples[:, feature_id])
@@ -543,9 +529,7 @@ def _get_bounds_risk(
     x_train: np.ndarray,
     x_test: np.ndarray,
 ) -> dict:
-    """Returns a dictionary containing the training and test set risks of a
-    quantitative feature.
-    """
+    """Return a dict containing the dataset risks of a quantitative feature."""
     risk: dict = {
         "name": feature_name,
         "train": _get_bounds_risk_for_feature(target_model, feature_id, x_train),
@@ -555,7 +539,7 @@ def _get_bounds_risk(
 
 
 def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[dict]:
-    """Computes the bounds risk for all specified features."""
+    """Compute the bounds risk for all specified features."""
     logger.debug("Computing bounds risk for all specified features")
     args = [
         (
@@ -599,7 +583,7 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
 
 
 def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
-    """Creates PDF report."""
+    """Create PDF report."""
     metadata = output["metadata"]
     aia_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
@@ -649,7 +633,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse args and invoke relevant code."""
+    """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 
     subparsers = parser.add_subparsers()
