@@ -20,8 +20,7 @@ from aisdc.attacks.target import Target
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
-    """Loads dataset and creates target of the desired type."""
-
+    """Load dataset and create target of the desired type."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
@@ -53,7 +52,7 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
 
 
 def test_unnecessary_risk():
-    """Checking the unnecessary rules."""
+    """Check the unnecessary rules."""
     # non-tree we have no evidence yet
     model = SVC()
     assert sa.get_unnecessary_risk(model) == 0, "no risk without evidence"
@@ -169,7 +168,6 @@ def test_non_trees():
 
 def test_dt():
     """Test for decision tree classifier."""
-
     # 'non' disclosive'
     param_dict = {"max_depth": 1, "min_samples_leaf": 150}
     target = get_target("dt", **param_dict)
@@ -203,7 +201,6 @@ def test_dt():
 
 def test_adaboost():
     """Test for adaboost classifier."""
-
     # 'non' disclosive'
     # - base estimator =None => DecisionTreeClassifier with max_depth 1
     # also set THRESHOLD to 4
@@ -240,7 +237,6 @@ def test_adaboost():
 
 def test_rf():
     """Test for random forest classifier."""
-
     # 'non' disclosive'
     param_dict = {"max_depth": 1, "min_samples_leaf": 150, "n_estimators": 10}
     target = get_target("rf", **param_dict)

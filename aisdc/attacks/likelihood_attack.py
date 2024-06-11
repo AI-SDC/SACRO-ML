@@ -47,7 +47,7 @@ class DummyClassifier:
 
 
 def _logit(p: float) -> float:
-    """Standard logit function.
+    """Return standard logit.
 
     Parameters
     ----------
@@ -61,8 +61,9 @@ def _logit(p: float) -> float:
 
     Notes
     -----
-    If p is close to 0 or 1, evaluating the log will result in numerical instabilities.
-    This code thresholds p at EPS and 1 - EPS where EPS defaults at 1e-16.
+    If p is close to 0 or 1, evaluating the log will result in numerical
+    instabilities.  This code thresholds p at EPS and 1 - EPS where EPS
+    defaults at 1e-16.
     """
     if p > 1 - EPS:  # pylint:disable=consider-using-min-builtin
         p = 1 - EPS
@@ -72,7 +73,7 @@ def _logit(p: float) -> float:
 
 
 class LIRAAttack(Attack):
-    """The main LIRA Attack class."""
+    """The main LiRA Attack class."""
 
     # pylint: disable=too-many-instance-attributes
 
@@ -93,7 +94,7 @@ class LIRAAttack(Attack):
         shadow_models_fail_fast: bool = False,
         target_path: str = None,
     ) -> None:
-        """Constructs an object to execute a LIRA attack.
+        """Construct an object to execute a LiRA attack.
 
         Parameters
         ----------
@@ -154,19 +155,19 @@ class LIRAAttack(Attack):
         self.metadata = None
 
     def __str__(self):
-        return "LIRA Attack"
+        """Return the name of the attack."""
+        return "LiRA Attack"
 
     def attack(self, target: Target) -> None:
-        """Programmatic attack running
-        Runs a LIRA attack from a Target object and a target model.
+        """Run a LiRA attack from a Target object and a target model.
+
+        Needs to have x_train, x_test, y_train and y_test set.
 
         Parameters
         ----------
         target : attacks.target.Target
-            target as an instance of the Target class. Needs to have x_train,
-            x_test, y_train and y_test set.
+            target as an instance of the Target class.
         """
-
         shadow_clf = sklearn.base.clone(target.model)
 
         target = self._check_and_update_dataset(target)
@@ -182,9 +183,9 @@ class LIRAAttack(Attack):
         )
 
     def _check_and_update_dataset(self, target: Target) -> Target:
-        """
-        Makes sure that it is ok to use the class variables to index the
-        prediction arrays. This has two steps:
+        """Check that it is safe to use class variables to index prediction arrays.
+
+        This has two steps:
         1. Replacing the values in y_train with their position in
         target.model.classes (will normally result in no change)
         2. Removing from the test set any rows corresponding to classes that
@@ -229,7 +230,8 @@ class LIRAAttack(Attack):
         y_shadow_train: Iterable[float],
         shadow_train_preds: Iterable[float],
     ) -> tuple[np.ndarray, np.ndarray, sklearn.base.BaseEstimator]:
-        """Implements the likelihood test, using the "offline" version
+        """Run the likelihood test, using the "offline" version.
+
         See p.6 (top of second column) for details.
 
         Parameters
@@ -262,7 +264,6 @@ class LIRAAttack(Attack):
 
         Examples
         --------
-
         >>> X, y = load_breast_cancer(return_X_y=True, as_frame=False)
         >>> train_X, test_X, train_y, test_y = train_test_split(
         >>>   X, y, test_size=0.5, stratify=y
@@ -280,7 +281,6 @@ class LIRAAttack(Attack):
         >>>     n_shadow_models=100
         >>> )
         """
-
         logger = logging.getLogger("lr-scenario")
 
         n_train_rows, _ = X_target_train.shape
@@ -400,7 +400,7 @@ class LIRAAttack(Attack):
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
 
     def example(self) -> None:
-        """Runs an example attack using data from sklearn.
+        """Run an example attack using data from sklearn.
 
         Generates example data, trains a classifier and tuns the attack
         """
@@ -421,7 +421,7 @@ class LIRAAttack(Attack):
         )
 
     def _construct_metadata(self) -> None:
-        """Constructs the metadata object. Called by the reporting method."""
+        """Construct the metadata object."""
         self.metadata = {}
         self.metadata["experiment_details"] = {}
         self.metadata["experiment_details"] = self.get_params()
@@ -455,12 +455,11 @@ class LIRAAttack(Attack):
     def make_report(self) -> dict:
         """Create the report.
 
-        Creates the output report. If self.args.report_name is not None, it will also save the
-        information in json and pdf formats
+        Creates the output report. If self.args.report_name is not None, it
+        will also save the information in json and pdf formats.
 
         Returns
         -------
-
         output : Dict
             Dictionary containing all attack output
         """
@@ -493,7 +492,7 @@ class LIRAAttack(Attack):
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Constructs the metadata object, after attacks."""
+        """Construct the metadata object after attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
 
@@ -507,11 +506,12 @@ class LIRAAttack(Attack):
         return attack_metrics_experiment
 
     def setup_example_data(self) -> None:
-        """Method to create example data and save (including config). Intended to allow users
-        to see how they would need to setup their own data.
+        """Create example data and save (including config).
 
-        Generates train and test data .csv files, train and test predictions .csv files and
-        a config.json file that can be used to run the attack from the command line.
+        Intended to allow users to see how they would need to setup their own
+        data. Generates train and test data .csv files, train and test
+        predictions .csv files and a config.json file that can be used to run
+        the attack from the command line.
         """
         X, y = load_breast_cancer(return_X_y=True)
         train_X, test_X, train_y, test_y = train_test_split(
@@ -543,7 +543,7 @@ class LIRAAttack(Attack):
             f.write(json.dumps(config))
 
     def attack_from_config(self) -> None:  # pylint: disable = too-many-locals
-        """Runs an attack based on the args parsed from the command line."""
+        """Run an attack based on the args parsed from the command line."""
         logger = logging.getLogger("run-attack")
         logger.info("Loading training data csv from %s", self.training_data_filename)
         training_data = np.loadtxt(self.training_data_filename, delimiter=",")
@@ -638,7 +638,7 @@ def _run_attack_from_configfile(args):
 
 
 def main():
-    """Main method to parse args and invoke relevant code."""
+    """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         "-s",

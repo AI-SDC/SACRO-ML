@@ -1,12 +1,12 @@
-"""
-TRE SCRIPT FOR USER STORY 2.
+"""TRE SCRIPT FOR USER STORY 2.
 
-This file contains the code needed to run user story 2
+This file contains the code needed to run user story 2.
 
-To run: change the user_story key inside the .yaml config file to '2', and run the
-'generate_disclosure_risk_report.py' file
+To run: change the user_story key inside the .yaml config file to '2', and run
+the 'generate_disclosure_risk_report.py' file.
 
-NOTE: you should not need to change this file at all, set all parameters via the .yaml file
+NOTE: you should not need to change this file at all, set all parameters via
+the .yaml file.
 """
 
 import argparse
@@ -27,7 +27,11 @@ from aisdc.attacks.target import Target  # pylint: disable=import-error
 
 
 def process_dataset(filename, function_name, data_to_be_processed):
-    """DO NOT CHANGE: a wrapper function that allows a callable function to be read from a file."""
+    """Process dataset.
+
+    DO NOT CHANGE: this is a wrapper function that allows a callable function
+    to be read from a file.
+    """
     spec = importlib.util.spec_from_file_location(function_name, filename)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -48,7 +52,6 @@ def generate_report(
     outfile,
 ):  # pylint: disable=too-many-locals, disable=too-many-arguments
     """Generate report based on target model."""
-
     print()
     print("Acting as TRE...")
     print(
@@ -117,8 +120,7 @@ def generate_report(
 
 
 def run_user_story(release_config: dict):
-    """Main method to parse arguments and then invoke report generation."""
-
+    """Run the user story, parsing arguments and then invoking report generation."""
     generate_report(
         release_config["data_processing_filename"],
         release_config["data_processing_function_name"],

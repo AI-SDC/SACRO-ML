@@ -1,7 +1,4 @@
-"""
-A set of useful handlers to pull in datasets common to the project and perform
-the appropriate pre-processing.
-"""
+"""Handlers to pull in datasets and perform preprocessing."""
 
 # pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
 
@@ -35,16 +32,16 @@ class UnknownDataset(Exception):
 
 
 class DataNotAvailable(Exception):
-    """Exception raised if the user asks for a dataset that they do not have the data for. I.e.
-    some datasets require a .csv file to have been downloaded.
-    """
+    """Exception raised if the user asks for a dataset that they do not have."""
 
 
 def get_data_sklearn(  # pylint: disable = too-many-branches
     dataset_name: str, data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Main entry method to return data in format sensible for sklearn. User passes a name and that
-    dataset is returned as a tuple of pandas DataFrames (data, labels).
+    """Get data in a format sensible for sklearn.
+
+    User passes a name and that dataset is returned as a tuple of pandas
+    DataFrames (data, labels).
 
     Parameters
     ----------
@@ -55,7 +52,6 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     Returns
     -------
-
     X : pd.DataFrame
         The input dataframe -- rows are examples, columns variables
     y : pd.DataFrame
@@ -63,7 +59,6 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     Notes
     -----
-
     The following datasets are available:
     mimic2-iaccd (requires data download)
     in-hospital-mortality (requires data download)
@@ -85,8 +80,13 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     Examples
     --------
-    >>> X, y = get_data_sklearn("mimic2-iaccd") # pull the mimic2-iaccd data
-    >>> X, y = get_data_sklearn("minmax iris") # pull the iris data and round continuous features
+    .. code-block:: python
+
+        # pull the mimic2-iaccd data
+        X, y = get_data_sklearn("mimic2-iaccd")
+
+        # pull the iris data and round continuous features
+        X, y = get_data_sklearn("minmax iris")
     """
     logger.info("DATASET FOLDER = %s", data_folder)
 
@@ -157,7 +157,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
 
 def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Sklearn iris data - just first two classes."""
+    """Get the Sklearn iris data - just first two classes."""
     X, y = load_iris(return_X_y=True, as_frame=True)
     X = X[y < 2]
     y = y[y < 2]
@@ -165,8 +165,7 @@ def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """The sklearn nursery dataset."""
-
+    """Return the sklearn nursery dataset."""
     data = fetch_openml(data_id=26, as_frame=True)
 
     target_encoder = LabelEncoder()
@@ -182,12 +181,14 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return feature_dataframe, target_dataframe
 
 
-# Patched to support non-flattened images. Same behaviour as before except if called with
-# flatten=False explicitly.
 def _images_to_ndarray(
     images_dir: str, number_to_load: int, label: int, flatten: bool = True
 ) -> Tuple[np.array, np.array]:
-    """Grab number_to_load images from the images_dir and create a np array and label array."""
+    """Get number_to_load images from the images_dir and create arrays.
+
+    Patched to support non-flattened images.
+    Same behaviour as before except if called with flatten=False explicitly.
+    """
     folder_path = images_dir + os.sep
     images_names = sorted(os.listdir(folder_path))
     images_names = images_names[:number_to_load]
@@ -208,12 +209,11 @@ def _images_to_ndarray(
 def _medical_mnist_loader(  # pylint: disable = too-many-locals
     data_folder: str, n_per_class: int, classes: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Load Medical MNIST into pandas format
-    borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
+    """Get Medical MNIST into pandas format.
+
+    Borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
     Creates a binary classification.
     """
-
     base_folder = os.path.join(
         data_folder,
         "kaggle-medical-mnist",
@@ -272,11 +272,11 @@ and place it in the correct folder. It unzips the file first.
 def _synth_ae(
     data_folder: str, n_rows: int = 5000
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
+    """Get synth ae data.
+
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
     https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.
     """
-
     file_path = os.path.join(data_folder, "AE_England_synthetic.csv")
 
     if not os.path.exists(file_path):
@@ -328,11 +328,10 @@ Unzip it (7z) and then copy the .csv file into your data folder.
 
 
 def _indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Indian Liver Patient Dataset
+    """Get Indian Liver Patient Dataset.
+
     https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long.
     """
-    # (https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset)
     file_path = os.path.join(data_folder, "Indian Liver Patient Dataset (ILPD).csv")
     if not os.path.exists(file_path):
         help_message = f"""
@@ -373,11 +372,12 @@ and place it in the correct folder.
 
 
 def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Get In-hospital mortality data.
+
+    See: https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
     """
-    In-hospital mortality data from this study:
-        https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
-    """
-    # Check the data has been downloaded. If not throw an exception with instructions on how to
+    # Check the data has been downloaded.
+    # If not, throw an exception with instructions on how to
     # download, and where to store
     files = ["data01.csv", "doi_10.5061_dryad.0p2ngf1zd__v5.zip"]
     file_path = [os.path.join(data_folder, f) for f in files]
@@ -413,9 +413,9 @@ and then change the name of the file 773992 to data01.csv.
 
 
 def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Loads the mimic_iaccd data and performs pre-processing."""
-
-    # Check the data has been downloaded. If not throw an exception with instructions on how to
+    """Get the mimic_iaccd data and perform preprocessing."""
+    # Check the data has been downloaded.
+    # If not throw an exception with instructions on how to
     # download, and where to store
     file_path = os.path.join(data_folder, "mimic2-iaccd", "1.0", "full_cohort_data.csv")
     print(file_path, os.path.exists(file_path))
@@ -468,6 +468,8 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Get the RDMP dataset."""
+
     def find_age(row):
         date_ = pd.to_datetime("01/06/2020")
         if row.date_of_death != row.date_of_death:

@@ -1,8 +1,4 @@
-"""
-Differentially private SVC
-James Liley
-21/03/22.
-"""
+"""Differentially private SVC."""
 
 import logging
 from typing import Any
@@ -22,35 +18,39 @@ SMALL_NUMBER = 1e-16  # used to set gamma value if zero to avoid divide by zero
 
 
 class DPSVC:
-    """
-    Wrapper for differentially private SVM, implemented according to the method in.
+    """Differentially private SVM.
 
-    https://arxiv.org/pdf/0911.5708.pdf
+    Implemented according to: https://arxiv.org/pdf/0911.5708.pdf.
 
-    Essentially approximates an infinite-dimensional latent space (and corresponding kernel) with
-    a finite dimensional latent space, and adds noise to the normal to the separating hyperplane
-    in this latent space.
+    Essentially approximates an infinite-dimensional latent space (and
+    corresponding kernel) with a finite dimensional latent space, and adds
+    noise to the normal to the separating hyperplane in this latent space.
 
     Only currently implemented for a radial basis kernel, but could be extended.
 
     More specifically
-    - draws a set of dhat random vectors from a probability measure induced by the Fourier
-        transform of the kernel function
+    - draws a set of dhat random vectors from a probability measure induced by
+      the Fourier transform of the kernel function
     - approximates the kernel with a 2*dhat dimensional latent space
     - computes the separating hyperplane in this latent space with normal w
-    - then adds Laplacian noise to w and returns it along with the map to the latent space.
+    - then adds Laplacian noise to w and returns it along with the map to the
+      latent space.
 
-    The SKlearn SVM (see https://scikit-learn.org/stable/modules/svm.html#mathematical-formulation)
+    The SKlearn SVM (see
+    https://scikit-learn.org/stable/modules/svm.html#mathematical-formulation)
     minimises the function
 
     (1/2) ||w||_2 + C sum(zeta_i)
 
-    where 1-zeta_i≤ y_i (w phi(x_i) + b), where phi maps x to the latent space and zeta_i ≥ 0.
+    where 1-zeta_i≤ y_i (w phi(x_i) + b), where phi maps x to the latent space
+    and zeta_i ≥ 0.
+
     This is equivalent to minimising
 
     (1/2) ||w||_2 + C/n sum(l(y_i,f_w(x_i)))
 
-    where l(x,y)=n*max(0,1- x.y), which is n-Lipschitz continuous in y (given x is in {-1,1})
+    where l(x,y)=n*max(0,1- x.y), which is n-Lipschitz continuous in y (given x
+    is in {-1,1})
     """
 
     def __init__(self, C=1.0, gamma="scale", dhat=1000, eps=10, **kwargs):
@@ -86,10 +86,7 @@ class DPSVC:
         return phi_hat
 
     def k_hat_svm(self, x, y=None):
-        """
-        Define the version which is sent to sklearn.svm. AFAICT python/numpy
-        doesn't have an 'outer' for arbitrary functions.
-        """
+        """Define the version which is sent to sklearn.svm."""
         phi_hat_x = self.phi_hat_multi(x)
         if y is None:
             phi_hat_y = phi_hat_x
@@ -99,7 +96,6 @@ class DPSVC:
 
     def fit(self, train_features: Any, train_labels: Any) -> None:
         """Fit the model."""
-
         # Check that the data passed is np.ndarray
         if not isinstance(train_features, np.ndarray) or not isinstance(
             train_labels, np.ndarray
@@ -136,9 +132,8 @@ class DPSVC:
             local_logger.warning(
                 "gamma value passed in was zero, set to %g", SMALL_NUMBER
             )
-        self.dpsvc_gamma = 1.0 / np.sqrt(
-            2.0 * self.gamma
-        )  # alternative parameterisation
+        # alternative parameterisation
+        self.dpsvc_gamma = 1.0 / np.sqrt(2.0 * self.gamma)
 
         local_logger.info(
             "Gamma = %f (dp parameterisation = %f)", self.gamma, self.dpsvc_gamma
@@ -157,9 +152,8 @@ class DPSVC:
         self.svc.fit(gram_matrix, train_labels)
 
         # Get separating hyperplane and intercept
-        alpha = (
-            self.svc.dual_coef_
-        )  # alpha from solved dual, multiplied by labels (-1,1)
+        # alpha from solved dual, multiplied by labels (-1,1)
+        alpha = self.svc.dual_coef_
         xi = train_features[self.svc.support_, :]  # support vectors x_i
         weights = np.zeros(2 * self.dhat)
         for i in range(alpha.shape[1]):
@@ -172,7 +166,8 @@ class DPSVC:
             0, self.lambdaval, len(weights)
         )
 
-        # Logistic transform for predict_proba (rough): generate predictions (DP) for training data
+        # Logistic transform for predict_proba (rough): generate predictions
+        # (DP) for training data
         ypredn = np.zeros(n_data)
         for i in range(n_data):
             ypredn[i] = (
@@ -181,9 +176,7 @@ class DPSVC:
             )
 
         local_logger.info("Fitting Platt scaling")
-        self.platt_transform.fit(
-            ypredn.reshape(-1, 1), train_labels
-        )  # was called ptransform
+        self.platt_transform.fit(ypredn.reshape(-1, 1), train_labels)
 
     def set_params(self, **kwargs) -> None:
         """Set params."""
@@ -204,13 +197,13 @@ class DPSVC:
         return out
 
     def predict(self, test_features: Any) -> np.ndarray:
-        """Make predictions."""
+        """Return the predictions."""
         out = self._raw_outputs(test_features)
         out = 1 * (out > 0)
-        return out  # Predictions
+        return out
 
     def predict_proba(self, test_features: Any) -> np.ndarray:
-        """Predictive probabilities."""
+        """Return the predictive probabilities."""
         out = self._raw_outputs(test_features)
         pred_probs = self.platt_transform.predict_proba(out.reshape(-1, 1))
         return pred_probs

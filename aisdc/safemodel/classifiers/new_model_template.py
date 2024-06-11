@@ -1,7 +1,8 @@
-"""This is a template for implementing supplementary models
-Obviously we have invented an sklearn ensemble called ModelToMakeSafer
-Replace this with details of the model you wish to create a wrapper for
-and then remove the comment which disables the pylint warning.
+"""Template for implementing supplementary models.
+
+Obviously we have invented an sklearn ensemble called ModelToMakeSafer. Replace
+this with details of the model you wish to create a wrapper for and then remove
+the comment which disables the pylint warning.
 """
 
 # pylint: disable=duplicate-code
@@ -23,7 +24,7 @@ from .safedecisiontreeclassifier import decision_trees_are_equal
 def check_present(
     item: str, curr_separate: dict, saved_separate: dict
 ) -> tuple[str, bool]:
-    """Checks item is present in both dicts and reports suitably."""
+    """Check item is present in both dicts and report suitably."""
     disclosive = False
     msg = ""
     if curr_separate[item] == "Absent" and saved_separate[item] == "Absent":
@@ -44,7 +45,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
     """Privacy protected ModelToMakeSafer."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Creates model and applies constraints to params."""
+        """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.k_anonymity = 0
         self.basemodel_paramnames = [
@@ -88,7 +89,8 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
     def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
-        """ModelToMakeSafer specific checks
+        """Perform model specific checks.
+
         This example shows how to deal with instances of sklearn's tree class
         as base estimators in a forest (line 99)
         or as single estimators (lines 114-118).
@@ -152,18 +154,18 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
         return msg, disclosive
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
-        """Do fit and then store model dict."""
+        """Fit model and store model dict."""
         super().fit(x, y)
         self.k_anonymity = self.get_k_anonymity(x)
         self.saved_model = copy.deepcopy(self.__dict__)
 
     def get_k_anonymity(self, x: np.ndarray) -> int:
-        """Calculates the k-anonymity of a random forest model
-        as the minimum of the anonymity for each record.
+        """Calculate the k-anonymity of a random forest model.
+
+        The k-anonymity is the minimum of the anonymity for each record.
         That is defined as the size of the set of records which
         appear in the same leaf as the record in every tree.
         """
-
         # dataset must be 2-D
         assert len(x.shape) == 2
 

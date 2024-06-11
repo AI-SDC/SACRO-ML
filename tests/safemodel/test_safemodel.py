@@ -25,7 +25,7 @@ class DummyClassifier:
     def __init__(
         self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", keyA=True, keyB=True
     ):
-        """Dummy init."""
+        """Instantiate a dummy classifier."""
         self.at_least_5f = at_least_5f
         self.at_most_5i = at_most_5i
         self.exactly_boo = exactly_boo
@@ -33,7 +33,7 @@ class DummyClassifier:
         self.keyB = keyB
 
     def fit(self, x: np.ndarray, y: np.ndarray):
-        """Dummy fit."""
+        """Fit a dummy classifier."""
 
     def predict(self, x: np.ndarray):  # pragma: no cover
         """Predict all ones."""
@@ -85,7 +85,7 @@ class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-man
             self.key = val  # pylint:disable=attribute-defined-outside-init
 
     def fit(self, x: np.ndarray, y: np.ndarray):  # noqa: ARG002
-        """Dummy fit."""
+        """Fit a safe dummy classifier."""
         self.saved_model = copy.deepcopy(self.__dict__)
 
 
@@ -354,7 +354,6 @@ def test_loads():
 
 def test_apply_constraints():
     """Test constraints can be applied as expected."""
-
     # wrong type
     model = SafeDummyClassifier()
     model.at_least_5f = 3.9

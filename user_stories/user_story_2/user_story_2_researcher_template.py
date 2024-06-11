@@ -1,5 +1,4 @@
-"""
-RESEARCHER EXAMPLE FOR USER STORY 2.
+"""RESEARCHER EXAMPLE FOR USER STORY 2.
 
 This file is an example of a researcher creating/training a machine learning model and to
 be released form a secure environment
@@ -32,7 +31,6 @@ from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
 
 def run_user_story():  # pylint: disable=too-many-locals
     """Create and train a model to be released."""
-
     # This section is not necessary but helpful - cleans up files that are created by aisdc
     directory = "training_artefacts"
     print("Creating directory for training artefacts")

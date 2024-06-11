@@ -68,7 +68,6 @@ def _tpr_at_fpr(
     tpr : float
         true positive rate at fpr
     """
-
     if fpr_perc:
         fpr /= 100.0
 
@@ -83,12 +82,12 @@ def _tpr_at_fpr(
 
 
 def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
-    """Compute variance of AUC under assumption of uniform probabilities
-    uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf.
+    """Compute variance of AUC under assumption of uniform probabilities.
+
+    Uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf.
 
     Parameters
     ----------
-
     auc : float
         auc value at which to compute the variance
     num_pos : int
@@ -113,17 +112,19 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
 def min_max_disc(
     y_true: np.ndarray, pred_probs: np.ndarray, x_prop: float = 0.1, log_p: bool = True
 ) -> tuple[float, float, float, float]:
-    """
-    Non-average-case methods for MIA attacks. Considers actual frequency of membership
-    amongst samples with highest- and lowest- assessed probability of membership. If an
-    MIA method confidently asserts that 5% of samples are members and 5% of samples are
-    not, but cannot tell for the remaining 90% of samples, then these metrics will flag
-    this behaviour, but AUC/advantage may not. Since the difference may be noisy, a
-    p-value against a null of independence of true membership and assessed membership
-    probability (that is, membership probabilities are essentially random) is also used
-    as a metric (using a usual Gaussian approximation to binomial). If the p-value is
-    low and the frequency difference is high (>0.5) then the MIA attack is successful
-    for some samples.
+    """Return non-average-case methods for MIA attacks.
+
+    Considers actual frequency of membership amongst samples with highest- and
+    lowest- assessed probability of membership. If an MIA method confidently
+    asserts that 5% of samples are members and 5% of samples are not, but
+    cannot tell for the remaining 90% of samples, then these metrics will flag
+    this behaviour, but AUC/advantage may not. Since the difference may be
+    noisy, a p-value against a null of independence of true membership and
+    assessed membership probability (that is, membership probabilities are
+    essentially random) is also used as a metric (using a usual Gaussian
+    approximation to binomial). If the p-value is low and the frequency
+    difference is high (>0.5) then the MIA attack is successful for some
+    samples.
 
     Parameters
     ----------
@@ -151,16 +152,12 @@ def min_max_disc(
         p-value or log-p value corresponding to mmd against null hypothesis that random
         variables corresponding to y and yp are independent.
 
-    Notes
-    -----
-
     Examples
     --------
     >>> y = np.random.choice(2, 100)
     >>> yp = np.random.rand(100)
     >>> maxd, mind, mmd, pval = min_max_desc(y, yp, xprop=0.2, logp=True)
     """
-
     n_examples = int(np.ceil(len(y_true) * x_prop))
     pos_frequency = np.mean(y_true)  # average frequency
     y_order = np.argsort(pred_probs)  # ordering permutation
@@ -218,9 +215,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     y_test: np.ndarray = np.array([]),
     permute_rows: bool = False,
 ):
-    """
-    Given a prediction model and a dataset, calculate the predictions of the model for
-    each data sample in probability format.
+    """Get probabilities for a given model and dataset.
 
     Parameters
     ----------
@@ -242,7 +237,6 @@ def get_probabilities(  # pylint: disable=too-many-locals
     If permute_rows is set to true, y_test must also be supplied.
     The function will then return both the predicted probabilities and corresponding y_test
     """
-
     if permute_rows and (y_test is None):
         raise ValueError("If permute_rows is set to True, y_test must be supplied")
 
@@ -264,11 +258,11 @@ def get_probabilities(  # pylint: disable=too-many-locals
 def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     y_pred_proba: np.ndarray, y_test: np.ndarray
 ):
-    """
-    Calculate metrics, including attacker advantage for MIA binary.
+    """Calculate metrics, including attacker advantage for MIA binary.
 
     Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
-    which is also implemented in tensorFlow-privacy https://github.com/tensorflow/privacy.
+    which is also implemented in tensorFlow-privacy
+    https://github.com/tensorflow/privacy.
 
     Parameters
     ----------
@@ -299,7 +293,6 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     * F1 Score - harmonic mean of precision and recall.
     * Advantage.
     """
-
     invalid_format = (
         "y_pred must be an array of shape [x,2] with elements of type float"
     )

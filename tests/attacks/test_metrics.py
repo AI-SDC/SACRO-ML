@@ -85,7 +85,6 @@ class TestProbabilities(unittest.TestCase):
 
     def test_permute_rows_with_permute_rows(self):
         """Test permute_rows = True succeeds."""
-
         clf = DummyClassifier()
         testX = np.zeros((4, 2))
         testY = np.zeros((4, 2))
@@ -134,7 +133,6 @@ class TestMetrics(unittest.TestCase):
 
     def test_mia_extremecase(self):
         """Test the extreme case mia in metrics.py."""
-
         # create actual values
         y = np.zeros(50000)
         y[:25] = 1
