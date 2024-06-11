@@ -156,17 +156,7 @@ def min_max_disc(
     --------
     >>> y = np.random.choice(2, 100)
     >>> yp = np.random.rand(100)
-    >>> (
-    ...     maxd,
-    ...     mind,
-    ...     mmd,
-    ...     pval,
-    ... ) = min_max_desc(
-    ...     y,
-    ...     yp,
-    ...     xprop=0.2,
-    ...     logp=True,
-    ... )
+    >>> maxd, mind, mmd, pval = min_max_desc(y, yp, xprop=0.2, logp=True)
     """
     n_examples = int(np.ceil(len(y_true) * x_prop))
     pos_frequency = np.mean(y_true)  # average frequency
