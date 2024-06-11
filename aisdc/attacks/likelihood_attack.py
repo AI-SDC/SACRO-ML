@@ -264,22 +264,12 @@ class LIRAAttack(Attack):
 
         Examples
         --------
-        >>> X, y = (
-        ...     load_breast_cancer(
-        ...         return_X_y=True,
-        ...         as_frame=False,
-        ...     )
-        ... )
+        >>> X, y = load_breast_cancer(return_X_y=True, as_frame=False)
         >>> train_X, test_X, train_y, test_y = train_test_split(
         >>>   X, y, test_size=0.5, stratify=y
         >>> )
-        >>> rf = RandomForestClassifier(
-        ...     min_samples_leaf=1,
-        ...     min_samples_split=2,
-        ... )
-        >>> rf.fit(
-        ...     train_X, train_y
-        ... )
+        >>> rf = RandomForestClassifier(min_samples_leaf=1, min_samples_split=2)
+        >>> rf.fit(train_X, train_y)
         >>> mia_test_probs, mia_test_labels, mia_clf = likelihood_scenario(
         >>>     RandomForestClassifier(min_samples_leaf=1, min_samples_split=2, max_depth=10),
         >>>     train_X,

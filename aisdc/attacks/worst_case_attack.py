@@ -409,15 +409,15 @@ class WorstCaseAttack(Attack):
     def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list.
 
+        Parameters
+        ----------
+        attack_metrics : List
+            list of attack metrics dictionaries
+
         Returns
         -------
         global_metrics : Dict
             Dictionary of summary metrics
-
-        Arguments:
-        ----------
-        attack_metrics: List
-            list of attack metrics dictionaries
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:

@@ -20,6 +20,7 @@ from aisdc.attacks.target import Target
 def test_config_file_arguments_parsin():
     """Tests reading parameters from the configuration file."""
     config = {
+        "reproduce_split": None,
         "n_reps": 12,
         "n_dummy_reps": 2,
         "p_thresh": 0.06,

@@ -154,12 +154,8 @@ def min_max_disc(
 
     Examples
     --------
-    >>> y = np.random.choice(
-    ...     2, 100
-    ... )
-    >>> yp = np.random.rand(
-    ...     100
-    ... )
+    >>> y = np.random.choice(2, 100)
+    >>> yp = np.random.rand(100)
     >>> (
     ...     maxd,
     ...     mind,

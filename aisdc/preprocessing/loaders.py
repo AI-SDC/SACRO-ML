@@ -80,16 +80,13 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
 
     Examples
     --------
-    >>> X, y = (
-    ...     get_data_sklearn(
-    ...         "mimic2-iaccd"
-    ...     )
-    ... )  # pull the mimic2-iaccd data
-    >>> X, y = (
-    ...     get_data_sklearn(
-    ...         "minmax iris"
-    ...     )
-    ... )  # pull the iris data and round continuous features
+    .. code-block:: python
+
+        # pull the mimic2-iaccd data
+        X, y = get_data_sklearn("mimic2-iaccd")
+
+        # pull the iris data and round continuous features
+        X, y = get_data_sklearn("minmax iris")
     """
     logger.info("DATASET FOLDER = %s", data_folder)
 

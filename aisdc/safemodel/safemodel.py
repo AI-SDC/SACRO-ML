@@ -187,12 +187,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     Examples
     --------
     >>> safeRFModel = SafeRandomForestClassifier()
-    >>> safeRFModel.fit(
-    ...     X, y
-    ... )
-    >>> safeRFModel.save(
-    ...     name="safe.pkl"
-    ... )
+    >>> safeRFModel.fit(X, y)
+    >>> safeRFModel.save(name="safe.pkl")
     >>> safeRFModel.preliminary_check()
     >>> safeRFModel.request_release(
     ...     path="safe",
