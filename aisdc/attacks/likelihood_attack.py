@@ -313,7 +313,6 @@ class LIRAAttack(Attack):
 
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
-            # print(f'shadow clf returned confidences with shape {confidences.shape}')
 
             these_idx = set(these_idx)
             for i in range(n_train_rows):
@@ -607,7 +606,6 @@ def _example(args):
 
 def _run_attack(args):
     """Run a command line attack based on saved files described in .json file."""
-    # attack_obj = LIRAAttack(**args.__dict__)
     attack_obj = LIRAAttack(
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,

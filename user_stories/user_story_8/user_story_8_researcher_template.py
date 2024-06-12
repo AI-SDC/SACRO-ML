@@ -1,19 +1,20 @@
 """RESEARCHER EXAMPLE FOR USER STORY 8.
 
-This file is an example of a researcher creating/training a machine learning model and to
-be released form a secure environment
+This file is an example of a researcher creating/training a machine learning
+model and to be released form a secure environment.
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a
-classifier is trained and tested on this dataset.
+This specific example uses the nursery dataset: data is read in and
+pre-processed, and a classifier is trained and tested on this dataset.
 
-This example follows User Story 8
+This example follows User Story 8.
 
 Steps:
 
-- Researcher creates a function to read and process a dataset, which a TRE can also use and call
-- Researcher creates and trains a classifier on this data
-- Researcher emails (or otherwise contacts) TRE to request the model be released
-- TREs will use this code/functions to test the model themselves
+- Researcher creates a function to read and process a dataset, which a TRE can
+  also use and call.
+- Researcher creates and trains a classifier on this data.
+- Researcher emails (or otherwise contacts) TRE to request the model be released.
+- TREs will use this code/functions to test the model themselves.
 """
 
 import logging
@@ -26,9 +27,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 
-def run_user_story():  # pylint: disable=too-many-locals
+def run_user_story():
     """Create and train a model to be released."""
-    # This section is not necessary but helpful - cleans up files that are created by aisdc
+    # This section is not necessary but helpful - cleans up files that are
+    # created by aisdc
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
@@ -51,7 +53,7 @@ def run_user_story():  # pylint: disable=too-many-locals
     # take a single parameter (the data to be processed)
     # return a dictionary
     # which contains the keys
-    #   ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
+    # >>>  ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
     # as in this example
 
     returned = process_dataset(data)

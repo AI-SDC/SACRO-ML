@@ -1,19 +1,20 @@
 """RESEARCHER EXAMPLE FOR USER STORY 1.
 
-This file is an example of a researcher creating/training a machine learning model and requesting
-for it to be released.
+This file is an example of a researcher creating/training a machine learning
+model and requesting for it to be released.
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a classifier
-is trained and tested on this dataset.
+This specific example uses the nursery dataset: data is read in and
+pre-processed, and a classifier is trained and tested on this dataset.
 
-This example follows User Story 1
+This example follows User Story 1.
 
 Steps:
 
-- Researcher reads in data and processes it
-- Researcher creates and trains a classifier
-- Researcher runs experiments themselves to check if their model is disclosive or not
-- Once satisfied, researcher calls request_release() to make it ready for TRE output checking
+- Researcher reads in data and processes it.
+- Researcher creates and trains a classifier.
+- Researcher runs experiments themselves to check if their model is disclosive
+  or not.
+- Once satisfied, researcher calls request_release() to make it ready for TRE
 """
 
 import logging
@@ -24,15 +25,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
-    SafeDecisionTreeClassifier,
-)
+from aisdc.attacks.target import Target
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 
-def main():  # pylint: disable=too-many-statements, disable=too-many-locals
+def main():
     """Create and train a model to be released."""
-    # This section is not necessary but helpful - cleans up files that are created by aisdc
+    # This section is not necessary but helpful - cleans up files that are
+    # created by aisdc
     save_directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
@@ -43,7 +43,8 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     print("Acting as researcher...")
     print()
 
-    # Read in and pre-process the dataset - replace this with your data reading/pre-processing code
+    # Read in and pre-process the dataset - replace this with your data
+    # reading/pre-processing code
     print(os.getcwd())
     filename = os.path.join(".", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
@@ -97,7 +98,8 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     # Run a preliminary check to make sure the model is not disclosive
     _, _ = model.preliminary_check()
 
-    # Wrap the model and data in a Target object -- needed in order to call request_release()
+    # Wrap the model and data in a Target object
+    # needed in order to call request_release()
     target = Target(model=model)
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
@@ -114,8 +116,8 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
     logging.info("x_test shape = %s", np.shape(target.x_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
-    # Researcher can check for themselves whether their model passes individual disclosure checks
-    # Leave this code as-is for output disclosure checking
+    # Researcher can check for themselves whether their model passes individual
+    # disclosure checks.Leave this code as-is for output disclosure checking.
     save_filename = "direct_results"
     print("==========> first running attacks explicitly via run_attack()")
     for attack_name in ["worst_case", "attribute", "lira"]:
@@ -130,21 +132,23 @@ def main():  # pylint: disable=too-many-statements, disable=too-many-locals
             else:
                 logging.info(" %s : %s", key, val)
 
-    # Modify/re-run all of the above code until you're happy with the model you've created
-    # If the tests do not pass, try changing the model or hyperparameters until the tests pass
+    # Modify/re-run all of the above code until you're happy with the model
+    # you've created. If the tests do not pass, try changing the model or
+    # hyperparameters until the tests pass. When you are satisfied and ready to
+    # release your model, call the request release() function with the Target
+    # class you created above.
 
-    # when you are satisfied and ready to release your model, call the request release() function
-    # with the Target class you created above
-    # This code will run checks for the TRE staff
+    # This code will run checks for the TRE staff.
 
-    # NOTE: you should only do this when you have confirmed that the above tests pass
-    # You would not normally waste your and TRE time calling this unless you have already
-    # checked that your model is not disclosive or can provide a justification for an exception
-    # request
+    # NOTE: you should only do this when you have confirmed that the above
+    # tests pass. You would not normally waste your and TRE time calling this
+    # unless you have already checked that your model is not disclosive or can
+    # provide a justification for an exception request.
+
     print("===> now running attacks implicitly via request_release()")
     model.request_release(path=save_directory, ext="pkl", target=target)
 
-    # The files generated can be found in this file location
+    # The files generated can be found in this file location.
     print(f"Please see the files generated in: {save_directory}")
 
 

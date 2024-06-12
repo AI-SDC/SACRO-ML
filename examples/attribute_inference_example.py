@@ -82,11 +82,7 @@ if __name__ == "__main__":
     print(f"y_test shape = {np.shape(target.y_test)}")
 
     # [TRE] Create the attack object with attack parameters
-    attack_obj = attribute_attack.AttributeAttack(
-        n_cpu=2,
-        output_dir="outputs_aia",
-        # report_name="report_aia",
-    )
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=2, output_dir="outputs_aia")
 
     # [TRE] Run the attack
     attack_obj.attack(target)
@@ -122,7 +118,6 @@ if __name__ == "__main__":
     config = {
         "n_cpu": 2,
         "output_dir": "outputs_aia",
-        # "report_name": "report_aia",
     }
 
     with open("config_aia_cmd.json", "w", encoding="utf-8") as f:

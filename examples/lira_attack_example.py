@@ -16,7 +16,7 @@ The steps are as follows:
    *Programmatically*
      1. The TRE calls the attack code.
      2. The TRE computes and inspects attack metrics.
-   *Command line
+   *Command line*
      3. The researcher writes out their training and testing data, as well as the predictions
         that their target model makes on this data.
      4. The TRE create a config file for the attack, specifying the file names for the files created
@@ -72,7 +72,6 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 attack_obj = LIRAAttack(
     n_shadow_models=100,
     output_dir="outputs_lira",
-    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
 )
 
@@ -108,7 +107,6 @@ print("****************************")
 attack_obj = LIRAAttack(
     n_shadow_models=100,
     output_dir="outputs_lira",
-    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
@@ -195,7 +193,6 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    # "report_name": "report_lira",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -217,7 +214,6 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    # "report_name": "report_lira",
     "shadow_models_fail_fast": True,
     "n_shadow_rows_confidences_min": 10,
     "training_data_filename": "train_data.csv",

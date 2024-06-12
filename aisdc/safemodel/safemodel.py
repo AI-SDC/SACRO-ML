@@ -233,34 +233,30 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     def save(self, name: str = "undefined") -> None:
         """Write model to file in appropriate format.
 
-        Note this is overloaded in SafeKerasClassifer
+        Note this is overloaded in `SafeKerasClassifer`
         to deal with tensorflow specifics.
 
         Parameters
         ----------
         name : string
-             The name of the file to save
+             The name of the file to save.
 
         Notes
         -----
-        Optimizer is deliberately excluded.
-        To prevent possible to restart training and thus
-        possible back door into attacks.
+        Optimizer is deliberately excluded to prevent possible restart to
+        training and thus possible back door into attacks.
         """
         self.model_save_file = name
         if self.model_save_file == "undefined":
             print("You must input a name with extension to save the model.")
         else:
             thename = self.model_save_file.split(".")
-            # print(f'in save(), parsed filename is {thename}')
             if len(thename) == 1:
                 print("file name must indicate type as a suffix")
             else:
                 suffix = self.model_save_file.split(".")[-1]
-
-                if (
-                    suffix == "pkl" and self.model_type != "KerasModel"
-                ):  # save to pickle
+                # save to pickle
+                if suffix == "pkl" and self.model_type != "KerasModel":
                     with open(self.model_save_file, "wb") as file:
                         try:
                             pickle.dump(self, file)
@@ -270,10 +266,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                                 f"{self.model_type}."
                                 f"Error message was {type_err}"
                             )
-
-                elif (
-                    suffix == "sav" and self.model_type != "KerasModel"
-                ):  # save to joblib
+                # save to joblib
+                elif suffix == "sav" and self.model_type != "KerasModel":
                     try:
                         joblib.dump(self, self.model_save_file)
                     except (TypeError, AttributeError, PicklingError) as type_err:
@@ -392,7 +386,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         Returns
         -------
         msg : string
-           A message string
+           A message string.
         disclosive : bool
            A boolean value indicating whether the model is potentially
            disclosive.
@@ -434,7 +428,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         for key in attribute_names_as_list:
             if key not in self.ignore_items:
                 try:
-                    value = self.__dict__[key]  # jim added
+                    value = self.__dict__[key]
                     current_model[key] = copy.deepcopy(value)
                 except (copy.Error, TypeError) as key_type:
                     logger.warning("%s cannot be copied", key)
@@ -540,25 +534,25 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     ) -> tuple[str, bool]:
         """Perform additional posthoc checks.
 
-        Placeholder function for additional posthoc checks e.g. keras this
+        Placeholder function for additional posthoc checks e.g. keras. This
         version just checks that any lists have the same contents.
 
         Parameters
         ----------
-        curr_separate : python dictionary
-        saved_separate : python dictionary
+        curr_separate : dict
+        saved_separate : dict
 
         Returns
         -------
         msg : string
-        A message string
+            A message string.
         disclosive : bool
-        A boolean value to indicate whether the model is potentially disclosive.
+            A boolean value to indicate whether the model is potentially disclosive.
 
         Notes
         -----
-        posthoc checking makes sure that the two dicts have the same set of
-        keys as defined in the list self.examine_separately
+        Posthoc checking makes sure that the two dicts have the same set of
+        keys as defined in the list self.examine_separately.
         """
         msg = ""
         disclosive = False
@@ -662,10 +656,10 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
         Notes
         -----
-        Currently implement attack types are:
-        Likelihood Ratio: lira
-        Worst_Case Membership inference: worst_case
-        Single Attribute Inference: attributes
+        Currently implemented attack types are:
+        - Likelihood Ratio: lira.
+        - Worst_Case Membership inference: worst_case.
+        - Single Attribute Inference: attribute.
         """
         if attack_name == "worst_case":
             attack_obj = WorstCaseAttack(

@@ -74,7 +74,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     output_dir="outputs_worstcase",
     # # If report_name is given, it creates pdf and json files with the specified name;
     # # otherwise it create output files with default name 'report_worstcase'
-    # report_name="programmatically_worstcase_example1_report",
+    # e.g., report_name="programmatically_worstcase_example1_report",
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
     attack_metric_success_thresh=0.05,
@@ -285,7 +285,6 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "output_dir": "outputs_worstcase",
-    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
     "attack_metric_success_name": "P_HIGHER_AUC",
@@ -313,7 +312,6 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "output_dir": "outputs_worstcase",
-    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
 }

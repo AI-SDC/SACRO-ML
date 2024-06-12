@@ -47,7 +47,6 @@ def same_configs(m1: Any, m2: Any) -> tuple[bool, str]:
             msg = get_reporting_string(
                 name="layer_configs_differ", layer=layer, length=num_diffs
             )
-            # f"Layer {layer} configs differ in {len(match)} places:\n"
             for i in range(num_diffs):
                 if match[i][0] == "change":
                     msg += get_reporting_string(
@@ -316,13 +315,9 @@ class SafeKerasModel(KerasModel, SafeModel):
             metrics = ["accuracy"]
 
         replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
-        # "WARNING: model parameters may present a disclosure risk"
         using_DP_SGD = get_reporting_string(name="using_dp_sgd")
-        # "Changed parameter optimizer = 'DPKerasSGDOptimizer'"
         Using_DP_Adagrad = get_reporting_string(name="using_dp_adagrad")
-        # "Changed parameter optimizer = 'DPKerasAdagradOptimizer'"
         using_DP_Adam = get_reporting_string(name="using_dp_adam")
-        # "Changed parameter optimizer = 'DPKerasAdamOptimizer'"
 
         optimizer_dict = {
             None: (using_DP_SGD, tfp.DPKerasSGDOptimizer),

@@ -1,20 +1,21 @@
 """RESEARCHER EXAMPLE FOR USER STORY 3.
 
-This file is an example of a researcher creating/training a machine learning model and to be
-released form a secure environment
+This file is an example of a researcher creating/training a machine learning
+model and to be released form a secure environment.
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a classifier
-is trained and tested on this dataset.
+This specific example uses the nursery dataset: data is read in and
+pre-processed, and a classifier is trained and tested on this dataset.
 
-This example follows User Story 3
+This example follows User Story 3.
 
 Steps:
 
-- Researcher creates and pre-processes a dataset
-- Researcher creates and trains a classifier on this data
-- Reasercher saves the model manually (e.g. using pickle, not through request_release() or similar)
-- Researcher emails (or otherwise contacts) TRE to request the model be released
-- TREs will use this model and data to test the model themselves
+- Researcher creates and pre-processes a dataset.
+- Researcher creates and trains a classifier on this data.
+- Reasercher saves the model manually (e.g. using pickle, not through
+  request_release() or similar).
+- Researcher emails (or otherwise contacts) TRE to request the model be released.
+- TREs will use this model and data to test the model themselves.
 """
 
 import os
@@ -28,16 +29,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 
-def run_user_story():  # pylint: disable=too-many-locals
+def run_user_story():
     """Create and train a model to be released."""
-    # This section is not necessary but helpful - cleans up files that are created by aisdc
+    # This section is not necessary but helpful - cleans up files that are
+    # created by aisdc
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Read in and pre-process the dataset - replace this with your data reading/pre-processing code
+    # Read in and pre-process the dataset - replace this with your data
+    # reading/pre-processing code.
     filename = os.path.join(".", "user_stories_resources", "dataset_26_nursery.csv")
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
@@ -67,7 +70,8 @@ def run_user_story():  # pylint: disable=too-many-locals
     np.savetxt(os.path.join(directory, "x_test.txt"), x_test, fmt="%d")
     np.savetxt(os.path.join(directory, "y_test.txt"), y_test, fmt="%d")
 
-    # Create, train and test a model - replace this with your training and testing code
+    # Create, train and test a model
+    # Replace this with your training and testing code
     hyperparameters = {}
     hyperparameters["min_samples_split"] = 5
     hyperparameters["min_samples_leaf"] = 5

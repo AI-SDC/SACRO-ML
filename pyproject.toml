@@ -47,7 +47,7 @@ lint.select = [
 #  "DTZ", # flake8-datetimez
 #  "E",   # pycodestyle
 #  "EM",  # flake8-errmsg
-#  "ERA", # eradicate
+  "ERA", # eradicate
   "F",   # Pyflakes
   "I",   # isort
   "ICN", # flake8-import-conventions

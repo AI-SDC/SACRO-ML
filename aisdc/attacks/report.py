@@ -151,7 +151,6 @@ def _roc_plot(metrics, dummy_metrics, save_name):
 
     # Compute average ROC
     base_fpr = np.linspace(0, 1, 1000)
-    # base_fpr = np.logspace(-4, 0, 1000)
     all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
     for i, metric_set in enumerate(metrics):
         all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
@@ -199,23 +198,20 @@ def create_mia_report(attack_output: dict) -> FPDF:
     Parameters
     ----------
     attack_output : dict
-        dictionary with following items
+        Dictionary with the following items:
 
-            metadata: dict
-                dictionary of metadata
-
-            attack_experiment_logger: dict
-                list of metrics as dictionary items for an experiment
-
-            dummy_attack_experiment_logger: dict
-                list of metrics as dictionary items across dummy experiments
+        metadata : dict
+            Dictionary of metadata.
+        attack_experiment_logger : dict
+            List of metrics as dictionary items for an experiment.
+        dummy_attack_experiment_logger : dict
+            List of metrics as dictionary items across dummy experiments.
 
     Returns
     -------
     pdf : fpdf.FPDF
         fpdf document object
     """
-    # dummy_metrics = attack_output["dummy_attack_metrics"]
     dummy_metrics = []
     mia_metrics = [
         v
@@ -223,7 +219,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
             "attack_instance_logger"
         ].items()
     ]
-    # mia_metrics = attack_output["attack_metrics"]
     metadata = attack_output["metadata"]
     if dummy_metrics is None or len(dummy_metrics) == 0:
         do_dummy = False
@@ -352,16 +347,15 @@ def create_lr_report(output: dict) -> FPDF:
     Parameters
     ----------
     output : dict
-        dictionary with following items
+        Dictionary with the following items:
 
-        metadata: dict
-                dictionary of metadata
+        metadata : dict
+            Dictionary of metadata.
 
-        attack_experiment_logger: dict
-            list of metrics as dictionary items for an experiments
-            In case of LIRA attack scenario, this will have dictionary
-            items of attack_instance_logger that
-            will have a single metrics dictionary
+        attack_experiment_logger : dict
+            List of metrics as dictionary items for an experiments.
+            In case of LiRA attack scenario, this will have dictionary items of
+            `attack_instance_logger` that will have a single metrics dictionary.
 
     Returns
     -------

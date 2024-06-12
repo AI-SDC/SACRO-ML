@@ -1,19 +1,20 @@
 """RESEARCHER EXAMPLE FOR USER STORY 2.
 
-This file is an example of a researcher creating/training a machine learning model and to
-be released form a secure environment
+This file is an example of a researcher creating/training a machine learning
+model and to be released form a secure environment.
 
-This specific example uses the nursery dataset: data is read in and pre-processed, and a
-classifier is trained and tested on this dataset.
+This specific example uses the nursery dataset: data is read in and
+pre-processed, and a classifier is trained and tested on this dataset.
 
-This example follows User Story 2
+This example follows User Story 2.
 
 Steps:
 
-- Researcher creates a function to read and process a dataset, which a TRE can also use and call
-- Researcher creates and trains a classifier on this data
-- Researcher emails (or otherwise contacts) TRE to request the model be released
-- TREs will use this code/functions to test the model themselves
+- Researcher creates a function to read and process a dataset, which a TRE can
+  also use and call.
+- Researcher creates and trains a classifier on this data.
+- Researcher emails (or otherwise contacts) TRE to request the model be released.
+- TREs will use this code/functions to test the model themselves.
 """
 
 import logging
@@ -23,15 +24,14 @@ import numpy as np
 import pandas as pd
 from data_processing_researcher import process_dataset
 
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
-    SafeDecisionTreeClassifier,
-)
+from aisdc.attacks.target import Target
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 
-def run_user_story():  # pylint: disable=too-many-locals
+def run_user_story():
     """Create and train a model to be released."""
-    # This section is not necessary but helpful - cleans up files that are created by aisdc
+    # This section is not necessary but helpful - cleans up files that are
+    # created by aisdc
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
@@ -47,15 +47,15 @@ def run_user_story():  # pylint: disable=too-many-locals
     print("Reading data from " + filename)
     data = pd.read_csv(filename)
 
-    # Write a function to pre-process the data that the TRE can call
-    # (see data_processing_researcher.py)
-    # Use the output of this function to split the data into training/testing sets
+    # Write a function to pre-process the data that the TRE can call (see
+    # data_processing_researcher.py) Use the output of this function to split
+    # the data into training/testing sets.
+
     # NOTE: to use this user story/script, the process_dataset function MUST:
-    # take a single parameter (the data to be processed)
-    # return a dictionary
-    # which contains the keys
-    #   ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
-    # as in this example
+    # take a single parameter (the data to be processed) return a dictionary
+    # which contains the keys:
+    # >>> ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
+    # as in this example.
 
     returned = process_dataset(data)
 
@@ -91,10 +91,10 @@ def run_user_story():  # pylint: disable=too-many-locals
     target.name = "nursery"
     target.add_processed_data(x_train, y_train, x_test, y_test)
 
-    # NOTE: we assume here that the researcher does not use the target.save() function and
-    # instead provides only the model and the list of indices
-    # which have been used to split the dataset, which will allow a TRE to re-create the input
-    # data used in training
+    # NOTE: we assume here that the researcher does not use the target.save()
+    # function and instead provides only the model and the list of indices
+    # which have been used to split the dataset, which will allow a TRE to
+    # re-create the input data used in training.
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)

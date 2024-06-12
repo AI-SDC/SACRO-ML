@@ -95,11 +95,14 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
         This example shows how to deal with instances of sklearn's tree class
         as base estimators in a forest (line 99)
         or as single estimators (lines 114-118).
+
+        Notes
+        -----
+        Call the super function to deal with any items that are lists. For example:
+        >>> msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         """
         msg = ""
         disclosive = False
-        ## call the super function to deal with any items that are lists
-        # msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         # now the relevant ModelToMakeSafer specific things
         for item in self.examine_seperately_items:
             if item == "base_estimator":

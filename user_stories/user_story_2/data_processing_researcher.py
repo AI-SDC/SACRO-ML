@@ -1,15 +1,17 @@
 """SUPPORTING FILE FOR USER STORY 2.
 
-This file is an example of a function created by a researcher that will pre-process a dataset
+This file is an example of a function created by a researcher that will
+pre-process a dataset.
 
-To use: write a function that will process your input data, and output the processed version
+To use: write a function that will process your input data, and output the
+processed version.
 
 NOTE: in order to work, this function needs to:
 
-    - take a single parameter (the data to be processed)
-    - return a dictionary
-    - which contains the keys ]
-        ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
+- take a single parameter (the data to be processed)
+- return a dictionary
+- which contains the keys ]
+    ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
 """
 
 import numpy as np
@@ -33,9 +35,9 @@ def process_dataset(data):
 
     row_indices = np.arange(np.shape(x_transformed)[0])
 
-    # This step is not necessary, however it's the simplest way of getting training indices from
-    # the data
-    # Any method of generating indices of samples to be used for training will work here
+    # This step is not necessary, however it's the simplest way of getting
+    # training indices from the data. Any method of generating indices of
+    # samples to be used for training will work here.
     (
         x_train,
         x_test,
@@ -43,7 +45,7 @@ def process_dataset(data):
         y_test,
         train_indices,
         test_indices,
-    ) = train_test_split(  # pylint: disable=unused-variable
+    ) = train_test_split(
         x_transformed,
         y_transformed,
         row_indices,

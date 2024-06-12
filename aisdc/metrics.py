@@ -295,7 +295,7 @@ def get_metrics(  # pylint: disable=too-many-locals
     metrics["F1score"] = _div(
         2 * metrics["PPV"] * metrics["TPR"], metrics["PPV"] + metrics["TPR"], 0
     )
-    # Advantage: TPR - FPR
+    # Advantage
     metrics["Advantage"] = float(abs(metrics["TPR"] - metrics["FPR"]))
 
     # calculate AUC of model

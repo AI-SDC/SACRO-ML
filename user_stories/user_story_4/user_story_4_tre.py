@@ -16,12 +16,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
-    GenerateTextReport,
-)
-from aisdc.attacks.worst_case_attack import (  # pylint: disable=import-error
-    WorstCaseAttack,
-)
+from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
@@ -30,7 +26,7 @@ def generate_report(
     test_probabilities,
     attack_output_name,
     outfile,
-):  # pylint: disable=too-many-arguments, disable=too-many-locals
+):
     """Generate report based on target model."""
     print()
     print("Acting as TRE...")
@@ -103,7 +99,8 @@ def run_user_story(release_config: dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a risk report after request_release() has been called by researcher"
+            "Generate a risk report after request_release() "
+            "has been called by researcher"
         )
     )
 

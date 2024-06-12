@@ -18,12 +18,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
-    GenerateTextReport,
-)
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-
-# from .data_processing_researcher import process_dataset
+from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.target import Target
 
 
 def process_dataset(filename, function_name, data_to_be_processed):
@@ -48,7 +44,7 @@ def generate_report(
     attack_results,
     target_filename,
     outfile,
-):  # pylint: disable=too-many-locals, disable=too-many-arguments
+):
     """Generate report based on target model."""
     print()
     print("Acting as TRE...")
@@ -131,10 +127,11 @@ def run_user_story(release_config: dict):
     )
 
 
-if __name__ == "__main__":  # pragma:no cover
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a risk report after request_release() has been called by researcher"
+            "Generate a risk report after request_release() "
+            "has been called by researcher"
         )
     )
 
@@ -153,7 +150,7 @@ if __name__ == "__main__":  # pragma:no cover
     try:
         with open(args.config_file, encoding="utf-8") as handle:
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
-    except AttributeError as error:  # pragma:no cover
+    except AttributeError as error:
         print(
             "Invalid command. Try --help to get more details"
             f"error message is {error}"

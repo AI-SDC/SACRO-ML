@@ -21,10 +21,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 EPOCHS = 1
 n_classes = 4
-# expected accuracy
-# ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 ACC = 0.3583333492279053
-# UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 UNSAFE_ACC = 0.3583333492279053
 RES_DIR = "RES"
 
