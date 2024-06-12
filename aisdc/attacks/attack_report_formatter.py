@@ -158,8 +158,8 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 
             rules = json_structure["DecisionTreeClassifier"]["rules"]
             for entry in rules:
-                if "keyword" in entry.keys() and entry["keyword"] == "min_samples_leaf":
-                    if "operator" in entry.keys() and entry["operator"] == "min":
+                if "keyword" in entry and entry["keyword"] == "min_samples_leaf":
+                    if "operator" in entry and entry["operator"] == "min":
                         min_samples_leaf_appetite = entry["value"]
                         break
 
@@ -180,7 +180,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
     ):
         stat_sig_auc = []
-        for k in self.report.keys():
+        for k in self.report:
             if isinstance(self.report[k], dict):
                 if "attack_experiment_logger" in self.report[k]:
                     for i in self.report[k]["attack_experiment_logger"][
@@ -191,10 +191,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                         ][i]
 
                         auc_key = "P_HIGHER_AUC"
-                        if (
-                            auc_key in instance.keys()
-                            and instance[auc_key] < p_val_thresh
-                        ):
+                        if auc_key in instance and instance[auc_key] < p_val_thresh:
                             stat_sig_auc.append(instance["AUC"])
 
                     n_instances = len(
@@ -277,7 +274,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
         """Return a dictionary summarising the metrics."""
         output_dict = {}
 
-        for k in self.report.keys():
+        for k in self.report:
             if isinstance(self.report[k], dict):
                 if "attack_experiment_logger" in self.report[k]:
                     metrics_dict = {m: [] for m in self.metrics_list}
@@ -331,7 +328,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []
-        for k in self.report.keys():
+        for k in self.report:
             if isinstance(self.report[k], dict):
                 if "attack_experiment_logger" in self.report[k]:
                     for _, iteration_value in self.report[k][
@@ -385,7 +382,7 @@ class LogLogROCModule(AnalysisModule):
         """Create a roc plot for multiple repetitions."""
         log_plot_names = []
 
-        for k in self.report.keys():
+        for k in self.report:
             if isinstance(self.report[k], dict):
                 if "attack_experiment_logger" in self.report[k]:
                     plt.figure(figsize=(8, 8))
@@ -465,25 +462,25 @@ class GenerateTextReport:
 
         output_string = "TARGET MODEL SUMMARY\n"
 
-        if "model_name" in json_report.keys():
+        if "model_name" in json_report:
             output_string = (
                 output_string + "model_name: " + json_report["model_name"] + "\n"
             )
 
-        if "n_samples" in json_report.keys():
+        if "n_samples" in json_report:
             output_string = output_string + "number of samples used to train: "
             output_string = output_string + str(json_report["n_samples"]) + "\n"
 
-        if "model_params" in json_report.keys():
+        if "model_params" in json_report:
             for param in model_params_of_interest:
-                if param in json_report["model_params"].keys():
+                if param in json_report["model_params"]:
                     output_string = output_string + param + ": "
                     output_string = output_string + str(
                         json_report["model_params"][param]
                     )
                     output_string = output_string + "\n"
 
-        if "model_path" in json_report.keys():
+        if "model_path" in json_report:
             filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
             self.model_name_from_target = os.path.join(
                 filepath, json_report["model_path"]
@@ -495,7 +492,7 @@ class GenerateTextReport:
         """Format JSON code to make it more readable for TREs."""
         returned_string = str(title) + "\n"
 
-        for key in report.keys():
+        for key in report:
             returned_string = returned_string + key + "\n"
             returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
 

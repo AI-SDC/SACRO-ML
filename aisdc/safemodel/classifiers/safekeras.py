@@ -208,12 +208,12 @@ class SafeKerasModel(KerasModel, SafeModel):
         # initialise all the values that get provided as options to keras
         # and also l2 norm clipping and learning rates, batch sizes
         inputs = None
-        if "inputs" in kwargs.keys():  # pylint: disable=consider-iterating-dictionary
+        if "inputs" in kwargs:
             inputs = the_kwargs["inputs"]
         elif len(args) == 3:  # defaults is for Model(input,outputs,names)
             inputs = args[0]
         self.outputs = None
-        if "outputs" in kwargs.keys():  # pylint: disable=consider-iterating-dictionary
+        if "outputs" in kwargs:
             outputs = the_kwargs["outputs"]
         elif len(args) == 3:
             outputs = args[1]

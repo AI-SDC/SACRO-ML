@@ -463,11 +463,11 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
                 disclosive = True
                 msg += get_reporting_string(name="both_item_removed", item=item)
 
-            if curr_vals[item] == "Absent" and not saved_vals[item] == "Absent":
+            if curr_vals[item] == "Absent" and saved_vals[item] != "Absent":
                 msg += get_reporting_string(name="current_item_removed", item=item)
                 disclosive = True
 
-            if saved_vals[item] == "Absent" and not curr_vals[item] == "Absent":
+            if saved_vals[item] == "Absent" and curr_vals[item] != "Absent":
                 disclosive = True
                 msg += get_reporting_string(name="saved_item_removed", item=item)
 

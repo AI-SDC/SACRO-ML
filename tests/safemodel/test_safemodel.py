@@ -446,15 +446,12 @@ def test_get_saved_model_exception():
     """Test the exception handling in get_current_and_saved_models()."""
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
-
     model.a_generator = (  # pylint: disable=attribute-defined-outside-init
         i for i in [1, 2, 3]
     )
     current, saved = model.get_current_and_saved_models()
     assert saved == {}  # since we haven;t called fit()
-    assert (  # pylint: disable=consider-iterating-dictionary
-        "a_generator" not in current.keys()
-    )
+    assert "a_generator" not in current
 
 
 def test_generic_additional_tests():

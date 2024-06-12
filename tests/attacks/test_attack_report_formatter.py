@@ -379,15 +379,15 @@ class TestSummariseUnivariateMetricsModule(unittest.TestCase):
         returned = f.process_dict()
 
         wca_auc = returned["WorstCaseAttack"]["AUC"]
-        for k in wca_auc.keys():
+        for k in wca_auc:
             assert auc_value == pytest.approx(wca_auc[k])
 
         wca_acc = returned["WorstCaseAttack"]["ACC"]
-        for k in wca_acc.keys():
+        for k in wca_acc:
             assert acc_value == pytest.approx(wca_acc[k])
 
         wca_fdif = returned["WorstCaseAttack"]["FDIF01"]
-        for k in wca_fdif.keys():
+        for k in wca_fdif:
             assert fdif01_value == pytest.approx(wca_fdif[k])
 
         assert str(f) == "Summary of Univarite Metrics"
