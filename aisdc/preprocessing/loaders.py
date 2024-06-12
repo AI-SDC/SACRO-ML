@@ -1,10 +1,9 @@
 """Handlers to pull in datasets and perform preprocessing."""
 
-# pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
+# pylint: disable=invalid-name, consider-using-with, too-many-return-statements
 
 import logging
 import os
-from collections import Counter
 from typing import List, Tuple
 from zipfile import BadZipFile, ZipFile
 
@@ -13,10 +12,6 @@ import pandas as pd
 import pylab as plt
 from sklearn.datasets import fetch_openml, load_iris
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-
-# Following is to stop pylint always sqwarking at pandas things
-# pylint: disable = no-member, unsubscriptable-object
-
 
 logging.basicConfig(level="DEBUG")
 
@@ -114,7 +109,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         sub_name = dataset_name.split("round")[1].strip()
         logger.debug(sub_name)
         feature_df, target_df = get_data_sklearn(sub_name, data_folder)
-        column_dtype = feature_df.dtypes  # pylint: disable = no-member
+        column_dtype = feature_df.dtypes
 
         for i, column in enumerate(feature_df.columns):
             if column_dtype[i] == "float64":
@@ -193,7 +188,7 @@ def _images_to_ndarray(
     images_names = sorted(os.listdir(folder_path))
     images_names = images_names[:number_to_load]
     # fix f or macosx
-    if ".DS_Store" in images_names:  # pragma: no cover
+    if ".DS_Store" in images_names:
         images_names.remove(".DS_Store")
 
     if flatten:
@@ -238,7 +233,7 @@ and place it in the correct folder. It unzips the file first.
             with ZipFile(zip_file) as zip_handle:
                 zip_handle.extractall(base_folder)
                 logger.debug("Extracted all")
-        except BadZipFile:  # pragma: no cover
+        except BadZipFile:
             logger.error("Encountered bad zip file")
             raise
 
@@ -383,9 +378,7 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
     file_path = [os.path.join(data_folder, f) for f in files]
     print(file_path)
 
-    if not any(  # pylint: disable=use-a-generator
-        [os.path.exists(fp) for fp in file_path]
-    ):  # pylint: disable=use-a-generator
+    if not any(os.path.exists(fp) for fp in file_path):
         help_message = f"""
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
@@ -521,7 +514,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             "R_CC_STEN_B",
             "R_CC_STEN_C",
             "R_CC_STEN_D",
-            "R_CC_STEN_S",  # pylint: disable=unreachable
+            "R_CC_STEN_S",
             "L_IC_STEN_A",
             "L_IC_STEN_B",
             "L_IC_STEN_C",
@@ -618,12 +611,12 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             df__.groupby(["chi"])[[x for x in df__.columns if "Condition" in x]]
             .count()
             .mean(axis=1)
-        )  # pylint: disable=line-too-long
+        )
         no = (
             df__.groupby(["chi"])[[x for x in df__.columns if "Operation" in x]]
             .count()
             .sum(axis=1)
-        )  # pylint: disable=line-too-long
+        )
         df__.drop(
             columns=[
                 x
@@ -631,7 +624,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
                 if "Date" in x or "Operation" in x or "Condition" in x
             ],
             inplace=True,
-        )  # pylint: disable=line-too-long
+        )
         df__ = pd.DataFrame()
         df__["days_in_hospital"] = dih
         df__["average_number_conditions"] = nc

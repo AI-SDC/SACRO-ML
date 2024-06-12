@@ -209,7 +209,7 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     return auc_p, auc_std
 
 
-def get_probabilities(  # pylint: disable=too-many-locals
+def get_probabilities(
     clf,
     X_test: np.ndarray,
     y_test: np.ndarray = np.array([]),
@@ -255,7 +255,7 @@ def get_probabilities(  # pylint: disable=too-many-locals
     return y_pred_proba
 
 
-def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
+def get_metrics(  # pylint: disable=too-many-locals
     y_pred_proba: np.ndarray, y_test: np.ndarray
 ):
     """Calculate metrics, including attacker advantage for MIA binary.
