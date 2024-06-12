@@ -158,7 +158,6 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     # add dummy continuous valued attribute from N(0.5,0.05)
     dummy_tr = 0.5 + 0.05 * np.random.randn(x_train.shape[0])
     dummy_te = 0.5 + 0.05 * np.random.randn(x_test.shape[0])
-    dummy_all = np.hstack((dummy_tr, dummy_te)).reshape(-1, 1)
     dummy_tr = dummy_tr.reshape(-1, 1)
     dummy_te = dummy_te.reshape(-1, 1)
 

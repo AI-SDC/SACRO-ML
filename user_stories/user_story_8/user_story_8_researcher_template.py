@@ -20,7 +20,6 @@ import logging
 import os
 import pickle
 
-import numpy as np
 import pandas as pd
 from data_processing_researcher import process_dataset
 from sklearn.ensemble import RandomForestClassifier

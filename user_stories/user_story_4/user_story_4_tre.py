@@ -10,10 +10,7 @@ the .yaml file.
 """
 
 import argparse
-import json
-import logging
 import os
-import pickle
 
 import numpy as np
 import pandas as pd
@@ -22,8 +19,6 @@ import yaml
 from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
     GenerateTextReport,
 )
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable=import-error
-from aisdc.attacks.target import Target  # pylint: disable=import-error
 from aisdc.attacks.worst_case_attack import (  # pylint: disable=import-error
     WorstCaseAttack,
 )
