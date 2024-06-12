@@ -99,12 +99,11 @@ def decision_tree_internal_trees_are_equal(
                             name="internal_attribute_differs", attr=attr
                         )
                         same = False
-                else:
-                    if t1val != t2val:
-                        msg += get_reporting_string(
-                            name="internal_attribute_differs", attr=attr
-                        )
-                        same = False
+                elif t1val != t2val:
+                    msg += get_reporting_string(
+                        name="internal_attribute_differs", attr=attr
+                    )
+                    same = False
     except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
     return same, msg

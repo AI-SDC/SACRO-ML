@@ -59,7 +59,7 @@ lint.select = [
   "PLC", # Pylint
   "PLE", # Pylint
 #  "PLR", # Pylint
-#  "PLW", # Pylint
+  "PLW", # Pylint
   "PT",  # flake8-pytest-style
   "Q",   # flake8-quotes
   "RET", # flake8-return

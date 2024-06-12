@@ -390,9 +390,8 @@ def create_lr_report(output: dict) -> FPDF:
         key: val for key, val in mia_metrics.items() if isinstance(val, float)
     }
     for key, value in sub_metrics_dict.items():
-        if key in MAPPINGS:
-            value = MAPPINGS[key](value)
-        line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
+        val = MAPPINGS[key](value) if key in MAPPINGS else value
+        line(pdf, f"{key:>30s}: {val:.4f}", font="courier")
 
     pdf.add_page()
     subtitle(pdf, "ROC Curve")
