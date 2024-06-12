@@ -304,9 +304,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         print(msg)
         return ok, msg
 
-    def compile(
-        self, optimizer=None, loss="categorical_crossentropy", metrics=["accuracy"]
-    ):  # pylint:disable=dangerous-default-value)
+    def compile(self, optimizer=None, loss="categorical_crossentropy", metrics=None):
         """Compile the safe Keras model.
 
         Replaces the optimiser with a DP variant if needed and creates the
@@ -314,6 +312,9 @@ class SafeKerasModel(KerasModel, SafeModel):
         Allow None as default value for optimizer param because we explicitly
         deal with it.
         """
+        if metrics is None:
+            metrics = ["accuracy"]
+
         replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
         # "WARNING: model parameters may present a disclosure risk"
         using_DP_SGD = get_reporting_string(name="using_dp_sgd")
