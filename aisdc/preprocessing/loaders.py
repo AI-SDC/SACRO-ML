@@ -4,7 +4,6 @@
 
 import logging
 import os
-from typing import List, Tuple
 from zipfile import BadZipFile, ZipFile
 
 import numpy as np
@@ -32,7 +31,7 @@ class DataNotAvailable(Exception):
 
 def get_data_sklearn(  # pylint: disable = too-many-branches
     dataset_name: str, data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get data in a format sensible for sklearn.
 
     User passes a name and that dataset is returned as a tuple of pandas
@@ -151,7 +150,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     raise UnknownDataset(dataset_name)
 
 
-def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _iris() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the Sklearn iris data - just first two classes."""
     X, y = load_iris(return_X_y=True, as_frame=True)
     X = X[y < 2]
@@ -159,7 +158,7 @@ def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return X, pd.DataFrame(y)
 
 
-def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _nursery() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return the sklearn nursery dataset."""
     data = fetch_openml(data_id=26, as_frame=True)
 
@@ -178,7 +177,7 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 def _images_to_ndarray(
     images_dir: str, number_to_load: int, label: int, flatten: bool = True
-) -> Tuple[np.array, np.array]:
+) -> tuple[np.array, np.array]:
     """Get number_to_load images from the images_dir and create arrays.
 
     Patched to support non-flattened images.
@@ -202,8 +201,8 @@ def _images_to_ndarray(
 
 
 def _medical_mnist_loader(  # pylint: disable = too-many-locals
-    data_folder: str, n_per_class: int, classes: List[str]
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    data_folder: str, n_per_class: int, classes: list[str]
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get Medical MNIST into pandas format.
 
     Borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
@@ -266,7 +265,7 @@ and place it in the correct folder. It unzips the file first.
 
 def _synth_ae(
     data_folder: str, n_rows: int = 5000
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get synth ae data.
 
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
@@ -322,7 +321,7 @@ Unzip it (7z) and then copy the .csv file into your data folder.
     return (X, y)
 
 
-def _indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _indian_liver(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get Indian Liver Patient Dataset.
 
     https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long.
@@ -366,7 +365,7 @@ and place it in the correct folder.
     return (liver_data, liver_labels)
 
 
-def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _in_hospital_mortality(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get In-hospital mortality data.
 
     See: https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
@@ -405,7 +404,7 @@ and then change the name of the file 773992 to data01.csv.
     return (features, labels)
 
 
-def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _mimic_iaccd(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the mimic_iaccd data and perform preprocessing."""
     # Check the data has been downloaded.
     # If not throw an exception with instructions on how to
@@ -460,7 +459,7 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the RDMP dataset."""
 
     def find_age(row):

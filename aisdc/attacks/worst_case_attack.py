@@ -8,8 +8,9 @@ import argparse
 import logging
 import os
 import uuid
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier

@@ -2,7 +2,7 @@
 
 import os
 import warnings
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
@@ -30,7 +30,7 @@ DP_CLASS_STRING2 = (
 )
 
 
-def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
+def same_configs(m1: Any, m2: Any) -> tuple[bool, str]:
     """Check if two models have the same architecture."""
     num_layers = len(m1.layers)
     if len(m2.layers) != num_layers:
@@ -63,7 +63,7 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
     return True, get_reporting_string(name="same_ann_config")
 
 
-def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
+def same_weights(m1: Any, m2: Any) -> tuple[bool, str]:
     """Check if two nets with same architecture have the same weights."""
     num_layers = len(m1.layers)
     if num_layers != len(m2.layers):
@@ -82,7 +82,7 @@ def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
     return True, "weights match"
 
 
-def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
+def check_checkpoint_equality(v1: str, v2: str) -> tuple[bool, str]:
     """Compare two checkpoints saved with tensorflow save_model.
 
     On the assumption that the optimiser is not going to be saved,
@@ -118,7 +118,7 @@ def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     return same, msg
 
 
-def check_DP_used(optimizer) -> Tuple[bool, str]:
+def check_DP_used(optimizer) -> tuple[bool, str]:
     """Check whether the DP optimizer was actually the one used."""
     key_needed = "_was_dp_gradients_called"
     critical_val = optimizer.__dict__.get(key_needed, "missing")
@@ -142,7 +142,7 @@ def check_DP_used(optimizer) -> Tuple[bool, str]:
     return DPused, reason
 
 
-def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
+def check_optimizer_allowed(optimizer) -> tuple[bool, str]:
     """Check if the model's optimizer is in our white-list.
 
     Default setting is not allowed.
@@ -157,7 +157,7 @@ def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
     return allowed, reason
 
 
-def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
+def check_optimizer_is_DP(optimizer) -> tuple[bool, str]:
     """Check whether optimizer is one of tensorflow's DP versions."""
     DPused = False
     reason = "None"
@@ -169,7 +169,7 @@ def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
     return DPused, reason
 
 
-def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
+def load_safe_keras_model(name: str = "undefined") -> tuple[bool, Any]:
     """Read model from file in appropriate format.
 
     Optimizer is deliberately excluded in the save.
@@ -262,7 +262,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
     def dp_epsilon_met(
         self, num_examples: int, batch_size: int = 0, epochs: int = 0
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check if epsilon is sufficient for Differential Privacy.
 
         Provides feedback to user if epsilon is not sufficient.
@@ -279,7 +279,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
     def check_epsilon(
         self, num_samples: int, batch_size: int, epochs: int
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check if the level of privacy guarantee is within recommended limits."""
         msg = ""
         ok = False
@@ -409,7 +409,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         self.saved_epsilon = self.current_epsilon
         return returnval
 
-    def posthoc_check(self, verbose: bool = True) -> Tuple[str, bool]:
+    def posthoc_check(self, verbose: bool = True) -> tuple[str, bool]:
         """Check whether the model should be considered unsafe.
 
         For example, has been changed since fit() was last run,
