@@ -11,8 +11,8 @@ from dictdiffer import diff
 from tensorflow.keras import Model as KerasModel  # pylint: disable = import-error
 from tensorflow_privacy import compute_dp_sgd_privacy
 
-from ..reporting import get_reporting_string
-from ..safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)

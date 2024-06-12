@@ -2,7 +2,7 @@
 
 from tensorflow_privacy import DPModel
 
-from ..safemodel import SafeModel
+from aisdc.safemodel.safemodel import SafeModel
 
 
 class Safe_tf_DPModel(SafeModel, DPModel):

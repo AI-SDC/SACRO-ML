@@ -8,8 +8,9 @@ from typing import Any
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-from ..reporting import get_reporting_string
-from ..safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
+
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
 # pylint: disable=too-many-ancestors, unidiomatic-typecheck
