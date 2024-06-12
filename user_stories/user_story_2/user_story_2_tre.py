@@ -35,10 +35,8 @@ def process_dataset(filename, function_name, data_to_be_processed):
     spec = importlib.util.spec_from_file_location(function_name, filename)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-
     function = getattr(module, function_name)
-    result = function(data_to_be_processed)
-    return result
+    return function(data_to_be_processed)
 
 
 def generate_report(

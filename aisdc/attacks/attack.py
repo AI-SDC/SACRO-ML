@@ -31,12 +31,11 @@ class Attack:
     def _get_param_names(cls):
         """Get parameter names."""
         init_signature = inspect.signature(cls.__init__)
-        parameters = [
+        return [
             p.name
             for p in init_signature.parameters.values()
             if p.name != "self" and p.kind != p.VAR_KEYWORD
         ]
-        return parameters
 
     def get_params(self) -> dict:
         """Get parameters for this attack.

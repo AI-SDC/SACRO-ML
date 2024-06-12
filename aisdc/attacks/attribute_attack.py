@@ -417,8 +417,7 @@ def _attack_brute_force(
     logger.debug("Brute force attacking categorical features")
     args = [(target, feature_id, attack_threshold) for feature_id in features]
     with mp.Pool(processes=n_cpu) as pool:
-        results = pool.starmap(_infer_categorical, args)
-    return results
+        return pool.starmap(_infer_categorical, args)
 
 
 def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arguments
@@ -552,8 +551,7 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
         for feature_id in features
     ]
     with mp.Pool(processes=n_cpu) as pool:
-        results = pool.starmap(_get_bounds_risk, args)
-    return results
+        return pool.starmap(_get_bounds_risk, args)
 
 
 def _attribute_inference(target: Target, n_cpu: int) -> dict:

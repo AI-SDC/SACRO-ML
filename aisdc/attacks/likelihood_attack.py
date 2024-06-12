@@ -68,8 +68,7 @@ def _logit(p: float) -> float:
     if p > 1 - EPS:  # pylint:disable=consider-using-min-builtin
         p = 1 - EPS
     p = max(p, EPS)
-    li = np.log(p / (1 - p))
-    return li
+    return np.log(p / (1 - p))
 
 
 class LIRAAttack(Attack):

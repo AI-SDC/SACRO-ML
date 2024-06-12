@@ -114,8 +114,7 @@ def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
     """Return the smallest number of data items in any leaf."""
     leaves = thetree.apply(X)
     uniqs_counts = np.unique(leaves, return_counts=True)
-    k_anonymity = np.min(uniqs_counts[1])
-    return k_anonymity
+    return np.min(uniqs_counts[1])
 
 
 class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: disable=too-many-ancestors

@@ -254,8 +254,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
         if self._is_instance_based_model(self.INSTANCE_MODEL_WEIGHTING_SCORE):
             summarised_score = self.INSTANCE_MODEL_WEIGHTING_SCORE
 
-        output = {}
-        return output
+        return {}
 
     def __str__(self):
         """Return string representation of the final recommendation."""
@@ -344,14 +343,13 @@ class SummariseAUCPvalsModule(AnalysisModule):
     def process_dict(self):
         """Process the dict to summarise the number of significant AUC p-values."""
         p_val_list = self._get_metrics_list()
-        output = {
+        return {
             "n_total": len(p_val_list),
             "p_thresh": self.p_thresh,
             "n_sig_uncorrected": self._n_sig(p_val_list),
             "correction": self.correction,
             "n_sig_corrected": self._n_sig(p_val_list, self.correction),
         }
-        return output
 
     def __str__(self):
         """Return the string representation of a AUC p-values module."""
@@ -366,8 +364,7 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
         metric_list = []
         for _, iteration_value in input_dict["attack_instance_logger"].items():
             metric_list.append(iteration_value["PDIF01"])
-        metric_list = [np.exp(-m) for m in metric_list]
-        return metric_list
+        return [np.exp(-m) for m in metric_list]
 
     def __str__(self):
         """Return the string representation of a FDIF p-values module."""
@@ -428,8 +425,7 @@ class LogLogROCModule(AnalysisModule):
                         out_file = os.path.join(self.output_folder, out_file)
                     plt.savefig(out_file)
                     log_plot_names.append(out_file)
-        msg = "Log plot(s) saved to " + str(log_plot_names)
-        return msg
+        return "Log plot(s) saved to " + str(log_plot_names)
 
     def __str__(self):
         """Return the string representation of a ROC log plot module."""

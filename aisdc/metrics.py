@@ -74,9 +74,7 @@ def _tpr_at_fpr(
     tpr_from_thresh = interpolate.interp1d(thresh_vals, tpr_vals)
 
     thresh = thresh_from_fpr(fpr)
-    tpr = tpr_from_thresh(thresh)
-
-    return tpr
+    return tpr_from_thresh(thresh)
 
 
 def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
@@ -99,12 +97,11 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
         null variance of AUC
     """
     p_xxy = p_xyy = 1 / 3
-    var = (
+    return (
         auc * (1 - auc)
         + (num_pos - 1) * (p_xxy - auc**2)
         + (num_neg - 1) * (p_xyy - auc**2)
     ) / (num_pos * num_neg)
-    return var
 
 
 def min_max_disc(

@@ -193,17 +193,14 @@ class DPSVC:
     def _raw_outputs(self, test_features: Any) -> np.ndarray:
         """Get the raw output, used by predict and predict_proba."""
         projected_features = self.phi_hat_multi(test_features)
-        out = np.dot(projected_features, self.noisy_weights) + self.intercept
-        return out
+        return np.dot(projected_features, self.noisy_weights) + self.intercept
 
     def predict(self, test_features: Any) -> np.ndarray:
         """Return the predictions."""
         out = self._raw_outputs(test_features)
-        out = 1 * (out > 0)
-        return out
+        return 1 * (out > 0)
 
     def predict_proba(self, test_features: Any) -> np.ndarray:
         """Return the predictive probabilities."""
         out = self._raw_outputs(test_features)
-        pred_probs = self.platt_transform.predict_proba(out.reshape(-1, 1))
-        return pred_probs
+        return self.platt_transform.predict_proba(out.reshape(-1, 1))

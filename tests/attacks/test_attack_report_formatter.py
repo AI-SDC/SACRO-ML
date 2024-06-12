@@ -52,7 +52,7 @@ def get_test_report():
 
 def get_target_report():
     """Create a mock target model dictionary for use with tests."""
-    target_formatted = {
+    return {
         "data_name": "",
         "n_samples": 12960,
         "features": {},
@@ -62,8 +62,6 @@ def get_target_report():
         "model_name": "SVC",
         "model_params": {"C": 1.0},
     }
-
-    return target_formatted
 
 
 class TestGenerateReport(unittest.TestCase):
@@ -82,9 +80,7 @@ class TestGenerateReport(unittest.TestCase):
         g.export_to_file(output_filename)
 
         with open(output_filename, encoding="utf-8") as file:
-            data = file.read()
-
-        return data
+            return file.read()
 
     def test_not_implemented(self):
         """Test to make sure analysis module fails expectedly when functions are called directly."""
