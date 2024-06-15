@@ -220,7 +220,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         except (ImportError, KeyError, OSError):  # pragma: no cover
             self.researcher = "unknown"
 
-    def get_params(self, deep=True):
+    def get_params(self, deep: bool = True) -> dict:
         """Get a dictionary of parameter values restricted to those expected."""
         the_params = {}
         for key, val in self.__dict__.items():

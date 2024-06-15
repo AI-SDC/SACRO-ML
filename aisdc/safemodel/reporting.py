@@ -1,7 +1,7 @@
 """Methods to producte standard reporting strings."""
 
 
-def get_reporting_string(**kwargs):
+def get_reporting_string(**kwargs) -> str:
     """Return a standard formatted string from a dictionary of f-strings.
 
     Parameters

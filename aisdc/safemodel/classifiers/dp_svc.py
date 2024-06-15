@@ -1,5 +1,7 @@
 """Differentially private SVC."""
 
+from __future__ import annotations
+
 import logging
 from typing import Any
 
@@ -53,7 +55,14 @@ class DPSVC:
     is in {-1,1})
     """
 
-    def __init__(self, C=1.0, gamma="scale", dhat=1000, eps=10, **kwargs):
+    def __init__(
+        self,
+        C: float = 1.0,
+        gamma: str | float = "scale",
+        dhat: int = 1000,
+        eps: float = 10,
+        **kwargs,
+    ):
         self.svc = None
         self.gamma = gamma
         self.dpsvc_gamma = None

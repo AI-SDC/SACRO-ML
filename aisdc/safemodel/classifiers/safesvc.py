@@ -15,7 +15,14 @@ from .dp_svc import DPSVC
 class SafeSVC(SafeModel, DPSVC):
     """Privacy protected Support Vector Classifier."""
 
-    def __init__(self, C=1.0, gamma="scale", dhat=1000, eps=10, **kwargs) -> None:
+    def __init__(
+        self,
+        C: float = 1.0,
+        gamma: str | float = "scale",
+        dhat: int = 1000,
+        eps: float = 10,
+        **kwargs,
+    ) -> None:
         """Initialise a differentially private SVC."""
         SafeModel.__init__(self)
         DPSVC.__init__(self, C=C, gamma=gamma, dhat=dhat, eps=eps, **kwargs)

@@ -351,6 +351,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         self.safemodel = data
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the dataset used."""
         return self.name

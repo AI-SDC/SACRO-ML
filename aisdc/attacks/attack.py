@@ -28,7 +28,7 @@ class Attack:
             setattr(self, key, value)
 
     @classmethod
-    def _get_param_names(cls):
+    def _get_param_names(cls) -> list[str]:
         """Get parameter names."""
         init_signature = inspect.signature(cls.__init__)
         return [

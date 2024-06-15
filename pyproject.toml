@@ -94,5 +94,6 @@ docstring-code-format = true
 docstring-code-line-length = 80
 
 [tool.ruff.lint.extend-per-file-ignores]
-"tests/**/*" = ["S101", "PLR2004"]
+"user_stories/**/*" = ["ANN"]
+"tests/**/*" = ["S101", "PLR2004", "ANN"]
 "aisdc/attacks/structural_attack.py" = ["PLR2004"]

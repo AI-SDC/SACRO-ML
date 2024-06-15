@@ -67,7 +67,7 @@ class AttributeAttack(Attack):
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the attack."""
         return "Attribute inference attack"
 
@@ -618,7 +618,7 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
     return pdf
 
 
-def _run_attack_from_configfile(args):
+def _run_attack_from_configfile(args: dict) -> None:
     """Run a command line attack based on saved files described in .json file."""
     attack_obj = AttributeAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
@@ -630,7 +630,7 @@ def _run_attack_from_configfile(args):
     attack_obj.make_report()
 
 
-def main():
+def main() -> None:
     """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 
