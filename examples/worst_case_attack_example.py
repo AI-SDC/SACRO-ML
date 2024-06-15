@@ -34,23 +34,23 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
 
 # [Researcher] Split into training and test sets
-train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # [Researcher] Define the classifier
 target_model = SVC(gamma=0.1, probability=True)
 
 # [Researcher] Train the classifier
-target_model.fit(train_X, train_y)
+target_model.fit(X_train, y_train)
 
 # [Researcher] Provide the model and the train and test data to the TRE
 
 # [TRE] Compute the predictions on the training and test sets
-train_preds = target_model.predict_proba(train_X)
-test_preds = target_model.predict_proba(test_X)
+train_preds = target_model.predict_proba(X_train)
+test_preds = target_model.predict_proba(X_test)
 
 # [TRE / Researcher] Wrap the model and data in a Target object
 target = Target(model=target_model)
-target.add_processed_data(train_X, train_y, test_X, test_y)
+target.add_processed_data(X_train, y_train, X_test, y_test)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(

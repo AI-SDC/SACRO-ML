@@ -146,7 +146,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name == "iris":
         return _iris()
     if dataset_name == "RDMP":
-        return _RDMP(data_folder)
+        return _rdmp(data_folder)
     raise UnknownDataset(dataset_name)
 
 
@@ -457,7 +457,7 @@ def _mimic_iaccd(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     return (X, y)
 
 
-def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
+def _rdmp(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the RDMP dataset."""

@@ -5,7 +5,7 @@ from .safedecisiontreeclassifier import SafeDecisionTreeClassifier
 from .safekeras import SafeKerasModel
 from .saferandomforestclassifier import SafeRandomForestClassifier
 from .safesvc import SafeSVC
-from .safetf import Safe_tf_DPModel
+from .safetf import SafeTFModel
 
 __all__ = [
     "DPSVC",
@@ -13,5 +13,5 @@ __all__ = [
     "SafeKerasModel",
     "SafeRandomForestClassifier",
     "SafeSVC",
-    "Safe_tf_DPModel",
+    "SafeTFModel",
 ]

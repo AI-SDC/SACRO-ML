@@ -71,10 +71,10 @@ class TestMetrics(unittest.TestCase):
     def test_metrics(self):
         """Test each individual metric with dummy data."""
         clf = DummyClassifier()
-        testX = []
-        testy = TRUE_CLASS
-        y_pred_proba = clf.predict_proba(testX)
-        metrics = get_metrics(y_pred_proba, testy)
+        X_test = []
+        y_test = TRUE_CLASS
+        y_pred_proba = clf.predict_proba(X_test)
+        metrics = get_metrics(y_pred_proba, y_test)
         assert metrics["TPR"] == pytest.approx(2 / 3)
         assert metrics["FPR"] == pytest.approx(1 / 3)
         assert metrics["FAR"] == pytest.approx(1 / 3)
@@ -127,7 +127,7 @@ class TestFPRatTPR(unittest.TestCase):
         assert tpr == pytest.approx(1)
 
 
-class Test_Div(unittest.TestCase):
+class TestDiv(unittest.TestCase):
     """Test the _div functionality."""
 
     def test_div(self):

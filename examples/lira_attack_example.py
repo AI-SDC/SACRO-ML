@@ -44,16 +44,16 @@ from aisdc.attacks.target import Target  # pylint: disable = import-error
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
 
 # [Researcher] Split into training and test sets
-train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # [Researcher] Define the classifier
 target_model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
 # [Researcher] Train the classifier
-target_model.fit(train_X, train_y)
+target_model.fit(X_train, y_train)
 
 # [Researcher] Provide the model and the train and test data to the TRE
 target = Target(model=target_model)
-target.add_processed_data(train_X, train_y, test_X, test_y)
+target.add_processed_data(X_train, y_train, X_test, y_test)
 
 # [TRE] Creates a config file for the likelihood attack
 config = {
@@ -148,12 +148,12 @@ print("*****************************")
 # the command line rather than programmatically
 
 # [Researcher] Dump the training and test predictions to .csv files
-np.savetxt("train_preds.csv", target_model.predict_proba(train_X), delimiter=",")
-np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
+np.savetxt("train_preds.csv", target_model.predict_proba(X_train), delimiter=",")
+np.savetxt("test_preds.csv", target_model.predict_proba(X_test), delimiter=",")
 
 # [Researcher] Dump the training and test data to a .csv file
-np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter=",")
-np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
+np.savetxt("train_data.csv", np.hstack((X_train, y_train[:, None])), delimiter=",")
+np.savetxt("test_data.csv", np.hstack((X_test, y_test[:, None])), delimiter=",")
 
 # [Researcher] Dump the target model and target data
 target.save(path="target_model_for_lira")

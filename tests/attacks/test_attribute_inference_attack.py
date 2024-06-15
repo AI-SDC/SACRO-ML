@@ -88,7 +88,7 @@ def test_continuous_via_modified_bounds_risk(common_setup):
     assert returned["test"] == 0
 
 
-def test_AIA_on_nursery(common_setup):
+def test_aia_on_nursery(common_setup):
     """Test AIA on the nursery data with an added continuous feature."""
     target, attack_obj = common_setup
     attack_obj.attack(target)
@@ -99,7 +99,7 @@ def test_AIA_on_nursery(common_setup):
     assert "categorical" in keys
 
 
-def test_AIA_on_nursery_from_cmd(common_setup):
+def test_aia_on_nursery_from_cmd(common_setup):
     """Test AIA on the nursery data with an added continuous feature."""
     target, _ = common_setup
     target.save(path="tests/test_aia_target")

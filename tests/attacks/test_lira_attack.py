@@ -48,28 +48,28 @@ def test_predict(dummy_classifier_setup):
 def fixture_lira_classifier_setup():
     """Set up common things for LiRA."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
     target_model = RandomForestClassifier(
         n_estimators=100, min_samples_split=2, min_samples_leaf=1
     )
-    target_model.fit(train_X, train_y)
+    target_model.fit(X_train, train_y)
     target = Target(target_model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
     target.save(path="test_lira_target")
     # Dump training and test data to csv
     np.savetxt(
         "train_data.csv",
-        np.hstack((train_X, train_y[:, None])),
+        np.hstack((X_train, train_y[:, None])),
         delimiter=",",
     )
-    np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
+    np.savetxt("test_data.csv", np.hstack((X_test, test_y[:, None])), delimiter=",")
     # dump the training and test predictions into files
     np.savetxt(
         "train_preds.csv",
-        target_model.predict_proba(train_X),
+        target_model.predict_proba(X_train),
         delimiter=",",
     )
-    np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
+    np.savetxt("test_preds.csv", target_model.predict_proba(X_test), delimiter=",")
     return target
 
 

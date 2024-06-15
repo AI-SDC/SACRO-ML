@@ -5,7 +5,7 @@ from tensorflow_privacy import DPModel
 from aisdc.safemodel.safemodel import SafeModel
 
 
-class Safe_tf_DPModel(SafeModel, DPModel):
+class SafeTFModel(SafeModel, DPModel):
     """Privacy Protected tensorflow_privacy DP-SGD subclass of Keras model."""
 
     # pylint:disable=super-init-not-called

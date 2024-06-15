@@ -117,28 +117,28 @@ def check_checkpoint_equality(v1: str, v2: str) -> tuple[bool, str]:
     return same, msg
 
 
-def check_DP_used(optimizer) -> tuple[bool, str]:
+def check_dp_used(optimizer) -> tuple[bool, str]:
     """Check whether the DP optimizer was actually the one used."""
     key_needed = "_was_dp_gradients_called"
     critical_val = optimizer.__dict__.get(key_needed, "missing")
 
     if critical_val is True:
         reason = get_reporting_string(name="dp_optimizer_run")
-        DPused = True
+        dp_used = True
     elif critical_val == "missing":
         reason = get_reporting_string(name="no_dp_gradients_key")
-        DPused = False
+        dp_used = False
     elif critical_val is False:
         reason = get_reporting_string(name="changed_opt_no_fit")
-        DPused = False
+        dp_used = False
     else:  # pragma: no cover
         # not currently reachable because optimizer class does
         # not support assignment
         # but leave in to future-proof
         reason = get_reporting_string(name="unrecognised_combination")
-        DPused = False
+        dp_used = False
 
-    return DPused, reason
+    return dp_used, reason
 
 
 def check_optimizer_allowed(optimizer) -> tuple[bool, str]:
@@ -156,16 +156,16 @@ def check_optimizer_allowed(optimizer) -> tuple[bool, str]:
     return allowed, reason
 
 
-def check_optimizer_is_DP(optimizer) -> tuple[bool, str]:
+def check_optimizer_is_dp(optimizer) -> tuple[bool, str]:
     """Check whether optimizer is one of tensorflow's DP versions."""
-    DPused = False
+    dp_used = False
     reason = "None"
     if "_was_dp_gradients_called" not in optimizer.__dict__:
         reason = get_reporting_string(name="no_dp_gradients_key")
     else:
         reason = get_reporting_string(name="found_dp_gradients_key")
-        DPused = True
-    return DPused, reason
+        dp_used = True
+    return dp_used, reason
 
 
 def load_safe_keras_model(name: str = "undefined") -> tuple[bool, Any]:
@@ -315,26 +315,26 @@ class SafeKerasModel(KerasModel, SafeModel):
             metrics = ["accuracy"]
 
         replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
-        using_DP_SGD = get_reporting_string(name="using_dp_sgd")
-        Using_DP_Adagrad = get_reporting_string(name="using_dp_adagrad")
-        using_DP_Adam = get_reporting_string(name="using_dp_adam")
+        using_dp_sgd = get_reporting_string(name="using_dp_sgd")
+        using_dp_adagrad = get_reporting_string(name="using_dp_adagrad")
+        using_dp_adam = get_reporting_string(name="using_dp_adam")
 
         optimizer_dict = {
-            None: (using_DP_SGD, tfp.DPKerasSGDOptimizer),
+            None: (using_dp_sgd, tfp.DPKerasSGDOptimizer),
             tfp.DPKerasSGDOptimizer: ("", tfp.DPKerasSGDOptimizer),
             tfp.DPKerasAdagradOptimizer: ("", tfp.DPKerasAdagradOptimizer),
             tfp.DPKerasAdamOptimizer: ("", tfp.DPKerasAdamOptimizer),
             "Adagrad": (
-                replace_message + Using_DP_Adagrad,
+                replace_message + using_dp_adagrad,
                 tfp.DPKerasAdagradOptimizer,
             ),
-            "Adam": (replace_message + using_DP_Adam, tfp.DPKerasAdamOptimizer),
-            "SGD": (replace_message + using_DP_SGD, tfp.DPKerasSGDOptimizer),
+            "Adam": (replace_message + using_dp_adam, tfp.DPKerasAdamOptimizer),
+            "SGD": (replace_message + using_dp_sgd, tfp.DPKerasSGDOptimizer),
         }
 
         val = optimizer_dict.get(optimizer, "unknown")
         if val == "unknown":
-            opt_msg = using_DP_SGD
+            opt_msg = using_dp_sgd
             opt_used = tfp.DPKerasSGDOptimizer
         else:
             opt_msg = val[0]
@@ -356,7 +356,7 @@ class SafeKerasModel(KerasModel, SafeModel):
     def fit(  # pylint:disable=too-many-arguments
         self,
         X: Any,
-        Y: Any,
+        y: Any,
         validation_data: Any,
         epochs: int,
         batch_size: int,
@@ -389,7 +389,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         returnval = super().fit(
             X,
-            Y,
+            y,
             validation_data=validation_data,
             epochs=epochs,
             batch_size=batch_size,
@@ -400,7 +400,7 @@ class SafeKerasModel(KerasModel, SafeModel):
             os.mkdir("tfsaves")
         self.save("tfsaves/fit_model.tf")
         # pylint: disable=attribute-defined-outside-init
-        self.saved_was_dpused, self.saved_reason = check_DP_used(self.optimizer)
+        self.saved_was_dpused, self.saved_reason = check_dp_used(self.optimizer)
         self.saved_epsilon = self.current_epsilon
         return returnval
 
@@ -430,14 +430,14 @@ class SafeKerasModel(KerasModel, SafeModel):
             disclosive = True
 
         # was the dp-optimiser used during fit()
-        dpused, dpusedmessage = check_DP_used(self.optimizer)
-        if not dpused:
+        dp_used, dpusedmessage = check_dp_used(self.optimizer)
+        if not dp_used:
             msg += dpusedmessage
             disclosive = True
 
         # have values been changed since saved  immediately after fit()?
         if (
-            dpused != self.saved_was_dpused
+            dp_used != self.saved_was_dpused
             or dpusedmessage != self.saved_reason
             or self.saved_epsilon != self.current_epsilon
         ):
