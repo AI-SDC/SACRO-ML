@@ -10,10 +10,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks import attribute_attack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
-
-# pylint: disable = duplicate-code
+from aisdc.attacks import attribute_attack
+from aisdc.attacks.target import Target
 
 if __name__ == "__main__":
     # [Researcher] Access a dataset

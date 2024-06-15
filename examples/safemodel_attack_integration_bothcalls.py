@@ -7,10 +7,8 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.safemodel.classifiers import (  # pylint: disable=import-error
-    SafeDecisionTreeClassifier,
-)
+from aisdc.attacks.target import Target
+from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 
 if __name__ == "__main__":
     # [Researcher] Access a dataset

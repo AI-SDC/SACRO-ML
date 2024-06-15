@@ -26,8 +26,6 @@ The steps are as follows:
 Below, [Researcher] and [TRE] are used to denote which task is performed by whom.
 """
 
-# pylint: disable = duplicate-code
-
 import json
 import os
 import sys
@@ -37,8 +35,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.target import Target
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)

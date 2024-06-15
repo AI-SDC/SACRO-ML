@@ -16,11 +16,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.multiple_attacks import (  # pylint: disable = import-error
-    ConfigFile,
-    MultipleAttacks,
-)
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks.multiple_attacks import ConfigFile, MultipleAttacks
+from aisdc.attacks.target import Target
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
