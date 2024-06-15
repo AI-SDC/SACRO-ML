@@ -117,11 +117,7 @@ class ConfigFile:
         """Read a JSON config file and return dict with configuration objects."""
         with open(self.filename, encoding="utf-8") as f:
             file_contents = f.read()
-            if file_contents != "":
-                config_file_data = json.loads(file_contents)
-            else:
-                config_file_data = {}
-        return config_file_data
+            return json.loads(file_contents) if file_contents != "" else {}
 
 
 def _run_attack_from_configfile(args):

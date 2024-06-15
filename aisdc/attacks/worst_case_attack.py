@@ -463,11 +463,7 @@ class WorstCaseAttack(Attack):
         n_vals = len(p_val_list)
         hoch_vals = np.array([(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)])
         bh_sig_list = p_val_list <= hoch_vals
-        if any(bh_sig_list):
-            n_sig_bh = (np.where(bh_sig_list)[0]).max() + 1
-        else:
-            n_sig_bh = 0
-        return n_sig_bh
+        return np.where(bh_sig_list)[0].max() + 1 if any(bh_sig_list) else 0
 
     def _generate_array(self, n_rows: int, beta: float) -> np.ndarray:
         """Generate array of predictions, used when doing baseline experiments.

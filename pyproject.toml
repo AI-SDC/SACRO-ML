@@ -46,7 +46,7 @@ lint.select = [
   "D",   # pydocstyle
 #  "DTZ", # flake8-datetimez
 #  "E",   # pycodestyle
-#  "EM",  # flake8-errmsg
+  "EM",  # flake8-errmsg
   "ERA", # eradicate
   "F",   # Pyflakes
   "I",   # isort
@@ -54,7 +54,7 @@ lint.select = [
 #  "N",   # pep8-naming
 #  "PD",  # pandas-vet
   "PGH", # pygrep-hooks
-#  "PIE", # flake8-pie
+  "PIE", # flake8-pie
 #  "PL",  # Pylint
   "PLC", # Pylint
   "PLE", # Pylint
@@ -65,7 +65,7 @@ lint.select = [
   "RET", # flake8-return
   "RUF100",  # Ruff-specific
 #  "S",   # flake8-bandit
-#  "SIM", # flake8-simplify
+  "SIM", # flake8-simplify
 #  "T20", # flake8-print
   "TID", # flake8-tidy-imports
   "UP",  # pyupgrade
@@ -74,7 +74,13 @@ lint.select = [
 ]
 
 lint.ignore = [
+    "ANN101", # missing-type-self
+    "EM101",  # raw-string-in-exception
+    "EM102",  # f-string-in-exception
 ]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["X", "X_train", "X_predict"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -84,4 +90,5 @@ docstring-code-format = true
 docstring-code-line-length = 80
 
 [tool.ruff.lint.extend-per-file-ignores]
-"tests/**/*" = ["S101"]
+"tests/**/*" = ["S101", "PLR2004"]
+"aisdc/attacks/structural_attack.py" = ["PLR2004"]

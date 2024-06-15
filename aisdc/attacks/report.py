@@ -144,10 +144,7 @@ def _roc_plot(metrics, dummy_metrics, save_name):
     """Create a roc plot for multiple repetitions."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
-    if dummy_metrics is None or len(dummy_metrics) == 0:
-        do_dummy = False
-    else:
-        do_dummy = True
+    do_dummy = bool(dummy_metrics)
 
     # Compute average ROC
     base_fpr = np.linspace(0, 1, 1000)
@@ -220,10 +217,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
         ].items()
     ]
     metadata = attack_output["metadata"]
-    if dummy_metrics is None or len(dummy_metrics) == 0:
-        do_dummy = False
-    else:
-        do_dummy = True
+    do_dummy = bool(dummy_metrics)
 
     dest_log_roc = (
         os.path.join(

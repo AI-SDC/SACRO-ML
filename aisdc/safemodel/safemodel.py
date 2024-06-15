@@ -410,10 +410,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             if temp_disc:
                 disclosive = True
 
-        if disclosive:
-            msg = notok_start + msg
-        else:
-            msg = ok_start + msg
+        msg = notok_start + msg if disclosive else ok_start + msg
 
         if verbose:
             print("Preliminary checks: " + msg)

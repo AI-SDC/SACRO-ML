@@ -145,7 +145,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
 
         for record in range(num_records):
             # start by assuming everything co-occurs
-            appears_together = list(range(0, num_records))
+            appears_together = list(range(num_records))
             # iterate through trees
             for this_tree in range(num_trees):
                 this_leaf = all_leaves[record][this_tree]

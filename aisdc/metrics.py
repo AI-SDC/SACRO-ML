@@ -32,11 +32,7 @@ def _div(x: float, y: float, default: float) -> float:
     division : float
         x / y, or default if y == 0
     """
-    if y != 0:
-        division = round(float(x / y), 8)
-    else:
-        division = float(default)
-    return division
+    return round(float(x / y), 8) if y != 0 else float(default)
 
 
 def _tpr_at_fpr(
@@ -171,11 +167,7 @@ def min_max_disc(
     sdm = np.sqrt(2 * pos_frequency * (1 - pos_frequency) / n_examples)
     pval = 1 - norm.cdf(mmd, loc=0, scale=sdm)  # normal CDF
     if log_p:
-        if pval < 1e-50:
-            pval = -115.13
-        else:
-            pval = np.log(pval)
-
+        pval = -115.13 if pval < 1e-50 else np.log(pval)
     # Return
     return maxd, mind, mmd, pval
 

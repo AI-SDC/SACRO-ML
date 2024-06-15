@@ -62,11 +62,7 @@ class GenerateJSONModule:
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
             file_contents = f.read()
-            if file_contents != "":
-                file_data = json.loads(file_contents)
-            else:
-                file_data = {}
-
+            file_data = json.loads(file_contents) if file_contents != "" else {}
             f.truncate(0)
 
         # Add the new JSON to the JSON that was in the file, and re-write
@@ -158,78 +154,81 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 
             rules = json_structure["DecisionTreeClassifier"]["rules"]
             for entry in rules:
-                if "keyword" in entry and entry["keyword"] == "min_samples_leaf":
-                    if "operator" in entry and entry["operator"] == "min":
-                        min_samples_leaf_appetite = entry["value"]
-                        break
+                if (
+                    "keyword" in entry
+                    and entry["keyword"] == "min_samples_leaf"
+                    and "operator" in entry
+                    and entry["operator"] == "min"
+                ):
+                    min_samples_leaf_appetite = entry["value"]
+                    break
 
-        if ("model_params" in self.report) and min_samples_leaf_appetite is not None:
-            if "min_samples_leaf" in self.report["model_params"]:
-                min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
-                if min_samples_leaf < min_samples_leaf_appetite:
-                    self.scores.append(min_samples_leaf_score)
+        if (
+            ("model_params" in self.report)
+            and min_samples_leaf_appetite is not None
+            and "min_samples_leaf" in self.report["model_params"]
+        ):
+            min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
+            if min_samples_leaf < min_samples_leaf_appetite:
+                self.scores.append(min_samples_leaf_score)
 
-                    msg = "Min samples per leaf < " + str(min_samples_leaf_appetite)
-                    self.reasons.append(msg)
-                    self.support_rejection.append(msg)
-                else:
-                    msg = "Min samples per leaf > " + str(min_samples_leaf_appetite)
-                    self.support_release.append(msg)
+                msg = "Min samples per leaf < " + str(min_samples_leaf_appetite)
+                self.reasons.append(msg)
+                self.support_rejection.append(msg)
+            else:
+                msg = "Min samples per leaf > " + str(min_samples_leaf_appetite)
+                self.support_release.append(msg)
 
     def _statistically_significant_auc(
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
     ):
         stat_sig_auc = []
         for k in self.report:
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    for i in self.report[k]["attack_experiment_logger"][
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                for i in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ]:
+                    instance = self.report[k]["attack_experiment_logger"][
                         "attack_instance_logger"
-                    ]:
-                        instance = self.report[k]["attack_experiment_logger"][
-                            "attack_instance_logger"
-                        ][i]
+                    ][i]
 
-                        auc_key = "P_HIGHER_AUC"
-                        if auc_key in instance and instance[auc_key] < p_val_thresh:
-                            stat_sig_auc.append(instance["AUC"])
+                    auc_key = "P_HIGHER_AUC"
+                    if auc_key in instance and instance[auc_key] < p_val_thresh:
+                        stat_sig_auc.append(instance["AUC"])
 
-                    n_instances = len(
-                        self.report[k]["attack_experiment_logger"][
-                            "attack_instance_logger"
-                        ]
+                n_instances = len(
+                    self.report[k]["attack_experiment_logger"]["attack_instance_logger"]
+                )
+                if len(stat_sig_auc) / n_instances > 0.1:
+                    msg = ">10% AUC are statistically significant in experiment " + str(
+                        k
                     )
-                    if (
-                        len(stat_sig_auc) / n_instances > 0.1
-                    ):  # > 10% of AUC are statistically significant
-                        msg = (
-                            ">10% AUC are statistically significant in experiment "
-                            + str(k)
-                        )
 
-                        self.scores.append(stat_sig_score)
+                    self.scores.append(stat_sig_score)
+                    self.reasons.append(msg)
+                    self.support_rejection.append(msg)
+                else:
+                    msg = "<10% AUC are statistically significant in experiment " + str(
+                        k
+                    )
+                    self.support_release.append(msg)
+
+                if len(stat_sig_auc) > 0:
+                    mean = np.mean(np.array(stat_sig_auc))
+                    if mean > mean_auc_thresh:
+                        msg = "Attack AUC > threshold of " + str(mean_auc_thresh)
+                        msg = msg + " in experiment " + str(k)
+
+                        self.scores.append(mean_auc_score)
                         self.reasons.append(msg)
                         self.support_rejection.append(msg)
                     else:
-                        msg = (
-                            "<10% AUC are statistically significant in experiment "
-                            + str(k)
-                        )
+                        msg = "Attack AUC <= threshold of " + str(mean_auc_thresh)
+                        msg = msg + " in experiment " + str(k)
                         self.support_release.append(msg)
-
-                    if len(stat_sig_auc) > 0:
-                        mean = np.mean(np.array(stat_sig_auc))
-                        if mean > mean_auc_thresh:
-                            msg = "Attack AUC > threshold of " + str(mean_auc_thresh)
-                            msg = msg + " in experiment " + str(k)
-
-                            self.scores.append(mean_auc_score)
-                            self.reasons.append(msg)
-                            self.support_rejection.append(msg)
-                        else:
-                            msg = "Attack AUC <= threshold of " + str(mean_auc_thresh)
-                            msg = msg + " in experiment " + str(k)
-                            self.support_release.append(msg)
 
     def process_dict(self):
         """Return a dictionary summarising the metrics."""
@@ -275,23 +274,25 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
         output_dict = {}
 
         for k in self.report:
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    metrics_dict = {m: [] for m in self.metrics_list}
-                    for _, iteration_value in self.report[k][
-                        "attack_experiment_logger"
-                    ]["attack_instance_logger"].items():
-                        for m in metrics_dict:
-                            metrics_dict[m].append(iteration_value[m])
-                    output = {}
-                    for m in self.metrics_list:
-                        output[m] = {
-                            "min": min(metrics_dict[m]),
-                            "max": max(metrics_dict[m]),
-                            "mean": np.mean(metrics_dict[m]),
-                            "median": np.median(metrics_dict[m]),
-                        }
-                    output_dict[k] = output
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                metrics_dict = {m: [] for m in self.metrics_list}
+                for _, iteration_value in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].items():
+                    for m in metrics_dict:
+                        metrics_dict[m].append(iteration_value[m])
+                output = {}
+                for m in self.metrics_list:
+                    output[m] = {
+                        "min": min(metrics_dict[m]),
+                        "max": max(metrics_dict[m]),
+                        "mean": np.mean(metrics_dict[m]),
+                        "median": np.median(metrics_dict[m]),
+                    }
+                output_dict[k] = output
         return output_dict
 
     def __str__(self):
@@ -329,12 +330,14 @@ class SummariseAUCPvalsModule(AnalysisModule):
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []
         for k in self.report:
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    for _, iteration_value in self.report[k][
-                        "attack_experiment_logger"
-                    ]["attack_instance_logger"].items():
-                        metrics_list.append(iteration_value["P_HIGHER_AUC"])
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                for _, iteration_value in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].items():
+                    metrics_list.append(iteration_value["P_HIGHER_AUC"])
         return metrics_list
 
     def process_dict(self):
@@ -383,45 +386,49 @@ class LogLogROCModule(AnalysisModule):
         log_plot_names = []
 
         for k in self.report:
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    plt.figure(figsize=(8, 8))
-                    plt.plot([0, 1], [0, 1], "k--")
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                plt.figure(figsize=(8, 8))
+                plt.plot([0, 1], [0, 1], "k--")
 
-                    # Compute average ROC
-                    base_fpr = np.linspace(0, 1, 1000)
-                    metrics = self.report[k]["attack_experiment_logger"][
-                        "attack_instance_logger"
-                    ].values()
-                    all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
+                # Compute average ROC
+                base_fpr = np.linspace(0, 1, 1000)
+                metrics = self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].values()
+                all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
 
-                    for i, metric_set in enumerate(metrics):
-                        all_tpr[i, :] = np.interp(
-                            base_fpr, metric_set["fpr"], metric_set["tpr"]
-                        )
+                for i, metric_set in enumerate(metrics):
+                    all_tpr[i, :] = np.interp(
+                        base_fpr, metric_set["fpr"], metric_set["tpr"]
+                    )
 
-                    for _, metric_set in enumerate(metrics):
-                        plt.plot(
-                            metric_set["fpr"],
-                            metric_set["tpr"],
-                            color="lightsalmon",
-                            linewidth=0.5,
-                        )
+                for _, metric_set in enumerate(metrics):
+                    plt.plot(
+                        metric_set["fpr"],
+                        metric_set["tpr"],
+                        color="lightsalmon",
+                        linewidth=0.5,
+                    )
 
-                    tpr_mu = all_tpr.mean(axis=0)
-                    plt.plot(base_fpr, tpr_mu, "r")
+                tpr_mu = all_tpr.mean(axis=0)
+                plt.plot(base_fpr, tpr_mu, "r")
 
-                    plt.xlabel("False Positive Rate")
-                    plt.ylabel("True Positive Rate")
-                    plt.xscale("log")
-                    plt.yscale("log")
-                    plt.tight_layout()
-                    plt.grid()
-                    out_file = f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
-                    if self.output_folder is not None:
-                        out_file = os.path.join(self.output_folder, out_file)
-                    plt.savefig(out_file)
-                    log_plot_names.append(out_file)
+                plt.xlabel("False Positive Rate")
+                plt.ylabel("True Positive Rate")
+                plt.xscale("log")
+                plt.yscale("log")
+                plt.tight_layout()
+                plt.grid()
+                out_file = (
+                    f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+                )
+                if self.output_folder is not None:
+                    out_file = os.path.join(self.output_folder, out_file)
+                plt.savefig(out_file)
+                log_plot_names.append(out_file)
         return "Log plot(s) saved to " + str(log_plot_names)
 
     def __str__(self):

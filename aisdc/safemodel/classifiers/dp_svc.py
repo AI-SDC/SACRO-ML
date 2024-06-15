@@ -88,10 +88,7 @@ class DPSVC:
     def k_hat_svm(self, x, y=None):
         """Define the version which is sent to sklearn.svm."""
         phi_hat_x = self.phi_hat_multi(x)
-        if y is None:
-            phi_hat_y = phi_hat_x
-        else:
-            phi_hat_y = self.phi_hat_multi(y)
+        phi_hat_y = phi_hat_x if y is None else self.phi_hat_multi(y)
         return np.dot(phi_hat_x, phi_hat_y.T)
 
     def fit(self, train_features: Any, train_labels: Any) -> None:

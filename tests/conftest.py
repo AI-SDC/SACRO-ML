@@ -1,5 +1,6 @@
 """Common utility functions for testing."""
 
+import contextlib
 import os
 import shutil
 from datetime import date
@@ -77,20 +78,16 @@ def _cleanup():
     yield
 
     for folder in folders:
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(folder)
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass
 
     files.append(  # from attack_report_formater.py
         "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
     )
 
     for file in files:
-        try:
+        with contextlib.suppress(Exception):
             os.remove(file)
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass
 
 
 @pytest.fixture()
