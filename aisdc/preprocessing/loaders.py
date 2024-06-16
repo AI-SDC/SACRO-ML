@@ -1,6 +1,6 @@
 """Handlers to pull in datasets and perform preprocessing."""
 
-# pylint: disable=invalid-name, consider-using-with, too-many-return-statements
+# pylint: disable=consider-using-with, too-many-return-statements
 
 import logging
 import os
@@ -462,7 +462,7 @@ def _rdmp(  # pylint: disable=too-many-locals, too-many-statements
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the RDMP dataset."""
 
-    def find_age(row):
+    def find_age(row: pd.Series) -> int:
         date_ = pd.to_datetime("01/06/2020")
         if row.date_of_death != row.date_of_death:
             age = np.floor((date_ - row.date_of_birth).days / 365.25)
@@ -470,7 +470,7 @@ def _rdmp(  # pylint: disable=too-many-locals, too-many-statements
             age = np.floor((row.date_of_death - row.date_of_birth).days / 365.25)
         return age
 
-    def hospital_days(row):
+    def hospital_days(row: pd.Series) -> int:
         if row.DischargeDate == row.DischargeDate:
             t = row.DischargeDate - row.AdmissionDate
             days = t.days + round(((t.seconds / 60) / 60) / 24)

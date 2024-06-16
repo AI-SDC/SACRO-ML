@@ -14,11 +14,11 @@ import numpy as np
 
 
 def cleanup_files_for_release(
-    move_into_artefacts,
-    copy_into_release,
-    release_dir="release_files",
-    artefacts_dir="training_artefacts",
-):
+    move_into_artefacts: list[str],
+    copy_into_release: list[str],
+    release_dir: str = "release_files",
+    artefacts_dir: str = "training_artefacts",
+) -> None:
     """Move files created during the release process into appropriate folders."""
     if not os.path.exists(release_dir):
         os.makedirs(release_dir)
@@ -42,7 +42,7 @@ def cleanup_files_for_release(
 class GenerateJSONModule:
     """Create and append to a JSON file."""
 
-    def __init__(self, filename=None):
+    def __init__(self, filename: str | None = None) -> None:
         self.filename = filename
 
         if self.filename is None:
@@ -57,7 +57,7 @@ class GenerateJSONModule:
             with open(self.filename, "w", encoding="utf-8") as f:
                 f.write("")
 
-    def add_attack_output(self, incoming_json, class_name):
+    def add_attack_output(self, incoming_json, class_name) -> None:
         """Add a section of JSON to the file which is already open."""
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
@@ -75,11 +75,11 @@ class GenerateJSONModule:
             file_data[class_name] = incoming_json
             json.dump(file_data, f)
 
-    def get_output_filename(self):
+    def get_output_filename(self) -> str:
         """Return the filename of the JSON file which has been created."""
         return self.filename
 
-    def clean_file(self):
+    def clean_file(self) -> None:
         """Delete the file if it exists."""
         if os.path.exists(self.filename):
             os.remove(self.filename)
@@ -91,20 +91,20 @@ class GenerateJSONModule:
 class AnalysisModule:
     """Wrapper module for metrics analysis modules."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.immediate_rejection = []
         self.support_rejection = []
         self.support_release = []
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Produce a risk summary output based on analysis in this module."""
         raise NotImplementedError()
 
-    def get_recommendation(self):
+    def get_recommendation(self) -> tuple:
         """Return the three recommendation buckets created by this module."""
         return self.immediate_rejection, self.support_rejection, self.support_release
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of an analysis module."""
         raise NotImplementedError()
 
@@ -112,23 +112,21 @@ class AnalysisModule:
 class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-instance-attributes
     """Generate the first layer of a recommendation report."""
 
-    def __init__(self, report: dict):
+    def __init__(self, report: dict) -> None:
         super().__init__()
 
         self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
-
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
         self.MIN_SAMPLES_LEAF_SCORE = 5
         self.STATISTICALLY_SIGNIFICANT_SCORE = 2
         self.MEAN_AUC_SCORE = 4
 
         self.report = report
-
         self.scores = []
         self.reasons = []
 
-    def _is_instance_based_model(self, instance_based_model_score):
+    def _is_instance_based_model(self, instance_based_model_score) -> bool:
         if "model_name" in self.report:
             if self.report["model_name"] == "SVC":
                 self.scores.append(instance_based_model_score)
@@ -142,7 +140,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                 return True
         return False
 
-    def _tree_min_samples_leaf(self, min_samples_leaf_score):
+    def _tree_min_samples_leaf(self, min_samples_leaf_score) -> None:
         # Find min samples per leaf requirement
         base_path = pathlib.Path(__file__).parents[1]
         risk_appetite_path = os.path.join(base_path, "safemodel", "rules.json")
@@ -181,7 +179,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 
     def _statistically_significant_auc(
         self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
-    ):
+    ) -> None:
         stat_sig_auc = []
         for k in self.report:
             if (
@@ -230,7 +228,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                         msg = msg + " in experiment " + str(k)
                         self.support_release.append(msg)
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Return a dictionary summarising the metrics."""
         self._tree_min_samples_leaf(self.MIN_SAMPLES_LEAF_SCORE)
         self._statistically_significant_auc(
@@ -252,7 +250,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 
         return {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation of the final recommendation."""
         return "Final Recommendation"
 
@@ -260,7 +258,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 class SummariseUnivariateMetricsModule(AnalysisModule):
     """Summarise a set of chosen univariate metrics from the output dictionary."""
 
-    def __init__(self, report: dict, metrics_list=None):
+    def __init__(self, report: dict, metrics_list=None) -> None:
         super().__init__()
 
         if metrics_list is None:
@@ -269,7 +267,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
         self.report = report
         self.metrics_list = metrics_list
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Return a dictionary summarising the metrics."""
         output_dict = {}
 
@@ -295,7 +293,7 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
                 output_dict[k] = output
         return output_dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a univariate metrics module."""
         return "Summary of Univarite Metrics"
 
@@ -303,7 +301,9 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
 class SummariseAUCPvalsModule(AnalysisModule):
     """Summarise a list of AUC values."""
 
-    def __init__(self, report: dict, p_thresh: float = 0.05, correction: str = "bh"):
+    def __init__(
+        self, report: dict, p_thresh: float = 0.05, correction: str = "bh"
+    ) -> None:
         super().__init__()
 
         self.report = report
@@ -340,7 +340,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
                     metrics_list.append(iteration_value["P_HIGHER_AUC"])
         return metrics_list
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Process the dict to summarise the number of significant AUC p-values."""
         p_val_list = self._get_metrics_list()
         return {
@@ -351,7 +351,7 @@ class SummariseAUCPvalsModule(AnalysisModule):
             "n_sig_corrected": self._n_sig(p_val_list, self.correction),
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a AUC p-values module."""
         return f"Summary of AUC p-values at p = ({self.p_thresh})"
 
@@ -366,7 +366,7 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
             metric_list.append(iteration_value["PDIF01"])
         return [np.exp(-m) for m in metric_list]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a FDIF p-values module."""
         return f"Summary of FDIF p-values at p = ({self.p_thresh})"
 
@@ -374,14 +374,16 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
 class LogLogROCModule(AnalysisModule):
     """Generate a log-log plot."""
 
-    def __init__(self, report: dict, output_folder=None, include_mean=True):
+    def __init__(
+        self, report: dict, output_folder: str | None = None, include_mean: bool = True
+    ) -> None:
         super().__init__()
 
         self.report = report
         self.output_folder = output_folder
         self.include_mean = include_mean
 
-    def process_dict(self):
+    def process_dict(self) -> str:
         """Create a roc plot for multiple repetitions."""
         log_plot_names = []
 
@@ -431,7 +433,7 @@ class LogLogROCModule(AnalysisModule):
                 log_plot_names.append(out_file)
         return "Log plot(s) saved to " + str(log_plot_names)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a ROC log plot module."""
         return "ROC Log Plot"
 
@@ -439,7 +441,7 @@ class LogLogROCModule(AnalysisModule):
 class GenerateTextReport:
     """Generate a text report from a JSON input."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.text_out = []
         self.target_json_filename = None
         self.attack_json_filename = None
@@ -449,7 +451,7 @@ class GenerateTextReport:
         self.support_rejection = []
         self.support_release = []
 
-    def _process_target_json(self):
+    def _process_target_json(self) -> None:
         """Create a summary of a target model JSON file."""
         model_params_of_interest = [
             "C",
@@ -507,7 +509,7 @@ class GenerateTextReport:
 
     def process_attack_target_json(
         self, attack_filename: str, target_filename: str = None
-    ):
+    ) -> None:
         """Create a neat summary of an attack JSON file."""
         self.attack_json_filename = attack_filename
 
@@ -567,7 +569,7 @@ class GenerateTextReport:
         model_filename=None,
         release_dir="release_files",
         artefacts_dir="training_artefacts",
-    ):
+    ) -> None:
         """Take the input strings collected and combine into a neat text file."""
         copy_of_text_out = self.text_out
         self.text_out = []

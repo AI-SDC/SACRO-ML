@@ -51,7 +51,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
 
     Notes
     -----
-    Returns 1 if high risk, otherwise 0.
+    Returns True if high risk, otherwise False.
     """
     if not isinstance(
         model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
@@ -205,19 +205,23 @@ class StructuralAttack(Attack):
         attack_config_json_file_name: str = None,
         risk_appetite_config: str = "default",
         target_path: str = None,
-        output_dir="outputs_structural",
-        report_name="report_structural",
+        output_dir: str = "outputs_structural",
+        report_name: str = "report_structural",
     ) -> None:
         """Construct an object to execute a structural attack.
 
         Parameters
         ----------
-        report_name : str
-            name of the pdf and json output reports
-        target_path : str
-            path to the saved trained target model and target data
+        attack_config_json_file_name : str
+            Name of a JSON file containing an attack configuration.
         risk_appetite_config : str
-            path to yaml file specifying TRE risk appetite
+            Path to yaml file specifying TRE risk appetite.
+        target_path : str
+            Path to the saved trained target model and target data.
+        output_dir : str
+            Name of a directory to write outputs.
+        report_name : str
+            Name of the pdf and json output reports.
         """
         super().__init__()
         logger = logging.getLogger("structural_attack")
@@ -257,7 +261,7 @@ class StructuralAttack(Attack):
         self.output_dir = output_dir
         self.report_name = report_name
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the attack."""
         return "Structural attack"
 
@@ -408,7 +412,7 @@ class StructuralAttack(Attack):
         return output
 
 
-def _run_attack(args):
+def _run_attack(args) -> None:
     """Initialise class and run attack."""
     attack_obj = StructuralAttack(
         risk_appetite_config=args.risk_appetite_config,
@@ -423,7 +427,7 @@ def _run_attack(args):
     _ = attack_obj.make_report()
 
 
-def _run_attack_from_configfile(args):
+def _run_attack_from_configfile(args) -> None:
     """Initialise class and run attack using config file."""
     attack_obj = StructuralAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
@@ -435,7 +439,7 @@ def _run_attack_from_configfile(args):
     _ = attack_obj.make_report()
 
 
-def main():
+def main() -> None:
     """Parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(description="Perform a structural  attack")
