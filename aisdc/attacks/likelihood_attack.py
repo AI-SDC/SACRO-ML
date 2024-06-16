@@ -310,7 +310,7 @@ class LIRAAttack(Attack):
             class_map = {c: i for i, c in enumerate(shadow_clf.classes_)}
 
             # generate shadow confidences
-            shadow_confidences = shadow_clf.predict_proba(combined_X_train)
+            shadow_confidences = shadow_clf.predict_proba(combined_x_train)
             these_idx = set(these_idx)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
