@@ -10,7 +10,6 @@ the comment which disables the pylint warning.
 from __future__ import annotations
 
 import copy
-from typing import Any
 
 import numpy as np
 from dictdiffer import diff
@@ -45,7 +44,7 @@ def check_present(
 class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
     """Privacy protected ModelToMakeSafer."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: dict) -> None:
         """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.k_anonymity = 0

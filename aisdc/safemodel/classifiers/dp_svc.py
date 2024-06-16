@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -14,9 +13,7 @@ local_logger.setLevel(logging.WARNING)
 
 SMALL_NUMBER = 1e-16  # used to set gamma value if zero to avoid divide by zero
 
-# pylint: disable = invalid-name
-# pylint: disable=R0902: too-many-instance-attributes
-# pylint:disable = fixme
+# pylint: disable=too-many-instance-attributes
 
 
 class DPSVC:
@@ -61,8 +58,8 @@ class DPSVC:
         gamma: str | float = "scale",
         dhat: int = 1000,
         eps: float = 10,
-        **kwargs,
-    ):
+        **kwargs: dict,
+    ) -> None:
         self.svc = None
         self.gamma = gamma
         self.dpsvc_gamma = None
@@ -79,28 +76,27 @@ class DPSVC:
         self.noisy_weights = None
         self.set_params(**kwargs)
 
-    def phi_hat(self, input_vector):
+    def phi_hat(self, input_vector: np.ndarray) -> np.ndarray:
         """Project a single feature."""
         vt1 = (self.rho * input_vector).sum(axis=1)
         vt = (self.dhat ** (-0.5)) * np.column_stack((np.cos(vt1), np.sin(vt1)))
         return vt.reshape(2 * self.dhat)
 
-    def phi_hat_multi(self, input_features):
+    def phi_hat_multi(self, input_features: np.ndarray) -> np.ndarray:
         """Compute feature space for a matrix of inputs."""
-        # TODO: could this be vectorised?
         n_data, _ = input_features.shape
         phi_hat = np.zeros((n_data, 2 * self.dhat), float)
         for i in range(n_data):
             phi_hat[i, :] = self.phi_hat(input_features[i, :])
         return phi_hat
 
-    def k_hat_svm(self, x, y=None):
+    def k_hat_svm(self, x: np.ndarray, y: np.ndarray | None = None) -> np.ndarray:
         """Define the version which is sent to sklearn.svm."""
         phi_hat_x = self.phi_hat_multi(x)
         phi_hat_y = phi_hat_x if y is None else self.phi_hat_multi(y)
         return np.dot(phi_hat_x, phi_hat_y.T)
 
-    def fit(self, train_features: Any, train_labels: Any) -> None:
+    def fit(self, train_features: np.ndarray, train_labels: np.ndarray) -> None:
         """Fit the model."""
         # Check that the data passed is np.ndarray
         if not isinstance(train_features, np.ndarray) or not isinstance(
@@ -184,7 +180,7 @@ class DPSVC:
         local_logger.info("Fitting Platt scaling")
         self.platt_transform.fit(ypredn.reshape(-1, 1), train_labels)
 
-    def set_params(self, **kwargs) -> None:
+    def set_params(self, **kwargs: dict) -> None:
         """Set params."""
         for key, value in kwargs.items():
             if key == "gamma":
@@ -196,17 +192,17 @@ class DPSVC:
             else:
                 local_logger.warning("Unsupported parameter: %s", key)
 
-    def _raw_outputs(self, test_features: Any) -> np.ndarray:
+    def _raw_outputs(self, test_features: np.ndarray) -> np.ndarray:
         """Get the raw output, used by predict and predict_proba."""
         projected_features = self.phi_hat_multi(test_features)
         return np.dot(projected_features, self.noisy_weights) + self.intercept
 
-    def predict(self, test_features: Any) -> np.ndarray:
+    def predict(self, test_features: np.ndarray) -> np.ndarray:
         """Return the predictions."""
         out = self._raw_outputs(test_features)
         return 1 * (out > 0)
 
-    def predict_proba(self, test_features: Any) -> np.ndarray:
+    def predict_proba(self, test_features: np.ndarray) -> np.ndarray:
         """Return the predictive probabilities."""
         out = self._raw_outputs(test_features)
         return self.platt_transform.predict_proba(out.reshape(-1, 1))

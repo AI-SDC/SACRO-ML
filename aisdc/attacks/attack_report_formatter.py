@@ -57,7 +57,7 @@ class GenerateJSONModule:
             with open(self.filename, "w", encoding="utf-8") as f:
                 f.write("")
 
-    def add_attack_output(self, incoming_json, class_name) -> None:
+    def add_attack_output(self, incoming_json: dict, class_name: str) -> None:
         """Add a section of JSON to the file which is already open."""
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
@@ -140,7 +140,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                 return True
         return False
 
-    def _tree_min_samples_leaf(self, min_samples_leaf_score) -> None:
+    def _tree_min_samples_leaf(self, min_samples_leaf_score: int | float) -> None:
         # Find min samples per leaf requirement
         base_path = pathlib.Path(__file__).parents[1]
         risk_appetite_path = os.path.join(base_path, "safemodel", "rules.json")
@@ -178,7 +178,11 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                 self.support_release.append(msg)
 
     def _statistically_significant_auc(
-        self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
+        self,
+        p_val_thresh: float,
+        mean_auc_thresh: float,
+        stat_sig_score: float,
+        mean_auc_score: float,
     ) -> None:
         stat_sig_auc = []
         for k in self.report:
@@ -497,14 +501,12 @@ class GenerateTextReport:
 
         self.text_out.append(output_string)
 
-    def pretty_print(self, report: dict, title) -> str:
+    def pretty_print(self, report: dict, title: str) -> str:
         """Format JSON code to make it more readable for TREs."""
-        returned_string = str(title) + "\n"
-
+        returned_string = title + "\n"
         for key in report:
             returned_string = returned_string + key + "\n"
             returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
-
         return returned_string
 
     def process_attack_target_json(
@@ -565,10 +567,10 @@ class GenerateTextReport:
     def export_to_file(  # pylint: disable=too-many-arguments
         self,
         output_filename: str = "summary.txt",
-        move_files=False,
-        model_filename=None,
-        release_dir="release_files",
-        artefacts_dir="training_artefacts",
+        move_files: bool = False,
+        model_filename: str | None = None,
+        release_dir: str = "release_files",
+        artefacts_dir: str = "training_artefacts",
     ) -> None:
         """Take the input strings collected and combine into a neat text file."""
         copy_of_text_out = self.text_out

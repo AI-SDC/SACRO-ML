@@ -21,7 +21,7 @@ class SafeSVC(SafeModel, DPSVC):
         gamma: str | float = "scale",
         dhat: int = 1000,
         eps: float = 10,
-        **kwargs,
+        **kwargs: dict,
     ) -> None:
         """Initialise a differentially private SVC."""
         SafeModel.__init__(self)
