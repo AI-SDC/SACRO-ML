@@ -9,14 +9,14 @@ from aisdc.attacks.target import Target
 class Attack:
     """Base (abstract) class to represent an attack."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.attack_config_json_file_name = None
 
     def attack(self, target: Target) -> None:
         """Run an attack."""
         raise NotImplementedError
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of an attack."""
         raise NotImplementedError
 
@@ -28,17 +28,16 @@ class Attack:
             setattr(self, key, value)
 
     @classmethod
-    def _get_param_names(cls):
+    def _get_param_names(cls) -> list[str]:
         """Get parameter names."""
         init_signature = inspect.signature(cls.__init__)
-        parameters = [
+        return [
             p.name
             for p in init_signature.parameters.values()
             if p.name != "self" and p.kind != p.VAR_KEYWORD
         ]
-        return parameters
 
-    def get_params(self):
+    def get_params(self) -> dict:
         """Get parameters for this attack.
 
         Returns

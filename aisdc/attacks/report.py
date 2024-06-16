@@ -3,6 +3,7 @@
 import abc
 import json
 import os
+from typing import Any
 
 import numpy as np
 import pylab as plt
@@ -79,7 +80,7 @@ GLOSSARY = {
 class NumpyArrayEncoder(json.JSONEncoder):
     """Json encoder that can cope with numpy arrays."""
 
-    def default(self, o):
+    def default(self, o: Any):
         """If an object is an np.ndarray, convert to list."""
         if isinstance(o, np.ndarray):
             return o.tolist()
@@ -92,7 +93,9 @@ class NumpyArrayEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def _write_dict(pdf, input_dict, indent=0, border=BORDER):
+def _write_dict(
+    pdf: FPDF, input_dict: dict, indent: int = 0, border: int = BORDER
+) -> None:
     """Write a dictionary to the pdf."""
     for key, value in input_dict.items():
         pdf.set_font("arial", "B", 14)
@@ -103,7 +106,13 @@ def _write_dict(pdf, input_dict, indent=0, border=BORDER):
         pdf.ln(h=5)
 
 
-def title(pdf, text, border=BORDER, font_size=24, font_style="B"):
+def title(
+    pdf: FPDF,
+    text: str,
+    border: int = BORDER,
+    font_size: int = 24,
+    font_style: str = "B",
+) -> None:
     """Write a title block."""
     pdf.set_font("arial", font_style, font_size)
     pdf.ln(h=5)
@@ -111,14 +120,29 @@ def title(pdf, text, border=BORDER, font_size=24, font_style="B"):
     pdf.ln(h=5)
 
 
-def subtitle(pdf, text, indent=10, border=BORDER, font_size=12, font_style="B"):  # pylint: disable = too-many-arguments
+def subtitle(  # pylint: disable = too-many-arguments
+    pdf: FPDF,
+    text: str,
+    indent: int = 10,
+    border: int = BORDER,
+    font_size: int = 12,
+    font_style: str = "B",
+) -> None:
     """Write a subtitle block."""
     pdf.cell(indent, border=border)
     pdf.set_font("arial", font_style, font_size)
     pdf.cell(75, 10, text, border, 1)
 
 
-def line(pdf, text, indent=0, border=BORDER, font_size=11, font_style="", font="arial"):  # pylint: disable = too-many-arguments
+def line(  # pylint: disable = too-many-arguments
+    pdf: FPDF,
+    text: str,
+    indent: int = 0,
+    border: int = BORDER,
+    font_size: int = 11,
+    font_style: str = "",
+    font: str = "arial",
+) -> None:
     """Write a standard block."""
     if indent > 0:
         pdf.cell(indent, border=border)
@@ -126,7 +150,7 @@ def line(pdf, text, indent=0, border=BORDER, font_size=11, font_style="", font="
     pdf.multi_cell(0, 5, text, border, 1)
 
 
-def _roc_plot_single(metrics, save_name):
+def _roc_plot_single(metrics: dict, save_name: str) -> None:
     """Create a roc_plot for a single experiment."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
@@ -140,18 +164,14 @@ def _roc_plot_single(metrics, save_name):
     plt.savefig(save_name)
 
 
-def _roc_plot(metrics, dummy_metrics, save_name):
+def _roc_plot(metrics: dict, dummy_metrics: list, save_name: str) -> None:
     """Create a roc plot for multiple repetitions."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
-    if dummy_metrics is None or len(dummy_metrics) == 0:
-        do_dummy = False
-    else:
-        do_dummy = True
+    do_dummy = bool(dummy_metrics)
 
     # Compute average ROC
     base_fpr = np.linspace(0, 1, 1000)
-    # base_fpr = np.logspace(-4, 0, 1000)
     all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
     for i, metric_set in enumerate(metrics):
         all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
@@ -199,23 +219,21 @@ def create_mia_report(attack_output: dict) -> FPDF:
     Parameters
     ----------
     attack_output : dict
-        dictionary with following items
+        Dictionary with the following items:
 
-            metadata: dict
-                dictionary of metadata
-
-            attack_experiment_logger: dict
-                list of metrics as dictionary items for an experiment
-
-            dummy_attack_experiment_logger: dict
-                list of metrics as dictionary items across dummy experiments
+        metadata : dict
+            Dictionary of metadata.
+        attack_experiment_logger : dict
+            List of metrics as dictionary items for an experiment.
+        dummy_attack_experiment_logger : dict
+            List of metrics as dictionary items across dummy experiments.
 
     Returns
     -------
     pdf : fpdf.FPDF
         fpdf document object
     """
-    # dummy_metrics = attack_output["dummy_attack_metrics"]
+    do_dummy = False
     dummy_metrics = []
     mia_metrics = [
         v
@@ -223,12 +241,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
             "attack_instance_logger"
         ].items()
     ]
-    # mia_metrics = attack_output["attack_metrics"]
     metadata = attack_output["metadata"]
-    if dummy_metrics is None or len(dummy_metrics) == 0:
-        do_dummy = False
-    else:
-        do_dummy = True
 
     dest_log_roc = (
         os.path.join(
@@ -332,7 +345,7 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
             os.remove(path)
 
 
-def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
+def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
     if log_roc is not None:
         pdf_obj.add_page()
         subtitle(pdf_obj, "Log ROC")
@@ -340,7 +353,7 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None):
         pdf_obj.set_font("arial", "", 12)
 
 
-def create_json_report(output):
+def create_json_report(output: dict) -> None:
     """Create a report in json format for injestion by other tools."""
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
     return json.dumps(output, cls=NumpyArrayEncoder)
@@ -352,16 +365,15 @@ def create_lr_report(output: dict) -> FPDF:
     Parameters
     ----------
     output : dict
-        dictionary with following items
+        Dictionary with the following items:
 
-        metadata: dict
-                dictionary of metadata
+        metadata : dict
+            Dictionary of metadata.
 
-        attack_experiment_logger: dict
-            list of metrics as dictionary items for an experiments
-            In case of LIRA attack scenario, this will have dictionary
-            items of attack_instance_logger that
-            will have a single metrics dictionary
+        attack_experiment_logger : dict
+            List of metrics as dictionary items for an experiments.
+            In case of LiRA attack scenario, this will have dictionary items of
+            `attack_instance_logger` that will have a single metrics dictionary.
 
     Returns
     -------
@@ -396,9 +408,8 @@ def create_lr_report(output: dict) -> FPDF:
         key: val for key, val in mia_metrics.items() if isinstance(val, float)
     }
     for key, value in sub_metrics_dict.items():
-        if key in MAPPINGS:
-            value = MAPPINGS[key](value)
-        line(pdf, f"{key:>30s}: {value:.4f}", font="courier")
+        val = MAPPINGS[key](value) if key in MAPPINGS else value
+        line(pdf, f"{key:>30s}: {val:.4f}", font="courier")
 
     pdf.add_page()
     subtitle(pdf, "ROC Curve")

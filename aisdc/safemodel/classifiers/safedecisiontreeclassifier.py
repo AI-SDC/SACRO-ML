@@ -9,8 +9,8 @@ import numpy as np
 from dictdiffer import diff
 from sklearn.tree import DecisionTreeClassifier
 
-from ..reporting import get_reporting_string
-from ..safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
 
 
 def decision_trees_are_equal(
@@ -99,12 +99,11 @@ def decision_tree_internal_trees_are_equal(
                             name="internal_attribute_differs", attr=attr
                         )
                         same = False
-                else:
-                    if t1val != t2val:
-                        msg += get_reporting_string(
-                            name="internal_attribute_differs", attr=attr
-                        )
-                        same = False
+                elif t1val != t2val:
+                    msg += get_reporting_string(
+                        name="internal_attribute_differs", attr=attr
+                    )
+                    same = False
     except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
     return same, msg
@@ -114,14 +113,13 @@ def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
     """Return the smallest number of data items in any leaf."""
     leaves = thetree.apply(X)
     uniqs_counts = np.unique(leaves, return_counts=True)
-    k_anonymity = np.min(uniqs_counts[1])
-    return k_anonymity
+    return np.min(uniqs_counts[1])
 
 
 class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: disable=too-many-ancestors
     """Privacy protected Decision Tree classifier."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: dict) -> None:
         """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [

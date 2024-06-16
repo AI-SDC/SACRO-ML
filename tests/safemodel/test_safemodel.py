@@ -23,14 +23,14 @@ class DummyClassifier:
 
     # pylint: disable=too-many-arguments
     def __init__(
-        self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", keyA=True, keyB=True
+        self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", key_a=True, key_b=True
     ):
         """Instantiate a dummy classifier."""
         self.at_least_5f = at_least_5f
         self.at_most_5i = at_most_5i
         self.exactly_boo = exactly_boo
-        self.keyA = keyA
-        self.keyB = keyB
+        self.key_a = key_a
+        self.key_b = key_b
 
     def fit(self, x: np.ndarray, y: np.ndarray):
         """Fit a dummy classifier."""
@@ -60,8 +60,8 @@ class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-man
             "at_least_5f",
             "at_most_5i",
             "exactly_boo",
-            "keyA",
-            "keyB",
+            "key_a",
+            "key_b",
         )
         the_kwds = {}
         for key, val in kwargs.items():
@@ -273,33 +273,33 @@ def test_check_model_param_or():
 
     part1 = get_reporting_string(
         name="different_than_fixed_value",
-        key="keyA",
+        key="key_a",
         cur_val=False,
         val="True",
     )
     part2 = get_reporting_string(
         name="different_than_fixed_value",
-        key="keyB",
+        key="key_b",
         cur_val=False,
         val="True",
     )
 
     # or - branch 1
-    model = SafeDummyClassifier(keyA=False)
+    model = SafeDummyClassifier(key_a=False)
     correct_msg = ok_start + part1
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
     assert not disclosive
 
     # or  branch 2
-    model = SafeDummyClassifier(keyB=False)
+    model = SafeDummyClassifier(key_b=False)
     correct_msg = ok_start + part2
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
     assert not disclosive
 
     # fail or
-    model = SafeDummyClassifier(keyA=False, keyB=False)
+    model = SafeDummyClassifier(key_a=False, key_b=False)
     correct_msg = notok_start + part1 + part2
     msg, disclosive = model.preliminary_check()
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
@@ -446,15 +446,12 @@ def test_get_saved_model_exception():
     """Test the exception handling in get_current_and_saved_models()."""
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
-
     model.a_generator = (  # pylint: disable=attribute-defined-outside-init
         i for i in [1, 2, 3]
     )
     current, saved = model.get_current_and_saved_models()
     assert saved == {}  # since we haven;t called fit()
-    assert (  # pylint: disable=consider-iterating-dictionary
-        "a_generator" not in current.keys()
-    )
+    assert "a_generator" not in current
 
 
 def test_generic_additional_tests():
@@ -511,11 +508,11 @@ def test_request_release_without_attacks():
 
     # no file provided, has k_anonymity
 
-    RES_DIR = "RES"
-    json_filename = os.path.normpath(os.path.join(f"{RES_DIR}", "target.json"))
-    model_filename = os.path.normpath(os.path.join(f"{RES_DIR}", "model.pkl"))
+    res_dir = "RES"
+    json_filename = os.path.normpath(os.path.join(f"{res_dir}", "target.json"))
+    model_filename = os.path.normpath(os.path.join(f"{res_dir}", "model.pkl"))
 
-    model.request_release(path=RES_DIR, ext="pkl")
+    model.request_release(path=res_dir, ext="pkl")
 
     # check that pikle and the json files have been created
     assert os.path.isfile(model_filename)

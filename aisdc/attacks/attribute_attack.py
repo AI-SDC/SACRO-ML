@@ -67,7 +67,7 @@ class AttributeAttack(Attack):
         self.attack_metrics: dict = {}
         self.metadata: dict = {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the attack."""
         return "Attribute inference attack"
 
@@ -155,7 +155,7 @@ def _get_inference_data(  # pylint: disable=too-many-locals
     """Return a dataset of each sample with the attributes to test."""
     attack_feature: dict = target.features[feature_id]
     indices: list[int] = attack_feature["indices"]
-    unique = np.unique(target.x_orig[:, feature_id])
+    unique = np.unique(target.X_orig[:, feature_id])
     n_unique: int = len(unique)
     if attack_feature["encoding"] == "onehot":
         onehot_enc = OneHotEncoder()
@@ -165,12 +165,12 @@ def _get_inference_data(  # pylint: disable=too-many-locals
         # which is only called for categorical data
         values = unique
     # samples after encoding (e.g. one-hot)
-    samples: np.ndarray = target.x_train
+    samples: np.ndarray = target.X_train
     # samples before encoding (e.g. str)
-    samples_orig: np.ndarray = target.x_train_orig
+    samples_orig: np.ndarray = target.X_train_orig
     if not memberset:
-        samples = target.x_test
-        samples_orig = target.x_test_orig
+        samples = target.X_test
+        samples_orig = target.X_test_orig
     n_samples, x_dim = np.shape(samples)
     x_values = np.zeros((n_samples, n_unique, x_dim), dtype=np.float64)
     y_values = target.model.predict(samples)
@@ -205,7 +205,7 @@ def _infer(  # pylint: disable=too-many-locals
     total: int = 0  # total number of inferences made
     x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
     n_unique: int = len(x_values[1])
-    samples = target.x_train if memberset else target.x_test
+    samples = target.X_train if memberset else target.X_test
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
         confidence = target.model.predict_proba(x)
@@ -417,8 +417,7 @@ def _attack_brute_force(
     logger.debug("Brute force attacking categorical features")
     args = [(target, feature_id, attack_threshold) for feature_id in features]
     with mp.Pool(processes=n_cpu) as pool:
-        results = pool.starmap(_infer_categorical, args)
-    return results
+        return pool.starmap(_infer_categorical, args)
 
 
 def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arguments
@@ -526,14 +525,14 @@ def _get_bounds_risk(
     target_model: BaseEstimator,
     feature_name: str,
     feature_id: int,
-    x_train: np.ndarray,
-    x_test: np.ndarray,
+    X_train: np.ndarray,
+    X_test: np.ndarray,
 ) -> dict:
     """Return a dict containing the dataset risks of a quantitative feature."""
     risk: dict = {
         "name": feature_name,
-        "train": _get_bounds_risk_for_feature(target_model, feature_id, x_train),
-        "test": _get_bounds_risk_for_feature(target_model, feature_id, x_test),
+        "train": _get_bounds_risk_for_feature(target_model, feature_id, X_train),
+        "test": _get_bounds_risk_for_feature(target_model, feature_id, X_test),
     }
     return risk
 
@@ -546,14 +545,13 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
             target.model,
             target.features[feature_id]["name"],
             feature_id,
-            target.x_train,
-            target.x_test,
+            target.X_train,
+            target.X_test,
         )
         for feature_id in features
     ]
     with mp.Pool(processes=n_cpu) as pool:
-        results = pool.starmap(_get_bounds_risk, args)
-    return results
+        return pool.starmap(_get_bounds_risk, args)
 
 
 def _attribute_inference(target: Target, n_cpu: int) -> dict:
@@ -620,7 +618,7 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
     return pdf
 
 
-def _run_attack_from_configfile(args):
+def _run_attack_from_configfile(args: dict) -> None:
     """Run a command line attack based on saved files described in .json file."""
     attack_obj = AttributeAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
@@ -632,7 +630,7 @@ def _run_attack_from_configfile(args):
     attack_obj.make_report()
 
 
-def main():
+def main() -> None:
     """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 

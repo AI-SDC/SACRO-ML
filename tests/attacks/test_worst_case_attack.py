@@ -43,17 +43,17 @@ def test_config_file_arguments_parsin():
 def test_attack_from_predictions_cmd():
     """Running attack using configuration file and prediction files."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
+    model.fit(X_train, train_y)
 
-    ytr_pred = model.predict_proba(train_X)
-    yte_pred = model.predict_proba(test_X)
+    ytr_pred = model.predict_proba(X_train)
+    yte_pred = model.predict_proba(X_test)
     np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
     np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     target.save(path="test_worstcase_target")
 
@@ -88,15 +88,15 @@ def test_attack_from_predictions_cmd():
 def test_report_worstcase():
     """Tests worst case attack directly."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
-    _ = model.predict_proba(train_X)
-    _ = model.predict_proba(test_X)
+    model.fit(X_train, train_y)
+    _ = model.predict_proba(X_train)
+    _ = model.predict_proba(X_test)
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     # with multiple reps
     attack_obj = worst_case_attack.WorstCaseAttack(
@@ -131,13 +131,13 @@ def test_report_worstcase():
 def test_attack_with_correct_feature():
     """Test the attack when the model correctness feature is used."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
+    model.fit(X_train, train_y)
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     # with multiple reps
     attack_obj = worst_case_attack.WorstCaseAttack(
@@ -163,17 +163,17 @@ def test_attack_with_correct_feature():
 def test_attack_from_predictions():
     """Checks code that runs attacks from predictions."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
-    ytr_pred = model.predict_proba(train_X)
-    yte_pred = model.predict_proba(test_X)
+    model.fit(X_train, train_y)
+    ytr_pred = model.predict_proba(X_train)
+    yte_pred = model.predict_proba(X_test)
     np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
     np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     attack_obj = worst_case_attack.WorstCaseAttack(
         # How many attacks to run -- in each the attack model is trained on a different
@@ -197,17 +197,17 @@ def test_attack_from_predictions():
 def test_attack_from_predictions_no_dummy():
     """Checks code that runs attacks from predictions."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
-    ytr_pred = model.predict_proba(train_X)
-    yte_pred = model.predict_proba(test_X)
+    model.fit(X_train, train_y)
+    ytr_pred = model.predict_proba(X_train)
+    yte_pred = model.predict_proba(X_test)
     np.savetxt("ypred_train.csv", ytr_pred, delimiter=",")
     np.savetxt("ypred_test.csv", yte_pred, delimiter=",")
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     attack_obj = worst_case_attack.WorstCaseAttack(
         # How many attacks to run -- in each the attack model is trained on a different
@@ -310,15 +310,15 @@ def test_non_rf_mia():
     an AttributeError we now it *is* trying to use the SVC.
     """
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
 
     model = SVC(gamma=0.1, probability=True)
-    model.fit(train_X, train_y)
-    ytr_pred = model.predict_proba(train_X)
-    yte_pred = model.predict_proba(test_X)
+    model.fit(X_train, train_y)
+    ytr_pred = model.predict_proba(X_train)
+    yte_pred = model.predict_proba(X_test)
 
     target = Target(model=model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, train_y, X_test, test_y)
 
     attack_obj = worst_case_attack.WorstCaseAttack(
         mia_attack_model=SVC,

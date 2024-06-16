@@ -24,7 +24,7 @@ def pytest_generate_tests(metafunc):
 def fixture_common_setup(get_target):
     """Get ready to test some code."""
     target = get_target
-    target.model.fit(target.x_train, target.y_train)
+    target.model.fit(target.X_train, target.y_train)
     attack_obj = MultipleAttacks(config_filename="test_single_config.json")
     return target, attack_obj
 

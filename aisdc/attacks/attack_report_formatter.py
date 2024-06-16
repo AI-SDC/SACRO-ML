@@ -14,11 +14,11 @@ import numpy as np
 
 
 def cleanup_files_for_release(
-    move_into_artefacts,
-    copy_into_release,
-    release_dir="release_files",
-    artefacts_dir="training_artefacts",
-):
+    move_into_artefacts: list[str],
+    copy_into_release: list[str],
+    release_dir: str = "release_files",
+    artefacts_dir: str = "training_artefacts",
+) -> None:
     """Move files created during the release process into appropriate folders."""
     if not os.path.exists(release_dir):
         os.makedirs(release_dir)
@@ -42,7 +42,7 @@ def cleanup_files_for_release(
 class GenerateJSONModule:
     """Create and append to a JSON file."""
 
-    def __init__(self, filename=None):
+    def __init__(self, filename: str | None = None) -> None:
         self.filename = filename
 
         if self.filename is None:
@@ -57,16 +57,12 @@ class GenerateJSONModule:
             with open(self.filename, "w", encoding="utf-8") as f:
                 f.write("")
 
-    def add_attack_output(self, incoming_json, class_name):
+    def add_attack_output(self, incoming_json: dict, class_name: str) -> None:
         """Add a section of JSON to the file which is already open."""
         # Read the contents of the file and then clear the file
         with open(self.filename, "r+", encoding="utf-8") as f:
             file_contents = f.read()
-            if file_contents != "":
-                file_data = json.loads(file_contents)
-            else:
-                file_data = {}
-
+            file_data = json.loads(file_contents) if file_contents != "" else {}
             f.truncate(0)
 
         # Add the new JSON to the JSON that was in the file, and re-write
@@ -79,11 +75,11 @@ class GenerateJSONModule:
             file_data[class_name] = incoming_json
             json.dump(file_data, f)
 
-    def get_output_filename(self):
+    def get_output_filename(self) -> str:
         """Return the filename of the JSON file which has been created."""
         return self.filename
 
-    def clean_file(self):
+    def clean_file(self) -> None:
         """Delete the file if it exists."""
         if os.path.exists(self.filename):
             os.remove(self.filename)
@@ -95,20 +91,20 @@ class GenerateJSONModule:
 class AnalysisModule:
     """Wrapper module for metrics analysis modules."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.immediate_rejection = []
         self.support_rejection = []
         self.support_release = []
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Produce a risk summary output based on analysis in this module."""
         raise NotImplementedError()
 
-    def get_recommendation(self):
+    def get_recommendation(self) -> tuple:
         """Return the three recommendation buckets created by this module."""
         return self.immediate_rejection, self.support_rejection, self.support_release
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of an analysis module."""
         raise NotImplementedError()
 
@@ -116,23 +112,21 @@ class AnalysisModule:
 class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-instance-attributes
     """Generate the first layer of a recommendation report."""
 
-    def __init__(self, report: dict):
+    def __init__(self, report: dict) -> None:
         super().__init__()
 
         self.P_VAL_THRESH = 0.05
         self.MEAN_AUC_THRESH = 0.65
-
         self.INSTANCE_MODEL_WEIGHTING_SCORE = 5
         self.MIN_SAMPLES_LEAF_SCORE = 5
         self.STATISTICALLY_SIGNIFICANT_SCORE = 2
         self.MEAN_AUC_SCORE = 4
 
         self.report = report
-
         self.scores = []
         self.reasons = []
 
-    def _is_instance_based_model(self, instance_based_model_score):
+    def _is_instance_based_model(self, instance_based_model_score) -> bool:
         if "model_name" in self.report:
             if self.report["model_name"] == "SVC":
                 self.scores.append(instance_based_model_score)
@@ -146,7 +140,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
                 return True
         return False
 
-    def _tree_min_samples_leaf(self, min_samples_leaf_score):
+    def _tree_min_samples_leaf(self, min_samples_leaf_score: int | float) -> None:
         # Find min samples per leaf requirement
         base_path = pathlib.Path(__file__).parents[1]
         risk_appetite_path = os.path.join(base_path, "safemodel", "rules.json")
@@ -158,83 +152,87 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 
             rules = json_structure["DecisionTreeClassifier"]["rules"]
             for entry in rules:
-                if "keyword" in entry.keys() and entry["keyword"] == "min_samples_leaf":
-                    if "operator" in entry.keys() and entry["operator"] == "min":
-                        min_samples_leaf_appetite = entry["value"]
-                        break
+                if (
+                    "keyword" in entry
+                    and entry["keyword"] == "min_samples_leaf"
+                    and "operator" in entry
+                    and entry["operator"] == "min"
+                ):
+                    min_samples_leaf_appetite = entry["value"]
+                    break
 
-        if ("model_params" in self.report) and min_samples_leaf_appetite is not None:
-            if "min_samples_leaf" in self.report["model_params"]:
-                min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
-                if min_samples_leaf < min_samples_leaf_appetite:
-                    self.scores.append(min_samples_leaf_score)
+        if (
+            ("model_params" in self.report)
+            and min_samples_leaf_appetite is not None
+            and "min_samples_leaf" in self.report["model_params"]
+        ):
+            min_samples_leaf = self.report["model_params"]["min_samples_leaf"]
+            if min_samples_leaf < min_samples_leaf_appetite:
+                self.scores.append(min_samples_leaf_score)
 
-                    msg = "Min samples per leaf < " + str(min_samples_leaf_appetite)
+                msg = "Min samples per leaf < " + str(min_samples_leaf_appetite)
+                self.reasons.append(msg)
+                self.support_rejection.append(msg)
+            else:
+                msg = "Min samples per leaf > " + str(min_samples_leaf_appetite)
+                self.support_release.append(msg)
+
+    def _statistically_significant_auc(
+        self,
+        p_val_thresh: float,
+        mean_auc_thresh: float,
+        stat_sig_score: float,
+        mean_auc_score: float,
+    ) -> None:
+        stat_sig_auc = []
+        for k in self.report:
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                for i in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ]:
+                    instance = self.report[k]["attack_experiment_logger"][
+                        "attack_instance_logger"
+                    ][i]
+
+                    auc_key = "P_HIGHER_AUC"
+                    if auc_key in instance and instance[auc_key] < p_val_thresh:
+                        stat_sig_auc.append(instance["AUC"])
+
+                n_instances = len(
+                    self.report[k]["attack_experiment_logger"]["attack_instance_logger"]
+                )
+                if len(stat_sig_auc) / n_instances > 0.1:
+                    msg = ">10% AUC are statistically significant in experiment " + str(
+                        k
+                    )
+
+                    self.scores.append(stat_sig_score)
                     self.reasons.append(msg)
                     self.support_rejection.append(msg)
                 else:
-                    msg = "Min samples per leaf > " + str(min_samples_leaf_appetite)
+                    msg = "<10% AUC are statistically significant in experiment " + str(
+                        k
+                    )
                     self.support_release.append(msg)
 
-    def _statistically_significant_auc(
-        self, p_val_thresh, mean_auc_thresh, stat_sig_score, mean_auc_score
-    ):
-        stat_sig_auc = []
-        for k in self.report.keys():
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    for i in self.report[k]["attack_experiment_logger"][
-                        "attack_instance_logger"
-                    ]:
-                        instance = self.report[k]["attack_experiment_logger"][
-                            "attack_instance_logger"
-                        ][i]
+                if len(stat_sig_auc) > 0:
+                    mean = np.mean(np.array(stat_sig_auc))
+                    if mean > mean_auc_thresh:
+                        msg = "Attack AUC > threshold of " + str(mean_auc_thresh)
+                        msg = msg + " in experiment " + str(k)
 
-                        auc_key = "P_HIGHER_AUC"
-                        if (
-                            auc_key in instance.keys()
-                            and instance[auc_key] < p_val_thresh
-                        ):
-                            stat_sig_auc.append(instance["AUC"])
-
-                    n_instances = len(
-                        self.report[k]["attack_experiment_logger"][
-                            "attack_instance_logger"
-                        ]
-                    )
-                    if (
-                        len(stat_sig_auc) / n_instances > 0.1
-                    ):  # > 10% of AUC are statistically significant
-                        msg = (
-                            ">10% AUC are statistically significant in experiment "
-                            + str(k)
-                        )
-
-                        self.scores.append(stat_sig_score)
+                        self.scores.append(mean_auc_score)
                         self.reasons.append(msg)
                         self.support_rejection.append(msg)
                     else:
-                        msg = (
-                            "<10% AUC are statistically significant in experiment "
-                            + str(k)
-                        )
+                        msg = "Attack AUC <= threshold of " + str(mean_auc_thresh)
+                        msg = msg + " in experiment " + str(k)
                         self.support_release.append(msg)
 
-                    if len(stat_sig_auc) > 0:
-                        mean = np.mean(np.array(stat_sig_auc))
-                        if mean > mean_auc_thresh:
-                            msg = "Attack AUC > threshold of " + str(mean_auc_thresh)
-                            msg = msg + " in experiment " + str(k)
-
-                            self.scores.append(mean_auc_score)
-                            self.reasons.append(msg)
-                            self.support_rejection.append(msg)
-                        else:
-                            msg = "Attack AUC <= threshold of " + str(mean_auc_thresh)
-                            msg = msg + " in experiment " + str(k)
-                            self.support_release.append(msg)
-
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Return a dictionary summarising the metrics."""
         self._tree_min_samples_leaf(self.MIN_SAMPLES_LEAF_SCORE)
         self._statistically_significant_auc(
@@ -254,10 +252,9 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
         if self._is_instance_based_model(self.INSTANCE_MODEL_WEIGHTING_SCORE):
             summarised_score = self.INSTANCE_MODEL_WEIGHTING_SCORE
 
-        output = {}
-        return output
+        return {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation of the final recommendation."""
         return "Final Recommendation"
 
@@ -265,7 +262,7 @@ class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-ins
 class SummariseUnivariateMetricsModule(AnalysisModule):
     """Summarise a set of chosen univariate metrics from the output dictionary."""
 
-    def __init__(self, report: dict, metrics_list=None):
+    def __init__(self, report: dict, metrics_list=None) -> None:
         super().__init__()
 
         if metrics_list is None:
@@ -274,31 +271,33 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
         self.report = report
         self.metrics_list = metrics_list
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Return a dictionary summarising the metrics."""
         output_dict = {}
 
-        for k in self.report.keys():
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    metrics_dict = {m: [] for m in self.metrics_list}
-                    for _, iteration_value in self.report[k][
-                        "attack_experiment_logger"
-                    ]["attack_instance_logger"].items():
-                        for m in metrics_dict:
-                            metrics_dict[m].append(iteration_value[m])
-                    output = {}
-                    for m in self.metrics_list:
-                        output[m] = {
-                            "min": min(metrics_dict[m]),
-                            "max": max(metrics_dict[m]),
-                            "mean": np.mean(metrics_dict[m]),
-                            "median": np.median(metrics_dict[m]),
-                        }
-                    output_dict[k] = output
+        for k in self.report:
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                metrics_dict = {m: [] for m in self.metrics_list}
+                for _, iteration_value in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].items():
+                    for m in metrics_dict:
+                        metrics_dict[m].append(iteration_value[m])
+                output = {}
+                for m in self.metrics_list:
+                    output[m] = {
+                        "min": min(metrics_dict[m]),
+                        "max": max(metrics_dict[m]),
+                        "mean": np.mean(metrics_dict[m]),
+                        "median": np.median(metrics_dict[m]),
+                    }
+                output_dict[k] = output
         return output_dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a univariate metrics module."""
         return "Summary of Univarite Metrics"
 
@@ -306,7 +305,9 @@ class SummariseUnivariateMetricsModule(AnalysisModule):
 class SummariseAUCPvalsModule(AnalysisModule):
     """Summarise a list of AUC values."""
 
-    def __init__(self, report: dict, p_thresh: float = 0.05, correction: str = "bh"):
+    def __init__(
+        self, report: dict, p_thresh: float = 0.05, correction: str = "bh"
+    ) -> None:
         super().__init__()
 
         self.report = report
@@ -332,28 +333,29 @@ class SummariseAUCPvalsModule(AnalysisModule):
 
     def _get_metrics_list(self) -> list[float]:
         metrics_list = []
-        for k in self.report.keys():
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    for _, iteration_value in self.report[k][
-                        "attack_experiment_logger"
-                    ]["attack_instance_logger"].items():
-                        metrics_list.append(iteration_value["P_HIGHER_AUC"])
+        for k in self.report:
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                for _, iteration_value in self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].items():
+                    metrics_list.append(iteration_value["P_HIGHER_AUC"])
         return metrics_list
 
-    def process_dict(self):
+    def process_dict(self) -> dict:
         """Process the dict to summarise the number of significant AUC p-values."""
         p_val_list = self._get_metrics_list()
-        output = {
+        return {
             "n_total": len(p_val_list),
             "p_thresh": self.p_thresh,
             "n_sig_uncorrected": self._n_sig(p_val_list),
             "correction": self.correction,
             "n_sig_corrected": self._n_sig(p_val_list, self.correction),
         }
-        return output
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a AUC p-values module."""
         return f"Summary of AUC p-values at p = ({self.p_thresh})"
 
@@ -366,10 +368,9 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
         metric_list = []
         for _, iteration_value in input_dict["attack_instance_logger"].items():
             metric_list.append(iteration_value["PDIF01"])
-        metric_list = [np.exp(-m) for m in metric_list]
-        return metric_list
+        return [np.exp(-m) for m in metric_list]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a FDIF p-values module."""
         return f"Summary of FDIF p-values at p = ({self.p_thresh})"
 
@@ -377,61 +378,66 @@ class SummariseFDIFPvalsModule(SummariseAUCPvalsModule):
 class LogLogROCModule(AnalysisModule):
     """Generate a log-log plot."""
 
-    def __init__(self, report: dict, output_folder=None, include_mean=True):
+    def __init__(
+        self, report: dict, output_folder: str | None = None, include_mean: bool = True
+    ) -> None:
         super().__init__()
 
         self.report = report
         self.output_folder = output_folder
         self.include_mean = include_mean
 
-    def process_dict(self):
+    def process_dict(self) -> str:
         """Create a roc plot for multiple repetitions."""
         log_plot_names = []
 
-        for k in self.report.keys():
-            if isinstance(self.report[k], dict):
-                if "attack_experiment_logger" in self.report[k]:
-                    plt.figure(figsize=(8, 8))
-                    plt.plot([0, 1], [0, 1], "k--")
+        for k in self.report:
+            if (
+                isinstance(self.report[k], dict)
+                and "attack_experiment_logger" in self.report[k]
+            ):
+                plt.figure(figsize=(8, 8))
+                plt.plot([0, 1], [0, 1], "k--")
 
-                    # Compute average ROC
-                    base_fpr = np.linspace(0, 1, 1000)
-                    metrics = self.report[k]["attack_experiment_logger"][
-                        "attack_instance_logger"
-                    ].values()
-                    all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
+                # Compute average ROC
+                base_fpr = np.linspace(0, 1, 1000)
+                metrics = self.report[k]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].values()
+                all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
 
-                    for i, metric_set in enumerate(metrics):
-                        all_tpr[i, :] = np.interp(
-                            base_fpr, metric_set["fpr"], metric_set["tpr"]
-                        )
+                for i, metric_set in enumerate(metrics):
+                    all_tpr[i, :] = np.interp(
+                        base_fpr, metric_set["fpr"], metric_set["tpr"]
+                    )
 
-                    for _, metric_set in enumerate(metrics):
-                        plt.plot(
-                            metric_set["fpr"],
-                            metric_set["tpr"],
-                            color="lightsalmon",
-                            linewidth=0.5,
-                        )
+                for _, metric_set in enumerate(metrics):
+                    plt.plot(
+                        metric_set["fpr"],
+                        metric_set["tpr"],
+                        color="lightsalmon",
+                        linewidth=0.5,
+                    )
 
-                    tpr_mu = all_tpr.mean(axis=0)
-                    plt.plot(base_fpr, tpr_mu, "r")
+                tpr_mu = all_tpr.mean(axis=0)
+                plt.plot(base_fpr, tpr_mu, "r")
 
-                    plt.xlabel("False Positive Rate")
-                    plt.ylabel("True Positive Rate")
-                    plt.xscale("log")
-                    plt.yscale("log")
-                    plt.tight_layout()
-                    plt.grid()
-                    out_file = f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
-                    if self.output_folder is not None:
-                        out_file = os.path.join(self.output_folder, out_file)
-                    plt.savefig(out_file)
-                    log_plot_names.append(out_file)
-        msg = "Log plot(s) saved to " + str(log_plot_names)
-        return msg
+                plt.xlabel("False Positive Rate")
+                plt.ylabel("True Positive Rate")
+                plt.xscale("log")
+                plt.yscale("log")
+                plt.tight_layout()
+                plt.grid()
+                out_file = (
+                    f"{self.report['log_id']}-{self.report['metadata']['attack']}.png"
+                )
+                if self.output_folder is not None:
+                    out_file = os.path.join(self.output_folder, out_file)
+                plt.savefig(out_file)
+                log_plot_names.append(out_file)
+        return "Log plot(s) saved to " + str(log_plot_names)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of a ROC log plot module."""
         return "ROC Log Plot"
 
@@ -439,7 +445,7 @@ class LogLogROCModule(AnalysisModule):
 class GenerateTextReport:
     """Generate a text report from a JSON input."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.text_out = []
         self.target_json_filename = None
         self.attack_json_filename = None
@@ -449,7 +455,7 @@ class GenerateTextReport:
         self.support_rejection = []
         self.support_release = []
 
-    def _process_target_json(self):
+    def _process_target_json(self) -> None:
         """Create a summary of a target model JSON file."""
         model_params_of_interest = [
             "C",
@@ -469,25 +475,25 @@ class GenerateTextReport:
 
         output_string = "TARGET MODEL SUMMARY\n"
 
-        if "model_name" in json_report.keys():
+        if "model_name" in json_report:
             output_string = (
                 output_string + "model_name: " + json_report["model_name"] + "\n"
             )
 
-        if "n_samples" in json_report.keys():
+        if "n_samples" in json_report:
             output_string = output_string + "number of samples used to train: "
             output_string = output_string + str(json_report["n_samples"]) + "\n"
 
-        if "model_params" in json_report.keys():
+        if "model_params" in json_report:
             for param in model_params_of_interest:
-                if param in json_report["model_params"].keys():
+                if param in json_report["model_params"]:
                     output_string = output_string + param + ": "
                     output_string = output_string + str(
                         json_report["model_params"][param]
                     )
                     output_string = output_string + "\n"
 
-        if "model_path" in json_report.keys():
+        if "model_path" in json_report:
             filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
             self.model_name_from_target = os.path.join(
                 filepath, json_report["model_path"]
@@ -495,19 +501,17 @@ class GenerateTextReport:
 
         self.text_out.append(output_string)
 
-    def pretty_print(self, report: dict, title) -> str:
+    def pretty_print(self, report: dict, title: str) -> str:
         """Format JSON code to make it more readable for TREs."""
-        returned_string = str(title) + "\n"
-
-        for key in report.keys():
+        returned_string = title + "\n"
+        for key in report:
             returned_string = returned_string + key + "\n"
             returned_string = returned_string + pprint.pformat(report[key]) + "\n\n"
-
         return returned_string
 
     def process_attack_target_json(
         self, attack_filename: str, target_filename: str = None
-    ):
+    ) -> None:
         """Create a neat summary of an attack JSON file."""
         self.attack_json_filename = attack_filename
 
@@ -563,11 +567,11 @@ class GenerateTextReport:
     def export_to_file(  # pylint: disable=too-many-arguments
         self,
         output_filename: str = "summary.txt",
-        move_files=False,
-        model_filename=None,
-        release_dir="release_files",
-        artefacts_dir="training_artefacts",
-    ):
+        move_files: bool = False,
+        model_filename: str | None = None,
+        release_dir: str = "release_files",
+        artefacts_dir: str = "training_artefacts",
+    ) -> None:
         """Take the input strings collected and combine into a neat text file."""
         copy_of_text_out = self.text_out
         self.text_out = []

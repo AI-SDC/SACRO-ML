@@ -48,28 +48,28 @@ def test_predict(dummy_classifier_setup):
 def fixture_lira_classifier_setup():
     """Set up common things for LiRA."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     target_model = RandomForestClassifier(
         n_estimators=100, min_samples_split=2, min_samples_leaf=1
     )
-    target_model.fit(train_X, train_y)
+    target_model.fit(X_train, y_train)
     target = Target(target_model)
-    target.add_processed_data(train_X, train_y, test_X, test_y)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
     target.save(path="test_lira_target")
     # Dump training and test data to csv
     np.savetxt(
         "train_data.csv",
-        np.hstack((train_X, train_y[:, None])),
+        np.hstack((X_train, y_train[:, None])),
         delimiter=",",
     )
-    np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
+    np.savetxt("test_data.csv", np.hstack((X_test, y_test[:, None])), delimiter=",")
     # dump the training and test predictions into files
     np.savetxt(
         "train_preds.csv",
-        target_model.predict_proba(train_X),
+        target_model.predict_proba(X_train),
         delimiter=",",
     )
-    np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
+    np.savetxt("test_preds.csv", target_model.predict_proba(X_test), delimiter=",")
     return target
 
 
@@ -105,14 +105,14 @@ def test_check_and_update_dataset(lira_classifier_setup):
     attack_obj = LIRAAttack(n_shadow_models=N_SHADOW_MODELS)
 
     # now make test[0] have a  class not present in training set#
-    local_test_y = np.copy(target.y_test)
-    local_test_y[0] = 5
+    local_y_test = np.copy(target.y_test)
+    local_y_test[0] = 5
     local_target = Target(target.model)
     local_target.add_processed_data(
-        target.x_train, target.y_train, target.x_test, local_test_y
+        target.X_train, target.y_train, target.X_test, local_y_test
     )
-    unique_classes_pre = set(local_test_y)
-    n_test_examples_pre = len(local_test_y)
+    unique_classes_pre = set(local_y_test)
+    n_test_examples_pre = len(local_y_test)
     local_target = attack_obj._check_and_update_dataset(  # pylint: disable=protected-access
         local_target
     )

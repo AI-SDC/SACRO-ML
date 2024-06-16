@@ -1,6 +1,5 @@
 """Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf."""
 
-# pylint: disable = invalid-name
 # pylint: disable = too-many-branches
 
 from __future__ import annotations
@@ -37,13 +36,13 @@ P_THRESH = 0.05  # default significance threshold
 class DummyClassifier:
     """A Dummy Classifier to allow this code to work with get_metrics."""
 
-    def predict(self, test_X):
+    def predict(self, X_test):
         """Return an array of 1/0 depending on value in second column."""
-        return 1 * (test_X[:, 1] > 0.5)
+        return 1 * (X_test[:, 1] > 0.5)
 
-    def predict_proba(self, test_X):
-        """Simply return the test_X."""
-        return test_X
+    def predict_proba(self, X_test):
+        """Simply return the X_test."""
+        return X_test
 
 
 def _logit(p: float) -> float:
@@ -68,8 +67,7 @@ def _logit(p: float) -> float:
     if p > 1 - EPS:  # pylint:disable=consider-using-min-builtin
         p = 1 - EPS
     p = max(p, EPS)
-    li = np.log(p / (1 - p))
-    return li
+    return np.log(p / (1 - p))
 
 
 class LIRAAttack(Attack):
@@ -161,7 +159,7 @@ class LIRAAttack(Attack):
     def attack(self, target: Target) -> None:
         """Run a LiRA attack from a Target object and a target model.
 
-        Needs to have x_train, x_test, y_train and y_test set.
+        Needs to have X_train, X_test, y_train and y_test set.
 
         Parameters
         ----------
@@ -174,12 +172,12 @@ class LIRAAttack(Attack):
 
         self.run_scenario_from_preds(
             shadow_clf,
-            target.x_train,
+            target.X_train,
             target.y_train,
-            target.model.predict_proba(target.x_train),
-            target.x_test,
+            target.model.predict_proba(target.X_train),
+            target.X_test,
             target.y_test,
-            target.model.predict_proba(target.x_test),
+            target.model.predict_proba(target.X_test),
         )
 
     def _check_and_update_dataset(self, target: Target) -> Target:
@@ -210,8 +208,8 @@ class LIRAAttack(Attack):
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
 
-        if len(y_test_new) != len(target.x_test):
-            target.x_test = target.x_test[ok_pos, :]
+        if len(y_test_new) != len(target.X_test):
+            target.X_test = target.X_test[ok_pos, :]
         target.y_test = np.array(y_test_new, int)
         logger.info(
             "new ytest has values and counts: %s",
@@ -265,19 +263,19 @@ class LIRAAttack(Attack):
         Examples
         --------
         >>> X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-        >>> train_X, test_X, train_y, test_y = train_test_split(
+        >>> X_train, X_test, y_train, y_test = train_test_split(
         >>>   X, y, test_size=0.5, stratify=y
         >>> )
         >>> rf = RandomForestClassifier(min_samples_leaf=1, min_samples_split=2)
-        >>> rf.fit(train_X, train_y)
+        >>> rf.fit(X_train, y_train)
         >>> mia_test_probs, mia_test_labels, mia_clf = likelihood_scenario(
         >>>     RandomForestClassifier(min_samples_leaf=1, min_samples_split=2, max_depth=10),
-        >>>     train_X,
-        >>>     train_y,
-        >>>     rf.predict_proba(train_X),
-        >>>     test_X,
-        >>>     test_y,
-        >>>     rf.predict_proba(test_X),
+        >>>     X_train,
+        >>>     y_train,
+        >>>     rf.predict_proba(X_train),
+        >>>     X_test,
+        >>>     y_test,
+        >>>     rf.predict_proba(X_test),
         >>>     n_shadow_models=100
         >>> )
         """
@@ -288,7 +286,7 @@ class LIRAAttack(Attack):
         indices = np.arange(0, n_train_rows + n_shadow_rows, 1)
 
         # Combine taregt and shadow train, from which to sample datasets
-        combined_X_train = np.vstack((X_target_train, X_shadow_train))
+        combined_x_train = np.vstack((X_target_train, X_shadow_train))
         combined_y_train = np.hstack((y_target_train, y_shadow_train))
 
         train_row_to_confidence = {i: [] for i in range(n_train_rows)}
@@ -302,19 +300,18 @@ class LIRAAttack(Attack):
             # Pick the indices to use for training this one
             np.random.seed(model_idx)  # Reproducibility
             these_idx = np.random.choice(indices, n_train_rows, replace=False)
-            temp_X_train = combined_X_train[these_idx, :]
+            temp_x_train = combined_x_train[these_idx, :]
             temp_y_train = combined_y_train[these_idx]
 
             # Fit the shadow model
             shadow_clf.set_params(random_state=model_idx)
-            shadow_clf.fit(temp_X_train, temp_y_train)
+            shadow_clf.fit(temp_x_train, temp_y_train)
 
             # map a class to a column
             class_map = {c: i for i, c in enumerate(shadow_clf.classes_)}
 
             # Get the predicted probabilities on the training data
             confidences = shadow_clf.predict_proba(X_target_train)
-            # print(f'shadow clf returned confidences with shape {confidences.shape}')
 
             these_idx = set(these_idx)
             for i in range(n_train_rows):
@@ -394,10 +391,8 @@ class LIRAAttack(Attack):
 
         mia_scores = np.array(mia_scores)
         mia_labels = np.array(mia_labels)
-        y_pred_proba, y_test = metrics.get_probabilities(
-            mia_clf, mia_scores, mia_labels, permute_rows=True
-        )
-        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
+        y_pred_proba = mia_clf.predict_proba(mia_scores)
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, mia_labels)]
 
     def example(self) -> None:
         """Run an example attack using data from sklearn.
@@ -405,19 +400,19 @@ class LIRAAttack(Attack):
         Generates example data, trains a classifier and tuns the attack
         """
         X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-        train_X, test_X, train_y, test_y = train_test_split(
+        X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.5, stratify=y
         )
         rf = RandomForestClassifier(min_samples_leaf=1, min_samples_split=2)
-        rf.fit(train_X, train_y)
+        rf.fit(X_train, y_train)
         self.run_scenario_from_preds(
             sklearn.base.clone(rf),
-            train_X,
-            train_y,
-            rf.predict_proba(train_X),
-            test_X,
-            test_y,
-            rf.predict_proba(test_X),
+            X_train,
+            y_train,
+            rf.predict_proba(X_train),
+            X_test,
+            y_test,
+            rf.predict_proba(X_test),
         )
 
     def _construct_metadata(self) -> None:
@@ -514,19 +509,19 @@ class LIRAAttack(Attack):
         the attack from the command line.
         """
         X, y = load_breast_cancer(return_X_y=True)
-        train_X, test_X, train_y, test_y = train_test_split(
+        X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.5, stratify=y
         )
         rf = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
-        rf.fit(train_X, train_y)
-        train_data = np.hstack((train_X, train_y[:, None]))
+        rf.fit(X_train, y_train)
+        train_data = np.hstack((X_train, y_train[:, None]))
         np.savetxt("train_data.csv", train_data, delimiter=",")
 
-        test_data = np.hstack((test_X, test_y[:, None]))
+        test_data = np.hstack((X_test, y_test[:, None]))
         np.savetxt("test_data.csv", test_data, delimiter=",")
 
-        train_preds = rf.predict_proba(train_X)
-        test_preds = rf.predict_proba(test_X)
+        train_preds = rf.predict_proba(X_train)
+        test_preds = rf.predict_proba(X_test)
         np.savetxt("train_preds.csv", train_preds, delimiter=",")
         np.savetxt("test_preds.csv", test_preds, delimiter=",")
 
@@ -547,23 +542,23 @@ class LIRAAttack(Attack):
         logger = logging.getLogger("run-attack")
         logger.info("Loading training data csv from %s", self.training_data_filename)
         training_data = np.loadtxt(self.training_data_filename, delimiter=",")
-        train_X = training_data[:, :-1]
-        train_y = training_data[:, -1].flatten().astype(int)
-        logger.info("Loaded %d rows", len(train_X))
+        X_train = training_data[:, :-1]
+        y_train = training_data[:, -1].flatten().astype(int)
+        logger.info("Loaded %d rows", len(X_train))
 
         logger.info("Loading test data csv from %s", self.test_data_filename)
         test_data = np.loadtxt(self.test_data_filename, delimiter=",")
-        test_X = test_data[:, :-1]
-        test_y = test_data[:, -1].flatten().astype(int)
-        logger.info("Loaded %d rows", len(test_X))
+        X_test = test_data[:, :-1]
+        y_test = test_data[:, -1].flatten().astype(int)
+        logger.info("Loaded %d rows", len(X_test))
 
         logger.info("Loading train predictions form %s", self.training_preds_filename)
         train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
-        assert len(train_preds) == len(train_X)
+        assert len(train_preds) == len(X_train)
 
         logger.info("Loading test predictions form %s", self.test_preds_filename)
         test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
-        assert len(test_preds) == len(test_X)
+        assert len(test_preds) == len(X_test)
         if self.target_model is None:
             raise ValueError("Target model cannot be None")
         if self.target_model_hyp is None:
@@ -575,7 +570,7 @@ class LIRAAttack(Attack):
         clf = clf_class(**clf_params)
         logger.info("Created model: %s", str(clf))
         self.run_scenario_from_preds(
-            clf, train_X, train_y, train_preds, test_X, test_y, test_preds
+            clf, X_train, y_train, train_preds, X_test, y_test, test_preds
         )
         logger.info("Computing metrics")
 
@@ -610,7 +605,6 @@ def _example(args):
 
 def _run_attack(args):
     """Run a command line attack based on saved files described in .json file."""
-    # attack_obj = LIRAAttack(**args.__dict__)
     attack_obj = LIRAAttack(
         n_shadow_models=args.n_shadow_models,
         n_shadow_rows_confidences_min=args.n_shadow_rows_confidences_min,

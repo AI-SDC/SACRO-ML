@@ -16,7 +16,7 @@ The steps are as follows:
    *Programmatically*
      1. The TRE calls the attack code.
      2. The TRE computes and inspects attack metrics.
-   *Command line
+   *Command line*
      3. The researcher writes out their training and testing data, as well as the predictions
         that their target model makes on this data.
      4. The TRE create a config file for the attack, specifying the file names for the files created
@@ -25,8 +25,6 @@ The steps are as follows:
 
 Below, [Researcher] and [TRE] are used to denote which task is performed by whom.
 """
-
-# pylint: disable = duplicate-code
 
 import json
 import os
@@ -37,23 +35,23 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.target import Target
 
 # [Researcher] Access a dataset
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
 
 # [Researcher] Split into training and test sets
-train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # [Researcher] Define the classifier
 target_model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
 # [Researcher] Train the classifier
-target_model.fit(train_X, train_y)
+target_model.fit(X_train, y_train)
 
 # [Researcher] Provide the model and the train and test data to the TRE
 target = Target(model=target_model)
-target.add_processed_data(train_X, train_y, test_X, test_y)
+target.add_processed_data(X_train, y_train, X_test, y_test)
 
 # [TRE] Creates a config file for the likelihood attack
 config = {
@@ -72,7 +70,6 @@ with open("lira_config.json", "w", encoding="utf-8") as f:
 attack_obj = LIRAAttack(
     n_shadow_models=100,
     output_dir="outputs_lira",
-    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
 )
 
@@ -108,7 +105,6 @@ print("****************************")
 attack_obj = LIRAAttack(
     n_shadow_models=100,
     output_dir="outputs_lira",
-    # report_name="report_lira",
     attack_config_json_file_name="lira_config.json",
     shadow_models_fail_fast=True,
     n_shadow_rows_confidences_min=10,
@@ -150,12 +146,12 @@ print("*****************************")
 # the command line rather than programmatically
 
 # [Researcher] Dump the training and test predictions to .csv files
-np.savetxt("train_preds.csv", target_model.predict_proba(train_X), delimiter=",")
-np.savetxt("test_preds.csv", target_model.predict_proba(test_X), delimiter=",")
+np.savetxt("train_preds.csv", target_model.predict_proba(X_train), delimiter=",")
+np.savetxt("test_preds.csv", target_model.predict_proba(X_test), delimiter=",")
 
 # [Researcher] Dump the training and test data to a .csv file
-np.savetxt("train_data.csv", np.hstack((train_X, train_y[:, None])), delimiter=",")
-np.savetxt("test_data.csv", np.hstack((test_X, test_y[:, None])), delimiter=",")
+np.savetxt("train_data.csv", np.hstack((X_train, y_train[:, None])), delimiter=",")
+np.savetxt("test_data.csv", np.hstack((X_test, y_test[:, None])), delimiter=",")
 
 # [Researcher] Dump the target model and target data
 target.save(path="target_model_for_lira")
@@ -195,7 +191,6 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    # "report_name": "report_lira",
     "training_data_filename": "train_data.csv",
     "test_data_filename": "test_data.csv",
     "training_preds_filename": "train_preds.csv",
@@ -217,7 +212,6 @@ os.system(
 config = {
     "n_shadow_models": 150,
     "output_dir": "outputs_lira",
-    # "report_name": "report_lira",
     "shadow_models_fail_fast": True,
     "n_shadow_rows_confidences_min": 10,
     "training_data_filename": "train_data.csv",

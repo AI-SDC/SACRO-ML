@@ -9,8 +9,6 @@ from scipy import interpolate
 from scipy.stats import norm
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 
-# pylint: disable = invalid-name
-
 VAR_THRESH = 1e-2
 
 
@@ -34,11 +32,7 @@ def _div(x: float, y: float, default: float) -> float:
     division : float
         x / y, or default if y == 0
     """
-    if y != 0:
-        division = round(float(x / y), 8)
-    else:
-        division = float(default)
-    return division
+    return round(float(x / y), 8) if y != 0 else float(default)
 
 
 def _tpr_at_fpr(
@@ -76,9 +70,7 @@ def _tpr_at_fpr(
     tpr_from_thresh = interpolate.interp1d(thresh_vals, tpr_vals)
 
     thresh = thresh_from_fpr(fpr)
-    tpr = tpr_from_thresh(thresh)
-
-    return tpr
+    return tpr_from_thresh(thresh)
 
 
 def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
@@ -101,12 +93,11 @@ def _expected_auc_var(auc: float, num_pos: int, num_neg: int) -> float:
         null variance of AUC
     """
     p_xxy = p_xyy = 1 / 3
-    var = (
+    return (
         auc * (1 - auc)
         + (num_pos - 1) * (p_xxy - auc**2)
         + (num_neg - 1) * (p_xyy - auc**2)
     ) / (num_pos * num_neg)
-    return var
 
 
 def min_max_disc(
@@ -176,11 +167,7 @@ def min_max_disc(
     sdm = np.sqrt(2 * pos_frequency * (1 - pos_frequency) / n_examples)
     pval = 1 - norm.cdf(mmd, loc=0, scale=sdm)  # normal CDF
     if log_p:
-        if pval < 1e-50:
-            pval = -115.13
-        else:
-            pval = np.log(pval)
-
+        pval = -115.13 if pval < 1e-50 else np.log(pval)
     # Return
     return maxd, mind, mmd, pval
 
@@ -209,55 +196,25 @@ def auc_p_val(auc: float, n_pos: int, n_neg: int) -> tuple[float, float]:
     return auc_p, auc_std
 
 
-def get_probabilities(  # pylint: disable=too-many-locals
-    clf,
-    X_test: np.ndarray,
-    y_test: np.ndarray = np.array([]),
-    permute_rows: bool = False,
-):
-    """Get probabilities for a given model and dataset.
+def _permute_rows(X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Permute rows.
 
     Parameters
     ----------
-    clf : sklearn.Model
-        trained model
     X_test : np.ndarray
-        test data matrix
+        Array of features to be permuted.
     y_test : np.ndarray
-        test data labels
-    permute_rows : boolean
-        a flag to indicate whether rows should be permuted
-
-    Returns
-    -------
-    y_pred_proba : a list of probabilities for each sample in the dataset
-
-    Notes
-    -----
-    If permute_rows is set to true, y_test must also be supplied.
-    The function will then return both the predicted probabilities and corresponding y_test
+        Array of labels to be permuted.
     """
-    if permute_rows and (y_test is None):
-        raise ValueError("If permute_rows is set to True, y_test must be supplied")
-
-    if permute_rows:
-        N, _ = np.array(X_test).shape
-        order = np.random.RandomState(  # pylint: disable = no-member
-            seed=10
-        ).permutation(N)
-        X_test = X_test[order, :]
-        y_test = y_test[order]
-
-    y_pred_proba = clf.predict_proba(X_test)
-
-    if permute_rows:
-        return y_pred_proba, y_test
-    return y_pred_proba
+    N, _ = X_test.shape
+    order = np.random.RandomState(seed=10).permutation(N)
+    X_test = X_test[order, :]
+    y_test = y_test[order]
 
 
-def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
-    y_pred_proba: np.ndarray, y_test: np.ndarray
-):
+def get_metrics(  # pylint: disable=too-many-locals
+    y_pred_proba: np.ndarray, y_test: np.ndarray, permute_rows: bool = True
+) -> dict:
     """Calculate metrics, including attacker advantage for MIA binary.
 
     Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf
@@ -267,9 +224,11 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     Parameters
     ----------
     y_test : np.ndarray
-        test data labels
+        Test data labels.
     y_pred_proba : np.ndarray of shape [x,2] and type float
-        predicted probabilities
+        Predicted probabilities.
+    permute_rows : bool, default True
+        Whether to permute arrays, see: https://github.com/AI-SDC/AI-SDC/issues/106
 
     Returns
     -------
@@ -293,26 +252,20 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     * F1 Score - harmonic mean of precision and recall.
     * Advantage.
     """
-    invalid_format = (
-        "y_pred must be an array of shape [x,2] with elements of type float"
-    )
+    if len(y_pred_proba.shape) != 2:
+        raise ValueError("y_pred must be an array of floats of shape [x,2]")
+    if y_pred_proba.shape[1] != 2:
+        raise ValueError("Metrics for multiclass classification are unsupported")
 
-    shape = y_pred_proba.shape
-    if len(shape) != 2:
-        raise ValueError(invalid_format)
-
-    if shape[1] != 2:
-        raise ValueError(
-            "Cannot use this function to calculate metrics for multiclass classification"
-        )
-
-    metrics = {}
+    if permute_rows:
+        _permute_rows(y_pred_proba, y_test)
 
     y_pred = np.argmax(y_pred_proba, axis=1)
     y_pred_proba = y_pred_proba[:, 1]
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
 
+    metrics = {}
     # true positive rate or recall
     metrics["TPR"] = round(float(tp / (tp + fn)), 8)
     # false positive rate, proportion of negative examples incorrectly classified as positives
@@ -334,7 +287,7 @@ def get_metrics(  # pylint: disable=too-many-locals, too-many-statements
     metrics["F1score"] = _div(
         2 * metrics["PPV"] * metrics["TPR"], metrics["PPV"] + metrics["TPR"], 0
     )
-    # Advantage: TPR - FPR
+    # Advantage
     metrics["Advantage"] = float(abs(metrics["TPR"] - metrics["FPR"]))
 
     # calculate AUC of model

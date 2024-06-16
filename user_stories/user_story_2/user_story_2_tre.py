@@ -18,12 +18,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
-    GenerateTextReport,
-)
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-
-# from .data_processing_researcher import process_dataset
+from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.target import Target
 
 
 def process_dataset(filename, function_name, data_to_be_processed):
@@ -35,10 +31,8 @@ def process_dataset(filename, function_name, data_to_be_processed):
     spec = importlib.util.spec_from_file_location(function_name, filename)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-
     function = getattr(module, function_name)
-    result = function(data_to_be_processed)
-    return result
+    return function(data_to_be_processed)
 
 
 def generate_report(
@@ -50,7 +44,7 @@ def generate_report(
     attack_results,
     target_filename,
     outfile,
-):  # pylint: disable=too-many-locals, disable=too-many-arguments
+):
     """Generate report based on target model."""
     print()
     print("Acting as TRE...")
@@ -73,31 +67,31 @@ def generate_report(
     returned = process_dataset(
         data_processing_filename, data_processing_function_name, data
     )
-    x_transformed = returned["x_transformed"]
+    X_transformed = returned["X_transformed"]
     y_transformed = returned["y_transformed"]
     train_indices = set(returned["train_indices"])
 
-    x_train = []
-    x_test = []
+    X_train = []
+    X_test = []
     y_train = []
     y_test = []
 
     for i, label in enumerate(y_transformed):
         if i in train_indices:
-            x_train.append(x_transformed[i])
+            X_train.append(X_transformed[i])
             y_train.append(label)
         else:
-            x_test.append(x_transformed[i])
+            X_test.append(X_transformed[i])
             y_test.append(label)
 
-    x_train = np.array(x_train)
+    X_train = np.array(X_train)
     y_train = np.array(y_train)
-    x_test = np.array(x_test)
+    X_test = np.array(X_test)
     y_test = np.array(y_test)
 
     # Wrap the model and data in a Target object
     target = Target(model=target_model)
-    target.add_processed_data(x_train, y_train, x_test, y_test)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
 
     # TRE calls request_release()
     print("===> now running attacks implicitly via request_release()")
@@ -133,10 +127,11 @@ def run_user_story(release_config: dict):
     )
 
 
-if __name__ == "__main__":  # pragma:no cover
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a risk report after request_release() has been called by researcher"
+            "Generate a risk report after request_release() "
+            "has been called by researcher"
         )
     )
 
@@ -155,7 +150,7 @@ if __name__ == "__main__":  # pragma:no cover
     try:
         with open(args.config_file, encoding="utf-8") as handle:
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
-    except AttributeError as error:  # pragma:no cover
+    except AttributeError as error:
         print(
             "Invalid command. Try --help to get more details"
             f"error message is {error}"

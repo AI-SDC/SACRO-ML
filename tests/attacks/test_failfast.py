@@ -27,8 +27,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.04,
             attack_metric_success_comp_type="lte",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 2
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -36,8 +36,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="lte",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
 
         # Option 3
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -45,8 +45,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.04,
             attack_metric_success_comp_type="lt",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 4
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -54,8 +54,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="lt",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
 
         # Option 5
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -63,8 +63,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.04,
             attack_metric_success_comp_type="gte",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
 
         # Option 6
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -72,8 +72,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="gte",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 7
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -81,8 +81,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.04,
             attack_metric_success_comp_type="gt",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
 
         # Option 8
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -90,8 +90,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="gt",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 9
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -99,8 +99,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.05,
             attack_metric_success_comp_type="eq",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
 
         # Option 10
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -108,8 +108,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="eq",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 11
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -117,8 +117,8 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.05,
             attack_metric_success_comp_type="not_eq",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert not failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert not failfast_obj.check_attack_success(metrics)
 
         # Option 12
         attack_obj = worst_case_attack.WorstCaseAttack(
@@ -126,9 +126,9 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_thresh=0.06,
             attack_metric_success_comp_type="not_eq",
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        assert failfast_Obj.check_attack_success(metrics)
-        assert failfast_Obj.get_fail_count() == 0
+        failfast_obj = failfast.FailFast(attack_obj)
+        assert failfast_obj.check_attack_success(metrics)
+        assert failfast_obj.get_fail_count() == 0
 
     def test_attack_success_fail_counts_and_overall_attack_success(self):
         """Test success and fail counts of attacks.
@@ -147,18 +147,18 @@ class TestFailFast(unittest.TestCase):
             attack_metric_success_comp_type="lte",
             attack_metric_success_count_thresh=3,
         )
-        failfast_Obj = failfast.FailFast(attack_obj)
-        _ = failfast_Obj.check_attack_success(metrics)
+        failfast_obj = failfast.FailFast(attack_obj)
+        _ = failfast_obj.check_attack_success(metrics)
         metrics["P_HIGHER_AUC"] = 0.07
-        _ = failfast_Obj.check_attack_success(metrics)
+        _ = failfast_obj.check_attack_success(metrics)
         metrics["P_HIGHER_AUC"] = 0.03
-        _ = failfast_Obj.check_attack_success(metrics)
-        assert not failfast_Obj.check_overall_attack_success(attack_obj)
+        _ = failfast_obj.check_attack_success(metrics)
+        assert not failfast_obj.check_overall_attack_success(attack_obj)
 
         metrics["P_HIGHER_AUC"] = 0.02
-        _ = failfast_Obj.check_attack_success(metrics)
+        _ = failfast_obj.check_attack_success(metrics)
         metrics["P_HIGHER_AUC"] = 0.01
-        _ = failfast_Obj.check_attack_success(metrics)
-        assert failfast_Obj.get_success_count() == 3
-        assert failfast_Obj.get_fail_count() == 2
-        assert failfast_Obj.check_overall_attack_success(attack_obj)
+        _ = failfast_obj.check_attack_success(metrics)
+        assert failfast_obj.get_success_count() == 3
+        assert failfast_obj.get_fail_count() == 2
+        assert failfast_obj.check_overall_attack_success(attack_obj)
