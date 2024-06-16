@@ -51,12 +51,12 @@ def run_user_story():
     data = data.drop(columns=["class"], inplace=False)
 
     feature_encoder = OneHotEncoder()
-    x_encoded = feature_encoder.fit_transform(data).toarray()
+    X_encoded = feature_encoder.fit_transform(data).toarray()
     feature_dataframe = pd.DataFrame(
-        x_encoded, columns=feature_encoder.get_feature_names_out()
+        X_encoded, columns=feature_encoder.get_feature_names_out()
     )
 
-    x_train, x_test, y_train, y_test = train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         feature_dataframe.values,
         target_dataframe.values.flatten(),
         test_size=0.7,
@@ -65,9 +65,9 @@ def run_user_story():
 
     # Save the training and test data to a file which a TRE can access
     print("Saving training/testing data to ./" + directory)
-    np.savetxt(os.path.join(directory, "x_train.txt"), x_train, fmt="%d")
+    np.savetxt(os.path.join(directory, "X_train.txt"), X_train, fmt="%d")
     np.savetxt(os.path.join(directory, "y_train.txt"), y_train, fmt="%d")
-    np.savetxt(os.path.join(directory, "x_test.txt"), x_test, fmt="%d")
+    np.savetxt(os.path.join(directory, "X_test.txt"), X_test, fmt="%d")
     np.savetxt(os.path.join(directory, "y_test.txt"), y_test, fmt="%d")
 
     # Create, train and test a model
@@ -79,10 +79,10 @@ def run_user_story():
     hyperparameters["bootstrap"] = False
 
     target_model = RandomForestClassifier(**hyperparameters)
-    target_model.fit(x_train, y_train)
+    target_model.fit(X_train, y_train)
 
-    train_acc = accuracy_score(y_train, target_model.predict(x_train))
-    test_acc = accuracy_score(y_test, target_model.predict(x_test))
+    train_acc = accuracy_score(y_train, target_model.predict(X_train))
+    test_acc = accuracy_score(y_test, target_model.predict(X_test))
     print(f"Training accuracy on model: {train_acc:.2f}")
     print(f"Testing accuracy on model: {test_acc:.2f}")
 

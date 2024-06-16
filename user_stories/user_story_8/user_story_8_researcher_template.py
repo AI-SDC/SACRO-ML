@@ -53,27 +53,27 @@ def run_user_story():
     # take a single parameter (the data to be processed)
     # return a dictionary
     # which contains the keys
-    # >>>  ['n_features_raw_data', 'x_transformed', 'y_transformed', 'train_indices']
+    # >>>  ['n_features_raw_data', 'X_transformed', 'y_transformed', 'train_indices']
     # as in this example
 
     returned = process_dataset(data)
 
-    x_transformed = returned["x_transformed"]
+    X_transformed = returned["X_transformed"]
     y_transformed = returned["y_transformed"]
 
     train_indices = set(returned["train_indices"])
 
-    x_train = []
-    x_test = []
+    X_train = []
+    X_test = []
     y_train = []
     y_test = []
 
     for i, label in enumerate(y_transformed):
         if i in train_indices:
-            x_train.append(x_transformed[i])
+            X_train.append(X_transformed[i])
             y_train.append(label)
         else:
-            x_test.append(x_transformed[i])
+            X_test.append(X_transformed[i])
             y_test.append(label)
 
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
@@ -89,10 +89,10 @@ def run_user_story():
 
     # Build a model
     target_model = RandomForestClassifier(**hyperparameters)
-    target_model.fit(x_train, y_train)
+    target_model.fit(X_train, y_train)
 
-    train_acc = accuracy_score(y_train, target_model.predict(x_train))
-    test_acc = accuracy_score(y_test, target_model.predict(x_test))
+    train_acc = accuracy_score(y_train, target_model.predict(X_train))
+    test_acc = accuracy_score(y_test, target_model.predict(X_test))
     print(f"Training accuracy on model: {train_acc:.2f}")
     print(f"Testing accuracy on model: {test_acc:.2f}")
 

@@ -69,7 +69,7 @@ def run_user_story():
     ]
 
     # Split into training and test sets
-    (x_train_orig, x_test_orig, y_train_orig, y_test_orig) = train_test_split(
+    (X_train_orig, X_test_orig, y_train_orig, y_test_orig) = train_test_split(
         data,
         labels,
         test_size=0.5,
@@ -80,9 +80,9 @@ def run_user_story():
     # Preprocess dataset
     label_enc = LabelEncoder()
     feature_enc = OneHotEncoder()
-    x_train = feature_enc.fit_transform(x_train_orig).toarray()
+    X_train = feature_enc.fit_transform(X_train_orig).toarray()
     y_train = label_enc.fit_transform(y_train_orig)
-    x_test = feature_enc.transform(x_test_orig).toarray()
+    X_test = feature_enc.transform(X_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
@@ -91,15 +91,15 @@ def run_user_story():
 
     # Create, train and test a model - replace this with your training and testing code
     model = SafeDecisionTreeClassifier(random_state=1)
-    model.fit(x_train, y_train)
+    model.fit(X_train, y_train)
     model.request_release(path=directory, ext="pkl")
 
     # Wrap the model and data in a Target object
     target = Target(model=model)
     target.name = "nursery"
-    target.add_processed_data(x_train, y_train, x_test, y_test)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
     target.add_raw_data(
-        data, labels, x_train_orig, y_train_orig, x_test_orig, y_test_orig
+        data, labels, X_train_orig, y_train_orig, X_test_orig, y_test_orig
     )
     for i in range(n_features):
         target.add_feature(data_df.columns[i], indices[i], "onehot")
@@ -110,9 +110,9 @@ def run_user_story():
 
     logging.info("Dataset: %s", target.name)
     logging.info("Features: %s", target.features)
-    logging.info("x_train shape = %s", np.shape(target.x_train))
+    logging.info("X_train shape = %s", np.shape(target.X_train))
     logging.info("y_train shape = %s", np.shape(target.y_train))
-    logging.info("x_test shape = %s", np.shape(target.x_test))
+    logging.info("X_test shape = %s", np.shape(target.X_test))
     logging.info("y_test shape = %s", np.shape(target.y_test))
 
 
