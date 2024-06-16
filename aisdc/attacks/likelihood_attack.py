@@ -427,10 +427,8 @@ class LIRAAttack(Attack):
         mia_clf = DummyClassifier()
         mia_scores = np.array(mia_scores)
         mia_labels = np.array(mia_labels)
-        y_pred_proba, y_test = metrics.get_probabilities(
-            mia_clf, mia_scores, mia_labels, permute_rows=True
-        )
-        self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_test)]
+        y_pred_proba = mia_clf.predict_proba(mia_scores)
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, mia_labels)]
         self.attack_metrics[-1]["n_normal"] = n_normal / n_combined
         if self.report_individual:
             result["score"] = [score[1] for score in mia_scores]
