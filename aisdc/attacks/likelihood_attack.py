@@ -159,7 +159,7 @@ class LIRAAttack(Attack):
     def attack(self, target: Target) -> None:
         """Run a LiRA attack from a Target object and a target model.
 
-        Needs to have x_train, x_test, y_train and y_test set.
+        Needs to have X_train, X_test, y_train and y_test set.
 
         Parameters
         ----------
@@ -172,12 +172,12 @@ class LIRAAttack(Attack):
 
         self.run_scenario_from_preds(
             shadow_clf,
-            target.x_train,
+            target.X_train,
             target.y_train,
-            target.model.predict_proba(target.x_train),
-            target.x_test,
+            target.model.predict_proba(target.X_train),
+            target.X_test,
             target.y_test,
-            target.model.predict_proba(target.x_test),
+            target.model.predict_proba(target.X_test),
         )
 
     def _check_and_update_dataset(self, target: Target) -> Target:
@@ -208,8 +208,8 @@ class LIRAAttack(Attack):
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
 
-        if len(y_test_new) != len(target.x_test):
-            target.x_test = target.x_test[ok_pos, :]
+        if len(y_test_new) != len(target.X_test):
+            target.X_test = target.X_test[ok_pos, :]
         target.y_test = np.array(y_test_new, int)
         logger.info(
             "new ytest has values and counts: %s",

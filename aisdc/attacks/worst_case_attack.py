@@ -1,7 +1,5 @@
 """Run a worst case attack based upon predictive probabilities."""
 
-# pylint: disable = too-many-lines
-
 from __future__ import annotations
 
 import argparse
@@ -197,7 +195,7 @@ class WorstCaseAttack(Attack):
         self.dummy_attack_metric_failfast_summary = None
         self.metadata = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return name of attack."""
         return "WorstCase attack"
 
@@ -211,13 +209,13 @@ class WorstCaseAttack(Attack):
         target : attacks.target.Target
             target as a Target class object
         """
-        train_preds = target.model.predict_proba(target.x_train)
-        test_preds = target.model.predict_proba(target.x_test)
+        train_preds = target.model.predict_proba(target.X_train)
+        test_preds = target.model.predict_proba(target.X_test)
         train_correct = None
         test_correct = None
         if self.include_model_correct_feature:
-            train_correct = 1 * (target.y_train == target.model.predict(target.x_train))
-            test_correct = 1 * (target.y_test == target.model.predict(target.x_test))
+            train_correct = 1 * (target.y_train == target.model.predict(target.X_train))
+            test_correct = 1 * (target.y_test == target.model.predict(target.X_test))
 
         self.attack_from_preds(
             train_preds,
@@ -226,7 +224,7 @@ class WorstCaseAttack(Attack):
             test_correct=test_correct,
         )
 
-    def attack_from_prediction_files(self):
+    def attack_from_prediction_files(self) -> None:
         """Run attack from saved prediction files.
 
         To be used when only saved predictions are available.
@@ -452,7 +450,9 @@ class WorstCaseAttack(Attack):
 
         return global_metrics
 
-    def _get_n_significant(self, p_val_list, p_thresh, bh_fdr_correction=False) -> int:
+    def _get_n_significant(
+        self, p_val_list: list[float], p_thresh: float, bh_fdr_correction: bool = False
+    ) -> int:
         """Return number of p-values significant at p_thresh.
 
         Can perform multiple testing correction.
@@ -522,11 +522,6 @@ class WorstCaseAttack(Attack):
     def make_dummy_data(self) -> None:
         """Make dummy data for testing functionality.
 
-        Parameters
-        ----------
-        args : dict
-            Command line arguments
-
         Notes
         -----
         Returns nothing but saves two .csv files.
@@ -548,7 +543,7 @@ class WorstCaseAttack(Attack):
         np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
         np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
 
-    def _construct_metadata(self):
+    def _construct_metadata(self) -> None:
         """Construct the metadata object after attacks."""
         self.metadata = {}
         # Store all args
@@ -634,7 +629,7 @@ class WorstCaseAttack(Attack):
         return output
 
 
-def _make_dummy_data(args):
+def _make_dummy_data(args) -> None:
     """Initialise class and run dummy data creation."""
     args.__dict__["training_preds_filename"] = "train_preds.csv"
     args.__dict__["test_preds_filename"] = "test_preds.csv"
@@ -649,7 +644,7 @@ def _make_dummy_data(args):
     attack_obj.make_dummy_data()
 
 
-def _run_attack(args):
+def _run_attack(args) -> None:
     """Initialise class and run attack from prediction files."""
     attack_obj = WorstCaseAttack(
         n_reps=args.n_reps,
@@ -674,7 +669,7 @@ def _run_attack(args):
     _ = attack_obj.make_report()
 
 
-def _run_attack_from_configfile(args):
+def _run_attack_from_configfile(args) -> None:
     """Initialise class and run attack from prediction files using config file."""
     attack_obj = WorstCaseAttack(
         attack_config_json_file_name=str(args.attack_config_json_file_name),
@@ -686,7 +681,7 @@ def _run_attack_from_configfile(args):
     _ = attack_obj.make_report()
 
 
-def main():
+def main() -> None:
     """Parse arguments and invoke relevant method."""
     logger = logging.getLogger("main")
     parser = argparse.ArgumentParser(

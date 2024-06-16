@@ -284,7 +284,7 @@ class StructuralAttack(Attack):
             raise NotImplementedError(errstr)
 
         # get proba values for training data
-        x = self.target.x_train
+        x = self.target.X_train
         y = self.target.y_train
         assert x.shape[0] == len(y), "length mismatch between trainx and trainy"
         self.yprobs = self.target.model.predict_proba(x)
@@ -304,7 +304,7 @@ class StructuralAttack(Attack):
         # now assess the risk
         # Degrees of Freedom
         n_params = get_model_param_count(target.model)
-        residual_dof = self.target.x_train.shape[0] - n_params
+        residual_dof = self.target.X_train.shape[0] - n_params
         self.DoF_risk = 1 if residual_dof < self.DOF_THRESHOLD else 0
 
         # k-anonymity
@@ -324,7 +324,7 @@ class StructuralAttack(Attack):
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""
-        destinations = self.target.model.apply(self.target.x_train)
+        destinations = self.target.model.apply(self.target.X_train)
         ret_tuple = np.unique(destinations, return_counts=True)
         leaves = ret_tuple[0]
         counts = ret_tuple[1]
@@ -336,7 +336,7 @@ class StructuralAttack(Attack):
         equiv_classes = np.zeros((len(leaves), self.target.model.n_classes_))
         for group in range(len(leaves)):
             sample_id = members[group][0]
-            sample = self.target.x_train[sample_id]
+            sample = self.target.X_train[sample_id]
             proba = self.target.model.predict_proba(sample.reshape(1, -1))
             equiv_classes[group] = proba
         return [equiv_classes, counts, members]

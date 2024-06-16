@@ -22,7 +22,7 @@ from aisdc.attacks.target import Target
 def get_target(modeltype: str, **kwparams: dict) -> Target:
     """Load dataset and create target of the desired type."""
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    X_train, X_test, train_y, test_y = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # these types should be handled
     if modeltype == "dt":
@@ -42,11 +42,11 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
         raise NotImplementedError("model type passed to get_model unknown")
 
     # Train the classifier
-    target_model.fit(X_train, train_y)
+    target_model.fit(X_train, y_train)
 
     #  Wrap the model and data in a Target object
     target = Target(model=target_model)
-    target.add_processed_data(X_train, train_y, X_test, test_y)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
 
     return target
 

@@ -35,11 +35,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The name of the dataset.
         n_samples : int
             The total number of samples in the dataset.
-        x_train : np.ndarray
+        X_train : np.ndarray
             The (processed) training inputs.
         y_train : np.ndarray
             The (processed) training outputs.
-        x_test : np.ndarray
+        X_test : np.ndarray
             The (processed) testing inputs.
         y_test : np.ndarray
             The (processed) testing outputs.
@@ -47,15 +47,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Dictionary describing the dataset features.
         n_features : int
             The total number of features.
-        x_orig : np.ndarray
+        X_orig : np.ndarray
             The original (unprocessed) dataset inputs.
         y_orig : np.ndarray
             The original (unprocessed) dataset outputs.
-        x_train_orig : np.ndarray
+        X_train_orig : np.ndarray
             The original (unprocessed) training inputs.
         y_train_orig : np.ndarray
             The original (unprocessed) training outputs.
-        x_test_orig : np.ndarray
+        X_test_orig : np.ndarray
             The original (unprocessed) testing inputs.
         y_test_orig : np.ndarray
             The original (unprocessed) testing outputs.
@@ -68,17 +68,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         self.name: str = ""
         self.n_samples: int = 0
-        self.x_train: np.ndarray
+        self.X_train: np.ndarray
         self.y_train: np.ndarray
-        self.x_test: np.ndarray
+        self.X_test: np.ndarray
         self.y_test: np.ndarray
         self.features: dict = {}
         self.n_features: int = 0
-        self.x_orig: np.ndarray
+        self.X_orig: np.ndarray
         self.y_orig: np.ndarray
-        self.x_train_orig: np.ndarray
+        self.X_train_orig: np.ndarray
         self.y_train_orig: np.ndarray
-        self.x_test_orig: np.ndarray
+        self.X_test_orig: np.ndarray
         self.y_test_orig: np.ndarray
         self.n_samples_orig: int = 0
         self.model: sklearn.base.BaseEstimator | None = model
@@ -86,17 +86,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def add_processed_data(
         self,
-        x_train: np.ndarray,
+        X_train: np.ndarray,
         y_train: np.ndarray,
-        x_test: np.ndarray,
+        X_test: np.ndarray,
         y_test: np.ndarray,
     ) -> None:
         """Add a processed and split dataset."""
-        self.x_train = x_train
+        self.X_train = X_train
         self.y_train = np.array(y_train, int)
-        self.x_test = x_test
+        self.X_test = X_test
         self.y_test = np.array(y_test, int)
-        self.n_samples = len(x_train) + len(x_test)
+        self.n_samples = len(X_train) + len(X_test)
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""
@@ -110,21 +110,21 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def add_raw_data(  # pylint: disable=too-many-arguments
         self,
-        x_orig: np.ndarray,
+        X_orig: np.ndarray,
         y_orig: np.ndarray,
-        x_train_orig: np.ndarray,
+        X_train_orig: np.ndarray,
         y_train_orig: np.ndarray,
-        x_test_orig: np.ndarray,
+        X_test_orig: np.ndarray,
         y_test_orig: np.ndarray,
     ) -> None:
         """Add original unprocessed dataset."""
-        self.x_orig = x_orig
+        self.X_orig = X_orig
         self.y_orig = y_orig
-        self.x_train_orig = x_train_orig
+        self.X_train_orig = X_train_orig
         self.y_train_orig = y_train_orig
-        self.x_test_orig = x_test_orig
+        self.X_test_orig = X_test_orig
         self.y_test_orig = y_test_orig
-        self.n_samples_orig = len(x_orig)
+        self.n_samples_orig = len(X_orig)
 
     def __save_model(self, path: str, ext: str, target: dict) -> None:
         """Save the target model.
@@ -220,15 +220,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing JSON.
         """
-        self.__save_numpy(path, target, "x_train")
+        self.__save_numpy(path, target, "X_train")
         self.__save_numpy(path, target, "y_train")
-        self.__save_numpy(path, target, "x_test")
+        self.__save_numpy(path, target, "X_test")
         self.__save_numpy(path, target, "y_test")
-        self.__save_numpy(path, target, "x_orig")
+        self.__save_numpy(path, target, "X_orig")
         self.__save_numpy(path, target, "y_orig")
-        self.__save_numpy(path, target, "x_train_orig")
+        self.__save_numpy(path, target, "X_train_orig")
         self.__save_numpy(path, target, "y_train_orig")
-        self.__save_numpy(path, target, "x_test_orig")
+        self.__save_numpy(path, target, "X_test_orig")
         self.__save_numpy(path, target, "y_test_orig")
 
     def __load_data(self, path: str, target: dict) -> None:
@@ -241,15 +241,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary read from JSON.
         """
-        self.__load_numpy(path, target, "x_train")
+        self.__load_numpy(path, target, "X_train")
         self.__load_numpy(path, target, "y_train")
-        self.__load_numpy(path, target, "x_test")
+        self.__load_numpy(path, target, "X_test")
         self.__load_numpy(path, target, "y_test")
-        self.__load_numpy(path, target, "x_orig")
+        self.__load_numpy(path, target, "X_orig")
         self.__load_numpy(path, target, "y_orig")
-        self.__load_numpy(path, target, "x_train_orig")
+        self.__load_numpy(path, target, "X_train_orig")
         self.__load_numpy(path, target, "y_train_orig")
-        self.__load_numpy(path, target, "x_test_orig")
+        self.__load_numpy(path, target, "X_test_orig")
         self.__load_numpy(path, target, "y_test_orig")
 
     def __ge(self) -> str:
@@ -262,14 +262,14 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         if (
             hasattr(self.model, "score")
-            and hasattr(self, "x_train")
+            and hasattr(self, "X_train")
             and hasattr(self, "y_train")
-            and hasattr(self, "x_test")
+            and hasattr(self, "X_test")
             and hasattr(self, "y_test")
         ):
             try:
-                train = self.model.score(self.x_train, self.y_train)
-                test = self.model.score(self.x_test, self.y_test)
+                train = self.model.score(self.X_train, self.y_train)
+                test = self.model.score(self.X_test, self.y_test)
                 return str(test - train)
             except sklearn.exceptions.NotFittedError:
                 return "not fitted"

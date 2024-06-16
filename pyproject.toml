@@ -84,6 +84,7 @@ lint.ignore = [
 extend-ignore-names = [
     "X", "X_train", "X_val", "X_test", "X_predict",
     "X_target_train", "X_shadow_train", "N", "C",
+    "X_train_orig", "X_test_orig", "X_orig",
 ]
 
 [tool.ruff.lint.pydocstyle]

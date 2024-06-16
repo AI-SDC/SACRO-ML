@@ -16,9 +16,9 @@ from aisdc.attacks.target import Target
 if __name__ == "__main__":
     # [Researcher] Access a dataset
     nursery_data = fetch_openml(data_id=26, as_frame=True)
-    x = np.asarray(nursery_data.data, dtype=str)
+    X = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
-    n_features = np.shape(x)[1]
+    n_features = np.shape(X)[1]
     indices: list[list[int]] = [
         [0, 1, 2],  # parents
         [3, 4, 5, 6, 7],  # has_nurs
@@ -33,12 +33,12 @@ if __name__ == "__main__":
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
     (
-        x_train_orig,
-        x_test_orig,
+        X_train_orig,
+        X_test_orig,
         y_train_orig,
         y_test_orig,
     ) = train_test_split(
-        x,
+        X,
         y,
         test_size=0.5,
         stratify=y,
@@ -49,34 +49,34 @@ if __name__ == "__main__":
     # one-hot encoding of features and integer encoding of labels
     label_enc = LabelEncoder()
     feature_enc = OneHotEncoder()
-    x_train = feature_enc.fit_transform(x_train_orig).toarray()
+    X_train = feature_enc.fit_transform(X_train_orig).toarray()
     y_train = label_enc.fit_transform(y_train_orig)
-    x_test = feature_enc.transform(x_test_orig).toarray()
+    X_test = feature_enc.transform(X_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
     # [Researcher] Define the classifier
     model = RandomForestClassifier(bootstrap=False)
 
     # [Researcher] Train the classifier
-    model.fit(x_train, y_train)
-    acc_train = model.score(x_train, y_train)
-    acc_test = model.score(x_test, y_test)
+    model.fit(X_train, y_train)
+    acc_train = model.score(X_train, y_train)
+    acc_test = model.score(X_test, y_test)
     print(f"Base model train accuracy: {acc_train}")
     print(f"Base model test accuracy: {acc_test}")
 
     # [TRE / Researcher] Wrap the model and data in a Target object
     target = Target(model=model)
     target.name = "nursery"
-    target.add_processed_data(x_train, y_train, x_test, y_test)
-    target.add_raw_data(x, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target.add_raw_data(X, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
     for i in range(n_features):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 
     print(f"Dataset: {target.name}")
     print(f"Features: {target.features}")
-    print(f"x_train shape = {np.shape(target.x_train)}")
+    print(f"X_train shape = {np.shape(target.X_train)}")
     print(f"y_train shape = {np.shape(target.y_train)}")
-    print(f"x_test shape = {np.shape(target.x_test)}")
+    print(f"X_test shape = {np.shape(target.X_test)}")
     print(f"y_test shape = {np.shape(target.y_test)}")
 
     # [TRE] Create the attack object with attack parameters
