@@ -13,7 +13,7 @@ class FailFast:
     a test. For the new test a new object will require to be instantiated.
     """
 
-    def __init__(self, attack_obj: Any):
+    def __init__(self, attack_obj: Any) -> None:
         self.metric_name = attack_obj.attack_metric_success_name
         self.metric_success_thresh = attack_obj.attack_metric_success_thresh
         self.comp_type = attack_obj.attack_metric_success_comp_type
@@ -64,7 +64,7 @@ class FailFast:
         """Return a count of attack being successful."""
         return self.success_count
 
-    def get_fail_count(self):
+    def get_fail_count(self) -> int:
         """Return a count of attack being not successful."""
         return self.fail_count
 

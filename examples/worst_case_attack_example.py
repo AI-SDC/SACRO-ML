@@ -25,8 +25,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from aisdc.attacks import worst_case_attack  # pylint: disable = import-error
-from aisdc.attacks.target import Target  # pylint: disable = import-error
+from aisdc.attacks import worst_case_attack
+from aisdc.attacks.target import Target
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -34,23 +34,23 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 X, y = load_breast_cancer(return_X_y=True, as_frame=False)
 
 # [Researcher] Split into training and test sets
-train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # [Researcher] Define the classifier
 target_model = SVC(gamma=0.1, probability=True)
 
 # [Researcher] Train the classifier
-target_model.fit(train_X, train_y)
+target_model.fit(X_train, y_train)
 
 # [Researcher] Provide the model and the train and test data to the TRE
 
 # [TRE] Compute the predictions on the training and test sets
-train_preds = target_model.predict_proba(train_X)
-test_preds = target_model.predict_proba(test_X)
+train_preds = target_model.predict_proba(X_train)
+test_preds = target_model.predict_proba(X_test)
 
 # [TRE / Researcher] Wrap the model and data in a Target object
 target = Target(model=target_model)
-target.add_processed_data(train_X, train_y, test_X, test_y)
+target.add_processed_data(X_train, y_train, X_test, y_test)
 
 # [TRE] Create the attack object
 attack_obj = worst_case_attack.WorstCaseAttack(
@@ -74,7 +74,7 @@ attack_obj = worst_case_attack.WorstCaseAttack(
     output_dir="outputs_worstcase",
     # # If report_name is given, it creates pdf and json files with the specified name;
     # # otherwise it create output files with default name 'report_worstcase'
-    # report_name="programmatically_worstcase_example1_report",
+    # e.g., report_name="programmatically_worstcase_example1_report",
     attack_metric_success_name="P_HIGHER_AUC",
     # threshold for a given metric for failure/success counters
     attack_metric_success_thresh=0.05,
@@ -285,7 +285,6 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "output_dir": "outputs_worstcase",
-    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
     "attack_metric_success_name": "P_HIGHER_AUC",
@@ -313,7 +312,6 @@ config = {
     "train_beta": 5,
     "test_beta": 2,
     "output_dir": "outputs_worstcase",
-    # "report_name": "report_worstcase",
     "training_preds_filename": "train_preds.csv",
     "test_preds_filename": "test_preds.csv",
 }

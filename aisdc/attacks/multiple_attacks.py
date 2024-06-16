@@ -19,22 +19,18 @@ from aisdc.attacks.worst_case_attack import WorstCaseAttack
 class MultipleAttacks(Attack):
     """Wrap the MIA and AIA attack codes."""
 
-    def __init__(
-        self,
-        config_filename: str = None,
-    ) -> None:
-        super().__init__()
-        self.config_filename = config_filename
-        """Construct an object to execute a worst case attack.
+    def __init__(self, config_filename: str = None) -> None:
+        """Construct an object to execute multiple attacks.
 
         Parameters
         ----------
         config_filename : str
-            name of the configuration file which has configurations in a single
-            JSON file to support running multiple attacks.
+            Name of a JSON file containing attack configurations.
         """
+        super().__init__()
+        self.config_filename = config_filename
 
-    def __str__(self):
+    def __str__(self) -> None:
         """Return the name of the attack."""
         return "Multiple Attacks (MIA and AIA) given configurations"
 
@@ -44,8 +40,8 @@ class MultipleAttacks(Attack):
         Parameters
         ----------
         target : attacks.target.Target
-            target as an instance of the Target class. Needs to have x_train,
-            x_test, y_train and y_test set.
+            Target as an instance of the Target class. Needs to have X_train,
+            X_test, y_train and y_test set.
         """
         logger = logging.getLogger("attack-multiple attacks")
         logger.info("Running attacks")
@@ -84,10 +80,7 @@ class MultipleAttacks(Attack):
 class ConfigFile:
     """Create a single JSON configuration file."""
 
-    def __init__(
-        self,
-        filename: str = None,
-    ) -> None:
+    def __init__(self, filename: str = None) -> None:
         self.filename = filename
 
         dirname = os.path.normpath(os.path.dirname(self.filename))
@@ -117,15 +110,11 @@ class ConfigFile:
         """Read a JSON config file and return dict with configuration objects."""
         with open(self.filename, encoding="utf-8") as f:
             file_contents = f.read()
-            if file_contents != "":
-                config_file_data = json.loads(file_contents)
-            else:
-                config_file_data = {}
-        return config_file_data
+            return json.loads(file_contents) if file_contents != "" else {}
 
 
-def _run_attack_from_configfile(args):
-    """Run a command line attack based on saved files described in .json file."""
+def _run_attack_from_configfile(args) -> None:
+    """Run a command line attack based on saved files described in a JSON file."""
     attack_obj = MultipleAttacks(
         config_filename=str(args.config_filename),
     )
@@ -134,7 +123,7 @@ def _run_attack_from_configfile(args):
     attack_obj.attack(target)
 
 
-def main():
+def main() -> None:
     """Parse args and invoke relevant code."""
     parser = argparse.ArgumentParser(add_help=False)
 

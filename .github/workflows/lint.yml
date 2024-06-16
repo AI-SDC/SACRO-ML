@@ -23,5 +23,5 @@ jobs:
 
       - name: pylint
         run: |
-          pylint -v --recursive=True aisdc.safemodel aisdc.attacks tests --fail-under 10
+          pylint -v --recursive=True aisdc tests --fail-under 10
 ...

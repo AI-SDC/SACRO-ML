@@ -28,9 +28,9 @@ data_processing_filename: user_story_2/data_processing_researcher.py
 data_processing_function_name: process_dataset
 
 # User story 3
-x_train_path: "x_train.txt"
+X_train_path: "X_train.txt"
 y_train_path: "y_train.txt"
-x_test_path: "x_test.txt"
+X_test_path: "X_test.txt"
 y_test_path: "y_test.txt"
 attack_output_name: "attack_output"
 

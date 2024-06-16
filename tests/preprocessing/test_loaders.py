@@ -113,12 +113,9 @@ def test_data_absent():
 
 def test_mimic():
     """Load the mimic2 dataset."""
-    # try:
     x_df, y_df = loaders.get_data_sklearn("mimic2-iaccd", DATA_FOLDER)
     assert x_df.shape == (1064, 38), f"x_df shape is {x_df.shape}"
     assert y_df.shape == (1064, 1)
-    # except DataNotAvailable:
-    #     pass
 
 
 def test_in_hospital():

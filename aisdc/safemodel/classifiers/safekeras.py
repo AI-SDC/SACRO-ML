@@ -2,7 +2,7 @@
 
 import os
 import warnings
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
@@ -11,8 +11,8 @@ from dictdiffer import diff
 from tensorflow.keras import Model as KerasModel  # pylint: disable = import-error
 from tensorflow_privacy import compute_dp_sgd_privacy
 
-from ..reporting import get_reporting_string
-from ..safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -30,7 +30,7 @@ DP_CLASS_STRING2 = (
 )
 
 
-def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
+def same_configs(m1: Any, m2: Any) -> tuple[bool, str]:
     """Check if two models have the same architecture."""
     num_layers = len(m1.layers)
     if len(m2.layers) != num_layers:
@@ -47,7 +47,6 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
             msg = get_reporting_string(
                 name="layer_configs_differ", layer=layer, length=num_diffs
             )
-            # f"Layer {layer} configs differ in {len(match)} places:\n"
             for i in range(num_diffs):
                 if match[i][0] == "change":
                     msg += get_reporting_string(
@@ -63,7 +62,7 @@ def same_configs(m1: Any, m2: Any) -> Tuple[bool, str]:
     return True, get_reporting_string(name="same_ann_config")
 
 
-def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
+def same_weights(m1: Any, m2: Any) -> tuple[bool, str]:
     """Check if two nets with same architecture have the same weights."""
     num_layers = len(m1.layers)
     if num_layers != len(m2.layers):
@@ -82,7 +81,7 @@ def same_weights(m1: Any, m2: Any) -> Tuple[bool, str]:
     return True, "weights match"
 
 
-def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
+def check_checkpoint_equality(v1: str, v2: str) -> tuple[bool, str]:
     """Compare two checkpoints saved with tensorflow save_model.
 
     On the assumption that the optimiser is not going to be saved,
@@ -118,31 +117,31 @@ def check_checkpoint_equality(v1: str, v2: str) -> Tuple[bool, str]:
     return same, msg
 
 
-def check_DP_used(optimizer) -> Tuple[bool, str]:
+def check_dp_used(optimizer) -> tuple[bool, str]:
     """Check whether the DP optimizer was actually the one used."""
     key_needed = "_was_dp_gradients_called"
     critical_val = optimizer.__dict__.get(key_needed, "missing")
 
     if critical_val is True:
         reason = get_reporting_string(name="dp_optimizer_run")
-        DPused = True
+        dp_used = True
     elif critical_val == "missing":
         reason = get_reporting_string(name="no_dp_gradients_key")
-        DPused = False
+        dp_used = False
     elif critical_val is False:
         reason = get_reporting_string(name="changed_opt_no_fit")
-        DPused = False
+        dp_used = False
     else:  # pragma: no cover
         # not currently reachable because optimizer class does
         # not support assignment
         # but leave in to future-proof
         reason = get_reporting_string(name="unrecognised_combination")
-        DPused = False
+        dp_used = False
 
-    return DPused, reason
+    return dp_used, reason
 
 
-def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
+def check_optimizer_allowed(optimizer) -> tuple[bool, str]:
     """Check if the model's optimizer is in our white-list.
 
     Default setting is not allowed.
@@ -157,19 +156,19 @@ def check_optimizer_allowed(optimizer) -> Tuple[bool, str]:
     return allowed, reason
 
 
-def check_optimizer_is_DP(optimizer) -> Tuple[bool, str]:
+def check_optimizer_is_dp(optimizer) -> tuple[bool, str]:
     """Check whether optimizer is one of tensorflow's DP versions."""
-    DPused = False
+    dp_used = False
     reason = "None"
     if "_was_dp_gradients_called" not in optimizer.__dict__:
         reason = get_reporting_string(name="no_dp_gradients_key")
     else:
         reason = get_reporting_string(name="found_dp_gradients_key")
-        DPused = True
-    return DPused, reason
+        dp_used = True
+    return dp_used, reason
 
 
-def load_safe_keras_model(name: str = "undefined") -> Tuple[bool, Any]:
+def load_safe_keras_model(name: str = "undefined") -> tuple[bool, Any]:
     """Read model from file in appropriate format.
 
     Optimizer is deliberately excluded in the save.
@@ -209,12 +208,12 @@ class SafeKerasModel(KerasModel, SafeModel):
         # initialise all the values that get provided as options to keras
         # and also l2 norm clipping and learning rates, batch sizes
         inputs = None
-        if "inputs" in kwargs.keys():  # pylint: disable=consider-iterating-dictionary
+        if "inputs" in kwargs:
             inputs = the_kwargs["inputs"]
         elif len(args) == 3:  # defaults is for Model(input,outputs,names)
             inputs = args[0]
         self.outputs = None
-        if "outputs" in kwargs.keys():  # pylint: disable=consider-iterating-dictionary
+        if "outputs" in kwargs:
             outputs = the_kwargs["outputs"]
         elif len(args) == 3:
             outputs = args[1]
@@ -262,7 +261,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
     def dp_epsilon_met(
         self, num_examples: int, batch_size: int = 0, epochs: int = 0
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check if epsilon is sufficient for Differential Privacy.
 
         Provides feedback to user if epsilon is not sufficient.
@@ -279,7 +278,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
     def check_epsilon(
         self, num_samples: int, batch_size: int, epochs: int
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check if the level of privacy guarantee is within recommended limits."""
         msg = ""
         ok = False
@@ -304,9 +303,7 @@ class SafeKerasModel(KerasModel, SafeModel):
         print(msg)
         return ok, msg
 
-    def compile(
-        self, optimizer=None, loss="categorical_crossentropy", metrics=["accuracy"]
-    ):  # pylint:disable=dangerous-default-value)
+    def compile(self, optimizer=None, loss="categorical_crossentropy", metrics=None):
         """Compile the safe Keras model.
 
         Replaces the optimiser with a DP variant if needed and creates the
@@ -314,31 +311,30 @@ class SafeKerasModel(KerasModel, SafeModel):
         Allow None as default value for optimizer param because we explicitly
         deal with it.
         """
+        if metrics is None:
+            metrics = ["accuracy"]
+
         replace_message = get_reporting_string(name="warn_possible_disclosure_risk")
-        # "WARNING: model parameters may present a disclosure risk"
-        using_DP_SGD = get_reporting_string(name="using_dp_sgd")
-        # "Changed parameter optimizer = 'DPKerasSGDOptimizer'"
-        Using_DP_Adagrad = get_reporting_string(name="using_dp_adagrad")
-        # "Changed parameter optimizer = 'DPKerasAdagradOptimizer'"
-        using_DP_Adam = get_reporting_string(name="using_dp_adam")
-        # "Changed parameter optimizer = 'DPKerasAdamOptimizer'"
+        using_dp_sgd = get_reporting_string(name="using_dp_sgd")
+        using_dp_adagrad = get_reporting_string(name="using_dp_adagrad")
+        using_dp_adam = get_reporting_string(name="using_dp_adam")
 
         optimizer_dict = {
-            None: (using_DP_SGD, tfp.DPKerasSGDOptimizer),
+            None: (using_dp_sgd, tfp.DPKerasSGDOptimizer),
             tfp.DPKerasSGDOptimizer: ("", tfp.DPKerasSGDOptimizer),
             tfp.DPKerasAdagradOptimizer: ("", tfp.DPKerasAdagradOptimizer),
             tfp.DPKerasAdamOptimizer: ("", tfp.DPKerasAdamOptimizer),
             "Adagrad": (
-                replace_message + Using_DP_Adagrad,
+                replace_message + using_dp_adagrad,
                 tfp.DPKerasAdagradOptimizer,
             ),
-            "Adam": (replace_message + using_DP_Adam, tfp.DPKerasAdamOptimizer),
-            "SGD": (replace_message + using_DP_SGD, tfp.DPKerasSGDOptimizer),
+            "Adam": (replace_message + using_dp_adam, tfp.DPKerasAdamOptimizer),
+            "SGD": (replace_message + using_dp_sgd, tfp.DPKerasSGDOptimizer),
         }
 
         val = optimizer_dict.get(optimizer, "unknown")
         if val == "unknown":
-            opt_msg = using_DP_SGD
+            opt_msg = using_dp_sgd
             opt_used = tfp.DPKerasSGDOptimizer
         else:
             opt_msg = val[0]
@@ -360,7 +356,7 @@ class SafeKerasModel(KerasModel, SafeModel):
     def fit(  # pylint:disable=too-many-arguments
         self,
         X: Any,
-        Y: Any,
+        y: Any,
         validation_data: Any,
         epochs: int,
         batch_size: int,
@@ -393,7 +389,7 @@ class SafeKerasModel(KerasModel, SafeModel):
 
         returnval = super().fit(
             X,
-            Y,
+            y,
             validation_data=validation_data,
             epochs=epochs,
             batch_size=batch_size,
@@ -404,11 +400,11 @@ class SafeKerasModel(KerasModel, SafeModel):
             os.mkdir("tfsaves")
         self.save("tfsaves/fit_model.tf")
         # pylint: disable=attribute-defined-outside-init
-        self.saved_was_dpused, self.saved_reason = check_DP_used(self.optimizer)
+        self.saved_was_dpused, self.saved_reason = check_dp_used(self.optimizer)
         self.saved_epsilon = self.current_epsilon
         return returnval
 
-    def posthoc_check(self, verbose: bool = True) -> Tuple[str, bool]:
+    def posthoc_check(self, verbose: bool = True) -> tuple[str, bool]:
         """Check whether the model should be considered unsafe.
 
         For example, has been changed since fit() was last run,
@@ -434,14 +430,14 @@ class SafeKerasModel(KerasModel, SafeModel):
             disclosive = True
 
         # was the dp-optimiser used during fit()
-        dpused, dpusedmessage = check_DP_used(self.optimizer)
-        if not dpused:
+        dp_used, dpusedmessage = check_dp_used(self.optimizer)
+        if not dp_used:
             msg += dpusedmessage
             disclosive = True
 
         # have values been changed since saved  immediately after fit()?
         if (
-            dpused != self.saved_was_dpused
+            dp_used != self.saved_was_dpused
             or dpusedmessage != self.saved_reason
             or self.saved_epsilon != self.current_epsilon
         ):

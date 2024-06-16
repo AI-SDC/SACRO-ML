@@ -24,11 +24,11 @@ def test_superclass():
         print(str(my_attack))
 
 
-def test_NumpyArrayEncoder():
+def test_numpy_array_encoder():
     """Conversion routine from reports.py."""
     i32 = np.int32(2)
     i64 = np.int64(2)
-    twoDarray = np.zeros((2, 2))
+    array_2d = np.zeros((2, 2))
     my_encoder = report.NumpyArrayEncoder()
 
     retval = my_encoder.default(i32)
@@ -37,7 +37,7 @@ def test_NumpyArrayEncoder():
     retval = my_encoder.default(i64)
     assert isinstance(retval, int)
 
-    retval = my_encoder.default(twoDarray)
+    retval = my_encoder.default(array_2d)
     assert isinstance(retval, list)
 
     with pytest.raises(TypeError):

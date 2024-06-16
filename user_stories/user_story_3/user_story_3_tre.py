@@ -18,27 +18,23 @@ import pickle
 import numpy as np
 import yaml
 
-from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
-    GenerateTextReport,
-)
-from aisdc.attacks.likelihood_attack import LIRAAttack  # pylint: disable=import-error
-from aisdc.attacks.target import Target  # pylint: disable=import-error
-from aisdc.attacks.worst_case_attack import (  # pylint: disable=import-error
-    WorstCaseAttack,
-)
+from aisdc.attacks.attack_report_formatter import GenerateTextReport
+from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.target import Target
+from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
     directory,
     target_model,
-    x_train,
+    X_train,
     y_train,
-    x_test,
+    X_test,
     y_test,
     attack_output_name,
     target_filename,
     outfile,
-):  # pylint: disable=too-many-arguments, disable=too-many-locals
+):
     """Generate report based on target model."""
     print()
     print("Acting as TRE...")
@@ -61,9 +57,9 @@ def generate_report(
 
     # Read the training/testing data as supplied by the researcher
     print("Reading training/testing data from ./" + directory)
-    train_x = np.loadtxt(os.path.join(directory, x_train))
+    train_x = np.loadtxt(os.path.join(directory, X_train))
     train_y = np.loadtxt(os.path.join(directory, y_train))
-    test_x = np.loadtxt(os.path.join(directory, x_test))
+    test_x = np.loadtxt(os.path.join(directory, X_test))
     test_y = np.loadtxt(os.path.join(directory, y_test))
 
     # Wrap the training and test data into the Target object
@@ -126,9 +122,9 @@ def run_user_story(release_config: dict):
     generate_report(
         release_config["training_artefacts_dir"],
         release_config["target_model"],
-        release_config["x_train_path"],
+        release_config["X_train_path"],
         release_config["y_train_path"],
-        release_config["x_test_path"],
+        release_config["X_test_path"],
         release_config["y_test_path"],
         release_config["attack_output_name"],
         release_config["target_results"],
@@ -139,7 +135,8 @@ def run_user_story(release_config: dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a risk report after request_release() has been called by researcher"
+            "Generate a risk report after request_release() "
+            "has been called by researcher"
         )
     )
 

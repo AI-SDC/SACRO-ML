@@ -1,18 +1,11 @@
 """Privacy protected TensorFlow model."""
 
-# pylint: disable=unused-import
-from typing import Any
-
-import tensorflow as tf
-import tensorflow_privacy as tf_privacy
 from tensorflow_privacy import DPModel
-from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
-from tensorflow_privacy.privacy.optimizers import dp_optimizer_keras
 
-from ..safemodel import SafeModel
+from aisdc.safemodel.safemodel import SafeModel
 
 
-class Safe_tf_DPModel(SafeModel, DPModel):
+class SafeTFModel(SafeModel, DPModel):
     """Privacy Protected tensorflow_privacy DP-SGD subclass of Keras model."""
 
     # pylint:disable=super-init-not-called

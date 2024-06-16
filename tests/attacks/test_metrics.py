@@ -7,15 +7,7 @@ import unittest
 import numpy as np
 import pytest
 
-from aisdc.metrics import (
-    _div,
-    _tpr_at_fpr,
-    get_metrics,
-    get_probabilities,
-    min_max_disc,
-)
-
-# pylint: disable = invalid-name
+from aisdc.metrics import _div, _tpr_at_fpr, get_metrics, min_max_disc
 
 PREDICTED_CLASS = np.array([0, 1, 0, 0, 1, 1])
 TRUE_CLASS = np.array([0, 0, 0, 1, 1, 1])
@@ -73,52 +65,16 @@ class TestInputExceptions(unittest.TestCase):
         assert pytest.approx(tpr) == 0.0
 
 
-class TestProbabilities(unittest.TestCase):
-    """Test the checks on the input parameters of the get_probabilites function."""
-
-    def test_permute_rows_errors(self):
-        """Test error when permute_rows is True, but no y_test is supplied."""
-        clf = DummyClassifier()
-        testX = []
-        with pytest.raises(ValueError, match="not enough values to unpack.*"):
-            get_probabilities(clf, testX, permute_rows=True)
-
-    def test_permute_rows_with_permute_rows(self):
-        """Test permute_rows = True succeeds."""
-        clf = DummyClassifier()
-        testX = np.zeros((4, 2))
-        testY = np.zeros((4, 2))
-
-        returned = get_probabilities(clf, testX, testY, permute_rows=True)
-
-        # Check the function returns two arguments
-        assert len(returned) == 2
-
-        # Check that the second argument is the same shape as testY
-        assert testY.shape == returned[1].shape
-
-        # Check that the function is returning the right thing: predict_proba
-        assert clf.predict_proba(testX).shape == returned[0].shape
-
-    def test_permute_rows_without_permute_rows(self):
-        """Test permute_rows = False succeeds."""
-        clf = DummyClassifier()
-        testX = np.zeros((4, 2))
-        y_pred_proba = get_probabilities(clf, testX, permute_rows=False)
-        # Check the function returns pnly y_pred_proba
-        assert clf.predict_proba(testX).shape == y_pred_proba.shape
-
-
 class TestMetrics(unittest.TestCase):
     """Test the metrics with some dummy predictions."""
 
     def test_metrics(self):
         """Test each individual metric with dummy data."""
         clf = DummyClassifier()
-        testX = []
-        testy = TRUE_CLASS
-        y_pred_proba = get_probabilities(clf, testX, testy, permute_rows=False)
-        metrics = get_metrics(y_pred_proba, testy)
+        X_test = []
+        y_test = TRUE_CLASS
+        y_pred_proba = clf.predict_proba(X_test)
+        metrics = get_metrics(y_pred_proba, y_test)
         assert metrics["TPR"] == pytest.approx(2 / 3)
         assert metrics["FPR"] == pytest.approx(1 / 3)
         assert metrics["FAR"] == pytest.approx(1 / 3)
@@ -171,7 +127,7 @@ class TestFPRatTPR(unittest.TestCase):
         assert tpr == pytest.approx(1)
 
 
-class Test_Div(unittest.TestCase):
+class TestDiv(unittest.TestCase):
     """Test the _div functionality."""
 
     def test_div(self):

@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import copy
-from typing import Any
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-from ..reporting import get_reporting_string
-from ..safemodel import SafeModel
+from aisdc.safemodel.reporting import get_reporting_string
+from aisdc.safemodel.safemodel import SafeModel
+
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
 # pylint: disable=too-many-ancestors, unidiomatic-typecheck
@@ -18,7 +18,7 @@ from .safedecisiontreeclassifier import decision_trees_are_equal
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: dict) -> None:
         """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.basemodel_paramnames = [
@@ -144,7 +144,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
 
         for record in range(num_records):
             # start by assuming everything co-occurs
-            appears_together = list(range(0, num_records))
+            appears_together = list(range(num_records))
             # iterate through trees
             for this_tree in range(num_trees):
                 this_leaf = all_leaves[record][this_tree]

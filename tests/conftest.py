@@ -1,5 +1,6 @@
 """Common utility functions for testing."""
 
+import contextlib
 import os
 import shutil
 from datetime import date
@@ -77,20 +78,16 @@ def _cleanup():
     yield
 
     for folder in folders:
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(folder)
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass
 
     files.append(  # from attack_report_formater.py
         "ATTACK_RESULTS" + str(date.today().strftime("%d_%m_%Y")) + ".json"
     )
 
     for file in files:
-        try:
+        with contextlib.suppress(Exception):
             os.remove(file)
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass
 
 
 @pytest.fixture()
@@ -125,8 +122,8 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
     (
-        x_train_orig,
-        x_test_orig,
+        X_train_orig,
+        X_test_orig,
         y_train_orig,
         y_test_orig,
     ) = train_test_split(
@@ -138,8 +135,8 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     )
 
     # now resample the training data reduce number of examples
-    _, x_train_orig, _, y_train_orig = train_test_split(
-        x_train_orig,
+    _, X_train_orig, _, y_train_orig = train_test_split(
+        X_train_orig,
         y_train_orig,
         test_size=0.05,
         stratify=y_train_orig,
@@ -150,31 +147,30 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     # one-hot encoding of features and integer encoding of labels
     label_enc = LabelEncoder()
     feature_enc = OneHotEncoder()
-    x_train = feature_enc.fit_transform(x_train_orig).toarray()
+    X_train = feature_enc.fit_transform(X_train_orig).toarray()
     y_train = label_enc.fit_transform(y_train_orig)
-    x_test = feature_enc.transform(x_test_orig).toarray()
+    X_test = feature_enc.transform(X_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
     # add dummy continuous valued attribute from N(0.5,0.05)
-    dummy_tr = 0.5 + 0.05 * np.random.randn(x_train.shape[0])
-    dummy_te = 0.5 + 0.05 * np.random.randn(x_test.shape[0])
-    dummy_all = np.hstack((dummy_tr, dummy_te)).reshape(-1, 1)
+    dummy_tr = 0.5 + 0.05 * np.random.randn(X_train.shape[0])
+    dummy_te = 0.5 + 0.05 * np.random.randn(X_test.shape[0])
     dummy_tr = dummy_tr.reshape(-1, 1)
     dummy_te = dummy_te.reshape(-1, 1)
 
-    x_train = np.hstack((x_train, dummy_tr))
-    x_train_orig = np.hstack((x_train_orig, dummy_tr))
-    x_test = np.hstack((x_test, dummy_te))
-    x_test_orig = np.hstack((x_test_orig, dummy_te))
-    xmore = np.concatenate((x_train_orig, x_test_orig))
-    n_features = np.shape(x_train_orig)[1]
+    X_train = np.hstack((X_train, dummy_tr))
+    X_train_orig = np.hstack((X_train_orig, dummy_tr))
+    X_test = np.hstack((X_test, dummy_te))
+    X_test_orig = np.hstack((X_test_orig, dummy_te))
+    xmore = np.concatenate((X_train_orig, X_test_orig))
+    n_features = np.shape(X_train_orig)[1]
 
     # wrap
     target = Target(model=model)
     target.name = "nursery"
-    target.add_processed_data(x_train, y_train, x_test, y_test)
+    target.add_processed_data(X_train, y_train, X_test, y_test)
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
-    target.add_raw_data(xmore, y, x_train_orig, y_train_orig, x_test_orig, y_test_orig)
+    target.add_raw_data(xmore, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
     return target

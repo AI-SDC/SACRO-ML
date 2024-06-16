@@ -1,11 +1,9 @@
 """Handlers to pull in datasets and perform preprocessing."""
 
-# pylint: disable=import-error, invalid-name, consider-using-with, too-many-return-statements
+# pylint: disable=consider-using-with, too-many-return-statements
 
 import logging
 import os
-from collections import Counter
-from typing import List, Tuple
 from zipfile import BadZipFile, ZipFile
 
 import numpy as np
@@ -13,10 +11,6 @@ import pandas as pd
 import pylab as plt
 from sklearn.datasets import fetch_openml, load_iris
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-
-# Following is to stop pylint always sqwarking at pandas things
-# pylint: disable = no-member, unsubscriptable-object
-
 
 logging.basicConfig(level="DEBUG")
 
@@ -37,7 +31,7 @@ class DataNotAvailable(Exception):
 
 def get_data_sklearn(  # pylint: disable = too-many-branches
     dataset_name: str, data_folder: str = os.path.join(PROJECT_ROOT_FOLDER, "data")
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get data in a format sensible for sklearn.
 
     User passes a name and that dataset is returned as a tuple of pandas
@@ -114,7 +108,7 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
         sub_name = dataset_name.split("round")[1].strip()
         logger.debug(sub_name)
         feature_df, target_df = get_data_sklearn(sub_name, data_folder)
-        column_dtype = feature_df.dtypes  # pylint: disable = no-member
+        column_dtype = feature_df.dtypes
 
         for i, column in enumerate(feature_df.columns):
             if column_dtype[i] == "float64":
@@ -152,11 +146,11 @@ def get_data_sklearn(  # pylint: disable = too-many-branches
     if dataset_name == "iris":
         return _iris()
     if dataset_name == "RDMP":
-        return _RDMP(data_folder)
+        return _rdmp(data_folder)
     raise UnknownDataset(dataset_name)
 
 
-def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _iris() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the Sklearn iris data - just first two classes."""
     X, y = load_iris(return_X_y=True, as_frame=True)
     X = X[y < 2]
@@ -164,7 +158,7 @@ def _iris() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return X, pd.DataFrame(y)
 
 
-def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _nursery() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return the sklearn nursery dataset."""
     data = fetch_openml(data_id=26, as_frame=True)
 
@@ -183,7 +177,7 @@ def _nursery() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 def _images_to_ndarray(
     images_dir: str, number_to_load: int, label: int, flatten: bool = True
-) -> Tuple[np.array, np.array]:
+) -> tuple[np.array, np.array]:
     """Get number_to_load images from the images_dir and create arrays.
 
     Patched to support non-flattened images.
@@ -193,7 +187,7 @@ def _images_to_ndarray(
     images_names = sorted(os.listdir(folder_path))
     images_names = images_names[:number_to_load]
     # fix f or macosx
-    if ".DS_Store" in images_names:  # pragma: no cover
+    if ".DS_Store" in images_names:
         images_names.remove(".DS_Store")
 
     if flatten:
@@ -207,8 +201,8 @@ def _images_to_ndarray(
 
 
 def _medical_mnist_loader(  # pylint: disable = too-many-locals
-    data_folder: str, n_per_class: int, classes: List[str]
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    data_folder: str, n_per_class: int, classes: list[str]
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get Medical MNIST into pandas format.
 
     Borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn
@@ -238,7 +232,7 @@ and place it in the correct folder. It unzips the file first.
             with ZipFile(zip_file) as zip_handle:
                 zip_handle.extractall(base_folder)
                 logger.debug("Extracted all")
-        except BadZipFile:  # pragma: no cover
+        except BadZipFile:
             logger.error("Encountered bad zip file")
             raise
 
@@ -271,7 +265,7 @@ and place it in the correct folder. It unzips the file first.
 
 def _synth_ae(
     data_folder: str, n_rows: int = 5000
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get synth ae data.
 
     First norws (default 5000) rows from the Synthetic A&E data from NHS England
@@ -327,7 +321,7 @@ Unzip it (7z) and then copy the .csv file into your data folder.
     return (X, y)
 
 
-def _indian_liver(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _indian_liver(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get Indian Liver Patient Dataset.
 
     https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long.
@@ -371,7 +365,7 @@ and place it in the correct folder.
     return (liver_data, liver_labels)
 
 
-def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _in_hospital_mortality(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get In-hospital mortality data.
 
     See: https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.
@@ -383,9 +377,7 @@ def _in_hospital_mortality(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame
     file_path = [os.path.join(data_folder, f) for f in files]
     print(file_path)
 
-    if not any(  # pylint: disable=use-a-generator
-        [os.path.exists(fp) for fp in file_path]
-    ):  # pylint: disable=use-a-generator
+    if not any(os.path.exists(fp) for fp in file_path):
         help_message = f"""
 Data file {file_path[0]} or {file_path[1]} does not exist. Please download the file from:
 https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd
@@ -412,7 +404,7 @@ and then change the name of the file 773992 to data01.csv.
     return (features, labels)
 
 
-def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _mimic_iaccd(data_folder: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the mimic_iaccd data and perform preprocessing."""
     # Check the data has been downloaded.
     # If not throw an exception with instructions on how to
@@ -465,12 +457,12 @@ def _mimic_iaccd(data_folder: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return (X, y)
 
 
-def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
+def _rdmp(  # pylint: disable=too-many-locals, too-many-statements
     data_folder: str,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Get the RDMP dataset."""
 
-    def find_age(row):
+    def find_age(row: pd.Series) -> int:
         date_ = pd.to_datetime("01/06/2020")
         if row.date_of_death != row.date_of_death:
             age = np.floor((date_ - row.date_of_birth).days / 365.25)
@@ -478,7 +470,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             age = np.floor((row.date_of_death - row.date_of_birth).days / 365.25)
         return age
 
-    def hospital_days(row):
+    def hospital_days(row: pd.Series) -> int:
         if row.DischargeDate == row.DischargeDate:
             t = row.DischargeDate - row.AdmissionDate
             days = t.days + round(((t.seconds / 60) / 60) / 24)
@@ -521,7 +513,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             "R_CC_STEN_B",
             "R_CC_STEN_C",
             "R_CC_STEN_D",
-            "R_CC_STEN_S",  # pylint: disable=unreachable
+            "R_CC_STEN_S",
             "L_IC_STEN_A",
             "L_IC_STEN_B",
             "L_IC_STEN_C",
@@ -618,12 +610,12 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
             df__.groupby(["chi"])[[x for x in df__.columns if "Condition" in x]]
             .count()
             .mean(axis=1)
-        )  # pylint: disable=line-too-long
+        )
         no = (
             df__.groupby(["chi"])[[x for x in df__.columns if "Operation" in x]]
             .count()
             .sum(axis=1)
-        )  # pylint: disable=line-too-long
+        )
         df__.drop(
             columns=[
                 x
@@ -631,7 +623,7 @@ def _RDMP(  # pylint: disable=too-many-locals, too-many-statements
                 if "Date" in x or "Operation" in x or "Condition" in x
             ],
             inplace=True,
-        )  # pylint: disable=line-too-long
+        )
         df__ = pd.DataFrame()
         df__["days_in_hospital"] = dih
         df__["average_number_conditions"] = nc

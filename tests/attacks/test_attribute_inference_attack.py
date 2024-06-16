@@ -29,7 +29,7 @@ def pytest_generate_tests(metafunc):
 def fixture_common_setup(get_target):
     """Get ready to test some code."""
     target = get_target
-    target.model.fit(target.x_train, target.y_train)
+    target.model.fit(target.X_train, target.y_train)
     attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
     return target, attack_obj
 
@@ -64,7 +64,7 @@ def test_categorical_via_modified_attack_brute_force(common_setup):
     t_low_train_samples = t_low["train"][4]
 
     # Check the number of samples in the dataset
-    assert len(target.x_train) == t_low_train_samples
+    assert len(target.X_train) == t_low_train_samples
     # Check that all samples are correct for this threshold
     assert t_low_correct == t_low_total
 
@@ -73,14 +73,14 @@ def test_categorical_via_modified_attack_brute_force(common_setup):
     t_high = _infer_categorical(target, feature, threshold)
     t_high_correct = t_high["train"][0]
     t_high_train_samples = t_high["train"][4]
-    assert len(target.x_train) == t_high_train_samples
+    assert len(target.X_train) == t_high_train_samples
     assert t_high_correct == 0
 
 
 def test_continuous_via_modified_bounds_risk(common_setup):
     """Test continuous variables get_bounds_risk()."""
     target, _ = common_setup
-    returned = _get_bounds_risk(target.model, "dummy", 8, target.x_train, target.x_test)
+    returned = _get_bounds_risk(target.model, "dummy", 8, target.X_train, target.X_test)
     # Check the number of parameters returned
     assert len(returned.keys()) == 3
     # Check the value of the returned parameters
@@ -88,7 +88,7 @@ def test_continuous_via_modified_bounds_risk(common_setup):
     assert returned["test"] == 0
 
 
-def test_AIA_on_nursery(common_setup):
+def test_aia_on_nursery(common_setup):
     """Test AIA on the nursery data with an added continuous feature."""
     target, attack_obj = common_setup
     attack_obj.attack(target)
@@ -99,7 +99,7 @@ def test_AIA_on_nursery(common_setup):
     assert "categorical" in keys
 
 
-def test_AIA_on_nursery_from_cmd(common_setup):
+def test_aia_on_nursery_from_cmd(common_setup):
     """Test AIA on the nursery data with an added continuous feature."""
     target, _ = common_setup
     target.save(path="tests/test_aia_target")

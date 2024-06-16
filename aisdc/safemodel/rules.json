@@ -35,12 +35,12 @@
                 "operator": "or",
                 "subexpr": [
                     {
-                        "keyword": "keyA",
+                        "keyword": "key_a",
                         "operator": "equals",
                         "value": true
                     },
                     {
-                        "keyword": "keyB",
+                        "keyword": "key_b",
                         "operator": "equals",
                         "value": true
                     }

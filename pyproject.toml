@@ -40,40 +40,52 @@ extend-include = ["*.ipynb"]
 lint.select = [
 #  "ANN", # flake8-annotations
   "ARG", # flake8-unused-arguments
-#  "B",   # flake8-bugbear
-#  "C4",  # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
 #  "C90", # mccabe
   "D",   # pydocstyle
 #  "DTZ", # flake8-datetimez
 #  "E",   # pycodestyle
-#  "EM",  # flake8-errmsg
-#  "ERA", # eradicate
-#  "F",   # Pyflakes
+  "EM",  # flake8-errmsg
+  "ERA", # eradicate
+  "F",   # Pyflakes
   "I",   # isort
   "ICN", # flake8-import-conventions
-#  "N",   # pep8-naming
+  "N",   # pep8-naming
 #  "PD",  # pandas-vet
   "PGH", # pygrep-hooks
-#  "PIE", # flake8-pie
+  "PIE", # flake8-pie
 #  "PL",  # Pylint
   "PLC", # Pylint
   "PLE", # Pylint
 #  "PLR", # Pylint
-#  "PLW", # Pylint
+  "PLW", # Pylint
   "PT",  # flake8-pytest-style
   "Q",   # flake8-quotes
-#  "RET", # flake8-return
+  "RET", # flake8-return
   "RUF100",  # Ruff-specific
 #  "S",   # flake8-bandit
-#  "SIM", # flake8-simplify
+  "SIM", # flake8-simplify
 #  "T20", # flake8-print
-#  "TID", # flake8-tidy-imports
-#  "UP",  # pyupgrade
+  "TID", # flake8-tidy-imports
+  "UP",  # pyupgrade
   "W",   # pycodestyle
   "YTT",  # flake8-2020
 ]
 
 lint.ignore = [
+    "ANN101", # missing-type-self
+    "EM101",  # raw-string-in-exception
+    "EM102",  # f-string-in-exception
+    "N818",   # error-suffix-on-exception-name
+]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+    "X", "X_train", "X_val", "X_test", "X_predict",
+    "X_target_train", "X_shadow_train", "N", "C",
+    "X_train_orig", "X_test_orig", "X_orig", "X_transformed",
+    "X_encoded",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -84,4 +96,6 @@ docstring-code-format = true
 docstring-code-line-length = 80
 
 [tool.ruff.lint.extend-per-file-ignores]
-"tests/**/*" = ["S101"]
+"user_stories/**/*" = ["ANN"]
+"tests/**/*" = ["S101", "PLR2004", "ANN"]
+"aisdc/attacks/structural_attack.py" = ["PLR2004"]

@@ -14,9 +14,7 @@ import os
 
 import yaml
 
-from aisdc.attacks.attack_report_formatter import (  # pylint: disable=import-error
-    GenerateTextReport,
-)
+from aisdc.attacks.attack_report_formatter import GenerateTextReport
 
 
 def generate_report(directory, attack_results, target, outfile):

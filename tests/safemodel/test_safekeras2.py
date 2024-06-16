@@ -21,10 +21,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 EPOCHS = 1
 n_classes = 4
-# expected accuracy
-# ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 ACC = 0.3583333492279053
-# UNSAFE_ACC = 0.325 if platform.system() == "Darwin" else 0.3583333492279053
 UNSAFE_ACC = 0.3583333492279053
 RES_DIR = "RES"
 
@@ -36,18 +33,18 @@ def get_data():
     yall = np.asarray(iris["target"], dtype=np.float64)
     xall = np.vstack([xall, (7, 2.0, 4.5, 1)])
     yall = np.append(yall, n_classes)
-    X, Xval, y, yval = train_test_split(
+    X, X_val, y, y_val = train_test_split(
         xall, yall, test_size=0.2, shuffle=True, random_state=12345
     )
     y = tf.one_hot(y, n_classes)
-    yval = tf.one_hot(yval, n_classes)
-    return X, y, Xval, yval
+    y_val = tf.one_hot(y_val, n_classes)
+    return X, y, X_val, y_val
 
 
 def make_small_model(num_hidden_layers=2):
     """Make the keras model."""
     # get data
-    X, y, Xval, yval = get_data()
+    X, y, X_val, y_val = get_data()
     # set seed and kernel initialisers for repeatability
     tf.random.set_seed(12345)
     initializer = tf.keras.initializers.Zeros()
@@ -66,7 +63,7 @@ def make_small_model(num_hidden_layers=2):
         epochs=EPOCHS,
     )
 
-    return model, X, y, Xval, yval
+    return model, X, y, X_val, y_val
 
 
 def check_init_completed(model: SafeKerasModel):
@@ -215,7 +212,7 @@ def test_same_weights():  # pylint : disable=too-many-locals
     assert not same3, errstr
 
 
-def test_DP_optimizer_checks():
+def test_dp_optimizer_checks():
     """Test the various checks that DP optimiser was used."""
     # make model
     model1, _, _, _, _ = make_small_model(num_hidden_layers=1)
@@ -234,7 +231,7 @@ def test_DP_optimizer_checks():
         model.compile(loss=loss, optimizer=oktype)
         opt_ok, msg = safekeras.check_optimizer_allowed(model.optimizer)
         assert opt_ok, msg
-        opt_is_dp, _ = safekeras.check_optimizer_is_DP(model.optimizer)
+        opt_is_dp, _ = safekeras.check_optimizer_is_dp(model.optimizer)
         assert opt_is_dp
 
     # not ok optimizer
@@ -244,43 +241,43 @@ def test_DP_optimizer_checks():
     model.optimizer = tf.keras.optimizers.get("SGD")
     opt_ok, msg = safekeras.check_optimizer_allowed(model1.optimizer)
     assert not opt_ok, msg
-    opt_is_dp, msg = safekeras.check_optimizer_is_DP(model1.optimizer)
+    opt_is_dp, msg = safekeras.check_optimizer_is_dp(model1.optimizer)
     assert not opt_is_dp, msg
 
 
-def test_DP_used():
+def test_dp_used():
     """Test the various checks that DP optimiser was used."""
     # should pass after model compiled **and** fitted with DP optimizer
-    model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
+    model1, X, y, X_val, y_val = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model1.compile(loss=loss)
-    dp_used, msg = safekeras.check_DP_used(model1.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model1.optimizer)
     assert not dp_used
-    model1.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
-    dp_used, msg = safekeras.check_DP_used(model1.optimizer)
+    model1.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
+    dp_used, msg = safekeras.check_dp_used(model1.optimizer)
     assert dp_used
 
     # this model gets changed to non-DP by calling the superclass compile()
     # so should fail all the checks
     model2, _, _, _, _ = make_small_model(num_hidden_layers=1)
     super(SafeKerasModel, model2).compile(loss=loss, optimizer="SGD")
-    model2.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
-    dp_used, msg = safekeras.check_DP_used(model2.optimizer)
+    model2.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
+    dp_used, msg = safekeras.check_dp_used(model2.optimizer)
     assert not dp_used, msg
 
 
 def test_checkpoints_are_equal():
     """Test the check for checkpoint equality."""
-    model1, X, y, Xval, yval = make_small_model(num_hidden_layers=1)
+    model1, X, y, X_val, y_val = make_small_model(num_hidden_layers=1)
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model1.compile(loss=loss)
-    model1.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model1.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
     model1.save("fit.tf")
-    model1.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS * 2, batch_size=20)
+    model1.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS * 2, batch_size=20)
     model1.save("refit.tf")
 
     # same arch, different weights
@@ -293,9 +290,9 @@ def test_checkpoints_are_equal():
     assert same, msg
 
     # different architecture
-    model2, X, y, Xval, yval = make_small_model(num_hidden_layers=3)
+    model2, X, y, X_val, y_val = make_small_model(num_hidden_layers=3)
     model2.compile(loss=loss)
-    model2.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model2.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
     model2.save("fit2.tf")
 
     same, msg = safekeras.check_checkpoint_equality("fit.tf", "fit2.tf")
@@ -320,12 +317,12 @@ def test_checkpoints_are_equal():
 def test_load():
     """Test the loading functionality."""
     # make a model, train then save it
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
     model.save("keras_save.tf")
 
     # won't load with invalid names
@@ -386,15 +383,15 @@ def test_second_keras_model_created():
     assert model2.noise_multiplier == 0.7
 
 
-def test_keras_model_compiled_as_DP():
+def test_keras_model_compiled_as_dp():
     """Test Compile DP."""
     model, X, _, _, _ = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    isDP, _ = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, _ = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     right_epsilon = 20.363059561511612
     model.check_epsilon(X.shape[0], 20, 10)
@@ -411,21 +408,21 @@ def test_keras_model_compiled_as_DP():
 
 def test_keras_basic_fit():
     """Test SafeKeras using recommended values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     # first check that stops when not DP  if they say refine
     ok, msg = model.fit(
         X,
         y,
-        validation_data=(Xval, yval),
+        validation_data=(X_val, y_val),
         epochs=10,
         batch_size=X.shape[0],
         refine_epsilon=True,
@@ -433,11 +430,11 @@ def test_keras_basic_fit():
     assert not ok
 
     # now default (False)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -455,13 +452,13 @@ def test_keras_basic_fit():
 def test_keras_save_actions():
     """Test save action."""
     # create, compile and train model
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     names = ("safekeras.tf", "safekeras.h5")
@@ -479,23 +476,23 @@ def test_keras_save_actions():
 
 def test_keras_unsafe_l2_norm():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.l2_norm_clip = 0.9
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -516,23 +513,23 @@ def test_keras_unsafe_l2_norm():
 
 def test_keras_unsafe_noise_multiplier():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.noise_multiplier = 1.0
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -554,23 +551,23 @@ def test_keras_unsafe_noise_multiplier():
 
 def test_keras_unsafe_min_epsilon():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.min_epsilon = 4
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -591,23 +588,23 @@ def test_keras_unsafe_min_epsilon():
 
 def test_keras_unsafe_delta():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.delta = 1e-6
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -627,23 +624,23 @@ def test_keras_unsafe_delta():
 
 def test_keras_unsafe_batch_size():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.batch_size = 34
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -660,23 +657,23 @@ def test_keras_unsafe_batch_size():
 
 def test_keras_unsafe_learning_rate():
     """Test SafeKeras using unsafe values."""
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
 
-    isDP, msg = safekeras.check_optimizer_is_DP(model.optimizer)
-    assert isDP, "failed check that optimizer is dP"
+    is_dp, msg = safekeras.check_optimizer_is_dp(model.optimizer)
+    assert is_dp, "failed check that optimizer is dP"
 
     model.learning_rate = 0.2
 
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
-    DPused, msg = safekeras.check_DP_used(model.optimizer)
+    dp_used, msg = safekeras.check_dp_used(model.optimizer)
     assert (
-        DPused
+        dp_used
     ), "Failed check that DP version of optimiser was actually used in training"
 
     loss, acc = model.evaluate(X, y)
@@ -695,13 +692,13 @@ def test_keras_unsafe_learning_rate():
 def test_create_checkfile():
     """Test create checkfile."""
     # create, compile and train model
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
 
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=EPOCHS, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     # start with .tf and .h5 which should work
     exts = ("tf", "h5")
@@ -729,12 +726,12 @@ def test_create_checkfile():
 def test_posthoc_check():
     """Test the posthoc checking function."""
     # make a model, train then save it
-    model, X, y, Xval, yval = make_small_model()
+    model, X, y, X_val, y_val = make_small_model()
     loss = tf.keras.losses.CategoricalCrossentropy(
         from_logits=False, reduction=tf.losses.Reduction.NONE
     )
     model.compile(loss=loss, optimizer=None)
-    model.fit(X, y, validation_data=(Xval, yval), epochs=1, batch_size=20)
+    model.fit(X, y, validation_data=(X_val, y_val), epochs=1, batch_size=20)
 
     # should be ok
     _, disclosive = model.posthoc_check()

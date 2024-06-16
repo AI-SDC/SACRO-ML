@@ -10,14 +10,14 @@ the comment which disables the pylint warning.
 from __future__ import annotations
 
 import copy
-from typing import Any
 
 import numpy as np
 from dictdiffer import diff
 from sklearn.ensemble import ModelToMakeSafer  # pylint: disable=E0611
 from sklearn.tree import DecisionTreeClassifier
 
-from ..safemodel import SafeModel
+from aisdc.safemodel.safemodel import SafeModel
+
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
 
@@ -44,7 +44,7 @@ def check_present(
 class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
     """Privacy protected ModelToMakeSafer."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: dict) -> None:
         """Create model and apply constraints to params."""
         SafeModel.__init__(self)
         self.k_anonymity = 0
@@ -94,11 +94,14 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
         This example shows how to deal with instances of sklearn's tree class
         as base estimators in a forest (line 99)
         or as single estimators (lines 114-118).
+
+        Notes
+        -----
+        Call the super function to deal with any items that are lists. For example:
+        >>> msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         """
         msg = ""
         disclosive = False
-        ## call the super function to deal with any items that are lists
-        # msg, disclosive = super().additional_checks(curr_separate, saved_separate)
         # now the relevant ModelToMakeSafer specific things
         for item in self.examine_seperately_items:
             if item == "base_estimator":
@@ -182,7 +185,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
 
         for record in range(num_records):
             # start by assuming everything co-occurs
-            appears_together = list(range(0, num_records))
+            appears_together = list(range(num_records))
             # iterate through trees
             for this_tree in range(num_trees):
                 this_leaf = all_leaves[record][this_tree]

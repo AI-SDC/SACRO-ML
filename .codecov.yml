@@ -5,4 +5,5 @@ ignore:
   - "aisdc/safemodel/classifiers/new_model_template.py"
   - "aisdc/preprocessing"
   - "user_stories"
+  - "examples"
 ...
