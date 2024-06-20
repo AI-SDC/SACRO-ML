@@ -15,10 +15,8 @@ from typing import Any
 import joblib
 from dictdiffer import diff
 
-from aisdc.attacks.attribute_attack import AttributeAttack
-from aisdc.attacks.likelihood_attack import LIRAAttack
+from aisdc.attacks.factory import attack
 from aisdc.attacks.target import Target
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
@@ -609,11 +607,10 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
             output["recommendation"] = "Do not allow release"
             output["reason"] = msg_prel + msg_post
         # Run attacks programmatically if possible
-        attack_results_filename = "attack_results"
         if target is not None:
-            for attack_name in ["worst_case", "lira", "attribute"]:
+            for attack_name in ["worstcase", "lira", "attribute"]:
                 output[f"{attack_name}_results"] = self.run_attack(
-                    target, attack_name, path, attack_results_filename
+                    target, attack_name, path
                 )
         # add timestamp
         now = datetime.datetime.now()
@@ -628,10 +625,9 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
 
     def run_attack(
         self,
-        target: Target = None,
-        attack_name: str = None,
-        output_dir: str = "RES",
-        report_name: str = "undefined",
+        target: Target,
+        attack_name: str,
+        output_dir: str = "outputs_safemodel",
     ) -> dict:
         """Run a specified attack on the trained model and save report to file.
 
@@ -642,57 +638,21 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         attack_name : str
             Name of the attack to run.
         output_dir : str
-            Name of the directory to store .json and .pdf output reports
-        report_name : str
-            Name of a .json file to save report.
+            Name of the directory to store JSON and PDF reports.
 
         Returns
         -------
         dict
             Metadata results.
-
-        Notes
-        -----
-        Currently implemented attack types are:
-        - Likelihood Ratio: lira.
-        - Worst_Case Membership inference: worst_case.
-        - Single Attribute Inference: attribute.
         """
-        if attack_name == "worst_case":
-            attack_obj = WorstCaseAttack(
-                n_reps=10,
-                n_dummy_reps=1,
-                p_thresh=0.05,
-                training_preds_filename=None,
-                test_preds_filename=None,
-                test_prop=0.5,
-                output_dir=output_dir,
-                report_name=report_name,
-            )
-            attack_obj.attack(target)
-            output = attack_obj.make_report()
+        try:
+            params = {"output_dir": output_dir}
+            output = attack(target=target, attack_name=attack_name, **params)
             metadata = output["metadata"]
-        elif attack_name == "lira":
-            attack_obj = LIRAAttack(
-                n_shadow_models=100,
-                output_dir=output_dir,
-                report_name=report_name,
-            )
-            attack_obj.attack(target)
-            output = attack_obj.make_report()
-            metadata = output["metadata"]
-        elif attack_name == "attribute":
-            attack_obj = AttributeAttack(
-                output_dir=output_dir,
-                report_name=report_name,
-            )
-            attack_obj.attack(target)
-            output = attack_obj.make_report()
-            metadata = output["metadata"]
-        else:
+        except ValueError:
             metadata = {}
             metadata["outcome"] = "unrecognised attack type requested"
-        print(f"attack {attack_name}, metadata {metadata}")
+        logger.info("attack %s, metadata %s", attack_name, metadata)
         return metadata
 
     def __str__(self) -> str:  # pragma: no cover

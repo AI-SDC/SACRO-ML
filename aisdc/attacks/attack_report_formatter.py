@@ -11,6 +11,7 @@ from datetime import date
 
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 
 
 def cleanup_files_for_release(
@@ -447,7 +448,7 @@ class GenerateTextReport:
 
     def __init__(self) -> None:
         self.text_out = []
-        self.target_json_filename = None
+        self.target_yaml_filename = None
         self.attack_json_filename = None
         self.model_name_from_target = None
 
@@ -455,8 +456,8 @@ class GenerateTextReport:
         self.support_rejection = []
         self.support_release = []
 
-    def _process_target_json(self) -> None:
-        """Create a summary of a target model JSON file."""
+    def _process_target_yaml(self) -> None:
+        """Create a summary of a target model YAML file."""
         model_params_of_interest = [
             "C",
             "kernel",
@@ -470,33 +471,33 @@ class GenerateTextReport:
             "learning_rate",
         ]
 
-        with open(self.target_json_filename, encoding="utf-8") as f:
-            json_report = json.loads(f.read())
+        with open(self.target_yaml_filename, encoding="utf-8") as f:
+            yaml_report = yaml.safe_load(f)
 
         output_string = "TARGET MODEL SUMMARY\n"
 
-        if "model_name" in json_report:
+        if "model_name" in yaml_report:
             output_string = (
-                output_string + "model_name: " + json_report["model_name"] + "\n"
+                output_string + "model_name: " + yaml_report["model_name"] + "\n"
             )
 
-        if "n_samples" in json_report:
+        if "n_samples" in yaml_report:
             output_string = output_string + "number of samples used to train: "
-            output_string = output_string + str(json_report["n_samples"]) + "\n"
+            output_string = output_string + str(yaml_report["n_samples"]) + "\n"
 
-        if "model_params" in json_report:
+        if "model_params" in yaml_report:
             for param in model_params_of_interest:
-                if param in json_report["model_params"]:
+                if param in yaml_report["model_params"]:
                     output_string = output_string + param + ": "
                     output_string = output_string + str(
-                        json_report["model_params"][param]
+                        yaml_report["model_params"][param]
                     )
                     output_string = output_string + "\n"
 
-        if "model_path" in json_report:
-            filepath = os.path.split(os.path.abspath(self.target_json_filename))[0]
+        if "model_path" in yaml_report:
+            filepath = os.path.split(os.path.abspath(self.target_yaml_filename))[0]
             self.model_name_from_target = os.path.join(
-                filepath, json_report["model_path"]
+                filepath, yaml_report["model_path"]
             )
 
         self.text_out.append(output_string)
@@ -519,10 +520,10 @@ class GenerateTextReport:
             json_report = json.loads(f.read())
 
         if target_filename is not None:
-            self.target_json_filename = target_filename
+            self.target_yaml_filename = target_filename
 
             with open(target_filename, encoding="utf-8") as f:
-                target_file = json.loads(f.read())
+                target_file = yaml.safe_load(f)
                 json_report = {**json_report, **target_file}
 
         modules = [
@@ -576,8 +577,8 @@ class GenerateTextReport:
         copy_of_text_out = self.text_out
         self.text_out = []
 
-        if self.target_json_filename is not None:
-            self._process_target_json()
+        if self.target_yaml_filename is not None:
+            self._process_target_yaml()
 
         self.text_out += copy_of_text_out
 
@@ -594,7 +595,7 @@ class GenerateTextReport:
             copy_into_release = [
                 output_filename,
                 self.attack_json_filename,
-                self.target_json_filename,
+                self.target_yaml_filename,
             ]
 
             if model_filename is None:

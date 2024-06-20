@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import logging
 import os
@@ -22,7 +21,7 @@ from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("aia")
+logger = logging.getLogger(__name__)
 
 COLOR_A: str = "#86bf91"  # training set plot colour
 COLOR_B: str = "steelblue"  # testing set plot colour
@@ -31,13 +30,11 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Attribute inference attack."""
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
-        output_dir: str = "output_attribute",
-        report_name: str = "aia_report",
+        output_dir: str = "outputs",
+        make_report: bool = True,
         n_cpu: int = max(1, mp.cpu_count() - 1),
-        attack_config_json_file_name: str = None,
-        target_path: str = None,
     ) -> None:
         """Construct an object to execute an attribute inference attack.
 
@@ -47,31 +44,17 @@ class AttributeAttack(Attack):
             number of CPUs used to run the attack
         output_dir : str
             name of the directory where outputs are stored
-        report_name : str
-            name of the pdf and json output reports
-        attack_config_json_file_name : str
-            name of the configuration file to load parameters
-        target_path : str
-            path to the saved trained target model and target data
+        make_report : bool
+            Whether to generate a JSON and PDF report.
         """
-        super().__init__()
+        super().__init__(output_dir=output_dir, make_report=make_report)
         self.n_cpu = n_cpu
-        self.output_dir = output_dir
-        self.report_name = report_name
-        self.attack_config_json_file_name = attack_config_json_file_name
-        self.target_path = target_path
-        if self.attack_config_json_file_name is not None:
-            self._update_params_from_config_file()
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-        self.attack_metrics: dict = {}
-        self.metadata: dict = {}
 
     def __str__(self) -> str:
         """Return the name of the attack."""
         return "Attribute inference attack"
 
-    def attack(self, target: Target) -> None:
+    def attack(self, target: Target) -> dict:
         """Run attribute inference attack.
 
         To be used when code has access to Target class and trained target model.
@@ -80,8 +63,20 @@ class AttributeAttack(Attack):
         ----------
         target : attacks.target.Target
             target is a Target class object
+
+        Returns
+        -------
+        dict
+            Attack report.
         """
-        self.attack_metrics = _attribute_inference(target, self.n_cpu)
+        if target.n_features < 1:
+            logger.info("Can't run attribute inference unless features are defined.")
+        else:
+            logger.info("Running attribute inference attack")
+            self.attack_metrics = _attribute_inference(target, self.n_cpu)
+            if self.make_report:
+                return self._make_report()
+        return {}
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object."""
@@ -90,19 +85,19 @@ class AttributeAttack(Attack):
         self.metadata["experiment_details"] = self.get_params()
         self.metadata["attack"] = str(self)
 
-    def make_report(self) -> dict:
+    def _make_report(self) -> dict:
         """Create the report.
 
-        Creates the output report. If self.report_name is not None, it will
-        also save the information in json and pdf formats.
+        Creates the output report and writes json and pdf.
 
         Returns
         -------
         output : dict
             Dictionary containing all attack output.
         """
+        logger.info("Making attribute inference attack report")
         output = {}
-        report_dest = os.path.join(self.output_dir, self.report_name)
+        report_dest = os.path.join(self.output_dir, "report")
         logger.info(
             "Starting reports, pdf report name = %s, json report name = %s",
             report_dest + ".pdf",
@@ -119,7 +114,7 @@ class AttributeAttack(Attack):
         json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
 
         pdf_report = create_aia_report(output, report_dest)
-        report.add_output_to_pdf(report_dest, pdf_report, "AttributeAttack")
+        report.add_output_to_pdf(report_dest, pdf_report)
         logger.info(
             "Wrote pdf report to %s and json report to %s",
             report_dest + ".pdf",
@@ -557,15 +552,15 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
 def _attribute_inference(target: Target, n_cpu: int) -> dict:
     """Execute attribute inference attacks on a target given a trained model."""
     # brute force attack categorical attributes using dataset unique values
-    logger.debug("Attacking dataset: %s", target.name)
-    logger.debug("Attacking categorical attributes...")
+    logger.info("Attacking dataset: %s", target.dataset_name)
+    logger.info("Attacking categorical attributes...")
     feature_list: list[int] = []
     for feature in range(target.n_features):
         if _is_categorical(target, feature):
             feature_list.append(feature)
     results_a: list[dict] = _attack_brute_force(target, feature_list, n_cpu)
     # compute risk scores for quantitative attributes
-    logger.debug("Attacking quantitative attributes...")
+    logger.info("Attacking quantitative attributes...")
     feature_list = []
     for feature in range(target.n_features):
         if not _is_categorical(target, feature):
@@ -573,7 +568,7 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
     results_b: list[dict] = _get_bounds_risks(target, feature_list, n_cpu)
     # combine results into single object
     results: dict = {
-        "name": target.name,
+        "name": target.dataset_name,
         "categorical": results_a,
         "quantitative": results_b,
     }
@@ -615,62 +610,10 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
         pdf.image(
             name + "_quant_risk.png", x=None, y=None, w=150, h=0, type="", link=""
         )
+    # clean up
+    files = ["_cat_frac.png", "_cat_risk.png"]
+    for file in files:
+        path = name + file
+        if os.path.exists(path):
+            os.remove(path)
     return pdf
-
-
-def _run_attack_from_configfile(args: dict) -> None:
-    """Run a command line attack based on saved files described in .json file."""
-    attack_obj = AttributeAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
-        target_path=str(args.target_path),
-    )
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    attack_obj.make_report()
-
-
-def main() -> None:
-    """Parse args and invoke relevant code."""
-    parser = argparse.ArgumentParser(add_help=False)
-
-    subparsers = parser.add_subparsers()
-    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
-    attack_parser_config.add_argument(
-        "-j",
-        "--attack-config-json-file-name",
-        action="store",
-        required=True,
-        dest="attack_config_json_file_name",
-        type=str,
-        default="config_aia_cmd.json",
-        help=(
-            "Name of the .json file containing details for the run. Default = %(default)s"
-        ),
-    )
-
-    attack_parser_config.add_argument(
-        "-t",
-        "--attack-target-folder-path",
-        action="store",
-        required=True,
-        dest="target_path",
-        type=str,
-        default="aia_target",
-        help=(
-            """Name of the target directory to load the trained target model and the target data.
-        Default = %(default)s"""
-        ),
-    )
-
-    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
-    args = parser.parse_args()
-    try:
-        args.func(args)
-    except AttributeError as e:  # pragma:no cover
-        print(e)
-        print("Invalid command. Try --help to get more details")
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()

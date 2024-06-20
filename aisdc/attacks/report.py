@@ -28,50 +28,54 @@ DISPLAY_METRICS = [
 MAPPINGS = {"PDIF01": lambda x: np.exp(-x)}
 
 INTRODUCTION = (
-    "This report provides a summary of a series of simulated attack experiments performed "
-    "on the model outputs provided. An attack model is trained to attempt to distinguish "
-    "between outputs from training (in-sample) and testing (out-of-sample) data. The metrics "
-    "below describe the success of this classifier. A successful classifier indicates that the "
-    "original model is unsafe and should not be allowed to be released from the TRE.\n"
-    "In particular, the simulation splits the data provided into test and train sets (each will "
-    "in- and out-of-sample examples). The classifier is trained on the train set and evaluated "
-    "on the test set. This is repeated with different train/test splits a user-specified number "
-    "of times.\n"
-    "To help place the results in context, the code may also have run a series of baseline "
-    "experiments. In these, random model outputs for hypothetical in- and out-of-sample data are "
-    "generated with identical statistical properties. In these baseline cases, there is no signal "
-    "that an attacker could leverage and therefore these values provide a baseline against "
-    "which the actual values can be compared.\n"
-    "For some metrics (FDIF and AUC), we are able to compute p-values. In each case, shown below "
-    "(in the Global metrics sections) is the number of repetitions that exceeded the p-value "
-    "threshold both without, and with correction for multiple testing (Benjamini-Hochberg "
-    "procedure).\n"
-    "ROC curves for all real (red) and dummy (blue) repetitions are provided. These are shown in "
-    "log space (as reommended here [ADD URL]) to emphasise the region in which risk is highest -- "
-    "the bottom left (are high true positive rates possible with low false positive rates).\n"
-    "A description of the metrics and how to interpret them within the context of an attack is "
+    "This report provides a summary of a series of simulated attack experiments "
+    "performed on the model outputs provided. An attack model is trained to "
+    "attempt to distinguish between outputs from training (in-sample) and "
+    "testing (out-of-sample) data. The metrics below describe the success of "
+    "this classifier. A successful classifier indicates that the original model "
+    "is unsafe and should not be allowed to be released from the TRE.\n In "
+    "particular, the simulation splits the data provided into test and train "
+    "sets (each will in- and out-of-sample examples). The classifier is trained "
+    "on the train set and evaluated on the test set. This is repeated with "
+    "different train/test splits a user-specified number of times.\n To help "
+    "place the results in context, the code may also have run a series of "
+    "baseline experiments. In these, random model outputs for hypothetical in- "
+    "and out-of-sample data are generated with identical statistical properties. "
+    "In these baseline cases, there is no signal that an attacker could leverage "
+    "and therefore these values provide a baseline against which the actual "
+    "values can be compared.\n For some metrics (FDIF and AUC), we are able to "
+    "compute p-values. In each case, shown below (in the Global metrics "
+    "sections) is the number of repetitions that exceeded the p-value threshold "
+    "both without, and with correction for multiple testing (Benjamini-Hochberg "
+    "procedure).\n ROC curves for all real (red) and dummy (blue) repetitions are "
+    "provided. These are shown in log space (as reommended here [ADD URL]) to "
+    "emphasise the region in which risk is highest -- the bottom left (are high "
+    "true positive rates possible with low false positive rates).\n A description "
+    "of the metrics and how to interpret them within the context of an attack is "
     "given below."
 )
 
 LOGROC_CAPTION = (
-    "This plot shows the False Positive Rate (x) versus the True Positive Rate (y). "
-    "The axes are in log space enabling us to focus on areas where the False Positive Rate is low "
-    "(left hand area). Curves above the y = x line (black dashes) in this region represent a "
-    "disclosure risk as an attacker can obtain many more true than false positives. "
-    "The solid coloured lines show the curves for the attack simulations with the true model "
-    "outputs. The lighter grey lines show the curves for randomly generated outputs with "
-    "no structure (i.e. in- and out-of- sample predictions are generated from the same "
-    "distributions. Solid curves consistently higher than the grey curves in the left hand "
-    "part of the plot are a sign of concern."
+    "This plot shows the False Positive Rate (x) versus the True Positive Rate "
+    "(y). The axes are in log space enabling us to focus on areas where the "
+    "False Positive Rate is low (left hand area). Curves above the y = x line "
+    "(black dashes) in this region represent a disclosure risk as an attacker "
+    "can obtain many more true than false positives. The solid coloured lines "
+    "show the curves for the attack simulations with the true model outputs. The "
+    "lighter grey lines show the curves for randomly generated outputs with no "
+    "structure (i.e. in- and out-of- sample predictions are generated from the "
+    "same distributions. Solid curves consistently higher than the "
+    "grey curves in the left hand part of the plot are a sign of concern. "
 )
 
 GLOSSARY = {
     "AUC": "Area Under the ROC curve",
     "True Positive Rate (TPR)": (
-        "The true positive rate is the number of True Positives that are predicted as positive as "
-        "a proportion of the total number of positives. If an attacker has N examples that were "
-        "actually in the training set, the TPR is the proportion of these that they predict as "
-        "being in the training set."
+        "The true positive rate is the number of True Positives that are "
+        "predicted as positive as a proportion of the total number of positives. "
+        "If an attacker has N examples that were actually in the training set, "
+        "the TPR is the proportion of these that they predict as being in the "
+        "training set."
     ),
     "ACC": "The proportion of predictions that the attacker makes that are correct.",
 }
@@ -93,16 +97,13 @@ class NumpyArrayEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def _write_dict(
-    pdf: FPDF, input_dict: dict, indent: int = 0, border: int = BORDER
-) -> None:
+def _write_dict(pdf: FPDF, data: dict, border: int = BORDER) -> None:
     """Write a dictionary to the pdf."""
-    for key, value in input_dict.items():
+    for key, value in data.items():
         pdf.set_font("arial", "B", 14)
-        pdf.cell(75, 5, key, border, 1, "L")
-        pdf.cell(indent, 0)
+        pdf.cell(0, 5, key, border, 1, "L")
         pdf.set_font("arial", "", 12)
-        pdf.multi_cell(150, 5, value, border, "L")
+        pdf.multi_cell(0, 5, str(value), 0, 1)
         pdf.ln(h=5)
 
 
@@ -243,13 +244,8 @@ def create_mia_report(attack_output: dict) -> FPDF:
     ]
     metadata = attack_output["metadata"]
 
-    dest_log_roc = (
-        os.path.join(
-            metadata["experiment_details"]["output_dir"],
-            metadata["experiment_details"]["report_name"],
-        )
-        + "_log_roc.png"
-    )
+    path: str = metadata["experiment_details"]["output_dir"]
+    dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
 
     pdf = FPDF()
@@ -314,10 +310,13 @@ def create_mia_report(attack_output: dict) -> FPDF:
     title(pdf, "Glossary")
     _write_dict(pdf, GLOSSARY)
 
+    # clean up
+    if os.path.exists(dest_log_roc):
+        os.remove(dest_log_roc)
     return pdf
 
 
-def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> None:
+def add_output_to_pdf(report_dest: str, pdf_report: FPDF) -> None:
     """Create pdf and append contents if it already exists."""
     if os.path.exists(report_dest + ".pdf"):
         old_pdf = report_dest + ".pdf"
@@ -331,18 +330,6 @@ def add_output_to_pdf(report_dest: str, pdf_report: FPDF, attack_type: str) -> N
         os.remove(new_pdf)
     else:
         pdf_report.output(report_dest + ".pdf")
-    if attack_type in ("WorstCaseAttack", "LikelihoodAttack"):
-        path = report_dest + "_log_roc.png"
-        if os.path.exists(path):
-            os.remove(path)
-    elif attack_type == "AttributeAttack":
-        path = report_dest + "_cat_frac.png"
-        if os.path.exists(path):
-            os.remove(path)
-
-        path = report_dest + "_cat_risk.png"
-        if os.path.exists(path):
-            os.remove(path)
 
 
 def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
@@ -356,6 +343,10 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
 def create_json_report(output: dict) -> None:
     """Create a report in json format for injestion by other tools."""
     # Initial work, just dump mia_metrics and dummy_metrics into a json structure
+    # avoid attempting to serialize an attack model
+    metadata = output["metadata"]["experiment_details"]
+    if "mia_attack_model" in metadata:
+        metadata["mia_attack_model"] = str(metadata["mia_attack_model"])
     return json.dumps(output, cls=NumpyArrayEncoder)
 
 
@@ -385,13 +376,9 @@ def create_lr_report(output: dict) -> FPDF:
         for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
     ][0]
     metadata = output["metadata"]
-    dest_log_roc = (
-        os.path.join(
-            metadata["experiment_details"]["output_dir"],
-            metadata["experiment_details"]["report_name"],
-        )
-        + "_log_roc.png"
-    )
+
+    path: str = metadata["experiment_details"]["output_dir"]
+    dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()
     pdf.add_page()
@@ -414,4 +401,7 @@ def create_lr_report(output: dict) -> FPDF:
     pdf.add_page()
     subtitle(pdf, "ROC Curve")
     pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
+    # clean up
+    if os.path.exists(dest_log_roc):
+        os.remove(dest_log_roc)
     return pdf

@@ -24,7 +24,7 @@ def test_target(get_target):
     tre_target.load(RES_DIR)
 
     assert tre_target.model.get_params() == target.model.get_params()
-    assert tre_target.name == target.name
+    assert tre_target.dataset_name == target.dataset_name
     assert tre_target.features == target.features
     assert tre_target.n_samples == target.n_samples
     assert tre_target.n_samples_orig == target.n_samples_orig

@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import sys
-from unittest.mock import patch
-
 import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
@@ -365,40 +361,3 @@ def test_reporting():
     target = get_target("dt", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
-    myattack.make_report()
-
-
-def test_main_example():
-    """Test command line example."""
-    param_dict = {"max_depth": 1, "min_samples_leaf": 150}
-    target = get_target("dt", **param_dict)
-    target_path = "dt.sav"
-    target.save(target_path)
-    testargs = [
-        "prog",
-        "run-attack",
-        "--target-path",
-        target_path,
-        "--output-dir",
-        "test_output_sa",
-        "--report-name",
-        "commandline_structural_report",
-    ]
-    with patch.object(sys, "argv", testargs):
-        sa.main()
-    config = {
-        "output_dir": "test_output_structural2",
-        "report_name": "structural_test",
-    }
-    with open("config_structural_test.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(config))
-    testargs = [
-        "prog",
-        "run-attack-from-configfile",
-        "--attack-config-json-file-name",
-        "config_structural_test.json",
-        "--attack-target-folder-path",
-        "dt.sav",
-    ]
-    with patch.object(sys, "argv", testargs):
-        sa.main()

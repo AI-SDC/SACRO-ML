@@ -58,6 +58,6 @@ def test_dict():
     pdf.add_page()
     mydict = {"a": "hello", "b": "world"}
     report._write_dict(  # pylint:disable=protected-access
-        pdf, mydict, indent=0, border=BORDER
+        pdf, mydict, border=BORDER
     )
     pdf.close()

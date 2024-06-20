@@ -45,8 +45,6 @@ files = [
     "1024-WorstCase.png",
     "2048-WorstCase.png",
     "attack.txt",
-    "config.json",
-    "config_structural_test.json",
     "dummy.pkl",
     "dummy.sav",
     "dummy_model.txt",
@@ -61,8 +59,6 @@ files = [
     "test.json",
     "test_data.csv",
     "test_preds.csv",
-    "test_single_config.json",
-    "tests/test_config_aia_cmd.json",
     "train_data.csv",
     "train_preds.csv",
     "unpicklable.pkl",
@@ -167,7 +163,7 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
 
     # wrap
     target = Target(model=model)
-    target.name = "nursery"
+    target.dataset_name = "nursery"
     target.add_processed_data(X_train, y_train, X_test, y_test)
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")

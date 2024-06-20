@@ -3,11 +3,12 @@
 Runs a number of 'static' structural attacks based on:
 (i) the target model's properties;
 (ii) the TREs risk appetite as applied to tables and standard regressions.
+
+Tree-based model types currently supported.
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
 import os
 import uuid
@@ -15,8 +16,6 @@ from datetime import datetime
 
 import numpy as np
 from acro import ACRO
-
-# tree-based model types currently supported
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
@@ -29,6 +28,7 @@ from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
@@ -200,41 +200,31 @@ class StructuralAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
-        attack_config_json_file_name: str = None,
+        output_dir: str = "outputs",
+        make_report: bool = True,
         risk_appetite_config: str = "default",
-        target_path: str = None,
-        output_dir: str = "outputs_structural",
-        report_name: str = "report_structural",
     ) -> None:
         """Construct an object to execute a structural attack.
 
         Parameters
         ----------
-        attack_config_json_file_name : str
-            Name of a JSON file containing an attack configuration.
-        risk_appetite_config : str
-            Path to yaml file specifying TRE risk appetite.
-        target_path : str
-            Path to the saved trained target model and target data.
         output_dir : str
             Name of a directory to write outputs.
-        report_name : str
-            Name of the pdf and json output reports.
+        make_report : bool
+            Whether to generate a JSON and PDF report.
+        risk_appetite_config : str
+            Path to yaml file specifying TRE risk appetite.
         """
-        super().__init__()
-        logger = logging.getLogger("structural_attack")
+        super().__init__(output_dir=output_dir, make_report=make_report)
         self.target: Target = None
-        self.target_path = target_path
-        self.attack_config_json_file_name = attack_config_json_file_name
         # disclosure risk
         self.k_anonymity_risk = 0
         self.DoF_risk = 0
         self.unnecessary_risk = 0
         self.class_disclosure_risk = 0
         self.lowvals_cd_risk = 0
-        self.metadata = {}
         # make dummy acro object and use it to extract risk appetite
         myacro = ACRO(risk_appetite_config)
         self.risk_appetite_config = risk_appetite_config
@@ -244,8 +234,6 @@ class StructuralAttack(Attack):
             "Thresholds for count %i and Dof %i", self.THRESHOLD, self.DOF_THRESHOLD
         )
         del myacro
-        if self.attack_config_json_file_name is not None:
-            self._update_params_from_config_file()
 
         # metrics
         self.attack_metrics = [
@@ -257,15 +245,11 @@ class StructuralAttack(Attack):
         ]
         self.yprobs = []
 
-        # paths for reporting
-        self.output_dir = output_dir
-        self.report_name = report_name
-
     def __str__(self) -> str:
         """Return the name of the attack."""
         return "Structural attack"
 
-    def attack(self, target: Target) -> None:
+    def attack(self, target: Target) -> dict:
         """Run structural attack.
 
         To be used when code has access to Target class and trained target model.
@@ -274,6 +258,11 @@ class StructuralAttack(Attack):
         ----------
         target : attacks.target.Target
             target as a Target class object
+
+        Returns
+        -------
+        dict
+            Attack report.
         """
         self.target = target
         if target.model is None:
@@ -321,6 +310,9 @@ class StructuralAttack(Attack):
         self.class_disclosure_risk = np.any(freqs < self.THRESHOLD).astype(int)
         freqs[freqs == 0] = 100
         self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD).astype(int)
+
+        # generate report when required
+        return self._make_report() if self.make_report else {}
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""
@@ -397,146 +389,16 @@ class StructuralAttack(Attack):
         attack_metrics_experiment["lowvals_cd_risk"] = self.lowvals_cd_risk
         return attack_metrics_experiment
 
-    def make_report(self) -> dict:
-        """Create output dict and generate pdf and json if filenames are given."""
+    def _make_report(self) -> dict:
+        """Create the output report and writes json and pdf."""
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._construct_metadata()
         output["metadata"] = self.metadata
         output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        report_dest = os.path.join(self.output_dir, self.report_name)
+        report_dest = os.path.join(self.output_dir, "report")
         json_attack_formatter = GenerateJSONModule(report_dest + ".json")
         json_report = report.create_json_report(output)
         json_attack_formatter.add_attack_output(json_report, "StructuralAttack")
         return output
-
-
-def _run_attack(args) -> None:
-    """Initialise class and run attack."""
-    attack_obj = StructuralAttack(
-        risk_appetite_config=args.risk_appetite_config,
-        target_path=args.target_path,
-        output_dir=args.output_dir,
-        report_name=args.report_name,
-    )
-
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    _ = attack_obj.make_report()
-
-
-def _run_attack_from_configfile(args) -> None:
-    """Initialise class and run attack using config file."""
-    attack_obj = StructuralAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
-        target_path=str(args.target_path),
-    )
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    _ = attack_obj.make_report()
-
-
-def main() -> None:
-    """Parse arguments and invoke relevant method."""
-    logger = logging.getLogger("main")
-    parser = argparse.ArgumentParser(description="Perform a structural  attack")
-
-    subparsers = parser.add_subparsers()
-
-    attack_parser = subparsers.add_parser("run-attack")
-
-    attack_parser.add_argument(
-        "--output-dir",
-        type=str,
-        action="store",
-        dest="output_dir",
-        default="output_structural",
-        required=False,
-        help=("Directory name where output files are stored. Default = %(default)s."),
-    )
-
-    attack_parser.add_argument(
-        "--report-name",
-        type=str,
-        action="store",
-        dest="report_name",
-        default="report_structural",
-        required=False,
-        help=(
-            """Filename for the pdf and json report outputs. Default = %(default)s.
-            Code will append .pdf and .json"""
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--risk-appetite-filename",
-        action="store",
-        type=str,
-        default="default",
-        required=False,
-        dest="risk_appetite_config",
-        help=(
-            """provide the name of the dataset-specific risk appetite filename
-            using --risk-appetite-filename Default = %(default)s"""
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--target-path",
-        action="store",
-        type=str,
-        default=None,
-        required=False,
-        dest="target_path",
-        help=(
-            """Provide the path to the stored target usinmg
-             --target-path option. Default = %(default)f"""
-        ),
-    )
-
-    attack_parser.set_defaults(func=_run_attack)
-
-    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
-    attack_parser_config.add_argument(
-        "-j",
-        "--attack-config-json-file-name",
-        action="store",
-        required=True,
-        dest="attack_config_json_file_name",
-        type=str,
-        default="config_structural_cmd.json",
-        help=(
-            "Name of the .json file containing details for the run. Default = %(default)s"
-        ),
-    )
-
-    attack_parser_config.add_argument(
-        "-t",
-        "--attack-target-folder-path",
-        action="store",
-        required=True,
-        dest="target_path",
-        type=str,
-        default="structural_target",
-        help=(
-            """Name of the target directory to load the trained target model and the target data.
-            Default = %(default)s"""
-        ),
-    )
-
-    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
-
-    args = parser.parse_args()
-
-    try:
-        args.func(args)
-    except AttributeError as e:  # pragma:no cover
-        logger.error("Invalid command. Try --help to get more details")
-        logger.error(e)
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
