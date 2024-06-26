@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import os
 import sys
 
@@ -11,6 +12,7 @@ from aisdc.config import utils
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
 arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
 arrays_proba = ["y_proba_train", "y_proba_test"]
+encodings = ["onehot", "str", "int", "float"]
 
 
 def _get_arrays(target: Target, arrays: list[str]) -> None:
@@ -33,10 +35,45 @@ def _get_dataset_name(target: Target) -> None:
     target.dataset_name = input("What is the name of the dataset? ")
 
 
-def _get_n_features(target: Target) -> None:
-    """Prompt user for the number of dataset features."""
-    n_features = input("How many features were presented to the model: ")
-    target.n_features = int(n_features) if n_features != "" else 0
+def _get_feature_encoding(feat: int) -> str:
+    """Prompt user for feature encoding."""
+    while True:
+        encoding = input(f"What is the encoding of feature {feat}? ")
+        if encoding in encodings:
+            return encoding
+        print("Invalid encoding. Please try again.")
+
+
+def _get_feature_indices(feat: int) -> list[int]:
+    """Prompt user for feature indices."""
+    while True:
+        indices = input(f"What are the indices for feature {feat}, e.g., [1,2,3]? ")
+        try:
+            indices = ast.literal_eval(indices)
+            if isinstance(indices, list) and all(isinstance(i, int) for i in indices):
+                return indices
+            print("Invalid input. Please enter a list of integers like [1,2,3].")
+        except (ValueError, SyntaxError):
+            print("Invalid input. Please enter a valid list of integers.")
+
+
+def _get_features(target: Target) -> None:
+    """Prompt user for dataset features."""
+    print("To run attribute inference attacks the features must be described.")
+    n_features = input("How many features does this dataset have? ")
+    n_features = int(n_features)
+    if n_features > 64:
+        print("There are too many features to perform attribute inference.")
+        return
+    print("The name, index, and encoding are needed for each feature.")
+    print("For example: feature 0 = 'parents', '[0, 1, 2]', 'onehot'")
+    if utils.get_bool("Do you want to add this information?"):
+        print(f"Valid encodings: {', '.join(encodings)}")
+        for i in range(n_features):
+            name = input(f"What is the name of feature {i}? ")
+            indices = _get_feature_indices(i)
+            encoding = _get_feature_encoding(i)
+            target.add_feature(name, indices, encoding)
 
 
 def _get_model_path() -> str:
@@ -55,7 +92,7 @@ def _get_model_path() -> str:
 
 def _get_proba(target: Target) -> None:
     """Prompt user for model predicted probabilities."""
-    if not utils.get_bool("Do you have a the model predicted probabilities?"):
+    if not utils.get_bool("Do you have the model predicted probabilities?"):
         print("Cannot run any attacks without a supported model or probabilities.")
         sys.exit()
     _get_arrays(target, arrays_proba)
@@ -74,9 +111,9 @@ def prompt_for_target() -> None:
         _get_proba(target)
 
     _get_dataset_name(target)
-    _get_n_features(target)
     if utils.get_bool("Do you know the paths to processed data?"):
         _get_arrays(target, arrays_pro)
+        _get_features(target)
     if utils.get_bool("Do you know the paths to original raw data?"):
         _get_arrays(target, arrays_raw)
     target.save(path)
