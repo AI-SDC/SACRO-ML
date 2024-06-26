@@ -18,18 +18,6 @@ if __name__ == "__main__":
     X = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
 
-    n_features = np.shape(X)[1]
-    indices = [
-        [0, 1, 2],  # parents
-        [3, 4, 5, 6, 7],  # has_nurs
-        [8, 9, 10, 11],  # form
-        [12, 13, 14, 15],  # children
-        [16, 17, 18],  # housing
-        [19, 20],  # finance
-        [21, 22, 23],  # social
-        [24, 25, 26],  # health
-    ]
-
     logging.info("Splitting data into training and test sets")
     X_train_orig, X_test_orig, y_train_orig, y_test_orig = train_test_split(
         X, y, test_size=0.5, stratify=y, shuffle=True
@@ -58,8 +46,20 @@ if __name__ == "__main__":
     target.dataset_name = "nursery"
     target.add_processed_data(X_train, y_train, X_test, y_test)
     target.add_raw_data(X, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
-    for i in range(n_features):
-        target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+
+    logging.info("Wrapping feature details and encoding for attribute inference")
+    feature_indices = [
+        [0, 1, 2],  # parents
+        [3, 4, 5, 6, 7],  # has_nurs
+        [8, 9, 10, 11],  # form
+        [12, 13, 14, 15],  # children
+        [16, 17, 18],  # housing
+        [19, 20],  # finance
+        [21, 22, 23],  # social
+        [24, 25, 26],  # health
+    ]
+    for i, index in enumerate(feature_indices):
+        target.add_feature(nursery_data.feature_names[i], index, "onehot")
 
     logging.info("Writing Target object to directory: '%s'", output_dir)
     target.save(output_dir)

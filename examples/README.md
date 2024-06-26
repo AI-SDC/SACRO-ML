@@ -16,7 +16,7 @@ This folder contains examples of how to run the code contained in this repositor
 * Examples of attack integration within safemodel classes:
     - `safemodel.py` - Simulated attacks on a safe RF trained on the nursery dataset.
 
-### Programmatic execution
+### Programmatic Execution
 
 To run a programmatic example:
 1. Run the relevant training script.
@@ -28,7 +28,7 @@ $ python -m examples.train_rf_breast_cancer
 $ python -m examples.attack_lira
 ```
 
-### CLI execution
+### Command Line Interface (CLI) Execution
 
 1. Run the relevant training script.
 2. Generate an `attack.yaml` config.

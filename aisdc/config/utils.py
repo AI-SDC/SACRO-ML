@@ -45,10 +45,13 @@ def check_dir(path: str) -> str:
         Directory, possibly changed by user if pre-existing.
     """
     if os.path.isdir(path):
-        resp = get_bool(f"{path} exists. Remove directory?")
+        print(f"Directory '{path}' already exists.")
+        resp = get_bool(
+            "Continue using this directory and delete its current contents?"
+        )
         if resp:
             shutil.rmtree(path)
         else:
-            path = input("Specify a destination directory: ")
+            path = input("Specify an alternative directory: ")
             return check_dir(path)
     return path

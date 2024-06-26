@@ -28,8 +28,6 @@ def _prompt_for_params(params: dict) -> None:
                     break
                 except ValueError:
                     print(f"Please enter a value of type {type(val).__name__}.")
-        else:
-            params[key] = val
 
 
 def _get_attack(name: str) -> dict:
@@ -73,7 +71,7 @@ def prompt_for_attack() -> None:
     logging.disable(logging.ERROR)  # suppress info/warnings
 
     # get attack configuration
-    if utils.get_bool("Generate default config?"):
+    if utils.get_bool("Generate default config with all attacks?"):
         attacks = _default_config()
     else:
         attacks = _prompt_for_attacks()

@@ -70,6 +70,7 @@ def prompt_for_target() -> None:
     try:  # attempt to load saved model
         target.load_model(model_path)
     except ValueError:  # unsupported model, require probas
+        print("Unable to load model.")
         _get_proba(target)
 
     _get_dataset_name(target)
