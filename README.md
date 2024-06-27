@@ -32,9 +32,14 @@ To additionally install the safemodel package:
 $ pip install aisdc[safemodel]
 ```
 
+Note: macOS users may need to install libomp due to a dependency on XGBoost:
+```
+$ brew install libomp
+```
+
 ## Running
 
-See the examples [`README`](examples/README.md).
+See the examples [`examples`](examples/).
 
 ## Acknowledgement
 
