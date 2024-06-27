@@ -20,6 +20,7 @@ folders = [
     "fit.tf",
     "fit2.tf",
     "keras_save.tf",
+    "outputs",
     "output_attribute",
     "output_lira",
     "output_worstcase",

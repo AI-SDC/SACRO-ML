@@ -16,7 +16,6 @@ from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, get_class_by_name
 from aisdc.attacks.attack_report_formatter import GenerateJSONModule
-from aisdc.attacks.failfast import FailFast
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -49,11 +48,6 @@ class WorstCaseAttack(Attack):
         sort_probs: bool = True,
         attack_model: str = "sklearn.ensemble.RandomForestClassifier",
         attack_model_params: dict | None = None,
-        attack_metric_success_name: str = "P_HIGHER_AUC",
-        attack_metric_success_thresh: float = 0.05,
-        attack_metric_success_comp_type: str = "lte",
-        attack_metric_success_count_thresh: int = 5,
-        attack_fail_fast: bool = False,
     ) -> None:
         """Construct an object to execute a worst case attack.
 
@@ -102,24 +96,6 @@ class WorstCaseAttack(Attack):
         attack_model_params : dict or None
             Dictionary of hyper parameters for the `attack_model`
             such as `min_sample_split`, `min_samples_leaf`, etc.
-        attack_metric_success_name : str
-            Name of metric to compute for the attack being successful.
-        attack_metric_success_thresh : float
-            Threshold for a given metric to measure attack being successful or not.
-        attack_metric_success_comp_type : str
-            Threshold comparison operator (i.e., gte: greater than or equal to, gt:
-            greater than, lte: less than or equal to, lt: less than,
-            eq: equal to and not_eq: not equal to).
-        attack_metric_success_count_thresh : int
-            A counter to record how many times an attack was successful given
-            that the threshold has fulfilled criteria for a given comparison
-            type.
-        attack_fail_fast : bool
-            If true it stops repetitions earlier based on the given attack metric
-            (i.e., `attack_metric_success_name`) considering the comparison type
-            (`attack_metric_success_comp_type`) satisfying a threshold
-            (i.e., `attack_metric_success_thresh`) for n
-            (`attack_metric_success_count_thresh`) number of times.
         """
         super().__init__(output_dir=output_dir, make_report=make_report)
         self.n_reps: int = n_reps
@@ -137,15 +113,7 @@ class WorstCaseAttack(Attack):
         self.sort_probs: bool = sort_probs
         self.attack_model: str = attack_model
         self.attack_model_params: dict | None = attack_model_params
-
-        self.attack_metric_success_name = attack_metric_success_name
-        self.attack_metric_success_thresh = attack_metric_success_thresh
-        self.attack_metric_success_comp_type = attack_metric_success_comp_type
-        self.attack_metric_success_count_thresh = attack_metric_success_count_thresh
-        self.attack_fail_fast = attack_fail_fast
-        self.attack_metric_failfast_summary = None
-        self.dummy_attack_metrics = None
-        self.dummy_attack_metric_failfast_summary = None
+        self.dummy_attack_metrics: list = []
 
     def __str__(self) -> str:
         """Return name of attack."""
@@ -219,12 +187,8 @@ class WorstCaseAttack(Attack):
             test_correct=test_correct,
         )
         self.attack_metrics = attack_metric_dict["mia_metrics"]
-        self.attack_metric_failfast_summary = attack_metric_dict[
-            "failfast_metric_summary"
-        ]
 
         self.dummy_attack_metrics = []
-        self.dummy_attack_metric_failfast_summary = []
         if self.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
             n_train_rows = len(train_preds)
@@ -240,14 +204,7 @@ class WorstCaseAttack(Attack):
                     d_train_preds, d_test_preds
                 )
                 temp_metrics = temp_attack_metric_dict["mia_metrics"]
-                temp_metric_failfast_summary = temp_attack_metric_dict[
-                    "failfast_metric_summary"
-                ]
-
                 self.dummy_attack_metrics.append(temp_metrics)
-                self.dummy_attack_metric_failfast_summary.append(
-                    temp_metric_failfast_summary
-                )
 
         logger.info("Finished running attacks")
 
@@ -340,17 +297,14 @@ class WorstCaseAttack(Attack):
         Parameters
         ----------
         train_preds : np.ndarray
-            predictions from the model on training (in-sample) data
+            Predictions from the model on training (in-sample) data.
         test_preds : np.ndarray
-            predictions from the model on testing (out-of-sample) data
+            Predictions from the model on testing (out-of-sample) data.
 
         Returns
         -------
         mia_metrics_dict : dict
-            a dictionary with two items including mia_metrics
-            (a list of metric across repetitions) and failfast_metric_summary object
-            (an object of FailFast class) to maintain summary of
-            fail/success of attacks for a given metric of failfast option
+            Dictionary of mia_metrics (a list of metric across repetitions).
         """
         self.n_rows_in = len(train_preds)
         self.n_rows_out = len(test_preds)
@@ -359,8 +313,6 @@ class WorstCaseAttack(Attack):
         )
 
         mia_metrics = []
-
-        failfast_metric_summary = FailFast(self)
 
         split = self._get_reproducible_split()
 
@@ -392,20 +344,10 @@ class WorstCaseAttack(Attack):
                     mia_metrics[-1]["yeom_tpr"] - mia_metrics[-1]["yeom_fpr"]
                 )
 
-            failfast_metric_summary.check_attack_success(mia_metrics[rep])
-
-            if (
-                failfast_metric_summary.check_overall_attack_success(self)
-                and self.attack_fail_fast
-            ):
-                break
-
         logger.info("Finished simulating attacks")
 
         mia_metrics_dict = {}
         mia_metrics_dict["mia_metrics"] = mia_metrics
-        mia_metrics_dict["failfast_metric_summary"] = failfast_metric_summary
-
         return mia_metrics_dict
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
@@ -565,32 +507,23 @@ class WorstCaseAttack(Attack):
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
         """Construct the metadata object after attacks."""
         dummy_attack_metrics_instances = []
-
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metrics_instances += temp_dummy_attack_metrics
-
         return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the metadata object after attacks."""
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
-
         for rep, _ in enumerate(self.attack_metrics):
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
-
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment["attack_metric_failfast_summary"] = (
-            self.attack_metric_failfast_summary.get_attack_summary()
-        )
-
         return attack_metrics_experiment
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
         """Construct the metadata object after attacks."""
         dummy_attack_metrics_experiments = {}
-
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
             temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metric_instances = {}
@@ -600,13 +533,9 @@ class WorstCaseAttack(Attack):
                 )
             temp = {}
             temp["attack_instance_logger"] = dummy_attack_metric_instances
-            temp["attack_metric_failfast_summary"] = (
-                self.dummy_attack_metric_failfast_summary[exp_rep].get_attack_summary()
-            )
             dummy_attack_metrics_experiments[
                 "dummy_attack_metrics_experiment_" + str(exp_rep)
             ] = temp
-
         return dummy_attack_metrics_experiments
 
     def _make_report(self) -> dict:
