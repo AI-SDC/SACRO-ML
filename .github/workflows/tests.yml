@@ -22,6 +22,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # xgboost requires libomp on macOS
+      - name: Install dependencies on macOS
+        if: runner.os == "macOS"
+        run: brew install libomp
+
       - name: Install
         run: pip install .[test]
 
