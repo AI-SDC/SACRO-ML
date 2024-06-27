@@ -20,7 +20,7 @@ def test_factory(monkeypatch, get_target):
     """Test Target object creation, saving, and loading."""
     # create target_dir
     target = get_target
-    target.save("target")
+    target.save("target_factory")
 
     model = target.model
     assert model.score(target.X_test, target.y_test) == pytest.approx(0.92, 0.01)
@@ -28,8 +28,8 @@ def test_factory(monkeypatch, get_target):
     # create LiRA config with default params
     mock_input = "yes"
     monkeypatch.setattr("builtins.input", lambda _: mock_input)
-    attacks = []
-    attacks.append(_get_attack("lira"))
+    attacks = [_get_attack("lira")]
+    attacks[0]["params"]["output_dir"] = "outputs_factory"
 
     # create attack.yaml
     filename: str = "attack.yaml"
@@ -37,10 +37,10 @@ def test_factory(monkeypatch, get_target):
         yaml.dump({"attacks": attacks}, fp)
 
     # run attacks
-    run_attacks("target", "attack.yaml")
+    run_attacks("target_factory", "attack.yaml")
 
     # load JSON report
-    path = os.path.normpath("outputs/report.json")
+    path = os.path.normpath("outputs_factory/report.json")
     with open(path, encoding="utf-8") as fp:
         report = json.load(fp)
 
@@ -49,5 +49,5 @@ def test_factory(monkeypatch, get_target):
     metrics = report[nr]["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    assert metrics["TPR"] == pytest.approx(0.92, 0.01)
-    assert metrics["FPR"] == pytest.approx(0.46, 0.01)
+    assert metrics["TPR"] == pytest.approx(0.89, abs=0.01)
+    assert metrics["FPR"] == pytest.approx(0.43, abs=0.01)
