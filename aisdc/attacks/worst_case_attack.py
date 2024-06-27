@@ -240,23 +240,20 @@ class WorstCaseAttack(Attack):
 
     def _get_attack_model(self):
         """Return an instantiated attack model."""
+        # load attack model module and get class
+        model = get_class_by_name(self.attack_model)
         params = self.attack_model_params
-        # set custom default parameters for RF attack model
-        if (
+        if (  # set custom default parameters for RF attack model
             self.attack_model == "sklearn.ensemble.RandomForestClassifier"
-            and params is None
+            and self.attack_model_params is None
         ):
             params = {
                 "min_samples_split": 20,
                 "min_samples_leaf": 10,
                 "max_depth": 5,
             }
-        # load attack model module and get the class
-        model = get_class_by_name(self.attack_model)
         # instantiate attack model
-        if params is not None:
-            return model(**params)
-        return model()
+        return model(**params) if params is not None else model()
 
     def _get_reproducible_split(self) -> list:
         split = self.reproduce_split
