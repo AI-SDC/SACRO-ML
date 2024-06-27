@@ -17,7 +17,7 @@ logger = logging.getLogger("target")
 class Target:  # pylint: disable=too-many-instance-attributes
     """Store information about the target model and data."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         model: sklearn.base.BaseEstimator | None = None,
         dataset_name: str = "",
@@ -32,6 +32,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         y_train_orig: np.ndarray | None = None,
         X_test_orig: np.ndarray | None = None,
         y_test_orig: np.ndarray | None = None,
+        proba_train: np.ndarray | None = None,
+        proba_test: np.ndarray | None = None,
     ) -> None:
         """Store information about a target model and associated data.
 
@@ -65,6 +67,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The original (unprocessed) testing inputs.
         y_test_orig : np.ndarray | None
             The original (unprocessed) testing outputs.
+        proba_train : np.ndarray | None
+            The model predicted training probabilities.
+        proba_test : np.ndarray | None
+            The model predicted testing probabilities.
         """
         self.model: sklearn.base.BaseEstimator | None = model
         self.dataset_name: str = dataset_name
@@ -78,6 +84,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_train_orig: np.ndarray | None = y_train_orig
         self.X_test_orig: np.ndarray | None = X_test_orig
         self.y_test_orig: np.ndarray | None = y_test_orig
+        self.proba_train: np.ndarray | None = proba_train
+        self.proba_test: np.ndarray | None = proba_test
         self.safemodel: list = []
         self.features: dict = features if features is not None else {}
         self.n_features: int = len(self.features)

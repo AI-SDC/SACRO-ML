@@ -11,7 +11,7 @@ from aisdc.config import utils
 
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
 arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
-arrays_proba = ["y_proba_train", "y_proba_test"]
+arrays_proba = ["proba_train", "proba_test"]
 encodings = ["onehot", "str", "int", "float"]
 
 

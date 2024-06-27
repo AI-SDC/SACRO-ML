@@ -24,12 +24,10 @@ logger = logging.getLogger(__name__)
 P_THRESH = 0.05
 
 
-class WorstCaseAttack(Attack):
+class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
     """Worst case attack."""
 
-    # pylint: disable=too-many-instance-attributes
-
-    def __init__(  # pylint: disable = too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable = too-many-arguments
         self,
         output_dir: str = "outputs",
         make_report: bool = True,
@@ -40,10 +38,6 @@ class WorstCaseAttack(Attack):
         train_beta: int = 1,
         test_beta: int = 1,
         test_prop: float = 0.2,
-        n_rows_in: int = 1000,
-        n_rows_out: int = 1000,
-        training_preds_filename: str = None,
-        test_preds_filename: str = None,
         include_model_correct_feature: bool = False,
         sort_probs: bool = True,
         attack_model: str = "sklearn.ensemble.RandomForestClassifier",
@@ -77,14 +71,6 @@ class WorstCaseAttack(Attack):
             (test) probabilities.
         test_prop : float
             Proportion of data to use as a test set for the attack model.
-        n_rows_in : int
-            Number of rows for in-sample (training data).
-        n_rows_out : int
-            Number of rows for out-of-sample (test data).
-        training_preds_filename : str
-            Name of the file to keep predictions of the training data (in-sample).
-        test_preds_filename : str
-            Name of the file to keep predictions of the test data (out-of-sample).
         include_model_correct_feature : bool
             Inclusion of additional feature to hold whether or not the target model
             made a correct prediction for each example.
@@ -94,7 +80,7 @@ class WorstCaseAttack(Attack):
         attack_model : str
             Class name of the attack model.
         attack_model_params : dict or None
-            Dictionary of hyper parameters for the `attack_model`
+            Dictionary of hyperparameters for the `attack_model`
             such as `min_sample_split`, `min_samples_leaf`, etc.
         """
         super().__init__(output_dir=output_dir, make_report=make_report)
@@ -105,10 +91,6 @@ class WorstCaseAttack(Attack):
         self.train_beta: int = train_beta
         self.test_beta: int = test_beta
         self.test_prop: float = test_prop
-        self.n_rows_in: int = n_rows_in
-        self.n_rows_out: int = n_rows_out
-        self.training_preds_filename: str = training_preds_filename
-        self.test_preds_filename: str = test_preds_filename
         self.include_model_correct_feature: bool = include_model_correct_feature
         self.sort_probs: bool = sort_probs
         self.attack_model: str = attack_model
@@ -122,8 +104,6 @@ class WorstCaseAttack(Attack):
     def attack(self, target: Target) -> dict:
         """Run worst case attack.
 
-        To be used when code has access to Target class and trained target model.
-
         Parameters
         ----------
         target : attacks.target.Target
@@ -134,55 +114,60 @@ class WorstCaseAttack(Attack):
         dict
             Attack report.
         """
-        train_preds = target.model.predict_proba(target.X_train)
-        test_preds = target.model.predict_proba(target.X_test)
-        train_correct = None
-        test_correct = None
-        if self.include_model_correct_feature:
-            train_correct = 1 * (target.y_train == target.model.predict(target.X_train))
-            test_correct = 1 * (target.y_test == target.model.predict(target.X_test))
+        y_train_c = None
+        y_test_c = None
 
+        # compute target model probas if possible
+        if (
+            target.model is not None
+            and target.X_train is not None
+            and target.y_train is not None
+        ):
+            proba_train = target.model.predict_proba(target.X_train)
+            proba_test = target.model.predict_proba(target.X_test)
+
+            if self.include_model_correct_feature:
+                y_train_c = 1 * (target.y_train == target.model.predict(target.X_train))
+                y_test_c = 1 * (target.y_test == target.model.predict(target.X_test))
+        # use supplied target model probas if unable to compute
+        elif target.proba_train is not None and target.proba_test is not None:
+            proba_train = target.proba_train
+            proba_test = target.proba_test
+        # cannot proceed
+        else:
+            logger.info("Insufficient Target details to run worst case attack.")
+            return {}
+
+        # execute attack
         self.attack_from_preds(
-            train_preds,
-            test_preds,
-            train_correct=train_correct,
-            test_correct=test_correct,
+            proba_train,
+            proba_test,
+            train_correct=y_train_c,
+            test_correct=y_test_c,
         )
-
+        # return the report
         return self._make_report() if self.make_report else {}
-
-    def attack_from_prediction_files(self) -> None:
-        """Run attack from saved prediction files.
-
-        To be used when only saved predictions are available.
-
-        Filenames for the saved prediction files to be specified in the
-        arguments provided in the constructor.
-        """
-        train_preds = np.loadtxt(self.training_preds_filename, delimiter=",")
-        test_preds = np.loadtxt(self.test_preds_filename, delimiter=",")
-        self.attack_from_preds(train_preds, test_preds)
 
     def attack_from_preds(
         self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
-        train_correct: np.ndarray = None,
-        test_correct: np.ndarray = None,
+        proba_train: np.ndarray,
+        proba_test: np.ndarray,
+        train_correct: np.ndarray | None = None,
+        test_correct: np.ndarray | None = None,
     ) -> None:
-        """Run attack based upon the predictions in train_preds and test_preds.
+        """Run attack based upon the predictions in proba_train and proba_test.
 
         Parameters
         ----------
-        train_preds : np.ndarray
+        proba_train : np.ndarray
             Array of train predictions. One row per example, one column per class.
-        test_preds : np.ndarray
+        proba_test : np.ndarray
             Array of test predictions. One row per example, one column per class.
         """
         logger.info("Running main attack repetitions")
         attack_metric_dict = self.run_attack_reps(
-            train_preds,
-            test_preds,
+            proba_train,
+            proba_test,
             train_correct=train_correct,
             test_correct=test_correct,
         )
@@ -191,8 +176,8 @@ class WorstCaseAttack(Attack):
         self.dummy_attack_metrics = []
         if self.n_dummy_reps > 0:
             logger.info("Running dummy attack reps")
-            n_train_rows = len(train_preds)
-            n_test_rows = len(test_preds)
+            n_train_rows = len(proba_train)
+            n_test_rows = len(proba_test)
             for _ in range(self.n_dummy_reps):
                 d_train_preds, d_test_preds = self.generate_arrays(
                     n_train_rows,
@@ -210,8 +195,8 @@ class WorstCaseAttack(Attack):
 
     def _prepare_attack_data(
         self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
+        proba_train: np.ndarray,
+        proba_test: np.ndarray,
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
     ) -> tuple[np.ndarray, np.ndarray]:
@@ -224,18 +209,17 @@ class WorstCaseAttack(Attack):
         """
         if self.sort_probs:
             logger.info("Sorting probabilities to leave highest value in first column")
-            train_preds = -np.sort(-train_preds, axis=1)
-            test_preds = -np.sort(-test_preds, axis=1)
+            proba_train = -np.sort(-proba_train, axis=1)
+            proba_test = -np.sort(-proba_test, axis=1)
 
         logger.info("Creating MIA data")
 
         if self.include_model_correct_feature and train_correct is not None:
-            train_preds = np.hstack((train_preds, train_correct[:, None]))
-            test_preds = np.hstack((test_preds, test_correct[:, None]))
+            proba_train = np.hstack((proba_train, train_correct[:, None]))
+            proba_test = np.hstack((proba_test, test_correct[:, None]))
 
-        mi_x = np.vstack((train_preds, test_preds))
-        mi_y = np.hstack((np.ones(len(train_preds)), np.zeros(len(test_preds))))
-
+        mi_x = np.vstack((proba_train, proba_test))
+        mi_y = np.hstack((np.ones(len(proba_train)), np.zeros(len(proba_test))))
         return (mi_x, mi_y)
 
     def _get_attack_model(self):
@@ -256,6 +240,7 @@ class WorstCaseAttack(Attack):
         return model(**params) if params is not None else model()
 
     def _get_reproducible_split(self) -> list:
+        """Return a list of splits."""
         split = self.reproduce_split
         n_reps = self.n_reps
         if isinstance(split, int):
@@ -284,8 +269,8 @@ class WorstCaseAttack(Attack):
 
     def run_attack_reps(  # pylint: disable = too-many-locals
         self,
-        train_preds: np.ndarray,
-        test_preds: np.ndarray,
+        proba_train: np.ndarray,
+        proba_test: np.ndarray,
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
     ) -> dict:
@@ -293,9 +278,9 @@ class WorstCaseAttack(Attack):
 
         Parameters
         ----------
-        train_preds : np.ndarray
+        proba_train : np.ndarray
             Predictions from the model on training (in-sample) data.
-        test_preds : np.ndarray
+        proba_test : np.ndarray
             Predictions from the model on testing (out-of-sample) data.
 
         Returns
@@ -303,10 +288,8 @@ class WorstCaseAttack(Attack):
         mia_metrics_dict : dict
             Dictionary of mia_metrics (a list of metric across repetitions).
         """
-        self.n_rows_in = len(train_preds)
-        self.n_rows_out = len(test_preds)
         mi_x, mi_y = self._prepare_attack_data(
-            train_preds, test_preds, train_correct, test_correct
+            proba_train, proba_test, train_correct, test_correct
         )
 
         mia_metrics = []
@@ -397,7 +380,7 @@ class WorstCaseAttack(Attack):
     def _get_n_significant(
         self, p_val_list: list[float], p_thresh: float, bh_fdr_correction: bool = False
     ) -> int:
-        """Return number of p-values significant at p_thresh.
+        """Return number of p-values significant at `p_thresh`.
 
         Can perform multiple testing correction.
         """
@@ -415,14 +398,14 @@ class WorstCaseAttack(Attack):
         Parameters
         ----------
         n_rows : int
-            the number of rows worth of data to generate
+            The number of rows worth of data to generate.
         beta : float
-            the beta parameter for sampling probabilities
+            The beta parameter for sampling probabilities.
 
         Returns
         -------
         preds : np.ndarray
-            Array of predictions. Two columns, n_rows rows
+            Array of predictions. Two columns, `n_rows` rows.
         """
         preds = np.zeros((n_rows, 2), float)
         for row_idx in range(n_rows):
@@ -444,47 +427,24 @@ class WorstCaseAttack(Attack):
         Parameters
         ----------
         n_rows_in : int
-            number of rows of in-sample (training) probabilities
+            Number of rows of in-sample (training) probabilities.
         n_rows_out : int
-            number of rows of out-of-sample (testing) probabilities
+            Number of rows of out-of-sample (testing) probabilities.
         train_beta : float
-            beta value for generating train probabilities
+            Beta value for generating train probabilities.
         test_beta : float:
-            beta_value for generating test probabilities
+            Beta value for generating test probabilities.
 
         Returns
         -------
-        train_preds : np.ndarray
-            Array of train predictions (n_rows x 2 columns)
-        test_preds : np.ndarray
-            Array of test predictions (n_rows x 2 columns)
+        proba_train : np.ndarray
+            Array of train predictions (n_rows x 2 columns).
+        proba_test : np.ndarray
+            Array of test predictions (n_rows x 2 columns).
         """
-        train_preds = self._generate_array(n_rows_in, train_beta)
-        test_preds = self._generate_array(n_rows_out, test_beta)
-        return train_preds, test_preds
-
-    def make_dummy_data(self) -> None:
-        """Make dummy data for testing functionality.
-
-        Notes
-        -----
-        Returns nothing but saves two .csv files.
-        """
-        logger.info(
-            "Making dummy data with %d rows in and %d out",
-            self.n_rows_in,
-            self.n_rows_out,
-        )
-        logger.info("Generating rows")
-        train_preds, test_preds = self.generate_arrays(
-            self.n_rows_in,
-            self.n_rows_out,
-            train_beta=self.train_beta,
-            test_beta=self.test_beta,
-        )
-        logger.info("Saving files")
-        np.savetxt(self.training_preds_filename, train_preds, delimiter=",")
-        np.savetxt(self.test_preds_filename, test_preds, delimiter=",")
+        proba_train = self._generate_array(n_rows_in, train_beta)
+        proba_test = self._generate_array(n_rows_out, test_beta)
+        return proba_train, proba_test
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object after attacks."""
@@ -492,9 +452,7 @@ class WorstCaseAttack(Attack):
         # Store all args
         self.metadata["experiment_details"] = {}
         self.metadata["experiment_details"] = self.get_params()
-
         self.metadata["attack"] = str(self)
-
         # Global metrics
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
         self.metadata["baseline_global_metrics"] = self._get_global_metrics(
@@ -536,7 +494,7 @@ class WorstCaseAttack(Attack):
         return dummy_attack_metrics_experiments
 
     def _make_report(self) -> dict:
-        """Create output dict and generate pdf and json."""
+        """Create output dictionary and generate PDF and JSON report."""
         output = {}
         output["log_id"] = str(uuid.uuid4())
         output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
