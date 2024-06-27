@@ -30,12 +30,13 @@ def fixture_common_setup(get_target):
     return target, attack_obj
 
 
-def test_attack_args(common_setup):
-    """Test methods in the attack_args class."""
-    _, attack_obj = common_setup
-    attack_obj.__dict__["newkey"] = True
-    thedict = attack_obj.__dict__
-    assert thedict["newkey"]
+def test_attack_undefined_feats(common_setup):
+    """Test attack when features have not been defined."""
+    target, attack_obj = common_setup
+    target.n_features = 0
+    target.features = {}
+    output = attack_obj.attack(target)
+    assert output == {}
 
 
 def test_unique_max():
@@ -48,7 +49,7 @@ def test_unique_max():
 
 
 def test_categorical_via_modified_attack_brute_force(common_setup):
-    """Test lcategoricals using code from brute_force."""
+    """Test categoricals using code from brute_force."""
     target, _ = common_setup
 
     threshold = 0
@@ -85,7 +86,7 @@ def test_continuous_via_modified_bounds_risk(common_setup):
 
 
 def test_aia_on_nursery(common_setup):
-    """Test AIA on the nursery data with an added continuous feature."""
+    """Test attribute inference attack."""
     target, attack_obj = common_setup
     output = attack_obj.attack(target)
     keys = output["attack_experiment_logger"]["attack_instance_logger"][
