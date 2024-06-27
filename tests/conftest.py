@@ -121,12 +121,9 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
 
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
-    (
-        X_train_orig,
-        X_test_orig,
-        y_train_orig,
-        y_test_orig,
-    ) = train_test_split(x, y, test_size=0.05, stratify=y, shuffle=True, random_state=1)
+    X_train_orig, X_test_orig, y_train_orig, y_test_orig = train_test_split(
+        x, y, test_size=0.05, stratify=y, shuffle=True, random_state=1
+    )
 
     # now resample the training data reduce number of examples
     _, X_train_orig, _, y_train_orig = train_test_split(

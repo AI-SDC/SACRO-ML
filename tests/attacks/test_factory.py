@@ -22,6 +22,9 @@ def test_factory(monkeypatch, get_target):
     target = get_target
     target.save("target")
 
+    model = target.model
+    assert model.score(target.X_test, target.y_test) == pytest.approx(0.92, 0.01)
+
     # create LiRA config with default params
     mock_input = "yes"
     monkeypatch.setattr("builtins.input", lambda _: mock_input)
@@ -46,5 +49,5 @@ def test_factory(monkeypatch, get_target):
     metrics = report[nr]["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    tpr = metrics["TPR"]
-    assert tpr == pytest.approx(0.92, 0.01)
+    assert metrics["TPR"] == pytest.approx(0.92, 0.01)
+    assert metrics["FPR"] == pytest.approx(0.46, 0.01)
