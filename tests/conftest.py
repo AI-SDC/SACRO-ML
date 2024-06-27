@@ -14,6 +14,8 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
 
+np.random.seed(1)
+
 folders = [
     "RES",
     "dt.sav",
@@ -31,6 +33,7 @@ folders = [
     "release_dir",
     "safekeras.tf",
     "save_test",
+    "target",
     "test_lira_target",
     "test_output_lira",
     "test_output_sa",
@@ -89,7 +92,7 @@ def _cleanup():
 
 @pytest.fixture()
 def get_target(request) -> Target:  # pylint: disable=too-many-locals
-    """Wrap the model and data in a Target object.
+    """Return a target object with test data and fitted model.
 
     Uses a randomly sampled 10+10% of the nursery data set.
     """
@@ -123,13 +126,7 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
         X_test_orig,
         y_train_orig,
         y_test_orig,
-    ) = train_test_split(
-        x,
-        y,
-        test_size=0.05,
-        stratify=y,
-        shuffle=True,
-    )
+    ) = train_test_split(x, y, test_size=0.05, stratify=y, shuffle=True, random_state=1)
 
     # now resample the training data reduce number of examples
     _, X_train_orig, _, y_train_orig = train_test_split(
@@ -138,6 +135,7 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
         test_size=0.05,
         stratify=y_train_orig,
         shuffle=True,
+        random_state=1,
     )
 
     # [Researcher] Preprocess dataset
@@ -161,6 +159,9 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     X_test_orig = np.hstack((X_test_orig, dummy_te))
     xmore = np.concatenate((X_train_orig, X_test_orig))
     n_features = np.shape(X_train_orig)[1]
+
+    # fit model
+    model.fit(X_train, y_train)
 
     # wrap
     target = Target(model=model)
