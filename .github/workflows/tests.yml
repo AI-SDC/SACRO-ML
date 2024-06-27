@@ -24,7 +24,7 @@ jobs:
 
       # xgboost requires libomp on macOS
       - name: Install dependencies on macOS
-        if: runner.os == "macOS"
+        if: runner.os == 'macOS'
         run: brew install libomp
 
       - name: Install
