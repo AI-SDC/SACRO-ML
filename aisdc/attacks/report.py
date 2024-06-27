@@ -1,6 +1,5 @@
 """Code for automatic report generation."""
 
-import abc
 import json
 import os
 from typing import Any
@@ -82,18 +81,14 @@ GLOSSARY = {
 
 
 class NumpyArrayEncoder(json.JSONEncoder):
-    """Json encoder that can cope with numpy arrays."""
+    """JSON encoder that can cope with numpy arrays."""
 
     def default(self, o: Any):
         """If an object is an np.ndarray, convert to list."""
         if isinstance(o, np.ndarray):
             return o.tolist()
-        if isinstance(o, np.int64):
+        if isinstance(o, (np.int64, np.int32)):
             return int(o)
-        if isinstance(o, np.int32):
-            return int(o)
-        if isinstance(o, abc.ABCMeta):
-            return str(o)
         return json.JSONEncoder.default(self, o)
 
 
