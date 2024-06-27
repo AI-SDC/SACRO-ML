@@ -66,18 +66,12 @@ def _logit(p: float) -> float:
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
 
-    # pylint: disable=too-many-instance-attributes
-
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
         output_dir: str = "outputs",
         make_report: bool = True,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
-        training_data_filename: str = None,
-        test_data_filename: str = None,
-        training_preds_filename: str = None,
-        test_preds_filename: str = None,
     ) -> None:
         """Construct an object to execute a LiRA attack.
 
@@ -92,22 +86,10 @@ class LIRAAttack(Attack):
         p_thresh : float
             Threshold to determine significance of things. For instance
             auc_p_value and pdif_vals.
-        training_data_filename : str
-            Name of the data file for the training data (in-sample).
-        test_data_filename : str
-            Name of the file for the test data (out-of-sample).
-        training_preds_filename : str
-            Name of the file to keep predictions of the training data (in-sample).
-        test_preds_filename : str
-            Name of the file to keep predictions of the test data (out-of-sample).
         """
         super().__init__(output_dir=output_dir, make_report=make_report)
         self.n_shadow_models = n_shadow_models
         self.p_thresh = p_thresh
-        self.training_data_filename = training_data_filename
-        self.test_data_filename = test_data_filename
-        self.training_preds_filename = training_preds_filename
-        self.test_preds_filename = test_preds_filename
 
     def __str__(self):
         """Return the name of the attack."""
