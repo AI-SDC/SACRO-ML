@@ -152,13 +152,10 @@ def _get_inference_data(  # pylint: disable=too-many-locals
     indices: list[int] = attack_feature["indices"]
     unique = np.unique(target.X_orig[:, feature_id])
     n_unique: int = len(unique)
+    values = unique
     if attack_feature["encoding"] == "onehot":
         onehot_enc = OneHotEncoder()
         values = onehot_enc.fit_transform(unique.reshape(-1, 1)).toarray()
-    else:  # pragma: no cover
-        # catch all, but can't be reached because this func only called via _infer
-        # which is only called for categorical data
-        values = unique
     # samples after encoding (e.g. one-hot)
     samples: np.ndarray = target.X_train
     # samples before encoding (e.g. str)
@@ -195,7 +192,7 @@ def _infer(  # pylint: disable=too-many-locals
     for the original sample, and the highest confidence score is unique, infer
     that attribute if the confidence score is greater than a threshold.
     """
-    logger.debug("Commencing attack on feature %d set %d", feature_id, int(memberset))
+    logger.debug("Attacking feature %d set %d", feature_id, int(memberset))
     correct: int = 0  # number of correct inferences made
     total: int = 0  # total number of inferences made
     x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
@@ -224,7 +221,7 @@ def _infer(  # pylint: disable=too-many-locals
     return correct, total, baseline, n_unique, len(samples)
 
 
-def report_categorical(results: dict) -> str:
+def _report_categorical(results: dict) -> str:
     """Return a string report of the categorical results."""
     results = results["categorical"]
     msg = ""
@@ -241,12 +238,11 @@ def report_categorical(results: dict) -> str:
                     f"baseline: {baseline:.2f}%\n"
                 )
             else:  # pragma: no cover
-                # no examples with test dataset where this doesn't happen
                 msg += f"Unable to make any inferences of the {tranche} set\n"
     return msg
 
 
-def report_quantitative(results: dict) -> str:
+def _report_quantitative(results: dict) -> str:
     """Return a string report of the quantitative results."""
     results = results["quantitative"]
     msg = ""
@@ -287,11 +283,8 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_quant_risk.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved quantitative risk plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    fig.savefig(savefile + "_quant_risk.png", pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved quantitative risk plot: %s", savefile)
 
 
 def plot_categorical_risk(  # pylint: disable=too-many-locals
@@ -328,11 +321,8 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_cat_risk.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved categorical risk plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    fig.savefig(savefile + "_cat_risk.png", pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved categorical risk plot: %s", savefile)
 
 
 def plot_categorical_fraction(  # pylint: disable=too-many-locals
@@ -369,21 +359,17 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_cat_frac.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved categorical fraction plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    fig.savefig(savefile + "_cat_frac.png", pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved categorical fraction plot: %s", savefile)
 
 
 def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dict:
     """Return the training and test set risks of a categorical feature."""
-    result: dict = {
+    return {
         "name": target.features[feature_id]["name"],
         "train": _infer(target, feature_id, threshold, True),
         "test": _infer(target, feature_id, threshold, False),
     }
-    return result
 
 
 def _is_categorical(target: Target, feature_id: int) -> bool:
@@ -452,7 +438,8 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
 
     Returns
     -------
-    A bool representing whether the quantitative feature is at risk for the sample.
+    bool
+        Whether the quantitative feature is at risk for the sample.
     """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
@@ -510,10 +497,7 @@ def _get_bounds_risk_for_feature(
             # testing uses nursery with dummy cont. feature
             # which is not predictive
             feature_risk += 1
-    if n_samples < 1:  # pragma: no cover
-        # is unreachable because of how it is called
-        return 0
-    return feature_risk / n_samples
+    return feature_risk / n_samples if n_samples > 0 else 0
 
 
 def _get_bounds_risk(
@@ -524,12 +508,11 @@ def _get_bounds_risk(
     X_test: np.ndarray,
 ) -> dict:
     """Return a dict containing the dataset risks of a quantitative feature."""
-    risk: dict = {
+    return {
         "name": feature_name,
         "train": _get_bounds_risk_for_feature(target_model, feature_id, X_train),
         "test": _get_bounds_risk_for_feature(target_model, feature_id, X_test),
     }
-    return risk
 
 
 def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[dict]:
@@ -567,12 +550,11 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
             feature_list.append(feature)
     results_b: list[dict] = _get_bounds_risks(target, feature_list, n_cpu)
     # combine results into single object
-    results: dict = {
+    return {
         "name": target.dataset_name,
         "categorical": results_a,
         "quantitative": results_b,
     }
-    return results
 
 
 def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
@@ -593,8 +575,8 @@ def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
     for key, value in metadata["experiment_details"].items():
         report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     report.subtitle(pdf, "Metrics")
-    categ_rep = report_categorical(aia_metrics).split("\n")
-    quant_rep = report_quantitative(aia_metrics).split("\n")
+    categ_rep = _report_categorical(aia_metrics).split("\n")
+    quant_rep = _report_quantitative(aia_metrics).split("\n")
     report.line(pdf, "Categorical Features:", font="courier")
     for line in categ_rep:
         report.line(pdf, line, font="courier")
