@@ -114,9 +114,8 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         dict
             Attack report.
         """
-        y_train_c = None
-        y_test_c = None
-
+        train_c = None
+        test_c = None
         # compute target model probas if possible
         if (
             target.model is not None
@@ -125,10 +124,9 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         ):
             proba_train = target.model.predict_proba(target.X_train)
             proba_test = target.model.predict_proba(target.X_test)
-
             if self.include_model_correct_feature:
-                y_train_c = 1 * (target.y_train == target.model.predict(target.X_train))
-                y_test_c = 1 * (target.y_test == target.model.predict(target.X_test))
+                train_c = 1 * (target.y_train == target.model.predict(target.X_train))
+                test_c = 1 * (target.y_test == target.model.predict(target.X_test))
         # use supplied target model probas if unable to compute
         elif target.proba_train is not None and target.proba_test is not None:
             proba_train = target.proba_train
@@ -137,13 +135,12 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         else:
             logger.info("Insufficient Target details to run worst case attack.")
             return {}
-
         # execute attack
         self.attack_from_preds(
             proba_train,
             proba_test,
-            train_correct=y_train_c,
-            test_correct=y_test_c,
+            train_correct=train_c,
+            test_correct=test_c,
         )
         # return the report
         return self._make_report() if self.make_report else {}
@@ -285,7 +282,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
 
         Returns
         -------
-        mia_metrics_dict : dict
+        dict
             Dictionary of mia_metrics (a list of metric across repetitions).
         """
         mi_x, mi_y = self._prepare_attack_data(
@@ -293,7 +290,6 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         )
 
         mia_metrics = []
-
         split = self._get_reproducible_split()
 
         for rep in range(self.n_reps):
@@ -325,10 +321,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
                 )
 
         logger.info("Finished simulating attacks")
-
-        mia_metrics_dict = {}
-        mia_metrics_dict["mia_metrics"] = mia_metrics
-        return mia_metrics_dict
+        return {"mia_metrics": mia_metrics}
 
     def _get_global_metrics(self, attack_metrics: list) -> dict:
         """Summarise metrics from a metric list.
