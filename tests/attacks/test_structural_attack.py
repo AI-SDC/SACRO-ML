@@ -51,7 +51,7 @@ def test_unnecessary_risk():
     """Check the unnecessary rules."""
     # non-tree we have no evidence yet
     model = SVC()
-    assert sa.get_unnecessary_risk(model) == 0, "no risk without evidence"
+    assert not sa.get_unnecessary_risk(model), "no risk without evidence"
     # decision tree next
     risky_param_dicts = [
         {
@@ -89,10 +89,10 @@ def test_unnecessary_risk():
     for idx, paramdict in enumerate(risky_param_dicts):
         model = DecisionTreeClassifier(**paramdict)
         errstr = f" unnecessary risk with rule {idx}" f"params are {model.get_params()}"
-        assert sa.get_unnecessary_risk(model) == 1, errstr
+        assert sa.get_unnecessary_risk(model), errstr
     model = DecisionTreeClassifier(max_depth=1, min_samples_leaf=150)
-    assert (
-        sa.get_unnecessary_risk(model) == 0
+    assert not sa.get_unnecessary_risk(
+        model
     ), f"should be non-disclosive with {model.get_params}"
 
     # now random forest
@@ -115,10 +115,10 @@ def test_unnecessary_risk():
     for idx, paramdict in enumerate(risky_param_dicts):
         model = RandomForestClassifier(**paramdict)
         errstr = f" unnecessary risk with rule {idx}" f"params are {model.get_params()}"
-        assert sa.get_unnecessary_risk(model) == 1, errstr
+        assert sa.get_unnecessary_risk(model), errstr
     model = RandomForestClassifier(max_depth=1, n_estimators=25, min_samples_leaf=150)
-    assert (
-        sa.get_unnecessary_risk(model) == 0
+    assert not sa.get_unnecessary_risk(
+        model
     ), f"should be non-disclosive with {model.get_params}"
 
     # finally xgboost
@@ -142,10 +142,10 @@ def test_unnecessary_risk():
     for idx, paramdict in enumerate(risky_param_dicts):
         model = XGBClassifier(**paramdict)
         errstr = f" unnecessary risk with rule {idx}" f"params are {model.get_params()}"
-        assert sa.get_unnecessary_risk(model) == 1, errstr
+        assert sa.get_unnecessary_risk(model), errstr
     model = XGBClassifier(min_child_weight=10)
-    assert (
-        sa.get_unnecessary_risk(model) == 0
+    assert not sa.get_unnecessary_risk(
+        model
     ), f"should be non-disclosive with {model.get_params}"
 
 
@@ -169,29 +169,29 @@ def test_dt():
     target = get_target("dt", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
-    assert myattack.DoF_risk == 0, "should be no DoF risk with decision stump"
+    assert not myattack.dof_risk, "should be no DoF risk with decision stump"
     assert (
-        myattack.k_anonymity_risk == 0
+        not myattack.k_anonymity_risk
     ), "should be no k-anonymity risk with min_samples_leaf 150"
     assert (
-        myattack.class_disclosure_risk == 0
+        not myattack.class_disclosure_risk
     ), "no class disclosure risk for stump with min samples leaf 150"
-    assert myattack.unnecessary_risk == 0, "not unnecessary risk if max_depth < 3.5"
+    assert not myattack.unnecessary_risk, "not unnecessary risk if max_depth < 3.5"
 
     # highly disclosive
     param_dict2 = {"max_depth": None, "min_samples_leaf": 1, "min_samples_split": 2}
     target = get_target("dt", **param_dict2)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
-    assert myattack.DoF_risk == 0, "should be no DoF risk with decision stump"
+    assert not myattack.dof_risk, "should be no DoF risk with decision stump"
     assert (
-        myattack.k_anonymity_risk == 1
+        myattack.k_anonymity_risk
     ), "should be  k-anonymity risk with unlimited depth and min_samples_leaf 5"
     assert (
-        myattack.class_disclosure_risk == 1
+        myattack.class_disclosure_risk
     ), "should be class disclosure risk with unlimited depth and min_samples_leaf 5"
     assert (
-        myattack.unnecessary_risk == 1
+        myattack.unnecessary_risk
     ), " unnecessary risk with unlimited depth and min_samples_leaf 5"
 
 
@@ -205,12 +205,12 @@ def test_adaboost():
     myattack = sa.StructuralAttack()
     myattack.THRESHOLD = 2
     myattack.attack(target)
-    assert myattack.DoF_risk == 0, "should be no DoF risk with just 2 decision stumps"
+    assert not myattack.dof_risk, "should be no DoF risk with just 2 decision stumps"
     assert (
-        myattack.k_anonymity_risk == 0
+        not myattack.k_anonymity_risk
     ), "should be no k-anonymity risk with only 2 stumps"
-    assert myattack.class_disclosure_risk == 0, "no class disclosure risk for 2 stumps"
-    assert myattack.unnecessary_risk == 0, " unnecessary risk not defined for adaboost"
+    assert not myattack.class_disclosure_risk, "no class disclosure risk for 2 stumps"
+    assert not myattack.unnecessary_risk, " unnecessary risk not defined for adaboost"
 
     # highly disclosive
     kwargs = {"max_depth": None, "min_samples_leaf": 2}
@@ -221,14 +221,14 @@ def test_adaboost():
     target = get_target("adaboost", **param_dict2)
     myattack2 = sa.StructuralAttack()
     myattack2.attack(target)
-    assert myattack2.DoF_risk == 1, "should be  DoF risk with adaboost of deep trees"
+    assert myattack2.dof_risk, "should be  DoF risk with adaboost of deep trees"
     assert (
-        myattack2.k_anonymity_risk == 1
-    ), "should be  k-anonymity risk with adaboost unlimited depth and min_samples_leaf 2"
+        myattack2.k_anonymity_risk
+    ), "should be k-anonymity risk with adaboost unlimited depth and min_samples_leaf 2"
     assert (
-        myattack2.class_disclosure_risk == 1
-    ), "should be class disclosure risk with adaboost unlimited depth and min_samples_leaf 2"
-    assert myattack2.unnecessary_risk == 0, " unnecessary risk not define for adaboost"
+        myattack2.class_disclosure_risk
+    ), "should be class risk with adaboost unlimited depth and min_samples_leaf 2"
+    assert not myattack2.unnecessary_risk, " unnecessary risk not define for adaboost"
 
 
 def test_rf():
@@ -239,15 +239,15 @@ def test_rf():
     myattack = sa.StructuralAttack()
     myattack.attack(target)
     assert (
-        myattack.DoF_risk == 0
+        not myattack.dof_risk
     ), "should be no DoF risk with small forest of decision stumps"
     assert (
-        myattack.k_anonymity_risk == 0
+        not myattack.k_anonymity_risk
     ), "should be no k-anonymity risk with min_samples_leaf 150"
     assert (
-        myattack.class_disclosure_risk == 0
+        not myattack.class_disclosure_risk
     ), "no class disclosure risk for stumps with min samples leaf 150"
-    assert myattack.unnecessary_risk == 0, "not unnecessary risk if max_depth < 3.5"
+    assert not myattack.unnecessary_risk, "not unnecessary risk if max_depth < 3.5"
 
     # highly disclosive
     param_dict2 = {
@@ -259,15 +259,15 @@ def test_rf():
     target = get_target("rf", **param_dict2)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
-    assert myattack.DoF_risk == 1, "should be  DoF risk with forest of deep trees"
+    assert myattack.dof_risk, "should be  DoF risk with forest of deep trees"
     assert (
-        myattack.k_anonymity_risk == 1
+        myattack.k_anonymity_risk
     ), "should be  k-anonymity risk with unlimited depth and min_samples_leaf 5"
     assert (
-        myattack.class_disclosure_risk == 1
+        myattack.class_disclosure_risk
     ), "should be class disclsoure risk with unlimited depth and min_samples_leaf 5"
     assert (
-        myattack.unnecessary_risk == 1
+        myattack.unnecessary_risk
     ), " unnecessary risk with unlimited depth and min_samples_leaf 5"
 
 
@@ -279,13 +279,13 @@ def test_xgb():
     myattack = sa.StructuralAttack()
     myattack.attack(target)
     assert (
-        myattack.DoF_risk == 0
+        not myattack.dof_risk
     ), "should be no DoF risk with small xgb of decision stumps"
     assert (
-        myattack.k_anonymity_risk == 0
+        not myattack.k_anonymity_risk
     ), "should be no k-anonymity risk with min_samples_leaf 150"
     assert (
-        myattack.class_disclosure_risk == 0
+        not myattack.class_disclosure_risk
     ), "no class disclosure risk for stumps with min child weight 50"
     assert myattack.unnecessary_risk == 0, "not unnecessary risk if max_depth < 3.5"
 
@@ -294,14 +294,14 @@ def test_xgb():
     target2 = get_target("xgb", **param_dict2)
     myattack2 = sa.StructuralAttack()
     myattack2.attack(target2)
-    assert myattack2.DoF_risk == 1, "should be  DoF risk with xgb of deep trees"
+    assert myattack2.dof_risk, "should be  DoF risk with xgb of deep trees"
     assert (
-        myattack2.k_anonymity_risk == 1
+        myattack2.k_anonymity_risk
     ), "should be  k-anonymity risk with depth 50 and min_child_weight 1"
     assert (
-        myattack2.class_disclosure_risk == 1
+        myattack2.class_disclosure_risk
     ), "should be class disclosure risk with xgb lots of deep trees"
-    assert myattack2.unnecessary_risk == 1, " unnecessary risk with these xgb params"
+    assert myattack2.unnecessary_risk, " unnecessary risk with these xgb params"
 
 
 def test_sklearnmlp():
@@ -320,15 +320,15 @@ def test_sklearnmlp():
     for key, val in safeparams.items():
         paramstr += f"{key}:{val}\n"
     assert (
-        myattack.DoF_risk == 0
+        not myattack.dof_risk
     ), f"should be no DoF risk with small mlp with params {paramstr}"
     assert (
-        myattack.k_anonymity_risk == 0
+        not myattack.k_anonymity_risk
     ), f"should be no k-anonymity risk with params {paramstr}"
     assert (
-        myattack.class_disclosure_risk == 1
+        myattack.class_disclosure_risk
     ), f"should be  class disclosure risk with params {paramstr}"
-    assert myattack.unnecessary_risk == 0, "not unnecessary risk for mlps at present"
+    assert not myattack.unnecessary_risk, "not unnecessary risk for mlps at present"
 
     # highly disclosive
     unsafeparams = {
@@ -343,16 +343,14 @@ def test_sklearnmlp():
     target2 = get_target("mlpclassifier", **unsafeparams)
     myattack2 = sa.StructuralAttack()
     myattack2.attack(target2)
-    assert myattack2.DoF_risk == 1, f"should be  DoF risk with this MLP:\n{uparamstr}"
+    assert myattack2.dof_risk, f"should be DoF risk with this MLP:\n{uparamstr}"
     assert (
-        myattack2.k_anonymity_risk == 1
-    ), "559/560 records should have should be  k-anonymity 1 with this MLP:\n{uparamstr}"
+        myattack2.k_anonymity_risk
+    ), "559/560 records should be k-anonymity risk with this MLP:\n{uparamstr}"
     assert (
-        myattack2.class_disclosure_risk == 1
+        myattack2.class_disclosure_risk
     ), "should be class disclosure risk with this MLP:\n{uparamstr}"
-    assert (
-        myattack2.unnecessary_risk == 0
-    ), " no unnecessary risk yet for MLPClassifiers"
+    assert not myattack2.unnecessary_risk, "no unnecessary risk yet for MLPClassifiers"
 
 
 def test_reporting():

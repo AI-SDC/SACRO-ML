@@ -30,6 +30,8 @@ from aisdc.attacks.target import Target
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# pylint: disable=too-many-boolean-expressions,chained-comparison
+
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
@@ -49,92 +51,108 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
     were in the 20% most risky.  The rules below were extracted from that tree
     for the 'least risky' nodes.
 
-    Notes
-    -----
-    Returns True if high risk, otherwise False.
+    Parameters
+    ----------
+    model : BaseEstimator
+        Model to check for risk.
+
+    Returns
+    -------
+    bool
+        True if high risk, otherwise False.
     """
-    if not isinstance(
-        model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
-    ):
-        return 0  # no experimental evidence to support rejection
-
-    unnecessary_risk = 0
-    max_depth = float(model.max_depth) if model.max_depth else 500
-
-    # pylint:disable=chained-comparison,too-many-boolean-expressions
+    unnecessary_risk: bool = False
     if isinstance(model, DecisionTreeClassifier):
-        max_features = model.max_features
-        min_samples_leaf = model.min_samples_leaf
-        min_samples_split = model.min_samples_split
-        splitter = model.splitter
-        if (
-            (max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15)
-            or (
-                splitter == "best"
-                and max_depth > 7.5
-                and min_samples_leaf <= 7.5
-                and min_samples_split > 15
-            )
-            or (
-                splitter == "best"
-                and max_depth > 7.5
-                and 7.5 < min_samples_leaf <= 15
-                and max_features is None
-            )
-            or (
-                splitter == "best"
-                and 3.5 < max_depth <= 7.5
-                and max_features is None
-                and min_samples_leaf <= 7.5
-            )
-            or (
-                splitter == "random"
-                and max_depth > 7.5
-                and min_samples_leaf <= 7.5
-                and max_features is None
-            )
-        ):
-            unnecessary_risk = 1
+        unnecessary_risk = _get_unnecessary_risk_dt(model)
     elif isinstance(model, RandomForestClassifier):
-        n_estimators = model.n_estimators
-        max_features = model.max_features
-        min_samples_leaf = model.min_samples_leaf
-        min_samples_split = model.min_samples_split
-        if (
-            (max_depth > 3.5 and n_estimators > 35 and max_features is not None)
-            or (
-                max_depth > 3.5
-                and n_estimators > 35
-                and min_samples_split <= 15
-                and max_features is None
-                and model.bootstrap
-            )
-            or (
-                max_depth > 7.5
-                and 15 < n_estimators <= 35
-                and min_samples_leaf <= 15
-                and not model.bootstrap
-            )
-        ):
-            unnecessary_risk = 1
-
+        unnecessary_risk = _get_unnecessary_risk_rf(model)
     elif isinstance(model, XGBClassifier):
-        # check whether params exist and using xgboost defaults if not using defaults
-        # from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
-        # and here: https://xgboost.readthedocs.io/en/stable/parameter.html
-        n_estimators = int(model.n_estimators) if model.n_estimators else 100
-        max_depth = float(model.max_depth) if model.max_depth else 6
-        min_child_weight = (
-            float(model.min_child_weight) if model.min_child_weight else 1.0
-        )
-
-        if (
-            (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
-            or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
-            or (max_depth > 3.5 and n_estimators > 62.5 and 3 < min_child_weight <= 6)
-        ):
-            unnecessary_risk = 1
+        unnecessary_risk = _get_unnecessary_risk_xgb(model)
     return unnecessary_risk
+
+
+def _get_unnecessary_risk_dt(model: DecisionTreeClassifier) -> bool:
+    """Return whether DecisionTreeClassifier parameters are high risk."""
+    max_depth = float(model.max_depth) if model.max_depth else 500
+    max_features = model.max_features
+    min_samples_leaf = model.min_samples_leaf
+    min_samples_split = model.min_samples_split
+    splitter = model.splitter
+    if (
+        (max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15)
+        or (
+            splitter == "best"
+            and max_depth > 7.5
+            and min_samples_leaf <= 7.5
+            and min_samples_split > 15
+        )
+        or (
+            splitter == "best"
+            and max_depth > 7.5
+            and 7.5 < min_samples_leaf <= 15
+            and max_features is None
+        )
+        or (
+            splitter == "best"
+            and 3.5 < max_depth <= 7.5
+            and max_features is None
+            and min_samples_leaf <= 7.5
+        )
+        or (
+            splitter == "random"
+            and max_depth > 7.5
+            and min_samples_leaf <= 7.5
+            and max_features is None
+        )
+    ):
+        return True
+    return False
+
+
+def _get_unnecessary_risk_rf(model: RandomForestClassifier) -> bool:
+    """Return whether RandomForestClassifier parameters are high risk."""
+    max_depth = float(model.max_depth) if model.max_depth else 500
+    n_estimators = model.n_estimators
+    max_features = model.max_features
+    min_samples_leaf = model.min_samples_leaf
+    min_samples_split = model.min_samples_split
+    if (
+        (max_depth > 3.5 and n_estimators > 35 and max_features is not None)
+        or (
+            max_depth > 3.5
+            and n_estimators > 35
+            and min_samples_split <= 15
+            and max_features is None
+            and model.bootstrap
+        )
+        or (
+            max_depth > 7.5
+            and 15 < n_estimators <= 35
+            and min_samples_leaf <= 15
+            and not model.bootstrap
+        )
+    ):
+        return True
+    return False
+
+
+def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
+    """Return whether XGBClassifier parameters are high risk.
+
+    Check whether params exist and using xgboost defaults if not using defaults
+    from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+    and here: https://xgboost.readthedocs.io/en/stable/parameter.html
+    """
+    n_estimators = int(model.n_estimators) if model.n_estimators else 100
+    max_depth = float(model.max_depth) if model.max_depth else 6
+    min_child_weight = float(model.min_child_weight) if model.min_child_weight else 1.0
+    if (
+        (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
+        or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
+        or (max_depth > 3.5 and n_estimators > 62.5 and 3 < min_child_weight <= 6)
+    ):
+        return True
+    return False
 
 
 def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
@@ -157,42 +175,61 @@ def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
 
 def get_model_param_count(model: BaseEstimator) -> int:
     """Return the number of trained parameters in a model."""
-    n_params = 0
-
+    n_params: int = 0
     if isinstance(model, DecisionTreeClassifier):
-        n_params = get_tree_parameter_count(model)
-
+        n_params = _get_model_param_count_dt(model)
     elif isinstance(model, RandomForestClassifier):
+        n_params = _get_model_param_count_rf(model)
+    elif isinstance(model, AdaBoostClassifier):
+        n_params = _get_model_param_count_ada(model)
+    elif isinstance(model, XGBClassifier):
+        n_params = _get_model_param_count_xgb(model)
+    elif isinstance(model, MLPClassifier):
+        n_params = _get_model_param_count_mlp(model)
+    return n_params
+
+
+def _get_model_param_count_dt(model: DecisionTreeClassifier) -> int:
+    """Return the number of trained DecisionTreeClassifier parameters."""
+    return get_tree_parameter_count(model)
+
+
+def _get_model_param_count_rf(model: RandomForestClassifier) -> int:
+    """Return the number of trained RandomForestClassifier parameters."""
+    n_params: int = 0
+    for member in model.estimators_:
+        n_params += get_tree_parameter_count(member)
+    return n_params
+
+
+def _get_model_param_count_ada(model: AdaBoostClassifier) -> int:
+    """Return the number of trained AdaBoostClassifier parameters."""
+    n_params: int = 0
+    try:  # sklearn v1.2+
+        base = model.estimator
+    except AttributeError:  # sklearn version <1.2
+        base = model.base_estimator
+    if isinstance(base, DecisionTreeClassifier):
         for member in model.estimators_:
             n_params += get_tree_parameter_count(member)
-
-    elif isinstance(model, AdaBoostClassifier):
-        try:  # sklearn v1.2+
-            base = model.estimator
-        except AttributeError:  # sklearn version <1.2
-            base = model.base_estimator
-        if isinstance(base, DecisionTreeClassifier):
-            for member in model.estimators_:
-                n_params += get_tree_parameter_count(member)
-
-    # TO-DO define these for xgb, logistic regression, SVC and others
-    elif isinstance(model, XGBClassifier):
-        df = model.get_booster().trees_to_dataframe()
-        n_trees = df["Tree"].max()
-        total = len(df)
-        n_leaves = len(df[df.Feature == "Leaf"])
-        # 2 per internal node, one per clas in leaves, one weight per tree
-        n_params = 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
-
-    elif isinstance(model, MLPClassifier):
-        weights = model.coefs_  # dtype is list of numpy.ndarrays
-        biasses = model.intercepts_  # dtype is list of numpy.ndarrays
-        n_params = sum(a.size for a in weights) + sum(a.size for a in biasses)
-
-    else:
-        pass
-
     return n_params
+
+
+def _get_model_param_count_xgb(model: XGBClassifier) -> int:
+    """Return the number of trained XGBClassifier parameters."""
+    df = model.get_booster().trees_to_dataframe()
+    n_trees = df["Tree"].max()
+    total = len(df)
+    n_leaves = len(df[df.Feature == "Leaf"])
+    # 2 per internal node, one per clas in leaves, one weight per tree
+    return 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
+
+
+def _get_model_param_count_mlp(model: MLPClassifier) -> int:
+    """Return the number of trained MLPClassifier parameters."""
+    weights = model.coefs_  # dtype is list of numpy.ndarrays
+    biasses = model.intercepts_  # dtype is list of numpy.ndarrays
+    return sum(a.size for a in weights) + sum(a.size for a in biasses)
 
 
 class StructuralAttack(Attack):
@@ -220,11 +257,11 @@ class StructuralAttack(Attack):
         super().__init__(output_dir=output_dir, make_report=make_report)
         self.target: Target = None
         # disclosure risk
-        self.k_anonymity_risk = 0
-        self.DoF_risk = 0
-        self.unnecessary_risk = 0
-        self.class_disclosure_risk = 0
-        self.lowvals_cd_risk = 0
+        self.k_anonymity_risk: bool = False
+        self.dof_risk: bool = False
+        self.unnecessary_risk: bool = False
+        self.class_disclosure_risk: bool = False
+        self.lowvals_cd_risk: bool = False
         # make dummy acro object and use it to extract risk appetite
         myacro = ACRO(risk_appetite_config)
         self.risk_appetite_config = risk_appetite_config
@@ -237,7 +274,7 @@ class StructuralAttack(Attack):
 
         # metrics
         self.attack_metrics = [
-            "DoF_risk",
+            "dof_risk",
             "k_anonymity_risk",
             "class_disclosure_risk",
             "lowvals_cd_risk",
@@ -294,11 +331,11 @@ class StructuralAttack(Attack):
         # Degrees of Freedom
         n_params = get_model_param_count(target.model)
         residual_dof = self.target.X_train.shape[0] - n_params
-        self.DoF_risk = 1 if residual_dof < self.DOF_THRESHOLD else 0
+        self.dof_risk = residual_dof < self.DOF_THRESHOLD
 
         # k-anonymity
         mink = np.min(np.array(equiv_counts))
-        self.k_anonymity_risk = 1 if mink < self.THRESHOLD else 0
+        self.k_anonymity_risk = mink < self.THRESHOLD
 
         # unnecessary risk arising from poor hyper-parameter combination.
         self.unnecessary_risk = get_unnecessary_risk(self.target.model)
@@ -307,9 +344,9 @@ class StructuralAttack(Attack):
         freqs = np.zeros(equiv_classes.shape)
         for group in range(freqs.shape[0]):
             freqs = equiv_classes[group] * equiv_counts[group]
-        self.class_disclosure_risk = np.any(freqs < self.THRESHOLD).astype(int)
+        self.class_disclosure_risk = np.any(freqs < self.THRESHOLD)
         freqs[freqs == 0] = 100
-        self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD).astype(int)
+        self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD)
 
         # generate report when required
         return self._make_report() if self.make_report else {}
@@ -349,22 +386,21 @@ class StructuralAttack(Attack):
 
         Parameters
         ----------
-        attack_metrics : List
-            list of attack metrics to be reported.
+        attack_metrics : list
+            List of attack metrics to be reported.
 
         Returns
         -------
-        global_metrics : Dict
-            Dictionary of summary metrics
+        global_metrics : dict
+            Dictionary of summary metrics.
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
-            global_metrics["DoF_risk"] = self.DoF_risk
+            global_metrics["dof_risk"] = self.dof_risk
             global_metrics["k_anonymity_risk"] = self.k_anonymity_risk
             global_metrics["class_disclosure_risk"] = self.class_disclosure_risk
             global_metrics["unnecessary_risk"] = self.unnecessary_risk
             global_metrics["lowvals_cd_risk"] = self.lowvals_cd_risk
-
         return global_metrics
 
     def _construct_metadata(self):
@@ -382,7 +418,7 @@ class StructuralAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment["DoF_risk"] = self.DoF_risk
+        attack_metrics_experiment["dof_risk"] = self.dof_risk
         attack_metrics_experiment["k_anonymity_risk"] = self.k_anonymity_risk
         attack_metrics_experiment["class_disclosure_risk"] = self.class_disclosure_risk
         attack_metrics_experiment["unnecessary_risk"] = self.unnecessary_risk

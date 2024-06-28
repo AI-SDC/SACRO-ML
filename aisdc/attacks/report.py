@@ -89,6 +89,8 @@ class NumpyArrayEncoder(json.JSONEncoder):
             return o.tolist()
         if isinstance(o, (np.int64, np.int32)):
             return int(o)
+        if isinstance(o, np.bool_):
+            return bool(o)
         return json.JSONEncoder.default(self, o)
 
 
