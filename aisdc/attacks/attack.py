@@ -51,17 +51,15 @@ class Attack:
 
     def _get_attack_metrics_instances(self) -> dict:
         """Get metrics for each individual repetition of an attack."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _make_pdf(self, output: dict) -> FPDF | None:
         """Create PDF report."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _make_report(self, target: Target) -> dict:
-        """Create attack report and write JSON/PDF as requested."""
-        dest: str = os.path.join(self.output_dir, "report")
-        logger.info("Generating reports: %s.json %s.pdf", dest, dest)
-        # generate report
+        """Create attack report."""
+        logger.info("Generating report")
         self._construct_metadata()
         self.metadata["target_model"] = target.model_name
         self.metadata["target_model_params"] = target.model_params
@@ -71,14 +69,17 @@ class Attack:
             "metadata": self.metadata,
             "attack_experiment_logger": self._get_attack_metrics_instances(),
         }
-        # write JSON and PDF
+        return output
+
+    def _write_report(self, output: dict) -> None:
+        """Write report as JSON and PDF."""
+        dest: str = os.path.join(self.output_dir, "report")
         if self.write_report:
+            logger.info("Writing report: %s.json %s.pdf", dest, dest)
             report.write_json(output, dest)
             pdf_report = self._make_pdf(output)
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
-        # return report for programmatic access
-        return output
 
     def __str__(self) -> str:
         """Return the string representation of an attack."""

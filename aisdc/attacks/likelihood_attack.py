@@ -109,6 +109,7 @@ class LIRAAttack(Attack):
         """
         shadow_clf = sklearn.base.clone(target.model)
         target = self._check_and_update_dataset(target)
+        # execute attack
         self.run_scenario_from_preds(
             shadow_clf,
             target.X_train,
@@ -118,7 +119,12 @@ class LIRAAttack(Attack):
             target.y_test,
             target.model.predict_proba(target.X_test),
         )
-        return self._make_report(target)
+        # create the report
+        output = self._make_report(target)
+        # write the report
+        self._write_report(output)
+        # return the report
+        return output
 
     def _check_and_update_dataset(self, target: Target) -> Target:
         """Check that it is safe to use class variables to index prediction arrays.

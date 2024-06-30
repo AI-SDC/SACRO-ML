@@ -343,8 +343,12 @@ class StructuralAttack(Attack):
         freqs[freqs == 0] = 100
         self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD)
 
-        # generate report
-        return self._make_report(target)
+        # create the report
+        output = self._make_report(target)
+        # write the report
+        self._write_report(output)
+        # return the report
+        return output
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""

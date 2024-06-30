@@ -70,7 +70,9 @@ class AttributeAttack(Attack):
         else:
             logger.info("Running attribute inference attack")
             self.attack_metrics = _attribute_inference(target, self.n_cpu)
-            return self._make_report(target)
+            output = self._make_report(target)
+            self._write_report(output)
+            return output
         return {}
 
     def _get_attack_metrics_instances(self) -> dict:

@@ -139,8 +139,20 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             train_correct=train_c,
             test_correct=test_c,
         )
+        # create the report
+        output = self._make_report(target)
+        # write the report
+        self._write_report(output)
         # return the report
-        return self._make_report(target)
+        return output
+
+    def _make_report(self, target: Target) -> dict:
+        """Create attack report."""
+        output = super()._make_report(target)
+        output["dummy_attack_experiments_logger"] = (
+            self._get_dummy_attack_metrics_experiments_instances()
+        )
+        return output
 
     def attack_from_preds(
         self,

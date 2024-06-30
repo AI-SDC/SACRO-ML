@@ -1,6 +1,5 @@
 """Code for automatic report generation."""
 
-import abc
 import json
 import os
 from typing import Any
@@ -102,8 +101,6 @@ class CustomJSONEncoder(json.JSONEncoder):
             return int(o)
         if isinstance(o, np.bool_):
             return bool(o)
-        if isinstance(o, abc.ABCMeta):
-            return str(o)
         try:  # Try the default method first
             return super().default(o)
         except TypeError:
@@ -178,33 +175,16 @@ def _roc_plot_single(metrics: dict, save_name: str) -> None:
     plt.savefig(save_name)
 
 
-def _roc_plot(metrics: dict, dummy_metrics: list, save_name: str) -> None:
+def _roc_plot(metrics: dict, save_name: str) -> None:
     """Create a roc plot for multiple repetitions."""
     plt.figure()
     plt.plot([0, 1], [0, 1], "k--")
-    do_dummy = bool(dummy_metrics)
 
     # Compute average ROC
     base_fpr = np.linspace(0, 1, 1000)
     all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
     for i, metric_set in enumerate(metrics):
         all_tpr[i, :] = np.interp(base_fpr, metric_set["fpr"], metric_set["tpr"])
-
-    if do_dummy:
-        all_tpr_dummy = np.zeros((len(dummy_metrics), len(base_fpr)), float)
-        for i, metric_set in enumerate(dummy_metrics):
-            all_tpr_dummy[i, :] = np.interp(
-                base_fpr, metric_set["fpr"], metric_set["tpr"]
-            )
-
-        for _, metric_set in enumerate(dummy_metrics):
-            plt.plot(
-                metric_set["fpr"],
-                metric_set["tpr"],
-                color="lightsteelblue",
-                linewidth=0.5,
-                alpha=0.5,
-            )
 
     for _, metric_set in enumerate(metrics):
         plt.plot(
@@ -213,11 +193,6 @@ def _roc_plot(metrics: dict, dummy_metrics: list, save_name: str) -> None:
 
     tpr_mu = all_tpr.mean(axis=0)
     plt.plot(base_fpr, tpr_mu, "r")
-
-    if do_dummy:
-        dummy_mu = all_tpr_dummy.mean(axis=0)
-        plt.plot(base_fpr, dummy_mu, "b")
-
     plt.xscale("log")
     plt.yscale("log")
     plt.xlabel("False Positive Rate")
@@ -247,8 +222,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
     pdf : fpdf.FPDF
         fpdf document object
     """
-    do_dummy = False
-    dummy_metrics = []
     mia_metrics = [
         v
         for _, v in attack_output["attack_experiment_logger"][
@@ -259,7 +232,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
-    _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
+    _roc_plot(mia_metrics, dest_log_roc)
 
     pdf = FPDF()
     pdf.add_page()
@@ -273,10 +246,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
     subtitle(pdf, "Global metrics")
     for key, value in metadata["global_metrics"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    if do_dummy:
-        subtitle(pdf, "Baseline global metrics")
-        for key, value in metadata["baseline_global_metrics"].items():
-            line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
     subtitle(pdf, "Metrics")
     line(
@@ -294,28 +263,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
         )
         line(pdf, text, font="courier")
 
-    if do_dummy:
-        subtitle(pdf, "Baseline metrics")
-        line(
-            pdf,
-            (
-                "The following show summaries of the attack metrics over the "
-                "repetitions where there is no statistical difference between "
-                "predictions in the training and test sets. Simulation was done "
-                "with training and test set sizes equal to the real ones"
-            ),
-            font="arial",
-        )
-        for metric in DISPLAY_METRICS:
-            vals = np.array([m[metric] for m in dummy_metrics])
-            if metric in MAPPINGS:
-                vals = np.array([MAPPINGS[metric](v) for v in vals])
-            text = (
-                f"{metric:>12} mean = {vals.mean():.2f}, var = {vals.var():.4f}, "
-                f"min = {vals.min():.2f}, max = {vals.max():.2f}"
-            )
-            line(pdf, text, font="courier")
-
     _add_log_roc_to_page(dest_log_roc, pdf)
     line(pdf, LOGROC_CAPTION)
 
@@ -323,7 +270,6 @@ def create_mia_report(attack_output: dict) -> FPDF:
     title(pdf, "Glossary")
     _write_dict(pdf, GLOSSARY)
 
-    # clean up
     if os.path.exists(dest_log_roc):
         os.remove(dest_log_roc)
     return pdf
