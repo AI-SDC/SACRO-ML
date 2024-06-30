@@ -118,7 +118,7 @@ class LIRAAttack(Attack):
             target.y_test,
             target.model.predict_proba(target.X_test),
         )
-        return self._make_report()
+        return self._make_report(target)
 
     def _check_and_update_dataset(self, target: Target) -> Target:
         """Check that it is safe to use class variables to index prediction arrays.

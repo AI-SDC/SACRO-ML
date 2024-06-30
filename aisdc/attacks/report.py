@@ -1,5 +1,6 @@
 """Code for automatic report generation."""
 
+import abc
 import json
 import os
 from typing import Any
@@ -85,13 +86,13 @@ GLOSSARY = {
 def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
     attack_formatter = GenerateJSONModule(dest + ".json")
-    attack_report: str = json.dumps(output, cls=NumpyArrayEncoder)
+    attack_report: str = json.dumps(output, cls=CustomJSONEncoder)
     attack_name: str = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 
 
-class NumpyArrayEncoder(json.JSONEncoder):
-    """JSON encoder that can cope with numpy arrays."""
+class CustomJSONEncoder(json.JSONEncoder):
+    """JSON encoder that can cope with numpy arrays, etc."""
 
     def default(self, o: Any):
         """If an object is an np.ndarray, convert to list."""
@@ -101,7 +102,12 @@ class NumpyArrayEncoder(json.JSONEncoder):
             return int(o)
         if isinstance(o, np.bool_):
             return bool(o)
-        return json.JSONEncoder.default(self, o)
+        if isinstance(o, abc.ABCMeta):
+            return str(o)
+        try:  # Try the default method first
+            return super().default(o)
+        except TypeError:
+            return str(o)  # If object is not serializable, convert it to a string
 
 
 def _write_dict(pdf: FPDF, data: dict, border: int = BORDER) -> None:

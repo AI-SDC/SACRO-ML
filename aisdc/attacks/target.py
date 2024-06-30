@@ -72,29 +72,40 @@ class Target:  # pylint: disable=too-many-instance-attributes
         proba_test : np.ndarray | None
             The model predicted testing probabilities.
         """
+        # Model - details
         self.model: sklearn.base.BaseEstimator | None = model
+        self.model_name: str = "unknown"
+        self.model_params: dict = {}
+        if self.model is not None:
+            self.model_name = type(self.model).__name__
+            self.model_params = self.model.get_params()
+        # Model - predicted probabilities
+        self.proba_train: np.ndarray | None = proba_train
+        self.proba_test: np.ndarray | None = proba_test
+        #  Dataset - details
         self.dataset_name: str = dataset_name
+        #  Dataset - processed
         self.X_train: np.ndarray | None = X_train
         self.y_train: np.ndarray | None = y_train
         self.X_test: np.ndarray | None = X_test
         self.y_test: np.ndarray | None = y_test
+        self.n_samples: int = 0
+        if X_train is not None and X_test is not None:
+            self.n_samples = len(X_train) + len(X_test)
+        #  Dataset - unprocessed
         self.X_orig: np.ndarray | None = X_orig
         self.y_orig: np.ndarray | None = y_orig
         self.X_train_orig: np.ndarray | None = X_train_orig
         self.y_train_orig: np.ndarray | None = y_train_orig
         self.X_test_orig: np.ndarray | None = X_test_orig
         self.y_test_orig: np.ndarray | None = y_test_orig
-        self.proba_train: np.ndarray | None = proba_train
-        self.proba_test: np.ndarray | None = proba_test
-        self.safemodel: list = []
-        self.features: dict = features if features is not None else {}
-        self.n_features: int = len(self.features)
-        self.n_samples: int = 0
-        if X_train is not None and X_test is not None:
-            self.n_samples = len(X_train) + len(X_test)
         self.n_samples_orig: int = 0
         if X_train_orig is not None and X_test_orig is not None:
             self.n_samples_orig = len(X_train_orig) + len(X_test_orig)
+        self.features: dict = features if features is not None else {}
+        self.n_features: int = len(self.features)
+        #  Safemodel report
+        self.safemodel: list = []
 
     def add_processed_data(
         self,
@@ -161,11 +172,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
             raise ValueError(f"Unsupported file format for saving a model: {ext}")
         target["model_path"] = f"model.{ext}"
         # write hyperparameters
-        try:
-            target["model_name"] = type(self.model).__name__
-            target["model_params"] = self.model.get_params()
-        except Exception:  # pragma: no cover pylint: disable=broad-exception-caught
-            pass
+        target["model_name"] = self.model_name
+        target["model_params"] = self.model_params
 
     def load_model(self, model_path: str) -> None:
         """Load the target model.
@@ -370,6 +378,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if "safemodel" in target:
             self.safemodel = target["safemodel"]
         # load model
+        if "model_name" in target:
+            self.model_name = target["model_name"]
+        if "model_params" in target:
+            self.model_params = target["model_params"]
         if "model_path" in target:
             model_path = os.path.normpath(f"{path}/{target['model_path']}")
             self.load_model(model_path)

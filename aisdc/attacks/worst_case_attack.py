@@ -140,7 +140,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             test_correct=test_c,
         )
         # return the report
-        return self._make_report()
+        return self._make_report(target)
 
     def attack_from_preds(
         self,

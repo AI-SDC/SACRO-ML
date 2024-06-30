@@ -57,12 +57,14 @@ class Attack:
         """Create PDF report."""
         raise NotImplementedError
 
-    def _make_report(self) -> dict:
+    def _make_report(self, target: Target) -> dict:
         """Create attack report and write JSON/PDF as requested."""
         dest: str = os.path.join(self.output_dir, "report")
         logger.info("Generating reports: %s.json %s.pdf", dest, dest)
         # generate report
         self._construct_metadata()
+        self.metadata["target_model"] = target.model_name
+        self.metadata["target_model_params"] = target.model_params
         output: dict = {
             "log_id": str(uuid.uuid4()),
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
