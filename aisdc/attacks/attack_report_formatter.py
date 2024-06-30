@@ -74,7 +74,7 @@ class GenerateJSONModule:
                 class_name = class_name + "_" + str(incoming_json["log_id"])
 
             file_data[class_name] = incoming_json
-            json.dump(file_data, f)
+            json.dump(file_data, f, indent=4)
 
     def get_output_filename(self) -> str:
         """Return the filename of the JSON file which has been created."""
