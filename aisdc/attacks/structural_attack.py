@@ -10,9 +10,6 @@ Tree-based model types currently supported.
 from __future__ import annotations
 
 import logging
-import os
-import uuid
-from datetime import datetime
 
 import numpy as np
 from acro import ACRO
@@ -22,9 +19,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
-from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -240,7 +235,7 @@ class StructuralAttack(Attack):
     def __init__(
         self,
         output_dir: str = "outputs",
-        make_report: bool = True,
+        write_report: bool = True,
         risk_appetite_config: str = "default",
     ) -> None:
         """Construct an object to execute a structural attack.
@@ -249,12 +244,12 @@ class StructuralAttack(Attack):
         ----------
         output_dir : str
             Name of a directory to write outputs.
-        make_report : bool
+        write_report : bool
             Whether to generate a JSON and PDF report.
         risk_appetite_config : str
             Path to yaml file specifying TRE risk appetite.
         """
-        super().__init__(output_dir=output_dir, make_report=make_report)
+        super().__init__(output_dir=output_dir, write_report=write_report)
         self.target: Target = None
         # disclosure risk
         self.k_anonymity_risk: bool = False
@@ -348,8 +343,8 @@ class StructuralAttack(Attack):
         freqs[freqs == 0] = 100
         self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD)
 
-        # generate report when required
-        return self._make_report() if self.make_report else {}
+        # generate report
+        return self._make_report()
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""
@@ -405,12 +400,7 @@ class StructuralAttack(Attack):
 
     def _construct_metadata(self):
         """Construct the metadata object, after attacks."""
-        self.metadata = {}
-        # Store all args
-        self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"] = self.get_params()
-        self.metadata["attack"] = str(self)
-        # Global metrics
+        super()._construct_metadata()
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -425,16 +415,6 @@ class StructuralAttack(Attack):
         attack_metrics_experiment["lowvals_cd_risk"] = self.lowvals_cd_risk
         return attack_metrics_experiment
 
-    def _make_report(self) -> dict:
-        """Create the output report and writes json and pdf."""
-        output = {}
-        output["log_id"] = str(uuid.uuid4())
-        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self._construct_metadata()
-        output["metadata"] = self.metadata
-        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        report_dest = os.path.join(self.output_dir, "report")
-        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
-        json_report = report.create_json_report(output)
-        json_attack_formatter.add_attack_output(json_report, "StructuralAttack")
-        return output
+    def _make_pdf(self, output: dict) -> None:
+        attack_name: str = output["metadata"]["attack_name"]
+        logger.info("PDF report not yet implemented for %s", attack_name)

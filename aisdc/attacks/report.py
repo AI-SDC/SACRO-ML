@@ -9,6 +9,8 @@ import pylab as plt
 from fpdf import FPDF
 from pypdf import PdfWriter
 
+from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+
 # Adds a border to all pdf cells of set to 1 -- useful for debugging
 BORDER = 0
 
@@ -78,6 +80,14 @@ GLOSSARY = {
     ),
     "ACC": "The proportion of predictions that the attacker makes that are correct.",
 }
+
+
+def write_json(output: dict, dest: str) -> None:
+    """Write attack report to JSON."""
+    attack_formatter = GenerateJSONModule(dest + ".json")
+    attack_report: str = json.dumps(output, cls=NumpyArrayEncoder)
+    attack_name: str = output["metadata"]["attack_name"]
+    attack_formatter.add_attack_output(attack_report, attack_name)
 
 
 class NumpyArrayEncoder(json.JSONEncoder):
@@ -241,7 +251,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
     ]
     metadata = attack_output["metadata"]
 
-    path: str = metadata["experiment_details"]["output_dir"]
+    path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot(mia_metrics, dummy_metrics, dest_log_roc)
 
@@ -252,7 +262,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
     subtitle(pdf, "Introduction")
     line(pdf, INTRODUCTION)
     subtitle(pdf, "Experiment summary")
-    for key, value in metadata["experiment_details"].items():
+    for key, value in metadata["attack_params"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     subtitle(pdf, "Global metrics")
     for key, value in metadata["global_metrics"].items():
@@ -313,7 +323,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
     return pdf
 
 
-def add_output_to_pdf(report_dest: str, pdf_report: FPDF) -> None:
+def write_pdf(report_dest: str, pdf_report: FPDF) -> None:
     """Create pdf and append contents if it already exists."""
     if os.path.exists(report_dest + ".pdf"):
         old_pdf = report_dest + ".pdf"
@@ -335,16 +345,6 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
         subtitle(pdf_obj, "Log ROC")
         pdf_obj.image(log_roc, x=None, y=None, w=0, h=140, type="", link="")
         pdf_obj.set_font("arial", "", 12)
-
-
-def create_json_report(output: dict) -> None:
-    """Create a report in json format for injestion by other tools."""
-    # Initial work, just dump mia_metrics and dummy_metrics into a json structure
-    # avoid attempting to serialize an attack model
-    metadata = output["metadata"]["experiment_details"]
-    if "mia_attack_model" in metadata:
-        metadata["mia_attack_model"] = str(metadata["mia_attack_model"])
-    return json.dumps(output, cls=NumpyArrayEncoder)
 
 
 def create_lr_report(output: dict) -> FPDF:
@@ -374,7 +374,7 @@ def create_lr_report(output: dict) -> FPDF:
     ][0]
     metadata = output["metadata"]
 
-    path: str = metadata["experiment_details"]["output_dir"]
+    path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()
@@ -383,7 +383,7 @@ def create_lr_report(output: dict) -> FPDF:
     title(pdf, "Likelihood Ratio Attack Report")
     subtitle(pdf, "Introduction")
     subtitle(pdf, "Metadata")
-    for key, value in metadata["experiment_details"].items():
+    for key, value in metadata["attack_params"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     for key, value in metadata["global_metrics"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")

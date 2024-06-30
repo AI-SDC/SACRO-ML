@@ -5,19 +5,16 @@
 from __future__ import annotations
 
 import logging
-import os
-import uuid
 from collections.abc import Iterable
-from datetime import datetime
 
 import numpy as np
 import sklearn
+from fpdf import FPDF
 from scipy.stats import norm
 
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -69,7 +66,7 @@ class LIRAAttack(Attack):
     def __init__(
         self,
         output_dir: str = "outputs",
-        make_report: bool = True,
+        write_report: bool = True,
         n_shadow_models: int = 100,
         p_thresh: float = 0.05,
     ) -> None:
@@ -79,7 +76,7 @@ class LIRAAttack(Attack):
         ----------
         output_dir : str
             Name of the directory where outputs are stored.
-        make_report : bool
+        write_report : bool
             Whether to generate a JSON and PDF report.
         n_shadow_models : int
             Number of shadow models to be trained.
@@ -87,7 +84,7 @@ class LIRAAttack(Attack):
             Threshold to determine significance of things. For instance
             auc_p_value and pdif_vals.
         """
-        super().__init__(output_dir=output_dir, make_report=make_report)
+        super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_shadow_models = n_shadow_models
         self.p_thresh = p_thresh
 
@@ -121,7 +118,7 @@ class LIRAAttack(Attack):
             target.y_test,
             target.model.predict_proba(target.X_test),
         )
-        return self._make_report() if self.make_report else {}
+        return self._make_report()
 
     def _check_and_update_dataset(self, target: Target) -> Target:
         """Check that it is safe to use class variables to index prediction arrays.
@@ -290,11 +287,7 @@ class LIRAAttack(Attack):
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object."""
-        self.metadata = {}
-        self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"] = self.get_params()
-
-        self.metadata["global_metrics"] = {}
+        super()._construct_metadata()
 
         pdif = np.exp(-self.attack_metrics[0]["PDIF01"])
 
@@ -318,44 +311,9 @@ class LIRAAttack(Attack):
             f"{0.5 - 3 * auc_std} -> {0.5 + 3 * auc_std}"
         )
 
-        self.metadata["attack"] = str(self)
-
-    def _make_report(self) -> dict:
-        """Create the report.
-
-        Creates the output report and writes json and pdf.
-
-        Returns
-        -------
-        output : Dict
-            Dictionary containing all attack output.
-        """
-        report_dest = os.path.join(self.output_dir, "report")
-        logger.info(
-            "Starting reports, pdf report name = %s, json report name = %s",
-            report_dest + ".pdf",
-            report_dest + ".json",
-        )
-        output = {}
-        output["log_id"] = str(uuid.uuid4())
-        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self._construct_metadata()
-        output["metadata"] = self.metadata
-        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-
-        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
-        json_report = report.create_json_report(output)
-        json_attack_formatter.add_attack_output(json_report, "LikelihoodAttack")
-
-        pdf_report = report.create_lr_report(output)
-        report.add_output_to_pdf(report_dest, pdf_report)
-        logger.info(
-            "Wrote pdf report to %s and json report to %s",
-            report_dest + ".pdf",
-            report_dest + ".json",
-        )
-
-        return output
+    def _make_pdf(self, output: dict) -> FPDF:
+        """Create PDF report."""
+        return report.create_lr_report(output)
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the metadata object after attacks."""

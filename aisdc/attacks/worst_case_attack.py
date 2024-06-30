@@ -3,19 +3,16 @@
 from __future__ import annotations
 
 import logging
-import os
-import uuid
 from collections.abc import Iterable
-from datetime import datetime
 
 import numpy as np
+from fpdf import FPDF
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
 from aisdc import metrics
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack, get_class_by_name
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +27,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
     def __init__(  # pylint: disable = too-many-arguments
         self,
         output_dir: str = "outputs",
-        make_report: bool = True,
+        write_report: bool = True,
         n_reps: int = 10,
         reproduce_split: int | Iterable[int] | None = 5,
         p_thresh: float = 0.05,
@@ -49,7 +46,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         ----------
         output_dir : str
             Name of the directory where outputs are stored.
-        make_report : bool
+        write_report : bool
             Whether to generate a JSON and PDF report.
         n_reps : int
             Number of attacks to run -- in each iteration an attack model
@@ -83,7 +80,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             Dictionary of hyperparameters for the `attack_model`
             such as `min_sample_split`, `min_samples_leaf`, etc.
         """
-        super().__init__(output_dir=output_dir, make_report=make_report)
+        super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_reps: int = n_reps
         self.reproduce_split: int | Iterable[int] | None = reproduce_split
         self.p_thresh: float = p_thresh
@@ -143,7 +140,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             test_correct=test_c,
         )
         # return the report
-        return self._make_report() if self.make_report else {}
+        return self._make_report()
 
     def attack_from_preds(
         self,
@@ -441,12 +438,8 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object after attacks."""
-        self.metadata = {}
-        # Store all args
-        self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"] = self.get_params()
-        self.metadata["attack"] = str(self)
-        # Global metrics
+        super()._construct_metadata()
+
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
         self.metadata["baseline_global_metrics"] = self._get_global_metrics(
             self._unpack_dummy_attack_metrics_experiments_instances()
@@ -486,25 +479,6 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             ] = temp
         return dummy_attack_metrics_experiments
 
-    def _make_report(self) -> dict:
-        """Create output dictionary and generate PDF and JSON report."""
-        output = {}
-        output["log_id"] = str(uuid.uuid4())
-        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
-        self._construct_metadata()
-        output["metadata"] = self.metadata
-
-        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        output["dummy_attack_experiments_logger"] = (
-            self._get_dummy_attack_metrics_experiments_instances()
-        )
-
-        report_dest = os.path.join(self.output_dir, "report")
-        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
-        json_report = report.create_json_report(output)
-        json_attack_formatter.add_attack_output(json_report, "WorstCaseAttack")
-
-        pdf_report = report.create_mia_report(output)
-        report.add_output_to_pdf(report_dest, pdf_report)
-        return output
+    def _make_pdf(self, output: dict) -> FPDF:
+        """Create PDF report."""
+        return report.create_mia_report(output)
