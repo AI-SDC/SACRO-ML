@@ -21,7 +21,7 @@ from aisdc.attacks.target import Target
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
