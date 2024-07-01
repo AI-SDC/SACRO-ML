@@ -11,7 +11,7 @@ import sklearn
 import yaml
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("target")
+logger = logging.getLogger(__name__)
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
