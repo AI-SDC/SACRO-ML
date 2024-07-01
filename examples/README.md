@@ -41,15 +41,19 @@ $ aisdc gen-attack
 $ aisdc run target_rf_nursery attack.yaml
 ```
 
-If you are unable to use the Python `Target` class to generate the `target.yaml` you can generate one using the CLI tool:
+If you are unable to use the Python `Target` class to generate the `target_dir/` containing the `target.yaml` you can generate one using the CLI tool:
 
 ```
 $ aisdc gen-target
 ```
 
+## User Stories
+
+A collection of user guides can be found in the [`user_stories`](user_stories) folder of this repository. These guides include configurable examples from the perspective of both a researcher and a TRE, with separate scripts for each. Instructions on how to use each of these scripts and which scripts to use are included in the README located in the folder.
+
 ## Notebooks
 
-The `notebooks` folder contains short tutorials on the basic concept of "safe_XX" versions of machine learning algorithms, and examples of some specific algorithms.
+The `notebooks` folder contains short tutorials on the basic concept of "safe" versions of machine learning algorithms, and examples of some specific algorithms.
 
 ## Risk Examples
 
