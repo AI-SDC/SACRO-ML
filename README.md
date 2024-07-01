@@ -37,7 +37,7 @@ $ brew install libomp
 
 ## Running
 
-See the examples [`examples`](examples/).
+See the [`examples`](examples/).
 
 ## Acknowledgement
 
