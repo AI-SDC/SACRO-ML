@@ -1,11 +1,22 @@
 # User Stories
+
 In this section there are code examples of how the AI-SDC tools can be used by both a researchers in Trusted Research Environment (TRE) and a TRE output checkers. Each project is unique and therefore how AI-SDC tools are applied may vary from case to case. The user guides have been split into 8 'user stories', each designed to fit a different use-case.
 
 The following diagram is intended to identify the closest use-case match to projects:
 
 ![User Stories](user_stories_flow_chart.drawio.png)
 
+## Note
+
+These code examples were designed for an older version of `aisdc`.
+
+This can still be installed:
+```
+$ pip install aisdc==1.1.3.post1
+```
+
 ## General description
+
 The user stories are coding examples intended to maximise the chances of  successfully and smoothly egressing a Machine Learning (ML) model from the TRE. These guides are useful to create appropriate ML models and the metadata files necessary for output checking of the ML model prior to the egress. Saving time and effort, and ultimately optimising costs.
 
 Each user story consists of at least 2 files:
