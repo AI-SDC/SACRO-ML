@@ -38,7 +38,7 @@ def test_run_attack_lira(get_target):
     assert not disclosive
     print(np.unique(target.y_test, return_counts=True))
     print(np.unique(target.model.predict(target.X_test), return_counts=True))
-    metadata = target.model.run_attack(target, "lira", RES_DIR, "lira_res")
+    metadata = target.model.run_attack(target, "lira", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
@@ -53,7 +53,7 @@ def test_run_attack_worstcase(get_target):
     target.model.fit(target.X_train, target.y_train)
     _, disclosive = target.model.preliminary_check()
     assert not disclosive
-    metadata = target.model.run_attack(target, "worst_case", RES_DIR, "wc_res")
+    metadata = target.model.run_attack(target, "worstcase", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
@@ -68,35 +68,23 @@ def test_run_attack_attribute(get_target):
     target.model.fit(target.X_train, target.y_train)
     _, disclosive = target.model.preliminary_check()
     assert not disclosive
-    metadata = target.model.run_attack(target, "attribute", RES_DIR, "attr_res")
+    metadata = target.model.run_attack(target, "attribute", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
 def test_attack_args():
     """Test the attack arguments class."""
-    fname = "aia_example"
-    attack_obj = attribute_attack.AttributeAttack(
-        output_dir="output_attribute", report_name=fname
-    )
+    attack_obj = attribute_attack.AttributeAttack(output_dir="output_attribute")
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.report_name
 
-    fname = "liraa"
-    attack_obj = likelihood_attack.LIRAAttack(
-        output_dir="output_lira", report_name=fname
-    )
+    attack_obj = likelihood_attack.LIRAAttack(output_dir="output_lira")
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.report_name
 
-    fname = "wca"
-    attack_obj = worst_case_attack.WorstCaseAttack(
-        output_dir="output_worstcase", report_name=fname
-    )
+    attack_obj = worst_case_attack.WorstCaseAttack(output_dir="output_worstcase")
     attack_obj.__dict__["foo"] = "boo"
     assert attack_obj.__dict__["foo"] == "boo"
-    assert fname == attack_obj.report_name
 
 
 @pytest.mark.parametrize(
@@ -108,5 +96,5 @@ def test_run_attack_unknown(get_target):
     """Test an unknown attack via safemodel."""
     target = get_target
     target.model.fit(target.X_train, target.y_train)
-    metadata = target.model.run_attack(target, "unknown", RES_DIR, "unk")
+    metadata = target.model.run_attack(target, "unknown", RES_DIR)
     assert metadata["outcome"] == "unrecognised attack type requested"

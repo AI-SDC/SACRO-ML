@@ -3,32 +3,29 @@
 Runs a number of 'static' structural attacks based on:
 (i) the target model's properties;
 (ii) the TREs risk appetite as applied to tables and standard regressions.
+
+Tree-based model types currently supported.
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
-import os
-import uuid
-from datetime import datetime
 
 import numpy as np
 from acro import ACRO
-
-# tree-based model types currently supported
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
-from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# pylint: disable=chained-comparison
 
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
@@ -49,92 +46,102 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
     were in the 20% most risky.  The rules below were extracted from that tree
     for the 'least risky' nodes.
 
-    Notes
-    -----
-    Returns True if high risk, otherwise False.
+    Parameters
+    ----------
+    model : BaseEstimator
+        Model to check for risk.
+
+    Returns
+    -------
+    bool
+        True if high risk, otherwise False.
     """
-    if not isinstance(
-        model, (DecisionTreeClassifier, RandomForestClassifier, XGBClassifier)
-    ):
-        return 0  # no experimental evidence to support rejection
-
-    unnecessary_risk = 0
-    max_depth = float(model.max_depth) if model.max_depth else 500
-
-    # pylint:disable=chained-comparison,too-many-boolean-expressions
+    unnecessary_risk: bool = False
     if isinstance(model, DecisionTreeClassifier):
-        max_features = model.max_features
-        min_samples_leaf = model.min_samples_leaf
-        min_samples_split = model.min_samples_split
-        splitter = model.splitter
-        if (
-            (max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15)
-            or (
-                splitter == "best"
-                and max_depth > 7.5
-                and min_samples_leaf <= 7.5
-                and min_samples_split > 15
-            )
-            or (
-                splitter == "best"
-                and max_depth > 7.5
-                and 7.5 < min_samples_leaf <= 15
-                and max_features is None
-            )
-            or (
-                splitter == "best"
-                and 3.5 < max_depth <= 7.5
-                and max_features is None
-                and min_samples_leaf <= 7.5
-            )
-            or (
-                splitter == "random"
-                and max_depth > 7.5
-                and min_samples_leaf <= 7.5
-                and max_features is None
-            )
-        ):
-            unnecessary_risk = 1
+        unnecessary_risk = _get_unnecessary_risk_dt(model)
     elif isinstance(model, RandomForestClassifier):
-        n_estimators = model.n_estimators
-        max_features = model.max_features
-        min_samples_leaf = model.min_samples_leaf
-        min_samples_split = model.min_samples_split
-        if (
-            (max_depth > 3.5 and n_estimators > 35 and max_features is not None)
-            or (
-                max_depth > 3.5
-                and n_estimators > 35
-                and min_samples_split <= 15
-                and max_features is None
-                and model.bootstrap
-            )
-            or (
-                max_depth > 7.5
-                and 15 < n_estimators <= 35
-                and min_samples_leaf <= 15
-                and not model.bootstrap
-            )
-        ):
-            unnecessary_risk = 1
-
+        unnecessary_risk = _get_unnecessary_risk_rf(model)
     elif isinstance(model, XGBClassifier):
-        # check whether params exist and using xgboost defaults if not using defaults
-        # from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
-        # and here: https://xgboost.readthedocs.io/en/stable/parameter.html
-        n_estimators = int(model.n_estimators) if model.n_estimators else 100
-        max_depth = float(model.max_depth) if model.max_depth else 6
-        min_child_weight = (
-            float(model.min_child_weight) if model.min_child_weight else 1.0
-        )
-
-        if (
-            (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
-            or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
-            or (max_depth > 3.5 and n_estimators > 62.5 and 3 < min_child_weight <= 6)
-        ):
-            unnecessary_risk = 1
+        unnecessary_risk = _get_unnecessary_risk_xgb(model)
     return unnecessary_risk
+
+
+def _get_unnecessary_risk_dt(model: DecisionTreeClassifier) -> bool:
+    """Return whether DecisionTreeClassifier parameters are high risk."""
+    max_depth = float(model.max_depth) if model.max_depth else 500
+    max_features = model.max_features
+    min_samples_leaf = model.min_samples_leaf
+    min_samples_split = model.min_samples_split
+    splitter = model.splitter
+    return (
+        (max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15)
+        or (
+            splitter == "best"
+            and max_depth > 7.5
+            and min_samples_leaf <= 7.5
+            and min_samples_split > 15
+        )
+        or (
+            splitter == "best"
+            and max_depth > 7.5
+            and 7.5 < min_samples_leaf <= 15
+            and max_features is None
+        )
+        or (
+            splitter == "best"
+            and 3.5 < max_depth <= 7.5
+            and max_features is None
+            and min_samples_leaf <= 7.5
+        )
+        or (
+            splitter == "random"
+            and max_depth > 7.5
+            and min_samples_leaf <= 7.5
+            and max_features is None
+        )
+    )
+
+
+def _get_unnecessary_risk_rf(model: RandomForestClassifier) -> bool:
+    """Return whether RandomForestClassifier parameters are high risk."""
+    max_depth = float(model.max_depth) if model.max_depth else 500
+    n_estimators = model.n_estimators
+    max_features = model.max_features
+    min_samples_leaf = model.min_samples_leaf
+    min_samples_split = model.min_samples_split
+    return (
+        (max_depth > 3.5 and n_estimators > 35 and max_features is not None)
+        or (
+            max_depth > 3.5
+            and n_estimators > 35
+            and min_samples_split <= 15
+            and max_features is None
+            and model.bootstrap
+        )
+        or (
+            max_depth > 7.5
+            and 15 < n_estimators <= 35
+            and min_samples_leaf <= 15
+            and not model.bootstrap
+        )
+    )
+
+
+def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
+    """Return whether XGBClassifier parameters are high risk.
+
+    Check whether params exist and using xgboost defaults if not using defaults
+    from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+    and here: https://xgboost.readthedocs.io/en/stable/parameter.html
+    """
+    n_estimators = int(model.n_estimators) if model.n_estimators else 100
+    max_depth = float(model.max_depth) if model.max_depth else 6
+    min_child_weight = float(model.min_child_weight) if model.min_child_weight else 1.0
+    return (
+        (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
+        or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
+        or (max_depth > 3.5 and n_estimators > 62.5 and 3 < min_child_weight <= 6)
+    )
 
 
 def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
@@ -157,42 +164,61 @@ def get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
 
 def get_model_param_count(model: BaseEstimator) -> int:
     """Return the number of trained parameters in a model."""
-    n_params = 0
-
+    n_params: int = 0
     if isinstance(model, DecisionTreeClassifier):
-        n_params = get_tree_parameter_count(model)
-
+        n_params = _get_model_param_count_dt(model)
     elif isinstance(model, RandomForestClassifier):
+        n_params = _get_model_param_count_rf(model)
+    elif isinstance(model, AdaBoostClassifier):
+        n_params = _get_model_param_count_ada(model)
+    elif isinstance(model, XGBClassifier):
+        n_params = _get_model_param_count_xgb(model)
+    elif isinstance(model, MLPClassifier):
+        n_params = _get_model_param_count_mlp(model)
+    return n_params
+
+
+def _get_model_param_count_dt(model: DecisionTreeClassifier) -> int:
+    """Return the number of trained DecisionTreeClassifier parameters."""
+    return get_tree_parameter_count(model)
+
+
+def _get_model_param_count_rf(model: RandomForestClassifier) -> int:
+    """Return the number of trained RandomForestClassifier parameters."""
+    n_params: int = 0
+    for member in model.estimators_:
+        n_params += get_tree_parameter_count(member)
+    return n_params
+
+
+def _get_model_param_count_ada(model: AdaBoostClassifier) -> int:
+    """Return the number of trained AdaBoostClassifier parameters."""
+    n_params: int = 0
+    try:  # sklearn v1.2+
+        base = model.estimator
+    except AttributeError:  # sklearn version <1.2
+        base = model.base_estimator
+    if isinstance(base, DecisionTreeClassifier):
         for member in model.estimators_:
             n_params += get_tree_parameter_count(member)
-
-    elif isinstance(model, AdaBoostClassifier):
-        try:  # sklearn v1.2+
-            base = model.estimator
-        except AttributeError:  # sklearn version <1.2
-            base = model.base_estimator
-        if isinstance(base, DecisionTreeClassifier):
-            for member in model.estimators_:
-                n_params += get_tree_parameter_count(member)
-
-    # TO-DO define these for xgb, logistic regression, SVC and others
-    elif isinstance(model, XGBClassifier):
-        df = model.get_booster().trees_to_dataframe()
-        n_trees = df["Tree"].max()
-        total = len(df)
-        n_leaves = len(df[df.Feature == "Leaf"])
-        # 2 per internal node, one per clas in leaves, one weight per tree
-        n_params = 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
-
-    elif isinstance(model, MLPClassifier):
-        weights = model.coefs_  # dtype is list of numpy.ndarrays
-        biasses = model.intercepts_  # dtype is list of numpy.ndarrays
-        n_params = sum(a.size for a in weights) + sum(a.size for a in biasses)
-
-    else:
-        pass
-
     return n_params
+
+
+def _get_model_param_count_xgb(model: XGBClassifier) -> int:
+    """Return the number of trained XGBClassifier parameters."""
+    df = model.get_booster().trees_to_dataframe()
+    n_trees = df["Tree"].max()
+    total = len(df)
+    n_leaves = len(df[df.Feature == "Leaf"])
+    # 2 per internal node, one per clas in leaves, one weight per tree
+    return 2 * (total - n_leaves) + (model.n_classes_ - 1) * n_leaves + n_trees
+
+
+def _get_model_param_count_mlp(model: MLPClassifier) -> int:
+    """Return the number of trained MLPClassifier parameters."""
+    weights = model.coefs_  # dtype is list of numpy.ndarrays
+    biasses = model.intercepts_  # dtype is list of numpy.ndarrays
+    return sum(a.size for a in weights) + sum(a.size for a in biasses)
 
 
 class StructuralAttack(Attack):
@@ -200,41 +226,31 @@ class StructuralAttack(Attack):
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
-        attack_config_json_file_name: str = None,
+        output_dir: str = "outputs",
+        write_report: bool = True,
         risk_appetite_config: str = "default",
-        target_path: str = None,
-        output_dir: str = "outputs_structural",
-        report_name: str = "report_structural",
     ) -> None:
         """Construct an object to execute a structural attack.
 
         Parameters
         ----------
-        attack_config_json_file_name : str
-            Name of a JSON file containing an attack configuration.
-        risk_appetite_config : str
-            Path to yaml file specifying TRE risk appetite.
-        target_path : str
-            Path to the saved trained target model and target data.
         output_dir : str
             Name of a directory to write outputs.
-        report_name : str
-            Name of the pdf and json output reports.
+        write_report : bool
+            Whether to generate a JSON and PDF report.
+        risk_appetite_config : str
+            Path to yaml file specifying TRE risk appetite.
         """
-        super().__init__()
-        logger = logging.getLogger("structural_attack")
+        super().__init__(output_dir=output_dir, write_report=write_report)
         self.target: Target = None
-        self.target_path = target_path
-        self.attack_config_json_file_name = attack_config_json_file_name
         # disclosure risk
-        self.k_anonymity_risk = 0
-        self.DoF_risk = 0
-        self.unnecessary_risk = 0
-        self.class_disclosure_risk = 0
-        self.lowvals_cd_risk = 0
-        self.metadata = {}
+        self.k_anonymity_risk: bool = False
+        self.dof_risk: bool = False
+        self.unnecessary_risk: bool = False
+        self.class_disclosure_risk: bool = False
+        self.lowvals_cd_risk: bool = False
         # make dummy acro object and use it to extract risk appetite
         myacro = ACRO(risk_appetite_config)
         self.risk_appetite_config = risk_appetite_config
@@ -244,12 +260,10 @@ class StructuralAttack(Attack):
             "Thresholds for count %i and Dof %i", self.THRESHOLD, self.DOF_THRESHOLD
         )
         del myacro
-        if self.attack_config_json_file_name is not None:
-            self._update_params_from_config_file()
 
         # metrics
         self.attack_metrics = [
-            "DoF_risk",
+            "dof_risk",
             "k_anonymity_risk",
             "class_disclosure_risk",
             "lowvals_cd_risk",
@@ -257,15 +271,11 @@ class StructuralAttack(Attack):
         ]
         self.yprobs = []
 
-        # paths for reporting
-        self.output_dir = output_dir
-        self.report_name = report_name
-
     def __str__(self) -> str:
         """Return the name of the attack."""
         return "Structural attack"
 
-    def attack(self, target: Target) -> None:
+    def attack(self, target: Target) -> dict:
         """Run structural attack.
 
         To be used when code has access to Target class and trained target model.
@@ -274,6 +284,11 @@ class StructuralAttack(Attack):
         ----------
         target : attacks.target.Target
             target as a Target class object
+
+        Returns
+        -------
+        dict
+            Attack report.
         """
         self.target = target
         if target.model is None:
@@ -305,11 +320,11 @@ class StructuralAttack(Attack):
         # Degrees of Freedom
         n_params = get_model_param_count(target.model)
         residual_dof = self.target.X_train.shape[0] - n_params
-        self.DoF_risk = 1 if residual_dof < self.DOF_THRESHOLD else 0
+        self.dof_risk = residual_dof < self.DOF_THRESHOLD
 
         # k-anonymity
         mink = np.min(np.array(equiv_counts))
-        self.k_anonymity_risk = 1 if mink < self.THRESHOLD else 0
+        self.k_anonymity_risk = mink < self.THRESHOLD
 
         # unnecessary risk arising from poor hyper-parameter combination.
         self.unnecessary_risk = get_unnecessary_risk(self.target.model)
@@ -318,9 +333,16 @@ class StructuralAttack(Attack):
         freqs = np.zeros(equiv_classes.shape)
         for group in range(freqs.shape[0]):
             freqs = equiv_classes[group] * equiv_counts[group]
-        self.class_disclosure_risk = np.any(freqs < self.THRESHOLD).astype(int)
+        self.class_disclosure_risk = np.any(freqs < self.THRESHOLD)
         freqs[freqs == 0] = 100
-        self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD).astype(int)
+        self.lowvals_cd_risk = np.any(freqs < self.THRESHOLD)
+
+        # create the report
+        output = self._make_report(target)
+        # write the report
+        self._write_report(output)
+        # return the report
+        return output
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""
@@ -357,32 +379,26 @@ class StructuralAttack(Attack):
 
         Parameters
         ----------
-        attack_metrics : List
-            list of attack metrics to be reported.
+        attack_metrics : list
+            List of attack metrics to be reported.
 
         Returns
         -------
-        global_metrics : Dict
-            Dictionary of summary metrics
+        global_metrics : dict
+            Dictionary of summary metrics.
         """
         global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
-            global_metrics["DoF_risk"] = self.DoF_risk
+            global_metrics["dof_risk"] = self.dof_risk
             global_metrics["k_anonymity_risk"] = self.k_anonymity_risk
             global_metrics["class_disclosure_risk"] = self.class_disclosure_risk
             global_metrics["unnecessary_risk"] = self.unnecessary_risk
             global_metrics["lowvals_cd_risk"] = self.lowvals_cd_risk
-
         return global_metrics
 
     def _construct_metadata(self):
         """Construct the metadata object, after attacks."""
-        self.metadata = {}
-        # Store all args
-        self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"] = self.get_params()
-        self.metadata["attack"] = str(self)
-        # Global metrics
+        super()._construct_metadata()
         self.metadata["global_metrics"] = self._get_global_metrics(self.attack_metrics)
 
     def _get_attack_metrics_instances(self) -> dict:
@@ -390,153 +406,13 @@ class StructuralAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
-        attack_metrics_experiment["DoF_risk"] = self.DoF_risk
+        attack_metrics_experiment["dof_risk"] = self.dof_risk
         attack_metrics_experiment["k_anonymity_risk"] = self.k_anonymity_risk
         attack_metrics_experiment["class_disclosure_risk"] = self.class_disclosure_risk
         attack_metrics_experiment["unnecessary_risk"] = self.unnecessary_risk
         attack_metrics_experiment["lowvals_cd_risk"] = self.lowvals_cd_risk
         return attack_metrics_experiment
 
-    def make_report(self) -> dict:
-        """Create output dict and generate pdf and json if filenames are given."""
-        output = {}
-        output["log_id"] = str(uuid.uuid4())
-        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self._construct_metadata()
-        output["metadata"] = self.metadata
-        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-        report_dest = os.path.join(self.output_dir, self.report_name)
-        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
-        json_report = report.create_json_report(output)
-        json_attack_formatter.add_attack_output(json_report, "StructuralAttack")
-        return output
-
-
-def _run_attack(args) -> None:
-    """Initialise class and run attack."""
-    attack_obj = StructuralAttack(
-        risk_appetite_config=args.risk_appetite_config,
-        target_path=args.target_path,
-        output_dir=args.output_dir,
-        report_name=args.report_name,
-    )
-
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    _ = attack_obj.make_report()
-
-
-def _run_attack_from_configfile(args) -> None:
-    """Initialise class and run attack using config file."""
-    attack_obj = StructuralAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
-        target_path=str(args.target_path),
-    )
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    _ = attack_obj.make_report()
-
-
-def main() -> None:
-    """Parse arguments and invoke relevant method."""
-    logger = logging.getLogger("main")
-    parser = argparse.ArgumentParser(description="Perform a structural  attack")
-
-    subparsers = parser.add_subparsers()
-
-    attack_parser = subparsers.add_parser("run-attack")
-
-    attack_parser.add_argument(
-        "--output-dir",
-        type=str,
-        action="store",
-        dest="output_dir",
-        default="output_structural",
-        required=False,
-        help=("Directory name where output files are stored. Default = %(default)s."),
-    )
-
-    attack_parser.add_argument(
-        "--report-name",
-        type=str,
-        action="store",
-        dest="report_name",
-        default="report_structural",
-        required=False,
-        help=(
-            """Filename for the pdf and json report outputs. Default = %(default)s.
-            Code will append .pdf and .json"""
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--risk-appetite-filename",
-        action="store",
-        type=str,
-        default="default",
-        required=False,
-        dest="risk_appetite_config",
-        help=(
-            """provide the name of the dataset-specific risk appetite filename
-            using --risk-appetite-filename Default = %(default)s"""
-        ),
-    )
-
-    attack_parser.add_argument(
-        "--target-path",
-        action="store",
-        type=str,
-        default=None,
-        required=False,
-        dest="target_path",
-        help=(
-            """Provide the path to the stored target usinmg
-             --target-path option. Default = %(default)f"""
-        ),
-    )
-
-    attack_parser.set_defaults(func=_run_attack)
-
-    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
-    attack_parser_config.add_argument(
-        "-j",
-        "--attack-config-json-file-name",
-        action="store",
-        required=True,
-        dest="attack_config_json_file_name",
-        type=str,
-        default="config_structural_cmd.json",
-        help=(
-            "Name of the .json file containing details for the run. Default = %(default)s"
-        ),
-    )
-
-    attack_parser_config.add_argument(
-        "-t",
-        "--attack-target-folder-path",
-        action="store",
-        required=True,
-        dest="target_path",
-        type=str,
-        default="structural_target",
-        help=(
-            """Name of the target directory to load the trained target model and the target data.
-            Default = %(default)s"""
-        ),
-    )
-
-    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
-
-    args = parser.parse_args()
-
-    try:
-        args.func(args)
-    except AttributeError as e:  # pragma:no cover
-        logger.error("Invalid command. Try --help to get more details")
-        logger.error(e)
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()
+    def _make_pdf(self, output: dict) -> None:
+        attack_name: str = output["metadata"]["attack_name"]
+        logger.info("PDF report not yet implemented for %s", attack_name)
