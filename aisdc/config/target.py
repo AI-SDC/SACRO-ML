@@ -67,6 +67,7 @@ def _get_features(target: Target) -> None:
     if n_features > MAX_FEATURES:
         print("There are too many features to add via prompt.")
         print("You can edit the 'target.yaml' to add features later.")
+        print("Note: this is only necessary for attribute inference.")
         return
     print("The name, index, and encoding are needed for each feature.")
     print("For example: feature 0 = 'parents', '[0, 1, 2]', 'onehot'")
