@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 1.2.0 (under development)
+
 Changes:
 *   Add support for scikit-learn MLPClassifier ([#276](https://github.com/AI-SDC/AI-SDC/pull/276))
 *   Use default XGBoost params if not defined in structural attacks ([#277](https://github.com/AI-SDC/AI-SDC/pull/277))
@@ -7,6 +9,7 @@ Changes:
 *   Clean up repository and update packaging ([#283](https://github.com/AI-SDC/AI-SDC/pull/283))
 *   Format docstrings ([#286](https://github.com/AI-SDC/AI-SDC/pull/286))
 *   Refactor ([#284](https://github.com/AI-SDC/AI-SDC/pull/284), [#285](https://github.com/AI-SDC/AI-SDC/pull/285), [#287](https://github.com/AI-SDC/AI-SDC/pull/287))
+*   Add CLI and tools for generating configs; significant refactor ([#291](https://github.com/AI-SDC/AI-SDC/pull/291))
 
 ## Version 1.1.3 (Apr 26, 2024)
 

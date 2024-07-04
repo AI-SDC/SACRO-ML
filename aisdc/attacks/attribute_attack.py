@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
-import json
 import logging
 import os
-import uuid
-from datetime import datetime
 
 import matplotlib.pyplot as plt
 import multiprocess as mp
@@ -18,11 +14,10 @@ from sklearn.preprocessing import OneHotEncoder
 
 from aisdc.attacks import report
 from aisdc.attacks.attack import Attack
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
 from aisdc.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("aia")
+logger = logging.getLogger(__name__)
 
 COLOR_A: str = "#86bf91"  # training set plot colour
 COLOR_B: str = "steelblue"  # testing set plot colour
@@ -31,13 +26,11 @@ COLOR_B: str = "steelblue"  # testing set plot colour
 class AttributeAttack(Attack):
     """Attribute inference attack."""
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
-        output_dir: str = "output_attribute",
-        report_name: str = "aia_report",
+        output_dir: str = "outputs",
+        write_report: bool = True,
         n_cpu: int = max(1, mp.cpu_count() - 1),
-        attack_config_json_file_name: str = None,
-        target_path: str = None,
     ) -> None:
         """Construct an object to execute an attribute inference attack.
 
@@ -47,31 +40,17 @@ class AttributeAttack(Attack):
             number of CPUs used to run the attack
         output_dir : str
             name of the directory where outputs are stored
-        report_name : str
-            name of the pdf and json output reports
-        attack_config_json_file_name : str
-            name of the configuration file to load parameters
-        target_path : str
-            path to the saved trained target model and target data
+        write_report : bool
+            Whether to generate a JSON and PDF report.
         """
-        super().__init__()
+        super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_cpu = n_cpu
-        self.output_dir = output_dir
-        self.report_name = report_name
-        self.attack_config_json_file_name = attack_config_json_file_name
-        self.target_path = target_path
-        if self.attack_config_json_file_name is not None:
-            self._update_params_from_config_file()
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-        self.attack_metrics: dict = {}
-        self.metadata: dict = {}
 
     def __str__(self) -> str:
         """Return the name of the attack."""
         return "Attribute inference attack"
 
-    def attack(self, target: Target) -> None:
+    def attack(self, target: Target) -> dict:
         """Run attribute inference attack.
 
         To be used when code has access to Target class and trained target model.
@@ -80,52 +59,21 @@ class AttributeAttack(Attack):
         ----------
         target : attacks.target.Target
             target is a Target class object
-        """
-        self.attack_metrics = _attribute_inference(target, self.n_cpu)
-
-    def _construct_metadata(self) -> None:
-        """Construct the metadata object."""
-        self.metadata = {}
-        self.metadata["experiment_details"] = {}
-        self.metadata["experiment_details"] = self.get_params()
-        self.metadata["attack"] = str(self)
-
-    def make_report(self) -> dict:
-        """Create the report.
-
-        Creates the output report. If self.report_name is not None, it will
-        also save the information in json and pdf formats.
 
         Returns
         -------
-        output : dict
-            Dictionary containing all attack output.
+        dict
+            Attack report.
         """
-        output = {}
-        report_dest = os.path.join(self.output_dir, self.report_name)
-        logger.info(
-            "Starting reports, pdf report name = %s, json report name = %s",
-            report_dest + ".pdf",
-            report_dest + ".json",
-        )
-        output["log_id"] = str(uuid.uuid4())
-        output["log_time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self._construct_metadata()
-        output["metadata"] = self.metadata
-        output["attack_experiment_logger"] = self._get_attack_metrics_instances()
-
-        json_attack_formatter = GenerateJSONModule(report_dest + ".json")
-        json_report = json.dumps(output, cls=report.NumpyArrayEncoder)
-        json_attack_formatter.add_attack_output(json_report, "AttributeAttack")
-
-        pdf_report = create_aia_report(output, report_dest)
-        report.add_output_to_pdf(report_dest, pdf_report, "AttributeAttack")
-        logger.info(
-            "Wrote pdf report to %s and json report to %s",
-            report_dest + ".pdf",
-            report_dest + ".json",
-        )
-        return output
+        if target.n_features < 1:
+            logger.info("Can't run attribute inference unless features are defined.")
+        else:
+            logger.info("Running attribute inference attack")
+            self.attack_metrics = _attribute_inference(target, self.n_cpu)
+            output = self._make_report(target)
+            self._write_report(output)
+            return output
+        return {}
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the instances metric calculated, during attacks."""
@@ -134,6 +82,51 @@ class AttributeAttack(Attack):
         attack_metrics_instances["instance_0"] = self.attack_metrics
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
+
+    def _make_pdf(self, output: dict) -> FPDF:
+        """Create PDF report."""
+        metadata: dict = output["metadata"]
+        metrics: dict = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+        path: str = metadata["attack_params"]["output_dir"]
+        # Create PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_xy(0, 0)
+        report.title(pdf, "Attribute Inference Attack Report")
+        report.subtitle(pdf, "Introduction")
+        # Add attack parameters
+        report.subtitle(pdf, "Metadata")
+        for key, value in metadata["attack_params"].items():
+            report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+        # Add attack results
+        report.subtitle(pdf, "Metrics")
+        # Categorical
+        categ_rep: list[str] = report_categorical(metrics).split("\n")
+        if len(categ_rep) > 1:
+            report.line(pdf, "Categorical Features:", font="courier")
+            for line in categ_rep:
+                report.line(pdf, line, font="courier")
+        # Quantatitive
+        quant_rep: list[str] = report_quantitative(metrics).split("\n")
+        if len(quant_rep) > 1:
+            report.line(pdf, "Quantitative Features:", font="courier")
+            for line in quant_rep:
+                report.line(pdf, line, font="courier")
+        # Add plots
+        pdf.add_page()
+        report.subtitle(pdf, "Plots")
+        plot_categorical_risk(metrics, path)  # Create pngs
+        plot_categorical_fraction(metrics, path)
+        plot_quantitative_risk(metrics, path)
+        graphs = ["cat_risk.png", "cat_frac.png", "quant_risk.png"]
+        for graph in graphs:
+            filename = os.path.join(path, graph)
+            if os.path.exists(filename):
+                pdf.image(filename, x=None, y=None, w=150, h=0, type="", link="")
+                os.remove(filename)
+        return pdf
 
 
 def _unique_max(confidences: list[float], threshold: float) -> bool:
@@ -157,13 +150,10 @@ def _get_inference_data(  # pylint: disable=too-many-locals
     indices: list[int] = attack_feature["indices"]
     unique = np.unique(target.X_orig[:, feature_id])
     n_unique: int = len(unique)
+    values = unique
     if attack_feature["encoding"] == "onehot":
         onehot_enc = OneHotEncoder()
         values = onehot_enc.fit_transform(unique.reshape(-1, 1)).toarray()
-    else:  # pragma: no cover
-        # catch all, but can't be reached because this func only called via _infer
-        # which is only called for categorical data
-        values = unique
     # samples after encoding (e.g. one-hot)
     samples: np.ndarray = target.X_train
     # samples before encoding (e.g. str)
@@ -200,7 +190,7 @@ def _infer(  # pylint: disable=too-many-locals
     for the original sample, and the highest confidence score is unique, infer
     that attribute if the confidence score is greater than a threshold.
     """
-    logger.debug("Commencing attack on feature %d set %d", feature_id, int(memberset))
+    logger.debug("Attacking feature %d set %d", feature_id, int(memberset))
     correct: int = 0  # number of correct inferences made
     total: int = 0  # total number of inferences made
     x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
@@ -246,7 +236,6 @@ def report_categorical(results: dict) -> str:
                     f"baseline: {baseline:.2f}%\n"
                 )
             else:  # pragma: no cover
-                # no examples with test dataset where this doesn't happen
                 msg += f"Unable to make any inferences of the {tranche} set\n"
     return msg
 
@@ -264,12 +253,20 @@ def report_quantitative(results: dict) -> str:
     return msg
 
 
-def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
-    """Generate a bar chart showing quantitative value risk scores."""
-    logger.debug("Plotting quantitative feature risk scores")
+def plot_quantitative_risk(res: dict, path: str = "") -> None:
+    """Generate a bar chart showing quantitative value risk scores.
+
+    Parameters
+    ----------
+    res : dict
+        Dictionary containing attribute inference attack results.
+    path : str
+        Directory to write plots.
+    """
     results = res["quantitative"]
     if len(results) < 1:  # pragma: no cover
         return
+    logger.debug("Plotting quantitative feature risk scores")
     x = np.arange(len(results))
     ya = []
     yb = []
@@ -292,21 +289,27 @@ def plot_quantitative_risk(res: dict, savefile: str = "") -> None:
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_quant_risk.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved quantitative risk plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    filename = os.path.join(path, "quant_risk.png")
+    fig.savefig(filename, pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved quantitative risk plot: %s", filename)
 
 
 def plot_categorical_risk(  # pylint: disable=too-many-locals
-    res: dict, savefile: str = ""
+    res: dict, path: str = ""
 ) -> None:
-    """Generate a bar chart showing categorical risk scores."""
-    logger.debug("Plotting categorical feature risk scores")
+    """Generate a bar chart showing categorical risk scores.
+
+    Parameters
+    ----------
+    res : dict
+        Dictionary containing attribute inference attack results.
+    path : str
+        Directory to write plots.
+    """
     results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
         return
+    logger.debug("Plotting categorical feature risk scores")
     x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
@@ -333,21 +336,27 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_cat_risk.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved categorical risk plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    filename = os.path.join(path, "cat_risk.png")
+    fig.savefig(filename, pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved categorical risk plot: %s", filename)
 
 
 def plot_categorical_fraction(  # pylint: disable=too-many-locals
-    res: dict, savefile: str = ""
+    res: dict, path: str = ""
 ) -> None:
-    """Generate a bar chart showing fraction of dataset inferred."""
-    logger.debug("Plotting categorical feature tranche sizes")
+    """Generate a bar chart showing fraction of dataset inferred.
+
+    Parameters
+    ----------
+    res : dict
+        Dictionary containing attribute inference attack results.
+    path : str
+        Directory to write plots.
+    """
     results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
         return
+    logger.debug("Plotting categorical feature tranche sizes")
     x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
@@ -374,21 +383,18 @@ def plot_categorical_fraction(  # pylint: disable=too-many-locals
     ax.legend(loc="best")
     plt.margins(y=0)
     plt.tight_layout()
-    if savefile != "":
-        fig.savefig(savefile + "_cat_frac.png", pad_inches=0, bbox_inches="tight")
-        logger.debug("Saved categorical fraction plot: %s", savefile)
-    else:  # pragma: no cover
-        plt.show()
+    filename = os.path.join(path, "cat_frac.png")
+    fig.savefig(filename, pad_inches=0, bbox_inches="tight")
+    logger.debug("Saved categorical fraction plot: %s", filename)
 
 
 def _infer_categorical(target: Target, feature_id: int, threshold: float) -> dict:
     """Return the training and test set risks of a categorical feature."""
-    result: dict = {
+    return {
         "name": target.features[feature_id]["name"],
         "train": _infer(target, feature_id, threshold, True),
         "test": _infer(target, feature_id, threshold, False),
     }
-    return result
 
 
 def _is_categorical(target: Target, feature_id: int) -> bool:
@@ -457,7 +463,8 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
 
     Returns
     -------
-    A bool representing whether the quantitative feature is at risk for the sample.
+    bool
+        Whether the quantitative feature is at risk for the sample.
     """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
@@ -515,10 +522,7 @@ def _get_bounds_risk_for_feature(
             # testing uses nursery with dummy cont. feature
             # which is not predictive
             feature_risk += 1
-    if n_samples < 1:  # pragma: no cover
-        # is unreachable because of how it is called
-        return 0
-    return feature_risk / n_samples
+    return feature_risk / n_samples if n_samples > 0 else 0
 
 
 def _get_bounds_risk(
@@ -529,12 +533,11 @@ def _get_bounds_risk(
     X_test: np.ndarray,
 ) -> dict:
     """Return a dict containing the dataset risks of a quantitative feature."""
-    risk: dict = {
+    return {
         "name": feature_name,
         "train": _get_bounds_risk_for_feature(target_model, feature_id, X_train),
         "test": _get_bounds_risk_for_feature(target_model, feature_id, X_test),
     }
-    return risk
 
 
 def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[dict]:
@@ -557,120 +560,23 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
 def _attribute_inference(target: Target, n_cpu: int) -> dict:
     """Execute attribute inference attacks on a target given a trained model."""
     # brute force attack categorical attributes using dataset unique values
-    logger.debug("Attacking dataset: %s", target.name)
-    logger.debug("Attacking categorical attributes...")
+    logger.info("Attacking dataset: %s", target.dataset_name)
+    logger.info("Attacking categorical attributes...")
     feature_list: list[int] = []
     for feature in range(target.n_features):
         if _is_categorical(target, feature):
             feature_list.append(feature)
     results_a: list[dict] = _attack_brute_force(target, feature_list, n_cpu)
     # compute risk scores for quantitative attributes
-    logger.debug("Attacking quantitative attributes...")
+    logger.info("Attacking quantitative attributes...")
     feature_list = []
     for feature in range(target.n_features):
         if not _is_categorical(target, feature):
             feature_list.append(feature)
     results_b: list[dict] = _get_bounds_risks(target, feature_list, n_cpu)
     # combine results into single object
-    results: dict = {
-        "name": target.name,
+    return {
+        "name": target.dataset_name,
         "categorical": results_a,
         "quantitative": results_b,
     }
-    return results
-
-
-def create_aia_report(output: dict, name: str = "aia_report") -> FPDF:
-    """Create PDF report."""
-    metadata = output["metadata"]
-    aia_metrics = output["attack_experiment_logger"]["attack_instance_logger"][
-        "instance_0"
-    ]
-    plot_categorical_risk(aia_metrics, name)
-    plot_categorical_fraction(aia_metrics, name)
-    plot_quantitative_risk(aia_metrics, name)
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_xy(0, 0)
-    report.title(pdf, "Attribute Inference Attack Report")
-    report.subtitle(pdf, "Introduction")
-    report.subtitle(pdf, "Metadata")
-    for key, value in metadata["experiment_details"].items():
-        report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-    report.subtitle(pdf, "Metrics")
-    categ_rep = report_categorical(aia_metrics).split("\n")
-    quant_rep = report_quantitative(aia_metrics).split("\n")
-    report.line(pdf, "Categorical Features:", font="courier")
-    for line in categ_rep:
-        report.line(pdf, line, font="courier")
-    report.line(pdf, "Quantitative Features:", font="courier")
-    for line in quant_rep:
-        report.line(pdf, line, font="courier")
-    pdf.add_page()
-    report.subtitle(pdf, "Plots")
-    if len(aia_metrics["categorical"]) > 0:
-        pdf.image(name + "_cat_risk.png", x=None, y=None, w=150, h=0, type="", link="")
-        pdf.image(name + "_cat_frac.png", x=None, y=None, w=150, h=0, type="", link="")
-    if len(aia_metrics["quantitative"]) > 0:
-        pdf.image(
-            name + "_quant_risk.png", x=None, y=None, w=150, h=0, type="", link=""
-        )
-    return pdf
-
-
-def _run_attack_from_configfile(args: dict) -> None:
-    """Run a command line attack based on saved files described in .json file."""
-    attack_obj = AttributeAttack(
-        attack_config_json_file_name=str(args.attack_config_json_file_name),
-        target_path=str(args.target_path),
-    )
-    target = Target()
-    target.load(attack_obj.target_path)
-    attack_obj.attack(target)
-    attack_obj.make_report()
-
-
-def main() -> None:
-    """Parse args and invoke relevant code."""
-    parser = argparse.ArgumentParser(add_help=False)
-
-    subparsers = parser.add_subparsers()
-    attack_parser_config = subparsers.add_parser("run-attack-from-configfile")
-    attack_parser_config.add_argument(
-        "-j",
-        "--attack-config-json-file-name",
-        action="store",
-        required=True,
-        dest="attack_config_json_file_name",
-        type=str,
-        default="config_aia_cmd.json",
-        help=(
-            "Name of the .json file containing details for the run. Default = %(default)s"
-        ),
-    )
-
-    attack_parser_config.add_argument(
-        "-t",
-        "--attack-target-folder-path",
-        action="store",
-        required=True,
-        dest="target_path",
-        type=str,
-        default="aia_target",
-        help=(
-            """Name of the target directory to load the trained target model and the target data.
-        Default = %(default)s"""
-        ),
-    )
-
-    attack_parser_config.set_defaults(func=_run_attack_from_configfile)
-    args = parser.parse_args()
-    try:
-        args.func(args)
-    except AttributeError as e:  # pragma:no cover
-        print(e)
-        print("Invalid command. Try --help to get more details")
-
-
-if __name__ == "__main__":  # pragma:no cover
-    main()

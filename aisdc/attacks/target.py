@@ -2,86 +2,109 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import pickle
 
 import numpy as np
 import sklearn
-
-from aisdc.attacks.report import NumpyArrayEncoder
+import yaml
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("target")
+logger = logging.getLogger(__name__)
 
 
 class Target:  # pylint: disable=too-many-instance-attributes
     """Store information about the target model and data."""
 
-    def __init__(self, model: sklearn.base.BaseEstimator | None = None) -> None:
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
+        self,
+        model: sklearn.base.BaseEstimator | None = None,
+        dataset_name: str = "",
+        features: dict | None = None,
+        X_train: np.ndarray | None = None,
+        y_train: np.ndarray | None = None,
+        X_test: np.ndarray | None = None,
+        y_test: np.ndarray | None = None,
+        X_orig: np.ndarray | None = None,
+        y_orig: np.ndarray | None = None,
+        X_train_orig: np.ndarray | None = None,
+        y_train_orig: np.ndarray | None = None,
+        X_test_orig: np.ndarray | None = None,
+        y_test_orig: np.ndarray | None = None,
+        proba_train: np.ndarray | None = None,
+        proba_test: np.ndarray | None = None,
+    ) -> None:
         """Store information about a target model and associated data.
 
         Parameters
         ----------
-        model : sklearn.base.BaseEstimator | None
+        model : sklearn.base.BaseEstimator | None, optional
             Trained target model. Any class that implements the
             sklearn.base.BaseEstimator interface (i.e. has fit, predict and
             predict_proba methods)
-
-        Attributes
-        ----------
-        name : str
+        dataset_name : str
             The name of the dataset.
-        n_samples : int
-            The total number of samples in the dataset.
-        X_train : np.ndarray
-            The (processed) training inputs.
-        y_train : np.ndarray
-            The (processed) training outputs.
-        X_test : np.ndarray
-            The (processed) testing inputs.
-        y_test : np.ndarray
-            The (processed) testing outputs.
         features : dict
             Dictionary describing the dataset features.
-        n_features : int
-            The total number of features.
-        X_orig : np.ndarray
+        X_train : np.ndarray | None
+            The (processed) training inputs.
+        y_train : np.ndarray | None
+            The (processed) training outputs.
+        X_test : np.ndarray | None
+            The (processed) testing inputs.
+        y_test : np.ndarray | None
+            The (processed) testing outputs.
+        X_orig : np.ndarray | None
             The original (unprocessed) dataset inputs.
-        y_orig : np.ndarray
+        y_orig : np.ndarray | None
             The original (unprocessed) dataset outputs.
-        X_train_orig : np.ndarray
+        X_train_orig : np.ndarray | None
             The original (unprocessed) training inputs.
-        y_train_orig : np.ndarray
+        y_train_orig : np.ndarray | None
             The original (unprocessed) training outputs.
-        X_test_orig : np.ndarray
+        X_test_orig : np.ndarray | None
             The original (unprocessed) testing inputs.
-        y_test_orig : np.ndarray
+        y_test_orig : np.ndarray | None
             The original (unprocessed) testing outputs.
-        n_samples_orig : int
-            The total number of samples in the original dataset.
-        model : sklearn.base.BaseEstimator | None
-            The trained model.
-        safemodel : list
-            The results of safemodel disclosure checks.
+        proba_train : np.ndarray | None
+            The model predicted training probabilities.
+        proba_test : np.ndarray | None
+            The model predicted testing probabilities.
         """
-        self.name: str = ""
-        self.n_samples: int = 0
-        self.X_train: np.ndarray
-        self.y_train: np.ndarray
-        self.X_test: np.ndarray
-        self.y_test: np.ndarray
-        self.features: dict = {}
-        self.n_features: int = 0
-        self.X_orig: np.ndarray
-        self.y_orig: np.ndarray
-        self.X_train_orig: np.ndarray
-        self.y_train_orig: np.ndarray
-        self.X_test_orig: np.ndarray
-        self.y_test_orig: np.ndarray
-        self.n_samples_orig: int = 0
+        # Model - details
         self.model: sklearn.base.BaseEstimator | None = model
+        self.model_name: str = "unknown"
+        self.model_params: dict = {}
+        if self.model is not None:
+            self.model_name = type(self.model).__name__
+            self.model_params = self.model.get_params()
+        # Model - predicted probabilities
+        self.proba_train: np.ndarray | None = proba_train
+        self.proba_test: np.ndarray | None = proba_test
+        #  Dataset - details
+        self.dataset_name: str = dataset_name
+        #  Dataset - processed
+        self.X_train: np.ndarray | None = X_train
+        self.y_train: np.ndarray | None = y_train
+        self.X_test: np.ndarray | None = X_test
+        self.y_test: np.ndarray | None = y_test
+        self.n_samples: int = 0
+        if X_train is not None and X_test is not None:
+            self.n_samples = len(X_train) + len(X_test)
+        #  Dataset - unprocessed
+        self.X_orig: np.ndarray | None = X_orig
+        self.y_orig: np.ndarray | None = y_orig
+        self.X_train_orig: np.ndarray | None = X_train_orig
+        self.y_train_orig: np.ndarray | None = y_train_orig
+        self.X_test_orig: np.ndarray | None = X_test_orig
+        self.y_test_orig: np.ndarray | None = y_test_orig
+        self.n_samples_orig: int = 0
+        if X_train_orig is not None and X_test_orig is not None:
+            self.n_samples_orig = len(X_train_orig) + len(X_test_orig)
+        self.features: dict = features if features is not None else {}
+        self.n_features: int = len(self.features)
+        #  Safemodel report
         self.safemodel: list = []
 
     def add_processed_data(
@@ -126,7 +149,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.y_test_orig = y_test_orig
         self.n_samples_orig = len(X_orig)
 
-    def __save_model(self, path: str, ext: str, target: dict) -> None:
+    def _save_model(self, path: str, ext: str, target: dict) -> None:
         """Save the target model.
 
         Parameters
@@ -136,7 +159,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ext : str
             File extension defining the model saved format, e.g., "pkl" or "sav".
         target : dict
-            Target class as a dictionary for writing JSON.
+            Target class as a dictionary for writing yaml.
         """
         # write model
         filename: str = os.path.normpath(f"{path}/model.{ext}")
@@ -149,31 +172,28 @@ class Target:  # pylint: disable=too-many-instance-attributes
             raise ValueError(f"Unsupported file format for saving a model: {ext}")
         target["model_path"] = f"model.{ext}"
         # write hyperparameters
-        try:
-            target["model_name"] = type(self.model).__name__
-            target["model_params"] = self.model.get_params()
-        except Exception:  # pragma: no cover pylint: disable=broad-exception-caught
-            pass
+        target["model_name"] = self.model_name
+        target["model_params"] = self.model_params
 
-    def __load_model(self, path: str, target: dict) -> None:
+    def load_model(self, model_path: str) -> None:
         """Load the target model.
 
         Parameters
         ----------
-        path : str
+        model_path : str
             Path to load the model.
-        target : dict
-            Target class as a dictionary read from JSON.
         """
-        model_path = os.path.normpath(f"{path}/{target['model_path']}")
-        _, ext = os.path.splitext(model_path)
+        path = os.path.normpath(model_path)
+        _, ext = os.path.splitext(path)
         if ext == ".pkl":
-            with open(model_path, "rb") as fp:
+            with open(path, "rb") as fp:
                 self.model = pickle.load(fp)
+                model_type = type(self.model)
+                logger.info("Loaded: %s", model_type.__name__)
         else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for loading a model: {ext}")
 
-    def __save_numpy(self, path: str, target: dict, name: str) -> None:
+    def _save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
 
         Parameters
@@ -181,36 +201,56 @@ class Target:  # pylint: disable=too-many-instance-attributes
         path : str
             Path to save the data.
         target : dict
-            Target class as a dictionary for writing JSON.
+            Target class as a dictionary for writing yaml.
         name : str
             Name of the numpy array to save.
         """
-        if hasattr(self, name):
+        if getattr(self, name) is not None:
             np_path: str = os.path.normpath(f"{path}/{name}.pkl")
             target[f"{name}_path"] = f"{name}.pkl"
             with open(np_path, "wb") as fp:
                 pickle.dump(getattr(self, name), fp, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            target[f"{name}_path"] = ""
 
-    def __load_numpy(self, path: str, target: dict, name: str) -> None:
-        """Load a numpy array variable from pickle.
+    def load_array(self, arr_path: str, name: str) -> None:
+        """Load a data array variable from file.
 
         Parameters
         ----------
-        path : str
-            Path to load the data.
-        target : dict
-            Target class as a dictionary read from JSON.
+        arr_path : str
+            Filename of a data array.
         name : str
-            Name of the numpy array to load.
+            Name of the data array to load.
         """
-        key: str = f"{name}_path"
-        if key in target:
-            np_path: str = os.path.normpath(f"{path}/{target[key]}")
-            with open(np_path, "rb") as fp:
+        path = os.path.normpath(arr_path)
+        with open(path, "rb") as fp:
+            _, ext = os.path.splitext(path)
+            if ext == ".pkl":
                 arr = pickle.load(fp)
                 setattr(self, name, arr)
+                logger.info("%s shape: %s", name, arr.shape)
+            else:
+                raise ValueError(f"Target cannot load {ext} files.")
 
-    def __save_data(self, path: str, target: dict) -> None:
+    def _load_array(self, arr_path: str, target: dict, name: str) -> None:
+        """Load a data array variable contained in a yaml config.
+
+        Parameters
+        ----------
+        arr_path : str
+            Filename of a data array.
+        target : dict
+            Target class as a dictionary read from yaml.
+        name : str
+            Name of the data array to load.
+        """
+        key = f"{name}_path"
+        if key in target and target[key] != "":
+            path = f"{arr_path}/{target[key]}"
+            self.load_array(path, name)
+
+    def _save_data(self, path: str, target: dict) -> None:
         """Save the target model data.
 
         Parameters
@@ -218,20 +258,20 @@ class Target:  # pylint: disable=too-many-instance-attributes
         path : str
             Path to save the data.
         target : dict
-            Target class as a dictionary for writing JSON.
+            Target class as a dictionary for writing yaml.
         """
-        self.__save_numpy(path, target, "X_train")
-        self.__save_numpy(path, target, "y_train")
-        self.__save_numpy(path, target, "X_test")
-        self.__save_numpy(path, target, "y_test")
-        self.__save_numpy(path, target, "X_orig")
-        self.__save_numpy(path, target, "y_orig")
-        self.__save_numpy(path, target, "X_train_orig")
-        self.__save_numpy(path, target, "y_train_orig")
-        self.__save_numpy(path, target, "X_test_orig")
-        self.__save_numpy(path, target, "y_test_orig")
+        self._save_numpy(path, target, "X_train")
+        self._save_numpy(path, target, "y_train")
+        self._save_numpy(path, target, "X_test")
+        self._save_numpy(path, target, "y_test")
+        self._save_numpy(path, target, "X_orig")
+        self._save_numpy(path, target, "y_orig")
+        self._save_numpy(path, target, "X_train_orig")
+        self._save_numpy(path, target, "y_train_orig")
+        self._save_numpy(path, target, "X_test_orig")
+        self._save_numpy(path, target, "y_test_orig")
 
-    def __load_data(self, path: str, target: dict) -> None:
+    def _load_data(self, path: str, target: dict) -> None:
         """Load the target model data.
 
         Parameters
@@ -239,41 +279,41 @@ class Target:  # pylint: disable=too-many-instance-attributes
         path : str
             Path to load the data.
         target : dict
-            Target class as a dictionary read from JSON.
+            Target class as a dictionary read from yaml.
         """
-        self.__load_numpy(path, target, "X_train")
-        self.__load_numpy(path, target, "y_train")
-        self.__load_numpy(path, target, "X_test")
-        self.__load_numpy(path, target, "y_test")
-        self.__load_numpy(path, target, "X_orig")
-        self.__load_numpy(path, target, "y_orig")
-        self.__load_numpy(path, target, "X_train_orig")
-        self.__load_numpy(path, target, "y_train_orig")
-        self.__load_numpy(path, target, "X_test_orig")
-        self.__load_numpy(path, target, "y_test_orig")
+        self._load_array(path, target, "X_train")
+        self._load_array(path, target, "y_train")
+        self._load_array(path, target, "X_test")
+        self._load_array(path, target, "y_test")
+        self._load_array(path, target, "X_orig")
+        self._load_array(path, target, "y_orig")
+        self._load_array(path, target, "X_train_orig")
+        self._load_array(path, target, "y_train_orig")
+        self._load_array(path, target, "X_test_orig")
+        self._load_array(path, target, "y_test_orig")
 
-    def __ge(self) -> str:
+    def _ge(self) -> float:
         """Return the model generalisation error.
 
         Returns
         -------
-        str
+        float
             Generalisation error.
         """
         if (
             hasattr(self.model, "score")
-            and hasattr(self, "X_train")
-            and hasattr(self, "y_train")
-            and hasattr(self, "X_test")
-            and hasattr(self, "y_test")
+            and self.X_train is not None
+            and self.y_train is not None
+            and self.X_test is not None
+            and self.y_test is not None
         ):
             try:
                 train = self.model.score(self.X_train, self.y_train)
                 test = self.model.score(self.X_test, self.y_test)
-                return str(test - train)
+                return test - train
             except sklearn.exceptions.NotFittedError:
-                return "not fitted"
-        return "unknown"
+                return np.NaN
+        return np.NaN
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Save the target class to persistent storage.
@@ -286,26 +326,26 @@ class Target:  # pylint: disable=too-many-instance-attributes
             File extension defining the model saved format, e.g., "pkl" or "sav".
         """
         path: str = os.path.normpath(path)
-        filename: str = os.path.normpath(f"{path}/target.json")
+        filename: str = os.path.normpath(f"{path}/target.yaml")
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        # convert Target to JSON
+        # convert Target to dict
         target: dict = {
-            "data_name": self.name,
+            "dataset_name": self.dataset_name,
             "n_samples": self.n_samples,
             "features": self.features,
             "n_features": self.n_features,
             "n_samples_orig": self.n_samples_orig,
-            "generalisation_error": self.__ge(),
+            "generalisation_error": self._ge(),
             "safemodel": self.safemodel,
         }
-        # write model and add path to JSON
+        # write model and add path
         if self.model is not None:
-            self.__save_model(path, ext, target)
-        # write data arrays and add paths to JSON
-        self.__save_data(path, target)
-        # write JSON
-        with open(filename, "w", newline="", encoding="utf-8") as fp:
-            json.dump(target, fp, indent=4, cls=NumpyArrayEncoder)
+            self._save_model(path, ext, target)
+        # write data arrays and add paths
+        self._save_data(path, target)
+        # write yaml
+        with open(filename, "w", encoding="utf-8") as fp:
+            yaml.dump(target, fp, default_flow_style=False, sort_keys=False)
 
     def load(self, path: str = "target") -> None:
         """Load the target class from persistent storage.
@@ -313,16 +353,17 @@ class Target:  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         path : str
-            Name of the output folder containing a target JSON file.
+            Name of the output folder containing a target yaml file.
         """
         target: dict = {}
-        # load JSON
-        filename: str = os.path.normpath(f"{path}/target.json")
+        # load yaml
+        filename: str = os.path.normpath(f"{path}/target.yaml")
         with open(filename, encoding="utf-8") as fp:
-            target = json.load(fp)
+            target = yaml.safe_load(fp)
         # load parameters
-        if "data_name" in target:
-            self.name = target["data_name"]
+        if "dataset_name" in target:
+            self.dataset_name = target["dataset_name"]
+            logger.info("dataset_name: %s", self.dataset_name)
         if "n_samples" in target:
             self.n_samples = target["n_samples"]
         if "features" in target:
@@ -331,15 +372,21 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.features = {int(key): value for key, value in features.items()}
         if "n_features" in target:
             self.n_features = target["n_features"]
+            logger.info("n_features: %d", self.n_features)
         if "n_samples_orig" in target:
             self.n_samples_orig = target["n_samples_orig"]
         if "safemodel" in target:
             self.safemodel = target["safemodel"]
         # load model
+        if "model_name" in target:
+            self.model_name = target["model_name"]
+        if "model_params" in target:
+            self.model_params = target["model_params"]
         if "model_path" in target:
-            self.__load_model(path, target)
+            model_path = os.path.normpath(f"{path}/{target['model_path']}")
+            self.load_model(model_path)
         # load data
-        self.__load_data(path, target)
+        self._load_data(path, target)
 
     def add_safemodel_results(self, data: list) -> None:
         """Add the results of safemodel disclosure checking.
@@ -353,4 +400,4 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def __str__(self) -> str:
         """Return the name of the dataset used."""
-        return self.name
+        return self.dataset_name

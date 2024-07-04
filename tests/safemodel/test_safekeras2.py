@@ -347,7 +347,8 @@ def test_keras_model_created():
     assert (
         model.model_type == rightname
     ), "failed check for model type being set in init()"
-    # noise multiplier should have been reset from default to one that matches rules.json
+    # noise multiplier should have been reset from default to one that matches
+    # rules.json
     assert model.noise_multiplier == 0.7
 
 
@@ -379,7 +380,8 @@ def test_second_keras_model_created():
     assert (
         model2.model_type == rightname
     ), "failed check for second model type being set in init()"
-    # noise multiplier should have been reset from default to one that matches rules.json
+    # noise multiplier should have been reset from default to one that matches
+    # rules.json
     assert model2.noise_multiplier == 0.7
 
 
@@ -711,8 +713,8 @@ def test_create_checkfile():
         # check release
         model.request_release(path=RES_DIR, ext=ext)
         assert os.path.exists(name), f"Failed test to save model as {name}"
-        name = os.path.normpath(f"{RES_DIR}/target.json")
-        assert os.path.exists(name), "Failed test to save target.json"
+        name = os.path.normpath(f"{RES_DIR}/target.yaml")
+        assert os.path.exists(name), "Failed test to save target.yaml"
 
     # now other versions which should not
     exts = ("sav", "pkl", "undefined")

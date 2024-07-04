@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import pickle
 
 import joblib
 import numpy as np
+import yaml
 from sklearn import datasets
 
 from aisdc.safemodel.reporting import get_reporting_string
@@ -499,7 +499,7 @@ def test_generic_additional_tests():
 
 
 def test_request_release_without_attacks():
-    """Test request release works and check the content of the json file."""
+    """Test request release works and check the content of the yaml file."""
     model = SafeDummyClassifier()
     x, y = get_data()
     model.fit(x, y)
@@ -509,18 +509,18 @@ def test_request_release_without_attacks():
     # no file provided, has k_anonymity
 
     res_dir = "RES"
-    json_filename = os.path.normpath(os.path.join(f"{res_dir}", "target.json"))
+    yaml_filename = os.path.normpath(os.path.join(f"{res_dir}", "target.yaml"))
     model_filename = os.path.normpath(os.path.join(f"{res_dir}", "model.pkl"))
 
     model.request_release(path=res_dir, ext="pkl")
 
-    # check that pikle and the json files have been created
+    # check that pikle and the yaml files have been created
     assert os.path.isfile(model_filename)
-    assert os.path.isfile(json_filename)
+    assert os.path.isfile(yaml_filename)
 
-    # check the content of the json file
-    with open(f"{json_filename}", encoding="utf-8") as file:
-        json_data = json.load(file)
+    # check the content of the yaml file
+    with open(f"{yaml_filename}", encoding="utf-8") as fp:
+        yaml_data = yaml.safe_load(fp)
 
         details, _ = model.preliminary_check(verbose=False)
         msg_post, _ = model.posthoc_check()
@@ -536,4 +536,4 @@ def test_request_release_without_attacks():
             "recommendation": recommendation,
             "reason": reason,
             "timestamp": model.timestamp,
-        } in json_data["safemodel"]
+        } in yaml_data["safemodel"]
