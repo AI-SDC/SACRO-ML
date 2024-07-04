@@ -14,6 +14,8 @@ arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_o
 arrays_proba = ["proba_train", "proba_test"]
 encodings = ["onehot", "str", "int", "float"]
 
+MAX_FEATURES = 64  # maximum features to prompt
+
 
 def _get_arrays(target: Target, arrays: list[str]) -> None:
     """Prompt user for the paths to array data."""
@@ -62,8 +64,9 @@ def _get_features(target: Target) -> None:
     print("To run attribute inference attacks the features must be described.")
     n_features = input("How many features does this dataset have? ")
     n_features = int(n_features)
-    if n_features > 64:
-        print("There are too many features to perform attribute inference.")
+    if n_features > MAX_FEATURES:
+        print("There are too many features to add via prompt.")
+        print("You can edit the 'target.yaml' to add features later.")
         return
     print("The name, index, and encoding are needed for each feature.")
     print("For example: feature 0 = 'parents', '[0, 1, 2]', 'onehot'")
