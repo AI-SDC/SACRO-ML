@@ -403,9 +403,7 @@ def _is_categorical(target: Target, feature_id: int) -> bool:
     For simplicity, assumes integer datatypes are categorical.
     """
     encoding: str = target.features[feature_id]["encoding"]
-    if encoding[:3] in ("str", "int") or encoding[:6] in ("onehot"):
-        return True
-    return False
+    return encoding[:3] in ("str", "int") or encoding[:6] in ("onehot")
 
 
 def _attack_brute_force(
@@ -492,16 +490,12 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
     actual_probs = target_model.predict_proba(sample.reshape(1, -1))[0]
     lower_bound: float = x_feat[lower_bound_index]
     upper_bound: float = x_feat[upper_bound_index]
-    if (
+    return (
         peak > c_min
         and actual_probs[label] == peak
         and lower_bound >= (1 - protection_limit) * actual_value
         and upper_bound <= (1 + protection_limit) * actual_value
-    ):  # pragma: no cover
-        # has been tested and shown to work in examples notebooks
-        # but tests use simplistic nursery dataset
-        return True
-    return False
+    )
 
 
 def _get_bounds_risk_for_feature(
