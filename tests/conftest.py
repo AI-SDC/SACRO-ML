@@ -14,15 +14,19 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from aisdc.attacks.target import Target
 
+np.random.seed(1)
+
 folders = [
     "RES",
     "dt.sav",
     "fit.tf",
     "fit2.tf",
     "keras_save.tf",
+    "outputs",
     "output_attribute",
     "output_lira",
     "output_worstcase",
+    "outputs_factory",
     "outputs_lira",
     "outputs_multiple_attacks",
     "outputs_structural",
@@ -30,6 +34,8 @@ folders = [
     "release_dir",
     "safekeras.tf",
     "save_test",
+    "target",
+    "target_factory",
     "test_lira_target",
     "test_output_lira",
     "test_output_sa",
@@ -45,8 +51,7 @@ files = [
     "1024-WorstCase.png",
     "2048-WorstCase.png",
     "attack.txt",
-    "config.json",
-    "config_structural_test.json",
+    "attack.yaml",
     "dummy.pkl",
     "dummy.sav",
     "dummy_model.txt",
@@ -61,8 +66,6 @@ files = [
     "test.json",
     "test_data.csv",
     "test_preds.csv",
-    "test_single_config.json",
-    "tests/test_config_aia_cmd.json",
     "train_data.csv",
     "train_preds.csv",
     "unpicklable.pkl",
@@ -92,7 +95,7 @@ def _cleanup():
 
 @pytest.fixture()
 def get_target(request) -> Target:  # pylint: disable=too-many-locals
-    """Wrap the model and data in a Target object.
+    """Return a target object with test data and fitted model.
 
     Uses a randomly sampled 10+10% of the nursery data set.
     """
@@ -121,17 +124,8 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
 
     # [Researcher] Split into training and test sets
     # target model train / test split - these are strings
-    (
-        X_train_orig,
-        X_test_orig,
-        y_train_orig,
-        y_test_orig,
-    ) = train_test_split(
-        x,
-        y,
-        test_size=0.05,
-        stratify=y,
-        shuffle=True,
+    X_train_orig, X_test_orig, y_train_orig, y_test_orig = train_test_split(
+        x, y, test_size=0.05, stratify=y, shuffle=True, random_state=1
     )
 
     # now resample the training data reduce number of examples
@@ -141,6 +135,7 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
         test_size=0.05,
         stratify=y_train_orig,
         shuffle=True,
+        random_state=1,
     )
 
     # [Researcher] Preprocess dataset
@@ -165,9 +160,12 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     xmore = np.concatenate((X_train_orig, X_test_orig))
     n_features = np.shape(X_train_orig)[1]
 
+    # fit model
+    model.fit(X_train, y_train)
+
     # wrap
     target = Target(model=model)
-    target.name = "nursery"
+    target.dataset_name = "nursery"
     target.add_processed_data(X_train, y_train, X_test, y_test)
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")

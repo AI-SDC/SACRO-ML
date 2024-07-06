@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import os
-import sys
-
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 
@@ -30,16 +26,17 @@ def fixture_common_setup(get_target):
     """Get ready to test some code."""
     target = get_target
     target.model.fit(target.X_train, target.y_train)
-    attack_obj = attribute_attack.AttributeAttack(n_cpu=7, report_name="aia_report")
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=7)
     return target, attack_obj
 
 
-def test_attack_args(common_setup):
-    """Test methods in the attack_args class."""
-    _, attack_obj = common_setup
-    attack_obj.__dict__["newkey"] = True
-    thedict = attack_obj.__dict__
-    assert thedict["newkey"]
+def test_attack_undefined_feats(common_setup):
+    """Test attack when features have not been defined."""
+    target, attack_obj = common_setup
+    target.n_features = 0
+    target.features = {}
+    output = attack_obj.attack(target)
+    assert output == {}
 
 
 def test_unique_max():
@@ -52,7 +49,7 @@ def test_unique_max():
 
 
 def test_categorical_via_modified_attack_brute_force(common_setup):
-    """Test lcategoricals using code from brute_force."""
+    """Test categoricals using code from brute_force."""
     target, _ = common_setup
 
     threshold = 0
@@ -89,34 +86,10 @@ def test_continuous_via_modified_bounds_risk(common_setup):
 
 
 def test_aia_on_nursery(common_setup):
-    """Test AIA on the nursery data with an added continuous feature."""
+    """Test attribute inference attack."""
     target, attack_obj = common_setup
-    attack_obj.attack(target)
-    output = attack_obj.make_report()
+    output = attack_obj.attack(target)
     keys = output["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ].keys()
     assert "categorical" in keys
-
-
-def test_aia_on_nursery_from_cmd(common_setup):
-    """Test AIA on the nursery data with an added continuous feature."""
-    target, _ = common_setup
-    target.save(path="tests/test_aia_target")
-
-    config = {
-        "n_cpu": 7,
-        "report_name": "commandline_aia_exampl1_report",
-    }
-    with open(
-        os.path.join("tests", "test_config_aia_cmd.json"), "w", encoding="utf-8"
-    ) as f:
-        f.write(json.dumps(config))
-
-    cmd_json = os.path.join("tests", "test_config_aia_cmd.json")
-    aia_target = os.path.join("tests", "test_aia_target")
-    os.system(
-        f"{sys.executable} -m aisdc.attacks.attribute_attack run-attack-from-configfile "
-        f"--attack-config-json-file-name {cmd_json} "
-        f"--attack-target-folder-path {aia_target} "
-    )
