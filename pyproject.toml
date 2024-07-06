@@ -9,6 +9,7 @@ disable = [
     "invalid-name",
     "no-member",
     "duplicate-code",
+    "consider-using-min-builtin",
 ]
 
 [tool.pylint.messages_control]

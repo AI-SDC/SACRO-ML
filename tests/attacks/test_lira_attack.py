@@ -8,14 +8,14 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from aisdc.attacks.likelihood_attack import DummyClassifier, LIRAAttack
+from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target
 
 
 @pytest.fixture(name="dummy_classifier_setup")
 def fixture_dummy_classifier_setup():
     """Set up common things for DummyClassifier."""
-    dummy = DummyClassifier()
+    dummy = LIRAAttack._DummyClassifier()
     X = np.array([[0.2, 0.8], [0.7, 0.3]])
     return dummy, X
 
