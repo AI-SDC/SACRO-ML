@@ -41,3 +41,11 @@ html_static_path = ["_static"]
 # -- -------------------------------------------------------------------------
 
 numpydoc_class_members_toctree = False
+autodoc_default_options = {
+    "members": True,
+    "inherited-members": True,
+    "member-order": "groupwise",
+    "special-members": "__init__",
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
+}
