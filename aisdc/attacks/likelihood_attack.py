@@ -276,7 +276,7 @@ class LIRAAttack(Attack):
                 self.result["out_prob"].append(pr_out)
                 self.result["out_mean"].append(out_mean)
                 self.result["out_std"].append(out_std + EPS)
-                if self.mode == "online_carlini":
+                if self.mode == "online-carlini":
                     self.result["in_prob"].append(pr_in)
                     self.result["in_mean"].append(in_mean)
                     self.result["in_std"].append(in_std + EPS)
