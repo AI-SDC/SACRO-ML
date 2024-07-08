@@ -70,7 +70,7 @@ class LIRAAttack(Attack):
             self.result["out_prob"] = []
             self.result["out_mean"] = []
             self.result["out_std"] = []
-            if self.mode == "online_carlini":
+            if self.mode == "online-carlini":
                 self.result["in_prob"] = []
                 self.result["in_mean"] = []
                 self.result["in_std"] = []
