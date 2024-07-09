@@ -264,12 +264,12 @@ class LIRAAttack(Attack):
             else:
                 raise ValueError(f"Unsupported LiRA mode: {self.mode}")
             mia_scores.append([pr_in, pr_out])
+            # test the non-member samples for normality
+            out_p_norm = self._get_p_normal(np.array(out_conf[i]))
+            if out_p_norm <= 0.05:
+                n_normal += 1
             # save individual record result
             if self.report_individual:
-                # test the non-member samples for normality
-                out_p_norm = self._get_p_normal(np.array(out_conf[i]))
-                if out_p_norm <= 0.05:
-                    n_normal += 1
                 self.result["label"].append(label)
                 self.result["target_logit"].append(target_logit)
                 self.result["out_p_norm"].append(out_p_norm)
