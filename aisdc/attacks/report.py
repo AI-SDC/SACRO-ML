@@ -387,8 +387,8 @@ def create_lr_report(output: dict) -> FPDF:
     subtitle(pdf, "ROC Curve")
     pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
 
+    dest_ind_plot = os.path.join(path, "lira_individual.png")
     if "individual" in mia_metrics:
-        dest_ind_plot = os.path.join(path, "lira_individual.png")
         _plot_lira_individuals(mia_metrics, dest_ind_plot)
         pdf.add_page()
         subtitle(pdf, "Individual LiRA Scores")
