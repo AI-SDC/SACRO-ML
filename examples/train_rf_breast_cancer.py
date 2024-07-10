@@ -24,9 +24,14 @@ if __name__ == "__main__":
     model.fit(X_train, y_train)
 
     logging.info("Wrapping the model and data in a Target object")
-    target = Target(model=model)
-    target.dataset_name = "breast cancer"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=model,
+        dataset_name="breast cancer",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
 
     logging.info("Writing Target object to directory: '%s'", output_dir)
     target.save(output_dir)
