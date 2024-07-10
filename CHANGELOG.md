@@ -10,6 +10,7 @@ Changes:
 *   Format docstrings ([#286](https://github.com/AI-SDC/AI-SDC/pull/286))
 *   Refactor ([#284](https://github.com/AI-SDC/AI-SDC/pull/284), [#285](https://github.com/AI-SDC/AI-SDC/pull/285), [#287](https://github.com/AI-SDC/AI-SDC/pull/287))
 *   Add CLI and tools for generating configs; significant refactor ([#291](https://github.com/AI-SDC/AI-SDC/pull/291))
+*   Add different implementation modes for online and offline LiRA ([#281](https://github.com/AI-SDC/AI-SDC/pull/281))
 
 ## Version 1.1.3 (Apr 26, 2024)
 

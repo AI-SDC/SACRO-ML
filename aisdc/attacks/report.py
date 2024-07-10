@@ -299,6 +299,42 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
         pdf_obj.set_font("arial", "", 12)
 
 
+def _plot_lira_individuals(metrics: dict, dest: str) -> None:
+    """Create a plot of the individual record LiRA scores."""
+    scores = np.array(metrics["individual"]["score"])
+    member = np.array(metrics["individual"]["member"])
+
+    _, axes = plt.subplots(1, 2, figsize=(12.4, 4.8))
+
+    # members
+    mask = member == 1
+    y_train = scores[mask]
+    x_train = np.arange(y_train.shape[0])
+
+    sorted_indicies = np.argsort(y_train)
+    y_sorted = y_train[sorted_indicies]
+
+    axes[0].scatter(x_train, y_sorted, color="b", s=2, label="LiRA Probability")
+    axes[0].set_title("Member Records")
+    axes[0].set_xlabel("Record (sorted)")
+    axes[0].legend(loc=0)
+
+    # nonmembers
+    y_test = scores[~mask]
+    x_test = np.arange(y_test.shape[0])
+
+    sorted_indicies = np.argsort(y_test)
+    y_sorted = y_test[sorted_indicies]
+
+    axes[1].scatter(x_test, y_sorted, color="r", s=2, label="LiRA Probability")
+    axes[1].set_title("Nonmember Records")
+    axes[1].set_xlabel("Record (sorted)")
+    axes[1].legend(loc=0)
+
+    plt.tight_layout()
+    plt.savefig(dest)
+
+
 def create_lr_report(output: dict) -> FPDF:
     """Make a lira membership inference report.
 
@@ -350,7 +386,17 @@ def create_lr_report(output: dict) -> FPDF:
     pdf.add_page()
     subtitle(pdf, "ROC Curve")
     pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
+
+    dest_ind_plot = os.path.join(path, "lira_individual.png")
+    if "individual" in mia_metrics:
+        _plot_lira_individuals(mia_metrics, dest_ind_plot)
+        pdf.add_page()
+        subtitle(pdf, "Individual LiRA Scores")
+        pdf.image(dest_ind_plot, x=None, y=None, w=180, h=90, type="", link="")
+
     # clean up
-    if os.path.exists(dest_log_roc):
-        os.remove(dest_log_roc)
+    files = [dest_log_roc, dest_ind_plot]
+    for file in files:
+        if os.path.exists(file):
+            os.remove(file)
     return pdf
