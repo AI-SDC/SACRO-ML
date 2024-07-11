@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.2.0 (under development)
+## Version 1.2.0 (Jul 11, 2024)
 
 Changes:
 *   Add support for scikit-learn MLPClassifier ([#276](https://github.com/AI-SDC/AI-SDC/pull/276))
