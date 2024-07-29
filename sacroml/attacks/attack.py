@@ -11,8 +11,8 @@ from datetime import datetime
 
 from fpdf import FPDF
 
-from aisdc.attacks import report
-from aisdc.attacks.target import Target
+from sacroml.attacks import report
+from sacroml.attacks.target import Target
 
 logger = logging.getLogger(__name__)
 

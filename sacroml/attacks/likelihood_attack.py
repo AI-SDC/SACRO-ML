@@ -10,10 +10,10 @@ import sklearn
 from fpdf import FPDF
 from scipy.stats import norm, shapiro
 
-from aisdc import metrics
-from aisdc.attacks import report
-from aisdc.attacks.attack import Attack
-from aisdc.attacks.target import Target
+from sacroml import metrics
+from sacroml.attacks import report
+from sacroml.attacks.attack import Attack
+from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

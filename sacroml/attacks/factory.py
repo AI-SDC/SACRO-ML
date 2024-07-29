@@ -4,11 +4,11 @@ import logging
 
 import yaml
 
-from aisdc.attacks.attribute_attack import AttributeAttack
-from aisdc.attacks.likelihood_attack import LIRAAttack
-from aisdc.attacks.structural_attack import StructuralAttack
-from aisdc.attacks.target import Target
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
+from sacroml.attacks.attribute_attack import AttributeAttack
+from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.structural_attack import StructuralAttack
+from sacroml.attacks.target import Target
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

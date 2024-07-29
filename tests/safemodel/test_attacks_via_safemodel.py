@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from aisdc.attacks import attribute_attack, likelihood_attack, worst_case_attack
-from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
+from sacroml.attacks import attribute_attack, likelihood_attack, worst_case_attack
+from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
 RES_DIR = "RES"
 

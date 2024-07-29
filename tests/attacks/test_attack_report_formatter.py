@@ -8,7 +8,7 @@ import unittest
 
 import pytest
 
-from aisdc.attacks.attack_report_formatter import (
+from sacroml.attacks.attack_report_formatter import (
     AnalysisModule,
     FinalRecommendationModule,
     GenerateJSONModule,

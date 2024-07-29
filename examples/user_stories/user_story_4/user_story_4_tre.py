@@ -15,7 +15,6 @@ import os
 import numpy as np
 import pandas as pd
 import yaml
-
 from aisdc.attacks.attack_report_formatter import GenerateTextReport
 from aisdc.attacks.worst_case_attack import WorstCaseAttack
 

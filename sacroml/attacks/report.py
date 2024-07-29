@@ -9,7 +9,7 @@ import pylab as plt
 from fpdf import FPDF
 from pypdf import PdfWriter
 
-from aisdc.attacks.attack_report_formatter import GenerateJSONModule
+from sacroml.attacks.attack_report_formatter import GenerateJSONModule
 
 # Adds a border to all pdf cells of set to 1 -- useful for debugging
 BORDER = 0

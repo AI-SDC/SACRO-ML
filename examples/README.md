@@ -37,14 +37,14 @@ $ python -m examples.attack_lira
 For example:
 ```
 $ python -m examples.train_rf_nursery
-$ aisdc gen-attack
-$ aisdc run target_rf_nursery attack.yaml
+$ sacroml gen-attack
+$ sacroml run target_rf_nursery attack.yaml
 ```
 
 If you are unable to use the Python `Target` class to generate the `target_dir/` containing the `target.yaml` you can generate one using the CLI tool:
 
 ```
-$ aisdc gen-target
+$ sacroml gen-target
 ```
 
 ## User Stories

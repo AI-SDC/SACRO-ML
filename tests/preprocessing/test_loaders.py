@@ -7,8 +7,8 @@ import shutil
 
 import pytest
 
-from aisdc.preprocessing import loaders
-from aisdc.preprocessing.loaders import DataNotAvailable, UnknownDataset
+from sacroml.preprocessing import loaders
+from sacroml.preprocessing.loaders import DataNotAvailable, UnknownDataset
 
 PROJECT_ROOT_FOLDER = os.path.dirname(os.path.dirname(__file__))
 DATA_FOLDER = os.path.join(PROJECT_ROOT_FOLDER, "datasets")

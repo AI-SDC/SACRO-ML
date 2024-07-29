@@ -13,7 +13,6 @@ import argparse
 import os
 
 import yaml
-
 from aisdc.attacks.attack_report_formatter import GenerateTextReport
 
 

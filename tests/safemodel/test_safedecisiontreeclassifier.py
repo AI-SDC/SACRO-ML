@@ -10,11 +10,11 @@ import numpy as np
 import pytest
 from sklearn import datasets
 
-from aisdc.attacks import attack
-from aisdc.attacks.target import Target
-from aisdc.safemodel import reporting
-from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
-from aisdc.safemodel.classifiers.safedecisiontreeclassifier import (
+from sacroml.attacks import attack
+from sacroml.attacks.target import Target
+from sacroml.safemodel import reporting
+from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
+from sacroml.safemodel.classifiers.safedecisiontreeclassifier import (
     decision_trees_are_equal,
     get_tree_k_anonymity,
 )

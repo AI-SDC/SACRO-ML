@@ -17,7 +17,6 @@ import pickle
 
 import numpy as np
 import yaml
-
 from aisdc.attacks.attack_report_formatter import GenerateTextReport
 from aisdc.attacks.likelihood_attack import LIRAAttack
 from aisdc.attacks.target import Target

@@ -7,7 +7,7 @@ import copy
 import numpy as np
 from dictdiffer import diff
 
-from aisdc.safemodel.safemodel import SafeModel
+from sacroml.safemodel.safemodel import SafeModel
 
 from .dp_svc import DPSVC
 

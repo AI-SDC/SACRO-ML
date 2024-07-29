@@ -10,10 +10,10 @@ from fpdf import FPDF
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from aisdc import metrics
-from aisdc.attacks import report
-from aisdc.attacks.attack import Attack, get_class_by_name
-from aisdc.attacks.target import Target
+from sacroml import metrics
+from sacroml.attacks import report
+from sacroml.attacks.attack import Attack, get_class_by_name
+from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

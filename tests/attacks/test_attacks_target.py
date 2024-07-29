@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 
-from aisdc.attacks.target import Target
+from sacroml.attacks.target import Target
 
 RES_DIR = "save_test"
 

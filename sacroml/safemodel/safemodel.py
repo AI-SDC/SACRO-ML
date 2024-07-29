@@ -15,8 +15,8 @@ from typing import Any
 import joblib
 from dictdiffer import diff
 
-from aisdc.attacks.factory import attack
-from aisdc.attacks.target import Target
+from sacroml.attacks.factory import attack
+from sacroml.attacks.target import Target
 
 # pylint : disable=too-many-branches
 from .reporting import get_reporting_string

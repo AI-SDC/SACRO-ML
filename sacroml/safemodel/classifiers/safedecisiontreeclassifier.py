@@ -9,8 +9,8 @@ import numpy as np
 from dictdiffer import diff
 from sklearn.tree import DecisionTreeClassifier
 
-from aisdc.safemodel.reporting import get_reporting_string
-from aisdc.safemodel.safemodel import SafeModel
+from sacroml.safemodel.reporting import get_reporting_string
+from sacroml.safemodel.safemodel import SafeModel
 
 
 def decision_trees_are_equal(

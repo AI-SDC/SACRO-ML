@@ -7,8 +7,8 @@ import copy
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-from aisdc.safemodel.reporting import get_reporting_string
-from aisdc.safemodel.safemodel import SafeModel
+from sacroml.safemodel.reporting import get_reporting_string
+from sacroml.safemodel.safemodel import SafeModel
 
 from .safedecisiontreeclassifier import decision_trees_are_equal
 

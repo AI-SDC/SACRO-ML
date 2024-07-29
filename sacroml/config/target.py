@@ -6,8 +6,8 @@ import ast
 import os
 import sys
 
-from aisdc.attacks.target import Target
-from aisdc.config import utils
+from sacroml.attacks.target import Target
+from sacroml.config import utils
 
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
 arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]

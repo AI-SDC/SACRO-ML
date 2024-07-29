@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import pytest
 
-from aisdc.metrics import _div, _tpr_at_fpr, get_metrics, min_max_disc
+from sacroml.metrics import _div, _tpr_at_fpr, get_metrics, min_max_disc
 
 PREDICTED_CLASS = np.array([0, 1, 0, 0, 1, 1])
 TRUE_CLASS = np.array([0, 0, 0, 1, 1, 1])
