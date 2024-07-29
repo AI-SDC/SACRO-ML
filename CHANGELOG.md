@@ -1,5 +1,8 @@
 # Changelog
 
+Changes:
+*   Rename repository from AI-SDC to SACRO-ML ([#298](https://github.com/AI-SDC/SACRO-ML/pull/298))
+
 ## Version 1.2.0 (Jul 11, 2024)
 
 Changes:
