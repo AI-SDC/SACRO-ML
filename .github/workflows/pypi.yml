@@ -1,0 +1,49 @@
+---
+name: PyPI Publish
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: pipx run build
+
+  upload:
+    runs-on: ubuntu-latest
+    # if: github.event_name == 'release' && github.event.action == 'published'
+
+    needs: [build]
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sacroml
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sacroml*
+          path: dist
+          merge-multiple: true
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "dist/*"
+
+      - name: Publish on PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          repository-url: https://test.pypi.org/legacy/
+...
