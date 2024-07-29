@@ -1,9 +1,9 @@
 # configuration for https://codecov.io
 ignore:
-  - "aisdc/config"
-  - "aisdc/main.py"
-  - "aisdc/preprocessing"
-  - "aisdc/safemodel/classifiers/new_model_template.py"
+  - "sacroml/config"
+  - "sacroml/main.py"
+  - "sacroml/preprocessing"
+  - "sacroml/safemodel/classifiers/new_model_template.py"
   - "examples"
   - "setup.py"
   - "user_stories"
