@@ -1,4 +1,4 @@
-"""Python setup script for installing AI-SDC."""
+"""Python setup script for installing SACRO-ML."""
 
 from setuptools import setup
 
