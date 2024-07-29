@@ -1,1 +1,1 @@
-"""Tests for the aisdc package."""
+"""Tests for the sacroml package."""

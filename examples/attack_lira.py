@@ -18,8 +18,8 @@ The steps are as follows:
 
 import logging
 
-from aisdc.attacks.likelihood_attack import LIRAAttack
-from aisdc.attacks.target import Target
+from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.target import Target
 
 output_dir = "outputs_lira"
 target_dir = "target_rf_breast_cancer"

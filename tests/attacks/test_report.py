@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 from fpdf import FPDF
 
-from aisdc.attacks import report
+from sacroml.attacks import report
 
 BORDER = 0
 

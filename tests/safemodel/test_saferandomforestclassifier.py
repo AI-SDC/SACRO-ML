@@ -9,8 +9,8 @@ import joblib
 import numpy as np
 from sklearn import datasets
 
-from aisdc.safemodel.classifiers import SafeRandomForestClassifier
-from aisdc.safemodel.reporting import get_reporting_string
+from sacroml.safemodel.classifiers import SafeRandomForestClassifier
+from sacroml.safemodel.reporting import get_reporting_string
 
 EXPECTED_ACC = 0.9470198675496688  # 5 estimators, min_samples_leaf 5
 

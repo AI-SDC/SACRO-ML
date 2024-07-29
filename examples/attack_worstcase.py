@@ -23,8 +23,8 @@ The steps are as follows:
 
 import logging
 
-from aisdc.attacks import worst_case_attack
-from aisdc.attacks.target import Target
+from sacroml.attacks import worst_case_attack
+from sacroml.attacks.target import Target
 
 output_dir = "outputs_worstcase"
 target_dir = "target_rf_breast_cancer"

@@ -18,7 +18,7 @@ $ pytest .
 
 ## Directory Structure
 
-* `aisdc` Contains the aisdc source code.
+* `sacroml` Contains the sacroml source code.
     - `attacks` Contains a variety of privacy attacks on machine learning models.
     - `preprocessing` Contains preprocessing modules for test datasets.
     - `safemodel` The safemodel wrappers for common machine learning models.

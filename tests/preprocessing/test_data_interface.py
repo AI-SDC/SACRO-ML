@@ -7,7 +7,7 @@ import unittest
 import pandas as pd
 import pytest
 
-from aisdc.preprocessing.loaders import UnknownDataset, get_data_sklearn
+from sacroml.preprocessing.loaders import UnknownDataset, get_data_sklearn
 
 
 class TestLoaders(unittest.TestCase):

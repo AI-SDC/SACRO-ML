@@ -10,8 +10,8 @@ The steps are as follows:
 
 import logging
 
-from aisdc.attacks import attribute_attack
-from aisdc.attacks.target import Target
+from sacroml.attacks import attribute_attack
+from sacroml.attacks.target import Target
 
 output_dir = "outputs_aia"
 target_dir = "target_rf_nursery"

@@ -19,8 +19,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
-from aisdc.attacks.attack import Attack
-from aisdc.attacks.target import Target
+from sacroml.attacks.attack import Attack
+from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

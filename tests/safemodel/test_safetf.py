@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from aisdc.safemodel.classifiers import safetf
+from sacroml.safemodel.classifiers import safetf
 
 
 def test_safe_tf_dpmodel_l2_and_noise():

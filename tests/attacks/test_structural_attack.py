@@ -11,8 +11,8 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
-import aisdc.attacks.structural_attack as sa
-from aisdc.attacks.target import Target
+import sacroml.attacks.structural_attack as sa
+from sacroml.attacks.target import Target
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:

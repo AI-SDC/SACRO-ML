@@ -12,9 +12,9 @@ from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder
 
-from aisdc.attacks import report
-from aisdc.attacks.attack import Attack
-from aisdc.attacks.target import Target
+from sacroml.attacks import report
+from sacroml.attacks.attack import Attack
+from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

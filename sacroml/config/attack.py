@@ -6,8 +6,8 @@ import logging
 
 import yaml
 
-from aisdc.attacks import factory
-from aisdc.config import utils
+from sacroml.attacks import factory
+from sacroml.config import utils
 
 
 def _get_defaults(name: str) -> dict:

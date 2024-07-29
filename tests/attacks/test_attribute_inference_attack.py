@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 
-from aisdc.attacks import attribute_attack
-from aisdc.attacks.attribute_attack import (
+from sacroml.attacks import attribute_attack
+from sacroml.attacks.attribute_attack import (
     _get_bounds_risk,
     _infer_categorical,
     _unique_max,

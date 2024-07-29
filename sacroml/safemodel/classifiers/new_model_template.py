@@ -16,7 +16,7 @@ from dictdiffer import diff
 from sklearn.ensemble import ModelToMakeSafer  # pylint: disable=E0611
 from sklearn.tree import DecisionTreeClassifier
 
-from aisdc.safemodel.safemodel import SafeModel
+from sacroml.safemodel.safemodel import SafeModel
 
 from .safedecisiontreeclassifier import decision_trees_are_equal
 

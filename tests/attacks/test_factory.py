@@ -9,8 +9,8 @@ import pytest
 import yaml
 from sklearn.ensemble import RandomForestClassifier
 
-from aisdc.attacks.factory import run_attacks
-from aisdc.config.attack import _get_attack
+from sacroml.attacks.factory import run_attacks
+from sacroml.config.attack import _get_attack
 
 
 @pytest.mark.parametrize(

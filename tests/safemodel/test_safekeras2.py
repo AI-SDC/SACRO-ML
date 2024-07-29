@@ -12,8 +12,8 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense, Input  # pylint: disable=import-error
 
-from aisdc.safemodel.classifiers import SafeKerasModel, safekeras
-from aisdc.safemodel.reporting import get_reporting_string
+from sacroml.safemodel.classifiers import SafeKerasModel, safekeras
+from sacroml.safemodel.reporting import get_reporting_string
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)

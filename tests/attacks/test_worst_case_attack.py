@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from sklearn.svm import SVC
 
-from aisdc.attacks import worst_case_attack
-from aisdc.attacks.target import Target
+from sacroml.attacks import worst_case_attack
+from sacroml.attacks.target import Target
 
 
 def pytest_generate_tests(metafunc):

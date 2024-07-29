@@ -12,7 +12,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from aisdc.attacks.target import Target
+from sacroml.attacks.target import Target
 
 np.random.seed(1)
 

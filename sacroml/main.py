@@ -1,13 +1,13 @@
-"""Main entry point to aisdc."""
+"""Main entry point to sacroml."""
 
 from __future__ import annotations
 
 import argparse
 import os
 
-from aisdc.attacks.factory import run_attacks
-from aisdc.config.attack import prompt_for_attack
-from aisdc.config.target import prompt_for_target
+from sacroml.attacks.factory import run_attacks
+from sacroml.config.attack import prompt_for_attack
+from sacroml.config.target import prompt_for_target
 
 
 def main() -> None:
