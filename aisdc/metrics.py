@@ -228,7 +228,7 @@ def get_metrics(  # pylint: disable=too-many-locals
     y_pred_proba : np.ndarray of shape [x,2] and type float
         Predicted probabilities.
     permute_rows : bool, default True
-        Whether to permute arrays, see: https://github.com/AI-SDC/AI-SDC/issues/106
+        Whether to permute arrays, see: https://github.com/AI-SDC/SACRO-ML/issues/106
 
     Returns
     -------

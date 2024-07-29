@@ -141,7 +141,7 @@ Write pytests to confirm core functionality
 --------------------------------------------
 
 Write pytests to confirm the corefunctionality.
-Example test suites can be found in AI-SDC/tests/
+Example test suites can be found in SACRO-ML/tests/
 
 Include any optional helper functions
 -------------------------------------

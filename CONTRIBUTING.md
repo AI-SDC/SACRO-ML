@@ -5,8 +5,8 @@
 Clone the repository and install the local package including all dependencies within a virtual environment:
 
 ```
-$ git clone https://github.com/AI-SDC/AI-SDC.git
-$ cd AI-SDC
+$ git clone https://github.com/AI-SDC/SACRO-ML.git
+$ cd SACRO-ML
 $ pip install .[test]
 ```
 
@@ -29,7 +29,7 @@ $ pytest .
 
 ## Documentation
 
-Documentation is hosted here: https://ai-sdc.github.io/AI-SDC/
+Documentation is hosted here: https://ai-sdc.github.io/SACRO-ML/
 
 ## Style Guide
 
@@ -63,7 +63,7 @@ The documentation is automatically built using [Sphinx](https://www.sphinx-doc.o
 
 The source files in `docs/source` are parsed/compiled into HTML files in `docs/_build`.
 The contents of `docs/_build` is pushed to the gh-pages branch which is then automatically
-deployed to the [github.io site](https://ai-sdc.github.io/AI-SDC/).
+deployed to the [github.io site](https://ai-sdc.github.io/SACRO-ML/).
 
 The main configuration file is `docs/source/conf.py`
 Most commonly the path variable will pick up any source to document

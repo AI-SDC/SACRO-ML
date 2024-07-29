@@ -23,7 +23,7 @@ Each user story consists of at least 2 files:
   > - **user_story_[x]_researcher_template.[py/R]**  Example on how to generate a ML model for the TRE users/researchers.
   > - **user_story_[x]_tre.py**  Example on how to perform attacks and generate a report.
 
-Extra examples on how to use [safemodels](https://github.com/AI-SDC/AI-SDC/tree/main/examples/notebooks) and perform [attacks](https://github.com/AI-SDC/AI-SDC/tree/main/examples) can be found following the corresponding links.
+Extra examples on how to use [safemodels](https://github.com/AI-SDC/SACRO-ML/tree/main/examples/notebooks) and perform [attacks](https://github.com/AI-SDC/SACRO-ML/tree/main/examples) can be found following the corresponding links.
 
 ## Programming languages
 
@@ -38,13 +38,13 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 2. Familiarise yourself with the relevant user-story example, and discuss this with the TRE. Understanding how the process work for both sides will increase the changes of smooth project.
 3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the relevant researcher  user story example code (**user_story_[x]_researcher.[py/R]**).
 4. Make sure you generated all metadata, data and files required for output checking.
-5. Fill out the `default_config.yaml` with the appropriate fields. An example of this file can be found [here](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
+5. Fill out the `default_config.yaml` with the appropriate fields. An example of this file can be found [here](https://github.com/AI-SDC/SACRO-ML/blob/user_story_visibility/user_stories/default_config.yaml) with required experiment parameters.
 6. Run the command `python generate_disclosure_risk_report.py`.
 7. View all the required output files in the **release_files** folder, where the all the required files, data and metadata for egress are placed. A folder called **training_artefacts** is also created, this will include training and testing data and any detailed results of attacks.
 
 *Alternative to steps 5 and 6*
 
-5. Create a new configuration file using the same format in the [default_config.yaml](https://github.com/AI-SDC/AI-SDC/blob/user_story_visibility/user_stories/default_config.yaml) file with a different name.
+5. Create a new configuration file using the same format in the [default_config.yaml](https://github.com/AI-SDC/SACRO-ML/blob/user_story_visibility/user_stories/default_config.yaml) file with a different name.
 6. Run the command `python generate_disclosure_risk_report.py --config <your_config_file_name>`.
 
 **For TRE output checkers**

@@ -1,6 +1,6 @@
 .. Documentation master file
 
-Welcome to the AI-SDC documentation!
+Welcome to the SACRO-ML documentation!
 ====================================
 
 .. toctree::
