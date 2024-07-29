@@ -14,6 +14,11 @@ jobs:
       - name: Build
         run: pipx run build
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/*
+
   upload:
     runs-on: ubuntu-latest
     # if: github.event_name == 'release' && github.event.action == 'published'
@@ -32,7 +37,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: sacroml*
+          pattern: build-*
           path: dist
           merge-multiple: true
 
