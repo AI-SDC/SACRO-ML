@@ -1,5 +1,5 @@
 Report
 ======
 
-.. automodule:: aisdc.attacks.report
+.. automodule:: sacroml.attacks.report
     :members:

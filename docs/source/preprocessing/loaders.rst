@@ -1,5 +1,5 @@
 Loaders
 =======
 
-.. automodule:: aisdc.preprocessing.loaders
+.. automodule:: sacroml.preprocessing.loaders
    :members:
