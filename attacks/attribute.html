@@ -87,8 +87,139 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="attribute-attack">
-<h1>Attribute Attack<a class="headerlink" href="#attribute-attack" title="Link to this heading"></a></h1>
+  <section id="module-sacroml.attacks.attribute_attack">
+<span id="attribute-attack"></span><h1>Attribute Attack<a class="headerlink" href="#module-sacroml.attacks.attribute_attack" title="Link to this heading"></a></h1>
+<p>Attribute inference attacks.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.AttributeAttack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">AttributeAttack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#AttributeAttack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.AttributeAttack" title="Link to this definition"></a></dt>
+<dd><p>Attribute inference attack.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.attribute_attack.AttributeAttack.attack" title="sacroml.attacks.attribute_attack.AttributeAttack.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(target)</p></td>
+<td><p>Run attribute inference attack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.attribute_attack.AttributeAttack.get_params" title="sacroml.attacks.attribute_attack.AttributeAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
+<td><p>Get parameters for this attack.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.AttributeAttack.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#AttributeAttack.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.AttributeAttack.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct an object to execute an attribute inference attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_cpu</strong><span class="classifier">int</span></dt><dd><p>number of CPUs used to run the attack</p>
+</dd>
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>name of the directory where outputs are stored</p>
+</dd>
+<dt><strong>write_report</strong><span class="classifier">bool</span></dt><dd><p>Whether to generate a JSON and PDF report.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.AttributeAttack.attack">
+<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#AttributeAttack.attack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.AttributeAttack.attack" title="Link to this definition"></a></dt>
+<dd><p>Run attribute inference attack.</p>
+<p>To be used when code has access to Target class and trained target model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">attacks.target.Target</span></dt><dd><p>target is a Target class object</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Attack report.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.AttributeAttack.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.attribute_attack.AttributeAttack.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters for this attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params</strong><span class="classifier">dict</span></dt><dd><p>Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.plot_categorical_fraction">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">plot_categorical_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#plot_categorical_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.plot_categorical_fraction" title="Link to this definition"></a></dt>
+<dd><p>Generate a bar chart showing fraction of dataset inferred.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>res</strong><span class="classifier">dict</span></dt><dd><p>Dictionary containing attribute inference attack results.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Directory to write plots.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.plot_categorical_risk">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">plot_categorical_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#plot_categorical_risk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.plot_categorical_risk" title="Link to this definition"></a></dt>
+<dd><p>Generate a bar chart showing categorical risk scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>res</strong><span class="classifier">dict</span></dt><dd><p>Dictionary containing attribute inference attack results.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Directory to write plots.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.plot_quantitative_risk">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">plot_quantitative_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#plot_quantitative_risk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.plot_quantitative_risk" title="Link to this definition"></a></dt>
+<dd><p>Generate a bar chart showing quantitative value risk scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>res</strong><span class="classifier">dict</span></dt><dd><p>Dictionary containing attribute inference attack results.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Directory to write plots.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.report_categorical">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">report_categorical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#report_categorical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.report_categorical" title="Link to this definition"></a></dt>
+<dd><p>Return a string report of the categorical results.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.report_quantitative">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.attribute_attack.</span></span><span class="sig-name descname"><span class="pre">report_quantitative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/attribute_attack.html#report_quantitative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.attribute_attack.report_quantitative" title="Link to this definition"></a></dt>
+<dd><p>Return a string report of the quantitative results.</p>
+</dd></dl>
+
 </section>
 
 

@@ -87,8 +87,182 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="worst-case-attack">
-<h1>Worst Case Attack<a class="headerlink" href="#worst-case-attack" title="Link to this heading"></a></h1>
+  <section id="module-sacroml.attacks.worst_case_attack">
+<span id="worst-case-attack"></span><h1>Worst Case Attack<a class="headerlink" href="#module-sacroml.attacks.worst_case_attack" title="Link to this heading"></a></h1>
+<p>Run a worst case attack based upon predictive probabilities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.attacks.worst_case_attack.</span></span><span class="sig-name descname"><span class="pre">WorstCaseAttack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reproduce_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dummy_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_model_correct_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sklearn.ensemble.RandomForestClassifier'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack" title="Link to this definition"></a></dt>
+<dd><p>Worst case attack.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(target)</p></td>
+<td><p>Run worst case attack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack_from_preds</span></code></a>(proba_train, proba_test[, ...])</p></td>
+<td><p>Run attack based upon the predictions in proba_train and proba_test.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_arrays</span></code></a>(n_rows_in, n_rows_out[, ...])</p></td>
+<td><p>Generate train and test prediction arrays, used when computing baseline.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
+<td><p>Get parameters for this attack.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_attack_reps</span></code></a>(proba_train, proba_test[, ...])</p></td>
+<td><p>Run actual attack reps from train and test predictions.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reproduce_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dummy_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_model_correct_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sklearn.ensemble.RandomForestClassifier'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct an object to execute a worst case attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>Name of the directory where outputs are stored.</p>
+</dd>
+<dt><strong>write_report</strong><span class="classifier">bool</span></dt><dd><p>Whether to generate a JSON and PDF report.</p>
+</dd>
+<dt><strong>n_reps</strong><span class="classifier">int</span></dt><dd><p>Number of attacks to run – in each iteration an attack model
+is trained on a different subset of the data.</p>
+</dd>
+<dt><strong>reproduce_split</strong><span class="classifier">int or Iterable[int] or None</span></dt><dd><p>Variable that controls the reproducibility of the data split.
+It can be an integer or a list of integers of length <cite>n_reps</cite>.
+Default : 5.</p>
+</dd>
+<dt><strong>p_thresh</strong><span class="classifier">float</span></dt><dd><p>Threshold to determine significance of things. For instance
+<cite>auc_p_value</cite> and <cite>pdif_vals</cite>.</p>
+</dd>
+<dt><strong>n_dummy_reps</strong><span class="classifier">int</span></dt><dd><p>Number of baseline (dummy) experiments to do.</p>
+</dd>
+<dt><strong>train_beta</strong><span class="classifier">int</span></dt><dd><p>Value of b for beta distribution used to sample the in-sample
+(training) probabilities.</p>
+</dd>
+<dt><strong>test_beta</strong><span class="classifier">int</span></dt><dd><p>Value of b for beta distribution used to sample the out-of-sample
+(test) probabilities.</p>
+</dd>
+<dt><strong>test_prop</strong><span class="classifier">float</span></dt><dd><p>Proportion of data to use as a test set for the attack model.</p>
+</dd>
+<dt><strong>include_model_correct_feature</strong><span class="classifier">bool</span></dt><dd><p>Inclusion of additional feature to hold whether or not the target model
+made a correct prediction for each example.</p>
+</dd>
+<dt><strong>sort_probs</strong><span class="classifier">bool</span></dt><dd><p>Whether to sort combined preds (from training and test)
+to have highest probabilities in the first column.</p>
+</dd>
+<dt><strong>attack_model</strong><span class="classifier">str</span></dt><dd><p>Class name of the attack model.</p>
+</dd>
+<dt><strong>attack_model_params</strong><span class="classifier">dict or None</span></dt><dd><p>Dictionary of hyperparameters for the <cite>attack_model</cite>
+such as <cite>min_sample_split</cite>, <cite>min_samples_leaf</cite>, etc.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack">
+<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.attack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack" title="Link to this definition"></a></dt>
+<dd><p>Run worst case attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">attacks.target.Target</span></dt><dd><p>target as a Target class object</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Attack report.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds">
+<span class="sig-name descname"><span class="pre">attack_from_preds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proba_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proba_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.attack_from_preds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds" title="Link to this definition"></a></dt>
+<dd><p>Run attack based upon the predictions in proba_train and proba_test.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of train predictions. One row per example, one column per class.</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of test predictions. One row per example, one column per class.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays">
+<span class="sig-name descname"><span class="pre">generate_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_rows_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rows_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.generate_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays" title="Link to this definition"></a></dt>
+<dd><p>Generate train and test prediction arrays, used when computing baseline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_rows_in</strong><span class="classifier">int</span></dt><dd><p>Number of rows of in-sample (training) probabilities.</p>
+</dd>
+<dt><strong>n_rows_out</strong><span class="classifier">int</span></dt><dd><p>Number of rows of out-of-sample (testing) probabilities.</p>
+</dd>
+<dt><strong>train_beta</strong><span class="classifier">float</span></dt><dd><p>Beta value for generating train probabilities.</p>
+</dd>
+<dt><strong>test_beta</strong><span class="classifier">float:</span></dt><dd><p>Beta value for generating test probabilities.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of train predictions (n_rows x 2 columns).</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of test predictions (n_rows x 2 columns).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters for this attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params</strong><span class="classifier">dict</span></dt><dd><p>Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps">
+<span class="sig-name descname"><span class="pre">run_attack_reps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proba_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proba_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.run_attack_reps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps" title="Link to this definition"></a></dt>
+<dd><p>Run actual attack reps from train and test predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Predictions from the model on training (in-sample) data.</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Predictions from the model on testing (out-of-sample) data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Dictionary of mia_metrics (a list of metric across repetitions).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

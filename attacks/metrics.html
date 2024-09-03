@@ -87,8 +87,129 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="metrics">
-<h1>Metrics<a class="headerlink" href="#metrics" title="Link to this heading"></a></h1>
+  <section id="module-sacroml.metrics">
+<span id="metrics"></span><h1>Metrics<a class="headerlink" href="#module-sacroml.metrics" title="Link to this heading"></a></h1>
+<p>Calculate metrics.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.metrics.auc_p_val">
+<span class="sig-prename descclassname"><span class="pre">sacroml.metrics.</span></span><span class="sig-name descname"><span class="pre">auc_p_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/metrics.html#auc_p_val"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.metrics.auc_p_val" title="Link to this definition"></a></dt>
+<dd><p>Compute the p-value for a given AUC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>auc</strong><span class="classifier">float</span></dt><dd><p>Observed AUC value</p>
+</dd>
+<dt><strong>n_pos</strong><span class="classifier">int</span></dt><dd><p>Number of positive examples</p>
+</dd>
+<dt><strong>n_neg</strong><span class="classifier">int</span></dt><dd><p>Number of negative examples</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>auc_p</strong><span class="classifier">float</span></dt><dd><p>p-value of observing an AUC &gt; auc by chance</p>
+</dd>
+<dt><strong>auc_std</strong><span class="classifier">float</span></dt><dd><p>standard deviation of the NULL AUC diustribution (mean = 0.5)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.metrics.get_metrics">
+<span class="sig-prename descclassname"><span class="pre">sacroml.metrics.</span></span><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred_proba</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permute_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/metrics.html#get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.metrics.get_metrics" title="Link to this definition"></a></dt>
+<dd><p>Calculate metrics, including attacker advantage for MIA binary.</p>
+<p>Implemented as Definition 4 on <a class="reference external" href="https://arxiv.org/pdf/1709.01604.pdf">https://arxiv.org/pdf/1709.01604.pdf</a>
+which is also implemented in tensorFlow-privacy
+<a class="reference external" href="https://github.com/tensorflow/privacy">https://github.com/tensorflow/privacy</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>y_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Test data labels.</p>
+</dd>
+<dt><strong>y_pred_proba</strong><span class="classifier">np.ndarray of shape [x,2] and type float</span></dt><dd><p>Predicted probabilities.</p>
+</dd>
+<dt><strong>permute_rows</strong><span class="classifier">bool, default True</span></dt><dd><p>Whether to permute arrays, see: <a class="reference external" href="https://github.com/AI-SDC/SACRO-ML/issues/106">https://github.com/AI-SDC/SACRO-ML/issues/106</a></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>metrics</strong><span class="classifier">dict</span></dt><dd><p>dictionary of metric values</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Includes the following metrics:</p>
+<ul class="simple">
+<li><p>True positive rate or recall (TPR).</p></li>
+<li><p>False positive rate (FPR), proportion of negative examples incorrectly     classified as positives.</p></li>
+<li><p>False alarm rate (FAR), proportion of objects classified as positives     that are incorrect, also known as false discovery rate.</p></li>
+<li><p>True neagative rate (TNR).</p></li>
+<li><p>Positive predictive value or precision (PPV).</p></li>
+<li><p>Negative predictive value (NPV).</p></li>
+<li><p>False neagative rate (FNR).</p></li>
+<li><p>Accuracy (ACC).</p></li>
+<li><p>F1 Score - harmonic mean of precision and recall.</p></li>
+<li><p>Advantage.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.metrics.min_max_disc">
+<span class="sig-prename descclassname"><span class="pre">sacroml.metrics.</span></span><span class="sig-name descname"><span class="pre">min_max_disc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/metrics.html#min_max_disc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.metrics.min_max_disc" title="Link to this definition"></a></dt>
+<dd><p>Return non-average-case methods for MIA attacks.</p>
+<p>Considers actual frequency of membership amongst samples with highest- and
+lowest- assessed probability of membership. If an MIA method confidently
+asserts that 5% of samples are members and 5% of samples are not, but
+cannot tell for the remaining 90% of samples, then these metrics will flag
+this behaviour, but AUC/advantage may not. Since the difference may be
+noisy, a p-value against a null of independence of true membership and
+assessed membership probability (that is, membership probabilities are
+essentially random) is also used as a metric (using a usual Gaussian
+approximation to binomial). If the p-value is low and the frequency
+difference is high (&gt;0.5) then the MIA attack is successful for some
+samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>y</strong><span class="classifier">np.ndarray</span></dt><dd><p>true labels</p>
+</dd>
+<dt><strong>yp</strong><span class="classifier">np.ndarray</span></dt><dd><p>probabilities of labels, or monotonic transformation of probabilities</p>
+</dd>
+<dt><strong>xprop</strong><span class="classifier">float</span></dt><dd><p>proportion of samples with highest- and lowest- probability of membership to be
+considered</p>
+</dd>
+<dt><strong>logp</strong><span class="classifier">bool</span></dt><dd><p>convert p-values to log(p).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>maxd</strong><span class="classifier">float</span></dt><dd><p>frequency of y=1 amongst proportion xprop of individuals with highest assessed
+membership probability</p>
+</dd>
+<dt><strong>mind</strong><span class="classifier">float</span></dt><dd><p>frequency of y=1 amongst proportion xprop of individuals with lowest assessed
+membership probability</p>
+</dd>
+<dt><strong>mmd</strong><span class="classifier">float</span></dt><dd><p>difference between maxd and mind</p>
+</dd>
+<dt><strong>pval</strong><span class="classifier">float</span></dt><dd><p>p-value or log-p value corresponding to mmd against null hypothesis that random
+variables corresponding to y and yp are independent.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxd</span><span class="p">,</span> <span class="n">mind</span><span class="p">,</span> <span class="n">mmd</span><span class="p">,</span> <span class="n">pval</span> <span class="o">=</span> <span class="n">min_max_desc</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">xprop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">logp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
 

@@ -1,7 +1,7 @@
 Base Class
 ==========
 
-.. automodule:: aisdc.safemodel.safemodel
+.. automodule:: sacroml.safemodel.safemodel
    :members:
    :special-members:
    :private-members:

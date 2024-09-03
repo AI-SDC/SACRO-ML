@@ -79,8 +79,106 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="loaders">
-<h1>Loaders<a class="headerlink" href="#loaders" title="Link to this heading"></a></h1>
+  <section id="module-sacroml.preprocessing.loaders">
+<span id="loaders"></span><h1>Loaders<a class="headerlink" href="#module-sacroml.preprocessing.loaders" title="Link to this heading"></a></h1>
+<p>Handlers to pull in datasets and perform preprocessing.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.DataNotAvailable">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.preprocessing.loaders.</span></span><span class="sig-name descname"><span class="pre">DataNotAvailable</span></span><a class="reference internal" href="../_modules/sacroml/preprocessing/loaders.html#DataNotAvailable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.preprocessing.loaders.DataNotAvailable" title="Link to this definition"></a></dt>
+<dd><p>Exception raised if the user asks for a dataset that they do not have.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.DataNotAvailable.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.preprocessing.loaders.DataNotAvailable.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.DataNotAvailable.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.preprocessing.loaders.DataNotAvailable.with_traceback" title="Link to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.DataNotAvailable.args">
+<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#sacroml.preprocessing.loaders.DataNotAvailable.args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.UnknownDataset">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.preprocessing.loaders.</span></span><span class="sig-name descname"><span class="pre">UnknownDataset</span></span><a class="reference internal" href="../_modules/sacroml/preprocessing/loaders.html#UnknownDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.preprocessing.loaders.UnknownDataset" title="Link to this definition"></a></dt>
+<dd><p>Exception raised if the user passes a name that we don’t recognise.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.UnknownDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.preprocessing.loaders.UnknownDataset.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.UnknownDataset.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.preprocessing.loaders.UnknownDataset.with_traceback" title="Link to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.UnknownDataset.args">
+<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#sacroml.preprocessing.loaders.UnknownDataset.args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.preprocessing.loaders.get_data_sklearn">
+<span class="sig-prename descclassname"><span class="pre">sacroml.preprocessing.loaders.</span></span><span class="sig-name descname"><span class="pre">get_data_sklearn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/home/runner/work/SACRO-ML/SACRO-ML/sacroml/data'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/preprocessing/loaders.html#get_data_sklearn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.preprocessing.loaders.get_data_sklearn" title="Link to this definition"></a></dt>
+<dd><p>Get data in a format sensible for sklearn.</p>
+<p>User passes a name and that dataset is returned as a tuple of pandas
+DataFrames (data, labels).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dataset_name</strong><span class="classifier">str</span></dt><dd><p>The name of the dataset to load</p>
+</dd>
+<dt><strong>data_folder</strong><span class="classifier">str</span></dt><dd><p>The name of the local folder in which data is stored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The input dataframe – rows are examples, columns variables</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>the target dataframe – has a single column containing the target values</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The following datasets are available:
+mimic2-iaccd (requires data download)
+in-hospital-mortality (requires data download)
+medical-mnist-ab-v-br-100 (requires data download)
+medical-mnist-ab-v-br-500 (requires data download)
+medical-mnist-all-100 (requires data download)
+indian liver (requires data download)
+synth-ae (requires data download)
+synth-ae-small (requires data download)
+nursery (downloads automatically)
+iris (available out of the box via sklearn)</p>
+<p>Datasets can be normalised by adding the following prefixes:
+standard: standardises all columns to have zero mean and unit variance.
+minmax: standardises all columns to have values between 0 and 1.
+round: rounds continues features to have 3dp</p>
+<p>These can be nested.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pull the mimic2-iaccd data</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_data_sklearn</span><span class="p">(</span><span class="s2">&quot;mimic2-iaccd&quot;</span><span class="p">)</span>
+
+<span class="c1"># pull the iris data and round continuous features</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_data_sklearn</span><span class="p">(</span><span class="s2">&quot;minmax iris&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
 

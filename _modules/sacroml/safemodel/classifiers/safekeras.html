@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sacroml.safemodel.classifiers.safekeras &mdash; SACRO-ML 1.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=6efca38a"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SACRO-ML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../attacks/index.html">Attacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../safemodel/index.html">Safemodel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../preprocessing/index.html">Preprocessing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SACRO-ML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sacroml.safemodel.classifiers.safekeras</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sacroml.safemodel.classifiers.safekeras</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Privacy protected Keras model.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_privacy</span> <span class="k">as</span> <span class="nn">tfp</span>
+<span class="kn">from</span> <span class="nn">dictdiffer</span> <span class="kn">import</span> <span class="n">diff</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">Model</span> <span class="k">as</span> <span class="n">KerasModel</span>  <span class="c1"># pylint: disable = import-error</span>
+<span class="kn">from</span> <span class="nn">tensorflow_privacy</span> <span class="kn">import</span> <span class="n">compute_dp_sgd_privacy</span>
+
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+
+<span class="c1"># this is the current class that dpvarians of optimizers come from</span>
+<span class="c1"># may change in later versions of tensorflow_privacy</span>
+<span class="n">DP_CLASS_STRING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;tensorflow_privacy.privacy.optimizers.dp_optimizer_keras.&quot;</span>
+    <span class="s2">&quot;make_keras_optimizer_class.&lt;locals&gt;.DPOptimizerClass&quot;</span>
+<span class="p">)</span>
+
+<span class="n">DP_CLASS_STRING2</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;tensorflow_privacy.privacy.optimizers.dp_optimizer_keras.&quot;</span>
+    <span class="s2">&quot;make_keras_generic_optimizer_class.&lt;locals&gt;.DPOptimizerClass&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="same_configs">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.same_configs">[docs]</a>
+<span class="k">def</span> <span class="nf">same_configs</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if two models have the same architecture.&quot;&quot;&quot;</span>
+    <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_layers</span><span class="p">:</span>
+        <span class="n">errstr</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;different_layer_count&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errstr</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+        <span class="n">m1_layer_config</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">m1_layer_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">m2_layer_config</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">m2_layer_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">diff</span><span class="p">(</span><span class="n">m1_layer_config</span><span class="p">,</span> <span class="n">m2_layer_config</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">num_diffs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_diffs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;layer_configs_differ&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">num_diffs</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_diffs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;change&quot;</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;param_changed_from_to&quot;</span><span class="p">,</span>
+                        <span class="n">key</span><span class="o">=</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">val</span><span class="o">=</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">cur_val</span><span class="o">=</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># should not be reachable as dense objects cannot be modified</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">msg</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;same_ann_config&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="same_weights">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.same_weights">[docs]</a>
+<span class="k">def</span> <span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if two nets with same architecture have the same weights.&quot;&quot;&quot;</span>
+    <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_layers</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;different numbers of layers&quot;</span>
+    <span class="c1"># layer 0 is input layer determined by data size</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">):</span>
+        <span class="n">m1layer</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+        <span class="n">m2layer</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1layer</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2layer</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> not the same size.&quot;</span>
+        <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m1layer</span><span class="p">)):</span>  <span class="c1"># pylint: disable=consider-using-enumerate</span>
+            <span class="n">m1d</span> <span class="o">=</span> <span class="n">m1layer</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+            <span class="n">m2d</span> <span class="o">=</span> <span class="n">m2layer</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">m1d</span><span class="p">,</span> <span class="n">m2d</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> of layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> differs&quot;</span>
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;weights match&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="check_checkpoint_equality">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_checkpoint_equality">[docs]</a>
+<span class="k">def</span> <span class="nf">check_checkpoint_equality</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two checkpoints saved with tensorflow save_model.</span>
+
+<span class="sd">    On the assumption that the optimiser is not going to be saved,</span>
+<span class="sd">    and that the model is going to be saved in frozen form</span>
+<span class="sd">    this only checks the architecture and weights layer by layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">same</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">model1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-except</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;error_reloading_model_v1&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">msg</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">model2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-except</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;error_reloading_model_v2&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">msg</span>
+
+    <span class="n">same_config</span><span class="p">,</span> <span class="n">config_message</span> <span class="o">=</span> <span class="n">same_configs</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">same_config</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;different config&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">config_message</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">same_weight</span><span class="p">,</span> <span class="n">weights_message</span> <span class="o">=</span> <span class="n">same_weights</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">same_weight</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;different weights&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">weights_message</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">same</span><span class="p">,</span> <span class="n">msg</span></div>
+
+
+
+<div class="viewcode-block" id="check_dp_used">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_dp_used">[docs]</a>
+<span class="k">def</span> <span class="nf">check_dp_used</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether the DP optimizer was actually the one used.&quot;&quot;&quot;</span>
+    <span class="n">key_needed</span> <span class="o">=</span> <span class="s2">&quot;_was_dp_gradients_called&quot;</span>
+    <span class="n">critical_val</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_needed</span><span class="p">,</span> <span class="s2">&quot;missing&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">critical_val</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dp_optimizer_run&quot;</span><span class="p">)</span>
+        <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">critical_val</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;no_dp_gradients_key&quot;</span><span class="p">)</span>
+        <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">critical_val</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;changed_opt_no_fit&quot;</span><span class="p">)</span>
+        <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="c1"># not currently reachable because optimizer class does</span>
+        <span class="c1"># not support assignment</span>
+        <span class="c1"># but leave in to future-proof</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;unrecognised_combination&quot;</span><span class="p">)</span>
+        <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">dp_used</span><span class="p">,</span> <span class="n">reason</span></div>
+
+
+
+<div class="viewcode-block" id="check_optimizer_allowed">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_optimizer_allowed">[docs]</a>
+<span class="k">def</span> <span class="nf">check_optimizer_allowed</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the model&#39;s optimizer is in our white-list.</span>
+
+<span class="sd">    Default setting is not allowed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">allowed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">opt_type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">optimizer</span><span class="p">))</span>
+    <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;optimizer_not_allowed&quot;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">opt_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">DP_CLASS_STRING</span> <span class="ow">in</span> <span class="n">opt_type</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DP_CLASS_STRING2</span> <span class="ow">in</span> <span class="n">opt_type</span><span class="p">):</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;optimizer_allowed&quot;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">opt_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">allowed</span><span class="p">,</span> <span class="n">reason</span></div>
+
+
+
+<div class="viewcode-block" id="check_optimizer_is_dp">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_optimizer_is_dp">[docs]</a>
+<span class="k">def</span> <span class="nf">check_optimizer_is_dp</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether optimizer is one of tensorflow&#39;s DP versions.&quot;&quot;&quot;</span>
+    <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;_was_dp_gradients_called&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">optimizer</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;no_dp_gradients_key&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;found_dp_gradients_key&quot;</span><span class="p">)</span>
+        <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">dp_used</span><span class="p">,</span> <span class="n">reason</span></div>
+
+
+
+<div class="viewcode-block" id="load_safe_keras_model">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.load_safe_keras_model">[docs]</a>
+<span class="k">def</span> <span class="nf">load_safe_keras_model</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read model from file in appropriate format.</span>
+
+<span class="sd">    Optimizer is deliberately excluded in the save.</span>
+<span class="sd">    This is to prevent possibility of restarting training,</span>
+<span class="sd">    which could offer possible back door into attacks.</span>
+<span class="sd">    Thus optimizer cannot be loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">the_model</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model_load_file</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_load_file</span> <span class="o">==</span> <span class="s2">&quot;undefined&quot;</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Please input a name with extension for the model to load.&quot;</span>
+
+    <span class="k">elif</span> <span class="n">model_load_file</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;.tf&quot;</span><span class="p">:</span>
+        <span class="c1"># load from tf</span>
+        <span class="n">the_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_load_file</span><span class="p">)</span>
+        <span class="n">load</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_load_file</span><span class="p">,</span> <span class="nb">compile</span><span class="o">=</span><span class="s2">&quot;False&quot;</span><span class="p">)</span>
+        <span class="n">the_model</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">get_weights</span><span class="p">())</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="n">model_load_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;loading from a </span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> file is currently not supported&quot;</span>
+
+    <span class="k">if</span> <span class="n">the_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">the_model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SafeKerasModel">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel">[docs]</a>
+<span class="k">class</span> <span class="nc">SafeKerasModel</span><span class="p">(</span><span class="n">KerasModel</span><span class="p">,</span> <span class="n">SafeModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy Protected Wrapper around tf.keras.Model class from tensorflow 2.8.&quot;&quot;&quot;</span>
+
+    <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<div class="viewcode-block" id="SafeKerasModel.__init__">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model and apply constraints to params.&quot;&quot;&quot;</span>
+        <span class="n">the_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="c1"># initialise all the values that get provided as options to keras</span>
+        <span class="c1"># and also l2 norm clipping and learning rates, batch sizes</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;inputs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">the_kwargs</span><span class="p">[</span><span class="s2">&quot;inputs&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># defaults is for Model(input,outputs,names)</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;outputs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">the_kwargs</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># call the keras super class first as this comes first in chain</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
+            <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+            <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">,</span>  <span class="c1"># pylint: disable=used-before-assignment</span>
+        <span class="p">)</span>
+
+        <span class="c1"># set values where the user has supplied them</span>
+        <span class="c1"># if not supplied set to a value that preliminary_check</span>
+        <span class="c1"># will over-ride with TRE-specific values from rules.json</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;l2_norm_clip&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;noise_multiplier&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;min_epsilon&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+            <span class="s2">&quot;num_microbatches&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span><span class="p">,</span>
+            <span class="s2">&quot;num_samples&quot;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>
+            <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+            <span class="s2">&quot;current_epsilon&quot;</span><span class="p">:</span> <span class="mi">999</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;missing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;batch_size_zero&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+
+        <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;KerasModel&quot;</span>
+        <span class="c1"># remove. this from default class</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;saved_model&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">(</span><span class="n">apply_constraints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.dp_epsilon_met">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.dp_epsilon_met">[docs]</a>
+    <span class="k">def</span> <span class="nf">dp_epsilon_met</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_examples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if epsilon is sufficient for Differential Privacy.</span>
+
+<span class="sd">        Provides feedback to user if epsilon is not sufficient.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">privacy</span> <span class="o">=</span> <span class="n">compute_dp_sgd_privacy</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">num_examples</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">noise_multiplier</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_multiplier</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+            <span class="n">delta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">privacy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_epsilon</span>
+        <span class="k">return</span> <span class="n">ok</span><span class="p">,</span> <span class="n">privacy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.check_epsilon">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.check_epsilon">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_epsilon</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the level of privacy guarantee is within recommended limits.&quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;division_by_zero&quot;</span><span class="p">)</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="p">(</span>
+            <span class="n">ok</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_epsilon</span><span class="p">,</span>  <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_epsilon_met</span><span class="p">(</span>
+            <span class="n">num_examples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span>
+        <span class="p">)</span>
+
+        <span class="n">key_name</span> <span class="o">=</span> <span class="s2">&quot;dp_requirements_met&quot;</span> <span class="k">if</span> <span class="n">ok</span> <span class="k">else</span> <span class="s2">&quot;dp_requirements_not_met&quot;</span>
+        <span class="n">get_reporting_string</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">key_name</span><span class="p">,</span>
+            <span class="n">current_epsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_epsilon</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ok</span><span class="p">,</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.compile">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.compile">[docs]</a>
+    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;categorical_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile the safe Keras model.</span>
+
+<span class="sd">        Replaces the optimiser with a DP variant if needed and creates the</span>
+<span class="sd">        necessary DP params in the opt and loss dict, then calls tf compile.</span>
+<span class="sd">        Allow None as default value for optimizer param because we explicitly</span>
+<span class="sd">        deal with it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+
+        <span class="n">replace_message</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;warn_possible_disclosure_risk&quot;</span><span class="p">)</span>
+        <span class="n">using_dp_sgd</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;using_dp_sgd&quot;</span><span class="p">)</span>
+        <span class="n">using_dp_adagrad</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;using_dp_adagrad&quot;</span><span class="p">)</span>
+        <span class="n">using_dp_adam</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;using_dp_adam&quot;</span><span class="p">)</span>
+
+        <span class="n">optimizer_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="p">(</span><span class="n">using_dp_sgd</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span><span class="p">),</span>
+            <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span><span class="p">),</span>
+            <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdagradOptimizer</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdagradOptimizer</span><span class="p">),</span>
+            <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdamOptimizer</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdamOptimizer</span><span class="p">),</span>
+            <span class="s2">&quot;Adagrad&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">replace_message</span> <span class="o">+</span> <span class="n">using_dp_adagrad</span><span class="p">,</span>
+                <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdagradOptimizer</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Adam&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">replace_message</span> <span class="o">+</span> <span class="n">using_dp_adam</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasAdamOptimizer</span><span class="p">),</span>
+            <span class="s2">&quot;SGD&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">replace_message</span> <span class="o">+</span> <span class="n">using_dp_sgd</span><span class="p">,</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">val</span> <span class="o">=</span> <span class="n">optimizer_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
+            <span class="n">opt_msg</span> <span class="o">=</span> <span class="n">using_dp_sgd</span>
+            <span class="n">opt_used</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">DPKerasSGDOptimizer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">opt_msg</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">opt_used</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">opt_used</span>  <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">opt_used</span><span class="p">(</span>
+            <span class="n">l2_norm_clip</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">l2_norm_clip</span><span class="p">,</span>
+            <span class="n">noise_multiplier</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_multiplier</span><span class="p">,</span>
+            <span class="n">num_microbatches</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_microbatches</span><span class="p">,</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">opt_msg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;during_compilation&quot;</span><span class="p">,</span> <span class="n">opt_msg</span><span class="o">=</span><span class="n">opt_msg</span><span class="p">))</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.fit">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">refine_epsilon</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit a safe Keras model.</span>
+
+<span class="sd">        Overrides the tensorflow fit() method with some extra functionality:</span>
+<span class="sd">        (i) records number of samples for checking DP epsilon values.</span>
+<span class="sd">        (ii) does an automatic epsilon check and reports.</span>
+<span class="sd">        (iia) if user sets refine_epsilon = true, return without fitting the model.</span>
+<span class="sd">        (iii) then calls the tensorflow fit() function.</span>
+<span class="sd">        (iv) finally makes a saved copy of the newly fitted model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>  <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="c1"># make sure you are passing keywords through - but also checking batch size epochs</span>
+        <span class="n">ok</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_epsilon</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">epochs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">refine_epsilon</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Not continuing with fitting model, &quot;</span>
+                <span class="s2">&quot;as return epsilon was above max recommended value, &quot;</span>
+                <span class="s2">&quot;and user set refine_epsilon= True&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">returnval</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="n">y</span><span class="p">,</span>
+            <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_data</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># make a saved copy for later analysis</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;tfsaves&quot;</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;tfsaves&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;tfsaves/fit_model.tf&quot;</span><span class="p">)</span>
+        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved_was_dpused</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_reason</span> <span class="o">=</span> <span class="n">check_dp_used</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved_epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_epsilon</span>
+        <span class="k">return</span> <span class="n">returnval</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.posthoc_check">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.posthoc_check">[docs]</a>
+    <span class="k">def</span> <span class="nf">posthoc_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the model should be considered unsafe.</span>
+
+<span class="sd">        For example, has been changed since fit() was last run,</span>
+<span class="sd">        or does not meet DP policy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># have the model architecture or weights been changed?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;tfsaves/requested_model.tf&quot;</span><span class="p">)</span>
+        <span class="n">models_same</span><span class="p">,</span> <span class="n">same_msg</span> <span class="o">=</span> <span class="n">check_checkpoint_equality</span><span class="p">(</span>
+            <span class="s2">&quot;tfsaves/fit_model.tf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tfsaves/requested_model.tf&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">models_same</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">same_msg</span>
+            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># was a dp-enbled optimiser provided?</span>
+        <span class="n">allowed</span><span class="p">,</span> <span class="n">allowedmessage</span> <span class="o">=</span> <span class="n">check_optimizer_allowed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allowed</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">allowedmessage</span>
+            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># was the dp-optimiser used during fit()</span>
+        <span class="n">dp_used</span><span class="p">,</span> <span class="n">dpusedmessage</span> <span class="o">=</span> <span class="n">check_dp_used</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dp_used</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">dpusedmessage</span>
+            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># have values been changed since saved  immediately after fit()?</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">dp_used</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_was_dpused</span>
+            <span class="ow">or</span> <span class="n">dpusedmessage</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_reason</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_epsilon</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_epsilon</span>
+        <span class="p">):</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;opt_config_changed&quot;</span><span class="p">)</span>
+            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># if not what was the value of epsilon achieved</span>
+        <span class="n">eps_met</span><span class="p">,</span> <span class="n">cur_eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_epsilon_met</span><span class="p">(</span>
+            <span class="n">num_examples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eps_met</span><span class="p">:</span>
+            <span class="n">dpepsilonmessage</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;epsilon_above_normal&quot;</span><span class="p">,</span>
+                <span class="n">current_epsilon</span><span class="o">=</span><span class="n">cur_eps</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="n">get_reporting_string</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;recommend_further_discussion&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">dpepsilonmessage</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">dpepsilonmessage</span>
+            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">disclosive</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;recommend_not_release&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">msg</span>
+            <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="kc">True</span>
+
+        <span class="c1"># passed all the tests!!</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;recommend_allow_release&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;allow_release_eps_below_max&quot;</span><span class="p">,</span> <span class="n">current_epsilon</span><span class="o">=</span><span class="n">cur_eps</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SafeKerasModel.save">
+<a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write model to file in appropriate format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : string</span>
+<span class="sd">             The name of the file to save</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Optimizer is deliberately excluded.</span>
+<span class="sd">        To prevent possible to restart training and thus</span>
+<span class="sd">        possible back door into attacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_save_file</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_file</span> <span class="o">==</span> <span class="s2">&quot;undefined&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;input_filename_with_extension&quot;</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">thename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">thename</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;filename_must_indicate_type&quot;</span><span class="p">))</span>
+            <span class="c1"># &quot;file name must indicate type as a suffix&quot;)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h5&quot;</span><span class="p">,</span> <span class="s2">&quot;tf&quot;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model_save_file</span><span class="p">,</span>
+                        <span class="n">include_optimizer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">save_format</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="c1"># pragma:no cover</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">er</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-except # pragma:no cover</span>
+                    <span class="nb">print</span><span class="p">(</span>  <span class="c1"># pragma:no cover</span>
+                        <span class="n">get_reporting_string</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;error_saving_file&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span> <span class="n">er</span><span class="o">=</span><span class="n">er</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="n">get_reporting_string</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;suffix_not_supported_for_type&quot;</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span>
+                    <span class="p">)</span>
+                <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, GRAIMATTER and SACRO Project Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

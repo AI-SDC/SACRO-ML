@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sacroml.preprocessing.loaders &mdash; SACRO-ML 1.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=6efca38a"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SACRO-ML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../attacks/index.html">Attacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../safemodel/index.html">Safemodel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../preprocessing/index.html">Preprocessing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SACRO-ML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sacroml.preprocessing.loaders</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sacroml.preprocessing.loaders</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Handlers to pull in datasets and perform preprocessing.&quot;&quot;&quot;</span>
+
+<span class="c1"># pylint: disable=consider-using-with, too-many-return-statements</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">BadZipFile</span><span class="p">,</span> <span class="n">ZipFile</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_openml</span><span class="p">,</span> <span class="n">load_iris</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+<span class="n">PROJECT_ROOT_FOLDER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ROOT PROJECT FOLDER = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">PROJECT_ROOT_FOLDER</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="UnknownDataset">
+<a class="viewcode-back" href="../../../preprocessing/loaders.html#sacroml.preprocessing.loaders.UnknownDataset">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownDataset</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised if the user passes a name that we don&#39;t recognise.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DataNotAvailable">
+<a class="viewcode-back" href="../../../preprocessing/loaders.html#sacroml.preprocessing.loaders.DataNotAvailable">[docs]</a>
+<span class="k">class</span> <span class="nc">DataNotAvailable</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised if the user asks for a dataset that they do not have.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_data_sklearn">
+<a class="viewcode-back" href="../../../preprocessing/loaders.html#sacroml.preprocessing.loaders.get_data_sklearn">[docs]</a>
+<span class="k">def</span> <span class="nf">get_data_sklearn</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-branches</span>
+    <span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PROJECT_ROOT_FOLDER</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get data in a format sensible for sklearn.</span>
+
+<span class="sd">    User passes a name and that dataset is returned as a tuple of pandas</span>
+<span class="sd">    DataFrames (data, labels).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset_name : str</span>
+<span class="sd">        The name of the dataset to load</span>
+<span class="sd">    data_folder : str</span>
+<span class="sd">        The name of the local folder in which data is stored.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X : pd.DataFrame</span>
+<span class="sd">        The input dataframe -- rows are examples, columns variables</span>
+<span class="sd">    y : pd.DataFrame</span>
+<span class="sd">        the target dataframe -- has a single column containing the target values</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The following datasets are available:</span>
+<span class="sd">    mimic2-iaccd (requires data download)</span>
+<span class="sd">    in-hospital-mortality (requires data download)</span>
+<span class="sd">    medical-mnist-ab-v-br-100 (requires data download)</span>
+<span class="sd">    medical-mnist-ab-v-br-500 (requires data download)</span>
+<span class="sd">    medical-mnist-all-100 (requires data download)</span>
+<span class="sd">    indian liver (requires data download)</span>
+<span class="sd">    synth-ae (requires data download)</span>
+<span class="sd">    synth-ae-small (requires data download)</span>
+<span class="sd">    nursery (downloads automatically)</span>
+<span class="sd">    iris (available out of the box via sklearn)</span>
+
+<span class="sd">    Datasets can be normalised by adding the following prefixes:</span>
+<span class="sd">    standard: standardises all columns to have zero mean and unit variance.</span>
+<span class="sd">    minmax: standardises all columns to have values between 0 and 1.</span>
+<span class="sd">    round: rounds continues features to have 3dp</span>
+
+<span class="sd">    These can be nested.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # pull the mimic2-iaccd data</span>
+<span class="sd">        X, y = get_data_sklearn(&quot;mimic2-iaccd&quot;)</span>
+
+<span class="sd">        # pull the iris data and round continuous features</span>
+<span class="sd">        X, y = get_data_sklearn(&quot;minmax iris&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;DATASET FOLDER = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;standard&quot;</span><span class="p">):</span>
+        <span class="n">sub_name</span> <span class="o">=</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;standard&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span> <span class="o">=</span> <span class="n">get_data_sklearn</span><span class="p">(</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">feature_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">col_mean</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">col_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">var</span><span class="p">())</span>
+            <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">-</span> <span class="n">col_mean</span>
+            <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">/</span> <span class="n">col_std</span>
+        <span class="k">return</span> <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span>
+
+    <span class="k">if</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">):</span>
+        <span class="n">sub_name</span> <span class="o">=</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span> <span class="o">=</span> <span class="n">get_data_sklearn</span><span class="p">(</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">feature_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">col_min</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">col_range</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">col_min</span>
+            <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">-</span> <span class="n">col_min</span>
+            <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">/</span> <span class="n">col_range</span>
+        <span class="k">return</span> <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span>
+
+    <span class="k">if</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;round&quot;</span><span class="p">):</span>
+        <span class="n">sub_name</span> <span class="o">=</span> <span class="n">dataset_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;round&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">sub_name</span><span class="p">)</span>
+        <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span> <span class="o">=</span> <span class="n">get_data_sklearn</span><span class="p">(</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">)</span>
+        <span class="n">column_dtype</span> <span class="o">=</span> <span class="n">feature_df</span><span class="o">.</span><span class="n">dtypes</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">column_dtype</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;float64&quot;</span><span class="p">:</span>
+                <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">feature_df</span><span class="p">,</span> <span class="n">target_df</span>
+
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;mimic2-iaccd&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_mimic_iaccd</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;in-hospital-mortality&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_in_hospital_mortality</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;medical-mnist-ab-v-br-100&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_medical_mnist_loader</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;AbdomenCT&quot;</span><span class="p">,</span> <span class="s2">&quot;BreastMRI&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;medical-mnist-ab-v-br-500&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_medical_mnist_loader</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;AbdomenCT&quot;</span><span class="p">,</span> <span class="s2">&quot;BreastMRI&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;medical-mnist-all-100&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_medical_mnist_loader</span><span class="p">(</span>
+            <span class="n">data_folder</span><span class="p">,</span>
+            <span class="mi">100</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;AbdomenCT&quot;</span><span class="p">,</span> <span class="s2">&quot;BreastMRI&quot;</span><span class="p">,</span> <span class="s2">&quot;CXR&quot;</span><span class="p">,</span> <span class="s2">&quot;ChestCT&quot;</span><span class="p">,</span> <span class="s2">&quot;Hand&quot;</span><span class="p">,</span> <span class="s2">&quot;HeadCT&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;indian liver&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_indian_liver</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;synth-ae&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_synth_ae</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;synth-ae-small&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_synth_ae</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;synth-ae-large&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_synth_ae</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">500000</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;synth-ae-extra-large&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_synth_ae</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">2000000</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;synth-ae-XXL&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_synth_ae</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="mi">50000000</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;nursery&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_nursery</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;iris&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_iris</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_rdmp</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">UnknownDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_iris</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the Sklearn iris data - just first two classes.&quot;&quot;&quot;</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_nursery</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the sklearn nursery dataset.&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_openml</span><span class="p">(</span><span class="n">data_id</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">target_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">target_vals</span> <span class="o">=</span> <span class="n">target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">target_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target_vals</span><span class="p">})</span>
+
+    <span class="n">feature_encoder</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+    <span class="n">x_encoded</span> <span class="o">=</span> <span class="n">feature_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">feature_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">x_encoded</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">feature_encoder</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">feature_dataframe</span><span class="p">,</span> <span class="n">target_dataframe</span>
+
+
+<span class="k">def</span> <span class="nf">_images_to_ndarray</span><span class="p">(</span>
+    <span class="n">images_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number_to_load</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">flatten</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get number_to_load images from the images_dir and create arrays.</span>
+
+<span class="sd">    Patched to support non-flattened images.</span>
+<span class="sd">    Same behaviour as before except if called with flatten=False explicitly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">folder_path</span> <span class="o">=</span> <span class="n">images_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span>
+    <span class="n">images_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">))</span>
+    <span class="n">images_names</span> <span class="o">=</span> <span class="n">images_names</span><span class="p">[:</span><span class="n">number_to_load</span><span class="p">]</span>
+    <span class="c1"># fix f or macosx</span>
+    <span class="k">if</span> <span class="s2">&quot;.DS_Store&quot;</span> <span class="ow">in</span> <span class="n">images_names</span><span class="p">:</span>
+        <span class="n">images_names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;.DS_Store&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+        <span class="n">np_images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images_names</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">np_images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images_names</span><span class="p">])</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">np_images</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">)</span> <span class="o">*</span> <span class="n">label</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np_images</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_medical_mnist_loader</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-locals</span>
+    <span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_per_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Medical MNIST into pandas format.</span>
+
+<span class="sd">    Borrows heavily from: https://www.kaggle.com/harelshattenstein/medical-mnist-knn</span>
+<span class="sd">    Creates a binary classification.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">data_folder</span><span class="p">,</span>
+        <span class="s2">&quot;kaggle-medical-mnist&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;archive&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">zip_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;kaggle-medical-mnist&quot;</span><span class="p">,</span> <span class="s2">&quot;archive.zip&quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">base_folder</span><span class="p">,</span> <span class="n">data_folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_folder</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)]):</span>
+        <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Data file </span><span class="si">{</span><span class="n">base_folder</span><span class="si">}</span><span class="s2"> does not exist. Please download fhe file from:</span>
+<span class="s2">https://www.kaggle.com/andrewmvd/medical-mnist</span>
+<span class="s2">and place it in the correct folder. It unzips the file first.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_folder</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zip_file</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_handle</span><span class="p">:</span>
+                <span class="n">zip_handle</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">base_folder</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Extracted all&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">BadZipFile</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Encountered bad zip file&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;AbdomenCT&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;BreastMRI&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;CXR&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;ChestCT&quot;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;Hand&quot;</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;HeadCT&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">reverse_labels_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">reverse_labels_dict</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span>
+        <span class="n">x_images</span><span class="p">,</span> <span class="n">y_images</span> <span class="o">=</span> <span class="n">_images_to_ndarray</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_folder</span><span class="p">,</span> <span class="n">class_name</span><span class="p">),</span> <span class="n">n_per_class</span><span class="p">,</span> <span class="n">label</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">all_x</span> <span class="o">=</span> <span class="n">x_images</span>
+            <span class="n">all_y</span> <span class="o">=</span> <span class="n">y_images</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">all_x</span><span class="p">,</span> <span class="n">x_images</span><span class="p">))</span>
+            <span class="n">all_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">all_y</span><span class="p">,</span> <span class="n">y_images</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_x</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_y</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_synth_ae</span><span class="p">(</span>
+    <span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get synth ae data.</span>
+
+<span class="sd">    First norws (default 5000) rows from the Synthetic A&amp;E data from NHS England</span>
+<span class="sd">    https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e # pylint: disable=line-too-long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;AE_England_synthetic.csv&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Data file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> does not exist. Please download the file from:</span>
+<span class="s2">https://data.england.nhs.uk/dataset/a-e-synthetic-data/resource/81b068e5-6501-4840-a880-a8e7aa56890e</span>
+
+<span class="s2">Alternatively, download the file directly from the following URL:</span>
+<span class="s2">https://nhsengland-direct-uploads.s3-eu-west-1.amazonaws.com/A%26E+Synthetic+Data.7z</span>
+
+<span class="s2">Unzip it (7z) and then copy the .csv file into your data folder.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">n_rows</span><span class="p">)</span>
+    <span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;AE_Arrive_Date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AE_Arrive_HourOfDay&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Admission_Method&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ICD10_Chapter_Code&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Treatment_Function_Code&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Length_Of_Stay_Days&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ProvID&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Remove any rows with NAs in the remaining columns</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># One-hot encode some columns</span>
+    <span class="n">encode_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Age_Band&quot;</span><span class="p">,</span> <span class="s2">&quot;AE_HRG&quot;</span><span class="p">]</span>
+    <span class="n">encode_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="n">encode_columns</span><span class="p">]</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">encode_columns</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">oh</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+    <span class="n">oh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">encode_data</span><span class="p">)</span>
+    <span class="n">onehot_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">oh</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">encode_data</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">(),</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">oh</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">(),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">input_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_data</span><span class="p">,</span> <span class="n">onehot_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;Admitted_Flag&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[[</span><span class="s2">&quot;Admitted_Flag&quot;</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_indian_liver</span><span class="p">(</span><span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Indian Liver Patient Dataset.</span>
+
+<span class="sd">    https://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv # pylint: disable=line-too-long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;Indian Liver Patient Dataset (ILPD).csv&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Data file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> does not exist. Please download fhe file from:</span>
+<span class="s2">https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset</span>
+<span class="s2">and place it in the correct folder.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+    <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gender&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total Bilirubin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct Bilirubin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Alkphos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SGPT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SGOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total proteins&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;albumin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;A/G ratio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;class&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">liver_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">liver_data</span><span class="o">.</span><span class="n">gender</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Male&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">liver_data</span><span class="o">.</span><span class="n">gender</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Female&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">liver_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">liver_labels</span> <span class="o">=</span> <span class="n">liver_data</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+    <span class="n">liver_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;class&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">encoded_labels</span> <span class="o">=</span> <span class="n">label_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">liver_labels</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">liver_labels</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="n">encoded_labels</span><span class="p">})</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">liver_data</span><span class="p">,</span> <span class="n">liver_labels</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_in_hospital_mortality</span><span class="p">(</span><span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get In-hospital mortality data.</span>
+
+<span class="sd">    See: https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check the data has been downloaded.</span>
+    <span class="c1"># If not, throw an exception with instructions on how to</span>
+    <span class="c1"># download, and where to store</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;data01.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;doi_10.5061_dryad.0p2ngf1zd__v5.zip&quot;</span><span class="p">]</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Data file </span><span class="si">{</span><span class="n">file_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">file_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> does not exist. Please download the file from:</span>
+<span class="s2">https://datadryad.org/stash/dataset/doi:10.5061/dryad.0p2ngf1zd</span>
+<span class="s2">and place it in the correct folder. It works with either the zip file or uncompressed.</span>
+<span class="s2">Alternatively download the data file from this URL:</span>
+<span class="s2">        https://datadryad.org/stash/downloads/file_stream/773992</span>
+<span class="s2">and then change the name of the file 773992 to data01.csv.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file_path</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;data01.csv&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">clean_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">])</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;outcome&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">clean_data</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">clean_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">target</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">encoded_labels</span> <span class="o">=</span> <span class="n">label_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;outcome&quot;</span><span class="p">:</span> <span class="n">encoded_labels</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_mimic_iaccd</span><span class="p">(</span><span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the mimic_iaccd data and perform preprocessing.&quot;&quot;&quot;</span>
+    <span class="c1"># Check the data has been downloaded.</span>
+    <span class="c1"># If not throw an exception with instructions on how to</span>
+    <span class="c1"># download, and where to store</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;mimic2-iaccd&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;full_cohort_data.csv&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        The MIMIC2-iaccd data is not available in </span><span class="si">{</span><span class="n">data_folder</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">        The following file should exist: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">        Please download from https://physionet.org/files/mimic2-iaccd/1.0/full_cohort_data.csv?download</span>
+<span class="s2">        and rename the file to full_cohort_data.csv.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+    <span class="c1"># File exists, load and preprocess#</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading mimic2-iaccd&quot;</span><span class="p">)</span>
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preprocessing&quot;</span><span class="p">)</span>
+    <span class="c1"># remove columns non-numerical and repetitive or uninformative data for the analysis</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;service_unit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;day_icu_intime&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hosp_exp_flg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;icu_exp_flg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;day_28_flg&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># service_num is the numerical version of service_unit</span>
+    <span class="c1"># day_icu_intime_num is the numerical version of day_icu_intime</span>
+    <span class="c1"># the other columns are to do with death and are somewhat repetitive with censor_flg</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># drop columns with only 1 value</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;sepsis_flg&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># drop NA by row</span>
+    <span class="n">input_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># extract target</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;censor_flg&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="s2">&quot;mort_day_censored&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">encoded_labels</span> <span class="o">=</span> <span class="n">label_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;censor_flag&quot;</span><span class="p">:</span> <span class="n">encoded_labels</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_rdmp</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-statements</span>
+    <span class="n">data_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the RDMP dataset.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">find_age</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">date_</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s2">&quot;01/06/2020&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">date_of_death</span> <span class="o">!=</span> <span class="n">row</span><span class="o">.</span><span class="n">date_of_death</span><span class="p">:</span>
+            <span class="n">age</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">date_</span> <span class="o">-</span> <span class="n">row</span><span class="o">.</span><span class="n">date_of_birth</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">365.25</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">age</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">row</span><span class="o">.</span><span class="n">date_of_death</span> <span class="o">-</span> <span class="n">row</span><span class="o">.</span><span class="n">date_of_birth</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">365.25</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">age</span>
+
+    <span class="k">def</span> <span class="nf">hospital_days</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">DischargeDate</span> <span class="o">==</span> <span class="n">row</span><span class="o">.</span><span class="n">DischargeDate</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">DischargeDate</span> <span class="o">-</span> <span class="n">row</span><span class="o">.</span><span class="n">AdmissionDate</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">days</span> <span class="o">+</span> <span class="nb">round</span><span class="p">(((</span><span class="n">t</span><span class="o">.</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">days</span>
+
+    <span class="n">processed_data_file</span> <span class="o">=</span> <span class="s2">&quot;rdmp_binary.csv&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">,</span> <span class="n">processed_data_file</span><span class="p">)):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading processed RDMP file.&quot;</span><span class="p">)</span>
+        <span class="c1"># load data processed csv file</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">,</span> <span class="n">processed_data_file</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing RDMP synthetic data&quot;</span><span class="p">)</span>
+        <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;CarotidArteryScan.csv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Demography.csv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;HospitalAdmissions.csv&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">files_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">]</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">files_path</span><span class="p">]</span>
+        <span class="n">not_found</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">file_path</span> <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">files_path</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">found</span><span class="p">):</span>
+            <span class="n">help_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Some or all data files do not exist. Please download the files from RDMP,</span>
+<span class="s2">        and place it in the correct folder.</span>
+
+<span class="s2">            Missing files are:</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="k">raise</span> <span class="n">DataNotAvailable</span><span class="p">(</span><span class="n">help_message</span><span class="p">)</span>
+
+        <span class="c1"># Load data</span>
+        <span class="n">headers0</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;R_CC_STEN_A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_STEN_B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_STEN_C&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_STEN_D&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_STEN_S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STEN_A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STEN_B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STEN_C&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STEN_D&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STEN_S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STEN_A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STEN_B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STEN_C&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STEN_D&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STEN_S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PatientID&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STEN_S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STEN_D&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STEN_B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_BD_RATIO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_AC_RATIO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_BD_RATIO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_AC_RATIO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_PEAK_SYS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_END_DIA&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_PEAK_SYS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_IC_END_DIA&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_EC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_PLAQUE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_SYMPTOMS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_BRUIT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STEN_A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ON_STEN_STUDY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_VERT_ARTERY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_BRUIT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_SYMPTOMS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_PLAQUE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_CC_STEN_C&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_EC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_PEAK_SYS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_END_DIA&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_PEAK_SYS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_CC_STENOSIS&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;L_VERT_ARTERY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;R_IC_END_DIA&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">headers1</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;chi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;current_address_L2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;date_of_death&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;date_of_birth&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">headers2</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;chi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AdmissionDate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DischargeDate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MainCondition&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherCondition1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherCondition2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherCondition3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MainOperation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MainOperationB&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation1B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation2B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OtherOperation3B&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Process first file</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">files_path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">usecols</span><span class="o">=</span><span class="n">headers0</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ISO 8859-1&quot;</span><span class="p">)</span>
+        <span class="c1"># Change name to be the same in all files</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;PatientID&quot;</span><span class="p">:</span> <span class="s2">&quot;chi&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="c1"># Process second file</span>
+        <span class="n">df_</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">files_path</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">usecols</span><span class="o">=</span><span class="n">headers1</span><span class="p">)</span>
+        <span class="n">df_</span><span class="p">[</span><span class="s2">&quot;date_of_birth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_</span><span class="p">[</span><span class="s2">&quot;date_of_birth&quot;</span><span class="p">])</span>
+        <span class="n">df_</span><span class="p">[</span><span class="s2">&quot;date_of_death&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_</span><span class="p">[</span><span class="s2">&quot;date_of_death&quot;</span><span class="p">])</span>
+        <span class="n">df_</span> <span class="o">=</span> <span class="n">df_</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="c1"># Merge first and second file</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;chi&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="k">del</span> <span class="n">df_</span>
+
+        <span class="c1"># Process third file</span>
+        <span class="n">df__</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">files_path</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">usecols</span><span class="o">=</span><span class="n">headers2</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ISO 8859-1&quot;</span><span class="p">)</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;AdmissionDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df__</span><span class="p">[</span><span class="s2">&quot;AdmissionDate&quot;</span><span class="p">])</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;DischargeDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df__</span><span class="p">[</span><span class="s2">&quot;DischargeDate&quot;</span><span class="p">])</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;days_in_hospital&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df__</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">hospital_days</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">number_stays</span> <span class="o">=</span> <span class="n">df__</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()[</span><span class="s2">&quot;AdmissionDate&quot;</span><span class="p">]</span>
+        <span class="n">dih</span> <span class="o">=</span> <span class="n">df__</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])[</span><span class="s2">&quot;days_in_hospital&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df__</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])[[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df__</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s2">&quot;Condition&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">no</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df__</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;chi&quot;</span><span class="p">])[[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df__</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s2">&quot;Operation&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df__</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">x</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df__</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">if</span> <span class="s2">&quot;Date&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot;Operation&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot;Condition&quot;</span> <span class="ow">in</span> <span class="n">x</span>
+            <span class="p">],</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df__</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;days_in_hospital&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dih</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;average_number_conditions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nc</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;total_number_operations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no</span>
+        <span class="n">df__</span><span class="p">[</span><span class="s2">&quot;number_admissions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_stays</span>
+
+        <span class="c1"># merge the third file</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df__</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;chi&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+
+        <span class="c1"># Final processing after merging</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;death&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">date_of_death</span><span class="p">)]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">find_age</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date_of_birth&quot;</span><span class="p">,</span> <span class="s2">&quot;date_of_death&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># save the dataframe</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;RDMP&quot;</span><span class="p">,</span> <span class="n">processed_data_file</span><span class="p">))</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;death&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;death&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># OneHotEncoder</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">):</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, GRAIMATTER and SACRO Project Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sacroml.safemodel.classifiers.saferandomforestclassifier &mdash; SACRO-ML 1.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=6efca38a"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SACRO-ML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../attacks/index.html">Attacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../safemodel/index.html">Safemodel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../preprocessing/index.html">Preprocessing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SACRO-ML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sacroml.safemodel.classifiers.saferandomforestclassifier</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sacroml.safemodel.classifiers.saferandomforestclassifier</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Privacy protected Random Forest classifier.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
+
+<span class="kn">from</span> <span class="nn">.safedecisiontreeclassifier</span> <span class="kn">import</span> <span class="n">decision_trees_are_equal</span>
+
+<span class="c1"># pylint: disable=too-many-ancestors, unidiomatic-typecheck</span>
+
+
+<div class="viewcode-block" id="SafeRandomForestClassifier">
+<a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier">[docs]</a>
+<span class="k">class</span> <span class="nc">SafeRandomForestClassifier</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy protected Random Forest classifier.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SafeRandomForestClassifier.__init__">
+<a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model and apply constraints to params.&quot;&quot;&quot;</span>
+        <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basemodel_paramnames</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;n_estimators&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criterion&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_samples_split&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_weight_fraction_leaf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_features&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_leaf_nodes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_impurity_decrease&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bootstrap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;oob_score&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n_jobs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;random_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;verbose&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;warm_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;class_weight&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ccp_alpha&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_samples&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">the_kwds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">basemodel_paramnames</span><span class="p">:</span>
+                <span class="n">the_kwds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">RandomForestClassifier</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">the_kwds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;RandomForestClassifier&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">(</span><span class="n">apply_constraints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_items</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;model_save_file&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ignore_items&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;estimator_&quot;</span><span class="p">,</span>  <span class="c1"># this is an object</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">examine_seperately_items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;estimators_&quot;</span><span class="p">,</span> <span class="s2">&quot;estimator&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="SafeRandomForestClassifier.additional_checks">
+<a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.additional_checks">[docs]</a>
+    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">curr_separate</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_separate</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform Random Forest specific checks.</span>
+
+<span class="sd">        NOTE: this is never called if the model has not been fitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># now the relevant random-forest specific things</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">examine_seperately_items</span><span class="p">:</span>
+            <span class="c1"># template for class of things that make up forest</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;estimator&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">]):</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;param_changed_from_to&quot;</span><span class="p">,</span>
+                        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;estimator&quot;</span><span class="p">,</span>
+                        <span class="n">val</span><span class="o">=</span><span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">],</span>
+                        <span class="n">cur_val</span><span class="o">=</span><span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># the forest itself</span>
+            <span class="k">elif</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;estimators_&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">num1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+                    <span class="n">num2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">num1</span> <span class="o">!=</span> <span class="n">num2</span><span class="p">:</span>
+                        <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;different_num_estimators&quot;</span><span class="p">,</span> <span class="n">num1</span><span class="o">=</span><span class="n">num1</span><span class="p">,</span> <span class="n">num2</span><span class="o">=</span><span class="n">num2</span>
+                        <span class="p">)</span>
+                        <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">num_diff_trees</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num1</span><span class="p">):</span>
+                            <span class="n">same</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">decision_trees_are_equal</span><span class="p">(</span>
+                                <span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span> <span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+                            <span class="p">)</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">same</span><span class="p">:</span>
+                                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="n">num_diff_trees</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;forest_estimators_differ&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">num_diff_trees</span>
+                            <span class="p">)</span>
+                            <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="p">(</span>
+                    <span class="ne">BaseException</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pragma:no coverion</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unable_to_check_item&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="n">item</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span>
+                    <span class="p">)</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span></div>
+
+
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="SafeRandomForestClassifier.fit">
+<a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit model and store model dict.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k_anonymity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeRandomForestClassifier.get_k_anonymity">
+<a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.get_k_anonymity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_k_anonymity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the k-anonymity of a random forest model.</span>
+
+<span class="sd">        The k-anonymity is the minimum of the anonymity for each record.</span>
+<span class="sd">        That is defined as the size of the set of records which</span>
+<span class="sd">        appear in the same leaf as the record in every tree.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># dataset must be 2-D</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="n">num_records</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_trees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span>
+        <span class="n">k_anon_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_records</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># ending leaf node by record(row) and tree (column)</span>
+        <span class="n">all_leaves</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_records</span><span class="p">,</span> <span class="n">num_trees</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">this_tree</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="n">this_leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">[</span><span class="n">this_tree</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_records</span><span class="p">):</span>
+                <span class="n">all_leaves</span><span class="p">[</span><span class="n">record</span><span class="p">][</span><span class="n">this_tree</span><span class="p">]</span> <span class="o">=</span> <span class="n">this_leaves</span><span class="p">[</span><span class="n">record</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_records</span><span class="p">):</span>
+            <span class="c1"># start by assuming everything co-occurs</span>
+            <span class="n">appears_together</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_records</span><span class="p">))</span>
+            <span class="c1"># iterate through trees</span>
+            <span class="k">for</span> <span class="n">this_tree</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trees</span><span class="p">):</span>
+                <span class="n">this_leaf</span> <span class="o">=</span> <span class="n">all_leaves</span><span class="p">[</span><span class="n">record</span><span class="p">][</span><span class="n">this_tree</span><span class="p">]</span>
+
+                <span class="n">together</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">appears_together</span><span class="p">)</span>
+                <span class="c1"># removing records which go to other leaves</span>
+                <span class="k">for</span> <span class="n">other_record</span> <span class="ow">in</span> <span class="n">together</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">all_leaves</span><span class="p">[</span><span class="n">other_record</span><span class="p">][</span><span class="n">this_tree</span><span class="p">]</span> <span class="o">!=</span> <span class="n">this_leaf</span><span class="p">:</span>
+                        <span class="n">appears_together</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">other_record</span><span class="p">)</span>
+
+            <span class="n">k_anon_val</span><span class="p">[</span><span class="n">record</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">appears_together</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k_anon_val</span><span class="o">.</span><span class="n">min</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, GRAIMATTER and SACRO Project Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

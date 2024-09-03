@@ -1,5 +1,5 @@
 Metrics
 =======
 
-.. automodule:: aisdc.metrics
+.. automodule:: sacroml.metrics
     :members:
