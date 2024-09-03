@@ -74,6 +74,16 @@ lint.select = [
   "YTT",  # flake8-2020
 ]
 
+exclude = [
+    "**example-notebook-SVC.ipynb",
+    "**example-notebook-decisiontree.ipynb",
+    "**example-notebook-keras.ipynb",
+    "**example-notebook-randomforest.ipynb",
+    "**attribute_inference_cancer.ipynb",
+    "**instance_based_mimic.ipynb",
+    "**membership_inference_cancer.ipynb",
+]
+
 lint.ignore = [
     "ANN101", # missing-type-self
     "EM101",  # raw-string-in-exception
