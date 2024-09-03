@@ -1,10 +1,11 @@
+# SACRO-ML
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
 [![Latest Version](https://img.shields.io/github/v/release/AI-SDC/SACRO-ML?style=flat)](https://github.com/AI-SDC/SACRO-ML/releases)
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
 [![codecov](https://codecov.io/gh/AI-SDC/SACRO-ML/branch/main/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/SACRO-ML)
+[![PyPI package](https://img.shields.io/pypi/v/sacroml.svg)](https://pypi.org/project/sacroml)
 [![Python versions](https://img.shields.io/pypi/pyversions/sacroml.svg)](https://pypi.org/project/sacroml)
-
-# SACRO-ML
 
 A collection of tools and resources for managing the [statistical disclosure control](https://en.wikipedia.org/wiki/Statistical_disclosure_control) of trained [machine learning](https://en.wikipedia.org/wiki/Machine_learning) models. For a brief introduction, see [Smith et al. (2022)](https://doi.org/10.48550/arXiv.2212.01233).
 
@@ -13,8 +14,6 @@ The `sacroml` package provides:
 * The safemodel package: a suite of open source wrappers for common machine learning frameworks, including [scikit-learn](https://scikit-learn.org) and [Keras](https://keras.io). It is designed for use by researchers in Trusted Research Environments (TREs) where disclosure control methods must be implemented. Safemodel aims to give researchers greater confidence that their models are more compliant with disclosure control.
 
 ## Installation
-
-[![PyPI package](https://img.shields.io/pypi/v/sacroml.svg)](https://pypi.org/project/sacroml)
 
 Install `sacroml` and manually copy the [`examples`](examples/).
 
@@ -35,9 +34,13 @@ Note: macOS users may need to install libomp due to a dependency on XGBoost:
 $ brew install libomp
 ```
 
-## Running
+## Usage
 
 See the [`examples`](examples/).
+
+## Documentation
+
+See [API documentation](https://ai-sdc.github.io/SACRO-ML/).
 
 ## Acknowledgement
 
