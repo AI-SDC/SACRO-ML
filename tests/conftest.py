@@ -93,7 +93,7 @@ def _cleanup():
             os.remove(file)
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_target(request) -> Target:  # pylint: disable=too-many-locals
     """Return a target object with test data and fitted model.
 
