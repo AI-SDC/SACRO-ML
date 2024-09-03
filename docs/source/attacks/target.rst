@@ -1,5 +1,5 @@
 Target
 ======
 
-.. automodule:: aisdc.attacks.target
+.. automodule:: sacroml.attacks.target
     :members:

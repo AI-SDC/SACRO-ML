@@ -1,5 +1,5 @@
 Structural Attack
 =================
 
-.. automodule:: aisdc.attacks.structural_attack
+.. automodule:: sacroml.attacks.structural_attack
     :members:

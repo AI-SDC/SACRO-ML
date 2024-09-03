@@ -1,7 +1,7 @@
 .. Documentation master file
 
 Welcome to the SACRO-ML documentation!
-====================================
+======================================
 
 .. toctree::
    :maxdepth: 2

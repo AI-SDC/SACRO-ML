@@ -1,5 +1,5 @@
 Attribute Attack
 ================
 
-.. automodule:: aisdc.attacks.attribute_attack
+.. automodule:: sacroml.attacks.attribute_attack
     :members:
