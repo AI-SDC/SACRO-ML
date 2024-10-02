@@ -17,6 +17,10 @@ enable = [
     "useless-suppression",
 ]
 
+disable = [
+    "too-many-positional-arguments",
+]
+
 [tool.pylint.design]
 max-args = 5  # Maximum number of arguments for function / method (see R0913).
 max-attributes = 7  # Maximum number of attributes for a class (see R0902).
