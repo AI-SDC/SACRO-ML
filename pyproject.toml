@@ -97,7 +97,7 @@ enable = [
 ]
 
 disable = [
-    "too-many-positional-arguments",
+    "R0917",  # too-many-positional-arguments
 ]
 
 [tool.pylint.design]
