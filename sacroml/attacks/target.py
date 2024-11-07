@@ -5,11 +5,16 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import sklearn
+import torch
 import yaml
+
+from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.model_sklearn import SklearnModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +25,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
-        model: sklearn.base.BaseEstimator | None = None,
+        model: Any = None,
         dataset_name: str = "",
         features: dict | None = None,
         X_train: np.ndarray | None = None,
@@ -40,10 +45,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
         Parameters
         ----------
-        model : sklearn.base.BaseEstimator | None, optional
-            Trained target model. Any class that implements the
-            sklearn.base.BaseEstimator interface (i.e. has fit, predict and
-            predict_proba methods)
+        model : Any
+            Trained target model.
         dataset_name : str
             The name of the dataset.
         features : dict
@@ -74,7 +77,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The model predicted testing probabilities.
         """
         # Model - details
-        self.model: sklearn.base.BaseEstimator | None = model
+        if isinstance(model, sklearn.base.BaseEstimator):
+            self.model = SklearnModel(model)
+        elif isinstance(model, torch.nn.Module):
+            self.model = PytorchModel(model)
+        elif model is not None:
+            raise ValueError("Unsupported model type.")
+        else:  # for subsequent model loading
+            self.model = None
+
         self.model_name: str = "unknown"
         self.model_params: dict = {}
         if self.model is not None:
@@ -308,18 +319,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Generalisation error.
         """
         if (
-            hasattr(self.model, "score")
+            self.model is not None
             and self.X_train is not None
             and self.y_train is not None
             and self.X_test is not None
             and self.y_test is not None
         ):
-            try:
-                train = self.model.score(self.X_train, self.y_train)
-                test = self.model.score(self.X_test, self.y_test)
-                return test - train
-            except sklearn.exceptions.NotFittedError:
-                return np.nan
+            return self.model.get_generalisation_error(
+                self.X_train, self.y_train, self.X_test, self.y_test
+            )
         return np.nan
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
