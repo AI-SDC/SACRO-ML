@@ -6,13 +6,13 @@ import contextlib
 import logging
 
 import numpy as np
-import sklearn
 from fpdf import FPDF
 from scipy.stats import norm, shapiro
 
 from sacroml import metrics
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -93,7 +93,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # prepare
-        shadow_clf = sklearn.base.clone(target.model)
+        shadow_clf = target.model.clone()
         target = self._check_and_update_dataset(target)
         # execute attack
         self._run(
@@ -122,7 +122,7 @@ class LIRAAttack(Attack):
         are not in the training set.
         """
         y_train_new = []
-        classes = list(target.model.classes_)
+        classes = list(target.model.get_classes())
         for y in target.y_train:
             y_train_new.append(classes.index(y))
         target.y_train = np.array(y_train_new, int)
@@ -147,7 +147,7 @@ class LIRAAttack(Attack):
 
     def _run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
-        shadow_clf: sklearn.base.BaseEstimator,
+        shadow_clf: Model,
         X_train: np.ndarray,
         y_train: np.ndarray,
         proba_train: np.ndarray,
@@ -173,8 +173,8 @@ class LIRAAttack(Attack):
 
         Parameters
         ----------
-        shadow_clf : sklearn.Model
-            An sklearn classifier that will be trained to form the shadow models.
+        shadow_clf : Model
+            A classifier that will be trained to form the shadow models.
             All hyperparameters should have been set.
         X_train : np.ndarray
             Data that was used to train the target model.
@@ -317,7 +317,7 @@ class LIRAAttack(Attack):
 
     def _train_shadow_models(  # pylint: disable=too-many-locals
         self,
-        shadow_clf: sklearn.base.BaseEstimator,
+        shadow_clf: Model,
         combined_x_train: np.ndarray,
         combined_y_train: np.ndarray,
         n_train_rows: int,
@@ -326,8 +326,8 @@ class LIRAAttack(Attack):
 
         Parameters
         ----------
-        shadow_clf : sklearn.base.BaseEstimator
-            An sklearn classifier that will be trained to form the shadow models.
+        shadow_clf : Model
+            A classifier that will be trained to form the shadow models.
         combined_x_train : np.ndarray
             Array of combined train and test features.
         combined_y_train : np.ndarray
@@ -361,7 +361,7 @@ class LIRAAttack(Attack):
                 combined_y_train[these_idx],
             )
             # map a class to a column
-            class_map = {c: i for i, c in enumerate(shadow_clf.classes_)}
+            class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
             # generate shadow confidences
             shadow_confidences = shadow_clf.predict_proba(combined_x_train)
             these_idx = set(these_idx)
