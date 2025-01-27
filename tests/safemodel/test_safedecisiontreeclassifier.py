@@ -227,7 +227,7 @@ def test_decisiontree_hacked_postfit():
     )
 
     correct_msg2 = part1 + part2 + part3 + part4
-    print(f"Correct msg2 : {correct_msg2}\n" f"actual mesg2 : {msg2}")
+    print(f"Correct msg2 : {correct_msg2}\nactual mesg2 : {msg2}")
     assert msg2 == correct_msg2
     assert disclosive2
 
@@ -250,6 +250,6 @@ def test_data_hiding():
     part3 = reporting.get_reporting_string(name="unexpected_item")
     correct_msg = part1 + part2 + part3
     msg, disclosive = model.posthoc_check()
-    print(f"Correct msg : {correct_msg}\n" f"actual  msg : {msg}")
+    print(f"Correct msg : {correct_msg}\nactual  msg : {msg}")
     assert disclosive
     assert msg == correct_msg

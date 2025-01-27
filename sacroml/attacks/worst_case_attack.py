@@ -360,7 +360,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             )
 
             global_metrics["null_auc_3sd_range"] = (
-                f"{0.5 - 3*auc_std:.4f} -> {0.5 + 3*auc_std:.4f}"
+                f"{0.5 - 3 * auc_std:.4f} -> {0.5 + 3 * auc_std:.4f}"
             )
             global_metrics["n_sig_auc_p_vals"] = self._get_n_significant(
                 auc_p_vals, self.p_thresh

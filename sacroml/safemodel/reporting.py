@@ -146,7 +146,7 @@ def get_reporting_string(**kwargs: dict) -> str:
             f"epochs = {inter_params['epochs']}.\n"
         ),
         "basic_params_differ": (
-            "Warning: basic parameters differ in " f"{inter_params['length']} places:\n"
+            f"Warning: basic parameters differ in {inter_params['length']} places:\n"
         ),
         "param_changed_from_to": (
             f"parameter {inter_params['key']} changed from {inter_params['val']} "
@@ -200,10 +200,10 @@ def get_reporting_string(**kwargs: dict) -> str:
             f"{inter_params['diffs_list']}"
         ),
         "no_dp_gradients_key": (
-            "optimizer does not contain key _was_dp_gradients_called" " so is not DP."
+            "optimizer does not contain key _was_dp_gradients_called so is not DP."
         ),
         "found_dp_gradients_key": (
-            "optimizer does  contain key _was_dp_gradients_called" " so should be DP."
+            "optimizer does  contain key _was_dp_gradients_called so should be DP."
         ),
         "changed_opt_no_fit": (
             "optimizer has been changed but fit() has not been rerun."
@@ -229,8 +229,7 @@ def get_reporting_string(**kwargs: dict) -> str:
             f"file gave this error message:  {inter_params['er']}"
         ),
         "loading_from_unsupported": (
-            f"loading from a {inter_params['suffix']} "
-            "file is currently not supported"
+            f"loading from a {inter_params['suffix']} file is currently not supported"
         ),
         "opt_config_changed": ("Optimizer config has been changed since training."),
         "epsilon_above_normal": (
@@ -239,7 +238,7 @@ def get_reporting_string(**kwargs: dict) -> str:
             "Discussion with researcher needed.\n"
         ),
         "recommend_further_discussion": (
-            f"Recommendation is further discussion needed " f"{inter_params['msg']}.\n"
+            f"Recommendation is further discussion needed {inter_params['msg']}.\n"
         ),
         "recommend_allow_release": ("Recommendation is to allow release.\n"),
         "allow_release_eps_below_max": (

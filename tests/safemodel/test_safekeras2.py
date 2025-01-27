@@ -69,9 +69,9 @@ def make_small_model(num_hidden_layers=2):
 def check_init_completed(model: SafeKerasModel):
     """Test basic checks for things that happen at end of correct init."""
     rightname = "KerasModel"
-    assert (
-        model.model_type == rightname
-    ), "failed check for model type being set in init()"
+    assert model.model_type == rightname, (
+        "failed check for model type being set in init()"
+    )
     errstr = (
         "default value of noise_multiplier=0.5"
         "Should have been reset to value 0.7 in rules.json"
@@ -142,7 +142,7 @@ def test_same_configs():  # pylint: disable=too-many-locals
     )
     assert not same1, errstr
     correct_msg1 = get_reporting_string(name="different_layer_count")
-    errstr = f"msg    was: {msg1}\n" f"should be : {correct_msg1}"
+    errstr = f"msg    was: {msg1}\nshould be : {correct_msg1}"
     assert msg1 == correct_msg1, errstr
 
     # same architecture
@@ -344,9 +344,9 @@ def test_keras_model_created():
     """Test keras model."""
     model, _, _, _, _ = make_small_model()
     rightname = "KerasModel"
-    assert (
-        model.model_type == rightname
-    ), "failed check for model type being set in init()"
+    assert model.model_type == rightname, (
+        "failed check for model type being set in init()"
+    )
     # noise multiplier should have been reset from default to one that matches
     # rules.json
     assert model.noise_multiplier == 0.7
@@ -377,9 +377,9 @@ def test_second_keras_model_created():
         epochs=EPOCHS,
     )
     rightname = "KerasModel"
-    assert (
-        model2.model_type == rightname
-    ), "failed check for second model type being set in init()"
+    assert model2.model_type == rightname, (
+        "failed check for second model type being set in init()"
+    )
     # noise multiplier should have been reset from default to one that matches
     # rules.json
     assert model2.noise_multiplier == 0.7
@@ -397,9 +397,9 @@ def test_keras_model_compiled_as_dp():
 
     right_epsilon = 20.363059561511612
     model.check_epsilon(X.shape[0], 20, 10)
-    assert model.current_epsilon == pytest.approx(
-        right_epsilon, 0.01
-    ), "failed check for epsilon after compilation"
+    assert model.current_epsilon == pytest.approx(right_epsilon, 0.01), (
+        "failed check for epsilon after compilation"
+    )
 
     # check this works
     ok, msg = model.check_epsilon(X.shape[0], 0, 10)
@@ -435,15 +435,15 @@ def test_keras_basic_fit():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -493,15 +493,15 @@ def test_keras_unsafe_l2_norm():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -530,15 +530,15 @@ def test_keras_unsafe_noise_multiplier():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -568,15 +568,15 @@ def test_keras_unsafe_min_epsilon():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -605,15 +605,15 @@ def test_keras_unsafe_delta():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = (
@@ -641,15 +641,15 @@ def test_keras_unsafe_batch_size():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
@@ -674,15 +674,15 @@ def test_keras_unsafe_learning_rate():
     model.fit(X, y, validation_data=(X_val, y_val), epochs=EPOCHS, batch_size=20)
 
     dp_used, msg = safekeras.check_dp_used(model.optimizer)
-    assert (
-        dp_used
-    ), "Failed check that DP version of optimiser was actually used in training"
+    assert dp_used, (
+        "Failed check that DP version of optimiser was actually used in training"
+    )
 
     loss, acc = model.evaluate(X, y)
     expected_accuracy = UNSAFE_ACC
-    assert round(acc, 6) == round(
-        expected_accuracy, 6
-    ), "failed check that accuracy is as expected"
+    assert round(acc, 6) == round(expected_accuracy, 6), (
+        "failed check that accuracy is as expected"
+    )
 
     msg, disclosive = model.preliminary_check()
     correct_msg = "Model parameters are within recommended ranges.\n"
