@@ -312,8 +312,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
                 test = self.model.score(self.X_test, self.y_test)
                 return test - train
             except sklearn.exceptions.NotFittedError:
-                return np.NaN
-        return np.NaN
+                return np.nan
+        return np.nan
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Save the target class to persistent storage.
