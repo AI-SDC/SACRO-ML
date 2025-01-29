@@ -389,9 +389,11 @@ and then change the name of the file 773992 to data01.csv.
         raise DataNotAvailable(help_message)
 
     if os.path.exists(file_path[1]):
-        input_data = pd.read_csv(ZipFile(file_path[1]).open("data01.csv"))
+        with ZipFile(file_path[1]) as myzip, myzip.open("data01.csv") as myfile:
+            input_data = pd.read_csv(myfile)
     else:
         input_data = pd.read_csv(file_path[0])
+
     clean_data = input_data.dropna(axis=0, how="any").drop(columns=["group", "ID"])
     target = "outcome"
     labels = clean_data[target]

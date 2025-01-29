@@ -89,10 +89,10 @@ exclude = [
 ]
 
 lint.ignore = [
-    "ANN101", # missing-type-self
-    "EM101",  # raw-string-in-exception
-    "EM102",  # f-string-in-exception
-    "N818",   # error-suffix-on-exception-name
+    "EM101",   # raw-string-in-exception
+    "EM102",   # f-string-in-exception
+    "N818",    # error-suffix-on-exception-name
+    "PLC0206", # dict-index-missing-items
 ]
 
 [tool.ruff.lint.pep8-naming]
@@ -114,3 +114,15 @@ docstring-code-line-length = 80
 "user_stories/**/*" = ["ANN"]
 "tests/**/*" = ["S101", "PLR2004", "ANN"]
 "sacroml/attacks/structural_attack.py" = ["PLR2004"]
+
+[tool.codespell]
+ignore-words-list = [
+    "fpr",
+    "tre",
+    "sav",
+    "provid",
+    "assertIn",
+    "worstcase",
+    "WorstCase",
+    "worst-case",
+]
