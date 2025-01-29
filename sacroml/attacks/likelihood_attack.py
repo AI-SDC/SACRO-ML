@@ -309,7 +309,7 @@ class LIRAAttack(Attack):
 
     def _get_p_normal(self, samples: np.ndarray) -> float:
         """Test whether a set of samples is normally distributed."""
-        p_normal: float = np.NaN
+        p_normal: float = np.nan
         if np.nanvar(samples) > EPS:
             with contextlib.suppress(ValueError):
                 _, p_normal = shapiro(samples)
