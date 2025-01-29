@@ -474,9 +474,7 @@ def test_generic_additional_tests():
     model.saved_model["newthing"] += ("extraA",)
     msg, disclosive = model.posthoc_check()
     print(
-        "contents of new then saved\n"
-        f"{model.newthing}\n"
-        f'{model.saved_model["newthing"]}'
+        f"contents of new then saved\n{model.newthing}\n{model.saved_model['newthing']}"
     )
 
     correct_msg = "Warning: different counts of values for parameter newthing.\n"
@@ -490,9 +488,7 @@ def test_generic_additional_tests():
         "Warning: at least one non-matching value for parameter list newthing.\n"
     )
     print(
-        "contents of new then saved\n"
-        f"{model.newthing}\n"
-        f'{model.saved_model["newthing"]}'
+        f"contents of new then saved\n{model.newthing}\n{model.saved_model['newthing']}"
     )
     assert msg == correct_msg, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
     assert disclosive

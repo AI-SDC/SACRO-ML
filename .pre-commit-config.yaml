@@ -21,10 +21,9 @@ repos:
 
   # Check for spelling
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: codespell
-        args: ["-L", "fpr, tre, sav, provid, assertIn"]
         exclude: >
             (?x)^(
                 .*\.svg|
@@ -33,7 +32,7 @@ repos:
 
   # Ruff, the Python auto-correcting linter/formatter written in Rust
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.9.3
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]

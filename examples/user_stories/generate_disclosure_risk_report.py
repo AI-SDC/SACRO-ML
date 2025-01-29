@@ -43,8 +43,7 @@ if __name__ == "__main__":
             config = yaml.load(handle, Loader=yaml.loader.SafeLoader)
     except AttributeError as error:  # pragma:no cover
         print(
-            "Invalid command. Try --help to get more details"
-            f"error message is {error}"
+            f"Invalid command. Try --help to get more detailserror message is {error}"
         )
 
     user_story = config["user_story"]
