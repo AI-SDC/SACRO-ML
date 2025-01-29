@@ -1,5 +1,11 @@
 # Changelog
 
+## Development
+
+Changes:
+*   Fix Sphinx documentation not displaying attacks ([#305](https://github.com/AI-SDC/SACRO-ML/pull/305))
+*   Fix NumPy 2.0 compatibility ([#317](https://github.com/AI-SDC/SACRO-ML/pull/317))
+
 ## Version 1.2.1 (Jul 29, 2024)
 
 Changes:

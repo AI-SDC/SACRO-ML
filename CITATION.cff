@@ -49,6 +49,10 @@ authors:
   - family-names: Mumtaz
     given-names: Shahzad
     affiliation: University of Dundee
+  - family-names: Migenda
+    given-names: Jost
+    affiliation: King's College London
+    orcid: https://orcid.org/0000-0002-5350-8049
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7080279
