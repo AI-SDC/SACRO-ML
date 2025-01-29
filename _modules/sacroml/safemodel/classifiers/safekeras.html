@@ -6,8 +6,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.safemodel.classifiers.safekeras &mdash; SACRO-ML 1.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=7ab3649f" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
@@ -74,19 +74,19 @@
   <h1>Source code for sacroml.safemodel.classifiers.safekeras</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Privacy protected Keras model.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">tensorflow_privacy</span> <span class="k">as</span> <span class="nn">tfp</span>
-<span class="kn">from</span> <span class="nn">dictdiffer</span> <span class="kn">import</span> <span class="n">diff</span>
-<span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">Model</span> <span class="k">as</span> <span class="n">KerasModel</span>  <span class="c1"># pylint: disable = import-error</span>
-<span class="kn">from</span> <span class="nn">tensorflow_privacy</span> <span class="kn">import</span> <span class="n">compute_dp_sgd_privacy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_privacy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dictdiffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">diff</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow.keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span> <span class="k">as</span> <span class="n">KerasModel</span>  <span class="c1"># pylint: disable = import-error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow_privacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_dp_sgd_privacy</span>
 
-<span class="kn">from</span> <span class="nn">sacroml.safemodel.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
-<span class="kn">from</span> <span class="nn">sacroml.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.safemodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SafeModel</span>
 
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
@@ -106,7 +106,7 @@
 
 <div class="viewcode-block" id="same_configs">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.same_configs">[docs]</a>
-<span class="k">def</span> <span class="nf">same_configs</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">same_configs</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if two models have the same architecture.&quot;&quot;&quot;</span>
     <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_layers</span><span class="p">:</span>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="same_weights">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.same_weights">[docs]</a>
-<span class="k">def</span> <span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if two nets with same architecture have the same weights.&quot;&quot;&quot;</span>
     <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_layers</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
@@ -163,7 +163,7 @@
 
 <div class="viewcode-block" id="check_checkpoint_equality">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_checkpoint_equality">[docs]</a>
-<span class="k">def</span> <span class="nf">check_checkpoint_equality</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_checkpoint_equality</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two checkpoints saved with tensorflow save_model.</span>
 
 <span class="sd">    On the assumption that the optimiser is not going to be saved,</span>
@@ -202,7 +202,7 @@
 
 <div class="viewcode-block" id="check_dp_used">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_dp_used">[docs]</a>
-<span class="k">def</span> <span class="nf">check_dp_used</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_dp_used</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether the DP optimizer was actually the one used.&quot;&quot;&quot;</span>
     <span class="n">key_needed</span> <span class="o">=</span> <span class="s2">&quot;_was_dp_gradients_called&quot;</span>
     <span class="n">critical_val</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_needed</span><span class="p">,</span> <span class="s2">&quot;missing&quot;</span><span class="p">)</span>
@@ -229,7 +229,7 @@
 
 <div class="viewcode-block" id="check_optimizer_allowed">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_optimizer_allowed">[docs]</a>
-<span class="k">def</span> <span class="nf">check_optimizer_allowed</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_optimizer_allowed</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the model&#39;s optimizer is in our white-list.</span>
 
 <span class="sd">    Default setting is not allowed.</span>
@@ -247,7 +247,7 @@
 
 <div class="viewcode-block" id="check_optimizer_is_dp">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.check_optimizer_is_dp">[docs]</a>
-<span class="k">def</span> <span class="nf">check_optimizer_is_dp</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_optimizer_is_dp</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether optimizer is one of tensorflow&#39;s DP versions.&quot;&quot;&quot;</span>
     <span class="n">dp_used</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
@@ -262,7 +262,7 @@
 
 <div class="viewcode-block" id="load_safe_keras_model">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.load_safe_keras_model">[docs]</a>
-<span class="k">def</span> <span class="nf">load_safe_keras_model</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_safe_keras_model</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read model from file in appropriate format.</span>
 
 <span class="sd">    Optimizer is deliberately excluded in the save.</span>
@@ -294,13 +294,13 @@
 
 <div class="viewcode-block" id="SafeKerasModel">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel">[docs]</a>
-<span class="k">class</span> <span class="nc">SafeKerasModel</span><span class="p">(</span><span class="n">KerasModel</span><span class="p">,</span> <span class="n">SafeModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SafeKerasModel</span><span class="p">(</span><span class="n">KerasModel</span><span class="p">,</span> <span class="n">SafeModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy Protected Wrapper around tf.keras.Model class from tensorflow 2.8.&quot;&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 <div class="viewcode-block" id="SafeKerasModel.__init__">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model and apply constraints to params.&quot;&quot;&quot;</span>
         <span class="n">the_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
@@ -361,7 +361,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.dp_epsilon_met">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.dp_epsilon_met">[docs]</a>
-    <span class="k">def</span> <span class="nf">dp_epsilon_met</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dp_epsilon_met</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">num_examples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if epsilon is sufficient for Differential Privacy.</span>
@@ -381,7 +381,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.check_epsilon">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.check_epsilon">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_epsilon</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_epsilon</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the level of privacy guarantee is within recommended limits.&quot;&quot;&quot;</span>
@@ -411,7 +411,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.compile">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.compile">[docs]</a>
-    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;categorical_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;categorical_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile the safe Keras model.</span>
 
 <span class="sd">        Replaces the optimiser with a DP variant if needed and creates the</span>
@@ -464,7 +464,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.fit">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
@@ -518,7 +518,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.posthoc_check">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.posthoc_check">[docs]</a>
-    <span class="k">def</span> <span class="nf">posthoc_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">posthoc_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the model should be considered unsafe.</span>
 
 <span class="sd">        For example, has been changed since fit() was last run,</span>
@@ -593,7 +593,7 @@
 
 <div class="viewcode-block" id="SafeKerasModel.save">
 <a class="viewcode-back" href="../../../../safemodel/safekeras.html#sacroml.safemodel.classifiers.safekeras.SafeKerasModel.save">[docs]</a>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write model to file in appropriate format.</span>
 
 <span class="sd">        Parameters</span>

@@ -6,8 +6,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.attacks.worst_case_attack &mdash; SACRO-ML 1.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
@@ -74,20 +74,20 @@
   <h1>Source code for sacroml.attacks.worst_case_attack</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Run a worst case attack based upon predictive probabilities.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fpdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="kn">from</span> <span class="nn">sacroml</span> <span class="kn">import</span> <span class="n">metrics</span>
-<span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
-<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span><span class="p">,</span> <span class="n">get_class_by_name</span>
-<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml</span><span class="w"> </span><span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.attack</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attack</span><span class="p">,</span> <span class="n">get_class_by_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -97,12 +97,12 @@
 
 <div class="viewcode-block" id="WorstCaseAttack">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack">[docs]</a>
-<span class="k">class</span> <span class="nc">WorstCaseAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorstCaseAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Worst case attack.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WorstCaseAttack.__init__">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-arguments</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
         <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -173,13 +173,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dummy_attack_metrics</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;WorstCase attack&quot;</span>
 
 <div class="viewcode-block" id="WorstCaseAttack.attack">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack">[docs]</a>
-    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run worst case attack.</span>
 
 <span class="sd">        Parameters</span>
@@ -228,7 +228,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create attack report.&quot;&quot;&quot;</span>
         <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="n">output</span><span class="p">[</span><span class="s2">&quot;dummy_attack_experiments_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -238,7 +238,7 @@
 
 <div class="viewcode-block" id="WorstCaseAttack.attack_from_preds">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds">[docs]</a>
-    <span class="k">def</span> <span class="nf">attack_from_preds</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attack_from_preds</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">proba_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -284,7 +284,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished running attacks&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_prepare_attack_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_attack_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">proba_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -313,7 +313,7 @@
         <span class="n">mi_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">proba_train</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">proba_test</span><span class="p">))))</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">mi_x</span><span class="p">,</span> <span class="n">mi_y</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_attack_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_attack_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an instantiated attack model.&quot;&quot;&quot;</span>
         <span class="c1"># load attack model module and get class</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">get_class_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attack_model</span><span class="p">)</span>
@@ -330,7 +330,7 @@
         <span class="c1"># instantiate attack model</span>
         <span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">model</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_get_reproducible_split</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_reproducible_split</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of splits.&quot;&quot;&quot;</span>
         <span class="n">split</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reproduce_split</span>
         <span class="n">n_reps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reps</span>
@@ -360,7 +360,7 @@
 
 <div class="viewcode-block" id="WorstCaseAttack.run_attack_reps">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_attack_reps</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-locals</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_attack_reps</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">proba_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -420,7 +420,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mia_metrics&quot;</span><span class="p">:</span> <span class="n">mia_metrics</span><span class="p">}</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_global_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attack_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_global_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attack_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summarise metrics from a metric list.</span>
 
 <span class="sd">        Parameters</span>
@@ -467,7 +467,7 @@
 
         <span class="k">return</span> <span class="n">global_metrics</span>
 
-    <span class="k">def</span> <span class="nf">_get_n_significant</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_n_significant</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">p_val_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">p_thresh</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">bh_fdr_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of p-values significant at `p_thresh`.</span>
@@ -482,7 +482,7 @@
         <span class="n">bh_sig_list</span> <span class="o">=</span> <span class="n">p_val_list</span> <span class="o">&lt;=</span> <span class="n">hoch_vals</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bh_sig_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">bh_sig_list</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">_generate_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate array of predictions, used when doing baseline experiments.</span>
 
 <span class="sd">        Parameters</span>
@@ -507,7 +507,7 @@
 
 <div class="viewcode-block" id="WorstCaseAttack.generate_arrays">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_arrays</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_arrays</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_rows_in</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">n_rows_out</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -539,7 +539,7 @@
         <span class="k">return</span> <span class="n">proba_train</span><span class="p">,</span> <span class="n">proba_test</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_construct_metadata</span><span class="p">()</span>
 
@@ -548,7 +548,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_unpack_dummy_attack_metrics_experiments_instances</span><span class="p">()</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_unpack_dummy_attack_metrics_experiments_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unpack_dummy_attack_metrics_experiments_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
         <span class="n">dummy_attack_metrics_instances</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">exp_rep</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dummy_attack_metrics</span><span class="p">):</span>
@@ -556,7 +556,7 @@
             <span class="n">dummy_attack_metrics_instances</span> <span class="o">+=</span> <span class="n">temp_dummy_attack_metrics</span>
         <span class="k">return</span> <span class="n">dummy_attack_metrics_instances</span>
 
-    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
         <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
@@ -565,7 +565,7 @@
         <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_metrics_instances</span>
         <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
 
-    <span class="k">def</span> <span class="nf">_get_dummy_attack_metrics_experiments_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_dummy_attack_metrics_experiments_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
         <span class="n">dummy_attack_metrics_experiments</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">exp_rep</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dummy_attack_metrics</span><span class="p">):</span>
@@ -582,7 +582,7 @@
             <span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
         <span class="k">return</span> <span class="n">dummy_attack_metrics_experiments</span>
 
-    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">report</span><span class="o">.</span><span class="n">create_mia_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
 

@@ -6,8 +6,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.safemodel.safemodel &mdash; SACRO-ML 1.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=7ab3649f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
@@ -74,26 +74,26 @@
   <h1>Source code for sacroml.safemodel.safemodel</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Prototypes of privacy safe model wrappers.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">getpass</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">PicklingError</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pickle</span><span class="w"> </span><span class="kn">import</span> <span class="n">PicklingError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">joblib</span>
-<span class="kn">from</span> <span class="nn">dictdiffer</span> <span class="kn">import</span> <span class="n">diff</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dictdiffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">diff</span>
 
-<span class="kn">from</span> <span class="nn">sacroml.attacks.factory</span> <span class="kn">import</span> <span class="n">attack</span>
-<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">attack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
 
 <span class="c1"># pylint : disable=too-many-branches</span>
-<span class="kn">from</span> <span class="nn">.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reporting_string</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
@@ -101,7 +101,7 @@
 
 <div class="viewcode-block" id="check_min">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.check_min">[docs]</a>
-<span class="k">def</span> <span class="nf">check_min</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_min</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check minimum value constraint.</span>
 
 <span class="sd">    Parameters</span>
@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="check_max">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.check_max">[docs]</a>
-<span class="k">def</span> <span class="nf">check_max</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_max</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check maximum value constraint.</span>
 
 <span class="sd">    Parameters</span>
@@ -182,7 +182,7 @@
 
 <div class="viewcode-block" id="check_equal">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.check_equal">[docs]</a>
-<span class="k">def</span> <span class="nf">check_equal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_equal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check equality value constraint.</span>
 
 <span class="sd">    Parameters</span>
@@ -215,7 +215,7 @@
 
 <div class="viewcode-block" id="check_type">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.check_type">[docs]</a>
-<span class="k">def</span> <span class="nf">check_type</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_type</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the type of a value.</span>
 
 <span class="sd">    Parameters</span>
@@ -248,7 +248,7 @@
 
 <div class="viewcode-block" id="SafeModel">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel">[docs]</a>
-<span class="k">class</span> <span class="nc">SafeModel</span><span class="p">:</span>  <span class="c1"># pylint: disable = too-many-instance-attributes</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SafeModel</span><span class="p">:</span>  <span class="c1"># pylint: disable = too-many-instance-attributes</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy protected model base class.</span>
 
 <span class="sd">    Attributes</span>
@@ -290,7 +290,7 @@
 
 <div class="viewcode-block" id="SafeModel.__init__">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Super class constructor, gets researcher name.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
@@ -311,7 +311,7 @@
 
 <div class="viewcode-block" id="SafeModel.get_params">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.get_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a dictionary of parameter values restricted to those expected.&quot;&quot;&quot;</span>
         <span class="n">the_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -324,7 +324,7 @@
 
 <div class="viewcode-block" id="SafeModel.save">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.save">[docs]</a>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write model to file in appropriate format.</span>
 
 <span class="sd">        Note this is overloaded in `SafeKerasClassifer`</span>
@@ -377,7 +377,7 @@
                     <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__get_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get constraints relevant to the model type from the a read-only file.&quot;&quot;&quot;</span>
         <span class="n">rules</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">rule_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s2">&quot;rules.json&quot;</span><span class="p">)</span>
@@ -386,7 +386,7 @@
             <span class="n">rules</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">rules</span><span class="p">[</span><span class="s2">&quot;rules&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__apply_constraints</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__apply_constraints</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a safe rule for a given parameter.&quot;&quot;&quot;</span>
@@ -406,7 +406,7 @@
             <span class="n">msg</span> <span class="o">=</span> <span class="n">get_reporting_string</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;changed_param_equal&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span>
 
-    <span class="k">def</span> <span class="nf">__check_model_param</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_model_param</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">apply_constraints</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a current model parameter violates a safe rule.</span>
@@ -435,7 +435,7 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__apply_constraints</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">cur_val</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span>
 
-    <span class="k">def</span> <span class="nf">__check_model_param_and</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_model_param_and</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">apply_constraints</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether current model parameters violate a logical AND rule.</span>
@@ -451,7 +451,7 @@
                 <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span>
 
-    <span class="k">def</span> <span class="nf">__check_model_param_or</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_model_param_or</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether current model parameters violate a logical OR rule.&quot;&quot;&quot;</span>
         <span class="n">disclosive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -464,7 +464,7 @@
 
 <div class="viewcode-block" id="SafeModel.preliminary_check">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.preliminary_check">[docs]</a>
-    <span class="k">def</span> <span class="nf">preliminary_check</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preliminary_check</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">apply_constraints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether current model parameters violate the safe rules.</span>
@@ -516,7 +516,7 @@
 
 <div class="viewcode-block" id="SafeModel.get_current_and_saved_models">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.get_current_and_saved_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_current_and_saved_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_current_and_saved_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy self.__dict__ and split into dicts for current and saved versions.&quot;&quot;&quot;</span>
         <span class="n">current_model</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -551,7 +551,7 @@
 
 <div class="viewcode-block" id="SafeModel.examine_seperate_items">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.examine_seperate_items">[docs]</a>
-    <span class="k">def</span> <span class="nf">examine_seperate_items</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">examine_seperate_items</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">curr_vals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_vals</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check model-specific items exist in both current and saved copies.&quot;&quot;&quot;</span>
@@ -579,7 +579,7 @@
 
 <div class="viewcode-block" id="SafeModel.posthoc_check">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.posthoc_check">[docs]</a>
-    <span class="k">def</span> <span class="nf">posthoc_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">posthoc_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether model has been interfered with since fit() was last run.&quot;&quot;&quot;</span>
         <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -635,7 +635,7 @@
 
 <div class="viewcode-block" id="SafeModel.additional_checks">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.additional_checks">[docs]</a>
-    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">additional_checks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">curr_separate</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_separate</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform additional posthoc checks.</span>
@@ -687,7 +687,7 @@
 
 <div class="viewcode-block" id="SafeModel.request_release">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.request_release">[docs]</a>
-    <span class="k">def</span> <span class="nf">request_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save model and create a report for the TRE output checkers.</span>
 
 <span class="sd">        Parameters</span>
@@ -740,7 +740,7 @@
 
 <div class="viewcode-block" id="SafeModel.run_attack">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.run_attack">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_attack</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_attack</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
         <span class="n">attack_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -775,7 +775,7 @@
 
 <div class="viewcode-block" id="SafeModel.__str__">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel.__str__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return string with model description.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">+</span> <span class="s2">&quot; with parameters: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span></div>
 </div>
