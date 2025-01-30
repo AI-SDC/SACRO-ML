@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
@@ -200,6 +201,8 @@ def test_adaboost():
     # 'non' disclosive'
     # - base estimator =None => DecisionTreeClassifier with max_depth 1
     # also set THRESHOLD to 4
+    np.random.seed(42)
+
     param_dict = {"n_estimators": 2, "estimator": None}
     target = get_target("adaboost", **param_dict)
     myattack = sa.StructuralAttack()
