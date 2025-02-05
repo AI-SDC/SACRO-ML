@@ -10,17 +10,17 @@ the .yaml file.
 """
 
 import argparse
-import json
 import logging
 import os
 import pickle
 
 import numpy as np
 import yaml
-from aisdc.attacks.attack_report_formatter import GenerateTextReport
-from aisdc.attacks.likelihood_attack import LIRAAttack
-from aisdc.attacks.target import Target
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
+
+from sacroml.attacks.attack_report_formatter import GenerateTextReport
+from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.target import Target
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
@@ -30,7 +30,6 @@ def generate_report(
     y_train,
     X_test,
     y_test,
-    attack_output_name,
     target_filename,
     outfile,
 ):
@@ -42,8 +41,8 @@ def generate_report(
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Suppress messages from AI-SDC -- comment out these lines to
-    # see all the aisdc logging statements
+    # Suppress messages from SACRO-ML -- comment out these lines to
+    # see all the sacroml logging statements
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
@@ -64,46 +63,19 @@ def generate_report(
     # Wrap the training and test data into the Target object
     target = Target(model=target_model)
     target.add_processed_data(train_x, train_y, test_x, test_y)
+    target.save(os.path.join(directory, "target"))
 
     # Run the attack
-    wca = WorstCaseAttack(
-        n_dummy_reps=10, output_dir=directory, report_name=attack_output_name
-    )
+    wca = WorstCaseAttack(n_dummy_reps=10, output_dir=directory)
     wca.attack(target)
 
-    _ = wca.make_report()
-
-    # Define a configuration file for the attacks to be run
-    lira_config = {
-        "training_data_filename": "train_data.csv",
-        "test_data_filename": "test_data.csv",
-        "training_preds_filename": "train_preds.csv",
-        "test_preds_filename": "test_preds.csv",
-        "target_model": ["sklearn.ensemble", "RandomForestClassifier"],
-        "target_model_hyp": {"min_samples_split": 2, "min_samples_leaf": 1},
-    }
-
-    with open(
-        os.path.join(directory, "lira_config.json"), "w", encoding="utf-8"
-    ) as file:
-        file.write(json.dumps(lira_config))
-
-    # Run the LIRA attack to test disclosure risk
-    lira_attack_obj = LIRAAttack(
-        n_shadow_models=100,
-        attack_config_json_file_name=os.path.join(directory, "lira_config.json"),
-        output_dir=directory,
-        report_name=attack_output_name,
-    )
-
+    # Run the LiRA attack to test disclosure risk
+    lira_attack_obj = LIRAAttack(n_shadow_models=100, output_dir=directory)
     lira_attack_obj.attack(target)
-    _ = lira_attack_obj.make_report()
-
-    target.save(os.path.join(directory, "target"))
 
     text_report = GenerateTextReport()
     text_report.process_attack_target_json(
-        os.path.join(directory, attack_output_name) + ".json",
+        os.path.join(directory, "report") + ".json",
         target_filename=os.path.join(directory, "target", target_filename),
     )
 
@@ -125,7 +97,6 @@ def run_user_story(release_config: dict):
         release_config["y_train_path"],
         release_config["X_test_path"],
         release_config["y_test_path"],
-        release_config["attack_output_name"],
         release_config["target_results"],
         release_config["outfile"],
     )

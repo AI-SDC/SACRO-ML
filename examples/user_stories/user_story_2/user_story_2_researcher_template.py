@@ -22,15 +22,16 @@ import os
 
 import numpy as np
 import pandas as pd
-from aisdc.attacks.target import Target
-from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 from data_processing_researcher import process_dataset
+
+from sacroml.attacks.target import Target
+from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
 
 def run_user_story():
     """Create and train a model to be released."""
     # This section is not necessary but helpful - cleans up files that are
-    # created by aisdc
+    # created by sacroml
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 

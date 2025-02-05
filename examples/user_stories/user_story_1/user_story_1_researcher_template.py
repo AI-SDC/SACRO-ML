@@ -22,16 +22,17 @@ import os
 
 import numpy as np
 import pandas as pd
-from aisdc.attacks.target import Target
-from aisdc.safemodel.classifiers import SafeDecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+
+from sacroml.attacks.target import Target
+from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
 
 def main():
     """Create and train a model to be released."""
     # This section is not necessary but helpful - cleans up files that are
-    # created by aisdc
+    # created by sacroml
     save_directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
@@ -99,29 +100,38 @@ def main():
 
     # Wrap the model and data in a Target object
     # needed in order to call request_release()
-    target = Target(model=model)
-    target.name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
-    target.add_raw_data(
-        data, labels, X_train_orig, y_train_orig, X_test_orig, y_test_orig
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        # processed data
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        # original unprocessed data
+        X_orig=data,
+        y_orig=labels,
+        X_train_orig=X_train_orig,
+        y_train_orig=y_train_orig,
+        X_test_orig=X_test_orig,
+        y_test_orig=y_test_orig,
     )
     for i in range(n_features):
         target.add_feature(data_df.columns[i], indices[i], "onehot")
 
-    logging.info("Dataset: %s", target.name)
+    logging.info("Dataset: %s", target.dataset_name)
     logging.info("Features: %s", target.features)
-    logging.info("X_train shape = %s", np.shape(target.X_train))
-    logging.info("y_train shape = %s", np.shape(target.y_train))
-    logging.info("X_test shape = %s", np.shape(target.X_test))
-    logging.info("y_test shape = %s", np.shape(target.y_test))
+    logging.info("X_train shape: %s", str(target.X_train.shape))
+    logging.info("y_train shape: %s", str(target.y_train.shape))
+    logging.info("X_test shape: %s", str(target.X_test.shape))
+    logging.info("y_test shape: %s", str(target.y_test.shape))
 
     # Researcher can check for themselves whether their model passes individual
     # disclosure checks.Leave this code as-is for output disclosure checking.
-    save_filename = "direct_results"
     print("==========> first running attacks explicitly via run_attack()")
     for attack_name in ["worst_case", "attribute", "lira"]:
         print(f"===> running {attack_name} attack directly")
-        metadata = model.run_attack(target, attack_name, save_directory, save_filename)
+        metadata = model.run_attack(target, attack_name, save_directory)
         logging.info("metadata is:")
         for key, val in metadata.items():
             if isinstance(val, dict):

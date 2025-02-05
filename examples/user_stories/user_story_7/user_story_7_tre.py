@@ -35,7 +35,7 @@ def generate_report(directory, target_model_filepath):
         _ = pickle.load(file)
 
     print("Attacks cannot be run since the original dataset cannot be recreated")
-    print("AISDC cannot provide any help to TRE")
+    print("SACRO-ML cannot provide any help to TRE")
     print("In future, the researcher should use the Target.save() function or provide")
     print("copies of their training data")
 

@@ -648,7 +648,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         try:
             params = {"output_dir": output_dir}
             output = attack(target=target, attack_name=attack_name, **params)
-            metadata = output["metadata"]
+            metadata = output.get("metadata", {})
+
         except ValueError:
             metadata = {}
             metadata["outcome"] = "unrecognised attack type requested"

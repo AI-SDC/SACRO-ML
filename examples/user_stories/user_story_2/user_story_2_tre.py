@@ -17,8 +17,9 @@ import pickle
 import numpy as np
 import pandas as pd
 import yaml
-from aisdc.attacks.attack_report_formatter import GenerateTextReport
-from aisdc.attacks.target import Target
+
+from sacroml.attacks.attack_report_formatter import GenerateTextReport
+from sacroml.attacks.target import Target
 
 
 def process_dataset(filename, function_name, data_to_be_processed):
