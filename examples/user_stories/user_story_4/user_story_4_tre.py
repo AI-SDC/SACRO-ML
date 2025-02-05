@@ -15,16 +15,15 @@ import os
 import numpy as np
 import pandas as pd
 import yaml
-from sacroml.attacks.worst_case_attack import WorstCaseAttack
+
 from sacroml.attacks.target import Target
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
     directory,
     train_probabilities,
     test_probabilities,
-    attack_output_name,
-    outfile,
 ):
     """Generate report based on target model."""
     print()
@@ -78,8 +77,6 @@ def run_user_story(release_config: dict):
         release_config["training_artefacts_dir"],
         release_config["train_probabilities"],
         release_config["test_probabilities"],
-        release_config["attack_output_name"],
-        release_config["outfile"],
     )
 
 
