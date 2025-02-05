@@ -1,6 +1,6 @@
 # User Stories
 
-In this section there are code examples of how the AI-SDC tools can be used by both a researchers in Trusted Research Environment (TRE) and a TRE output checkers. Each project is unique and therefore how AI-SDC tools are applied may vary from case to case. The user guides have been split into 8 'user stories', each designed to fit a different use-case.
+In this section there are code examples of how the SACRO-ML tools can be used by both a researchers in Trusted Research Environment (TRE) and a TRE output checkers. Each project is unique and therefore how SACRO-ML tools are applied may vary from case to case. The user guides have been split into 8 'user stories', each designed to fit a different use-case.
 
 The following diagram is intended to identify the closest use-case match to projects:
 
@@ -27,7 +27,7 @@ Extra examples on how to use [safemodels](https://github.com/AI-SDC/SACRO-ML/tre
 
 ## Programming languages
 
-Although, AI-SDC tools is written in Python, some projects may use a different programming language to create their target model. However, where possible Python should be preferred as more extensive risk-disclosure testing has been performed.
+Although, SACRO-ML tools is written in Python, some projects may use a different programming language to create their target model. However, where possible Python should be preferred as more extensive risk-disclosure testing has been performed.
 
 While most of the stories are Python examples, `user_story_4` is written in R.
 
@@ -59,15 +59,15 @@ Unless otherwise specified, the stories are for Python machine learning models.
 
 ### User story 1: Ideal Case
 
-The user is familiar with AI-SDC tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model. Moreover, the user created the `Target` object provided by AI-SDC tools. This ensures an easier process to generate the data and metadata files required for the model release.
+The user is familiar with SACRO-ML tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model. Moreover, the user created the `Target` object provided by SACRO-ML tools. This ensures an easier process to generate the data and metadata files required for the model release.
 
 The user can perform attacks to check the viability of their model for release and have the opportunity to make changes where necessary. Once the user is satisfied, and generated all the attacks, the TRE staff performs an output check and makes a decision. This way the user optimises the time for release.
 
 ### User story 2: SafeModel class and Target object employed
 
-The user is familiar with AI-SDC tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model.
+The user is familiar with SACRO-ML tools. Also, the ML classifiers chosen for the project has been wrapped with the SafeModel class. This class, as the name indicates, ensures that the most leaky ML hyperparameters cannot be set, and therefore reducing the risk of data leakage from the generated model.
 
-In this example, the user does not use the `Target` object provided by AI-SDC tools, and does not call the function function `request_release` which provides all the data and metadata files required for output check. This means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fulfilled, the output checker can run attacks, generate reports and make a decision on model release.
+In this example, the user does not use the `Target` object provided by SACRO-ML tools, and does not call the function function `request_release` which provides all the data and metadata files required for output check. This means that the output checker has to recreate the processed data (code provided by user). The user also needs to state which rows of the data were used for training and testing of the model. Once all of this is fulfilled, the output checker can run attacks, generate reports and make a decision on model release.
 
 ### User Story 3: User provides dataset object but does not use SafeModel
 
