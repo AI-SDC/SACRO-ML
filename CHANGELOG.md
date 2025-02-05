@@ -6,6 +6,7 @@ Changes:
 *   Fix Sphinx documentation not displaying attacks ([#305](https://github.com/AI-SDC/SACRO-ML/pull/305))
 *   Fix NumPy 2.0 compatibility ([#317](https://github.com/AI-SDC/SACRO-ML/pull/317))
 *   Fix AdaBoostClassifier structural test ([#318](https://github.com/AI-SDC/SACRO-ML/pull/318))
+*   Fix user story examples ([#320](https://github.com/AI-SDC/SACRO-ML/pull/320), [#321](https://github.com/AI-SDC/SACRO-ML/pull/321))
 
 ## Version 1.2.1 (Jul 29, 2024)
 
