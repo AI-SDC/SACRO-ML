@@ -17,10 +17,11 @@ import pickle
 
 import numpy as np
 import yaml
-from aisdc.attacks.attack_report_formatter import GenerateTextReport
-from aisdc.attacks.likelihood_attack import LIRAAttack
-from aisdc.attacks.target import Target
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
+
+from sacroml.attacks.attack_report_formatter import GenerateTextReport
+from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.target import Target
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
@@ -43,7 +44,7 @@ def generate_report(
         os.makedirs(directory)
 
     # Suppress messages from AI-SDC -- comment out these lines to
-    # see all the aisdc logging statements
+    # see all the sacroml logging statements
     logging.getLogger("attack-reps").setLevel(logging.WARNING)
     logging.getLogger("prep-attack-data").setLevel(logging.WARNING)
     logging.getLogger("attack-from-preds").setLevel(logging.WARNING)
@@ -66,12 +67,8 @@ def generate_report(
     target.add_processed_data(train_x, train_y, test_x, test_y)
 
     # Run the attack
-    wca = WorstCaseAttack(
-        n_dummy_reps=10, output_dir=directory, report_name=attack_output_name
-    )
+    wca = WorstCaseAttack(n_dummy_reps=10, output_dir=directory)
     wca.attack(target)
-
-    _ = wca.make_report()
 
     # Define a configuration file for the attacks to be run
     lira_config = {
@@ -89,15 +86,9 @@ def generate_report(
         file.write(json.dumps(lira_config))
 
     # Run the LIRA attack to test disclosure risk
-    lira_attack_obj = LIRAAttack(
-        n_shadow_models=100,
-        attack_config_json_file_name=os.path.join(directory, "lira_config.json"),
-        output_dir=directory,
-        report_name=attack_output_name,
-    )
+    lira_attack_obj = LIRAAttack(n_shadow_models=100, output_dir=directory)
 
     lira_attack_obj.attack(target)
-    _ = lira_attack_obj.make_report()
 
     target.save(os.path.join(directory, "target"))
 

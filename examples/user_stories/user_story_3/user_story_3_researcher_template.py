@@ -32,7 +32,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 def run_user_story():
     """Create and train a model to be released."""
     # This section is not necessary but helpful - cleans up files that are
-    # created by aisdc
+    # created by sacroml
     directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
