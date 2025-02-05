@@ -25,7 +25,7 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 ## Instructions
 
 **For researchers or users**
-1. Select the best use-story match to the project.
+1. Select the best user-story match to the project.
 2. Familiarise yourself with the relevant user-story example, and discuss this with the TRE. Understanding how the process work for both sides will increase the changes of smooth project.
 3. Pre-process data and generate the ML model as appropriate for the project inside the TRE. Remember to follow the relevant researcher  user story example code (**user_story_[x]_researcher.[py/R]**).
 4. Make sure you generated all metadata, data and files required for output checking.
