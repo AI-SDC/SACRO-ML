@@ -15,16 +15,15 @@ import os
 import numpy as np
 import pandas as pd
 import yaml
-from aisdc.attacks.attack_report_formatter import GenerateTextReport
-from aisdc.attacks.worst_case_attack import WorstCaseAttack
+
+from sacroml.attacks.target import Target
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 
 def generate_report(
     directory,
     train_probabilities,
     test_probabilities,
-    attack_output_name,
-    outfile,
 ):
     """Generate report based on target model."""
     print()
@@ -57,31 +56,19 @@ def generate_report(
     output_test["prob_0"] = zero_class_test
     output_test["prob_1"] = 1 - zero_class_test
 
+    # Create Target
+    target = Target(
+        proba_train=np.array(output_train),
+        proba_test=np.array(output_test),
+        y_train=train_proba["true_label"],
+        y_test=test_proba["true_label"],
+    )
+
     # Run the attack
-    wca = WorstCaseAttack(
-        n_dummy_reps=10, output_dir=directory, report_name=attack_output_name
-    )
-    wca.attack_from_preds(
-        train_preds=np.array(output_train),
-        test_preds=np.array(output_test),
-        train_correct=train_proba["true_label"],
-        test_correct=test_proba["true_label"],
-    )
+    wca = WorstCaseAttack(n_dummy_reps=10, output_dir=directory)
+    wca.attack(target)
 
-    # Write results to a file
-    _ = wca.make_report()
-
-    text_report = GenerateTextReport()
-    text_report.process_attack_target_json(
-        os.path.join(directory, attack_output_name) + ".json",
-    )
-
-    text_report.export_to_file(
-        output_filename=os.path.join(directory, outfile),
-        move_files=True,
-    )
-
-    print("Results written to " + os.path.join(directory, outfile))
+    print(f"Results written to {directory}")
 
 
 def run_user_story(release_config: dict):
@@ -90,8 +77,6 @@ def run_user_story(release_config: dict):
         release_config["training_artefacts_dir"],
         release_config["train_probabilities"],
         release_config["test_probabilities"],
-        release_config["attack_output_name"],
-        release_config["outfile"],
     )
 
 
