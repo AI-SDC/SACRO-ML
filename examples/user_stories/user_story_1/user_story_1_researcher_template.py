@@ -32,7 +32,7 @@ from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 def main():
     """Create and train a model to be released."""
     # This section is not necessary but helpful - cleans up files that are
-    # created by aisdc
+    # created by sacroml
     save_directory = "training_artefacts"
     print("Creating directory for training artefacts")
 
@@ -121,10 +121,10 @@ def main():
 
     logging.info("Dataset: %s", target.dataset_name)
     logging.info("Features: %s", target.features)
-    logging.info("X_train shape = %s", np.shape(target.X_train))
-    logging.info("y_train shape = %s", np.shape(target.y_train))
-    logging.info("X_test shape = %s", np.shape(target.X_test))
-    logging.info("y_test shape = %s", np.shape(target.y_test))
+    logging.info("X_train shape: %s", str(target.X_train.shape))
+    logging.info("y_train shape: %s", str(target.y_train.shape))
+    logging.info("X_test shape: %s", str(target.X_test.shape))
+    logging.info("y_test shape: %s", str(target.y_test.shape))
 
     # Researcher can check for themselves whether their model passes individual
     # disclosure checks.Leave this code as-is for output disclosure checking.
