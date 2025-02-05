@@ -39,7 +39,6 @@ X_train_path: "X_train.txt"
 y_train_path: "y_train.txt"
 X_test_path: "X_test.txt"
 y_test_path: "y_test.txt"
-attack_output_name: "attack_output"
 
 # User story 4 - replace with path to csv files
 train_probabilities: "output_train.csv"
