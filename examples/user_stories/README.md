@@ -35,7 +35,7 @@ While most of the stories are Python examples, `user_story_4` is written in R.
 
 *Alternative to steps 5 and 6*
 
-5. Create a new configuration file using the same format in the [default_config.yaml](https://github.com/AI-SDC/SACRO-ML/blob/user_story_visibility/user_stories/default_config.yaml) file with a different name.
+5. Create a new configuration file using the same format in the [default_config.yaml](https://github.com/AI-SDC/SACRO-ML/blob/main/examples/user_stories/default_config.yaml) file with a different name.
 6. Run the command `python generate_disclosure_risk_report.py --config <your_config_file_name>`.
 
 **For TRE output checkers**
