@@ -65,11 +65,11 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if not isinstance(target.model, BaseEstimator):  # pragma: no cover
-            logger.info("WARNING: AttributeAttack only supports scikit-learn models.")
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: AttributeAttack requires a loadable model.")
             return {}
 
-        if target.n_features < 1:
+        if target.n_features < 1 or not target.has_raw_data():  # pragma: no cover
             logger.info("WARNING: AttributeAttack requires features to be defined.")
             return {}
 

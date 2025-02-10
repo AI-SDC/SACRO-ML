@@ -292,8 +292,8 @@ class StructuralAttack(Attack):
         """
         self.target = target
         # check it can be run
-        if not isinstance(target.model, BaseEstimator):
-            logger.info("WARNING: StructuralAttack only supports scikit-learn models.")
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: StructuralAttack requires a loadable model.")
             return {}
 
         # get proba values for training data

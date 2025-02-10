@@ -405,6 +405,30 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         self.safemodel = data
 
+    def has_data(self) -> bool:
+        """Return whether the target has all processed data."""
+        return (
+            self.X_train is not None
+            and self.y_train is not None
+            and self.X_test is not None
+            and self.y_test is not None
+        )
+
+    def has_raw_data(self) -> bool:
+        """Return whether the target has all raw data."""
+        return (
+            self.X_orig is not None
+            and self.y_orig is not None
+            and self.X_train_orig is not None
+            and self.y_train_orig is not None
+            and self.X_test_orig is not None
+            and self.y_test_orig is not None
+        )
+
+    def has_probas(self) -> bool:
+        """Return whether the target has all probability data."""
+        return self.proba_train is not None and self.proba_test is not None
+
     def __str__(self) -> str:
         """Return the name of the dataset used."""
         return self.dataset_name

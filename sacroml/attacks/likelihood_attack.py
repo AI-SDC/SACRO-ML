@@ -93,8 +93,8 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # check it can be run
-        if not isinstance(target.model, sklearn.base.BaseEstimator):  # pragma: no cover
-            logger.info("WARNING: LiRA only supports scikit-learn models.")
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: LiRA requires a loadable model.")
             return {}
         # prepare
         shadow_clf = sklearn.base.clone(target.model)

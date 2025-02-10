@@ -114,18 +114,14 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         train_c = None
         test_c = None
         # compute target model probas if possible
-        if (
-            target.model is not None
-            and target.X_train is not None
-            and target.y_train is not None
-        ):
+        if target.model is not None and target.has_data():
             proba_train = target.model.predict_proba(target.X_train)
             proba_test = target.model.predict_proba(target.X_test)
             if self.include_model_correct_feature:
                 train_c = 1 * (target.y_train == target.model.predict(target.X_train))
                 test_c = 1 * (target.y_test == target.model.predict(target.X_test))
         # use supplied target model probas if unable to compute
-        elif target.proba_train is not None and target.proba_test is not None:
+        elif target.has_probas():
             proba_train = target.proba_train
             proba_test = target.proba_test
         # cannot proceed
