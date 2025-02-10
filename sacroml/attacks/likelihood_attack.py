@@ -93,7 +93,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # check it can be run
-        if not isinstance(target.model, sklearn.base.BaseEstimator):
+        if not isinstance(target.model, sklearn.base.BaseEstimator):  # pragma: no cover
             logger.info("WARNING: LiRA only supports scikit-learn models.")
             return {}
         # prepare
