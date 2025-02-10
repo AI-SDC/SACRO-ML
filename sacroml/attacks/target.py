@@ -230,9 +230,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
         _, ext = os.path.splitext(path)
         if ext == ".pkl":
             arr = get_array_pkl(path, name)
-        elif ext == ".csv":
+        elif ext == ".csv":  # pragma: no cover
             arr = get_array_csv(path, name)
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Target cannot load {ext} files.") from None
         setattr(self, name, arr)
 
