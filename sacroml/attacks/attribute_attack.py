@@ -65,15 +65,19 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
+        if not isinstance(target.model, BaseEstimator):  # pragma: no cover
+            logger.info("WARNING: AttributeAttack only supports scikit-learn models.")
+            return {}
+
         if target.n_features < 1:
             logger.info("WARNING: AttributeAttack requires features to be defined.")
-        else:
-            logger.info("Running attribute inference attack")
-            self.attack_metrics = _attribute_inference(target, self.n_cpu)
-            output = self._make_report(target)
-            self._write_report(output)
-            return output
-        return {}
+            return {}
+
+        logger.info("Running attribute inference attack")
+        self.attack_metrics = _attribute_inference(target, self.n_cpu)
+        output = self._make_report(target)
+        self._write_report(output)
+        return output
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the instances metric calculated, during attacks."""
