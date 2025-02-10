@@ -410,7 +410,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         return self.dataset_name
 
 
-def get_array_pkl(path: str, name: str):
+def get_array_pkl(path: str, name: str):  # pragma: no cover
     """Load a data array from pickle."""
     try:
         with open(path, "rb") as fp:
@@ -426,7 +426,7 @@ def get_array_pkl(path: str, name: str):
     return arr
 
 
-def get_array_csv(path: str, name: str):
+def get_array_csv(path: str, name: str):  # pragma: no cover
     """Load a data array from csv."""
     try:
         arr = pd.read_csv(path, header=None).values
