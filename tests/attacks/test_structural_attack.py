@@ -158,7 +158,7 @@ def test_non_trees():
     # remove model
     target.model = None
     myattack2 = sa.StructuralAttack()
-    assert myattack2.attack(target) == {}
+    assert not myattack2.attack(target)
 
 
 def test_dt():

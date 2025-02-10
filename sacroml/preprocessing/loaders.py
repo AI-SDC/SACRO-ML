@@ -1,6 +1,6 @@
 """Handlers to pull in datasets and perform preprocessing."""
 
-# pylint: disable=consider-using-with, too-many-return-statements
+# pylint: disable=too-many-return-statements
 
 import logging
 import os
