@@ -270,6 +270,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self._save_numpy(path, target, "y_train_orig")
         self._save_numpy(path, target, "X_test_orig")
         self._save_numpy(path, target, "y_test_orig")
+        self._save_numpy(path, target, "proba_train")
+        self._save_numpy(path, target, "proba_test")
 
     def _load_data(self, path: str, target: dict) -> None:
         """Load the target model data.
@@ -291,6 +293,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self._load_array(path, target, "y_train_orig")
         self._load_array(path, target, "X_test_orig")
         self._load_array(path, target, "y_test_orig")
+        self._load_array(path, target, "proba_train")
+        self._load_array(path, target, "proba_test")
 
     def _ge(self) -> float:
         """Return the model generalisation error.
