@@ -92,6 +92,10 @@ class LIRAAttack(Attack):
         dict
             Attack report.
         """
+        # check it can be run
+        if not isinstance(target.model, sklearn.base.BaseEstimator):
+            logger.info("WARNING: LiRA only supports scikit-learn models.")
+            return {}
         # prepare
         shadow_clf = sklearn.base.clone(target.model)
         target = self._check_and_update_dataset(target)

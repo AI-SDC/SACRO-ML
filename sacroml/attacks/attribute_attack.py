@@ -66,7 +66,7 @@ class AttributeAttack(Attack):
             Attack report.
         """
         if target.n_features < 1:
-            logger.info("Can't run attribute inference unless features are defined.")
+            logger.info("WARNING: AttributeAttack requires features to be defined.")
         else:
             logger.info("Running attribute inference attack")
             self.attack_metrics = _attribute_inference(target, self.n_cpu)

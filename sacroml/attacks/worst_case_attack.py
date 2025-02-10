@@ -130,7 +130,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             proba_test = target.proba_test
         # cannot proceed
         else:
-            logger.info("Insufficient Target details to run worst case attack.")
+            logger.info("WARNING: WorstCaseAttack requires more Target details.")
             return {}
         # execute attack
         self.attack_from_preds(

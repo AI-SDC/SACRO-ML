@@ -291,12 +291,10 @@ class StructuralAttack(Attack):
             Attack report.
         """
         self.target = target
-        if target.model is None:
-            errstr = (
-                "cannot currently call StructuralAttack.attack() "
-                "unless the target contains a trained model"
-            )
-            raise NotImplementedError(errstr)
+        # check it can be run
+        if not isinstance(target.model, BaseEstimator):
+            logger.info("WARNING: StructuralAttack only supports scikit-learn models.")
+            return {}
 
         # get proba values for training data
         x = self.target.X_train
