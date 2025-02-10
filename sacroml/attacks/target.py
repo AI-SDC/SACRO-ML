@@ -7,6 +7,7 @@ import os
 import pickle
 
 import numpy as np
+import pandas as pd
 import sklearn
 import yaml
 
@@ -216,6 +217,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def load_array(self, arr_path: str, name: str) -> None:
         """Load a data array variable from file.
 
+        Handles both .pkl and .csv files.
+
         Parameters
         ----------
         arr_path : str
@@ -224,14 +227,14 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Name of the data array to load.
         """
         path = os.path.normpath(arr_path)
-        with open(path, "rb") as fp:
-            _, ext = os.path.splitext(path)
-            if ext == ".pkl":
-                arr = pickle.load(fp)
-                setattr(self, name, arr)
-                logger.info("%s shape: %s", name, arr.shape)
-            else:
-                raise ValueError(f"Target cannot load {ext} files.")
+        _, ext = os.path.splitext(path)
+        if ext == ".pkl":
+            arr = get_array_pkl(path, name)
+        elif ext == ".csv":
+            arr = get_array_csv(path, name)
+        else:
+            raise ValueError(f"Target cannot load {ext} files.") from None
+        setattr(self, name, arr)
 
     def _load_array(self, arr_path: str, target: dict, name: str) -> None:
         """Load a data array variable contained in a yaml config.
@@ -405,3 +408,35 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def __str__(self) -> str:
         """Return the name of the dataset used."""
         return self.dataset_name
+
+
+def get_array_pkl(path: str, name: str):
+    """Load a data array from pickle."""
+    try:
+        with open(path, "rb") as fp:
+            arr = pickle.load(fp)
+            try:
+                logger.info("%s shape: %s", name, arr.shape)
+            except AttributeError:
+                logger.info("%s is a scalar value.", name)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Pickle file not found: {path}") from e
+    except Exception as e:
+        raise ValueError(f"Error loading pickle file {path}: {e}") from None
+    return arr
+
+
+def get_array_csv(path: str, name: str):
+    """Load a data array from csv."""
+    try:
+        arr = pd.read_csv(path, header=None).values
+        logger.info("%s shape: %s", name, arr.shape)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"CSV file not found: {path}") from e
+    except pd.errors.EmptyDataError as e:
+        raise ValueError(f"CSV file is empty: {path}") from e
+    except pd.errors.ParserError as e:
+        raise ValueError(f"Error parsing CSV file {path}: {e}") from e
+    except Exception as e:
+        raise ValueError(f"Error reading CSV file {path}: {e}") from None
+    return arr
