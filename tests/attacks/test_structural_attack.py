@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -159,8 +158,7 @@ def test_non_trees():
     # remove model
     target.model = None
     myattack2 = sa.StructuralAttack()
-    with pytest.raises(NotImplementedError):
-        myattack2.attack(target)
+    assert myattack2.attack(target) == {}
 
 
 def test_dt():
