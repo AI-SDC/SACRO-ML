@@ -173,6 +173,10 @@
 <span class="sd">        dict</span>
 <span class="sd">            Attack report.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check it can be run</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: LiRA requires a loadable model.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
         <span class="c1"># prepare</span>
         <span class="n">shadow_clf</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
         <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_and_update_dataset</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>

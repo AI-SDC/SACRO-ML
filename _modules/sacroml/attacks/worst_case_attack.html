@@ -195,23 +195,19 @@
         <span class="n">train_c</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">test_c</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># compute target model probas if possible</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">X_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">y_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>
             <span class="n">proba_train</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
             <span class="n">proba_test</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_model_correct_feature</span><span class="p">:</span>
                 <span class="n">train_c</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_train</span> <span class="o">==</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">))</span>
                 <span class="n">test_c</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_test</span> <span class="o">==</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">))</span>
         <span class="c1"># use supplied target model probas if unable to compute</span>
-        <span class="k">elif</span> <span class="n">target</span><span class="o">.</span><span class="n">proba_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">proba_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">target</span><span class="o">.</span><span class="n">has_probas</span><span class="p">():</span>
             <span class="n">proba_train</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">proba_train</span>
             <span class="n">proba_test</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">proba_test</span>
         <span class="c1"># cannot proceed</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Insufficient Target details to run worst case attack.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: WorstCaseAttack requires more Target details.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">{}</span>
         <span class="c1"># execute attack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attack_from_preds</span><span class="p">(</span>
