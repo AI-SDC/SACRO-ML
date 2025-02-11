@@ -7,6 +7,7 @@ import os
 import pickle
 
 import numpy as np
+import pandas as pd
 import sklearn
 import yaml
 
@@ -216,6 +217,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def load_array(self, arr_path: str, name: str) -> None:
         """Load a data array variable from file.
 
+        Handles both .pkl and .csv files.
+
         Parameters
         ----------
         arr_path : str
@@ -224,14 +227,14 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Name of the data array to load.
         """
         path = os.path.normpath(arr_path)
-        with open(path, "rb") as fp:
-            _, ext = os.path.splitext(path)
-            if ext == ".pkl":
-                arr = pickle.load(fp)
-                setattr(self, name, arr)
-                logger.info("%s shape: %s", name, arr.shape)
-            else:
-                raise ValueError(f"Target cannot load {ext} files.")
+        _, ext = os.path.splitext(path)
+        if ext == ".pkl":
+            arr = get_array_pkl(path, name)
+        elif ext == ".csv":  # pragma: no cover
+            arr = get_array_csv(path, name)
+        else:  # pragma: no cover
+            raise ValueError(f"Target cannot load {ext} files.") from None
+        setattr(self, name, arr)
 
     def _load_array(self, arr_path: str, target: dict, name: str) -> None:
         """Load a data array variable contained in a yaml config.
@@ -270,6 +273,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self._save_numpy(path, target, "y_train_orig")
         self._save_numpy(path, target, "X_test_orig")
         self._save_numpy(path, target, "y_test_orig")
+        self._save_numpy(path, target, "proba_train")
+        self._save_numpy(path, target, "proba_test")
 
     def _load_data(self, path: str, target: dict) -> None:
         """Load the target model data.
@@ -291,6 +296,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self._load_array(path, target, "y_train_orig")
         self._load_array(path, target, "X_test_orig")
         self._load_array(path, target, "y_test_orig")
+        self._load_array(path, target, "proba_train")
+        self._load_array(path, target, "proba_test")
 
     def _ge(self) -> float:
         """Return the model generalisation error.
@@ -398,6 +405,62 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         self.safemodel = data
 
+    def has_data(self) -> bool:
+        """Return whether the target has all processed data."""
+        return (
+            self.X_train is not None
+            and self.y_train is not None
+            and self.X_test is not None
+            and self.y_test is not None
+        )
+
+    def has_raw_data(self) -> bool:
+        """Return whether the target has all raw data."""
+        return (
+            self.X_orig is not None
+            and self.y_orig is not None
+            and self.X_train_orig is not None
+            and self.y_train_orig is not None
+            and self.X_test_orig is not None
+            and self.y_test_orig is not None
+        )
+
+    def has_probas(self) -> bool:
+        """Return whether the target has all probability data."""
+        return self.proba_train is not None and self.proba_test is not None
+
     def __str__(self) -> str:
         """Return the name of the dataset used."""
         return self.dataset_name
+
+
+def get_array_pkl(path: str, name: str):  # pragma: no cover
+    """Load a data array from pickle."""
+    try:
+        with open(path, "rb") as fp:
+            arr = pickle.load(fp)
+            try:
+                logger.info("%s shape: %s", name, arr.shape)
+            except AttributeError:
+                logger.info("%s is a scalar value.", name)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Pickle file not found: {path}") from e
+    except Exception as e:
+        raise ValueError(f"Error loading pickle file {path}: {e}") from None
+    return arr
+
+
+def get_array_csv(path: str, name: str):  # pragma: no cover
+    """Load a data array from csv."""
+    try:
+        arr = pd.read_csv(path, header=None).values
+        logger.info("%s shape: %s", name, arr.shape)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"CSV file not found: {path}") from e
+    except pd.errors.EmptyDataError as e:
+        raise ValueError(f"CSV file is empty: {path}") from e
+    except pd.errors.ParserError as e:
+        raise ValueError(f"Error parsing CSV file {path}: {e}") from e
+    except Exception as e:
+        raise ValueError(f"Error reading CSV file {path}: {e}") from None
+    return arr

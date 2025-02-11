@@ -291,12 +291,10 @@ class StructuralAttack(Attack):
             Attack report.
         """
         self.target = target
-        if target.model is None:
-            errstr = (
-                "cannot currently call StructuralAttack.attack() "
-                "unless the target contains a trained model"
-            )
-            raise NotImplementedError(errstr)
+        # check it can be run
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: StructuralAttack requires a loadable model.")
+            return {}
 
         # get proba values for training data
         x = self.target.X_train

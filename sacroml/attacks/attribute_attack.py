@@ -65,15 +65,19 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if target.n_features < 1:
-            logger.info("Can't run attribute inference unless features are defined.")
-        else:
-            logger.info("Running attribute inference attack")
-            self.attack_metrics = _attribute_inference(target, self.n_cpu)
-            output = self._make_report(target)
-            self._write_report(output)
-            return output
-        return {}
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: AttributeAttack requires a loadable model.")
+            return {}
+
+        if target.n_features < 1 or not target.has_raw_data():  # pragma: no cover
+            logger.info("WARNING: AttributeAttack requires features to be defined.")
+            return {}
+
+        logger.info("Running attribute inference attack")
+        self.attack_metrics = _attribute_inference(target, self.n_cpu)
+        output = self._make_report(target)
+        self._write_report(output)
+        return output
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the instances metric calculated, during attacks."""

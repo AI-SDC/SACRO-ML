@@ -92,6 +92,10 @@ class LIRAAttack(Attack):
         dict
             Attack report.
         """
+        # check it can be run
+        if target.model is None or not target.has_data():  # pragma: no cover
+            logger.info("WARNING: LiRA requires a loadable model.")
+            return {}
         # prepare
         shadow_clf = sklearn.base.clone(target.model)
         target = self._check_and_update_dataset(target)
