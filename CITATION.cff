@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: SACRO-ML
-version: 1.2.1
-doi: 10.5281/zenodo.13125928
-date-released: 2024-07-29
+version: 1.2.2
+doi:
+date-released: 2025-02-20
 license: MIT
 repository-code: https://github.com/AI-SDC/SACRO-ML
 languages:

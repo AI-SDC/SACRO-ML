@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.2.2 (under development)
+## Version 1.2.2 (Feb 20, 2025)
 
 Changes:
 *   Fix Sphinx documentation not displaying attacks ([#305](https://github.com/AI-SDC/SACRO-ML/pull/305))
