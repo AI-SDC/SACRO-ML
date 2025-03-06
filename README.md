@@ -46,7 +46,7 @@ $ conda install sacroml
 
 To additionally install the dependencies for the safemodel package.
 
-Note that these are not yet available for Windows.
+Note that these are not yet available for Windows via conda.
 
 ```
 $ conda install tensorflow-privacy dictdiffer
