@@ -108,3 +108,21 @@ def test_lira_attack(lira_classifier_setup, mode, expect_error, fix_variance):
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert 0 <= metrics["TPR"] <= 1
     assert 0 <= metrics["FPR"] <= 1
+
+
+def test_lira_multiclass(get_target_multiclass):
+    """Test LIRAAttack with multiclass data."""
+    target = get_target_multiclass
+    lira = LIRAAttack(
+        output_dir="test_output_lira",
+        write_report=True,
+        n_shadow_models=20,
+        p_thresh=0.05,
+        mode="offline",
+        fix_variance=False,
+        report_individual=False,
+    )
+    output = lira.attack(target)
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert 0 <= metrics["TPR"] <= 1
+    assert 0 <= metrics["FPR"] <= 1

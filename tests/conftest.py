@@ -8,7 +8,8 @@ from datetime import date
 import numpy as np
 import pytest
 import sklearn
-from sklearn.datasets import fetch_openml
+from sklearn.datasets import fetch_openml, make_classification
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
@@ -171,4 +172,52 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
     target.add_raw_data(xmore, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
+    return target
+
+
+@pytest.fixture
+def get_target_multiclass() -> Target:
+    """
+    Return a target object with multiclass test data and fitted model.
+
+    Uses RF target model with continuous-valued features and
+    label encoding for target class.
+    """
+    # make some data
+    X, y = make_classification(
+        n_samples=100,
+        n_features=2,
+        n_informative=2,
+        n_redundant=0,
+        n_repeated=0,
+        n_classes=4,
+        n_clusters_per_class=1,
+        random_state=1,
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.1, stratify=y, shuffle=True, random_state=1
+    )
+
+    # fit model
+    model = RandomForestClassifier(bootstrap=False)
+    model.fit(X_train, y_train)
+
+    # wrap
+    target = Target(
+        model=model,
+        dataset_name="multiclass",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_orig=X,
+        y_orig=y,
+        X_train_orig=X_train,
+        y_train_orig=y_train,
+        X_test_orig=X_test,
+        y_test_orig=y_test,
+    )
+    for i in range(2):
+        target.add_feature(f"V{i}", [i], "float")
     return target

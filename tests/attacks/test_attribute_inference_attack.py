@@ -93,3 +93,11 @@ def test_aia_on_nursery(common_setup):
         "instance_0"
     ].keys()
     assert "categorical" in keys
+
+
+def test_aia_multiclass(get_target_multiclass):
+    """Test AttributeAttack with multiclass data."""
+    target = get_target_multiclass
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=7)
+    output = attack_obj.attack(target)
+    assert output
