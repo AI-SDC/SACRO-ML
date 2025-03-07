@@ -360,3 +360,11 @@ def test_reporting():
     target = get_target("dt", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
+
+
+def test_structural_multiclass(get_target_multiclass):
+    """Test StructuralAttack with multiclass data."""
+    target = get_target_multiclass
+    attack_obj = sa.StructuralAttack()
+    output = attack_obj.attack(target)
+    assert output

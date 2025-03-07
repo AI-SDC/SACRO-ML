@@ -177,3 +177,19 @@ def test_attack_data_prep_with_correct_feature():
     np.testing.assert_array_equal(
         mi_x, np.array([[1, 0, 1], [0, 1, 0], [2, 0, 0], [0, 2, 1]])
     )
+
+
+def test_wc_multiclass(get_target_multiclass):
+    """Test WorstCaseAttack with multiclass data."""
+    target = get_target_multiclass
+    attack_obj = worst_case_attack.WorstCaseAttack(
+        n_reps=5,
+        n_dummy_reps=0,
+        p_thresh=0.05,
+        test_prop=0.5,
+        output_dir="test_output_worstcase",
+    )
+    output = attack_obj.attack(target)
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert 0 <= metrics["TPR"] <= 1
+    assert 0 <= metrics["FPR"] <= 1
