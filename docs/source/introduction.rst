@@ -21,7 +21,7 @@ When can SACRO-ML be used?
 
 What SACRO-ML is not intended for?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- For those ML models which contain embeded data. For example, instance based methods including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC),  Self Organising Map (SOM), Learning Vector Quantization (LVQ), Locally Weighted Learning (LWL), Case-Based Reasoning , Gaussian Process, Kernel-based models, etc. Those model cannot be released out of the TRE as they contain embeded training data.
+- For those ML models which contain embeded data. For example, instance based methods including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC),  Self Organising Map (SOM), Learning Vector Quantization (LVQ), Locally Weighted Learning (LWL), Case-Based Reasoning , Gaussian Process, Kernel-based models, etc.
 - Many of the deep learning models are at high risk of including data careful consideration should be applied before using SACRO-ML.
 - When there is no test data or the test data has been seen by the model during the training phase.
 - For any other concern that the trained model might be at risk of data breach.
