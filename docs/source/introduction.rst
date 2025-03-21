@@ -17,6 +17,7 @@ When can SACRO-ML be used?
 - The model does not contain embedded data points.
 - When the test data has not been seen by the trained model. 
 - The test data must have at ideally 30 to 50% of the orginal data, and at least 20%.
+- For models which predict with numerical values as oposed to binary (i.e. yes|no).
 
 What SACRO-ML is not intended for?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
