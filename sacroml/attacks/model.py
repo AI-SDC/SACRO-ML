@@ -162,3 +162,13 @@ class Model(ABC):
         dict
             Model parameters.
         """
+
+    @abstractmethod
+    def get_name(self) -> str:
+        """Get the name of this model.
+
+        Returns
+        -------
+        str
+            Model name.
+        """
