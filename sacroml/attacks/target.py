@@ -89,7 +89,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.model_name: str = "unknown"
         self.model_params: dict = {}
         if self.model is not None:
-            self.model_name = type(self.model).__name__
+            self.model_name = self.model.get_name()
             self.model_params = self.model.get_params()
         # Model - predicted probabilities
         self.proba_train: np.ndarray | None = proba_train
@@ -200,8 +200,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if ext == ".pkl":
             with open(path, "rb") as fp:
                 self.model = pickle.load(fp)
-                model_type = type(self.model)
-                logger.info("Loaded: %s", model_type.__name__)
+                model_type = type(self.model).__name__
+                model_name = self.model.get_name()
+                logger.info("Loaded: %s : %s", model_type, model_name)
         else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for loading a model: {ext}")
 

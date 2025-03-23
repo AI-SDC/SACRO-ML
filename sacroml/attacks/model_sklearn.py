@@ -171,3 +171,13 @@ class SklearnModel(Model):
             Model parameters.
         """
         return self.model.get_params()
+
+    def get_name(self) -> str:
+        """Get the name of this model.
+
+        Returns
+        -------
+        str
+            Model name.
+        """
+        return type(self.model).__name__
