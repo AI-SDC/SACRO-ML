@@ -1,13 +1,14 @@
-"""Sklearn target models."""
+"""Keras target models.
+
+TEMPLATE - NEEDS COMPLETING - REMOVE NOQAs
+"""
 
 from __future__ import annotations
 
 import logging
-import pickle
-from pathlib import Path
 
 import numpy as np
-import sklearn
+import tensorflow as tf
 
 from sacroml.attacks.model import Model
 
@@ -15,10 +16,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SklearnModel(Model):
-    """Interface to sklearn.base.BaseEstimator models."""
+class KerasModel(Model):
+    """Interface to tensorflow.keras.Model models."""
 
-    def __init__(self, model: sklearn.base.BaseEstimator) -> None:
+    def __init__(self, model: tf.keras.Model) -> None:
         """Instantiate a target model.
 
         Parameters
@@ -30,10 +31,10 @@ class SklearnModel(Model):
 
     def get_generalisation_error(
         self,
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_test: np.ndarray,
-        y_test: np.ndarray,
+        X_train: np.ndarray,  # noqa: ARG002
+        y_train: np.ndarray,  # noqa: ARG002
+        X_test: np.ndarray,  # noqa: ARG002
+        y_test: np.ndarray,  # noqa: ARG002
     ) -> float:
         """Return the model generalisation error for a set of samples.
 
@@ -53,13 +54,6 @@ class SklearnModel(Model):
         float
             Model generalisation error.
         """
-        if hasattr(self.model, "score"):
-            try:
-                train = self.model.score(X_train, y_train)
-                test = self.model.score(X_test, y_test)
-                return test - train
-            except sklearn.exceptions.NotFittedError:
-                return np.nan
         return np.nan
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
@@ -77,7 +71,10 @@ class SklearnModel(Model):
         float
             Model score.
         """
-        return self.model.score(X, y)
+        metrics = self.model.evaluate(X, y, verbose=0)
+        if len(metrics) > 1:
+            return metrics[1]  # Accuracy for classification
+        return -metrics[0]  # Negative loss for regression
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Return the model predictions for a set of samples.
@@ -92,9 +89,9 @@ class SklearnModel(Model):
         np.ndarray
             Model predictions.
         """
-        return self.model.predict(X)
+        return X
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> Model:
+    def fit(self, X: np.ndarray, y: np.ndarray) -> Model:  # noqa: ARG002
         """Fit the model.
 
         Parameters
@@ -109,7 +106,7 @@ class SklearnModel(Model):
         self
             Fitted model.
         """
-        return self.model.fit(X, y)
+        return self.model
 
     def clone(self) -> Model:
         """Return a clone of the model.
@@ -121,8 +118,7 @@ class SklearnModel(Model):
         Model
             A cloned model.
         """
-        model: sklearn.base.BaseEstimator = sklearn.base.clone(self.model)
-        return SklearnModel(model)
+        return self
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return the model predicted probabilities for a set of samples.
@@ -137,7 +133,7 @@ class SklearnModel(Model):
         np.ndarray
             Predicted probabilities.
         """
-        return self.model.predict_proba(X)
+        return X
 
     def get_classes(self) -> np.ndarray:
         """Return the classes the model was trained to predict.
@@ -147,9 +143,9 @@ class SklearnModel(Model):
         np.ndarray
             Classes.
         """
-        return self.model.classes_
+        return np.ones(10)
 
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs) -> Model:  # noqa: ARG002
         """Set the parameters of this model.
 
         Parameters
@@ -162,7 +158,7 @@ class SklearnModel(Model):
         self
             Instance of model class.
         """
-        return self.model.set_params(**kwargs)
+        return self.model
 
     def get_params(self) -> dict:
         """Get the parameters of this model.
@@ -192,15 +188,9 @@ class SklearnModel(Model):
         path : str
             Path including file extension to save model.
         """
-        ext: str = Path(path).suffix
-        if ext == ".pkl":
-            with open(path, "wb") as fp:
-                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for saving a model: {ext}")
 
     @classmethod
-    def load(cls, path: str) -> SklearnModel:
+    def load(cls, path: str) -> KerasModel:
         """Load the model from persistent storage.
 
         Parameters
@@ -210,13 +200,8 @@ class SklearnModel(Model):
 
         Returns
         -------
-        SklearnModel
-            A loaded sklearn model.
+        KerasModel
+            A loaded keras model.
         """
-        ext: str = Path(path).suffix
-        if ext == ".pkl":
-            with open(path, "rb") as fp:
-                model = pickle.load(fp)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for loading a model: {ext}")
+        model = tf.keras.models.load_model(path)
         return cls(model)

@@ -172,3 +172,29 @@ class Model(ABC):
         str
             Model name.
         """
+
+    @abstractmethod
+    def save(self, path: str) -> None:
+        """Save the model to persistent storage.
+
+        Parameters
+        ----------
+        path : str
+            Path including file extension to save model.
+        """
+
+    @classmethod
+    @abstractmethod
+    def load(cls, path: str) -> Model:
+        """Load the model from persistent storage.
+
+        Parameters
+        ----------
+        path : str
+            Path including file extension to load model.
+
+        Returns
+        -------
+        Model
+            A loaded model.
+        """
