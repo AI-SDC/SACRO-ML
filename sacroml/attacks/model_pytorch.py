@@ -189,6 +189,38 @@ class PytorchModel(Model):
         """
         return type(self.model).__name__
 
+    def save(self, path: str) -> None:
+        """Save the model to persistent storage.
+
+        Parameters
+        ----------
+        path : str
+            Path including file extension to save model.
+        """
+        torch.save(self.model, path)
+
+    @classmethod
+    def load(cls, path: str) -> PytorchModel:
+        """Load the model from persistent storage.
+
+        Parameters
+        ----------
+        path : str
+            Path including file extension to load model.
+
+        Returns
+        -------
+        PytorchModel
+            A loaded pytorch model.
+        """
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        try:
+            model = torch.load(path, map_location=device)
+            model.eval()
+            return cls(model)
+        except Exception as e:
+            raise ValueError(f"Failed to load PyTorch model: {e}") from e
+
 
 def reset_weights(layer: torch.nn.Module) -> None:
     """Reset the layer weights."""

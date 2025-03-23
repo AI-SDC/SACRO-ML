@@ -10,11 +10,19 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import sklearn
+import tensorflow as tf
 import torch
 import yaml
 
+from sacroml.attacks.model_keras import KerasModel
 from sacroml.attacks.model_pytorch import PytorchModel
 from sacroml.attacks.model_sklearn import SklearnModel
+
+registry: dict = {
+    "KerasModel": KerasModel,
+    "PytorchModel": PytorchModel,
+    "SklearnModel": SklearnModel,
+}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -81,7 +89,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.model = SklearnModel(model)
         elif isinstance(model, torch.nn.Module):
             self.model = PytorchModel(model)
-        elif isinstance(model, (SklearnModel, PytorchModel)):
+        elif isinstance(model, tf.keras.Model):
+            self.model = KerasModel(model)
+        elif isinstance(model, (SklearnModel, PytorchModel, KerasModel)):
             self.model = model
         elif model is not None:
             raise ValueError(f"Unsupported model type: {type(model)}")
@@ -91,6 +101,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.model_name: str = "unknown"
         self.model_params: dict = {}
         if self.model is not None:
+            self.model_type = type(self.model).__name__
             self.model_name = self.model.get_name()
             self.model_params = self.model.get_params()
         # Model - predicted probabilities
@@ -175,19 +186,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
-        # write model
-        filename: str = os.path.normpath(f"{path}/model.{ext}")
-        if hasattr(self.model, "save"):
+        if not self.model is None:
+            # write model
+            filename: str = os.path.normpath(f"{path}/model.{ext}")
             self.model.save(filename)
-        elif ext == "pkl":
-            with open(filename, "wb") as fp:
-                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for saving a model: {ext}")
-        target["model_path"] = f"model.{ext}"
-        # write hyperparameters
-        target["model_name"] = self.model_name
-        target["model_params"] = self.model_params
+            target["model_path"] = f"model.{ext}"
+            # write hyperparameters
+            target["model_type"] = self.model_type
+            target["model_name"] = self.model_name
+            target["model_params"] = self.model_params
 
     def load_model(self, model_path: str) -> None:
         """Load the target model.
@@ -197,16 +204,12 @@ class Target:  # pylint: disable=too-many-instance-attributes
         model_path : str
             Path to load the model.
         """
-        path = os.path.normpath(model_path)
-        _, ext = os.path.splitext(path)
-        if ext == ".pkl":
-            with open(path, "rb") as fp:
-                self.model = pickle.load(fp)
-                model_type = type(self.model).__name__
-                model_name = self.model.get_name()
-                logger.info("Loaded: %s : %s", model_type, model_name)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for loading a model: {ext}")
+        if self.model_type in registry:
+            model_class = registry[self.model_type]
+            self.model = model_class.load(model_path)
+            logger.info("Loaded: %s : %s", self.model_type, self.model_name)
+        else:
+            raise ValueError(f"Can't load model type: {self.model_type}")
 
     def _save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
@@ -357,8 +360,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "safemodel": self.safemodel,
         }
         # write model and add path
-        if self.model is not None:
-            self._save_model(path, ext, target)
+        self._save_model(path, ext, target)
         # write data arrays and add paths
         self._save_data(path, target)
         # write yaml
@@ -396,6 +398,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if "safemodel" in target:
             self.safemodel = target["safemodel"]
         # load model
+        if "model_type" in target:
+            self.model_type = target["model_type"]
         if "model_name" in target:
             self.model_name = target["model_name"]
         if "model_params" in target:

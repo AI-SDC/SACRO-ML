@@ -10,6 +10,7 @@ import joblib
 import numpy as np
 import yaml
 from sklearn import datasets
+from sklearn.base import BaseEstimator
 
 from sacroml.safemodel.reporting import get_reporting_string
 from sacroml.safemodel.safemodel import SafeModel
@@ -18,7 +19,7 @@ notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")
 
 
-class DummyClassifier:
+class DummyClassifier(BaseEstimator):
     """Dummy Classifier that always returns predictions of zero."""
 
     # pylint: disable=too-many-arguments
