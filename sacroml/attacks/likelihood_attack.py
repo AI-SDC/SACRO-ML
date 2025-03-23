@@ -93,7 +93,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # check it can be run
-        if target.model is None or not target.has_data():  # pragma: no cover
+        if not target.has_model() or not target.has_data():  # pragma: no cover
             logger.info("WARNING: LiRA requires a loadable model.")
             return {}
         # prepare

@@ -65,7 +65,7 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if target.model is None or not target.has_data():  # pragma: no cover
+        if not target.has_model() or not target.has_data():  # pragma: no cover
             logger.info("WARNING: AttributeAttack requires a loadable model.")
             return {}
 

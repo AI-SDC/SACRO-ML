@@ -114,7 +114,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         train_c = None
         test_c = None
         # compute target model probas if possible
-        if target.model is not None and target.has_data():
+        if target.has_model() and target.has_data():  # pragma: no cover
             proba_train = target.model.predict_proba(target.X_train)
             proba_test = target.model.predict_proba(target.X_test)
             if self.include_model_correct_feature:
