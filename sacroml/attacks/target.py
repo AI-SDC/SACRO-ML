@@ -81,8 +81,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.model = SklearnModel(model)
         elif isinstance(model, torch.nn.Module):
             self.model = PytorchModel(model)
+        elif isinstance(model, (SklearnModel, PytorchModel)):
+            self.model = model
         elif model is not None:
-            raise ValueError("Unsupported model type.")
+            raise ValueError(f"Unsupported model type: {type(model)}")
         else:  # for subsequent model loading
             self.model = None
 
@@ -413,6 +415,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The results of safemodel disclosure checking.
         """
         self.safemodel = data
+
+    def has_model(self) -> bool:
+        """Return whether the target has a loaded model."""
+        return self.model is not None and self.model.model is not None
 
     def has_data(self) -> bool:
         """Return whether the target has all processed data."""
