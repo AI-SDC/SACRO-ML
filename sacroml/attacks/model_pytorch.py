@@ -1,4 +1,4 @@
-"""Sklearn target models."""
+"""Pytorch target models."""
 
 from __future__ import annotations
 
