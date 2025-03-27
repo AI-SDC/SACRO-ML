@@ -8,6 +8,7 @@ import logging
 import numpy as np
 from fpdf import FPDF
 from scipy.stats import norm, shapiro
+from sklearn.base import BaseEstimator
 
 from sacroml import metrics
 from sacroml.attacks import report
@@ -19,6 +20,27 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 EPS = 1e-16  # Used to avoid numerical issues
+
+
+def attackable(target: Target) -> bool:
+    """Return whether a target object contains everything needed."""
+    required_methods = [
+        "clone",
+        "predict_proba",
+        "predict",
+        "get_classes",
+        "set_params",
+    ]
+
+    if (
+        target.has_model()
+        and target.has_data()
+        and all(hasattr(target.model, method) for method in required_methods)
+    ):
+        return True
+
+    logger.info("WARNING: LiRA requires a loadable model.")
+    return False
 
 
 class LIRAAttack(Attack):
@@ -93,8 +115,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # check it can be run
-        if not target.has_model() or not target.has_data():  # pragma: no cover
-            logger.info("WARNING: LiRA requires a loadable model.")
+        if not attackable(target):  # pragma: no cover
             return {}
         # prepare
         shadow_clf = target.model.clone()
@@ -125,6 +146,9 @@ class LIRAAttack(Attack):
         2. Removing from the test set any rows corresponding to classes that
         are not in the training set.
         """
+        if not isinstance(target.model.model, BaseEstimator):
+            return target
+
         y_train_new = []
         classes = list(target.model.get_classes())
         for y in target.y_train:
@@ -199,7 +223,10 @@ class LIRAAttack(Attack):
         n_train_rows, _ = X_train.shape
         n_shadow_rows, _ = X_test.shape
         combined_x_train = np.vstack((X_train, X_test))
-        combined_y_train = np.hstack((y_train, y_test))
+        if y_train.ndim == 1 and y_test.ndim == 1:  # label encoding
+            combined_y_train = np.hstack((y_train, y_test))
+        else:  # one-hot encoding
+            combined_y_train = np.vstack((y_train, y_test))
         combined_target_preds = np.vstack((proba_train, proba_test))
 
         # Get the confidences of samples when in and not in the training set
@@ -245,8 +272,9 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         # score each record in the member and non-member sets
-        for i, label in enumerate(combined_y_train):
-            # get the target model behaviour on the record
+        for i, l in enumerate(combined_y_train):
+            # get the target model behaviour on the record (handle one-hot or label)
+            label = np.argmax(l) if combined_y_train.ndim > 1 else l
             target_logit: float = _logit(combined_target_preds[i, label])
             # get behaviour observed with the record as a non-member
             out_mean, out_std = self._describe_conf(out_conf[i], global_out_std)
@@ -371,7 +399,10 @@ class LIRAAttack(Attack):
             these_idx = set(these_idx)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
-                label = class_map.get(combined_y_train[i], -1)
+                if combined_y_train.ndim == 1:  # label encoding
+                    label = class_map.get(combined_y_train[i], -1)
+                else:  # one-hot encoding
+                    label = np.argmax(combined_y_train[i])
                 # Occasionally, the random data split will result in classes being
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
