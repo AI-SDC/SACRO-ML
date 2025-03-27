@@ -142,7 +142,7 @@ class PytorchModel(Model):
             logits = self.model(x_tensor)
 
         self.model.to("cpu")
-        return logits.cpu().numpy()  # NOT SOFTMAXED
+        return logits.cpu().numpy()  # should be softmax values
 
     def get_classes(self) -> np.ndarray:
         """Return the classes the model was trained to predict.
@@ -152,7 +152,12 @@ class PytorchModel(Model):
         np.ndarray
             Classes.
         """
-        return self.model.classes_
+        for module in reversed(list(self.model.modules())):
+            if isinstance(module, torch.nn.Linear):
+                n_outputs: int = module.out_features
+                n_outputs = max(2, n_outputs)  # Deal with binary output
+                return np.arange(n_outputs)
+        return self.model.classes
 
     def set_params(self, **kwargs) -> Model:
         """Set the parameters of this model.
@@ -215,7 +220,7 @@ class PytorchModel(Model):
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         try:
-            model = torch.load(path, map_location=device)
+            model = torch.load(path, weights_only=False, map_location=device)
             model.eval()
             return cls(model)
         except Exception as e:

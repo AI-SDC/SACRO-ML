@@ -21,6 +21,19 @@ logger = logging.getLogger(__name__)
 P_THRESH = 0.05
 
 
+def attackable(target: Target) -> bool:
+    """Return whether a target object contains everything needed."""
+    required_methods = ["predict_proba", "predict"]
+    if (
+        target.has_model()
+        and target.has_data()
+        and all(hasattr(target.model, method) for method in required_methods)
+    ) or target.has_probas():
+        return True
+    logger.info("WARNING: WorstCaseAttack requires more Target details.")
+    return False
+
+
 class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
     """Worst case attack."""
 
@@ -111,6 +124,10 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         dict
             Attack report.
         """
+        # check it can be run
+        if not attackable(target):  # pragma: no cover
+            return {}
+
         train_c = None
         test_c = None
         # compute target model probas if possible
@@ -121,13 +138,9 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
                 train_c = 1 * (target.y_train == target.model.predict(target.X_train))
                 test_c = 1 * (target.y_test == target.model.predict(target.X_test))
         # use supplied target model probas if unable to compute
-        elif target.has_probas():
+        else:
             proba_train = target.proba_train
             proba_test = target.proba_test
-        # cannot proceed
-        else:
-            logger.info("WARNING: WorstCaseAttack requires more Target details.")
-            return {}
         # execute attack
         self.attack_from_preds(
             proba_train,

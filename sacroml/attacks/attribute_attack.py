@@ -23,6 +23,31 @@ COLOR_A: str = "#86bf91"  # training set plot colour
 COLOR_B: str = "steelblue"  # testing set plot colour
 
 
+def attackable(target: Target) -> bool:
+    """Return whether a target object contains everything needed."""
+    can_attack: bool = True
+
+    if target.n_features < 1 or not target.has_data() or not target.has_raw_data():
+        logger.info("WARNING: AttributeAttack requires features to be defined.")
+        can_attack = False
+
+    if not target.has_model():
+        logger.info("WARNING: AttributeAttack requires a loadable model.")
+        can_attack = False
+
+    if not isinstance(target.model.model, BaseEstimator):
+        logger.info("WARNING: AttributeAttack requires an sklearn.BaseEstimator.")
+        can_attack = False
+
+    required_methods = ["predict_proba", "predict"]
+    for method in required_methods:
+        if not hasattr(target.model, method):
+            logger.info("WARNING: AttributeAttack requires model with: %s()", method)
+            can_attack = False
+
+    return can_attack
+
+
 class AttributeAttack(Attack):
     """Attribute inference attack."""
 
@@ -65,14 +90,9 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if not target.has_model() or not target.has_data():  # pragma: no cover
-            logger.info("WARNING: AttributeAttack requires a loadable model.")
+        # check it can be run
+        if not attackable(target):  # pragma: no cover
             return {}
-
-        if target.n_features < 1 or not target.has_raw_data():  # pragma: no cover
-            logger.info("WARNING: AttributeAttack requires features to be defined.")
-            return {}
-
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
         output = self._make_report(target)
