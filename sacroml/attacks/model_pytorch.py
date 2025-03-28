@@ -8,6 +8,7 @@ from copy import deepcopy
 import numpy as np
 import torch
 from torch import cuda
+from torch.nn.functional import softmax
 
 from sacroml.attacks.model import Model
 
@@ -53,12 +54,12 @@ class PytorchModel(Model):
         float
             Model generalisation error.
         """
-        train = self.model.score(X_train, y_train)
-        test = self.model.score(X_test, y_test)
+        train = self.score(X_train, y_train)
+        test = self.score(X_test, y_test)
         return test - train
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
-        """Return the model scores for a set of samples.
+        """Return the model accuracy for a set of samples.
 
         Parameters
         ----------
@@ -72,7 +73,33 @@ class PytorchModel(Model):
         float
             Model score.
         """
-        return self.model.score(X, y)
+        y_pred = self.predict(X)
+        return float(np.mean(y_pred == y))
+
+    def loss(self, X: np.ndarray, y: np.ndarray) -> float:
+        """Return the model error for a set of samples.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Features of the samples to be scored.
+        y : np.ndarray
+            Labels of the samples to be scored.
+
+        Returns
+        -------
+        float
+            Model loss.
+        """
+        x_tensor = torch.FloatTensor(X)
+        y_tensor = torch.LongTensor(y)
+
+        self.model.eval()
+        with torch.no_grad():
+            logits = self.model(x_tensor)
+            loss = self.model.criterion(logits, y_tensor)
+
+        return loss.item()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Return the model predictions for a set of samples.
@@ -85,9 +112,16 @@ class PytorchModel(Model):
         Returns
         -------
         np.ndarray
-            Model predictions.
+            Model predictions (label encoding).
         """
-        return self.model.predict(X)
+        x_tensor = torch.FloatTensor(X)
+
+        self.model.eval()
+        with torch.no_grad():
+            logits = self.model(x_tensor)
+            _, y_pred = torch.max(logits, 1)
+
+        return y_pred.numpy()
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> Model:
         """Fit the model.
@@ -140,9 +174,10 @@ class PytorchModel(Model):
         with torch.no_grad():
             x_tensor = torch.tensor(X, dtype=torch.float32).to(device)
             logits = self.model(x_tensor)
+            probabilities = softmax(logits, dim=1)
 
         self.model.to("cpu")
-        return logits.cpu().numpy()  # should be softmax values
+        return probabilities.cpu().numpy()  # should be softmax values
 
     def get_classes(self) -> np.ndarray:
         """Return the classes the model was trained to predict.
@@ -159,7 +194,7 @@ class PytorchModel(Model):
                 return np.arange(n_outputs)
         return self.model.classes
 
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs) -> Model:  # noqa: ARG002
         """Set the parameters of this model.
 
         Parameters
@@ -172,7 +207,7 @@ class PytorchModel(Model):
         self
             Instance of model class.
         """
-        return self.model.set_params(**kwargs)
+        return self.model  # do nothing
 
     def get_params(self) -> dict:
         """Get the parameters of this model.
