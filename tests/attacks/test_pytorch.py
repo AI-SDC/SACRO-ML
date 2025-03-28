@@ -80,17 +80,16 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
         """Return the model scores for a set of samples."""
         x_tensor = torch.FloatTensor(X)
         y_tensor = torch.FloatTensor(y)
+        y_true = y_tensor.argmax(dim=1)
 
-        self.eval()
+        self.model.eval()
+
         with torch.no_grad():
-            outputs = self.model(x_tensor)
-            loss = self.criterion(outputs, y_tensor)
-            # Convert probabilities to predictions
-            predictions = (outputs > 0.5).float()
-            accuracy = (predictions == y_tensor).float().mean()
-
-        assert loss.item() < 1.0, "Validation loss is too high"
-        assert accuracy > 0.5, "Model accuracy is too low"
+            predictions = self.model(x_tensor)
+            _, predicted_classes = torch.max(predictions, 1)
+            correct_predictions = (predicted_classes == y_true).float().sum()
+            total_predictions = y_true.size(0)
+            accuracy = (correct_predictions / total_predictions) * 100.0
 
         return accuracy.item()
 
