@@ -103,9 +103,7 @@ class Model(ABC):
 
     @abstractmethod
     def clone(self) -> Model:
-        """Return a clone of the model.
-
-        A new model with the same parameters that has not been fit on any data.
+        """Return a copy of the model.
 
         Returns
         -------

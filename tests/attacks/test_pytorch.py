@@ -31,29 +31,15 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
     def __init__(self, x_dim: int, y_dim: int) -> None:
         """Construct a simple Pytorch model."""
         super().__init__()
-        self.lr = 0.001
-        self.epochs = 1000
-        self.x_dim = x_dim
-        self.y_dim = y_dim
-        self.activation = "ReLU"
-        self.criterion = None
-        self.optimizer = None
         self.layers = nn.Sequential(
-            nn.Linear(self.x_dim, 50),
+            nn.Linear(x_dim, 50),
             nn.ReLU(),
-            nn.Linear(50, self.y_dim),
+            nn.Linear(50, y_dim),
         )
         self.model = nn.Sequential(*self.layers)
-
-    def get_params(self) -> dict:
-        """Return dictionary of parameters and their values."""
-        return {
-            "x_dim": self.x_dim,
-            "y_dim": self.y_dim,
-            "activation": self.activation,
-            "learning_rate": self.lr,
-            "epochs": self.epochs,
-        }
+        self.epochs = 100
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.001, momentum=0.9)
 
     def forward(self, x: torch.Tensor) -> nn.Sequential:
         """Forward propagate input."""
@@ -63,9 +49,6 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
         """Fit model to data."""
         x_train_tensor = torch.FloatTensor(X_train)
         y_train_tensor = torch.LongTensor(y_train)
-
-        self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.parameters(), lr=self.lr, momentum=0.9)
 
         for _ in range(self.epochs):
             # Forward
