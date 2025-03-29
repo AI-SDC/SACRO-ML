@@ -116,7 +116,7 @@ class PytorchModel(Model):
         self
             Fitted model.
         """
-        self.model.apply(reset_weights)
+        self.model.layers.apply(reset_weights)
         return self.model.fit(X, y)
 
     def clone(self) -> Model:
@@ -255,7 +255,7 @@ class PytorchModel(Model):
 
 def reset_weights(layer: torch.nn.Module) -> None:
     """Reset the layer weights."""
-    if hasattr(layer, "reset_parameters"):
+    if hasattr(layer, "reset_parameters") and callable(layer.reset_parameters):
         layer.reset_parameters()
 
 

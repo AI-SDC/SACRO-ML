@@ -25,7 +25,7 @@ torch.manual_seed(random_state)
 torch.cuda.manual_seed_all(random_state)
 
 
-class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
+class SimpleNet(nn.Module):
     """A simple Pytorch classification model."""
 
     def __init__(self, x_dim: int, y_dim: int) -> None:
@@ -36,12 +36,11 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
             nn.ReLU(),
             nn.Linear(50, y_dim),
         )
-        self.model = nn.Sequential(*self.layers)
         self.epochs = 100
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.001, momentum=0.9)
+        self.optimizer = optim.SGD(self.layers.parameters(), lr=0.001, momentum=0.9)
 
-    def forward(self, x: torch.Tensor) -> nn.Sequential:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward propagate input."""
         return self.layers(x)
 
@@ -52,7 +51,7 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
 
         for _ in range(self.epochs):
             # Forward
-            logits = self.model(x_train_tensor)
+            logits = self(x_train_tensor)
             loss = self.criterion(logits, y_train_tensor)
             # Backward
             self.optimizer.zero_grad()
