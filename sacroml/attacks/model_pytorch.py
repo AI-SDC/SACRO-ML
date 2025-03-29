@@ -76,31 +76,6 @@ class PytorchModel(Model):
         y_pred = self.predict(X)
         return float(np.mean(y_pred == y))
 
-    def loss(self, X: np.ndarray, y: np.ndarray) -> float:
-        """Return the model error for a set of samples.
-
-        Parameters
-        ----------
-        X : np.ndarray
-            Features of the samples to be scored.
-        y : np.ndarray
-            Labels of the samples to be scored.
-
-        Returns
-        -------
-        float
-            Model loss.
-        """
-        x_tensor = torch.FloatTensor(X)
-        y_tensor = torch.LongTensor(y)
-
-        self.model.eval()
-        with torch.no_grad():
-            logits = self.model(x_tensor)
-            loss = self.model.criterion(logits, y_tensor)
-
-        return loss.item()
-
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Return the model predictions for a set of samples.
 
@@ -138,6 +113,7 @@ class PytorchModel(Model):
         self
             Fitted model.
         """
+        self.model.apply(reset_weights)
         return self.model.fit(X, y)
 
     def clone(self) -> Model:
@@ -151,7 +127,6 @@ class PytorchModel(Model):
             A cloned model.
         """
         model: torch.nn.Module = deepcopy(self.model)
-        model.apply(reset_weights)
         return PytorchModel(model)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:

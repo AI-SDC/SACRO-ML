@@ -20,6 +20,10 @@ from sacroml.attacks.target import Target
 output_dir = "output_pytorch"
 target_dir = "target_pytorch"
 
+random_state = 2
+torch.manual_seed(random_state)
+torch.cuda.manual_seed_all(random_state)
+
 
 class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
     """A simple Pytorch classification model."""
@@ -27,17 +31,17 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
     def __init__(self, x_dim: int, y_dim: int) -> None:
         """Construct a simple Pytorch model."""
         super().__init__()
-        self.lr = 0.01
-        self.epochs = 100
+        self.lr = 0.001
+        self.epochs = 1000
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.activation = "ReLU"
         self.criterion = None
         self.optimizer = None
         self.layers = nn.Sequential(
-            nn.Linear(self.x_dim, 20),
+            nn.Linear(self.x_dim, 50),
             nn.ReLU(),
-            nn.Linear(20, self.y_dim),
+            nn.Linear(50, self.y_dim),
         )
         self.model = nn.Sequential(*self.layers)
 
@@ -76,17 +80,17 @@ class SimpleNet(nn.Module):  # pylint:disable=too-many-instance-attributes
 def test_pytorch() -> None:  # pylint:disable=too-many-locals
     """Test pytorch handling."""
     # Make some data
-    n_features = 5
+    n_features = 4
     n_classes = 4
     X_orig, y_orig = make_classification(
-        n_samples=100,
+        n_samples=50,
         n_features=n_features,
         n_informative=2,
         n_redundant=0,
         n_repeated=0,
         n_classes=n_classes,
         n_clusters_per_class=1,
-        random_state=1,
+        random_state=random_state,
     )
     X_orig = np.asarray(X_orig)
     y_orig = np.asarray(y_orig)
@@ -98,7 +102,7 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
 
     # Split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, shuffle=True, random_state=1
+        X, y, test_size=0.2, stratify=y, shuffle=True, random_state=random_state
     )
 
     X = np.asarray(X)
@@ -161,6 +165,9 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
     output = attack_obj.attack(target)
     assert output
 
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert metrics["AUC"] >= 0.5
+
     # Test structural attack
     obj = structural_attack.StructuralAttack(output_dir=output_dir)
     output = obj.attack(target)
@@ -175,3 +182,6 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
     obj = likelihood_attack.LIRAAttack(n_shadow_models=100, output_dir=output_dir)
     output = obj.attack(target)
     assert output
+
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert metrics["AUC"] >= 0.5
