@@ -23,8 +23,8 @@ class SklearnModel(Model):
 
         Parameters
         ----------
-        model : Any
-            Trained target model.
+        model : sklearn.base.BaseEstimator
+            Trained scikit-learn model.
         """
         super().__init__(model)
 
@@ -112,9 +112,7 @@ class SklearnModel(Model):
         return self.model.fit(X, y)
 
     def clone(self) -> Model:
-        """Return a clone of the model.
-
-        A new model with the same parameters that has not been fit on any data.
+        """Return a copy of the model.
 
         Returns
         -------

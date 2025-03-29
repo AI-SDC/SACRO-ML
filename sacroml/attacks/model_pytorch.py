@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
+from typing import Any
 
 import numpy as np
 import torch
@@ -24,8 +25,8 @@ class PytorchModel(Model):
 
         Parameters
         ----------
-        model : Any
-            Trained target model.
+        model : torch.nn.Module
+            Trained Pytorch model.
         """
         super().__init__(model)
 
@@ -101,6 +102,8 @@ class PytorchModel(Model):
     def fit(self, X: np.ndarray, y: np.ndarray) -> Model:
         """Fit the model.
 
+        Resets the weights before training.
+
         Parameters
         ----------
         X : np.ndarray
@@ -117,9 +120,7 @@ class PytorchModel(Model):
         return self.model.fit(X, y)
 
     def clone(self) -> Model:
-        """Return a clone of the model.
-
-        A new model with the same parameters that has not been fit on any data.
+        """Return a copy of the model.
 
         Returns
         -------
@@ -169,7 +170,7 @@ class PytorchModel(Model):
                 return np.arange(n_outputs)
         return self.model.classes
 
-    def set_params(self, **kwargs) -> Model:  # noqa: ARG002
+    def set_params(self, **kwargs) -> Model:
         """Set the parameters of this model.
 
         Parameters
@@ -182,7 +183,11 @@ class PytorchModel(Model):
         self
             Instance of model class.
         """
-        return self.model  # do nothing
+        if "random_state" in kwargs:
+            torch.manual_seed(kwargs["random_state"])
+            torch.cuda.manual_seed_all(kwargs["random_state"])
+
+        return self.model
 
     def get_params(self) -> dict:
         """Get the parameters of this model.
@@ -192,7 +197,18 @@ class PytorchModel(Model):
         dict
             Model parameters.
         """
-        return self.model.get_params()
+        config = {}
+        if hasattr(self.model, "epochs"):
+            config["epochs"] = self.model.epochs
+        if hasattr(self.model, "criterion"):
+            config["criterion"] = self.model.criterion.__class__.__name__
+        if hasattr(self.model, "optimizer"):
+            config["optimizer"] = {
+                "type": self.model.optimizer.__class__.__name__,
+                "params": dict(self.model.optimizer.defaults.items()),
+            }
+        config["architecture"] = model_to_dict(self.model.layers)
+        return config
 
     def get_name(self) -> str:
         """Get the name of this model.
@@ -241,3 +257,37 @@ def reset_weights(layer: torch.nn.Module) -> None:
     """Reset the layer weights."""
     if hasattr(layer, "reset_parameters"):
         layer.reset_parameters()
+
+
+def model_to_dict(model: torch.nn.Module) -> dict[str, Any]:
+    """Return a dictionary that describes a PyTorch model."""
+    if isinstance(model, torch.nn.Sequential):
+        return {
+            "type": "Sequential",
+            "layers": [model_to_dict(layer) for layer in model],
+        }
+    if isinstance(model, torch.nn.Linear):
+        return {
+            "type": "Linear",
+            "in_features": model.in_features,
+            "out_features": model.out_features,
+            "bias": model.bias is not None,
+        }
+    if isinstance(model, torch.nn.ReLU):
+        return {"type": "ReLU", "inplace": model.inplace}
+    if isinstance(model, torch.nn.Conv2d):
+        return {
+            "type": "Conv2d",
+            "in_channels": model.in_channels,
+            "out_channels": model.out_channels,
+            "kernel_size": model.kernel_size[0]
+            if isinstance(model.kernel_size, tuple)
+            else model.kernel_size,
+            "stride": model.stride[0]
+            if isinstance(model.stride, tuple)
+            else model.stride,
+            "padding": model.padding[0]
+            if isinstance(model.padding, tuple)
+            else model.padding,
+        }
+    return {"type": model.__class__.__name__, "params": str(model)}
