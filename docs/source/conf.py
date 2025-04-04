@@ -28,6 +28,7 @@ extensions = [
     "sphinx_autopackagesummary",
     "sphinx_issues",
     "sphinx_rtd_theme",
+    "sphinx.ext.autosectionlabel",
 ]
 
 exclude_patterns = []
