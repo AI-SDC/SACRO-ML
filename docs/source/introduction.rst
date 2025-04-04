@@ -11,22 +11,6 @@ SACRO-ML is a set of tools for disclosure control of trained Machine Lerning (ML
     :height: 350px
     :alt: Data breaches of sensitive and personal data must be avoided.
 
-When can SACRO-ML be used?
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-- When an ML model has been trained with sensitive data and want to avoid data leakage.
-- The model does not contain embedded data points.
-- When the test data has not been seen by the trained model. 
-- The test data must have at ideally 30 to 50% of the orginal data, and at least 20%.
-- For models which predict with numerical values as oposed to binary (i.e. yes|no).
-
-What SACRO-ML is not intended for?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- For those ML models which contain embeded data. For example, instance based methods including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC),  Self Organising Map (SOM), Learning Vector Quantization (LVQ), Locally Weighted Learning (LWL), Case-Based Reasoning , Gaussian Process, Kernel-based models, etc.
-- Many of the deep learning models are at high risk of including data careful consideration should be applied before using SACRO-ML.
-- When there is no test data or the test data has been seen by the model during the training phase.
-- For any other concern that the trained model might be at risk of data breach.
-
-
 What is safemodel?
 ------------------
 
