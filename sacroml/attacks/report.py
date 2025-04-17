@@ -241,6 +241,11 @@ def create_mia_report(attack_output: dict) -> FPDF:
     subtitle(pdf, "Introduction")
     line(pdf, INTRODUCTION)
     subtitle(pdf, "Experiment summary")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+        font="courier",
+    )
     for key, value in metadata["attack_params"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     subtitle(pdf, "Global metrics")
@@ -371,6 +376,11 @@ def create_lr_report(output: dict) -> FPDF:
     title(pdf, "Likelihood Ratio Attack Report")
     subtitle(pdf, "Introduction")
     subtitle(pdf, "Metadata")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+        font="courier",
+    )
     for key, value in metadata["attack_params"].items():
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
     for key, value in metadata["global_metrics"].items():

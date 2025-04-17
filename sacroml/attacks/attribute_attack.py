@@ -102,6 +102,11 @@ class AttributeAttack(Attack):
         report.subtitle(pdf, "Introduction")
         # Add attack parameters
         report.subtitle(pdf, "Metadata")
+        report.line(
+            pdf,
+            f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+            font="courier",
+        )
         for key, value in metadata["attack_params"].items():
             report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
         # Add attack results
