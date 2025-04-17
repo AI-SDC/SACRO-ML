@@ -4,7 +4,7 @@
 
 Changes:
 *   Remove data preprocessing modules ([#333](https://github.com/AI-SDC/SACRO-ML/pull/333))
-*   Remove tensorflow support including safekeras/safetf ([#335](https://github.com/AI-SDC/SACRO-ML/pull/335))
+*   Remove tensorflow-privacy support including safekeras/safetf ([#335](https://github.com/AI-SDC/SACRO-ML/pull/335))
 
 ## Version 1.2.2 (Feb 20, 2025)
 
