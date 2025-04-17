@@ -13,6 +13,7 @@ from fpdf import FPDF
 
 from sacroml.attacks import report
 from sacroml.attacks.target import Target
+from sacroml.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class Attack:
     def _construct_metadata(self) -> None:
         """Generate attack metadata."""
         self.metadata = {
+            "sacroml_version": __version__,
             "attack_name": str(self),
             "attack_params": self.get_params(),
             "global_metrics": {},
