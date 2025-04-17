@@ -19,10 +19,10 @@ RES_DIR = "RES"
 def test_attacks_via_request_release(get_target):
     """Test vulnerable, hacked model then call request_release."""
     target = get_target
-    assert target.__str__() == "nursery"  # pylint: disable=unnecessary-dunder-call
-    target.model.fit(target.X_train, target.y_train)
-    target.model.min_samples_leaf = 10
-    target.model.request_release(path=RES_DIR, ext="pkl", target=target)
+    assert target.dataset_name == "nursery"
+    model = target.model.model  # inner wrapped model
+    model.min_samples_leaf = 10
+    model.request_release(path=RES_DIR, ext="pkl", target=target)
 
 
 @pytest.mark.parametrize(
@@ -33,12 +33,12 @@ def test_attacks_via_request_release(get_target):
 def test_run_attack_lira(get_target):
     """Test the lira attack via safemodel."""
     target = get_target
-    target.model.fit(target.X_train, target.y_train)
-    _, disclosive = target.model.preliminary_check()
+    model = target.model.model  # inner wrapped model
+    _, disclosive = model.preliminary_check()
     assert not disclosive
     print(np.unique(target.y_test, return_counts=True))
-    print(np.unique(target.model.predict(target.X_test), return_counts=True))
-    metadata = target.model.run_attack(target, "lira", RES_DIR)
+    print(np.unique(model.predict(target.X_test), return_counts=True))
+    metadata = model.run_attack(target, "lira", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
@@ -50,10 +50,10 @@ def test_run_attack_lira(get_target):
 def test_run_attack_worstcase(get_target):
     """Test the worst case attack via safemodel."""
     target = get_target
-    target.model.fit(target.X_train, target.y_train)
-    _, disclosive = target.model.preliminary_check()
+    model = target.model.model  # inner wrapped model
+    _, disclosive = model.preliminary_check()
     assert not disclosive
-    metadata = target.model.run_attack(target, "worstcase", RES_DIR)
+    metadata = model.run_attack(target, "worstcase", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
@@ -65,10 +65,10 @@ def test_run_attack_worstcase(get_target):
 def test_run_attack_attribute(get_target):
     """Test the attribute attack via safemodel."""
     target = get_target
-    target.model.fit(target.X_train, target.y_train)
-    _, disclosive = target.model.preliminary_check()
+    model = target.model.model  # inner wrapped model
+    _, disclosive = model.preliminary_check()
     assert not disclosive
-    metadata = target.model.run_attack(target, "attribute", RES_DIR)
+    metadata = model.run_attack(target, "attribute", RES_DIR)
     assert len(metadata) > 0  # something has been added
 
 
@@ -95,6 +95,6 @@ def test_attack_args():
 def test_run_attack_unknown(get_target):
     """Test an unknown attack via safemodel."""
     target = get_target
-    target.model.fit(target.X_train, target.y_train)
-    metadata = target.model.run_attack(target, "unknown", RES_DIR)
+    model = target.model.model  # inner wrapped model
+    metadata = model.run_attack(target, "unknown", RES_DIR)
     assert metadata["outcome"] == "unrecognised attack type requested"
