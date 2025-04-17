@@ -1,6 +1,6 @@
 # Changelog
 
-## Development
+## Version 1.2.3 (Apr 17, 2025)
 
 Changes:
 *   Remove data preprocessing modules ([#333](https://github.com/AI-SDC/SACRO-ML/pull/333))
