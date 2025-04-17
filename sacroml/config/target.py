@@ -8,6 +8,7 @@ import sys
 
 from sacroml.attacks.target import Target
 from sacroml.config import utils
+from sacroml.version import __version__
 
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
 arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
@@ -104,6 +105,7 @@ def _get_proba(target: Target) -> None:
 
 def prompt_for_target() -> None:
     """Prompt user for information to generate target config."""
+    print(f"sacroml version {__version__}")
     target = Target()
     path: str = utils.check_dir("target")
 

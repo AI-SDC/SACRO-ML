@@ -1,6 +1,85 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "sacroml"
+dynamic = ["version"]
+description = "Tools for the statistical disclosure control of machine learning models"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+maintainers = [
+    {name = "Jim Smith", email = "james.smith@uwe.ac.uk"}
+]
+keywords = [
+    "data-privacy",
+    "data-protection",
+    "machine-learning",
+    "privacy",
+    "privacy-tools",
+    "statistical-disclosure-control",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "acro==0.4.8",
+    "fpdf",
+    "pypdf",
+    "multiprocess",
+    "scikit-learn",
+    "xgboost",
+    "dictdiffer",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "sacroml.version.__version__"}
+
+[project.urls]
+"Homepage" = "https://github.com/AI-SDC/SACRO-ML"
+"Changelog" = "https://github.com/AI-SDC/SACRO-ML/CHANGELOG.md"
+"Documentation" = "https://ai-sdc.github.io/SACRO-ML/"
+"Bug Tracker" = "https://github.com/AI-SDC/SACRO-ML/issues"
+"Discussions" = "https://github.com/AI-SDC/SACRO-ML/discussions"
+
+[project.scripts]
+sacroml = "sacroml.main:main"
+
+[project.optional-dependencies]
+doc = [
+    "numpydoc",
+    "sphinx-autopackagesummary",
+    "sphinx-issues",
+    "sphinx-prompt",
+    "sphinx-rtd-theme",
+    "sphinx",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+packages = {find = {exclude = ["docs*", "examples*", "tests*", "user_stories*"]}}
+
+[tool.setuptools.package-data]
+"sacroml.safemodel" = ["rules.json"]
 
 [tool.pylint]
 master.py-version = "3.9"

@@ -15,8 +15,6 @@ The `sacroml` package provides:
 
 ## Installation
 
-Install `sacroml` and manually copy the [`examples`](examples/).
-
 ### Python Package Index
 
 ```

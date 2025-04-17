@@ -8,6 +8,7 @@ import yaml
 
 from sacroml.attacks import factory
 from sacroml.config import utils
+from sacroml.version import __version__
 
 
 def _get_defaults(name: str) -> dict:
@@ -69,6 +70,7 @@ def _default_config() -> list[dict]:
 def prompt_for_attack() -> None:
     """Prompt user for information to generate attack config."""
     logging.disable(logging.ERROR)  # suppress info/warnings
+    print(f"sacroml version {__version__}")
 
     # get attack configuration
     if utils.get_bool("Generate default config with all attacks?"):
