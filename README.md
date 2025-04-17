@@ -19,16 +19,8 @@ Install `sacroml` and manually copy the [`examples`](examples/).
 
 ### Python Package Index
 
-To install only the base package, which includes the attacks used for assessing privacy:
-
 ```
 $ pip install sacroml
-```
-
-To additionally install the safemodel package:
-
-```
-$ pip install sacroml[safemodel]
 ```
 
 Note: macOS users may need to install libomp due to a dependency on XGBoost:
@@ -38,18 +30,8 @@ $ brew install libomp
 
 ### Conda
 
-To install only the base package, which includes the attacks used for assessing privacy:
-
 ```
 $ conda install sacroml
-```
-
-To additionally install the dependencies for the safemodel package.
-
-Note that these are not yet available for Windows via conda.
-
-```
-$ conda install tensorflow-privacy dictdiffer
 ```
 
 ## Usage
