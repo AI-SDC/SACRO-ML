@@ -2,7 +2,6 @@
 ignore:
   - "sacroml/config"
   - "sacroml/main.py"
-  - "sacroml/preprocessing"
   - "sacroml/safemodel/classifiers/new_model_template.py"
   - "examples"
   - "setup.py"
