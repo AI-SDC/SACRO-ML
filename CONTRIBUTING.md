@@ -35,12 +35,10 @@ SACRO-ML
 ├── sacroml [Contains the sacroml source code]
 │   ├── attacks [Contains a variety of privacy attacks on machine learning models]
 │   ├── config [Contains code to generate configuration files]
-│   ├── preprocessing [Contains preprocessing modules for test datasets]
 │   └── safemodel [safemodel wrappers for common machine learning models]
 └── tests [Contains unit tests]
     ├── attacks
     ├── datasets
-    ├── preprocessing
     └── safemodel
 ```
 
