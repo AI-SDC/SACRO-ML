@@ -147,8 +147,7 @@ Include any optional helper functions
 -------------------------------------
 
 Depending on the model being implemented one or more helper functions or
-methods may be required. For example there are may helpfunctions in
-safekeras.py that help with the the specifics of neural networks.
+methods may be required.
 
 .. code-block:: python
 

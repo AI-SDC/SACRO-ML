@@ -7,7 +7,6 @@ Safemodel
    safemodel
    safedecisiontree
    saferandomforest
-   safekeras
    safesvc
    examples
    extending

@@ -14,7 +14,7 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=fd7cadf9"></script>
-      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -49,7 +49,6 @@
 <li class="toctree-l2"><a class="reference internal" href="safemodel.html">Base Class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="safedecisiontree.html">SafeDecisionTree</a></li>
 <li class="toctree-l2"><a class="reference internal" href="saferandomforest.html">SafeRandomForest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="safekeras.html">SafeKerasModel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="safesvc.html">SafeSVC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Extending SafeModel</a></li>
@@ -212,8 +211,7 @@ Example test suites can be found in SACRO-ML/tests/</p>
 <section id="include-any-optional-helper-functions">
 <h2>Include any optional helper functions<a class="headerlink" href="#include-any-optional-helper-functions" title="Link to this heading"></a></h2>
 <p>Depending on the model being implemented one or more helper functions or
-methods may be required. For example there are may helpfunctions in
-safekeras.py that help with the the specifics of neural networks.</p>
+methods may be required.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;different numbers of layers&quot;</span>
