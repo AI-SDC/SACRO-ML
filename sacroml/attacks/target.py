@@ -10,16 +10,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import sklearn
-import tensorflow as tf
 import torch
 import yaml
 
-from sacroml.attacks.model_keras import KerasModel
 from sacroml.attacks.model_pytorch import PytorchModel
 from sacroml.attacks.model_sklearn import SklearnModel
 
 registry: dict = {
-    "KerasModel": KerasModel,
     "PytorchModel": PytorchModel,
     "SklearnModel": SklearnModel,
 }
@@ -89,9 +86,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.model = SklearnModel(model)
         elif isinstance(model, torch.nn.Module):
             self.model = PytorchModel(model)
-        elif isinstance(model, tf.keras.Model):
-            self.model = KerasModel(model)
-        elif isinstance(model, (SklearnModel, PytorchModel, KerasModel)):
+        elif isinstance(model, (SklearnModel, PytorchModel)):
             self.model = model
         elif model is not None:
             raise ValueError(f"Unsupported model type: {type(model)}")
