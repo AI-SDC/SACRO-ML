@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.attacks.likelihood_attack &mdash; SACRO-ML 1.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -73,20 +73,20 @@
   <h1>Source code for sacroml.attacks.likelihood_attack</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sklearn</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fpdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">FPDF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">shapiro</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">shapiro</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml</span><span class="w"> </span><span class="kn">import</span> <span class="n">metrics</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.attack</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attack</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">sacroml</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -96,12 +96,12 @@
 
 <div class="viewcode-block" id="LIRAAttack">
 <a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LIRAAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">LIRAAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The main LiRA Attack class.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LIRAAttack.__init__">
 <a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
         <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -153,13 +153,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;LiRA Attack&quot;</span>
 
 <div class="viewcode-block" id="LIRAAttack.attack">
 <a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.attack">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a LiRA attack from a Target object and a target model.</span>
 
 <span class="sd">        Parameters</span>
@@ -197,7 +197,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_check_and_update_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_check_and_update_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that it is safe to use class variables to index prediction arrays.</span>
 
 <span class="sd">        This has two steps:</span>
@@ -230,7 +230,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">target</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-locals</span>
+    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseEstimator</span><span class="p">,</span>
         <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -310,7 +310,7 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished scenario&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_scores</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+    <span class="k">def</span> <span class="nf">_compute_scores</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">combined_y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">combined_target_preds</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -367,7 +367,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_std&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">n_normal</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_describe_conf</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_describe_conf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">confidences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">global_std</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mean and standard deviation of a list of confidences.&quot;&quot;&quot;</span>
@@ -381,7 +381,7 @@
             <span class="n">std</span> <span class="o">=</span> <span class="n">global_std</span>
         <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_global_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confidences</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_global_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confidences</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the global standard deviation.&quot;&quot;&quot;</span>
         <span class="n">global_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_variance</span><span class="p">:</span>
@@ -392,7 +392,7 @@
                 <span class="n">global_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">global_std</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_p_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_p_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test whether a set of samples is normally distributed.&quot;&quot;&quot;</span>
         <span class="n">p_normal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanvar</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">EPS</span><span class="p">:</span>
@@ -400,7 +400,7 @@
                 <span class="n">_</span><span class="p">,</span> <span class="n">p_normal</span> <span class="o">=</span> <span class="n">shapiro</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">p_normal</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_train_shadow_models</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+    <span class="k">def</span> <span class="nf">_train_shadow_models</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseEstimator</span><span class="p">,</span>
         <span class="n">combined_x_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -463,7 +463,7 @@
                     <span class="n">in_conf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out_conf</span><span class="p">,</span> <span class="n">in_conf</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_construct_metadata</span><span class="p">()</span>
 
@@ -489,11 +489,11 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">auc_std</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">auc_std</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">report</span><span class="o">.</span><span class="n">create_lr_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
         <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
@@ -502,20 +502,20 @@
         <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_metrics_instances</span>
         <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
 
-    <span class="k">class</span><span class="w"> </span><span class="nc">_DummyClassifier</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">_DummyClassifier</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A Dummy Classifier to allow this code to work with get_metrics.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Return an array of 1/0 depending on value in second column.&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Simply return the X_test.&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="n">X_test</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_logit</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_logit</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return standard logit.</span>
 
 <span class="sd">    Parameters</span>

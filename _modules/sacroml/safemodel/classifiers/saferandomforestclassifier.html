@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.safemodel.classifiers.saferandomforestclassifier &mdash; SACRO-ML 1.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -73,29 +73,29 @@
   <h1>Source code for sacroml.safemodel.classifiers.saferandomforestclassifier</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Privacy protected Random Forest classifier.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reporting_string</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.safemodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SafeModel</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.safedecisiontreeclassifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">decision_trees_are_equal</span>
+<span class="kn">from</span> <span class="nn">.safedecisiontreeclassifier</span> <span class="kn">import</span> <span class="n">decision_trees_are_equal</span>
 
 <span class="c1"># pylint: disable=too-many-ancestors, unidiomatic-typecheck</span>
 
 
 <div class="viewcode-block" id="SafeRandomForestClassifier">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SafeRandomForestClassifier</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">SafeRandomForestClassifier</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy protected Random Forest classifier.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SafeRandomForestClassifier.__init__">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model and apply constraints to params.&quot;&quot;&quot;</span>
         <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basemodel_paramnames</span> <span class="o">=</span> <span class="p">[</span>
@@ -138,7 +138,7 @@
 
 <div class="viewcode-block" id="SafeRandomForestClassifier.additional_checks">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.additional_checks">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">additional_checks</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
+    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">curr_separate</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_separate</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform Random Forest specific checks.</span>
@@ -198,7 +198,7 @@
     <span class="c1"># pylint: disable=arguments-differ</span>
 <div class="viewcode-block" id="SafeRandomForestClassifier.fit">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit model and store model dict.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k_anonymity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -207,7 +207,7 @@
 
 <div class="viewcode-block" id="SafeRandomForestClassifier.get_k_anonymity">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.get_k_anonymity">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_k_anonymity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_k_anonymity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the k-anonymity of a random forest model.</span>
 
 <span class="sd">        The k-anonymity is the minimum of the anonymity for each record.</span>

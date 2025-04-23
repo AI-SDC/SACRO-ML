@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.attacks.attribute_attack &mdash; SACRO-ML 1.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -73,21 +73,21 @@
   <h1>Source code for sacroml.attacks.attribute_attack</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Attribute inference attacks.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocess</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fpdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">FPDF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">multiprocess</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.attack</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attack</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.attacks.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -98,12 +98,12 @@
 
 <div class="viewcode-block" id="AttributeAttack">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">AttributeAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">AttributeAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Attribute inference attack.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AttributeAttack.__init__">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
         <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -124,13 +124,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_cpu</span> <span class="o">=</span> <span class="n">n_cpu</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Attribute inference attack&quot;</span>
 
 <div class="viewcode-block" id="AttributeAttack.attack">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.attack">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run attribute inference attack.</span>
 
 <span class="sd">        To be used when code has access to Target class and trained target model.</span>
@@ -160,7 +160,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the instances metric calculated, during attacks.&quot;&quot;&quot;</span>
         <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
@@ -168,7 +168,7 @@
         <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_metrics_instances</span>
         <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report.&quot;&quot;&quot;</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;attack_experiment_logger&quot;</span><span class="p">][</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">][</span>
@@ -183,6 +183,11 @@
         <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
         <span class="c1"># Add attack parameters</span>
         <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metadata&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
         <span class="c1"># Add attack results</span>
@@ -215,7 +220,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_unique_max</span><span class="p">(</span><span class="n">confidences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_unique_max</span><span class="p">(</span><span class="n">confidences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return if there is a unique maximum confidence value above threshold.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">max_conf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span>
@@ -228,7 +233,7 @@
     <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_inference_data</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">_get_inference_data</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memberset</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dataset of each sample with the attributes to test.&quot;&quot;&quot;</span>
@@ -263,7 +268,7 @@
     <span class="k">return</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">baseline</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_infer</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">_infer</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
     <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -307,7 +312,7 @@
 
 <div class="viewcode-block" id="report_categorical">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.report_categorical">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">report_categorical</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">report_categorical</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a string report of the categorical results.&quot;&quot;&quot;</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -331,7 +336,7 @@
 
 <div class="viewcode-block" id="report_quantitative">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.report_quantitative">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">report_quantitative</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">report_quantitative</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a string report of the quantitative results.&quot;&quot;&quot;</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;quantitative&quot;</span><span class="p">]</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -347,7 +352,7 @@
 
 <div class="viewcode-block" id="plot_quantitative_risk">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_quantitative_risk">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_quantitative_risk</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">plot_quantitative_risk</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing quantitative value risk scores.</span>
 
 <span class="sd">    Parameters</span>
@@ -391,7 +396,7 @@
 
 <div class="viewcode-block" id="plot_categorical_risk">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_risk">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_categorical_risk</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">plot_categorical_risk</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing categorical risk scores.</span>
@@ -441,7 +446,7 @@
 
 <div class="viewcode-block" id="plot_categorical_fraction">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_fraction">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_categorical_fraction</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">plot_categorical_fraction</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing fraction of dataset inferred.</span>
@@ -489,7 +494,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_infer_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_infer_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the training and test set risks of a categorical feature.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
@@ -498,7 +503,7 @@
     <span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_is_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_is_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether a feature is categorical.</span>
 
 <span class="sd">    For simplicity, assumes integer datatypes are categorical.</span>
@@ -507,7 +512,7 @@
     <span class="k">return</span> <span class="n">encoding</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">encoding</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;onehot&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_attack_brute_force</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_attack_brute_force</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
     <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -525,7 +530,7 @@
         <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_infer_categorical</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-arguments</span>
+<span class="k">def</span> <span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-arguments</span>
     <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span>
     <span class="n">feat_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">feat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -599,7 +604,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_bounds_risk_for_feature</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_get_bounds_risk_for_feature</span><span class="p">(</span>
     <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the average feature risk score over a set of samples.&quot;&quot;&quot;</span>
@@ -620,7 +625,7 @@
     <span class="k">return</span> <span class="n">feature_risk</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_bounds_risk</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_get_bounds_risk</span><span class="p">(</span>
     <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span>
     <span class="n">feature_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -635,7 +640,7 @@
     <span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_bounds_risks</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_get_bounds_risks</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the bounds risk for all specified features.&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Computing bounds risk for all specified features&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
@@ -652,7 +657,7 @@
         <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_get_bounds_risk</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute attribute inference attacks on a target given a trained model.&quot;&quot;&quot;</span>
     <span class="c1"># brute force attack categorical attributes using dataset unique values</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attacking dataset: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">)</span>

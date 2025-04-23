@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Extending SafeModel &mdash; SACRO-ML 1.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
@@ -109,7 +109,7 @@ by the automatic sphinx documentation</p>
 </section>
 <section id="define-the-safer-class">
 <h2>Define the Safer Class<a class="headerlink" href="#define-the-safer-class" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SafeGradientBoosting</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SafeGradientBoosting</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Privacy protected GradientBoostingClassifier.&quot;&quot;&quot;</span>
 </pre></div>
 </div>
@@ -123,10 +123,10 @@ to define safe limits for parameters of newly implemented models.</p>
 <section id="update-the-init-method-with-paramnames-ignore-items-and-examine-separately-items">
 <h2>Update the __init__ method with paramnames, ignore_items, and examine_separately items<a class="headerlink" href="#update-the-init-method-with-paramnames-ignore-items-and-examine-separately-items" title="Link to this heading"></a></h2>
 <p>Code for a new class needs to reflect is the contents of the list self.basemodel_paramnames.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SafeModelToMakeSafe</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SafeModelToMakeSafe</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Privacy protected XGBoost.&quot;&quot;&quot;</span>
 
-<span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates model and applies constraints to params&quot;&quot;&quot;</span>
         <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -155,7 +155,7 @@ to define safe limits for parameters of newly implemented models.</p>
 </div>
 <p>For sklearn models this list can be extracted from the sklearn man page for the new model. For example,
 Saferandomforest defines the valid paramnames as:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates model and applies constraints to params&quot;&quot;&quot;</span>
         <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basemodel_paramnames</span><span class="o">=</span><span class="p">[</span>
@@ -175,14 +175,14 @@ is called.</p>
 <p>Examples of unusual datastructures are:
 Lists are handled in the safemodel base class.
 Decision Trees handled in safedecisiontree.py and saferandomforest.py</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SafeGradientBoosting</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SafeGradientBoosting</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Privacy protected GradientBoostingClassifier.&quot;&quot;&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="override-the-fit-function">
 <h2>Override the fit() function<a class="headerlink" href="#override-the-fit-function" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Do fit and then store model dict&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k_anonymity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -212,7 +212,7 @@ Example test suites can be found in SACRO-ML/tests/</p>
 <h2>Include any optional helper functions<a class="headerlink" href="#include-any-optional-helper-functions" title="Link to this heading"></a></h2>
 <p>Depending on the model being implemented one or more helper functions or
 methods may be required.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">same_weights</span><span class="p">(</span><span class="n">m1</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">m2</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;different numbers of layers&quot;</span>
 <span class="n">numlayers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>

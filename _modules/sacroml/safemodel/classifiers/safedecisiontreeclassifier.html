@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sacroml.safemodel.classifiers.safedecisiontreeclassifier &mdash; SACRO-ML 1.2.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -73,22 +73,22 @@
   <h1>Source code for sacroml.safemodel.classifiers.safedecisiontreeclassifier</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Privacy protected Decision Tree classifier.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dictdiffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">diff</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dictdiffer</span> <span class="kn">import</span> <span class="n">diff</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reporting_string</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sacroml.safemodel.safemodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SafeModel</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
+<span class="kn">from</span> <span class="nn">sacroml.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
 
 
 <div class="viewcode-block" id="decision_trees_are_equal">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_trees_are_equal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">decision_trees_are_equal</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">decision_trees_are_equal</span><span class="p">(</span>
     <span class="n">tree1</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">tree2</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two estimators of type sklearn.tree.&quot;&quot;&quot;</span>
@@ -132,7 +132,7 @@
 
 <div class="viewcode-block" id="decision_tree_internal_trees_are_equal">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_tree_internal_trees_are_equal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">decision_tree_internal_trees_are_equal</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">decision_tree_internal_trees_are_equal</span><span class="p">(</span>
     <span class="n">tree1_tree</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">tree2_tree</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test for equality of the internal structures in a sklearn.tree._tree.</span>
@@ -190,7 +190,7 @@
 
 <div class="viewcode-block" id="get_tree_k_anonymity">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.get_tree_k_anonymity">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_tree_k_anonymity</span><span class="p">(</span><span class="n">thetree</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_tree_k_anonymity</span><span class="p">(</span><span class="n">thetree</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the smallest number of data items in any leaf.&quot;&quot;&quot;</span>
     <span class="n">leaves</span> <span class="o">=</span> <span class="n">thetree</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
     <span class="n">uniqs_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">leaves</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -200,12 +200,12 @@
 
 <div class="viewcode-block" id="SafeDecisionTreeClassifier">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-ancestors</span>
+<span class="k">class</span> <span class="nc">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">SafeModel</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-ancestors</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy protected Decision Tree classifier.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SafeDecisionTreeClassifier.__init__">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model and apply constraints to params.&quot;&quot;&quot;</span>
         <span class="n">SafeModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basemodel_paramnames</span> <span class="o">=</span> <span class="p">[</span>
@@ -242,7 +242,7 @@
 
 <div class="viewcode-block" id="SafeDecisionTreeClassifier.additional_checks">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">additional_checks</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">curr_separate</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_separate</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decision Tree-specific checks.&quot;&quot;&quot;</span>
@@ -263,7 +263,7 @@
 
 <div class="viewcode-block" id="SafeDecisionTreeClassifier.fit">
 <a class="viewcode-back" href="../../../../safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>  <span class="c1"># pylint: disable=arguments-differ</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit model and store k-anonymity and model dict.&quot;&quot;&quot;</span>
