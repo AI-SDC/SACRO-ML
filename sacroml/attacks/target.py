@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+import shutil
 from typing import Any
 
 import numpy as np
@@ -32,6 +33,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self,
         model: Any = None,
         dataset_name: str = "",
+        model_module_path: str = "",
+        dataset_module_path: str = "",
         features: dict | None = None,
         X_train: np.ndarray | None = None,
         y_train: np.ndarray | None = None,
@@ -54,6 +57,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Trained target model.
         dataset_name : str
             The name of the dataset.
+        model_module_path : str
+            Path to module containing model class.
+        dataset_module_path : str
+            Path to module containing dataset loading function.
         features : dict
             Dictionary describing the dataset features.
         X_train : np.ndarray | None
@@ -99,11 +106,20 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.model_type = type(self.model).__name__
             self.model_name = self.model.get_name()
             self.model_params = self.model.get_params()
+
         # Model - predicted probabilities
         self.proba_train: np.ndarray | None = proba_train
         self.proba_test: np.ndarray | None = proba_test
-        #  Dataset - details
+
+        # Model - code
+        self.model_module_path = os.path.abspath(model_module_path)
+
+        # Dataset - details
         self.dataset_name: str = dataset_name
+
+        # Dataset - code
+        self.dataset_module_path = os.path.abspath(dataset_module_path)
+
         #  Dataset - processed
         self.X_train: np.ndarray | None = X_train
         self.y_train: np.ndarray | None = y_train
@@ -112,6 +128,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.n_samples: int = 0
         if X_train is not None and X_test is not None:
             self.n_samples = len(X_train) + len(X_test)
+
         #  Dataset - unprocessed
         self.X_orig: np.ndarray | None = X_orig
         self.y_orig: np.ndarray | None = y_orig
@@ -124,6 +141,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_samples_orig = len(X_train_orig) + len(X_test_orig)
         self.features: dict = features if features is not None else {}
         self.n_features: int = len(self.features)
+
         #  Safemodel report
         self.safemodel: list = []
 
@@ -181,9 +199,14 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
+        if self.model_module_path != "":
+            filename = os.path.normpath(f"{path}/model.py")
+            shutil.copy2(self.model_module_path, filename)
+            target["model_module_path"] = "model.py"
+
         if not self.model is None:
             # write model
-            filename: str = os.path.normpath(f"{path}/model.{ext}")
+            filename = os.path.normpath(f"{path}/model.{ext}")
             self.model.save(filename)
             target["model_path"] = f"model.{ext}"
             # write hyperparameters
@@ -275,6 +298,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
+        if self.dataset_module_path != "":
+            filename = os.path.normpath(f"{path}/dataset.py")
+            shutil.copy2(self.dataset_module_path, filename)
+            target["model_dataset_path"] = "dataset.py"
+
         self._save_numpy(path, target, "X_train")
         self._save_numpy(path, target, "y_train")
         self._save_numpy(path, target, "X_test")
@@ -347,12 +375,14 @@ class Target:  # pylint: disable=too-many-instance-attributes
         # convert Target to dict
         target: dict = {
             "dataset_name": self.dataset_name,
+            "dataset_module_path": self.dataset_module_path,
             "n_samples": self.n_samples,
             "features": self.features,
             "n_features": self.n_features,
             "n_samples_orig": self.n_samples_orig,
             "generalisation_error": self._ge(),
             "safemodel": self.safemodel,
+            "model_module_path": self.model_module_path,
         }
         # write model and add path
         self._save_model(path, ext, target)
