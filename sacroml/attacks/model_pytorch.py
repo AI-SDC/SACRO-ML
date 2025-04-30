@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import importlib
 import logging
 from copy import deepcopy
 
 import numpy as np
 import torch
-from torch import cuda, nn
+from torch import cuda
 from torch.nn.functional import softmax
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, create_model, train_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -143,23 +142,12 @@ class PytorchModel(Model):
         self
             Fitted model.
         """
-        #  Create a new model
+        #  Create a new model using the provided model class
         self.model = create_model(
             self.model_module_path, self.model_name, self.model_params
         )
-        try:
-            # Convert file path to module path
-            train_module_path = self.train_module_path
-            train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
-            train_module_path = train_module_path.rstrip(".py")
-            # Import training function
-            module = importlib.import_module(train_module_path)
-            train_function = module.train
-            # Train model
-            train_function(model=self.model, X=X, y=y, **self.train_params)
-            return self
-        except Exception as e:
-            raise ValueError(f"Failed to create PyTorch model: {e}") from e
+        #  Fit using the provided train function
+        return train_model(self.model, self.train_module_path, self.train_params, X, y)
 
     def clone(self) -> PytorchModel:
         """Return a copy of the model.
@@ -294,10 +282,13 @@ class PytorchModel(Model):
         """
         # Create model
         model = create_model(model_module_path, model_name, model_params)
+
         # Load weights
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
+
+        # Return a new PytorchModel
         return cls(
             model,
             model_path=model_path,
@@ -307,20 +298,3 @@ class PytorchModel(Model):
             train_module_path=train_module_path,
             train_params=train_params,
         )
-
-
-def create_model(
-    model_module_path: str, model_name: str, model_params: dict
-) -> nn.Module:
-    """Create a new Pytorch model."""
-    try:
-        # Convert file path to module path
-        model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
-        model_module_path = model_module_path.rstrip(".py")
-        # Import model class
-        module = importlib.import_module(model_module_path)
-        model_class = getattr(module, model_name)
-        # Instantiate model
-        return model_class(**model_params)
-    except Exception as e:
-        raise ValueError(f"Failed to create PyTorch model: {e}") from e

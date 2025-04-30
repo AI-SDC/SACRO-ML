@@ -424,8 +424,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ext : str
             File extension defining the model saved format, e.g., "pkl" or "sav".
         """
-        path: str = os.path.normpath(path)
-        filename: str = os.path.normpath(f"{path}/target.yaml")
+        norm_path: str = os.path.normpath(path)
+        filename: str = os.path.normpath(f"{norm_path}/target.yaml")
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         # convert Target to dict
         target: dict = {
@@ -439,9 +439,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "safemodel": self.safemodel,
         }
         # write model details
-        self._save_model(path, ext, target)
+        self._save_model(norm_path, ext, target)
         # write data arrays and add paths
-        self._save_data(path, target)
+        self._save_data(norm_path, target)
 
         # write yaml
         with open(filename, "w", encoding="utf-8") as fp:
@@ -485,7 +485,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
         # load model
         self._load_model(path, target)
-
         # load data
         self._load_data(path, target)
 
