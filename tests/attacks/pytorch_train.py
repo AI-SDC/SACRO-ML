@@ -5,7 +5,7 @@ import torch
 from torch import nn, optim
 
 
-def train(
+def train(  # pylint: disable=too-many-arguments
     model: nn.Module,
     X: np.ndarray,
     y: np.ndarray,
