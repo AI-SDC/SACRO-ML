@@ -16,39 +16,38 @@ torch.manual_seed(random_state)
 torch.cuda.manual_seed_all(random_state)
 
 if __name__ == "__main__":
+    #############################################################################
+    # Dataset loading and model training
+    #############################################################################
+
+    model_params = {  # These must match all required in the model constructor.
+        "x_dim": 4,
+        "y_dim": 4,
+        "n_units": 1000,
+    }
+    train_params = {  # These must match all required in the train function.
+        "epochs": 1000,
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+    }
+
     logging.info("Loading dataset")
-    x_dim = 4
-    y_dim = 4
     X, y, X_train, y_train, X_test, y_test = get_data(
-        n_features=x_dim, n_classes=y_dim, random_state=random_state
+        n_features=model_params["x_dim"],
+        n_classes=model_params["y_dim"],
+        random_state=random_state,
     )
 
     logging.info("Defining the model")
-    n_units = 1000
-    model = OverfitNet(x_dim=x_dim, y_dim=y_dim, n_units=n_units)
+    model = OverfitNet(**model_params)
 
     logging.info("Training the model")
-    epochs = 1000
-    learning_rate = 0.001
-    momentum = 0.9
-
-    train(model, X_train, y_train, epochs, learning_rate, momentum)
+    train(model, X_train, y_train, **train_params)
 
     #############################################################################
     # Below shows the use of the Target class to help generate the target_dir/
     # If you have already saved your model, you can use the CLI target generator.
     #############################################################################
-
-    model_params = {  # These must match all required in the model constructor.
-        "x_dim": x_dim,
-        "y_dim": y_dim,
-        "n_units": n_units,
-    }
-    train_params = {  # These must match all required in the train function.
-        "epochs": epochs,
-        "learning_rate": learning_rate,
-        "momentum": momentum,
-    }
 
     logging.info("Wrapping the model and data in a Target object")
     target = Target(
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     )
 
     logging.info("Wrapping feature details and encoding for attribute inference")
-    for i in range(x_dim):
+    for i in range(model_params["x_dim"]):
         target.add_feature(
             name=f"A{i}",
             indices=[i],
