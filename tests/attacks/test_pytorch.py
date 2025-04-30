@@ -7,7 +7,6 @@ import torch
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from torch import nn, optim
 
 from sacroml.attacks import (
     attribute_attack,
@@ -17,6 +16,9 @@ from sacroml.attacks import (
 )
 from sacroml.attacks.target import Target
 
+from tests.attacks.pytorch_model import SimpleNet
+from tests.attacks.pytorch_train import train
+
 output_dir = "output_pytorch"
 target_dir = "target_pytorch"
 
@@ -25,52 +27,18 @@ torch.manual_seed(random_state)
 torch.cuda.manual_seed_all(random_state)
 
 
-class SimpleNet(nn.Module):
-    """A simple Pytorch classification model."""
-
-    def __init__(self, x_dim: int, y_dim: int) -> None:
-        """Construct a simple Pytorch model."""
-        super().__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(x_dim, 50),
-            nn.ReLU(),
-            nn.Linear(50, y_dim),
-        )
-        self.epochs = 100
-        self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.layers.parameters(), lr=0.001, momentum=0.9)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward propagate input."""
-        return self.layers(x)
-
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
-        """Fit model to data."""
-        x_train_tensor = torch.FloatTensor(X_train)
-        y_train_tensor = torch.LongTensor(y_train)
-
-        for _ in range(self.epochs):
-            # Forward
-            logits = self(x_train_tensor)
-            loss = self.criterion(logits, y_train_tensor)
-            # Backward
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
-
-
 def test_pytorch() -> None:  # pylint:disable=too-many-locals
     """Test pytorch handling."""
     # Make some data
-    n_features = 4
-    n_classes = 4
+    x_dim = 4
+    y_dim = 4
     X_orig, y_orig = make_classification(
         n_samples=50,
-        n_features=n_features,
+        n_features=x_dim,
         n_informative=2,
         n_redundant=0,
         n_repeated=0,
-        n_classes=n_classes,
+        n_classes=y_dim,
         n_clusters_per_class=1,
         random_state=random_state,
     )
@@ -94,13 +62,27 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
     X_test = np.asarray(X_test)
     y_test = np.asarray(y_test)
 
+    model_params = {
+        "x_dim": x_dim,
+        "y_dim": y_dim,
+    }
+    train_params = {
+        "epochs": 10,
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+    }
+
     # Make and fit pytorch model
-    model = SimpleNet(x_dim=n_features, y_dim=n_classes)
-    model.fit(X_train, y_train)
+    model = SimpleNet(**model_params)
+    train(model, X_train, y_train, **train_params)
 
     # Create Target wrapper
     target = Target(
         model=model,
+        model_module_path="tests/attacks/pytorch_model.py",
+        model_params=model_params,
+        train_module_path="tests/attacks/pytorch_train.py",
+        train_params=train_params,
         dataset_name="synthetic",
         # processed data
         X_train=X_train,
