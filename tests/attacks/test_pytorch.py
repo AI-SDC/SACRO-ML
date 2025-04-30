@@ -15,7 +15,6 @@ from sacroml.attacks import (
     worst_case_attack,
 )
 from sacroml.attacks.target import Target
-
 from tests.attacks.pytorch_model import SimpleNet
 from tests.attacks.pytorch_train import train
 
