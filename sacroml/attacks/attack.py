@@ -63,8 +63,12 @@ class Attack:
         """Create attack report."""
         logger.info("Generating report")
         self._construct_metadata()
-        self.metadata["target_model"] = target.model_name
-        self.metadata["target_model_params"] = target.model_params
+
+        if not target.model is None:
+            self.metadata["target_model"] = target.model.model_name
+            self.metadata["target_model_params"] = target.model.model_params
+            self.metadata["target_train_params"] = target.model.train_params
+
         output: dict = {
             "log_id": str(uuid.uuid4()),
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),

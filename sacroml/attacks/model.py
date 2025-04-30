@@ -12,18 +12,49 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Model(ABC):
+class Model(ABC):  # pylint: disable=too-many-instance-attributes
     """Interface to a target model."""
 
-    def __init__(self, model: Any) -> None:
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        model: Any,
+        model_path: str = "",
+        model_module_path: str = "",
+        model_name: str = "",
+        model_params: dict | None = None,
+        train_module_path: str = "",
+        train_params: dict | None = None,
+    ) -> None:
         """Instantiate a target model.
 
         Parameters
         ----------
         model : Any
-            Trained target model.
+            Model.
+        model_path : str
+            Path (including extension) of a saved model.
+        model_module_path : str
+            Path (including extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict | None
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict | None
+            Hyperparameters for training the model.
         """
         self.model: Any = model
+        self.model_path: str = model_path
+        self.model_module_path: str = model_module_path
+        self.model_name: str = model_name
+        self.model_params: dict = {} if model_params is None else model_params
+        self.train_module_path: str = train_module_path
+        self.train_params: dict = {} if train_params is None else train_params
+
+        if self.model is not None:
+            self.model_name = type(self.model).__name__
+            self.model_type = type(self).__name__
 
     @abstractmethod
     def get_generalisation_error(
@@ -162,16 +193,6 @@ class Model(ABC):
         """
 
     @abstractmethod
-    def get_name(self) -> str:
-        """Get the name of this model.
-
-        Returns
-        -------
-        str
-            Model name.
-        """
-
-    @abstractmethod
     def save(self, path: str) -> None:
         """Save the model to persistent storage.
 
@@ -183,13 +204,31 @@ class Model(ABC):
 
     @classmethod
     @abstractmethod
-    def load(cls, path: str) -> Model:
+    def load(  # pylint: disable=too-many-arguments
+        cls,
+        model_path: str,
+        model_module_path: str,
+        model_name: str,
+        model_params: dict,
+        train_module_path: str,
+        train_params: dict,
+    ) -> Model:
         """Load the model from persistent storage.
 
         Parameters
         ----------
-        path : str
-            Path including file extension to load model.
+        model_path : str
+            Path (including file extension) of a saved model.
+        model_module_path : str
+            Path (including file extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict
+            Hyperparameters for training the model.
 
         Returns
         -------

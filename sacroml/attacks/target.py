@@ -32,8 +32,13 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         model: Any = None,
-        dataset_name: str = "",
+        model_path: str = "",
         model_module_path: str = "",
+        model_name: str = "",
+        model_params: dict | None = None,
+        train_module_path: str = "",
+        train_params: dict | None = None,
+        dataset_name: str = "",
         dataset_module_path: str = "",
         features: dict | None = None,
         X_train: np.ndarray | None = None,
@@ -55,10 +60,20 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ----------
         model : Any
             Trained target model.
-        dataset_name : str
-            The name of the dataset.
+        model_path : str
+            Path to a saved model.
         model_module_path : str
             Path to module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict | None
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path to module containing training function.
+        train_params : dict | None
+            Hyperparameters for training the model.
+        dataset_name : str
+            The name of the dataset.
         dataset_module_path : str
             Path to module containing dataset loading function.
         features : dict
@@ -90,9 +105,25 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """
         # Model - details
         if isinstance(model, sklearn.base.BaseEstimator):
-            self.model = SklearnModel(model)
+            self.model = SklearnModel(
+                model=model,
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
         elif isinstance(model, torch.nn.Module):
-            self.model = PytorchModel(model)
+            self.model = PytorchModel(
+                model=model,
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
         elif isinstance(model, (SklearnModel, PytorchModel)):
             self.model = model
         elif model is not None:
@@ -100,25 +131,18 @@ class Target:  # pylint: disable=too-many-instance-attributes
         else:  # for subsequent model loading
             self.model = None
 
-        self.model_name: str = "unknown"
-        self.model_params: dict = {}
-        if self.model is not None:
-            self.model_type = type(self.model).__name__
-            self.model_name = self.model.get_name()
-            self.model_params = self.model.get_params()
+        # Model - code
+        self.model_module_path = model_module_path
 
-        # Model - predicted probabilities
+        # Data - model predicted probabilities
         self.proba_train: np.ndarray | None = proba_train
         self.proba_test: np.ndarray | None = proba_test
-
-        # Model - code
-        self.model_module_path = os.path.abspath(model_module_path)
 
         # Dataset - details
         self.dataset_name: str = dataset_name
 
         # Dataset - code
-        self.dataset_module_path = os.path.abspath(dataset_module_path)
+        self.dataset_module_path = dataset_module_path
 
         #  Dataset - processed
         self.X_train: np.ndarray | None = X_train
@@ -199,35 +223,66 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
-        if self.model_module_path != "":
-            filename = os.path.normpath(f"{path}/model.py")
-            shutil.copy2(self.model_module_path, filename)
-            target["model_module_path"] = "model.py"
-
         if not self.model is None:
-            # write model
-            filename = os.path.normpath(f"{path}/model.{ext}")
-            self.model.save(filename)
-            target["model_path"] = f"model.{ext}"
-            # write hyperparameters
-            target["model_type"] = self.model_type
-            target["model_name"] = self.model_name
-            target["model_params"] = self.model_params
+            target["model_type"] = self.model.model_type
+            target["model_name"] = self.model.model_name
 
-    def load_model(self, model_path: str) -> None:
+            if not self.model.model_params:
+                self.model.model_params = self.model.get_params()
+            target["model_params"] = self.model.model_params
+
+            if self.model_module_path != "":
+                filename = os.path.normpath(f"{path}/model.py")
+                shutil.copy2(self.model.model_module_path, filename)
+                target["model_module_path"] = "model.py"
+
+            if self.model.train_module_path != "":
+                filename = os.path.normpath(f"{path}/train.py")
+                shutil.copy2(self.model.train_module_path, filename)
+                target["train_module_path"] = "train.py"
+                target["train_params"] = self.model.train_params
+
+            if not self.model is None:
+                filename = os.path.normpath(f"{path}/model.{ext}")
+                target["model_path"] = f"model.{ext}"
+                self.model.save(filename)
+
+    def _load_model(self, path: str, target: dict) -> None:
         """Load the target model.
 
         Parameters
         ----------
-        model_path : str
-            Path to load the model.
+        path : str
+            Path to a target directory.
+        target : dict
+            Target class as a dictionary for loading yaml.
         """
-        if self.model_type in registry:
-            model_class = registry[self.model_type]
-            self.model = model_class.load(model_path)
-            logger.info("Loaded: %s : %s", self.model_type, self.model_name)
+        #  Load attributes
+        model_type: str = target.get("model_type", "")
+        model_name: str = target.get("model_name", "")
+        model_params: dict = target.get("model_params", {})
+        model_path: str = target.get("model_path", "")
+        model_module_path: str = target.get("model_module_path", "")
+        train_module_path: str = target.get("train_module_path", "")
+        train_params: dict = target.get("train_params", {})
+        #  Normalise paths
+        model_path = os.path.normpath(f"{path}/{model_path}")
+        model_module_path = os.path.normpath(f"{path}/{model_module_path}")
+        train_module_path = os.path.normpath(f"{path}/{train_module_path}")
+        #  Load model
+        if model_type in registry:
+            model_class = registry[model_type]
+            self.model = model_class.load(
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
+            logger.info("Loaded: %s : %s", model_type, model_name)
         else:
-            raise ValueError(f"Can't load model type: {self.model_type}")
+            raise ValueError(f"Can't load model type: {model_type}")
 
     def _save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
@@ -301,7 +356,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if self.dataset_module_path != "":
             filename = os.path.normpath(f"{path}/dataset.py")
             shutil.copy2(self.dataset_module_path, filename)
-            target["model_dataset_path"] = "dataset.py"
+            target["dataset_module_path"] = "dataset.py"
 
         self._save_numpy(path, target, "X_train")
         self._save_numpy(path, target, "y_train")
@@ -382,12 +437,12 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "n_samples_orig": self.n_samples_orig,
             "generalisation_error": self._ge(),
             "safemodel": self.safemodel,
-            "model_module_path": self.model_module_path,
         }
-        # write model and add path
+        # write model details
         self._save_model(path, ext, target)
         # write data arrays and add paths
         self._save_data(path, target)
+
         # write yaml
         with open(filename, "w", encoding="utf-8") as fp:
             yaml.dump(target, fp, default_flow_style=False, sort_keys=False)
@@ -405,6 +460,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
         filename: str = os.path.normpath(f"{path}/target.yaml")
         with open(filename, encoding="utf-8") as fp:
             target = yaml.safe_load(fp)
+        # load modules
+        if "dataset_module_path" in target:
+            self.dataset_module_path = os.path.normpath(
+                f"{path}/{target['dataset_module_path']}"
+            )
         # load parameters
         if "dataset_name" in target:
             self.dataset_name = target["dataset_name"]
@@ -422,16 +482,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_samples_orig = target["n_samples_orig"]
         if "safemodel" in target:
             self.safemodel = target["safemodel"]
+
         # load model
-        if "model_type" in target:
-            self.model_type = target["model_type"]
-        if "model_name" in target:
-            self.model_name = target["model_name"]
-        if "model_params" in target:
-            self.model_params = target["model_params"]
-        if "model_path" in target:
-            model_path = os.path.normpath(f"{path}/{target['model_path']}")
-            self.load_model(model_path)
+        self._load_model(path, target)
+
         # load data
         self._load_data(path, target)
 

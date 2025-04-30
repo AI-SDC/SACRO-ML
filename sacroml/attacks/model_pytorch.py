@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import importlib
 import logging
 from copy import deepcopy
-from typing import Any
 
 import numpy as np
 import torch
-from torch import cuda
+from torch import cuda, nn
 from torch.nn.functional import softmax
 
 from sacroml.attacks.model import Model
@@ -20,15 +20,44 @@ logger = logging.getLogger(__name__)
 class PytorchModel(Model):
     """Interface to Pytorch models."""
 
-    def __init__(self, model: torch.nn.Module) -> None:
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        model: torch.nn.Module,
+        model_path: str = "",
+        model_module_path: str = "",
+        model_name: str = "",
+        model_params: dict | None = None,
+        train_module_path: str = "",
+        train_params: dict | None = None,
+    ) -> None:
         """Instantiate a target model.
 
         Parameters
         ----------
         model : torch.nn.Module
-            Trained Pytorch model.
+            Pytorch model.
+        model_path : str
+            Path (including extension) of a saved model.
+        model_module_path : str
+            Path (including extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict | None
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict | None
+            Hyperparameters for training the model.
         """
-        super().__init__(model)
+        super().__init__(
+            model=model,
+            model_path=model_path,
+            model_module_path=model_module_path,
+            model_name=model_name,
+            model_params=model_params,
+            train_module_path=train_module_path,
+            train_params=train_params,
+        )
 
     def get_generalisation_error(
         self,
@@ -99,10 +128,8 @@ class PytorchModel(Model):
 
         return y_pred.numpy()
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> Model:
-        """Fit the model.
-
-        Resets the weights before training.
+    def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
+        """Fit a model from scratch.
 
         Parameters
         ----------
@@ -116,10 +143,25 @@ class PytorchModel(Model):
         self
             Fitted model.
         """
-        self.model.layers.apply(reset_weights)
-        return self.model.fit(X, y)
+        #  Create a new model
+        self.model = create_model(
+            self.model_module_path, self.model_name, self.model_params
+        )
+        try:
+            # Convert file path to module path
+            train_module_path = self.train_module_path
+            train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
+            train_module_path = train_module_path.rstrip(".py")
+            # Import training function
+            module = importlib.import_module(train_module_path)
+            train_function = module.train
+            # Train model
+            train_function(model=self.model, X=X, y=y, **self.train_params)
+            return self
+        except Exception as e:
+            raise ValueError(f"Failed to create PyTorch model: {e}") from e
 
-    def clone(self) -> Model:
+    def clone(self) -> PytorchModel:
         """Return a copy of the model.
 
         Returns
@@ -128,7 +170,16 @@ class PytorchModel(Model):
             A cloned model.
         """
         model: torch.nn.Module = deepcopy(self.model)
-        return PytorchModel(model)
+
+        return PytorchModel(
+            model=model,
+            model_path=self.model_path,
+            model_module_path=self.model_module_path,
+            model_name=self.model_name,
+            model_params=self.model_params,
+            train_module_path=self.train_module_path,
+            train_params=self.train_params,
+        )
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return the model predicted probabilities for a set of samples.
@@ -170,7 +221,7 @@ class PytorchModel(Model):
                 return np.arange(n_outputs)
         return self.model.classes
 
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs) -> PytorchModel:
         """Set the parameters of this model.
 
         Parameters
@@ -197,28 +248,7 @@ class PytorchModel(Model):
         dict
             Model parameters.
         """
-        config = {}
-        if hasattr(self.model, "epochs"):
-            config["epochs"] = self.model.epochs
-        if hasattr(self.model, "criterion"):
-            config["criterion"] = self.model.criterion.__class__.__name__
-        if hasattr(self.model, "optimizer"):
-            config["optimizer"] = {
-                "type": self.model.optimizer.__class__.__name__,
-                "params": dict(self.model.optimizer.defaults.items()),
-            }
-        config["architecture"] = model_to_dict(self.model.layers)
-        return config
-
-    def get_name(self) -> str:
-        """Get the name of this model.
-
-        Returns
-        -------
-        str
-            Model name.
-        """
-        return type(self.model).__name__
+        return {}
 
     def save(self, path: str) -> None:
         """Save the model to persistent storage.
@@ -228,66 +258,69 @@ class PytorchModel(Model):
         path : str
             Path including file extension to save model.
         """
-        torch.save(self.model, path)
+        torch.save(self.model.state_dict(), path)
 
     @classmethod
-    def load(cls, path: str) -> PytorchModel:
+    def load(  # pylint: disable=too-many-arguments
+        cls,
+        model_path: str,
+        model_module_path: str,
+        model_name: str,
+        model_params: dict,
+        train_module_path: str,
+        train_params: dict,
+    ) -> PytorchModel:
         """Load the model from persistent storage.
 
         Parameters
         ----------
-        path : str
-            Path including file extension to load model.
+        model_path : str
+            Path (including file extension) of a saved model.
+        model_module_path : str
+            Path (including file extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict
+            Hyperparameters for training the model.
 
         Returns
         -------
         PytorchModel
             A loaded pytorch model.
         """
+        # Create model
+        model = create_model(model_module_path, model_name, model_params)
+        # Load weights
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        try:
-            model = torch.load(path, weights_only=False, map_location=device)
-            model.eval()
-            return cls(model)
-        except Exception as e:
-            raise ValueError(f"Failed to load PyTorch model: {e}") from e
+        model.load_state_dict(torch.load(model_path, map_location=device))
+        model.eval()
+        return cls(
+            model,
+            model_path=model_path,
+            model_module_path=model_module_path,
+            model_name=model_name,
+            model_params=model_params,
+            train_module_path=train_module_path,
+            train_params=train_params,
+        )
 
 
-def reset_weights(layer: torch.nn.Module) -> None:
-    """Reset the layer weights."""
-    if hasattr(layer, "reset_parameters") and callable(layer.reset_parameters):
-        layer.reset_parameters()
-
-
-def model_to_dict(model: torch.nn.Module) -> dict[str, Any]:
-    """Return a dictionary that describes a PyTorch model."""
-    if isinstance(model, torch.nn.Sequential):
-        return {
-            "type": "Sequential",
-            "layers": [model_to_dict(layer) for layer in model],
-        }
-    if isinstance(model, torch.nn.Linear):
-        return {
-            "type": "Linear",
-            "in_features": model.in_features,
-            "out_features": model.out_features,
-            "bias": model.bias is not None,
-        }
-    if isinstance(model, torch.nn.ReLU):
-        return {"type": "ReLU", "inplace": model.inplace}
-    if isinstance(model, torch.nn.Conv2d):
-        return {
-            "type": "Conv2d",
-            "in_channels": model.in_channels,
-            "out_channels": model.out_channels,
-            "kernel_size": model.kernel_size[0]
-            if isinstance(model.kernel_size, tuple)
-            else model.kernel_size,
-            "stride": model.stride[0]
-            if isinstance(model.stride, tuple)
-            else model.stride,
-            "padding": model.padding[0]
-            if isinstance(model.padding, tuple)
-            else model.padding,
-        }
-    return {"type": model.__class__.__name__, "params": str(model)}
+def create_model(
+    model_module_path: str, model_name: str, model_params: dict
+) -> nn.Module:
+    """Create a new Pytorch model."""
+    try:
+        # Convert file path to module path
+        model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
+        model_module_path = model_module_path.rstrip(".py")
+        # Import model class
+        module = importlib.import_module(model_module_path)
+        model_class = getattr(module, model_name)
+        # Instantiate model
+        return model_class(**model_params)
+    except Exception as e:
+        raise ValueError(f"Failed to create PyTorch model: {e}") from e

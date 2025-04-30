@@ -18,15 +18,44 @@ logger = logging.getLogger(__name__)
 class SklearnModel(Model):
     """Interface to sklearn.base.BaseEstimator models."""
 
-    def __init__(self, model: sklearn.base.BaseEstimator) -> None:
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        model: sklearn.base.BaseEstimator,
+        model_path: str = "",
+        model_module_path: str = "",
+        model_name: str = "",
+        model_params: dict | None = None,
+        train_module_path: str = "",
+        train_params: dict | None = None,
+    ) -> None:
         """Instantiate a target model.
 
         Parameters
         ----------
         model : sklearn.base.BaseEstimator
-            Trained scikit-learn model.
+            Scikit-learn model.
+        model_path : str
+            Path (including extension) of a saved model.
+        model_module_path : str
+            Path (including extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict | None
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict | None
+            Hyperparameters for training the model.
         """
-        super().__init__(model)
+        super().__init__(
+            model=model,
+            model_path=model_path,
+            model_module_path=model_module_path,
+            model_name=model_name,
+            model_params=model_params,
+            train_module_path=train_module_path,
+            train_params=train_params,
+        )
 
     def get_generalisation_error(
         self,
@@ -172,16 +201,6 @@ class SklearnModel(Model):
         """
         return self.model.get_params()
 
-    def get_name(self) -> str:
-        """Get the name of this model.
-
-        Returns
-        -------
-        str
-            Model name.
-        """
-        return type(self.model).__name__
-
     def save(self, path: str) -> None:
         """Save the model to persistent storage.
 
@@ -198,23 +217,49 @@ class SklearnModel(Model):
             raise ValueError(f"Unsupported file format for saving a model: {ext}")
 
     @classmethod
-    def load(cls, path: str) -> SklearnModel:
+    def load(  # pylint: disable=too-many-arguments
+        cls,
+        model_path: str,
+        model_module_path: str,
+        model_name: str,
+        model_params: dict,
+        train_module_path: str,
+        train_params: dict,
+    ) -> SklearnModel:
         """Load the model from persistent storage.
 
         Parameters
         ----------
-        path : str
-            Path including file extension to load model.
+        model_path : str
+            Path (including file extension) of a saved model.
+        model_module_path : str
+            Path (including file extension) of Python module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path (including extension) of Python module containing train function.
+        train_params : dict
+            Hyperparameters for training the model.
 
         Returns
         -------
         SklearnModel
             A loaded sklearn model.
         """
-        ext: str = Path(path).suffix
+        ext: str = Path(model_path).suffix
         if ext == ".pkl":
-            with open(path, "rb") as fp:
+            with open(model_path, "rb") as fp:
                 model = pickle.load(fp)
         else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for loading a model: {ext}")
-        return cls(model)
+        return cls(
+            model,
+            model_path=model_path,
+            model_module_path=model_module_path,
+            model_name=model_name,
+            model_params=model_params,
+            train_module_path=train_module_path,
+            train_params=train_params,
+        )
