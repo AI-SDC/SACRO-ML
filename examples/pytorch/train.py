@@ -14,8 +14,11 @@ def train(
     momentum: float,
 ) -> None:
     """Train Pytorch model."""
-    x_tensor = torch.FloatTensor(X)
-    y_tensor = torch.LongTensor(y)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    x_tensor = torch.FloatTensor(X).to(device)
+    y_tensor = torch.LongTensor(y).to(device)
+    model = model.to(device)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)

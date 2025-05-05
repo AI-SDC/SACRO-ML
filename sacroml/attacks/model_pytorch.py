@@ -118,14 +118,17 @@ class PytorchModel(Model):
         np.ndarray
             Model predictions (label encoding).
         """
-        x_tensor = torch.FloatTensor(X)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.model.eval()
+        x_tensor = torch.FloatTensor(X).to(device)
+        model = self.model.to(device)
+
+        model.eval()
         with torch.no_grad():
-            logits = self.model(x_tensor)
+            logits = model(x_tensor)
             _, y_pred = torch.max(logits, 1)
 
-        return y_pred.numpy()
+        return y_pred.cpu().numpy()
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
         """Fit a model from scratch.

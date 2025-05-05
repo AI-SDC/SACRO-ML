@@ -10,12 +10,16 @@ from train import train
 from sacroml.attacks.target import Target
 
 target_dir = "target_pytorch"
-
 random_state = 2
-torch.manual_seed(random_state)
-torch.cuda.manual_seed_all(random_state)
 
 if __name__ == "__main__":
+    torch.manual_seed(random_state)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(random_state)
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info("Found no NVIDIA driver on your system")
+
     #############################################################################
     # Dataset loading and model training
     #############################################################################
