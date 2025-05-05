@@ -194,7 +194,7 @@ class PytorchModel(Model):
         self.model.to("cpu")
         return probabilities.cpu().numpy()  # should be softmax values
 
-    def get_classes(self) -> np.ndarray:
+    def get_classes(self) -> np.ndarray:  # pragma: no cover
         """Return the classes the model was trained to predict.
 
         Returns
@@ -202,12 +202,31 @@ class PytorchModel(Model):
         np.ndarray
             Classes.
         """
-        for module in reversed(list(self.model.modules())):
+        last_linear = None
+
+        # First try to find a named output layer
+        names = ["output", "classifier", "head", "pred"]
+        for name, module in self.model.named_modules():
             if isinstance(module, torch.nn.Linear):
-                n_outputs: int = module.out_features
-                n_outputs = max(2, n_outputs)  # Deal with binary output
-                return np.arange(n_outputs)
-        return self.model.classes
+                last_linear = module
+                if any(output_name in name.lower() for output_name in names):
+                    n_outputs = max(2, module.out_features)  # Deal with binary
+                    logger.debug(f"Assuming model outputs {n_outputs} classes")
+                    return np.arange(n_outputs)
+
+        # If no named layer found, use the last Linear layer in the model
+        if last_linear is not None:
+            n_outputs = max(2, last_linear.out_features)
+            logger.debug(f"Assuming model outputs {n_outputs} classes")
+            return np.arange(n_outputs)
+
+        # Last attempt, see if a classes attribute was defined
+        try:
+            return self.model.classes
+        except AttributeError as error:
+            raise AttributeError(
+                "No Linear layer found and model has no 'classes' attribute"
+            ) from error
 
     def set_params(self, **kwargs) -> PytorchModel:
         """Set the parameters of this model.
