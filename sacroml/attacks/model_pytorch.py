@@ -228,7 +228,7 @@ class PytorchModel(Model):
 
         return self.model
 
-    def get_params(self) -> dict:
+    def get_params(self) -> dict:  # pragma: no cover
         """Get the parameters of this model.
 
         Returns
@@ -236,7 +236,7 @@ class PytorchModel(Model):
         dict
             Model parameters.
         """
-        return {}
+        return self.model_params
 
     def save(self, path: str) -> None:
         """Save the model to persistent storage.

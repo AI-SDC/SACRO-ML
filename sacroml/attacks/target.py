@@ -226,10 +226,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if not self.model is None:
             target["model_type"] = self.model.model_type
             target["model_name"] = self.model.model_name
-
-            if not self.model.model_params:
-                self.model.model_params = self.model.get_params()
-            target["model_params"] = self.model.model_params
+            target["model_params"] = self.model.get_params()
 
             if self.model_module_path != "":
                 filename = os.path.normpath(f"{path}/model.py")
