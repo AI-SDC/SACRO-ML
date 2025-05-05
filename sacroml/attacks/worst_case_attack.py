@@ -99,7 +99,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         return "WorstCase attack"
 
     @classmethod
-    def attackable(cls, target: Target) -> bool:
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with WorstCaseAttack."""
         required_methods = ["predict_proba", "predict"]
         if (

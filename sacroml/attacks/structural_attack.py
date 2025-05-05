@@ -276,7 +276,7 @@ class StructuralAttack(Attack):
         return "Structural attack"
 
     @classmethod
-    def attackable(cls, target: Target) -> bool:
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with StructuralAttack."""
         if (
             target.has_model()

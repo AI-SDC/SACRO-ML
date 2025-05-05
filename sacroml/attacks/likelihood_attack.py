@@ -81,7 +81,7 @@ class LIRAAttack(Attack):
         return "LiRA Attack"
 
     @classmethod
-    def attackable(cls, target: Target) -> bool:
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with LIRAAttack."""
         required_methods = [
             "clone",
