@@ -12,7 +12,7 @@ from sacroml.safemodel.safemodel import SafeModel
 
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
-# pylint: disable=too-many-ancestors, unidiomatic-typecheck
+# pylint: disable=too-many-ancestors
 
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):

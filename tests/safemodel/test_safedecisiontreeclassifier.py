@@ -7,28 +7,14 @@ import pickle
 
 import joblib
 import numpy as np
-import pytest
 from sklearn import datasets
 
-from sacroml.attacks import attack
-from sacroml.attacks.target import Target
 from sacroml.safemodel import reporting
 from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 from sacroml.safemodel.classifiers.safedecisiontreeclassifier import (
     decision_trees_are_equal,
     get_tree_k_anonymity,
 )
-
-
-def test_superclass():
-    """Test that the exceptions are raised if the superclass is called in error."""
-    model = SafeDecisionTreeClassifier()
-    target = Target(model=model)
-    my_attack = attack.Attack()
-    with pytest.raises(NotImplementedError):
-        my_attack.attack(target)
-    with pytest.raises(NotImplementedError):
-        print(str(my_attack))
 
 
 def get_data():

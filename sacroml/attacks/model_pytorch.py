@@ -211,13 +211,13 @@ class PytorchModel(Model):
                 last_linear = module
                 if any(output_name in name.lower() for output_name in names):
                     n_outputs = max(2, module.out_features)  # Deal with binary
-                    logger.debug(f"Assuming model outputs {n_outputs} classes")
+                    logger.debug("Assuming model outputs %d classes", n_outputs)
                     return np.arange(n_outputs)
 
         # If no named layer found, use the last Linear layer in the model
         if last_linear is not None:
             n_outputs = max(2, last_linear.out_features)
-            logger.debug(f"Assuming model outputs {n_outputs} classes")
+            logger.debug("Assuming model outputs %d classes", n_outputs)
             return np.arange(n_outputs)
 
         # Last attempt, see if a classes attribute was defined
