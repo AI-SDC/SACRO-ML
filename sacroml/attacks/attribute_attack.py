@@ -447,7 +447,7 @@ def _attack_brute_force(
     args = [(target, feature_id, attack_threshold) for feature_id in features]
 
     # use multiprocessing if possible
-    if isinstance(target.model, BaseEstimator):
+    if isinstance(target.model.model, BaseEstimator):
         with mp.Pool(processes=n_cpu) as pool:
             return pool.starmap(_infer_categorical, args)
 
@@ -584,7 +584,7 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
     ]
 
     # use multiprocessing if possible
-    if isinstance(target.model, BaseEstimator):
+    if isinstance(target.model.model, BaseEstimator):
         with mp.Pool(processes=n_cpu) as pool:
             return pool.starmap(_get_bounds_risk, args)
 
