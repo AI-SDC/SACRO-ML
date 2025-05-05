@@ -24,27 +24,6 @@ COLOR_A: str = "#86bf91"  # training set plot colour
 COLOR_B: str = "steelblue"  # testing set plot colour
 
 
-def attackable(target: Target) -> bool:
-    """Return whether a target object contains everything needed."""
-    can_attack: bool = True
-
-    if target.n_features < 1 or not target.has_data() or not target.has_raw_data():
-        logger.info("WARNING: AttributeAttack requires features to be defined.")
-        can_attack = False
-
-    if not target.has_model():
-        logger.info("WARNING: AttributeAttack requires a loadable model.")
-        can_attack = False
-
-    required_methods = ["predict_proba", "predict"]
-    for method in required_methods:
-        if not hasattr(target.model, method):
-            logger.info("WARNING: AttributeAttack requires model with: %s()", method)
-            can_attack = False
-
-    return can_attack
-
-
 class AttributeAttack(Attack):
     """Attribute inference attack."""
 
@@ -72,7 +51,30 @@ class AttributeAttack(Attack):
         """Return the name of the attack."""
         return "Attribute inference attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+        """Return whether a target can be assessed with AttributeAttack."""
+        can_attack: bool = True
+
+        if target.n_features < 1 or not target.has_data() or not target.has_raw_data():
+            logger.info("WARNING: AttributeAttack requires features to be defined.")
+            can_attack = False
+
+        if not target.has_model():
+            logger.info("WARNING: AttributeAttack requires a loadable model.")
+            can_attack = False
+
+        required_methods = ["predict_proba", "predict"]
+        for method in required_methods:
+            if not hasattr(target.model, method):
+                logger.info(
+                    "WARNING: AttributeAttack requires model with: %s()", method
+                )
+                can_attack = False
+
+        return can_attack
+
+    def _attack(self, target: Target) -> dict:
         """Run attribute inference attack.
 
         To be used when code has access to Target class and trained target model.
@@ -87,9 +89,6 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        # check it can be run
-        if not attackable(target):  # pragma: no cover
-            return {}
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
         output = self._make_report(target)

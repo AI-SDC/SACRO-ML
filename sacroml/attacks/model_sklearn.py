@@ -87,7 +87,7 @@ class SklearnModel(Model):
                 train = self.model.score(X_train, y_train)
                 test = self.model.score(X_test, y_test)
                 return test - train
-            except sklearn.exceptions.NotFittedError:
+            except sklearn.exceptions.NotFittedError:  # pragma: no cover
                 return np.nan
         return np.nan
 

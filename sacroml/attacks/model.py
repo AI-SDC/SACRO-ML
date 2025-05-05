@@ -275,7 +275,7 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
         # Instantiate model
         return model_class(**model_params)
 
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         raise ValueError(f"Failed to create model: {e}") from e
 
 
@@ -312,5 +312,5 @@ def train_model(
         # Train model
         train_function(model=model, X=X, y=y, **train_params)
         return model
-    except Exception as e:
+    except Exception as e:  # pramga: no cover
         raise ValueError(f"Failed to train model: {e}") from e

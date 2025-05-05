@@ -28,18 +28,6 @@ logger = logging.getLogger(__name__)
 # pylint: disable=chained-comparison
 
 
-def attackable(target: Target) -> bool:
-    """Return whether a target object contains everything needed."""
-    if (
-        target.has_model()
-        and isinstance(target.model.model, BaseEstimator)
-        and target.has_data()
-    ):
-        return True
-    logger.info("WARNING: StructuralAttack requires a loadable model.")
-    return False
-
-
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
 
@@ -287,7 +275,19 @@ class StructuralAttack(Attack):
         """Return the name of the attack."""
         return "Structural attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:
+        """Return whether a target can be assessed with StructuralAttack."""
+        if (
+            target.has_model()
+            and isinstance(target.model.model, BaseEstimator)
+            and target.has_data()
+        ):
+            return True
+        logger.info("WARNING: StructuralAttack requires a loadable model.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run structural attack.
 
         To be used when code has access to Target class and trained target model.
@@ -302,10 +302,6 @@ class StructuralAttack(Attack):
         dict
             Attack report.
         """
-        # check it can be run
-        if not attackable(target):  # pragma: no cover
-            return {}
-
         self.target = target
         model = target.model.model  # inner wrapped model
 

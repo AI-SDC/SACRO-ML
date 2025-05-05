@@ -21,19 +21,6 @@ logger = logging.getLogger(__name__)
 P_THRESH = 0.05
 
 
-def attackable(target: Target) -> bool:
-    """Return whether a target object contains everything needed."""
-    required_methods = ["predict_proba", "predict"]
-    if (
-        target.has_model()
-        and target.has_data()
-        and all(hasattr(target.model, method) for method in required_methods)
-    ) or target.has_probas():
-        return True
-    logger.info("WARNING: WorstCaseAttack requires more Target details.")
-    return False
-
-
 class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
     """Worst case attack."""
 
@@ -111,7 +98,20 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         """Return name of attack."""
         return "WorstCase attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:
+        """Return whether a target can be assessed with WorstCaseAttack."""
+        required_methods = ["predict_proba", "predict"]
+        if (
+            target.has_model()
+            and target.has_data()
+            and all(hasattr(target.model, method) for method in required_methods)
+        ) or target.has_probas():
+            return True
+        logger.info("WARNING: WorstCaseAttack requires more Target details.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run worst case attack.
 
         Parameters
@@ -124,10 +124,6 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         dict
             Attack report.
         """
-        # check it can be run
-        if not attackable(target):  # pragma: no cover
-            return {}
-
         train_c = None
         test_c = None
         # compute target model probas if possible

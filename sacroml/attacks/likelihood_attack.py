@@ -22,27 +22,6 @@ logger = logging.getLogger(__name__)
 EPS = 1e-16  # Used to avoid numerical issues
 
 
-def attackable(target: Target) -> bool:
-    """Return whether a target object contains everything needed."""
-    required_methods = [
-        "clone",
-        "predict_proba",
-        "predict",
-        "get_classes",
-        "set_params",
-    ]
-
-    if (
-        target.has_model()
-        and target.has_data()
-        and all(hasattr(target.model, method) for method in required_methods)
-    ):
-        return True
-
-    logger.info("WARNING: LiRA requires a loadable model.")
-    return False
-
-
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
 
@@ -101,7 +80,28 @@ class LIRAAttack(Attack):
         """Return the name of the attack."""
         return "LiRA Attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:
+        """Return whether a target can be assessed with LIRAAttack."""
+        required_methods = [
+            "clone",
+            "predict_proba",
+            "predict",
+            "get_classes",
+            "set_params",
+        ]
+
+        if (
+            target.has_model()
+            and target.has_data()
+            and all(hasattr(target.model, method) for method in required_methods)
+        ):
+            return True
+
+        logger.info("WARNING: LiRA requires a loadable model.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run a LiRA attack from a Target object and a target model.
 
         Parameters
@@ -114,9 +114,6 @@ class LIRAAttack(Attack):
         dict
             Attack report.
         """
-        # check it can be run
-        if not attackable(target):  # pragma: no cover
-            return {}
         # prepare
         shadow_clf = target.model.clone()
         target = self._check_and_update_dataset(target)
