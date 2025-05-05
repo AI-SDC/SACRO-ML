@@ -161,7 +161,7 @@ class LIRAAttack(Attack):
             if y in classes:
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
-        if len(y_test_new) != len(target.X_test):
+        if len(y_test_new) != len(target.X_test):  # pragma: no cover
             target.X_test = target.X_test[ok_pos, :]
         target.y_test = np.array(y_test_new, int)
         logger.info(
@@ -222,7 +222,7 @@ class LIRAAttack(Attack):
         combined_x_train = np.vstack((X_train, X_test))
         if y_train.ndim == 1 and y_test.ndim == 1:  # label encoding
             combined_y_train = np.hstack((y_train, y_test))
-        else:  # one-hot encoding
+        else:  #  pragma: no cover (one-hot encoding)
             combined_y_train = np.vstack((y_train, y_test))
         combined_target_preds = np.vstack((proba_train, proba_test))
 
@@ -398,7 +398,7 @@ class LIRAAttack(Attack):
                 # logit of the correct class
                 if combined_y_train.ndim == 1:  # label encoding
                     label = class_map.get(combined_y_train[i], -1)
-                else:  # one-hot encoding
+                else:  # pragma: no cover (one-hot encoding)
                     label = np.argmax(combined_y_train[i])
                 # Occasionally, the random data split will result in classes being
                 # absent from the training set. In these cases label will be -1 and

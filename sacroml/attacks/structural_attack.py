@@ -196,7 +196,7 @@ def _get_model_param_count_ada(model: AdaBoostClassifier) -> int:
     n_params: int = 0
     try:  # sklearn v1.2+
         base = model.estimator
-    except AttributeError:  # sklearn version <1.2
+    except AttributeError:  # pragma: no cover (sklearn version <1.2)
         base = model.base_estimator
     if isinstance(base, DecisionTreeClassifier):
         for member in model.estimators_:

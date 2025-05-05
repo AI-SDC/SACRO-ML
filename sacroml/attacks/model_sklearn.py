@@ -89,7 +89,7 @@ class SklearnModel(Model):
                 return test - train
             except sklearn.exceptions.NotFittedError:  # pragma: no cover
                 return np.nan
-        return np.nan
+        return np.nan  # pragma: no cover
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model scores for a set of samples.

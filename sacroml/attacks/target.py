@@ -126,7 +126,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             )
         elif isinstance(model, (SklearnModel, PytorchModel)):
             self.model = model
-        elif model is not None:
+        elif model is not None:  # pragma: no cover
             raise ValueError(f"Unsupported model type: {type(model)}")
         else:  # for subsequent model loading
             self.model = None
@@ -278,7 +278,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
                 train_params=train_params,
             )
             logger.info("Loaded: %s : %s", model_type, model_name)
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Can't load model type: {model_type}")
 
     def _save_numpy(self, path: str, target: dict, name: str) -> None:
@@ -350,7 +350,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
-        if self.dataset_module_path != "":
+        if self.dataset_module_path != "":  # pragma: no cover
             filename = os.path.normpath(f"{path}/dataset.py")
             shutil.copy2(self.dataset_module_path, filename)
             target["dataset_module_path"] = "dataset.py"
@@ -409,7 +409,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             return self.model.get_generalisation_error(
                 self.X_train, self.y_train, self.X_test, self.y_test
             )
-        return np.nan
+        return np.nan  # pragma: no cover
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Save the target class to persistent storage.
@@ -522,10 +522,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def has_probas(self) -> bool:
         """Return whether the target has all probability data."""
         return self.proba_train is not None and self.proba_test is not None
-
-    def __str__(self) -> str:
-        """Return the name of the dataset used."""
-        return self.dataset_name
 
 
 def get_array_pkl(path: str, name: str):  # pragma: no cover

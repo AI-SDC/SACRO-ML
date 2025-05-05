@@ -312,5 +312,5 @@ def train_model(
         # Train model
         train_function(model=model, X=X, y=y, **train_params)
         return model
-    except Exception as e:  # pramga: no cover
+    except Exception as e:  # pragma: no cover
         raise ValueError(f"Failed to train model: {e}") from e
