@@ -258,11 +258,17 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
         New model.
     """
     try:
-        # Add the target directory to sys.path
-        module_dir = os.path.dirname(os.path.abspath(model_module_path))
-        parent_dir = os.path.dirname(module_dir)
-        if parent_dir not in sys.path:
-            sys.path.insert(0, parent_dir)
+        basename = os.path.basename(model_module_path)
+        if basename == model_module_path:  # pragma: no cover
+            # Add current directory to the system path
+            module_dir = os.getcwd()
+            sys.path.insert(0, module_dir)
+        else:
+            # Add the parent (target) directory to system path
+            module_dir = os.path.dirname(os.path.abspath(model_module_path))
+            parent_dir = os.path.dirname(module_dir)
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
 
         # Convert file path to module path
         model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
@@ -276,7 +282,7 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
         return model_class(**model_params)
 
     except Exception as e:  # pragma: no cover
-        raise ValueError(f"Failed to create model: {e}") from e
+        raise ValueError(f"Failed to create new model using supplied class: {e}") from e
 
 
 def train_model(

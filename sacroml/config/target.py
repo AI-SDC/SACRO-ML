@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import os
+import pickle
 import sys
+from typing import Any
 
-from sacroml.attacks.target import Target
+from sacroml.attacks.model import create_model
+from sacroml.attacks.target import Target, registry
 from sacroml.config import utils
 from sacroml.version import __version__
 
@@ -81,18 +85,90 @@ def _get_features(target: Target) -> None:
             target.add_feature(name, indices, encoding)
 
 
+def _get_model_type() -> str:
+    """Prompt user for saved model type."""
+    while True:
+        print(f"Model types natively supported: {list(registry.keys())}")
+        print("If it is a Pytorch model, type: 'PytorchModel'")
+        print("If it is a scikit-learn model, type: 'SklearnModel'")
+        model_type = input("What is the type of model? ")
+        if model_type in registry:
+            return model_type
+        print(f"{model_type} is not loadable so some attacks will be unavailable")
+        if utils.get_bool(f"Are you sure {model_type} is correct?"):
+            return model_type
+
+
+def _get_model_name() -> str:
+    """Prompt user for saved model class name."""
+    return input("What is the model class name? ")
+
+
+def _get_model_module_path() -> str:
+    """Prompt user for the Python module containing the model class."""
+    while True:
+        print("Please provide a Python module containing the model class")
+        path = input("Enter the path including the full filename: ")
+        if os.path.isfile(path):
+            break
+        print("File does not exist. Please try again.")
+    return path
+
+
 def _get_model_path() -> str:
     """Prompt user for path to a saved fitted model."""
-    if not utils.get_bool("Do you have a saved fitted model?"):
-        print("Cannot generate a target config without a fitted model.")
-        sys.exit()
-
     while True:
         path = input("Enter path including the full filename: ")
         if os.path.isfile(path):
             break
         print("File does not exist. Please try again.")
     return path
+
+
+def _get_train_module_path() -> str:
+    """Prompt user for the Python module containing the train function."""
+    while True:
+        print("Please provide a Python module containing the train function")
+        path = input("Enter the path including the full filename: ")
+        if os.path.isfile(path):
+            break
+        print("File does not exist. Please try again.")
+    return path
+
+
+def _get_params() -> dict[str, Any]:
+    """Prompt user for hyperparameter names and their values."""
+    params: dict[str, Any] = {}
+    print("Enter hyperparameter names and values.")
+    print("Type 'done' as the name when you're finished.")
+    while True:
+        name: str = input("Hyperparameter name (or 'done' to finish): ").strip()
+        if name.lower() == "done":
+            break
+        if not name:
+            print("Name cannot be empty.")
+            continue
+        value = input(f"Value for '{name}': ").strip()
+        # Try to infer the type
+        if value.lower() in ["true", "false"]:
+            value = value.lower() == "true"
+        else:
+            with contextlib.suppress(ValueError):
+                value = float(value) if "." in value else int(value)
+        params[name] = value
+    return params
+
+
+def _get_train_params() -> dict:
+    """Prompt user for train function hyperparameters."""
+    print("Please provide hyperparameters for the train function")
+    return _get_params()
+
+
+def _get_model_params() -> dict:
+    """Prompt user for model hyperparameters."""
+    print("Please provide hyperparameters for the model constructor")
+    return _get_params()
 
 
 def _get_proba(target: Target) -> None:
@@ -103,24 +179,90 @@ def _get_proba(target: Target) -> None:
     _get_arrays(target, arrays_proba)
 
 
+def _load_model(model_path: str) -> Any:
+    """Load a model from a file.
+
+    Currently only supports pickle.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to load the model.
+
+    Returns
+    -------
+    Any
+        Loaded model.
+    """
+    path = os.path.normpath(model_path)
+    _, ext = os.path.splitext(path)
+    if ext == ".pkl":
+        with open(path, "rb") as fp:
+            model = pickle.load(fp)
+            model_type = type(model)
+            print(f"Successfully loaded: {model_type.__name__}")
+            return model
+    else:
+        raise ValueError(f"Unsupported file format for loading a model: {ext}")
+
+
 def prompt_for_target() -> None:
     """Prompt user for information to generate target config."""
     print(f"sacroml version {__version__}")
-    target = Target()
+
+    if not utils.get_bool("Do you have a saved fitted model?"):
+        print("Cannot generate a target config without a fitted model.")
+        sys.exit()
+
+    model_type: str = _get_model_type()
+    model_path: str = _get_model_path()
+
+    if model_type == "PytorchModel":
+        # Get model and training information
+        model_module_path: str = _get_model_module_path()
+        model_name: str = _get_model_name()
+        model_params: dict = _get_model_params()
+        train_module_path: str = _get_train_module_path()
+        train_params: dict = _get_train_params()
+        # Try to create a new model
+        try:
+            model = create_model(model_module_path, model_name, model_params)
+            print("Successfully created a new model using supplied class.")
+        except ValueError as e:
+            print(f"{str(e)}")
+            print("Please try again.")
+            sys.exit()
+        # Create a new target object
+        target = Target(
+            model=model,
+            model_path=model_path,
+            model_module_path=model_module_path,
+            model_name=model_name,
+            model_params=model_params,
+            train_module_path=train_module_path,
+            train_params=train_params,
+        )
+    else:
+        # Attempt to load the saved model
+        try:
+            model = _load_model(model_path)
+            target = Target(model=model)
+        except ValueError:  # unsupported model, require probas
+            print("Unable to load model.")
+            target = Target()
+            _get_proba(target)
+
+    # Check target directory exists and create as necessary
     path: str = utils.check_dir("target")
 
-    model_path: str = _get_model_path()
-    try:  # attempt to load saved model
-        target.load_model(model_path)
-    except ValueError:  # unsupported model, require probas
-        print("Unable to load model.")
-        _get_proba(target)
-
+    # Get dataset information
     _get_dataset_name(target)
     if utils.get_bool("Do you know the paths to processed data?"):
         _get_arrays(target, arrays_pro)
         _get_features(target)
     if utils.get_bool("Do you know the paths to original raw data?"):
         _get_arrays(target, arrays_raw)
+
+    # Save the target information to the target directory
     target.save(path)
     print(f"Target generated in directory: '{path}'")
