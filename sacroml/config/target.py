@@ -11,7 +11,7 @@ import sys
 from typing import Any
 
 from prompt_toolkit import prompt
-from prompt_toolkit.completion import PathCompleter
+from prompt_toolkit.completion import PathCompleter, WordCompleter
 
 from sacroml.attacks.model import create_model
 from sacroml.attacks.target import Target, registry
@@ -44,13 +44,13 @@ def _get_arrays(target: Target, arrays: list[str]) -> None:
 
 def _get_dataset_name(target: Target) -> None:
     """Prompt user for the name of a dataset."""
-    target.dataset_name = input("What is the name of the dataset? ")
+    target.dataset_name = prompt("What is the name of the dataset? ")
 
 
 def _get_feature_encoding(feat: int) -> str:
     """Prompt user for feature encoding."""
     while True:
-        encoding = input(f"What is the encoding of feature {feat}? ")
+        encoding = prompt(f"What is the encoding of feature {feat}? ")
         if encoding in encodings:
             return encoding
         print("Invalid encoding. Please try again.")
@@ -59,7 +59,7 @@ def _get_feature_encoding(feat: int) -> str:
 def _get_feature_indices(feat: int) -> list[int]:
     """Prompt user for feature indices."""
     while True:
-        indices = input(f"What are the indices for feature {feat}, e.g., [1,2,3]? ")
+        indices = prompt(f"What are the indices for feature {feat}, e.g., [1,2,3]? ")
         try:
             indices = ast.literal_eval(indices)
             if isinstance(indices, list) and all(isinstance(i, int) for i in indices):
@@ -72,7 +72,7 @@ def _get_feature_indices(feat: int) -> list[int]:
 def _get_features(target: Target) -> None:
     """Prompt user for dataset features."""
     print("To run attribute inference attacks the features must be described.")
-    n_features = input("How many features does this dataset have? ")
+    n_features = prompt("How many features does this dataset have? ")
     n_features = int(n_features)
     if n_features > MAX_FEATURES:
         print("There are too many features to add via prompt.")
@@ -84,7 +84,7 @@ def _get_features(target: Target) -> None:
     if utils.get_bool("Do you want to add this information?"):
         print(f"Valid encodings: {', '.join(encodings)}")
         for i in range(n_features):
-            name = input(f"What is the name of feature {i}? ")
+            name = prompt(f"What is the name of feature {i}? ")
             indices = _get_feature_indices(i)
             encoding = _get_feature_encoding(i)
             target.add_feature(name, indices, encoding)
@@ -93,10 +93,12 @@ def _get_features(target: Target) -> None:
 def _get_model_type() -> str:
     """Prompt user for saved model type."""
     while True:
-        print(f"Model types natively supported: {list(registry.keys())}")
+        models: list[str] = list(registry.keys())
+        print(f"Model types natively supported: {models}")
         print("If it is a Pytorch model, type: 'PytorchModel'")
         print("If it is a scikit-learn model, type: 'SklearnModel'")
-        model_type = input("What is the type of model? ")
+        completer = WordCompleter(models)
+        model_type = prompt("What is the type of model? ", completer=completer)
         if model_type in registry:
             return model_type
         print(f"{model_type} is not loadable so some attacks will be unavailable")
@@ -106,7 +108,7 @@ def _get_model_type() -> str:
 
 def _get_model_name() -> str:
     """Prompt user for saved model class name."""
-    return input("What is the model class name? ")
+    return prompt("What is the model class name? ")
 
 
 def _get_model_module_path() -> str:
@@ -150,13 +152,13 @@ def _get_params() -> dict[str, Any]:
     print("Enter hyperparameter names and values.")
     print("Type 'done' as the name when you're finished.")
     while True:
-        name: str = input("Hyperparameter name (or 'done' to finish): ").strip()
+        name: str = prompt("Hyperparameter name (or 'done' to finish): ").strip()
         if name.lower() == "done":
             break
         if not name:
             print("Name cannot be empty.")
             continue
-        value = input(f"Value for '{name}': ").strip()
+        value = prompt(f"Value for '{name}': ").strip()
         # Try to infer the type
         if value.lower() in ["true", "false"]:
             value = value.lower() == "true"
