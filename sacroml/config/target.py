@@ -6,8 +6,12 @@ import ast
 import contextlib
 import os
 import pickle
+import shutil
 import sys
 from typing import Any
+
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import PathCompleter
 
 from sacroml.attacks.model import create_model
 from sacroml.attacks.target import Target, registry
@@ -26,7 +30,8 @@ def _get_arrays(target: Target, arrays: list[str]) -> None:
     """Prompt user for the paths to array data."""
     for arr in arrays:
         while True:
-            path = input(f"What is the path to {arr}? ")
+            msg = f"What is the path to {arr}?: "
+            path = prompt(msg, completer=PathCompleter())
             try:
                 target.load_array(path, arr)
                 break
@@ -108,7 +113,8 @@ def _get_model_module_path() -> str:
     """Prompt user for the Python module containing the model class."""
     while True:
         print("Please provide a Python module containing the model class")
-        path = input("Enter the path including the full filename: ")
+        msg = "Enter the path including the full filename: "
+        path = prompt(msg, completer=PathCompleter())
         if os.path.isfile(path):
             break
         print("File does not exist. Please try again.")
@@ -118,7 +124,8 @@ def _get_model_module_path() -> str:
 def _get_model_path() -> str:
     """Prompt user for path to a saved fitted model."""
     while True:
-        path = input("Enter path including the full filename: ")
+        msg = "Enter the path including the full filename: "
+        path = prompt(msg, completer=PathCompleter())
         if os.path.isfile(path):
             break
         print("File does not exist. Please try again.")
@@ -129,7 +136,8 @@ def _get_train_module_path() -> str:
     """Prompt user for the Python module containing the train function."""
     while True:
         print("Please provide a Python module containing the train function")
-        path = input("Enter the path including the full filename: ")
+        msg = "Enter the path including the full filename: "
+        path = prompt(msg, completer=PathCompleter())
         if os.path.isfile(path):
             break
         print("File does not exist. Please try again.")
@@ -214,18 +222,21 @@ def prompt_for_target() -> None:
         print("Cannot generate a target config without a fitted model.")
         sys.exit()
 
+    # Check target directory exists and create as necessary
+    target_dir: str = "target"
+    path: str = utils.check_dir(target_dir)
+
+    # Get model and training information
     model_type: str = _get_model_type()
     model_path: str = _get_model_path()
 
     if model_type == "PytorchModel":
-        # Get model and training information
         model_module_path: str = _get_model_module_path()
         model_name: str = _get_model_name()
         model_params: dict = _get_model_params()
         train_module_path: str = _get_train_module_path()
         train_params: dict = _get_train_params()
-        # Try to create a new model
-        try:
+        try:  # Create a new model
             model = create_model(model_module_path, model_name, model_params)
             print("Successfully created a new model using supplied class.")
         except ValueError as e:
@@ -243,17 +254,18 @@ def prompt_for_target() -> None:
             train_params=train_params,
         )
     else:
-        # Attempt to load the saved model
-        try:
+        try:  # Load the saved model
             model = _load_model(model_path)
             target = Target(model=model)
-        except ValueError:  # unsupported model, require probas
+        except ValueError:  # Unsupported model
             print("Unable to load model.")
-            target = Target()
+            # Copy the model file to the target directory
+            filename = os.path.basename(model_path)
+            dest_path = os.path.join(target_dir, filename)
+            shutil.copy2(model_path, dest_path)
+            # Get predicted probabilities
+            target = Target(model=None)
             _get_proba(target)
-
-    # Check target directory exists and create as necessary
-    path: str = utils.check_dir("target")
 
     # Get dataset information
     _get_dataset_name(target)

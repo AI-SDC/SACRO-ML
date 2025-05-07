@@ -279,7 +279,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
             )
             logger.info("Loaded: %s : %s", model_type, model_name)
         else:  # pragma: no cover
-            raise ValueError(f"Can't load model type: {model_type}")
+            self.model = None
+            logger.info("Can't load model: %s : %s", model_type, model_name)
 
     def _save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.

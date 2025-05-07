@@ -45,6 +45,7 @@ dependencies = [
     "xgboost",
     "dictdiffer",
     "torch",
+    "prompt-toolkit",
 ]
 
 [tool.setuptools.dynamic]

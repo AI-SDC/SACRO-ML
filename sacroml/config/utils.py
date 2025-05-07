@@ -46,12 +46,12 @@ def check_dir(path: str) -> str:
     """
     if os.path.isdir(path):
         print(f"Directory '{path}' already exists.")
-        resp = get_bool(
-            "Continue using this directory and delete its current contents?"
-        )
+        resp = get_bool("Keep using this directory and delete its current contents?")
         if resp:
             shutil.rmtree(path)
         else:
             path = input("Specify an alternative directory: ")
             return check_dir(path)
+
+    os.makedirs(path, exist_ok=True)
     return path
