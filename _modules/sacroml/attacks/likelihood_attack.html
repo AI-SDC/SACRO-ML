@@ -79,13 +79,14 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">sklearn</span>
 <span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">shapiro</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
 
 <span class="kn">from</span> <span class="nn">sacroml</span> <span class="kn">import</span> <span class="n">metrics</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -157,9 +158,31 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;LiRA Attack&quot;</span>
 
-<div class="viewcode-block" id="LIRAAttack.attack">
-<a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.attack">[docs]</a>
-    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="LIRAAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with LIRAAttack.&quot;&quot;&quot;</span>
+        <span class="n">required_methods</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;clone&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;predict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;get_classes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set_params&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">required_methods</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: LiRA requires a loadable model.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a LiRA attack from a Target object and a target model.</span>
 
 <span class="sd">        Parameters</span>
@@ -172,12 +195,8 @@
 <span class="sd">        dict</span>
 <span class="sd">            Attack report.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># check it can be run</span>
-        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: LiRA requires a loadable model.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{}</span>
         <span class="c1"># prepare</span>
-        <span class="n">shadow_clf</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">shadow_clf</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_and_update_dataset</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="c1"># execute attack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span>
@@ -194,8 +213,7 @@
         <span class="c1"># write the report</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
         <span class="c1"># return the report</span>
-        <span class="k">return</span> <span class="n">output</span></div>
-
+        <span class="k">return</span> <span class="n">output</span>
 
     <span class="k">def</span> <span class="nf">_check_and_update_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that it is safe to use class variables to index prediction arrays.</span>
@@ -206,8 +224,11 @@
 <span class="sd">        2. Removing from the test set any rows corresponding to classes that</span>
 <span class="sd">        are not in the training set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">target</span>
+
         <span class="n">y_train_new</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_classes</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="p">:</span>
             <span class="n">y_train_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
         <span class="n">target</span><span class="o">.</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_train_new</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
@@ -221,7 +242,7 @@
             <span class="k">if</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
                 <span class="n">ok_pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="n">y_test_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test_new</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test_new</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
             <span class="n">target</span><span class="o">.</span><span class="n">X_test</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">[</span><span class="n">ok_pos</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">target</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_test_new</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -232,7 +253,7 @@
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseEstimator</span><span class="p">,</span>
+        <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
         <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -258,8 +279,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        shadow_clf : sklearn.Model</span>
-<span class="sd">            An sklearn classifier that will be trained to form the shadow models.</span>
+<span class="sd">        shadow_clf : Model</span>
+<span class="sd">            A classifier that will be trained to form the shadow models.</span>
 <span class="sd">            All hyperparameters should have been set.</span>
 <span class="sd">        X_train : np.ndarray</span>
 <span class="sd">            Data that was used to train the target model.</span>
@@ -280,7 +301,10 @@
         <span class="n">n_train_rows</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">n_shadow_rows</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">combined_x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">))</span>
-        <span class="n">combined_y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">y_train</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">y_test</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># label encoding</span>
+            <span class="n">combined_y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1">#  pragma: no cover (one-hot encoding)</span>
+            <span class="n">combined_y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
         <span class="n">combined_target_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">proba_train</span><span class="p">,</span> <span class="n">proba_test</span><span class="p">))</span>
 
         <span class="c1"># Get the confidences of samples when in and not in the training set</span>
@@ -326,8 +350,9 @@
         <span class="n">global_out_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_global_std</span><span class="p">(</span><span class="n">out_conf</span><span class="p">)</span>
 
         <span class="c1"># score each record in the member and non-member sets</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">):</span>
-            <span class="c1"># get the target model behaviour on the record</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">):</span>
+            <span class="c1"># get the target model behaviour on the record (handle one-hot or label)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">if</span> <span class="n">combined_y_train</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">l</span>
             <span class="n">target_logit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_logit</span><span class="p">(</span><span class="n">combined_target_preds</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">label</span><span class="p">])</span>
             <span class="c1"># get behaviour observed with the record as a non-member</span>
             <span class="n">out_mean</span><span class="p">,</span> <span class="n">out_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_conf</span><span class="p">(</span><span class="n">out_conf</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">global_out_std</span><span class="p">)</span>
@@ -402,7 +427,7 @@
 
     <span class="k">def</span> <span class="nf">_train_shadow_models</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseEstimator</span><span class="p">,</span>
+        <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
         <span class="n">combined_x_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">combined_y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">n_train_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -411,8 +436,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        shadow_clf : sklearn.base.BaseEstimator</span>
-<span class="sd">            An sklearn classifier that will be trained to form the shadow models.</span>
+<span class="sd">        shadow_clf : Model</span>
+<span class="sd">            A classifier that will be trained to form the shadow models.</span>
 <span class="sd">        combined_x_train : np.ndarray</span>
 <span class="sd">            Array of combined train and test features.</span>
 <span class="sd">        combined_y_train : np.ndarray</span>
@@ -446,13 +471,16 @@
                 <span class="n">combined_y_train</span><span class="p">[</span><span class="n">these_idx</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="c1"># map a class to a column</span>
-            <span class="n">class_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shadow_clf</span><span class="o">.</span><span class="n">classes_</span><span class="p">)}</span>
+            <span class="n">class_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shadow_clf</span><span class="o">.</span><span class="n">get_classes</span><span class="p">())}</span>
             <span class="c1"># generate shadow confidences</span>
             <span class="n">shadow_confidences</span> <span class="o">=</span> <span class="n">shadow_clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">combined_x_train</span><span class="p">)</span>
             <span class="n">these_idx</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">these_idx</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">conf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shadow_confidences</span><span class="p">):</span>
                 <span class="c1"># logit of the correct class</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="n">class_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">combined_y_train</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># label encoding</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">class_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover (one-hot encoding)</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="c1"># Occasionally, the random data split will result in classes being</span>
                 <span class="c1"># absent from the training set. In these cases label will be -1 and</span>
                 <span class="c1"># we include logit(0) instead of discarding</span>

@@ -95,13 +95,22 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.likelihood_attack.LIRAAttack.attack" title="sacroml.attacks.likelihood_attack.LIRAAttack.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(target)</p></td>
-<td><p>Run a LiRA attack from a Target object and a target model.</p></td>
+<td><p>Check whether an attack can be performed and run the attack.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.likelihood_attack.LIRAAttack.get_params" title="sacroml.attacks.likelihood_attack.LIRAAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.likelihood_attack.LIRAAttack.attackable" title="sacroml.attacks.likelihood_attack.LIRAAttack.attackable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attackable</span></code></a>(target)</p></td>
+<td><p>Return whether a target can be assessed with LIRAAttack.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.likelihood_attack.LIRAAttack.get_params" title="sacroml.attacks.likelihood_attack.LIRAAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
 <td><p>Get parameters for this attack.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.likelihood_attack.LIRAAttack.attackable">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attackable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/likelihood_attack.html#LIRAAttack.attackable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.likelihood_attack.LIRAAttack.attackable" title="Link to this definition"></a></dt>
+<dd><p>Return whether a target can be assessed with LIRAAttack.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sacroml.attacks.likelihood_attack.LIRAAttack.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shadow_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'offline'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_variance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_individual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/likelihood_attack.html#LIRAAttack.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.likelihood_attack.LIRAAttack.__init__" title="Link to this definition"></a></dt>
@@ -131,22 +140,8 @@ auc_p_value and pdif_vals.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sacroml.attacks.likelihood_attack.LIRAAttack.attack">
-<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/likelihood_attack.html#LIRAAttack.attack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.likelihood_attack.LIRAAttack.attack" title="Link to this definition"></a></dt>
-<dd><p>Run a LiRA attack from a Target object and a target model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>target</strong><span class="classifier">attacks.target.Target</span></dt><dd><p>target as an instance of the Target class.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>dict</dt><dd><p>Attack report.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.likelihood_attack.LIRAAttack.attack" title="Link to this definition"></a></dt>
+<dd><p>Check whether an attack can be performed and run the attack.</p>
 </dd></dl>
 
 <dl class="py method">

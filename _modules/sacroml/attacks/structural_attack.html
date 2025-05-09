@@ -278,7 +278,7 @@
     <span class="n">n_params</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">try</span><span class="p">:</span>  <span class="c1"># sklearn v1.2+</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">estimator</span>
-    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># sklearn version &lt;1.2</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover (sklearn version &lt;1.2)</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">base_estimator</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">estimators_</span><span class="p">:</span>
@@ -362,9 +362,22 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Structural attack&quot;</span>
 
-<div class="viewcode-block" id="StructuralAttack.attack">
-<a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.attack">[docs]</a>
-    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="StructuralAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with StructuralAttack.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: StructuralAttack requires a loadable model.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run structural attack.</span>
 
 <span class="sd">        To be used when code has access to Target class and trained target model.</span>
@@ -380,19 +393,16 @@
 <span class="sd">            Attack report.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
-        <span class="c1"># check it can be run</span>
-        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: StructuralAttack requires a loadable model.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>  <span class="c1"># inner wrapped model</span>
 
         <span class="c1"># get proba values for training data</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">y_train</span>
-        <span class="k">assert</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="s2">&quot;length mismatch between trainx and trainy&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">yprobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;length mismatch between trainx and trainy&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yprobs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
 
         <span class="c1"># only equivalence classes and membership once as potentially slow</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>
             <span class="n">equiv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_get_equivalence_classes</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">equiv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_equivalence_classes</span><span class="p">()</span>
@@ -405,7 +415,7 @@
 
         <span class="c1"># now assess the risk</span>
         <span class="c1"># Degrees of Freedom</span>
-        <span class="n">n_params</span> <span class="o">=</span> <span class="n">get_model_param_count</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">n_params</span> <span class="o">=</span> <span class="n">get_model_param_count</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="n">residual_dof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dof_risk</span> <span class="o">=</span> <span class="n">residual_dof</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">DOF_THRESHOLD</span>
 
@@ -414,7 +424,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity_risk</span> <span class="o">=</span> <span class="n">mink</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span>
 
         <span class="c1"># unnecessary risk arising from poor hyper-parameter combination.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_risk</span> <span class="o">=</span> <span class="n">get_unnecessary_risk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_risk</span> <span class="o">=</span> <span class="n">get_unnecessary_risk</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="c1"># class disclosure</span>
         <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">equiv_classes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -429,14 +439,15 @@
         <span class="c1"># write the report</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
         <span class="c1"># return the report</span>
-        <span class="k">return</span> <span class="n">output</span></div>
-
+        <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="StructuralAttack.dt_get_equivalence_classes">
 <a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes">[docs]</a>
     <span class="k">def</span> <span class="nf">dt_get_equivalence_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get details of equivalence classes based on white box inspection.&quot;&quot;&quot;</span>
-        <span class="n">destinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>  <span class="c1"># inner wrapped model</span>
+
+        <span class="n">destinations</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
         <span class="n">ret_tuple</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">destinations</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">leaves</span> <span class="o">=</span> <span class="n">ret_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">counts</span> <span class="o">=</span> <span class="n">ret_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -445,11 +456,11 @@
             <span class="n">ingroup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">destinations</span> <span class="o">==</span> <span class="n">leaf</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ingroup</span><span class="p">)</span>
 
-        <span class="n">equiv_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">))</span>
+        <span class="n">equiv_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">),</span> <span class="n">model</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)):</span>
             <span class="n">sample_id</span> <span class="o">=</span> <span class="n">members</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">[</span><span class="n">sample_id</span><span class="p">]</span>
-            <span class="n">proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
             <span class="n">equiv_classes</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">proba</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">equiv_classes</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">members</span><span class="p">]</span></div>
 

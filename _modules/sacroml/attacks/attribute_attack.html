@@ -87,6 +87,7 @@
 
 <span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -128,9 +129,33 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Attribute inference attack&quot;</span>
 
-<div class="viewcode-block" id="AttributeAttack.attack">
-<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.attack">[docs]</a>
-    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="AttributeAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with AttributeAttack.&quot;&quot;&quot;</span>
+        <span class="n">can_attack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">n_features</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_raw_data</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires features to be defined.&quot;</span><span class="p">)</span>
+            <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires a loadable model.&quot;</span><span class="p">)</span>
+            <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">required_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span> <span class="s2">&quot;predict&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">required_methods</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;WARNING: AttributeAttack requires model with: </span><span class="si">%s</span><span class="s2">()&quot;</span><span class="p">,</span> <span class="n">method</span>
+                <span class="p">)</span>
+                <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">can_attack</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run attribute inference attack.</span>
 
 <span class="sd">        To be used when code has access to Target class and trained target model.</span>
@@ -145,20 +170,11 @@
 <span class="sd">        dict</span>
 <span class="sd">            Attack report.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires a loadable model.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{}</span>
-
-        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">n_features</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_raw_data</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires features to be defined.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{}</span>
-
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running attribute inference attack&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="n">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cpu</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span></div>
-
+        <span class="k">return</span> <span class="n">output</span>
 
     <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the instances metric calculated, during attacks.&quot;&quot;&quot;</span>
@@ -526,12 +542,25 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Brute force attacking categorical features&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">attack_threshold</span><span class="p">)</span> <span class="k">for</span> <span class="n">feature_id</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
-    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_infer_categorical</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># use multiprocessing if possible</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_infer_categorical</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># fall back to sequential processing</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_infer_categorical</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">feature_id</span><span class="o">=</span><span class="n">feature_id</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">args</span>
+    <span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-arguments</span>
-    <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
     <span class="n">feat_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">feat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">feat_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -547,7 +576,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    target_model : BaseEstimator</span>
+<span class="sd">    target_model : Model</span>
 <span class="sd">        Trained target model.</span>
 <span class="sd">    feat_id : int</span>
 <span class="sd">        Index of missing feature.</span>
@@ -605,7 +634,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_bounds_risk_for_feature</span><span class="p">(</span>
-    <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the average feature risk score over a set of samples.&quot;&quot;&quot;</span>
     <span class="n">feature_risk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -617,16 +646,13 @@
         <span class="n">risk</span> <span class="o">=</span> <span class="n">_get_bounds_risk_for_sample</span><span class="p">(</span>
             <span class="n">target_model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">feat_min</span><span class="p">,</span> <span class="n">feat_max</span><span class="p">,</span> <span class="n">sample</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">risk</span><span class="p">:</span>  <span class="c1"># pragma:no cover</span>
-            <span class="c1"># can be seen working in examples</span>
-            <span class="c1"># testing uses nursery with dummy cont. feature</span>
-            <span class="c1"># which is not predictive</span>
+        <span class="k">if</span> <span class="n">risk</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="n">feature_risk</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">feature_risk</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
 
 
 <span class="k">def</span> <span class="nf">_get_bounds_risk</span><span class="p">(</span>
-    <span class="n">target_model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
     <span class="n">feature_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -653,8 +679,23 @@
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">feature_id</span> <span class="ow">in</span> <span class="n">features</span>
     <span class="p">]</span>
-    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_get_bounds_risk</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># use multiprocessing if possible</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_get_bounds_risk</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># fall back to sequential processing</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_bounds_risk</span><span class="p">(</span>
+            <span class="n">target_model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">feature_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">feature_id</span><span class="o">=</span><span class="n">feature_id</span><span class="p">,</span>
+            <span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+            <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="ow">in</span> <span class="n">args</span>
+    <span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
