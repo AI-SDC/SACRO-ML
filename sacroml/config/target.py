@@ -126,7 +126,7 @@ def _get_model_module_path() -> str:
 def _get_model_path() -> str:
     """Prompt user for path to a saved fitted model."""
     while True:
-        msg = "Enter the path including the full filename: "
+        msg = "Enter the saved model path including the full filename: "
         path = prompt(msg, completer=PathCompleter())
         if os.path.isfile(path):
             break
