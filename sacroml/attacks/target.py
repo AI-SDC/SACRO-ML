@@ -5,11 +5,22 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+import shutil
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import sklearn
+import torch
 import yaml
+
+from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.model_sklearn import SklearnModel
+
+registry: dict = {
+    "PytorchModel": PytorchModel,
+    "SklearnModel": SklearnModel,
+}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,8 +31,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
-        model: sklearn.base.BaseEstimator | None = None,
+        model: Any = None,
+        model_path: str = "",
+        model_module_path: str = "",
+        model_name: str = "",
+        model_params: dict | None = None,
+        train_module_path: str = "",
+        train_params: dict | None = None,
         dataset_name: str = "",
+        dataset_module_path: str = "",
         features: dict | None = None,
         X_train: np.ndarray | None = None,
         y_train: np.ndarray | None = None,
@@ -40,12 +58,24 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
         Parameters
         ----------
-        model : sklearn.base.BaseEstimator | None, optional
-            Trained target model. Any class that implements the
-            sklearn.base.BaseEstimator interface (i.e. has fit, predict and
-            predict_proba methods)
+        model : Any
+            Trained target model.
+        model_path : str
+            Path to a saved model.
+        model_module_path : str
+            Path to module containing model class.
+        model_name : str
+            Class name of model.
+        model_params : dict | None
+            Hyperparameters for instantiating the model.
+        train_module_path : str
+            Path to module containing training function.
+        train_params : dict | None
+            Hyperparameters for training the model.
         dataset_name : str
             The name of the dataset.
+        dataset_module_path : str
+            Path to module containing dataset loading function.
         features : dict
             Dictionary describing the dataset features.
         X_train : np.ndarray | None
@@ -74,17 +104,46 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The model predicted testing probabilities.
         """
         # Model - details
-        self.model: sklearn.base.BaseEstimator | None = model
-        self.model_name: str = "unknown"
-        self.model_params: dict = {}
-        if self.model is not None:
-            self.model_name = type(self.model).__name__
-            self.model_params = self.model.get_params()
-        # Model - predicted probabilities
+        if isinstance(model, sklearn.base.BaseEstimator):
+            self.model = SklearnModel(
+                model=model,
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
+        elif isinstance(model, torch.nn.Module):
+            self.model = PytorchModel(
+                model=model,
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
+        elif isinstance(model, (SklearnModel, PytorchModel)):
+            self.model = model
+        elif model is not None:  # pragma: no cover
+            raise ValueError(f"Unsupported model type: {type(model)}")
+        else:  # for subsequent model loading
+            self.model = None
+
+        # Model - code
+        self.model_module_path = model_module_path
+
+        # Data - model predicted probabilities
         self.proba_train: np.ndarray | None = proba_train
         self.proba_test: np.ndarray | None = proba_test
-        #  Dataset - details
+
+        # Dataset - details
         self.dataset_name: str = dataset_name
+
+        # Dataset - code
+        self.dataset_module_path = dataset_module_path
+
         #  Dataset - processed
         self.X_train: np.ndarray | None = X_train
         self.y_train: np.ndarray | None = y_train
@@ -93,6 +152,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         self.n_samples: int = 0
         if X_train is not None and X_test is not None:
             self.n_samples = len(X_train) + len(X_test)
+
         #  Dataset - unprocessed
         self.X_orig: np.ndarray | None = X_orig
         self.y_orig: np.ndarray | None = y_orig
@@ -105,6 +165,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_samples_orig = len(X_train_orig) + len(X_test_orig)
         self.features: dict = features if features is not None else {}
         self.n_features: int = len(self.features)
+
         #  Safemodel report
         self.safemodel: list = []
 
@@ -162,37 +223,64 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
-        # write model
-        filename: str = os.path.normpath(f"{path}/model.{ext}")
-        if hasattr(self.model, "save"):
-            self.model.save(filename)
-        elif ext == "pkl":
-            with open(filename, "wb") as fp:
-                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for saving a model: {ext}")
-        target["model_path"] = f"model.{ext}"
-        # write hyperparameters
-        target["model_name"] = self.model_name
-        target["model_params"] = self.model_params
+        if not self.model is None:
+            target["model_type"] = self.model.model_type
+            target["model_name"] = self.model.model_name
+            target["model_params"] = self.model.get_params()
 
-    def load_model(self, model_path: str) -> None:
+            if self.model_module_path != "":
+                filename = os.path.normpath(f"{path}/model.py")
+                shutil.copy2(self.model.model_module_path, filename)
+                target["model_module_path"] = "model.py"
+
+            if self.model.train_module_path != "":
+                filename = os.path.normpath(f"{path}/train.py")
+                shutil.copy2(self.model.train_module_path, filename)
+                target["train_module_path"] = "train.py"
+                target["train_params"] = self.model.train_params
+
+            if not self.model is None:
+                filename = os.path.normpath(f"{path}/model.{ext}")
+                target["model_path"] = f"model.{ext}"
+                self.model.save(filename)
+
+    def _load_model(self, path: str, target: dict) -> None:
         """Load the target model.
 
         Parameters
         ----------
-        model_path : str
-            Path to load the model.
+        path : str
+            Path to a target directory.
+        target : dict
+            Target class as a dictionary for loading yaml.
         """
-        path = os.path.normpath(model_path)
-        _, ext = os.path.splitext(path)
-        if ext == ".pkl":
-            with open(path, "rb") as fp:
-                self.model = pickle.load(fp)
-                model_type = type(self.model)
-                logger.info("Loaded: %s", model_type.__name__)
+        #  Load attributes
+        model_type: str = target.get("model_type", "")
+        model_name: str = target.get("model_name", "")
+        model_params: dict = target.get("model_params", {})
+        model_path: str = target.get("model_path", "")
+        model_module_path: str = target.get("model_module_path", "")
+        train_module_path: str = target.get("train_module_path", "")
+        train_params: dict = target.get("train_params", {})
+        #  Normalise paths
+        model_path = os.path.normpath(f"{path}/{model_path}")
+        model_module_path = os.path.normpath(f"{path}/{model_module_path}")
+        train_module_path = os.path.normpath(f"{path}/{train_module_path}")
+        #  Load model
+        if model_type in registry:
+            model_class = registry[model_type]
+            self.model = model_class.load(
+                model_path=model_path,
+                model_module_path=model_module_path,
+                model_name=model_name,
+                model_params=model_params,
+                train_module_path=train_module_path,
+                train_params=train_params,
+            )
+            logger.info("Loaded: %s : %s", model_type, model_name)
         else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for loading a model: {ext}")
+            self.model = None
+            logger.info("Can't load model: %s : %s", model_type, model_name)
 
     def _save_numpy(self, path: str, target: dict, name: str) -> None:
         """Save a numpy array variable as pickle.
@@ -263,6 +351,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
         target : dict
             Target class as a dictionary for writing yaml.
         """
+        if self.dataset_module_path != "":  # pragma: no cover
+            filename = os.path.normpath(f"{path}/dataset.py")
+            shutil.copy2(self.dataset_module_path, filename)
+            target["dataset_module_path"] = "dataset.py"
+
         self._save_numpy(path, target, "X_train")
         self._save_numpy(path, target, "y_train")
         self._save_numpy(path, target, "X_test")
@@ -308,19 +401,16 @@ class Target:  # pylint: disable=too-many-instance-attributes
             Generalisation error.
         """
         if (
-            hasattr(self.model, "score")
+            self.model is not None
             and self.X_train is not None
             and self.y_train is not None
             and self.X_test is not None
             and self.y_test is not None
         ):
-            try:
-                train = self.model.score(self.X_train, self.y_train)
-                test = self.model.score(self.X_test, self.y_test)
-                return test - train
-            except sklearn.exceptions.NotFittedError:
-                return np.nan
-        return np.nan
+            return self.model.get_generalisation_error(
+                self.X_train, self.y_train, self.X_test, self.y_test
+            )
+        return np.nan  # pragma: no cover
 
     def save(self, path: str = "target", ext: str = "pkl") -> None:
         """Save the target class to persistent storage.
@@ -332,12 +422,13 @@ class Target:  # pylint: disable=too-many-instance-attributes
         ext : str
             File extension defining the model saved format, e.g., "pkl" or "sav".
         """
-        path: str = os.path.normpath(path)
-        filename: str = os.path.normpath(f"{path}/target.yaml")
+        norm_path: str = os.path.normpath(path)
+        filename: str = os.path.normpath(f"{norm_path}/target.yaml")
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         # convert Target to dict
         target: dict = {
             "dataset_name": self.dataset_name,
+            "dataset_module_path": self.dataset_module_path,
             "n_samples": self.n_samples,
             "features": self.features,
             "n_features": self.n_features,
@@ -345,11 +436,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "generalisation_error": self._ge(),
             "safemodel": self.safemodel,
         }
-        # write model and add path
-        if self.model is not None:
-            self._save_model(path, ext, target)
+        # write model details
+        self._save_model(norm_path, ext, target)
         # write data arrays and add paths
-        self._save_data(path, target)
+        self._save_data(norm_path, target)
+
         # write yaml
         with open(filename, "w", encoding="utf-8") as fp:
             yaml.dump(target, fp, default_flow_style=False, sort_keys=False)
@@ -367,6 +458,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
         filename: str = os.path.normpath(f"{path}/target.yaml")
         with open(filename, encoding="utf-8") as fp:
             target = yaml.safe_load(fp)
+        # load modules
+        if "dataset_module_path" in target:
+            self.dataset_module_path = os.path.normpath(
+                f"{path}/{target['dataset_module_path']}"
+            )
         # load parameters
         if "dataset_name" in target:
             self.dataset_name = target["dataset_name"]
@@ -384,14 +480,9 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.n_samples_orig = target["n_samples_orig"]
         if "safemodel" in target:
             self.safemodel = target["safemodel"]
+
         # load model
-        if "model_name" in target:
-            self.model_name = target["model_name"]
-        if "model_params" in target:
-            self.model_params = target["model_params"]
-        if "model_path" in target:
-            model_path = os.path.normpath(f"{path}/{target['model_path']}")
-            self.load_model(model_path)
+        self._load_model(path, target)
         # load data
         self._load_data(path, target)
 
@@ -404,6 +495,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
             The results of safemodel disclosure checking.
         """
         self.safemodel = data
+
+    def has_model(self) -> bool:
+        """Return whether the target has a loaded model."""
+        return self.model is not None and self.model.model is not None
 
     def has_data(self) -> bool:
         """Return whether the target has all processed data."""
@@ -428,10 +523,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def has_probas(self) -> bool:
         """Return whether the target has all probability data."""
         return self.proba_train is not None and self.proba_test is not None
-
-    def __str__(self) -> str:
-        """Return the name of the dataset used."""
-        return self.dataset_name
 
 
 def get_array_pkl(path: str, name: str):  # pragma: no cover

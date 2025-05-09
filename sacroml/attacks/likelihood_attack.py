@@ -6,13 +6,14 @@ import contextlib
 import logging
 
 import numpy as np
-import sklearn
 from fpdf import FPDF
 from scipy.stats import norm, shapiro
+from sklearn.base import BaseEstimator
 
 from sacroml import metrics
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -79,7 +80,28 @@ class LIRAAttack(Attack):
         """Return the name of the attack."""
         return "LiRA Attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+        """Return whether a target can be assessed with LIRAAttack."""
+        required_methods = [
+            "clone",
+            "predict_proba",
+            "predict",
+            "get_classes",
+            "set_params",
+        ]
+
+        if (
+            target.has_model()
+            and target.has_data()
+            and all(hasattr(target.model, method) for method in required_methods)
+        ):
+            return True
+
+        logger.info("WARNING: LiRA requires a loadable model.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run a LiRA attack from a Target object and a target model.
 
         Parameters
@@ -92,12 +114,8 @@ class LIRAAttack(Attack):
         dict
             Attack report.
         """
-        # check it can be run
-        if target.model is None or not target.has_data():  # pragma: no cover
-            logger.info("WARNING: LiRA requires a loadable model.")
-            return {}
         # prepare
-        shadow_clf = sklearn.base.clone(target.model)
+        shadow_clf = target.model.clone()
         target = self._check_and_update_dataset(target)
         # execute attack
         self._run(
@@ -125,8 +143,11 @@ class LIRAAttack(Attack):
         2. Removing from the test set any rows corresponding to classes that
         are not in the training set.
         """
+        if not isinstance(target.model.model, BaseEstimator):
+            return target
+
         y_train_new = []
-        classes = list(target.model.classes_)
+        classes = list(target.model.get_classes())
         for y in target.y_train:
             y_train_new.append(classes.index(y))
         target.y_train = np.array(y_train_new, int)
@@ -140,7 +161,7 @@ class LIRAAttack(Attack):
             if y in classes:
                 ok_pos.append(i)
                 y_test_new.append(classes.index(y))
-        if len(y_test_new) != len(target.X_test):
+        if len(y_test_new) != len(target.X_test):  # pragma: no cover
             target.X_test = target.X_test[ok_pos, :]
         target.y_test = np.array(y_test_new, int)
         logger.info(
@@ -151,7 +172,7 @@ class LIRAAttack(Attack):
 
     def _run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
-        shadow_clf: sklearn.base.BaseEstimator,
+        shadow_clf: Model,
         X_train: np.ndarray,
         y_train: np.ndarray,
         proba_train: np.ndarray,
@@ -177,8 +198,8 @@ class LIRAAttack(Attack):
 
         Parameters
         ----------
-        shadow_clf : sklearn.Model
-            An sklearn classifier that will be trained to form the shadow models.
+        shadow_clf : Model
+            A classifier that will be trained to form the shadow models.
             All hyperparameters should have been set.
         X_train : np.ndarray
             Data that was used to train the target model.
@@ -199,7 +220,10 @@ class LIRAAttack(Attack):
         n_train_rows, _ = X_train.shape
         n_shadow_rows, _ = X_test.shape
         combined_x_train = np.vstack((X_train, X_test))
-        combined_y_train = np.hstack((y_train, y_test))
+        if y_train.ndim == 1 and y_test.ndim == 1:  # label encoding
+            combined_y_train = np.hstack((y_train, y_test))
+        else:  #  pragma: no cover (one-hot encoding)
+            combined_y_train = np.vstack((y_train, y_test))
         combined_target_preds = np.vstack((proba_train, proba_test))
 
         # Get the confidences of samples when in and not in the training set
@@ -245,8 +269,9 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         # score each record in the member and non-member sets
-        for i, label in enumerate(combined_y_train):
-            # get the target model behaviour on the record
+        for i, l in enumerate(combined_y_train):
+            # get the target model behaviour on the record (handle one-hot or label)
+            label = np.argmax(l) if combined_y_train.ndim > 1 else l
             target_logit: float = _logit(combined_target_preds[i, label])
             # get behaviour observed with the record as a non-member
             out_mean, out_std = self._describe_conf(out_conf[i], global_out_std)
@@ -321,7 +346,7 @@ class LIRAAttack(Attack):
 
     def _train_shadow_models(  # pylint: disable=too-many-locals
         self,
-        shadow_clf: sklearn.base.BaseEstimator,
+        shadow_clf: Model,
         combined_x_train: np.ndarray,
         combined_y_train: np.ndarray,
         n_train_rows: int,
@@ -330,8 +355,8 @@ class LIRAAttack(Attack):
 
         Parameters
         ----------
-        shadow_clf : sklearn.base.BaseEstimator
-            An sklearn classifier that will be trained to form the shadow models.
+        shadow_clf : Model
+            A classifier that will be trained to form the shadow models.
         combined_x_train : np.ndarray
             Array of combined train and test features.
         combined_y_train : np.ndarray
@@ -365,13 +390,16 @@ class LIRAAttack(Attack):
                 combined_y_train[these_idx],
             )
             # map a class to a column
-            class_map = {c: i for i, c in enumerate(shadow_clf.classes_)}
+            class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
             # generate shadow confidences
             shadow_confidences = shadow_clf.predict_proba(combined_x_train)
             these_idx = set(these_idx)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
-                label = class_map.get(combined_y_train[i], -1)
+                if combined_y_train.ndim == 1:  # label encoding
+                    label = class_map.get(combined_y_train[i], -1)
+                else:  # pragma: no cover (one-hot encoding)
+                    label = np.argmax(combined_y_train[i])
                 # Occasionally, the random data split will result in classes being
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding

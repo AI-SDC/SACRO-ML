@@ -98,7 +98,20 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         """Return name of attack."""
         return "WorstCase attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+        """Return whether a target can be assessed with WorstCaseAttack."""
+        required_methods = ["predict_proba", "predict"]
+        if (
+            target.has_model()
+            and target.has_data()
+            and all(hasattr(target.model, method) for method in required_methods)
+        ) or target.has_probas():
+            return True
+        logger.info("WARNING: WorstCaseAttack requires more Target details.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run worst case attack.
 
         Parameters
@@ -114,20 +127,16 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
         train_c = None
         test_c = None
         # compute target model probas if possible
-        if target.model is not None and target.has_data():
+        if target.has_model() and target.has_data():  # pragma: no cover
             proba_train = target.model.predict_proba(target.X_train)
             proba_test = target.model.predict_proba(target.X_test)
             if self.include_model_correct_feature:
                 train_c = 1 * (target.y_train == target.model.predict(target.X_train))
                 test_c = 1 * (target.y_test == target.model.predict(target.X_test))
         # use supplied target model probas if unable to compute
-        elif target.has_probas():
+        else:
             proba_train = target.proba_train
             proba_test = target.proba_test
-        # cannot proceed
-        else:
-            logger.info("WARNING: WorstCaseAttack requires more Target details.")
-            return {}
         # execute attack
         self.attack_from_preds(
             proba_train,

@@ -44,6 +44,8 @@ dependencies = [
     "scikit-learn",
     "xgboost",
     "dictdiffer",
+    "torch",
+    "prompt-toolkit",
 ]
 
 [tool.setuptools.dynamic]
@@ -97,7 +99,7 @@ enable = [
 ]
 
 disable = [
-    "too-many-positional-arguments",
+    "R0917",  # too-many-positional-arguments
 ]
 
 [tool.pylint.design]
@@ -179,7 +181,7 @@ extend-ignore-names = [
     "X", "X_train", "X_val", "X_test", "X_predict",
     "X_target_train", "X_shadow_train", "N", "C",
     "X_train_orig", "X_test_orig", "X_orig", "X_transformed",
-    "X_encoded",
+    "X_encoded", "X_tensor",
 ]
 
 [tool.ruff.lint.pydocstyle]

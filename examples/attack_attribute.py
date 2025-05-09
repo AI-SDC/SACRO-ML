@@ -22,7 +22,7 @@ if __name__ == "__main__":
     target.load(target_dir)
 
     logging.info("Creating attribute inference attack")
-    attack_obj = attribute_attack.AttributeAttack(n_cpu=2, output_dir=output_dir)
+    attack_obj = attribute_attack.AttributeAttack(n_cpu=8, output_dir=output_dir)
 
     logging.info("Running attribute inference attack")
     output = attack_obj.attack(target)

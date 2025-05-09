@@ -196,7 +196,7 @@ def _get_model_param_count_ada(model: AdaBoostClassifier) -> int:
     n_params: int = 0
     try:  # sklearn v1.2+
         base = model.estimator
-    except AttributeError:  # sklearn version <1.2
+    except AttributeError:  # pragma: no cover (sklearn version <1.2)
         base = model.base_estimator
     if isinstance(base, DecisionTreeClassifier):
         for member in model.estimators_:
@@ -275,7 +275,19 @@ class StructuralAttack(Attack):
         """Return the name of the attack."""
         return "Structural attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+        """Return whether a target can be assessed with StructuralAttack."""
+        if (
+            target.has_model()
+            and isinstance(target.model.model, BaseEstimator)
+            and target.has_data()
+        ):
+            return True
+        logger.info("WARNING: StructuralAttack requires a loadable model.")
+        return False
+
+    def _attack(self, target: Target) -> dict:
         """Run structural attack.
 
         To be used when code has access to Target class and trained target model.
@@ -291,19 +303,16 @@ class StructuralAttack(Attack):
             Attack report.
         """
         self.target = target
-        # check it can be run
-        if target.model is None or not target.has_data():  # pragma: no cover
-            logger.info("WARNING: StructuralAttack requires a loadable model.")
-            return {}
+        model = target.model.model  # inner wrapped model
 
         # get proba values for training data
-        x = self.target.X_train
-        y = self.target.y_train
-        assert x.shape[0] == len(y), "length mismatch between trainx and trainy"
-        self.yprobs = self.target.model.predict_proba(x)
+        assert self.target.X_train.shape[0] == len(self.target.y_train), (
+            "length mismatch between trainx and trainy"
+        )
+        self.yprobs = model.predict_proba(self.target.X_train)
 
         # only equivalence classes and membership once as potentially slow
-        if isinstance(target.model, DecisionTreeClassifier):
+        if isinstance(model, DecisionTreeClassifier):
             equiv = self.dt_get_equivalence_classes()
         else:
             equiv = self.get_equivalence_classes()
@@ -316,7 +325,7 @@ class StructuralAttack(Attack):
 
         # now assess the risk
         # Degrees of Freedom
-        n_params = get_model_param_count(target.model)
+        n_params = get_model_param_count(model)
         residual_dof = self.target.X_train.shape[0] - n_params
         self.dof_risk = residual_dof < self.DOF_THRESHOLD
 
@@ -325,7 +334,7 @@ class StructuralAttack(Attack):
         self.k_anonymity_risk = mink < self.THRESHOLD
 
         # unnecessary risk arising from poor hyper-parameter combination.
-        self.unnecessary_risk = get_unnecessary_risk(self.target.model)
+        self.unnecessary_risk = get_unnecessary_risk(model)
 
         # class disclosure
         freqs = np.zeros(equiv_classes.shape)
@@ -344,7 +353,9 @@ class StructuralAttack(Attack):
 
     def dt_get_equivalence_classes(self) -> tuple:
         """Get details of equivalence classes based on white box inspection."""
-        destinations = self.target.model.apply(self.target.X_train)
+        model = self.target.model.model  # inner wrapped model
+
+        destinations = model.apply(self.target.X_train)
         ret_tuple = np.unique(destinations, return_counts=True)
         leaves = ret_tuple[0]
         counts = ret_tuple[1]
@@ -353,11 +364,11 @@ class StructuralAttack(Attack):
             ingroup = np.asarray(destinations == leaf).nonzero()[0]
             members.append(ingroup)
 
-        equiv_classes = np.zeros((len(leaves), self.target.model.n_classes_))
+        equiv_classes = np.zeros((len(leaves), model.n_classes_))
         for group in range(len(leaves)):
             sample_id = members[group][0]
             sample = self.target.X_train[sample_id]
-            proba = self.target.model.predict_proba(sample.reshape(1, -1))
+            proba = model.predict_proba(sample.reshape(1, -1))
             equiv_classes[group] = proba
         return [equiv_classes, counts, members]
 

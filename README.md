@@ -1,7 +1,6 @@
 # SACRO-ML
 
 [![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
-[![Latest Version](https://img.shields.io/github/v/release/AI-SDC/SACRO-ML?style=flat)](https://github.com/AI-SDC/SACRO-ML/releases)
 [![PyPI package](https://img.shields.io/pypi/v/sacroml.svg)](https://pypi.org/project/sacroml)
 [![Conda](https://img.shields.io/conda/vn/conda-forge/sacroml.svg)](https://github.com/conda-forge/sacroml-feedstock)
 [![Python versions](https://img.shields.io/pypi/pyversions/sacroml.svg)](https://pypi.org/project/sacroml)
@@ -46,6 +45,6 @@ See our [contributing](CONTRIBUTING.md) guide.
 
 ## Acknowledgement
 
-This work was funded by UK Research and Innovation under Grant Numbers MC_PC_21033 and MC_PC_23006 as part of Phase 1 of the [DARE UK](https://dareuk.org.uk) (Data and Analytics Research Environments UK) programme, delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automatic checking of Research Outputs (SACRO; MC_PC_23006) and Guidelines and Resources for AI Model Access from TrusTEd Research environments (GRAIMATTER; MC_PC_21033).­This project has also been supported by MRC and EPSRC [grant number MR/S010351/1]: PICTURES.
+This work was supported by UK Research and Innovation as part of the Data and Analytics Research Environments UK ([DARE UK](https://dareuk.org.uk)) programme, delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automated Checking of Research Outputs ([SACRO](https://gtr.ukri.org/projects?ref=MC_PC_23006); MC_PC_23006), Guidelines and Resources for AI Model Access from TrusTEd Research environments ([GRAIMATTER](https://gtr.ukri.org/projects?ref=MC_PC_21033); MC_PC_21033), and [TREvolution](https://dareuk.org.uk/trevolution) (MC_PC_24038). This project has also been supported by MRC and EPSRC ([PICTURES](https://gtr.ukri.org/projects?ref=MR%2FS010351%2F1); MR/S010351/1).
 
 <img src="docs/source/images/UK_Research_and_Innovation_logo.svg" width="20%" height="20%" padding=20/> <img src="docs/source/images/health-data-research-uk-hdr-uk-logo-vector.png" width="10%" height="10%" padding=20/> <img src="docs/source/images/logo_print.png" width="15%" height="15%" padding=20/>

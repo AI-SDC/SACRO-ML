@@ -26,7 +26,7 @@ def create_attack(attack_name: str, **kwargs: dict) -> None:
     """Instantiate an attack."""
     if attack_name in registry:
         return registry[attack_name](**kwargs)
-    raise ValueError(f"Unknown Attack: {attack_name}")
+    raise ValueError(f"Unknown Attack: {attack_name}")  # pragma: no cover
 
 
 def attack(target: Target, attack_name: str, **kwargs: dict) -> dict:
