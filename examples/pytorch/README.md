@@ -20,7 +20,7 @@ $ python -m attack_pytorch
 
 ## Creating Your Own
 
-To run the attacks you must create a `target_dir` which contains a `target.yaml` that includes all information necessary for loading the model. The easiest way to do this is to use the `Target` class to wrap and save everything as in the `train_pytorch.py` example. If you have already trained and saved your model, you could produce a small script for loading your model and using the `Target` class to wrap and save it. Alternatively, may also use the CLI interactive prompt `$ sacroml gen-target` instead. As a last option, you may manually create the folder and `target.yaml` (you can start by copying the one produced from the example here).
+To run the attacks you must create a `target_dir/` which contains a `target.yaml` that includes all information necessary for loading the model. The easiest way to do this is to use the `Target` class to wrap and save everything as in the `train_pytorch.py` example. If you have already trained and saved your model, you could produce a small script for loading your model and using the `Target` class to wrap and save it. Alternatively, you may use the CLI interactive prompt `$ sacroml gen-target` instead. As a last option, you may manually create the folder and `target.yaml` (you can start by copying the one produced from the example here).
 
 Once a suitable target directory has been created `sacroml` attacks can be run using the CLI as well as programmatically as in the `attack_pytorch.py` example. To run the attacks on the CLI, first produce an `attack.yaml` with the interactive prompt `$ sacroml gen-attack` and then run the attacks with `$ sacroml run target_dir/ attack.yaml`
 

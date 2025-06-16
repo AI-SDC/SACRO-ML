@@ -2,11 +2,9 @@
 
 This folder contains examples of how to run the code contained in this repository.
 
-## Scripts
+## Contents
 
-### Contents
-
-* Examples training a target model:
+* Examples training a target model to be assessed:
     - `train_rf_breast_cancer.py` - Trains RF on breast cancer dataset.
     - `train_rf_nursery.py` - Trains RF on nursery dataset with one-hot encoding.
 * Examples programmatically running attacks:
@@ -15,8 +13,25 @@ This folder contains examples of how to run the code contained in this repositor
     - `attack_attribute.py` - Simulated attribute inference attack on nursery RF.
 * Examples of attack integration within safemodel classes:
     - `safemodel.py` - Simulated attacks on a safe RF trained on the nursery dataset.
+* Examples training and attacking a [Pytorch model](pytorch/);
 
-### Programmatic Execution
+## Overview
+
+The privacy attacks can be run in one of two different ways:
+1. **Programmatic execution**, which involves running Python code that:
+    1. Imports the desired attack(s);
+    2. Instantiates the desired attack object(s);
+    3. Calls an `attack()` function, passing in a `sacroml.target.Target` object containing a wrapped model and dataset.
+2. **Command line interface (CLI) execution**, which involves:
+    1. A saved `target_dir/` folder containing the model, data, and metadata needed to load/train the model.
+    2. An `attack.yaml` configuration file specifying which attacks to run.
+    3. Running the attacks via the command: `$ sacroml run target_dir/ attack.yaml`
+
+The example training scripts show how to use the `Target` object to wrap and save a model to a `target_dir/` which can then be either reloaded to run attacks programmatically or passed as a CLI argument.
+
+## Programmatic Execution
+
+See the example Python scripts.
 
 To run a programmatic example:
 1. Run the relevant training script.
@@ -28,7 +43,7 @@ $ python -m examples.train_rf_breast_cancer
 $ python -m examples.attack_lira
 ```
 
-### Command Line Interface (CLI) Execution
+## CLI Execution
 
 1. Run the relevant training script.
 2. Generate an `attack.yaml` config.
@@ -41,11 +56,13 @@ $ sacroml gen-attack
 $ sacroml run target_rf_nursery attack.yaml
 ```
 
-If you are unable to use the Python `Target` class to generate the `target_dir/` containing the `target.yaml` you can generate one using the CLI tool:
+The `sacroml` package provides three basic commands:
 
-```
-$ sacroml gen-target
-```
+| Command | Description |
+| ------- | ----------- |
+| `sacroml gen-attack` | Generate an `attack.yaml` configuration to specify which attacks to run. |
+| `sacroml gen-target` | Generate a `target_dir/` containing a `target.yaml` with a saved model. |
+| `sacroml run target_dir/ attack.yaml` | Runs the specified attacks on the target model. |
 
 ## User Stories
 
