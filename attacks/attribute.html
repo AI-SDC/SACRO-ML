@@ -6,16 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attribute Attack &mdash; SACRO-ML 1.2.2 documentation</title>
+  <title>Attribute Attack &mdash; SACRO-ML 1.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fd7cadf9"></script>
+      <script src="../_static/documentation_options.js?v=1f29e9d3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -84,8 +85,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-sacroml.attacks.attribute_attack">
-<span id="attribute-attack"></span><h1>Attribute Attack<a class="headerlink" href="#module-sacroml.attacks.attribute_attack" title="Link to this heading"></a></h1>
+  <section id="attribute-attack">
+<h1>Attribute Attack<a class="headerlink" href="#attribute-attack" title="Link to this heading"></a></h1>
+<p>The attribute inference attack assumes that the attacker has access to a record missing the value for one attribute, and measuring whether the trained model allows more (and more accurate) predicted completions for the training set than it does for the test set. An exhaustive search of the target model’s predictive confidence is performed for all possible values that complete the record (discretised for continuous attributes). The attack model then makes a prediction if one missing value (categorical) or a single unbroken range of values (continuous) leads to the highest target confidence, which is above a user-defined threshold; otherwise it reports <em>don’t know</em>.</p>
+<p>The attack computes an upper bound on the fraction of records that are vulnerable, i.e., where the attack makes a correct prediction, and reports the Attribute Risk Ratio, ARR(<em>a</em>): the ratio of training and test set proportions for each attribute <em>a</em>. The attack is considered accurate if the target model’s predicted label <span class="math notranslate nohighlight">\(l^*\)</span> for the record with a single missing value is the same as for the actual record value <span class="math notranslate nohighlight">\(l\)</span> (categorical) or the range of values yielding the same target confidence lies within <span class="math notranslate nohighlight">\(l\pm10\%\)</span> (continuous). This latter condition mirrors the protection limits commonly used in cell suppression algorithms; see, for example, <span id="id1">Smith <em>et al.</em> [<a class="reference internal" href="#id3" title="J. E. Smith, A. R. Clark, A. T. Staggemeier, and M. C. Serpell. A genetic approach to statistical disclosure control. IEEE Transactions on Evolutionary Computation, 3(16):431–441, June 2012. doi:10.1109/TEVC.2011.2159271.">1</a>]</span>. The ARR metric recognises that any useful trained model contains some generalisable information and so only considers the model to be leaking privacy if ARR(<em>a</em>)&gt;1. It also recognises that not all attributes will be considered equally disclosive, and so enables a discussion between TRE staff and researchers.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>To run the attribute attack, in addition to the usual processed data splits, the feature encoding and the original unprocessed data must be included within the <a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">sacroml.attacks.target.Target</span></code></a> that is passed to the attribute attack object.</p>
+<p>See the examples:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.github.com/ai-sdc/sacro-ml/tree/main/examples/train_rf_nursery.py">Training</a> a model and including all required information.</p></li>
+<li><p><a class="reference external" href="https://www.github.com/ai-sdc/sacro-ml/tree/main/examples/attack_attribute.py">Running</a> an attribute inference attack programmatically.</p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<div class="docutils container" id="id2">
+<div role="list" class="citation-list">
+<div class="citation" id="id3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>J. E. Smith, A. R. Clark, A. T. Staggemeier, and M. C. Serpell. A genetic approach to statistical disclosure control. <em>IEEE Transactions on Evolutionary Computation</em>, 3(16):431–441, June 2012. <a class="reference external" href="https://doi.org/10.1109/TEVC.2011.2159271">doi:10.1109/TEVC.2011.2159271</a>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="module-sacroml.attacks.attribute_attack">
+<span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-sacroml.attacks.attribute_attack" title="Link to this heading"></a></h2>
 <p>Attribute inference attacks.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="sacroml.attacks.attribute_attack.AttributeAttack">
@@ -211,6 +236,7 @@
 <dd><p>Return a string report of the quantitative results.</p>
 </dd></dl>
 
+</section>
 </section>
 
 
