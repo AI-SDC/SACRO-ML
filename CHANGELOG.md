@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.3.0 (under development)
+## Version 1.3.0 (Jun 17, 2025)
 
 Changes:
 *   Abstract target model and enable support for Pytorch ([#330](https://github.com/AI-SDC/SACRO-ML/pull/330))
