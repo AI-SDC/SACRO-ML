@@ -9,7 +9,7 @@ The attack computes an upper bound on the fraction of records that are vulnerabl
 Usage
 -----
 
-To run the attribute attack, the feature encoding and the original unprocessed data must be included within the :py:class:`sacroml.attacks.target.Target` that is passed to the attribute attack object.
+To run the attribute attack, in addition to the usual processed data splits, the feature encoding and the original unprocessed data must be included within the :py:class:`sacroml.attacks.target.Target` that is passed to the attribute attack object.
 
 See the examples:
 
