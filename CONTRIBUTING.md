@@ -9,7 +9,7 @@ Clone the repository and install the local package including all dependencies wi
 ```
 $ git clone https://github.com/AI-SDC/SACRO-ML.git
 $ cd SACRO-ML
-$ pip install .[test]
+$ pip install -e .[test]
 ```
 
 Then to run the tests:
