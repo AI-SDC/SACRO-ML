@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
+import importlib
 import logging
+import os
+import sys
 from copy import deepcopy
+from typing import Any
 
 import numpy as np
 import torch
 from torch import cuda
 from torch.nn.functional import softmax
+from torch.utils.data import DataLoader, TensorDataset
 
-from sacroml.attacks.model import Model, create_model, train_model
+from sacroml.attacks.model import Model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -149,8 +154,12 @@ class PytorchModel(Model):
         self.model = create_model(
             self.model_module_path, self.model_name, self.model_params
         )
+        # Create a dataloader
+        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32)
         #  Fit using the provided train function
-        return train_model(self.model, self.train_module_path, self.train_params, X, y)
+        return train_model(
+            self.model, self.train_module_path, self.train_params, dataloader
+        )
 
     def clone(self) -> PytorchModel:
         """Return a copy of the model.
@@ -320,3 +329,119 @@ class PytorchModel(Model):
             train_module_path=train_module_path,
             train_params=train_params,
         )
+
+
+def get_numpy_data(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
+    """Convert DataLoader to numpy arrays.
+
+    Parameters
+    ----------
+    dataloader : DataLoader
+        Pytorch DataLoader to convert.
+
+    Returns
+    -------
+    np.ndarray, np.ndarray
+        Numpy arrays.
+    """
+    all_inputs, all_labels = [], []
+
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            all_inputs.append(inputs.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+
+    X = np.concatenate(all_inputs, axis=0)
+    y = np.concatenate(all_labels, axis=0)
+    return X, y
+
+
+def numpy_to_dataloader(X: np.ndarray, y: np.ndarray, batch_size: int = 32):
+    """Convert numpy arrays to PyTorch DataLoader."""
+    X_tensor = torch.from_numpy(X).float()
+    y_tensor = torch.from_numpy(y).long()
+
+    dataset = TensorDataset(X_tensor, y_tensor)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+
+def create_model(model_module_path: str, model_name: str, model_params: dict) -> Any:
+    """Return a new model from a code path.
+
+    Parameters
+    ----------
+    model_module_path : str
+        Path to Python code containing a model constructor.
+    model_name : str
+        Name of the model class.
+    model_params : dict
+        Parameters for constructing the model.
+
+    Returns
+    -------
+    Any
+        New model.
+    """
+    try:
+        basename = os.path.basename(model_module_path)
+        if basename == model_module_path:  # pragma: no cover
+            # Add current directory to the system path
+            module_dir = os.getcwd()
+            sys.path.insert(0, module_dir)
+        else:
+            # Add the parent (target) directory to system path
+            module_dir = os.path.dirname(os.path.abspath(model_module_path))
+            parent_dir = os.path.dirname(module_dir)
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
+
+        # Convert file path to module path
+        model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
+        model_module_path = model_module_path.rstrip(".py")
+
+        # Import model class
+        module = importlib.import_module(model_module_path)
+        model_class = getattr(module, model_name)
+
+        # Instantiate model
+        return model_class(**model_params)
+
+    except Exception as e:  # pragma: no cover
+        raise ValueError(f"Failed to create new model using supplied class: {e}") from e
+
+
+def train_model(
+    model: Any, train_module_path: str, train_params: dict, dataloader: DataLoader
+) -> Any:
+    """Trains a model from a code path.
+
+    Parameters
+    ----------
+    model : Any
+        Model to train.
+    train_module_path : str
+        Path to Python code containing a train function.
+    train_params : dict
+        Parameters for executing the train function.
+    X : np.ndarray
+        Features of the samples to be fitted.
+    y : np.ndarray
+        Labels of the samples to be fitted.
+
+    Returns
+    -------
+    Any
+        Trained model.
+    """
+    try:
+        # Convert file path to module path
+        train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
+        train_module_path = train_module_path.rstrip(".py")
+        # Import training function
+        module = importlib.import_module(train_module_path)
+        train_function = module.train
+        # Train model
+        train_function(model=model, dataloader=dataloader, **train_params)
+        return model
+    except Exception as e:  # pragma: no cover
+        raise ValueError(f"Failed to train model: {e}") from e
