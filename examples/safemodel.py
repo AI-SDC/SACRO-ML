@@ -57,10 +57,20 @@ if __name__ == "__main__":
     msg, disclosive = model.preliminary_check()
 
     logging.info("Wrapping the model and data in a Target object")
-    target = Target(model=model)
-    target.dataset_name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
-    target.add_raw_data(X, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_orig=X,
+        y_orig=y,
+        X_train_orig=X_train_orig,
+        y_train_orig=y_train_orig,
+        X_test_orig=X_test_orig,
+        y_test_orig=y_test_orig,
+    )
     for i in range(n_features):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
 

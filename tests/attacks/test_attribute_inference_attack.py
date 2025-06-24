@@ -33,7 +33,6 @@ def fixture_common_setup(get_target):
 def test_attack_undefined_feats(common_setup):
     """Test attack when features have not been defined."""
     target, attack_obj = common_setup
-    target.n_features = 0
     target.features = {}
     output = attack_obj.attack(target)
     assert output == {}

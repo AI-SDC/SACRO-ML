@@ -164,13 +164,23 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     model.fit(X_train, y_train)
 
     # wrap
-    target = Target(model=model)
-    target.dataset_name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_orig=xmore,
+        y_orig=y,
+        X_train_orig=X_train_orig,
+        y_train_orig=y_train_orig,
+        X_test_orig=X_test_orig,
+        y_test_orig=y_test_orig,
+    )
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
-    target.add_raw_data(xmore, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
     return target
 
 

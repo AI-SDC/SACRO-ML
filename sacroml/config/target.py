@@ -14,7 +14,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter, WordCompleter
 
 from sacroml.attacks.model import create_model
-from sacroml.attacks.target import Target, registry
+from sacroml.attacks.target import MODEL_REGISTRY, Target
 from sacroml.config import utils
 from sacroml.version import __version__
 
@@ -93,13 +93,13 @@ def _get_features(target: Target) -> None:
 def _get_model_type() -> str:
     """Prompt user for saved model type."""
     while True:
-        models: list[str] = list(registry.keys())
+        models: list[str] = list(MODEL_REGISTRY.keys())
         print(f"Model types natively supported: {models}")
         print("If it is a Pytorch model, type: 'PytorchModel'")
         print("If it is a scikit-learn model, type: 'SklearnModel'")
         completer = WordCompleter(models)
         model_type = prompt("What is the type of model? ", completer=completer)
-        if model_type in registry:
+        if model_type in MODEL_REGISTRY:
             return model_type
         print(f"{model_type} is not loadable so some attacks will be unavailable")
         if utils.get_bool(f"Are you sure {model_type} is correct?"):

@@ -41,10 +41,13 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
     target_model.fit(X_train, y_train)
 
     #  Wrap the model and data in a Target object
-    target = Target(model=target_model)
-    target.add_processed_data(X_train, y_train, X_test, y_test)
-
-    return target
+    return Target(
+        model=target_model,
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
 
 
 def test_unnecessary_risk():
