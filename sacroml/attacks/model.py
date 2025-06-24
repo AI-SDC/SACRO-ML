@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import importlib
+import os
+import sys
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -231,3 +234,48 @@ class Model(ABC):  # pylint: disable=too-many-instance-attributes
         Model
             A loaded model.
         """
+
+
+def create_model(model_module_path: str, model_name: str, model_params: dict) -> Any:
+    """Return a new model from a code path.
+
+    Parameters
+    ----------
+    model_module_path : str
+        Path to Python code containing a model constructor.
+    model_name : str
+        Name of the model class.
+    model_params : dict
+        Parameters for constructing the model.
+
+    Returns
+    -------
+    Any
+        New model.
+    """
+    try:
+        basename = os.path.basename(model_module_path)
+        if basename == model_module_path:  # pragma: no cover
+            # Add current directory to the system path
+            module_dir = os.getcwd()
+            sys.path.insert(0, module_dir)
+        else:
+            # Add the parent (target) directory to system path
+            module_dir = os.path.dirname(os.path.abspath(model_module_path))
+            parent_dir = os.path.dirname(module_dir)
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
+
+        # Convert file path to module path
+        model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
+        model_module_path = model_module_path.rstrip(".py")
+
+        # Import model class
+        module = importlib.import_module(model_module_path)
+        model_class = getattr(module, model_name)
+
+        # Instantiate model
+        return model_class(**model_params)
+
+    except Exception as e:  # pragma: no cover
+        raise ValueError(f"Failed to create new model using supplied class: {e}") from e

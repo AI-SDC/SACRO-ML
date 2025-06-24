@@ -19,14 +19,15 @@ if __name__ == "__main__":
 
     logging.info("Running attacks...")
 
-    attack = WorstCaseAttack(n_reps=10, output_dir=output_dir)
-    output = attack.attack(target)
+    if False:
+        attack = WorstCaseAttack(n_reps=10, output_dir=output_dir)
+        output = attack.attack(target)
 
-    attack = StructuralAttack(output_dir=output_dir)
-    output = attack.attack(target)
+        attack = StructuralAttack(output_dir=output_dir)
+        output = attack.attack(target)
 
-    attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
-    output = attack.attack(target)
+        attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
+        output = attack.attack(target)
 
-    attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
+    attack = LIRAAttack(n_shadow_models=20, output_dir=output_dir)
     output = attack.attack(target)

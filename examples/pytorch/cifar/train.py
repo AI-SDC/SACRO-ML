@@ -21,13 +21,14 @@ def train(
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
     print("Starting training...")
+    model.train()
     for epoch in range(epochs):
-        model.train()
         running_loss, running_acc, n_samples = 0, 0, 0
 
         with tqdm(dataloader, desc=f"Epoch {epoch + 1}/{epochs}") as pbar:
             for inputs, labels in pbar:
-                X, y = inputs.to(device), labels.to(device, non_blocking=True)
+                X = inputs.to(device, non_blocking=True)
+                y = labels.to(device, non_blocking=True)
 
                 optimizer.zero_grad()
                 outputs = model(X)

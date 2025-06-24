@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import importlib
 import logging
-import os
-import sys
 from copy import deepcopy
 from typing import Any
 
@@ -15,7 +13,7 @@ from torch import cuda
 from torch.nn.functional import softmax
 from torch.utils.data import DataLoader, TensorDataset
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, create_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -365,55 +363,10 @@ def numpy_to_dataloader(X: np.ndarray, y: np.ndarray, batch_size: int = 32):
     return DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
 
-def create_model(model_module_path: str, model_name: str, model_params: dict) -> Any:
-    """Return a new model from a code path.
-
-    Parameters
-    ----------
-    model_module_path : str
-        Path to Python code containing a model constructor.
-    model_name : str
-        Name of the model class.
-    model_params : dict
-        Parameters for constructing the model.
-
-    Returns
-    -------
-    Any
-        New model.
-    """
-    try:
-        basename = os.path.basename(model_module_path)
-        if basename == model_module_path:  # pragma: no cover
-            # Add current directory to the system path
-            module_dir = os.getcwd()
-            sys.path.insert(0, module_dir)
-        else:
-            # Add the parent (target) directory to system path
-            module_dir = os.path.dirname(os.path.abspath(model_module_path))
-            parent_dir = os.path.dirname(module_dir)
-            if parent_dir not in sys.path:
-                sys.path.insert(0, parent_dir)
-
-        # Convert file path to module path
-        model_module_path = model_module_path.replace("/", ".").replace("\\", ".")
-        model_module_path = model_module_path.rstrip(".py")
-
-        # Import model class
-        module = importlib.import_module(model_module_path)
-        model_class = getattr(module, model_name)
-
-        # Instantiate model
-        return model_class(**model_params)
-
-    except Exception as e:  # pragma: no cover
-        raise ValueError(f"Failed to create new model using supplied class: {e}") from e
-
-
 def train_model(
     model: Any, train_module_path: str, train_params: dict, dataloader: DataLoader
 ) -> Any:
-    """Trains a model from a code path.
+    """Train a model from a code path.
 
     Parameters
     ----------
@@ -437,11 +390,14 @@ def train_model(
         # Convert file path to module path
         train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
         train_module_path = train_module_path.rstrip(".py")
+
         # Import training function
         module = importlib.import_module(train_module_path)
         train_function = module.train
+
         # Train model
         train_function(model=model, dataloader=dataloader, **train_params)
         return model
+
     except Exception as e:  # pragma: no cover
         raise ValueError(f"Failed to train model: {e}") from e
