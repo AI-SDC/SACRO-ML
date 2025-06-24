@@ -19,7 +19,6 @@ release = "1.3.0"
 
 extensions = [
     "numpydoc",
-    "sphinx-prompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.imgconverter",
@@ -28,6 +27,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_autopackagesummary",
     "sphinx_issues",
+    "sphinx_prompt",
     "sphinx_rtd_theme",
     "sphinxcontrib.bibtex",
 ]
