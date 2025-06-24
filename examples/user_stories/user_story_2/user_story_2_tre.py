@@ -90,8 +90,13 @@ def generate_report(
     y_test = np.array(y_test)
 
     # Wrap the model and data in a Target object
-    target = Target(model=target_model)
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=target_model,
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
 
     # TRE calls request_release()
     print("===> now running attacks implicitly via request_release()")

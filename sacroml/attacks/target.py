@@ -44,7 +44,57 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Target:  # pylint: disable=too-many-instance-attributes
-    """Store information about the target model and data."""
+    """Store information about the target model and data.
+
+    Attributes
+    ----------
+    model : Any
+        Trained target model.
+    model_path : str
+        Path to a saved model.
+    model_module_path : str
+        Path to module containing model class.
+    model_name : str
+        Class name of model.
+    model_params : dict or None
+        Hyperparameters for instantiating the model.
+    train_module_path : str
+        Path to module containing training function.
+    train_params : dict or None
+        Hyperparameters for training the model.
+    dataset_name : str
+        The name of the dataset.
+    dataset_module_path : str
+        Path to module containing dataset loading function.
+    features : dict
+        Dictionary describing the dataset features.
+    X_train : np.ndarray or None
+        The (processed) training inputs.
+    y_train : np.ndarray or None
+        The (processed) training outputs.
+    X_test : np.ndarray or None
+        The (processed) testing inputs.
+    y_test : np.ndarray or None
+        The (processed) testing outputs.
+    X_orig : np.ndarray or None
+        The original (unprocessed) dataset inputs.
+    y_orig : np.ndarray or None
+        The original (unprocessed) dataset outputs.
+    X_train_orig : np.ndarray or None
+        The original (unprocessed) training inputs.
+    y_train_orig : np.ndarray or None
+        The original (unprocessed) training outputs.
+    X_test_orig : np.ndarray or None
+        The original (unprocessed) testing inputs.
+    y_test_orig : np.ndarray or None
+        The original (unprocessed) testing outputs.
+    proba_train : np.ndarray or None
+        The model predicted training probabilities.
+    proba_test : np.ndarray or None
+        The model predicted testing probabilities.
+    safemodel : list
+        Results of safemodel disclosure checking.
+    """
 
     # Model attributes
     model: Any = None
@@ -114,19 +164,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def n_features(self) -> int:
         """Number of features."""
         return len(self.features)
-
-    def add_processed_data(
-        self,
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_test: np.ndarray,
-        y_test: np.ndarray,
-    ) -> None:
-        """Add a processed and split dataset."""
-        self.X_train = X_train
-        self.y_train = np.array(y_train, int)
-        self.X_test = X_test
-        self.y_test = np.array(y_test, int)
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""

@@ -87,9 +87,14 @@ def run_user_story():
     model.request_release(path=directory, ext="pkl")
 
     # Wrap the model and data in a Target object
-    target = Target(model=model)
-    target.name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
 
     # NOTE: we assume here that the researcher does not use the target.save()
     # function and instead provides only the model and the list of indices
