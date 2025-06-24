@@ -217,8 +217,8 @@ class LIRAAttack(Attack):
         logger.info("Running %s LiRA, fix_variance=%s", self.mode, self.fix_variance)
 
         # Combine target and shadow train, from which to sample datasets
-        n_train_rows, _ = X_train.shape
-        n_shadow_rows, _ = X_test.shape
+        n_train_rows = X_train.shape[0]
+        n_shadow_rows = X_test.shape[0]
         combined_x_train = np.vstack((X_train, X_test))
         if y_train.ndim == 1 and y_test.ndim == 1:  # label encoding
             combined_y_train = np.hstack((y_train, y_test))
@@ -372,7 +372,7 @@ class LIRAAttack(Attack):
         """
         logger.info("Training shadow models")
 
-        n_combined, _ = combined_x_train.shape
+        n_combined = combined_x_train.shape[0]
         out_conf: dict = {i: [] for i in range(n_combined)}
         in_conf: dict = {i: [] for i in range(n_combined)}
         indices: np.ndarray = np.arange(0, n_combined, 1)
