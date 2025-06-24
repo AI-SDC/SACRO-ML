@@ -178,7 +178,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
         """Add safemodel disclosure checking results."""
         self.safemodel = data
 
-    # Status check methods
     def has_model(self) -> bool:
         """Return whether the target has a loaded model."""
         return self.model is not None and self.model.model is not None
