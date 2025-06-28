@@ -32,8 +32,6 @@ def test_target(get_target):
     assert np.array_equal(tre_target.y_train, target.y_train)
     assert np.array_equal(tre_target.X_test, target.X_test)
     assert np.array_equal(tre_target.y_test, target.y_test)
-    assert np.array_equal(tre_target.X_orig, target.X_orig)
-    assert np.array_equal(tre_target.y_orig, target.y_orig)
     assert np.array_equal(tre_target.X_train_orig, target.X_train_orig)
     assert np.array_equal(tre_target.y_train_orig, target.y_train_orig)
     assert np.array_equal(tre_target.X_test_orig, target.X_test_orig)

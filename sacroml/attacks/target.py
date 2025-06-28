@@ -28,8 +28,6 @@ DATA_ATTRIBUTES: list[str] = [
     "y_train",
     "X_test",
     "y_test",
-    "X_orig",
-    "y_orig",
     "X_train_orig",
     "y_train_orig",
     "X_test_orig",
@@ -76,10 +74,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
         The (processed) testing inputs.
     y_test : np.ndarray or None
         The (processed) testing outputs.
-    X_orig : np.ndarray or None
-        The original (unprocessed) dataset inputs.
-    y_orig : np.ndarray or None
-        The original (unprocessed) dataset outputs.
     X_train_orig : np.ndarray or None
         The original (unprocessed) training inputs.
     y_train_orig : np.ndarray or None
@@ -115,8 +109,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
     y_train: np.ndarray | None = None
     X_test: np.ndarray | None = None
     y_test: np.ndarray | None = None
-    X_orig: np.ndarray | None = None
-    y_orig: np.ndarray | None = None
     X_train_orig: np.ndarray | None = None
     y_train_orig: np.ndarray | None = None
     X_test_orig: np.ndarray | None = None
@@ -190,8 +182,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def has_raw_data(self) -> bool:
         """Return whether the target has all raw data."""
         attrs: list[str] = [
-            "X_orig",
-            "y_orig",
             "X_train_orig",
             "y_train_orig",
             "X_test_orig",

@@ -69,8 +69,6 @@ if __name__ == "__main__":
         y_test=y_test,
         # original unprocessed data (for attribute attack)
         # in this example we just use the processed data since it's all floats
-        X_orig=X,
-        y_orig=y,
         X_train_orig=X_train,
         y_train_orig=y_train,
         X_test_orig=X_test,

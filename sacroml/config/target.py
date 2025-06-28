@@ -19,7 +19,7 @@ from sacroml.config import utils
 from sacroml.version import __version__
 
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
-arrays_raw = ["X", "y", "X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
+arrays_raw = ["X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
 arrays_proba = ["proba_train", "proba_test"]
 encodings = ["onehot", "str", "int", "float"]
 

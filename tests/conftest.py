@@ -157,7 +157,6 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     X_train_orig = np.hstack((X_train_orig, dummy_tr))
     X_test = np.hstack((X_test, dummy_te))
     X_test_orig = np.hstack((X_test_orig, dummy_te))
-    xmore = np.concatenate((X_train_orig, X_test_orig))
     n_features = np.shape(X_train_orig)[1]
 
     # fit model
@@ -171,8 +170,6 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        X_orig=xmore,
-        y_orig=y,
         X_train_orig=X_train_orig,
         y_train_orig=y_train_orig,
         X_test_orig=X_test_orig,
@@ -220,8 +217,6 @@ def get_target_multiclass() -> Target:
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        X_orig=X,
-        y_orig=y,
         X_train_orig=X_train,
         y_train_orig=y_train,
         X_test_orig=X_test,
