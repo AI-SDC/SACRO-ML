@@ -64,8 +64,6 @@ if __name__ == "__main__":
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        X_orig=X,
-        y_orig=y,
         X_train_orig=X_train_orig,
         y_train_orig=y_train_orig,
         X_test_orig=X_test_orig,

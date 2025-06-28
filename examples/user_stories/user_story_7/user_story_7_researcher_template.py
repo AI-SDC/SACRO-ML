@@ -102,8 +102,6 @@ def run_user_story():
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        X_orig=data,
-        y_orig=labels,
         X_train_orig=X_train_orig,
         y_train_orig=y_train_orig,
         X_test_orig=X_test_orig,

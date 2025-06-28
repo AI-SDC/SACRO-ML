@@ -167,13 +167,23 @@ def _unique_max(confidences: list[float], threshold: float) -> bool:
     return False
 
 
+def _get_unique_features(
+    X_train: np.ndarray, X_test: np.ndarray, feature_id: int
+) -> np.ndarray:
+    """Return unique values of a given feature."""
+    feature_train = X_train[:, feature_id]
+    feature_test = X_test[:, feature_id]
+    combined_feature = np.concatenate((feature_train, feature_test))
+    return np.unique(combined_feature)
+
+
 def _get_inference_data(  # pylint: disable=too-many-locals
     target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Return a dataset of each sample with the attributes to test."""
     attack_feature: dict = target.features[feature_id]
     indices: list[int] = attack_feature["indices"]
-    unique = np.unique(target.X_orig[:, feature_id])
+    unique = _get_unique_features(target.X_train_orig, target.X_test_orig, feature_id)
     n_unique: int = len(unique)
     values = unique
     if attack_feature["encoding"] == "onehot":

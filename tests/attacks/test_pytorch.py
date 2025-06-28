@@ -89,8 +89,6 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
         X_test=X_test,
         y_test=y_test,
         # original unprocessed data
-        X_orig=X_orig,
-        y_orig=y_orig,
         X_train_orig=X_train,
         y_train_orig=y_train,
         X_test_orig=X_test,

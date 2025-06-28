@@ -51,8 +51,6 @@ if __name__ == "__main__":
         X_test=X_test,
         y_test=y_test,
         # original unprocessed data
-        X_orig=X,
-        y_orig=y,
         X_train_orig=X_train_orig,
         y_train_orig=y_train_orig,
         X_test_orig=X_test_orig,
