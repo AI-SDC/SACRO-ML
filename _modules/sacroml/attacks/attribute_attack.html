@@ -249,13 +249,23 @@
     <span class="k">return</span> <span class="kc">False</span>
 
 
+<span class="k">def</span> <span class="nf">_get_unique_features</span><span class="p">(</span>
+    <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">X_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return unique values of a given feature.&quot;&quot;&quot;</span>
+    <span class="n">feature_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">]</span>
+    <span class="n">feature_test</span> <span class="o">=</span> <span class="n">X_test</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">]</span>
+    <span class="n">combined_feature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">feature_train</span><span class="p">,</span> <span class="n">feature_test</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">combined_feature</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">_get_inference_data</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memberset</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dataset of each sample with the attributes to test.&quot;&quot;&quot;</span>
     <span class="n">attack_feature</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">]</span>
     <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_feature</span><span class="p">[</span><span class="s2">&quot;indices&quot;</span><span class="p">]</span>
-    <span class="n">unique</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_orig</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">])</span>
+    <span class="n">unique</span> <span class="o">=</span> <span class="n">_get_unique_features</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train_orig</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test_orig</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">)</span>
     <span class="n">n_unique</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">unique</span>
     <span class="k">if</span> <span class="n">attack_feature</span><span class="p">[</span><span class="s2">&quot;encoding&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;onehot&quot;</span><span class="p">:</span>
