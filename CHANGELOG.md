@@ -6,6 +6,7 @@ Changes:
 *   Improve attribute inference attack documentation ([#340](https://github.com/AI-SDC/SACRO-ML/pull/340))
 *   Refactor `Target` class - standardise use of constructor to wrap data ([#342](https://github.com/AI-SDC/SACRO-ML/pull/342))
 *   Add LiRA support for multidimensional vectors such as images with multiple channels ([#343](https://github.com/AI-SDC/SACRO-ML/pull/343))
+*   Remove redundant `X_orig` and `y_orig` from `Target` class ([#344](https://github.com/AI-SDC/SACRO-ML/pull/344))
 
 ## Version 1.3.0 (Jun 17, 2025)
 
