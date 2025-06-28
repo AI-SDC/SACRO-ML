@@ -15,7 +15,8 @@ import sklearn
 import torch
 import yaml
 
-from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.model import create_dataset
+from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
 
 MODEL_REGISTRY: dict[str, Any] = {
@@ -122,6 +123,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def __post_init__(self):
         """Initialise the model wrapper after dataclass creation."""
         self.model = self._wrap_model(self.model)
+        self._wrap_pytorch_dataset()
 
     def _wrap_model(self, model: Any) -> Any:
         """Wrap the model in a wrapper class."""
@@ -151,6 +153,23 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if isinstance(model, (SklearnModel, PytorchModel)):
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
+
+    def _wrap_pytorch_dataset(self) -> None:
+        """Wrap dataset for Pytorch models given a dataset Python script."""
+        if self.dataset_module_path != "" and isinstance(self.model, PytorchModel):
+            # Create a new dataset object with a supplied class
+            dataset = create_dataset(self.dataset_module_path, self.dataset_name)
+            try:
+                # Get dataloaders
+                train_loader = dataset.get_train_loader()
+                test_loader = dataset.get_test_loader()
+                # Convert to numpy
+                self.X_train, self.y_train = dataloader_to_numpy(train_loader)
+                self.X_test, self.y_test = dataloader_to_numpy(test_loader)
+                for arr in ("X_train", "y_train", "X_test", "y_test"):
+                    logger.info("Wrapped: %s shape: %s", arr, getattr(self, arr).shape)
+            except Exception as e:  # pragma: no cover
+                raise ValueError(f"Failed to wrap data using class: {e}") from e
 
     @property
     def n_features(self) -> int:

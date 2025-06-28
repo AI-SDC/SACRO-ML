@@ -31,16 +31,15 @@ def train(
                 y = labels.to(device, non_blocking=True)
 
                 optimizer.zero_grad()
-                outputs = model(X)
-                loss = criterion(outputs, y)
+                logits = model(X)
+                loss = criterion(logits, y)
                 loss.backward()
                 optimizer.step()
 
                 # Update metrics
-                batch_size = y.size(0)
-                running_loss += loss.item() * batch_size
-                running_acc += (outputs.argmax(dim=1) == y).sum().item()
-                n_samples += batch_size
+                running_loss += loss.item() * y.size(0)
+                running_acc += (logits.argmax(dim=1) == y).sum().item()
+                n_samples += y.size(0)
 
                 pbar.set_postfix(
                     {
@@ -68,8 +67,8 @@ def test(
     with torch.no_grad():
         for inputs, labels in dataloader:
             X, y = inputs.to(device), labels.to(device)
-            outputs = model(X)
-            _, predicted = torch.max(outputs, 1)
+            logits = model(X)
+            _, predicted = torch.max(logits, 1)
 
             # Overall accuracy
             correct += (predicted == y).sum().item()

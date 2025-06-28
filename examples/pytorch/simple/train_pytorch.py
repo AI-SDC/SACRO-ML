@@ -3,9 +3,9 @@
 import logging
 
 import torch
-from dataset import get_data
+from dataset import Synthetic
 from model import OverfitNet
-from train import train
+from train import test, train
 
 from sacroml.attacks.target import Target
 
@@ -36,17 +36,18 @@ if __name__ == "__main__":
     }
 
     logging.info("Loading dataset")
-    X, y, X_train, y_train, X_test, y_test = get_data(
-        n_features=model_params["x_dim"],
-        n_classes=model_params["y_dim"],
-        random_state=random_state,
-    )
+    dataset = Synthetic()
+    train_loader = dataset.get_train_loader(batch_size=32)
+    test_loader = dataset.get_test_loader(batch_size=32)
 
     logging.info("Defining the model")
     model = OverfitNet(**model_params)
 
     logging.info("Training the model")
-    train(model, X_train, y_train, **train_params)
+    train(model, train_loader, **train_params)
+
+    logging.info("Testing the model")
+    test(model, test_loader)
 
     #############################################################################
     # Below shows the use of the Target class to help generate the target_dir/
@@ -61,32 +62,8 @@ if __name__ == "__main__":
         train_module_path="train.py",
         train_params=train_params,
         dataset_module_path="dataset.py",
-        dataset_name="synthetic",
-        # processed data
-        X_train=X_train,
-        y_train=y_train,
-        X_test=X_test,
-        y_test=y_test,
-        # original unprocessed data (for attribute attack)
-        # in this example we just use the processed data since it's all floats
-        X_train_orig=X_train,
-        y_train_orig=y_train,
-        X_test_orig=X_test,
-        y_test_orig=y_test,
+        dataset_name="Synthetic",  # Must match the class name in the dataset module
     )
-
-    logging.info("Wrapping feature details and encoding for attribute inference")
-    for i in range(model_params["x_dim"]):
-        target.add_feature(
-            name=f"A{i}",
-            indices=[i],
-            encoding="float",
-        )
 
     logging.info("Writing Target object to directory: '%s'", target_dir)
     target.save(target_dir)
-
-    acc_train = target.model.score(X_train, y_train)
-    acc_test = target.model.score(X_test, y_test)
-    logging.info("Base model train accuracy: %.4f", acc_train)
-    logging.info("Base model test accuracy: %.4f", acc_test)

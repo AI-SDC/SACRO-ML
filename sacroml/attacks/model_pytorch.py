@@ -329,7 +329,7 @@ class PytorchModel(Model):
         )
 
 
-def get_numpy_data(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
+def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
     """Convert DataLoader to numpy arrays.
 
     Parameters

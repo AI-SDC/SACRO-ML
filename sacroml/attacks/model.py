@@ -279,3 +279,46 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
 
     except Exception as e:  # pragma: no cover
         raise ValueError(f"Failed to create new model using supplied class: {e}") from e
+
+
+def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
+    """Return a new dataset from a code path.
+
+    Parameters
+    ----------
+    dataset_module_path : str
+        Path to Python code containing a dataset class.
+    dataset_name : str
+        Name of the dataset class.
+
+    Returns
+    -------
+    Any
+        New dataset.
+    """
+    try:
+        basename = os.path.basename(dataset_module_path)
+        if basename == dataset_module_path:  # pragma: no cover
+            # Add current directory to the system path
+            module_dir = os.getcwd()
+            sys.path.insert(0, module_dir)
+        else:
+            # Add the parent (target) directory to system path
+            module_dir = os.path.dirname(os.path.abspath(dataset_module_path))
+            parent_dir = os.path.dirname(module_dir)
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
+
+        # Convert file path to module path
+        module_path = dataset_module_path.replace("/", ".").replace("\\", ".")
+        module_path = module_path.rstrip(".py")
+
+        # Import dataset class
+        module = importlib.import_module(module_path)
+        dataset_class = getattr(module, dataset_name)
+
+        # Instantiate dataset
+        return dataset_class()
+
+    except Exception as e:  # pragma: no cover
+        raise ValueError(f"Failed to create dataset using supplied class: {e}") from e

@@ -1,42 +1,52 @@
-"""An example synthetic dataset."""
+"""Synthetic dataset handler."""
 
-import numpy as np
+import torch
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from torch.utils.data import DataLoader, TensorDataset
 
 
-def get_data(
-    n_features: int, n_classes: int, random_state: int | None = None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Return a synthetic dataset for testing."""
-    X_orig, y_orig = make_classification(
-        n_samples=50,
-        n_features=n_features,
-        n_informative=2,
-        n_redundant=0,
-        n_repeated=0,
-        n_classes=n_classes,
-        n_clusters_per_class=1,
-        random_state=random_state,
-    )
+class Synthetic:
+    """Synthetic dataset handler."""
 
-    X_orig = np.asarray(X_orig)
-    y_orig = np.asarray(y_orig)
+    def __init__(self) -> None:
+        """Create synthetic data."""
+        # Generate synthetic dataset
+        X, y = make_classification(
+            n_samples=50,
+            n_features=4,
+            n_informative=2,
+            n_redundant=0,
+            n_repeated=0,
+            n_classes=4,
+            n_clusters_per_class=1,
+            random_state=2,
+        )
 
-    input_encoder = StandardScaler()
-    X = input_encoder.fit_transform(X_orig)
-    y = y_orig  # leave as labels
+        # Split the data
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, stratify=y, shuffle=True, random_state=2
+        )
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, shuffle=True, random_state=random_state
-    )
+        # Scale the features
+        scaler = StandardScaler()
+        X_train_transformed = scaler.fit_transform(X_train)
+        X_test_transformed = scaler.transform(X_test)
 
-    X = np.asarray(X)
-    y = np.asarray(y)
-    X_train = np.asarray(X_train)
-    y_train = np.asarray(y_train)
-    X_test = np.asarray(X_test)
-    y_test = np.asarray(y_test)
+        # Convert to PyTorch tensors
+        self.X_train = torch.FloatTensor(X_train_transformed)
+        self.X_test = torch.FloatTensor(X_test_transformed)
+        self.y_train = torch.LongTensor(y_train)
+        self.y_test = torch.LongTensor(y_test)
 
-    return X, y, X_train, y_train, X_test, y_test
+        self.trainset = TensorDataset(self.X_train, self.y_train)
+        self.testset = TensorDataset(self.X_test, self.y_test)
+
+    def get_train_loader(self, batch_size: int = 32) -> DataLoader:
+        """Return a training data loader."""
+        return DataLoader(self.trainset, batch_size=batch_size, shuffle=True)
+
+    def get_test_loader(self, batch_size: int = 32) -> DataLoader:
+        """Return a testing data loader."""
+        return DataLoader(self.testset, batch_size=batch_size, shuffle=False)

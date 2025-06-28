@@ -55,9 +55,6 @@ if __name__ == "__main__":
     # If you have already saved your model, you can use the CLI target generator.
     #############################################################################
 
-    X_train, y_train = dataset.dataloader_to_numpy(train_loader)
-    X_test, y_test = dataset.dataloader_to_numpy(test_loader)
-
     logging.info("Wrapping the model and data in a Target object")
     target = Target(
         model=model,
@@ -66,17 +63,8 @@ if __name__ == "__main__":
         train_module_path="train.py",
         train_params=train_params,
         dataset_module_path="dataset.py",
-        dataset_name="Cifar10",
-        X_train=X_train,
-        y_train=y_train,
-        X_test=X_test,
-        y_test=y_test,
+        dataset_name="Cifar10",  # Must match the class name in the dataset module
     )
 
     logging.info("Writing Target object to directory: '%s'", target_dir)
     target.save(target_dir)
-
-    acc_train = target.model.score(X_train, y_train)
-    acc_test = target.model.score(X_test, y_test)
-    logging.info("Base model train accuracy: %.4f", acc_train)
-    logging.info("Base model test accuracy: %.4f", acc_test)
