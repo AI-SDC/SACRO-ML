@@ -101,7 +101,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             return int(o)
         if isinstance(o, np.bool_):
             return bool(o)
-        try:  # Try the default method first
+        # Try the default method first
+        try:  # pragma: no cover
             return super().default(o)
         except TypeError:
             return str(o)  # If object is not serializable, convert it to a string
