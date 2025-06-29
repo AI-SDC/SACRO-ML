@@ -164,12 +164,11 @@ class Target:  # pylint: disable=too-many-instance-attributes
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
 
-    def load_pytorch_dataset(self, dry_run: bool = False) -> bool:
+    def load_pytorch_dataset(self, dry_run: bool = False) -> bool:  # pragma: no cover
         """Wrap dataset for Pytorch models given a dataset Python script."""
         if self.dataset_module_path != "" and isinstance(self.model, PytorchModel):
-            # Check indices have been supplied
             if self.indices_train is None or self.indices_test is None:
-                logger.warning("Can't load data module because indices are unavailable")
+                logger.warning("Can't load dataset because indices are unavailable")
                 return False
 
             try:
