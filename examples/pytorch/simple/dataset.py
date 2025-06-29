@@ -1,19 +1,24 @@
 """Synthetic dataset handler."""
 
+from collections.abc import Sequence
+
 import torch
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, Dataset, Subset, TensorDataset
+
+from sacroml.attacks.data import DataHandler
+
+random_state = 2
 
 
-class Synthetic:
+class Synthetic(DataHandler):
     """Synthetic dataset handler."""
 
     def __init__(self) -> None:
         """Create synthetic data."""
-        # Generate synthetic dataset
-        X, y = make_classification(
+        self.X, self.y = make_classification(
             n_samples=50,
             n_features=4,
             n_informative=2,
@@ -21,32 +26,37 @@ class Synthetic:
             n_repeated=0,
             n_classes=4,
             n_clusters_per_class=1,
-            random_state=2,
+            random_state=random_state,
         )
 
-        # Split the data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, stratify=y, shuffle=True, random_state=2
-        )
-
-        # Scale the features
-        scaler = StandardScaler()
-        X_train_transformed = scaler.fit_transform(X_train)
-        X_test_transformed = scaler.transform(X_test)
+        # Preprocess
+        self.feature_encoder = StandardScaler()
+        X_transformed = self.feature_encoder.fit_transform(self.X)
 
         # Convert to PyTorch tensors
-        self.X_train = torch.FloatTensor(X_train_transformed)
-        self.X_test = torch.FloatTensor(X_test_transformed)
-        self.y_train = torch.LongTensor(y_train)
-        self.y_test = torch.LongTensor(y_test)
+        X_tensor = torch.FloatTensor(X_transformed)
+        y_tensor = torch.LongTensor(self.y)
+        self.dataset = TensorDataset(X_tensor, y_tensor)
 
-        self.trainset = TensorDataset(self.X_train, self.y_train)
-        self.testset = TensorDataset(self.X_test, self.y_test)
+    def __len__(self) -> int:
+        """Return the length of the dataset."""
+        return len(self.dataset)
 
-    def get_train_loader(self, batch_size: int = 32) -> DataLoader:
-        """Return a training data loader."""
-        return DataLoader(self.trainset, batch_size=batch_size, shuffle=True)
+    def get_dataset(self) -> Dataset:
+        """Return a preprocessed dataset."""
+        return self.dataset
 
-    def get_test_loader(self, batch_size: int = 32) -> DataLoader:
-        """Return a testing data loader."""
-        return DataLoader(self.testset, batch_size=batch_size, shuffle=False)
+    def get_dataloader(
+        self, dataset: Dataset, indices: Sequence[int], batch_size: int = 32
+    ) -> DataLoader:
+        """Return a data loader with a requested subset of samples."""
+        subset = Subset(dataset, indices)
+        return DataLoader(subset, batch_size=batch_size)
+
+    def get_train_test_indices(self) -> tuple[Sequence[int], Sequence[int]]:
+        """Return train and test set indices."""
+        indices = range(len(self))
+        train, test = train_test_split(
+            indices, test_size=0.2, stratify=self.y, random_state=random_state
+        )
+        return train, test

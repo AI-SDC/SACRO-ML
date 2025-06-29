@@ -46,9 +46,9 @@ Once a suitable target directory has been created `sacroml` attacks can be run u
         - These parameters must be specified under `train_params`.
     * The file path to the Python train module must be specified under `train_module_path`.
 3. The `dataset.py` must contain a class for creating/loading the data.
-    * The dataset class must have the functions:
-        - `get_train_loader` that returns the training set DataLoader.
-        - `get_test_loader` that returns the testing set DataLoader.
+    * The dataset class must implement the abstract `sacroml.attacks.data.DataHandler`:
     * The file path to the Python dataset module must be specified under `dataset_module_path`.
     * The parameter `dataset_name` must match the name of the dataset class.
+    * If supplying a `dataset_module_path` the indices must be passed to `indices_train` and `indices_test`.
+    * If you do not supply a `dataset_module_path`, you can pass numpy arrays to `X_train`, etc.
 4. The file path to the saved PyTorch model must be specified under `model_path` in the `target.yaml` or the model should be passed to the `Target` object directly.

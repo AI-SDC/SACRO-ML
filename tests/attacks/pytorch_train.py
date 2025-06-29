@@ -1,4 +1,4 @@
-"""Pytorch train function for testing."""
+"""An example Pytorch training module."""
 
 import torch
 from torch import nn, optim
@@ -12,7 +12,7 @@ def train(
     learning_rate: float,
     momentum: float,
 ) -> None:
-    """Train Pytorch model."""
+    """Train model."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
 
@@ -26,7 +26,26 @@ def train(
             y = labels.to(device, non_blocking=True)
 
             optimizer.zero_grad()
-            outputs = model(X)
-            loss = criterion(outputs, y)
+            logits = model(X)
+            loss = criterion(logits, y)
             loss.backward()
             optimizer.step()
+
+
+def test(model: nn.Module, dataloader: DataLoader) -> None:
+    """Test model."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    model.eval()
+
+    correct, total = 0, 0
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            X, y = inputs.to(device), labels.to(device)
+            logits = model(X)
+            _, predicted = torch.max(logits, 1)
+
+            correct += (predicted == y).sum().item()
+            total += y.size(0)
+
+    print(f"Accuracy on test set: {100 * correct / total:.2f}%")

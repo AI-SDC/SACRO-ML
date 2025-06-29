@@ -24,23 +24,33 @@ if __name__ == "__main__":
     # Dataset loading and model training
     #############################################################################
 
-    model_params = {  # These must match all required in the model constructor.
+    logging.info("Loading dataset")
+
+    # Access dataset
+    data_handler = Synthetic()
+
+    # Get the (preprocessed) dataset
+    dataset = data_handler.get_dataset()
+
+    # Create data splits
+    indices_train, indices_test = data_handler.get_train_test_indices()
+
+    # Get dataloaders
+    train_loader = data_handler.get_dataloader(dataset, indices_train)
+    test_loader = data_handler.get_dataloader(dataset, indices_test)
+
+    logging.info("Defining the model")
+
+    model_params = {
         "x_dim": 4,
         "y_dim": 4,
         "n_units": 1000,
     }
-    train_params = {  # These must match all required in the train function.
+    train_params = {
         "epochs": 1000,
         "learning_rate": 0.001,
         "momentum": 0.9,
     }
-
-    logging.info("Loading dataset")
-    dataset = Synthetic()
-    train_loader = dataset.get_train_loader(batch_size=32)
-    test_loader = dataset.get_test_loader(batch_size=32)
-
-    logging.info("Defining the model")
     model = OverfitNet(**model_params)
 
     logging.info("Training the model")
@@ -58,11 +68,13 @@ if __name__ == "__main__":
     target = Target(
         model=model,
         model_module_path="model.py",
-        model_params=model_params,
+        model_params=model_params,  # Must match all required in model constructor
         train_module_path="train.py",
-        train_params=train_params,
+        train_params=train_params,  # Must match all required in the train function
         dataset_module_path="dataset.py",
-        dataset_name="Synthetic",  # Must match the class name in the dataset module
+        dataset_name="Synthetic",  # Must match the class name in dataset module
+        indices_train=indices_train,
+        indices_test=indices_test,
     )
 
     logging.info("Writing Target object to directory: '%s'", target_dir)
