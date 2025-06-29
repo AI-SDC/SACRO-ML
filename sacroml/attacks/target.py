@@ -191,7 +191,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
                 raise ValueError(f"Failed to load data using class: {e}") from e
 
             # Avoid copying data to target folder
-            if dry_run:  # pragma: no cover
+            if dry_run:
                 self.X_train, self.y_train = None, None
                 self.X_test, self.y_test = None, None
 
