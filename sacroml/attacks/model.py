@@ -306,7 +306,7 @@ def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
             # Add the parent (target) directory to system path
             module_dir = os.path.dirname(os.path.abspath(dataset_module_path))
             parent_dir = os.path.dirname(module_dir)
-            if parent_dir not in sys.path:
+            if parent_dir not in sys.path:  # pragma: no cover
                 sys.path.insert(0, parent_dir)
 
         # Convert file path to module path
