@@ -164,13 +164,13 @@ class Target:  # pylint: disable=too-many-instance-attributes
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
 
-    def _load_pytorch_dataset(self) -> None:
+    def load_pytorch_dataset(self, dry_run: bool = False) -> bool:
         """Wrap dataset for Pytorch models given a dataset Python script."""
         if self.dataset_module_path != "" and isinstance(self.model, PytorchModel):
             # Check indices have been supplied
             if self.indices_train is None or self.indices_test is None:
-                logger.info("Can't load data module because indices are unavailable")
-                return
+                logger.warning("Can't load data module because indices are unavailable")
+                return False
 
             try:
                 # Create a new data object with a supplied class
@@ -187,8 +187,16 @@ class Target:  # pylint: disable=too-many-instance-attributes
                 self.X_test, self.y_test = dataloader_to_numpy(test_loader)
                 for arr in ("X_train", "y_train", "X_test", "y_test"):
                     logger.info("Loaded: %s shape: %s", arr, getattr(self, arr).shape)
+                return True
             except Exception as e:  # pragma: no cover
                 raise ValueError(f"Failed to load data using class: {e}") from e
+
+            # Avoid copying data to target folder
+            if dry_run:  # pragma: no cover
+                self.X_train, self.y_train = None, None
+                self.X_test, self.y_test = None, None
+
+        return False
 
     @property
     def n_features(self) -> int:
@@ -293,7 +301,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
         for attr in DATA_ATTRIBUTES:
             self._load_array(path, target, attr)
 
-        self._load_pytorch_dataset()
+        self.load_pytorch_dataset()
 
     def _save_model(self, path: str, ext: str, target: dict) -> None:
         """Save model to disk."""
