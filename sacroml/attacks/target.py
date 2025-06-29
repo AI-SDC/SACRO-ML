@@ -17,7 +17,7 @@ import torch
 import yaml
 from torch.utils.data import DataLoader, Dataset
 
-from sacroml.attacks.data import DataHandler
+from sacroml.attacks.data import PyTorchDataHandler
 from sacroml.attacks.model import create_dataset
 from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
@@ -173,7 +173,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
             try:
                 # Create a new data object with a supplied class
-                data: DataHandler = create_dataset(
+                data: PyTorchDataHandler = create_dataset(
                     self.dataset_module_path, self.dataset_name
                 )
                 # Get processed dataset

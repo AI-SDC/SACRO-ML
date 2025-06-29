@@ -1,23 +1,38 @@
-"""Abstract PyTorch dataset handler."""
+"""Abstract data handler supporting both PyTorch and scikit-learn."""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
+import numpy as np
 from torch.utils.data import DataLoader, Dataset
 
 
-class DataHandler(ABC):
-    """PyTorch dataset handling interface."""
+class BaseDataHandler(ABC):
+    """Base data handling interface."""
 
     @abstractmethod
     def __init__(self) -> None:
-        """Instantiate a dataset handler."""
+        """Instantiate a data handler."""
 
     @abstractmethod
     def __len__(self) -> int:
         """Return the length of the dataset."""
+
+    @abstractmethod
+    def get_train_test_indices(self) -> tuple[Sequence[int], Sequence[int]]:
+        """Return train and test set indices.
+
+        Returns
+        -------
+        tuple[Sequence[int], Sequence[int]]
+            Indices of the training and test samples.
+        """
+
+
+class PyTorchDataHandler(BaseDataHandler):
+    """PyTorch dataset handling interface."""
 
     @abstractmethod
     def get_dataset(self) -> Dataset:
@@ -50,14 +65,37 @@ class DataHandler(ABC):
             A PyTorch DataLoader.
         """
 
+
+class SklearnDataHandler(BaseDataHandler):  # pragma: no cover
+    """Scikit-learn data handling interface."""
+
     @abstractmethod
-    def get_train_test_indices(self) -> tuple[Sequence[int], Sequence[int]]:
-        """Return train and test set indices.
+    def get_data(self) -> tuple[np.ndarray, np.ndarray]:
+        """Return the processed data arrays.
 
         Returns
         -------
-        Sequence[int]
-            Indices of the training samples.
-        Sequence[int]
-            Indices of the test samples.
+        tuple[np.ndarray, np.ndarray]
+            Features (X) and targets (y) as numpy arrays.
+        """
+
+    @abstractmethod
+    def get_subset(
+        self, X: np.ndarray, y: np.ndarray, indices: Sequence[int]
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Return a subset of the data.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Feature array.
+        y : np.ndarray
+            Target array.
+        indices : Sequence[int]
+            The indices to extract.
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray]
+            Subset of features and targets.
         """

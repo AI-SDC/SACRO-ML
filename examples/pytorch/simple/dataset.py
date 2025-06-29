@@ -8,12 +8,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, Dataset, Subset, TensorDataset
 
-from sacroml.attacks.data import DataHandler
+from sacroml.attacks.data import PyTorchDataHandler
 
 random_state = 2
 
 
-class Synthetic(DataHandler):
+class Synthetic(PyTorchDataHandler):
     """Synthetic dataset handler."""
 
     def __init__(self) -> None:

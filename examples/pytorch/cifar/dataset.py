@@ -6,10 +6,10 @@ from torch.utils.data import ConcatDataset, DataLoader, Dataset, Subset
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-from sacroml.attacks.data import DataHandler
+from sacroml.attacks.data import PyTorchDataHandler
 
 
-class Cifar10(DataHandler):
+class Cifar10(PyTorchDataHandler):
     """CIFAR10 dataset handler."""
 
     def __init__(self) -> None:
