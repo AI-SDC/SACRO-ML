@@ -6,6 +6,7 @@ import logging
 import os
 import pickle
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -14,8 +15,11 @@ import pandas as pd
 import sklearn
 import torch
 import yaml
+from torch.utils.data import DataLoader, Dataset
 
-from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.data import PyTorchDataHandler
+from sacroml.attacks.model import create_dataset
+from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
 
 MODEL_REGISTRY: dict[str, Any] = {
@@ -34,6 +38,8 @@ DATA_ATTRIBUTES: list[str] = [
     "y_test_orig",
     "proba_train",
     "proba_test",
+    "indices_train",
+    "indices_test",
 ]
 
 logging.basicConfig(level=logging.INFO)
@@ -86,6 +92,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
         The model predicted training probabilities.
     proba_test : np.ndarray or None
         The model predicted testing probabilities.
+    indices_train : Sequence[int] or None
+        Indices of training set samples.
+    indices_test : Sequence[int] or None
+        Indices of test set samples.
     safemodel : list
         Results of safemodel disclosure checking.
     """
@@ -115,6 +125,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
     y_test_orig: np.ndarray | None = None
     proba_train: np.ndarray | None = None
     proba_test: np.ndarray | None = None
+    indices_train: Sequence[int] | None = None
+    indices_test: Sequence[int] | None = None
 
     # Safemodel properties
     safemodel: list = field(default_factory=list)
@@ -151,6 +163,39 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if isinstance(model, (SklearnModel, PytorchModel)):
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
+
+    def load_pytorch_dataset(self, dry_run: bool = False) -> bool:  # pragma: no cover
+        """Wrap dataset for Pytorch models given a dataset Python script."""
+        if self.dataset_module_path != "" and isinstance(self.model, PytorchModel):
+            if self.indices_train is None or self.indices_test is None:
+                logger.warning("Can't load dataset because indices are unavailable")
+                return False
+
+            try:
+                # Create a new data object with a supplied class
+                data: PyTorchDataHandler = create_dataset(
+                    self.dataset_module_path, self.dataset_name
+                )
+                # Get processed dataset
+                ds: Dataset = data.get_dataset()
+                # Get dataloaders
+                train_loader: DataLoader = data.get_dataloader(ds, self.indices_train)
+                test_loader: DataLoader = data.get_dataloader(ds, self.indices_test)
+                # Convert to numpy
+                self.X_train, self.y_train = dataloader_to_numpy(train_loader)
+                self.X_test, self.y_test = dataloader_to_numpy(test_loader)
+                for arr in ("X_train", "y_train", "X_test", "y_test"):
+                    logger.info("Loaded: %s shape: %s", arr, getattr(self, arr).shape)
+                return True
+            except Exception as e:  # pragma: no cover
+                raise ValueError(f"Failed to load data using class: {e}") from e
+
+            # Avoid copying data to target folder
+            if dry_run:
+                self.X_train, self.y_train = None, None
+                self.X_test, self.y_test = None, None
+
+        return False
 
     @property
     def n_features(self) -> int:
@@ -255,6 +300,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
         for attr in DATA_ATTRIBUTES:
             self._load_array(path, target, attr)
 
+        self.load_pytorch_dataset()
+
     def _save_model(self, path: str, ext: str, target: dict) -> None:
         """Save model to disk."""
         if self.model is None:  # pragma: no cover
@@ -338,13 +385,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
         setattr(self, attr_name, arr)
 
-    def _load_pickle(self, path: str, name: str) -> np.ndarray:  # pragma: no cover
+    def _load_pickle(self, path: str, name: str) -> Any:  # pragma: no cover
         """Load array from pickle file."""
         try:
             with open(path, "rb") as f:
                 arr = pickle.load(f)
                 if hasattr(arr, "shape"):
                     logger.info("%s shape: %s", name, arr.shape)
+                elif isinstance(arr, Sequence) and not isinstance(arr, str):
+                    logger.info("%s length: %d", name, len(arr))
                 else:
                     logger.info("%s is a scalar value", name)
                 return arr

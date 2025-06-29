@@ -601,7 +601,7 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
         }
         if hasattr(self, "k_anonymity"):
             output["k_anonymity"] = str(self.k_anonymity)
-        if not disclosive_prel and not disclosive_post:
+        if not disclosive_prel and not disclosive_post:  # pragma: no cover
             output["recommendation"] = "Proceed to next step of checking"
         else:
             output["recommendation"] = "Do not allow release"
