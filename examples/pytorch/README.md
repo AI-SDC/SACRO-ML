@@ -1,11 +1,11 @@
-# Example Pytorch Model Training and Assessment
+# Example PyTorch Model Training and Assessment
 
 ## Contents
 
 ```md
 pytorch
-├── simple/ [Contains a very simple Pytorch example]
-│   ├── dataset.py [Contains dataset module for loading CIFAR10]
+├── simple/ [Contains a very simple PyTorch example]
+│   ├── dataset.py [Contains example dataset class]
 │   ├── model.py [Contains example model class]
 │   ├── train.py [Contains example training function]
 │   ├── train_pytorch.py [Trains example model and creates the required target_dir/]
