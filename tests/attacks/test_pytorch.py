@@ -66,14 +66,14 @@ def test_pytorch() -> None:
     # Test saving and loading
     target.save(target_dir)
 
-    loaded_target = Target()
-    loaded_target.load(target_dir)
+    tgt = Target()
+    tgt.load(target_dir)
 
-    assert loaded_target.dataset_name == target.dataset_name
-    assert loaded_target.X_train is not None
-    assert loaded_target.y_train is not None
-    assert loaded_target.X_test is not None
-    assert loaded_target.y_test is not None
+    assert tgt.dataset_name == target.dataset_name
+    assert tgt.X_train is not None
+    assert tgt.y_train is not None
+    assert tgt.X_test is not None
+    assert tgt.y_test is not None
 
     # Test worst case attack
     attack = WorstCaseAttack(
@@ -85,7 +85,7 @@ def test_pytorch() -> None:
         test_prop=0.5,
         output_dir=output_dir,
     )
-    output = attack.attack(loaded_target)
+    output = attack.attack(tgt)
     assert output
 
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
@@ -93,18 +93,32 @@ def test_pytorch() -> None:
 
     # Test structural attack
     attack = StructuralAttack(output_dir=output_dir)
-    output = attack.attack(loaded_target)
+    output = attack.attack(tgt)
     assert not output  # expected not to run
 
     # Test attribute attack
     attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
-    output = attack.attack(loaded_target)
+    output = attack.attack(tgt)
     assert not output  # expected not to run
 
     # Test LiRA attack
     attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
-    output = attack.attack(loaded_target)
+    output = attack.attack(tgt)
     assert output
 
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert metrics["AUC"] > 0
+
+    # Test generalisation function
+    res = tgt.model.get_generalisation_error(
+        tgt.X_train, tgt.y_train, tgt.X_test, tgt.y_test
+    )
+    assert res < 0
+
+    # Test score function
+    res = tgt.model.score(tgt.X_test, tgt.y_test)
+    assert res > 0
+
+    # Test predict function
+    res = tgt.model.predict(tgt.X_test)
+    assert len(res) > 0
