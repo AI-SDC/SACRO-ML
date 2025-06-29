@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "n_kernal": 5,
     }
     train_params = {
-        "epochs": 2,
+        "epochs": 100,
         "learning_rate": 0.001,
         "momentum": 0.9,
     }
