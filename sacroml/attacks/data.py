@@ -20,16 +20,6 @@ class BaseDataHandler(ABC):
     def __len__(self) -> int:
         """Return the length of the dataset."""
 
-    @abstractmethod
-    def get_train_test_indices(self) -> tuple[Sequence[int], Sequence[int]]:
-        """Return train and test set indices.
-
-        Returns
-        -------
-        tuple[Sequence[int], Sequence[int]]
-            Indices of the training and test samples.
-        """
-
 
 class PyTorchDataHandler(BaseDataHandler):
     """PyTorch dataset handling interface."""
