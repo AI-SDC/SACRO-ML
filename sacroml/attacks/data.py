@@ -9,7 +9,7 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 
 
-class BaseDataHandler(ABC):
+class BaseDataHandler(ABC):  # pylint: disable=too-few-public-methods
     """Base data handling interface."""
 
     @abstractmethod
