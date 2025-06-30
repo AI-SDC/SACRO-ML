@@ -47,10 +47,13 @@ def _get_arrays(target: Target, arrays: list[str]) -> None:
 def _get_dataset_name(target: Target, is_module: bool = False) -> None:
     """Prompt user for the name of a dataset."""
     if is_module:
+        classes = utils.get_class_names(path=target.dataset_module_path)
+        completer = WordCompleter(classes)
         msg = "What is the name of the dataset class? "
+        name = prompt(msg, completer=completer)
     else:
-        msg = "What is the name of the dataset? "
-    target.dataset_name = prompt(msg)
+        name = prompt("What is the name of the dataset? ")
+    target.dataset_name = name
 
 
 def _get_feature_encoding(feat: int) -> str:
@@ -112,9 +115,12 @@ def _get_model_type() -> str:
             return model_type
 
 
-def _get_model_name() -> str:
+def _get_model_name(path: str) -> str:
     """Prompt user for saved model class name."""
-    return prompt("What is the model class name? ")
+    classes = utils.get_class_names(path=path)
+    completer = WordCompleter(classes)
+    msg = "What is the model class name? "
+    return prompt(msg, completer=completer)
 
 
 def _get_model_module_path() -> str:
@@ -198,6 +204,8 @@ def _get_proba(target: Target) -> None:
 def _get_indices(target: Target) -> None:
     """Prompt user for data train/test indices."""
     if not utils.get_bool("Do you have the train/test indices?"):
+        print("Train/test indices are required when supplying dataset modules.")
+        print("Please try again.")
         sys.exit()
     _get_arrays(target, arrays_indices)
 
@@ -281,7 +289,7 @@ def prompt_for_target() -> None:
 
     if model_type == "PytorchModel":
         model_module_path: str = _get_model_module_path()
-        model_name: str = _get_model_name()
+        model_name: str = _get_model_name(path=model_module_path)
         model_params: dict = _get_model_params()
         train_module_path: str = _get_train_module_path()
         train_params: dict = _get_train_params()
