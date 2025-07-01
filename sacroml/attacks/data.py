@@ -35,6 +35,16 @@ class PyTorchDataHandler(BaseDataHandler):
         """
 
     @abstractmethod
+    def get_raw_dataset(self) -> Dataset | None:
+        """Return a processed dataset.
+
+        Returns
+        -------
+        Dataset | None
+            A (processed) PyTorch dataset.
+        """
+
+    @abstractmethod
     def get_dataloader(
         self, dataset: Dataset, indices: Sequence[int], batch_size: int = 32
     ) -> DataLoader:
@@ -66,6 +76,16 @@ class SklearnDataHandler(BaseDataHandler):  # pragma: no cover
         Returns
         -------
         tuple[np.ndarray, np.ndarray]
+            Features (X) and targets (y) as numpy arrays.
+        """
+
+    @abstractmethod
+    def get_raw_data(self) -> tuple[np.ndarray, np.ndarray] | None:
+        """Return the original unprocessed data arrays.
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray] | None
             Features (X) and targets (y) as numpy arrays.
         """
 

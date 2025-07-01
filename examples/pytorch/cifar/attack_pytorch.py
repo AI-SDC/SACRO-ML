@@ -20,5 +20,5 @@ if __name__ == "__main__":
     attack = WorstCaseAttack(n_reps=10, output_dir=output_dir)
     output = attack.attack(target)
 
-    attack = LIRAAttack(n_shadow_models=20, output_dir=output_dir)
+    attack = LIRAAttack(n_shadow_models=40, output_dir=output_dir)
     output = attack.attack(target)

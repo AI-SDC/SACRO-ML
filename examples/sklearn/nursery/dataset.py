@@ -45,6 +45,10 @@ class Nursery(SklearnDataHandler):
         """Return the length of the dataset."""
         return len(self.X)
 
+    def get_raw_data(self) -> tuple[np.ndarray, np.ndarray] | None:
+        """Return the original raw data arrays."""
+        return self.X_orig, self.y_orig
+
     def get_data(self) -> tuple[np.ndarray, np.ndarray]:
         """Return the processed data arrays."""
         return self.X, self.y

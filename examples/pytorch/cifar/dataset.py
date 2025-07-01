@@ -48,6 +48,11 @@ class Cifar10(PyTorchDataHandler):
         """Return the length of the dataset."""
         return len(self.dataset)
 
+    def get_raw_dataset(self) -> Dataset | None:
+        """Return a raw unprocessed dataset."""
+        # Raw data only required for attribute inference
+        return None
+
     def get_dataset(self) -> Dataset:
         """Return a preprocessed dataset."""
         return self.dataset

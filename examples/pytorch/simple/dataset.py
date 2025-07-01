@@ -29,11 +29,16 @@ class Synthetic(PyTorchDataHandler):
             random_state=random_state,
         )
 
+        # Store raw unprocessed data
+        X_tensor = torch.FloatTensor(self.X)
+        y_tensor = torch.LongTensor(self.y)
+        self.raw_dataset = TensorDataset(X_tensor, y_tensor)
+
         # Preprocess
         self.feature_encoder = StandardScaler()
         X_transformed = self.feature_encoder.fit_transform(self.X)
 
-        # Convert to PyTorch tensors
+        # Store processed data
         X_tensor = torch.FloatTensor(X_transformed)
         y_tensor = torch.LongTensor(self.y)
         self.dataset = TensorDataset(X_tensor, y_tensor)
@@ -41,6 +46,10 @@ class Synthetic(PyTorchDataHandler):
     def __len__(self) -> int:
         """Return the length of the dataset."""
         return len(self.dataset)
+
+    def get_raw_dataset(self) -> Dataset | None:
+        """Return a raw unprocessed dataset."""
+        return self.raw_dataset
 
     def get_dataset(self) -> Dataset:
         """Return a preprocessed dataset."""
