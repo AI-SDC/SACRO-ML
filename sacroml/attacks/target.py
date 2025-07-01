@@ -351,7 +351,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
                 self.load_pytorch_dataset()
             elif isinstance(self.model, SklearnModel):
                 self.load_sklearn_dataset()
-            else:
+            else:  # pragma: no cover
                 logger.warning("Dataset module supplied for unsupported model type.")
 
     def _save_model(self, path: str, ext: str, target: dict) -> None:

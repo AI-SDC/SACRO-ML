@@ -11,15 +11,15 @@ output_dir = "target_rf_nursery"
 
 if __name__ == "__main__":
     logging.info("Loading dataset")
-    data = Nursery()
+    handler = Nursery()
 
     logging.info("Splitting data into training and test sets")
-    indices_train, indices_test = data.get_train_test_indices()
+    indices_train, indices_test = handler.get_train_test_indices()
 
     logging.info("Getting data")
-    X, y = data.get_data()
-    X_train, y_train = data.get_subset(X, y, indices_train)
-    X_test, y_test = data.get_subset(X, y, indices_test)
+    X, y = handler.get_data()
+    X_train, y_train = handler.get_subset(X, y, indices_train)
+    X_test, y_test = handler.get_subset(X, y, indices_test)
 
     logging.info("Defining the model")
     model = RandomForestClassifier(bootstrap=False)
@@ -41,9 +41,9 @@ if __name__ == "__main__":
     )
 
     logging.info("Wrapping feature details and encoding for attribute inference")
-    for i, index in enumerate(data.feature_indices):
+    for i, index in enumerate(handler.feature_indices):
         target.add_feature(
-            name=data.feature_names[i],
+            name=handler.feature_names[i],
             indices=index,
             encoding="onehot",
         )
