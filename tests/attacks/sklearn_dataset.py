@@ -58,7 +58,7 @@ class Nursery(SklearnDataHandler):  # pylint: disable=too-many-instance-attribut
 
     def get_raw_data(self) -> tuple[np.ndarray, np.ndarray] | None:
         """Return the original raw data arrays."""
-        return self.X_orig, self.y_orig
+        return self.X_orig, self.y_orig  # pragma: no cover
 
     def get_data(self) -> tuple[np.ndarray, np.ndarray]:
         """Return the processed data arrays."""

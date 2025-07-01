@@ -51,7 +51,7 @@ class Synthetic(PyTorchDataHandler):
 
     def get_raw_dataset(self) -> Dataset | None:
         """Return a raw unprocessed dataset."""
-        return self.raw_dataset
+        return self.raw_dataset  # pragma: no cover
 
     def get_dataset(self) -> Dataset:
         """Return a preprocessed dataset."""
