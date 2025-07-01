@@ -199,10 +199,13 @@ class PytorchModel(Model):
         with torch.no_grad():
             x_tensor = torch.tensor(X, dtype=torch.float32).to(device)
             logits = self.model(x_tensor)
-            probabilities = softmax(logits, dim=1)
+            logits = torch.where(  # guard against nans
+                torch.isfinite(logits), logits, torch.zeros_like(logits)
+            )
+            probs = softmax(logits, dim=1)
 
         self.model.to("cpu")
-        return probabilities.cpu().numpy()  # should be softmax values
+        return probs.cpu().numpy()
 
     def get_classes(self) -> np.ndarray:  # pragma: no cover
         """Return the classes the model was trained to predict.
