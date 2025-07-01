@@ -10,6 +10,7 @@ from sacroml.attacks.target import Target
 
 output_dir = "target_rf_breast_cancer"
 
+
 if __name__ == "__main__":
     logging.info("Loading dataset")
     X, y = load_breast_cancer(return_X_y=True, as_frame=False)

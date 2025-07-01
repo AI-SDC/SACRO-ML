@@ -3,7 +3,7 @@
 ## Contents
 
 ```md
-pytorch
+pytorch/
 ├── simple/ [Contains a very simple PyTorch example]
 │   ├── dataset.py [Contains example dataset class]
 │   ├── model.py [Contains example model class]
