@@ -176,6 +176,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def load_pytorch_dataset(self) -> None:  # pragma: no cover
         """Wrap dataset for Pytorch models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
             handler: PyTorchDataHandler = create_dataset(
@@ -209,6 +211,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
     def load_sklearn_dataset(self) -> None:  # pragma: no cover
         """Wrap dataset for scikit-learn models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
             handler: SklearnDataHandler = create_dataset(
@@ -343,8 +347,6 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self._load_array(path, target, attr)
 
         if self.dataset_module_path != "":
-            if self.indices_train is None or self.indices_test is None:
-                raise ValueError("Can't load dataset module without indices.")
             if isinstance(self.model, PytorchModel):
                 self.load_pytorch_dataset()
             elif isinstance(self.model, SklearnModel):
