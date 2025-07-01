@@ -24,16 +24,16 @@ torch.cuda.manual_seed_all(random_state)
 def test_pytorch() -> None:
     """Test PyTorch handling."""
     # Access dataset
-    data_handler = Synthetic()
+    handler = Synthetic()
 
     # Get the (preprocessed) dataset
-    dataset = data_handler.get_dataset()
+    dataset = handler.get_dataset()
 
     # Create data splits
-    indices_train, indices_test = data_handler.get_train_test_indices()
+    indices_train, indices_test = handler.get_train_test_indices()
 
     # Get dataloaders
-    train_loader = data_handler.get_dataloader(dataset, indices_train)
+    train_loader = handler.get_dataloader(dataset, indices_train)
 
     # Make and fit model
     model_params = {
@@ -62,6 +62,13 @@ def test_pytorch() -> None:
         indices_train=indices_train,
         indices_test=indices_test,
     )
+
+    for i in range(model_params["x_dim"]):
+        target.add_feature(
+            name=f"X{i}",
+            indices=[i],
+            encoding="float",
+        )
 
     # Test saving and loading
     target.save(target_dir)
@@ -99,7 +106,7 @@ def test_pytorch() -> None:
     # Test attribute attack
     attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
     output = attack.attack(tgt)
-    assert not output  # expected not to run
+    assert output
 
     # Test LiRA attack
     attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
