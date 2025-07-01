@@ -30,10 +30,10 @@ To run a programmatic example:
 1. Run the relevant training script.
 2. Run the desired attack script.
 
-For example:
+For example, from the `sklearn/cancer/` folder:
 ```
-$ python -m examples.train_rf_breast_cancer
-$ python -m examples.attack_lira
+$ python -m train_rf_cancer
+$ python -m attack_rf_cancer
 ```
 
 ## CLI Execution
@@ -42,11 +42,11 @@ $ python -m examples.attack_lira
 2. Generate an `attack.yaml` config.
 3. Run the attack CLI tool.
 
-For example:
+For example, from the `sklearn/cancer/` folder:
 ```
-$ python -m examples.train_rf_nursery
+$ python -m train_rf_cancer
 $ sacroml gen-attack
-$ sacroml run target_rf_nursery attack.yaml
+$ sacroml run target_rf_cancer attack.yaml
 ```
 
 The `sacroml` package provides three basic commands:
