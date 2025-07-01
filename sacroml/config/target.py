@@ -15,6 +15,7 @@ from prompt_toolkit.completion import PathCompleter, WordCompleter
 
 from sacroml.attacks.model import create_model
 from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.model_sklearn import SklearnModel
 from sacroml.attacks.target import MODEL_REGISTRY, Target
 from sacroml.config import utils
 from sacroml.version import __version__
@@ -225,8 +226,9 @@ def _get_dataset_module_path(target: Target) -> None:
 def _get_dataset_module(target: Target) -> None:
     """Prompt user for dataset module information."""
     # Check dataset loading is supported for this model
-    if not isinstance(target.model, PytorchModel):
-        print("Dataset modules only support PytorchModel currently.")
+    models = (PytorchModel, SklearnModel)
+    if not isinstance(target.model, models):
+        print(f"Dataset modules only support {models} models currently.")
         print("Please try again.")
         sys.exit()
 
@@ -236,12 +238,15 @@ def _get_dataset_module(target: Target) -> None:
     _get_indices(target)
 
     # Test loading the dataset
-    if target.load_pytorch_dataset(dry_run=True):
-        print(f"Successfully loaded: {target.dataset_name}")
-    else:
-        print(f"Unable to loaded: {target.dataset_name}")
-        print("Please try again.")
-        sys.exit()
+    if isinstance(target.model, PytorchModel):
+        target.load_pytorch_dataset()
+    elif isinstance(target.model, SklearnModel):
+        target.load_sklearn_dataset()
+
+    # Avoid copying data to the target folder
+    target.X_train, target.y_train = None, None
+    target.X_test, target.y_test = None, None
+    print(f"Successfully loaded: {target.dataset_name}")
 
 
 def _load_model(model_path: str) -> Any:

@@ -17,7 +17,7 @@ import torch
 import yaml
 from torch.utils.data import DataLoader, Dataset
 
-from sacroml.attacks.data import PyTorchDataHandler
+from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
 from sacroml.attacks.model import create_dataset
 from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
@@ -164,38 +164,47 @@ class Target:  # pylint: disable=too-many-instance-attributes
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
 
-    def load_pytorch_dataset(self, dry_run: bool = False) -> bool:  # pragma: no cover
+    def load_pytorch_dataset(self) -> None:  # pragma: no cover
         """Wrap dataset for Pytorch models given a dataset Python script."""
-        if self.dataset_module_path != "" and isinstance(self.model, PytorchModel):
-            if self.indices_train is None or self.indices_test is None:
-                logger.warning("Can't load dataset because indices are unavailable")
-                return False
+        try:
+            # Create a new data object with a supplied class
+            data: PyTorchDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
 
-            try:
-                # Create a new data object with a supplied class
-                data: PyTorchDataHandler = create_dataset(
-                    self.dataset_module_path, self.dataset_name
-                )
-                # Get processed dataset
-                ds: Dataset = data.get_dataset()
-                # Get dataloaders
-                train_loader: DataLoader = data.get_dataloader(ds, self.indices_train)
-                test_loader: DataLoader = data.get_dataloader(ds, self.indices_test)
-                # Convert to numpy
-                self.X_train, self.y_train = dataloader_to_numpy(train_loader)
-                self.X_test, self.y_test = dataloader_to_numpy(test_loader)
-                for arr in ("X_train", "y_train", "X_test", "y_test"):
-                    logger.info("Loaded: %s shape: %s", arr, getattr(self, arr).shape)
-                return True
-            except Exception as e:  # pragma: no cover
-                raise ValueError(f"Failed to load data using class: {e}") from e
+            # Get processed dataset
+            ds: Dataset = data.get_dataset()
 
-            # Avoid copying data to target folder
-            if dry_run:
-                self.X_train, self.y_train = None, None
-                self.X_test, self.y_test = None, None
+            # Get dataloaders
+            train_loader: DataLoader = data.get_dataloader(ds, self.indices_train)
+            test_loader: DataLoader = data.get_dataloader(ds, self.indices_test)
 
-        return False
+            # Convert to numpy
+            self.X_train, self.y_train = dataloader_to_numpy(train_loader)
+            self.X_test, self.y_test = dataloader_to_numpy(test_loader)
+            for arr in ("X_train", "y_train", "X_test", "y_test"):
+                logger.info("Loaded: %s shape: %s", arr, getattr(self, arr).shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
+
+    def load_sklearn_dataset(self) -> None:  # pragma: no cover
+        """Wrap dataset for scikit-learn models given a dataset Python script."""
+        try:
+            # Create a new data object with a supplied class
+            data: SklearnDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
+
+            # Get processed dataset
+            X, y = data.get_data()
+            self.X_train, self.y_train = data.get_subset(X, y, self.indices_train)
+            self.X_test, self.y_test = data.get_subset(X, y, self.indices_test)
+            for arr in ("X_train", "y_train", "X_test", "y_test"):
+                logger.info("Loaded: %s shape: %s", arr, getattr(self, arr).shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
 
     @property
     def n_features(self) -> int:
@@ -300,7 +309,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
         for attr in DATA_ATTRIBUTES:
             self._load_array(path, target, attr)
 
-        self.load_pytorch_dataset()
+        if self.dataset_module_path != "":
+            if self.indices_train is None or self.indices_test is None:
+                raise ValueError("Can't load dataset module without indices.")
+            if isinstance(self.model, PytorchModel):
+                self.load_pytorch_dataset()
+            elif isinstance(self.model, SklearnModel):
+                self.load_sklearn_dataset()
+            else:
+                raise ValueError("Dataset module supplied for unsupported model type.")
 
     def _save_model(self, path: str, ext: str, target: dict) -> None:
         """Save model to disk."""
