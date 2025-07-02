@@ -84,8 +84,139 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="structural-attack">
-<h1>Structural Attack<a class="headerlink" href="#structural-attack" title="Link to this heading"></a></h1>
+  <section id="module-sacroml.attacks.structural_attack">
+<span id="structural-attack"></span><h1>Structural Attack<a class="headerlink" href="#module-sacroml.attacks.structural_attack" title="Link to this heading"></a></h1>
+<p>Structural attacks.</p>
+<p>Runs a number of ‘static’ structural attacks based on:
+(i) the target model’s properties;
+(ii) the TREs risk appetite as applied to tables and standard regressions.</p>
+<p>Tree-based model types currently supported.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.attacks.structural_attack.</span></span><span class="sig-name descname"><span class="pre">StructuralAttack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">risk_appetite_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#StructuralAttack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack" title="Link to this definition"></a></dt>
+<dd><p>Structural attacks based on the static structure of a model.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.structural_attack.StructuralAttack.attack" title="sacroml.attacks.structural_attack.StructuralAttack.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(target)</p></td>
+<td><p>Check whether an attack can be performed and run the attack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.structural_attack.StructuralAttack.attackable" title="sacroml.attacks.structural_attack.StructuralAttack.attackable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attackable</span></code></a>(target)</p></td>
+<td><p>Return whether a target can be assessed with StructuralAttack.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes" title="sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dt_get_equivalence_classes</span></code></a>()</p></td>
+<td><p>Get details of equivalence classes based on white box inspection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.structural_attack.StructuralAttack.get_equivalence_classes" title="sacroml.attacks.structural_attack.StructuralAttack.get_equivalence_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_equivalence_classes</span></code></a>()</p></td>
+<td><p>Get details of equivalence classes based on predicted probabilities.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.structural_attack.StructuralAttack.get_params" title="sacroml.attacks.structural_attack.StructuralAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
+<td><p>Get parameters for this attack.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.attackable">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attackable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#StructuralAttack.attackable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.attackable" title="Link to this definition"></a></dt>
+<dd><p>Return whether a target can be assessed with StructuralAttack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">risk_appetite_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#StructuralAttack.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct an object to execute a structural attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>Name of a directory to write outputs.</p>
+</dd>
+<dt><strong>write_report</strong><span class="classifier">bool</span></dt><dd><p>Whether to generate a JSON and PDF report.</p>
+</dd>
+<dt><strong>risk_appetite_config</strong><span class="classifier">str</span></dt><dd><p>Path to yaml file specifying TRE risk appetite.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.attack">
+<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.attack" title="Link to this definition"></a></dt>
+<dd><p>Check whether an attack can be performed and run the attack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes">
+<span class="sig-name descname"><span class="pre">dt_get_equivalence_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#StructuralAttack.dt_get_equivalence_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes" title="Link to this definition"></a></dt>
+<dd><p>Get details of equivalence classes based on white box inspection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.get_equivalence_classes">
+<span class="sig-name descname"><span class="pre">get_equivalence_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#StructuralAttack.get_equivalence_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.get_equivalence_classes" title="Link to this definition"></a></dt>
+<dd><p>Get details of equivalence classes based on predicted probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.StructuralAttack.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.structural_attack.StructuralAttack.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters for this attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params</strong><span class="classifier">dict</span></dt><dd><p>Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.get_model_param_count">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.structural_attack.</span></span><span class="sig-name descname"><span class="pre">get_model_param_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseEstimator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#get_model_param_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.get_model_param_count" title="Link to this definition"></a></dt>
+<dd><p>Return the number of trained parameters in a model.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.get_tree_parameter_count">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.structural_attack.</span></span><span class="sig-name descname"><span class="pre">get_tree_parameter_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DecisionTreeClassifier</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#get_tree_parameter_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.get_tree_parameter_count" title="Link to this definition"></a></dt>
+<dd><p>Read the tree structure and return the number of learned parameters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.attacks.structural_attack.get_unnecessary_risk">
+<span class="sig-prename descclassname"><span class="pre">sacroml.attacks.structural_attack.</span></span><span class="sig-name descname"><span class="pre">get_unnecessary_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseEstimator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/structural_attack.html#get_unnecessary_risk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.structural_attack.get_unnecessary_risk" title="Link to this definition"></a></dt>
+<dd><p>Check whether model hyperparameters are in the top 20% most risky.</p>
+<p>This check is designed to assess whether a model is likely to be
+<strong>unnecessarily</strong> risky, i.e., whether it is highly likely that a different
+combination of hyper-parameters would have led to model with similar or
+better accuracy on the task but with lower membership inference risk.</p>
+<p>The rules applied from an experimental study using a grid search in which:
+- max_features was one-hot encoded from the set [None, log2, sqrt]
+- splitter was encoded using 0=best, 1=random</p>
+<p>The target models created were then subject to membership inference attacks
+(MIA) and the hyper-param combinations rank-ordered according to MIA AUC.
+Then a decision tree trained to recognise whether hyper-params combintions
+were in the 20% most risky.  The rules below were extracted from that tree
+for the ‘least risky’ nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model</strong><span class="classifier">BaseEstimator</span></dt><dd><p>Model to check for risk.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>bool</dt><dd><p>True if high risk, otherwise False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

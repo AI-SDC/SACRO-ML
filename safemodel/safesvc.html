@@ -85,6 +85,275 @@
   <section id="safesvc">
 <h1>SafeSVC<a class="headerlink" href="#safesvc" title="Link to this heading"></a></h1>
 <p>An example Python Notebook is available  <a class="reference external" href="https://github.com/AI-SDC/SACRO-ML/blob/main/examples/notebooks/example-notebook-SVC.ipynb">Here</a></p>
+<p id="module-sacroml.safemodel.classifiers.safesvc">Privacy protected Support Vector Classifier.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.safemodel.classifiers.safesvc.</span></span><span class="sig-name descname"><span class="pre">SafeSVC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scale'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safesvc.html#SafeSVC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC" title="Link to this definition"></a></dt>
+<dd><p>Privacy protected Support Vector Classifier.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.additional_checks" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.additional_checks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">additional_checks</span></code></a>(curr_separate, saved_separate)</p></td>
+<td><p>SVC specific checks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperate_items" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperate_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">examine_seperate_items</span></code></a>(curr_vals, saved_vals)</p></td>
+<td><p>Check model-specific items exist in both current and saved copies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.fit" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_features, train_labels)</p></td>
+<td><p>Fit model and store model dict.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.get_current_and_saved_models" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.get_current_and_saved_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_and_saved_models</span></code></a>()</p></td>
+<td><p>Copy self.__dict__ and split into dicts for current and saved versions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.get_params" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<td><p>Get a dictionary of parameter values restricted to those expected.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">k_hat_svm</span></code></a>(x[, y])</p></td>
+<td><p>Define the version which is sent to sklearn.svm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">phi_hat</span></code></a>(input_vector)</p></td>
+<td><p>Project a single feature.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat_multi" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat_multi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">phi_hat_multi</span></code></a>(input_features)</p></td>
+<td><p>Compute feature space for a matrix of inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.posthoc_check" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.posthoc_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">posthoc_check</span></code></a>()</p></td>
+<td><p>Check whether model has been interfered with since fit() was last run.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.predict" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(test_features)</p></td>
+<td><p>Return the predictions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.predict_proba" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(test_features)</p></td>
+<td><p>Return the predictive probabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.preliminary_check" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.preliminary_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preliminary_check</span></code></a>([verbose, apply_constraints])</p></td>
+<td><p>Check whether current model parameters violate the safe rules.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.request_release" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.request_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_release</span></code></a>(path, ext[, target])</p></td>
+<td><p>Save model and create a report for the TRE output checkers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.run_attack" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.run_attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_attack</span></code></a>(target, attack_name[, output_dir])</p></td>
+<td><p>Run a specified attack on the trained model and save report to file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.save" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([name])</p></td>
+<td><p>Write model to file in appropriate format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.set_params" title="sacroml.safemodel.classifiers.safesvc.SafeSVC.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**kwargs)</p></td>
+<td><p>Set params.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scale'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safesvc.html#SafeSVC.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialise a differentially private SVC.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.additional_checks">
+<span class="sig-name descname"><span class="pre">additional_checks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safesvc.html#SafeSVC.additional_checks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.additional_checks" title="Link to this definition"></a></dt>
+<dd><p>SVC specific checks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperate_items">
+<span class="sig-name descname"><span class="pre">examine_seperate_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperate_items" title="Link to this definition"></a></dt>
+<dd><p>Check model-specific items exist in both current and saved copies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safesvc.html#SafeSVC.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit model and store model dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.get_current_and_saved_models">
+<span class="sig-name descname"><span class="pre">get_current_and_saved_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.get_current_and_saved_models" title="Link to this definition"></a></dt>
+<dd><p>Copy self.__dict__ and split into dicts for current and saved versions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get a dictionary of parameter values restricted to those expected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm">
+<span class="sig-name descname"><span class="pre">k_hat_svm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm" title="Link to this definition"></a></dt>
+<dd><p>Define the version which is sent to sklearn.svm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat">
+<span class="sig-name descname"><span class="pre">phi_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat" title="Link to this definition"></a></dt>
+<dd><p>Project a single feature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat_multi">
+<span class="sig-name descname"><span class="pre">phi_hat_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.phi_hat_multi" title="Link to this definition"></a></dt>
+<dd><p>Compute feature space for a matrix of inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.posthoc_check">
+<span class="sig-name descname"><span class="pre">posthoc_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.posthoc_check" title="Link to this definition"></a></dt>
+<dd><p>Check whether model has been interfered with since fit() was last run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.predict" title="Link to this definition"></a></dt>
+<dd><p>Return the predictions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.predict_proba" title="Link to this definition"></a></dt>
+<dd><p>Return the predictive probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.preliminary_check">
+<span class="sig-name descname"><span class="pre">preliminary_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.preliminary_check" title="Link to this definition"></a></dt>
+<dd><p>Check whether current model parameters violate the safe rules.</p>
+<p>Optionally fixes violations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>A boolean value to determine increased output level.</p>
+</dd>
+<dt><strong>apply_constraints</strong><span class="classifier">bool</span></dt><dd><p>A boolean to determine whether identified constraints are
+to be upheld and applied.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>msg</strong><span class="classifier">string</span></dt><dd><p>A message string.</p>
+</dd>
+<dt><strong>disclosive</strong><span class="classifier">bool</span></dt><dd><p>A boolean value indicating whether the model is potentially
+disclosive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.request_release">
+<span class="sig-name descname"><span class="pre">request_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../attacks/target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.request_release" title="Link to this definition"></a></dt>
+<dd><p>Save model and create a report for the TRE output checkers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">string</span></dt><dd><p>Path to save the outputs.</p>
+</dd>
+<dt><strong>ext</strong><span class="classifier">str</span></dt><dd><p>File extension defining the model saved format, e.g., “pkl” or “sav”.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">attacks.target.Target</span></dt><dd><p>Contains model and dataset information.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If target is not null, then worst case MIA and attribute inference
+attacks are called via run_attack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.run_attack">
+<span class="sig-name descname"><span class="pre">run_attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../attacks/target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs_safemodel'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.run_attack" title="Link to this definition"></a></dt>
+<dd><p>Run a specified attack on the trained model and save report to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">Target</span></dt><dd><p>The target in the form of a Target object.</p>
+</dd>
+<dt><strong>attack_name</strong><span class="classifier">str</span></dt><dd><p>Name of the attack to run.</p>
+</dd>
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>Name of the directory to store JSON and PDF reports.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Metadata results.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'undefined'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.save" title="Link to this definition"></a></dt>
+<dd><p>Write model to file in appropriate format.</p>
+<p>Note this is overloaded in <cite>SafeKerasClassifer</cite>
+to deal with tensorflow specifics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">string</span></dt><dd><p>The name of the file to save.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Optimizer is deliberately excluded to prevent possible restart to
+training and thus possible back door into attacks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperately_items">
+<span class="sig-name descname"><span class="pre">examine_seperately_items</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.examine_seperately_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.ignore_items">
+<span class="sig-name descname"><span class="pre">ignore_items</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.ignore_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.model_load_file">
+<span class="sig-name descname"><span class="pre">model_load_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.model_load_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.model_save_file">
+<span class="sig-name descname"><span class="pre">model_save_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.model_save_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.model_type">
+<span class="sig-name descname"><span class="pre">model_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.model_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.researcher">
+<span class="sig-name descname"><span class="pre">researcher</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.researcher" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safesvc.SafeSVC.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sacroml.safemodel.classifiers.safesvc.SafeSVC.timestamp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
