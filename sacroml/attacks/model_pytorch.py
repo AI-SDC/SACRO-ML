@@ -131,7 +131,7 @@ class PytorchModel(Model):
             logits = model(x_tensor)
             _, y_pred = torch.max(logits, 1)
 
-        return y_pred.cpu().numpy()
+        return y_pred.cpu().numpy().astype(np.float64)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
         """Fit a model from scratch.
@@ -205,7 +205,7 @@ class PytorchModel(Model):
             probs = softmax(logits, dim=1)
 
         self.model.to("cpu")
-        return probs.cpu().numpy()
+        return probs.cpu().numpy().astype(np.float64)
 
     def get_classes(self) -> np.ndarray:  # pragma: no cover
         """Return the classes the model was trained to predict.
@@ -349,8 +349,8 @@ def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]
 
     with torch.no_grad():
         for inputs, labels in dataloader:
-            all_inputs.append(inputs.cpu().numpy())
-            all_labels.append(labels.cpu().numpy())
+            all_inputs.append(inputs.cpu().numpy().astype(np.float64))
+            all_labels.append(labels.cpu().numpy().astype(np.int32))
 
     X = np.concatenate(all_inputs, axis=0)
     y = np.concatenate(all_labels, axis=0)
