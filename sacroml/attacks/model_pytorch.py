@@ -379,10 +379,8 @@ def train_model(
         Path to Python code containing a train function.
     train_params : dict
         Parameters for executing the train function.
-    X : np.ndarray
-        Features of the samples to be fitted.
-    y : np.ndarray
-        Labels of the samples to be fitted.
+    dataloader : DataLoader
+        DataLoader with training data.
 
     Returns
     -------
