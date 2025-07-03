@@ -36,8 +36,8 @@ if __name__ == "__main__":
     indices_train, indices_test = data_handler.get_train_test_indices()
 
     # Get dataloaders
-    train_loader = data_handler.get_dataloader(dataset, indices_train)
-    test_loader = data_handler.get_dataloader(dataset, indices_test)
+    train_loader = data_handler.get_dataloader(dataset, indices_train, shuffle=True)
+    test_loader = data_handler.get_dataloader(dataset, indices_test, shuffle=False)
 
     logging.info("Defining the model")
 

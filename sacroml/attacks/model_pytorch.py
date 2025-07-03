@@ -153,7 +153,7 @@ class PytorchModel(Model):
             self.model_module_path, self.model_name, self.model_params
         )
         # Create a dataloader
-        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32)
+        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
         #  Fit using the provided train function
         return train_model(
             self.model, self.train_module_path, self.train_params, dataloader
@@ -357,13 +357,15 @@ def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]
     return X, y
 
 
-def numpy_to_dataloader(X: np.ndarray, y: np.ndarray, batch_size: int = 32):
+def numpy_to_dataloader(
+    X: np.ndarray, y: np.ndarray, batch_size: int = 32, shuffle: bool = False
+):
     """Convert numpy arrays to PyTorch DataLoader."""
     X_tensor = torch.from_numpy(X).float()
     y_tensor = torch.from_numpy(y).long()
 
     dataset = TensorDataset(X_tensor, y_tensor)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 
 def train_model(

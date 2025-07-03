@@ -58,11 +58,15 @@ class Synthetic(PyTorchDataHandler):
         return self.dataset
 
     def get_dataloader(
-        self, dataset: Dataset, indices: Sequence[int], batch_size: int = 32
+        self,
+        dataset: Dataset,
+        indices: Sequence[int],
+        batch_size: int = 32,
+        shuffle: bool = False,
     ) -> DataLoader:
         """Return a data loader with a requested subset of samples."""
         subset = Subset(dataset, indices)
-        return DataLoader(subset, batch_size=batch_size)
+        return DataLoader(subset, batch_size=batch_size, shuffle=shuffle)
 
     def get_train_test_indices(self) -> tuple[Sequence[int], Sequence[int]]:
         """Return train and test set indices."""

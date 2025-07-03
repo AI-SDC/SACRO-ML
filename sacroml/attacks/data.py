@@ -46,7 +46,11 @@ class PyTorchDataHandler(BaseDataHandler):
 
     @abstractmethod
     def get_dataloader(
-        self, dataset: Dataset, indices: Sequence[int], batch_size: int = 32
+        self,
+        dataset: Dataset,
+        indices: Sequence[int],
+        batch_size: int = 32,
+        shuffle: bool = False,
     ) -> DataLoader:
         """Return a data loader with a requested subset of samples.
 
@@ -58,6 +62,8 @@ class PyTorchDataHandler(BaseDataHandler):
             The indices to load from the dataset.
         batch_size : int
             The batch_size to sample the dataset.
+        shuffle : bool
+            Whether to shuffle the data.
 
         Returns
         -------
