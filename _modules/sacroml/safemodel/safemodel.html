@@ -714,7 +714,7 @@
         <span class="p">}</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;k_anonymity&quot;</span><span class="p">):</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;k_anonymity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_anonymity</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">disclosive_prel</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">disclosive_post</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">disclosive_prel</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">disclosive_post</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;recommendation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Proceed to next step of checking&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;recommendation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Do not allow release&quot;</span>
