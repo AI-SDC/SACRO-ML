@@ -1,4 +1,4 @@
-"""Example programmatically running attacks."""
+"""Example of how to run attacks on a model saved with the Target wrapper."""
 
 import logging
 
