@@ -1,4 +1,7 @@
-"""Nursery dataset handler for scikit-learn models."""
+"""Example dataset handler for the OpenML nursery dataset.
+
+Scikit-learn datasets must implement `sacroml.attacks.data.SklearnDataHandler`.
+"""
 
 from collections.abc import Sequence
 

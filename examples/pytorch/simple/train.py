@@ -1,4 +1,11 @@
-"""An example Pytorch training module."""
+"""An example PyTorch training module.
+
+This module must contain a `train` function with parameters:
+* model : torch.nn.Module
+* dataloader : torch.utils.data.DataLoader
+* Optional extra parameters may be included, as shown here.
+    - These must be passed to the wrapper Target `train_params` as a dict.
+"""
 
 import torch
 from torch import nn, optim

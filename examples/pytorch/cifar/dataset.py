@@ -1,4 +1,7 @@
-"""CIFAR10 dataset handler."""
+"""Example dataset handler for CIFAR10.
+
+PyTorch datasets must implement `sacroml.attacks.data.PyTorchDataHandler`.
+"""
 
 from collections.abc import Sequence
 

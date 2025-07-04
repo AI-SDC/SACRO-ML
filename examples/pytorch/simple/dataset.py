@@ -1,4 +1,7 @@
-"""Synthetic dataset handler."""
+"""Example dataset handler with Synthetic data.
+
+PyTorch datasets must implement `sacroml.attacks.data.PyTorchDataHandler`.
+"""
 
 from collections.abc import Sequence
 
