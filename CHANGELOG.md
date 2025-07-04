@@ -1,6 +1,6 @@
 # Changelog
 
-## Development
+## Version 1.4.0 (Jul 4, 2025)
 
 Changes:
 *   Improve attribute inference attack documentation ([#340](https://github.com/AI-SDC/SACRO-ML/pull/340))
