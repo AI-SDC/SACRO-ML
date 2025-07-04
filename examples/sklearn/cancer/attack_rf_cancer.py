@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     logging.info("Running LiRA attack")
     attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
-    output = attack.attack(target)
+    attack.attack(target)
 
     logging.info("Running worst case attack")
     attack = WorstCaseAttack(
@@ -29,10 +29,10 @@ if __name__ == "__main__":
         test_prop=0.5,
         output_dir=output_dir,
     )
-    output = attack.attack(target)
+    attack.attack(target)
 
     logging.info("Running structural attack")
     attack = StructuralAttack(output_dir=output_dir)
-    output = attack.attack(target)
+    attack.attack(target)
 
     logging.info("Report available in directory: '%s'", output_dir)
