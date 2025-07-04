@@ -1,4 +1,15 @@
-"""Train a Random Forest classifier on the nursery dataset."""
+"""Example training a Random Forest classifier on the OpenML nursery dataset.
+
+This example demonstrates how a dataset module can be supplied to the Target
+wrapper along with the train and test indices. This is in contrast to the
+breast cancer example where numpy arrays are passed directly.
+
+This example also shows how to add feature encoding information to the Target
+object. This is only necessary for attribute inference attacks.
+
+A directory is created with the saved model and dataset code, which can then
+be used to run attacks.
+"""
 
 import logging
 

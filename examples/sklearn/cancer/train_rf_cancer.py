@@ -1,4 +1,8 @@
-"""Train a Random Forest classifier on the breast cancer data."""
+"""Example training a Random Forest classifier on breast cancer data.
+
+This simple example demonstrates how the model and data can be passed to
+the Target wrapper, which creates a directory with all saved information.
+"""
 
 import logging
 
