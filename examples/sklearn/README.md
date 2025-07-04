@@ -18,8 +18,8 @@ sklearn/
 1. Run the relevant training script.
 2. Run the desired attack script.
 
-For example:
+For example, from the `cancer/` folder:
 ```
-$ python -m cancer.train_rf_cancer
-$ python -m cancer.attack_rf_cancer
+$ python -m train_rf_cancer
+$ python -m attack_rf_cancer
 ```
