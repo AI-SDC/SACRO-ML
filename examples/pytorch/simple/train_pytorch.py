@@ -1,4 +1,4 @@
-"""Train a Pytorch classifier on a synthetic dataset."""
+"""Train a classifier on synthetic data using sacroml Target and Dataset classes."""
 
 import logging
 

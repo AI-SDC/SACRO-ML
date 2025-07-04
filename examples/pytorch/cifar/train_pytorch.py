@@ -1,4 +1,4 @@
-"""Train a Pytorch classifier on CIFAR10."""
+"""Train a PyTorch classifier on CIFAR10 using sacroml Target and Dataset classes."""
 
 import logging
 
