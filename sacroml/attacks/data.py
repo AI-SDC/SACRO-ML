@@ -36,12 +36,12 @@ class PyTorchDataHandler(BaseDataHandler):
 
     @abstractmethod
     def get_raw_dataset(self) -> Dataset | None:
-        """Return a processed dataset.
+        """Return a raw unprocessed dataset.
 
         Returns
         -------
         Dataset | None
-            A (processed) PyTorch dataset.
+            An unprocessed PyTorch dataset.
         """
 
     @abstractmethod
