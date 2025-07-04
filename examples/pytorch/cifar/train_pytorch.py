@@ -42,7 +42,7 @@ if __name__ == "__main__":
     logging.info("Defining the model")
 
     model_params = {
-        "n_kernal": 5,
+        "n_kernel": 5,
     }
     train_params = {
         "epochs": 100,

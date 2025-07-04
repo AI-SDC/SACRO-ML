@@ -7,12 +7,12 @@ from torch import nn
 class Net(nn.Module):
     """A Pytorch classification model for cifar10."""
 
-    def __init__(self, n_kernal: int = 5):
+    def __init__(self, n_kernel: int = 5):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 6, n_kernal)
+        self.conv1 = nn.Conv2d(3, 6, n_kernel)
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, n_kernal)
-        self.fc1 = nn.Linear(16 * n_kernal * n_kernal, 120)
+        self.conv2 = nn.Conv2d(6, 16, n_kernel)
+        self.fc1 = nn.Linear(16 * n_kernel * n_kernel, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
 
