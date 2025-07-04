@@ -14,6 +14,8 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter, WordCompleter
 
 from sacroml.attacks.model import create_model
+from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.model_sklearn import SklearnModel
 from sacroml.attacks.target import MODEL_REGISTRY, Target
 from sacroml.config import utils
 from sacroml.version import __version__
@@ -21,6 +23,7 @@ from sacroml.version import __version__
 arrays_pro = ["X_train", "y_train", "X_test", "y_test"]
 arrays_raw = ["X_train_orig", "y_train_orig", "X_test_orig", "y_test_orig"]
 arrays_proba = ["proba_train", "proba_test"]
+arrays_indices = ["indices_train", "indices_test"]
 encodings = ["onehot", "str", "int", "float"]
 
 MAX_FEATURES = 64  # maximum features to prompt
@@ -42,9 +45,16 @@ def _get_arrays(target: Target, arrays: list[str]) -> None:
                 break
 
 
-def _get_dataset_name(target: Target) -> None:
+def _get_dataset_name(target: Target, is_module: bool = False) -> None:
     """Prompt user for the name of a dataset."""
-    target.dataset_name = prompt("What is the name of the dataset? ")
+    if is_module:
+        classes = utils.get_class_names(path=target.dataset_module_path)
+        completer = WordCompleter(classes)
+        msg = "What is the name of the dataset class? "
+        name = prompt(msg, completer=completer)
+    else:
+        name = prompt("What is the name of the dataset? ")
+    target.dataset_name = name
 
 
 def _get_feature_encoding(feat: int) -> str:
@@ -106,9 +116,12 @@ def _get_model_type() -> str:
             return model_type
 
 
-def _get_model_name() -> str:
+def _get_model_name(path: str) -> str:
     """Prompt user for saved model class name."""
-    return prompt("What is the model class name? ")
+    classes = utils.get_class_names(path=path)
+    completer = WordCompleter(classes)
+    msg = "What is the model class name? "
+    return prompt(msg, completer=completer)
 
 
 def _get_model_module_path() -> str:
@@ -189,6 +202,53 @@ def _get_proba(target: Target) -> None:
     _get_arrays(target, arrays_proba)
 
 
+def _get_indices(target: Target) -> None:
+    """Prompt user for data train/test indices."""
+    if not utils.get_bool("Do you have the train/test indices?"):
+        print("Train/test indices are required when supplying dataset modules.")
+        print("Please try again.")
+        sys.exit()
+    _get_arrays(target, arrays_indices)
+
+
+def _get_dataset_module_path(target: Target) -> None:
+    """Prompt user for the Python module containing the dataset class."""
+    while True:
+        print("Please provide a Python module containing a dataset class")
+        msg = "Enter the path including the full filename: "
+        path = prompt(msg, completer=PathCompleter())
+        if os.path.isfile(path):
+            break
+        print("File does not exist. Please try again.")
+    target.dataset_module_path = path
+
+
+def _get_dataset_module(target: Target) -> None:
+    """Prompt user for dataset module information."""
+    # Check dataset loading is supported for this model
+    models = (PytorchModel, SklearnModel)
+    if not isinstance(target.model, models):
+        print(f"Dataset modules only support {models} models currently.")
+        print("Please try again.")
+        sys.exit()
+
+    # Get dataset information
+    _get_dataset_module_path(target)
+    _get_dataset_name(target, is_module=True)
+    _get_indices(target)
+
+    # Test loading the dataset
+    if isinstance(target.model, PytorchModel):
+        target.load_pytorch_dataset()
+    elif isinstance(target.model, SklearnModel):
+        target.load_sklearn_dataset()
+
+    # Avoid copying data to the target folder
+    target.X_train, target.y_train = None, None
+    target.X_test, target.y_test = None, None
+    print(f"Successfully loaded: {target.dataset_name}")
+
+
 def _load_model(model_path: str) -> Any:
     """Load a model from a file.
 
@@ -234,7 +294,7 @@ def prompt_for_target() -> None:
 
     if model_type == "PytorchModel":
         model_module_path: str = _get_model_module_path()
-        model_name: str = _get_model_name()
+        model_name: str = _get_model_name(path=model_module_path)
         model_params: dict = _get_model_params()
         train_module_path: str = _get_train_module_path()
         train_params: dict = _get_train_params()
@@ -270,12 +330,14 @@ def prompt_for_target() -> None:
             _get_proba(target)
 
     # Get dataset information
-    _get_dataset_name(target)
-    if utils.get_bool("Do you know the paths to processed data?"):
-        _get_arrays(target, arrays_pro)
-        _get_features(target)
-    if utils.get_bool("Do you know the paths to original raw data?"):
-        _get_arrays(target, arrays_raw)
+    if utils.get_bool("Do you have a dataset module to add?"):
+        _get_dataset_module(target)
+    else:
+        if utils.get_bool("Do you know the paths to processed data?"):
+            _get_arrays(target, arrays_pro)
+            _get_features(target)
+        if utils.get_bool("Do you know the paths to original raw data?"):
+            _get_arrays(target, arrays_raw)
 
     # Save the target information to the target directory
     target.save(path)

@@ -1,4 +1,8 @@
-"""Train a Random Forest classifier on the breast cancer data."""
+"""Example training a Random Forest classifier on breast cancer data.
+
+This simple example demonstrates how the model and data can be passed to
+the Target wrapper, which creates a directory with all saved information.
+"""
 
 import logging
 
@@ -9,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sacroml.attacks.target import Target
 
 output_dir = "target_rf_breast_cancer"
+
 
 if __name__ == "__main__":
     logging.info("Loading dataset")

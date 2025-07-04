@@ -6,6 +6,7 @@ import logging
 import os
 import pickle
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -15,7 +16,9 @@ import sklearn
 import torch
 import yaml
 
-from sacroml.attacks.model_pytorch import PytorchModel
+from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
+from sacroml.attacks.model import create_dataset
+from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
 
 MODEL_REGISTRY: dict[str, Any] = {
@@ -34,7 +37,20 @@ DATA_ATTRIBUTES: list[str] = [
     "y_test_orig",
     "proba_train",
     "proba_test",
+    "indices_train",
+    "indices_test",
 ]
+
+ARRAYS: tuple[str, ...] = (
+    "X_train",
+    "y_train",
+    "X_test",
+    "y_test",
+    "X_train_orig",
+    "y_train_orig",
+    "X_test_orig",
+    "y_test_orig",
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -86,6 +102,10 @@ class Target:  # pylint: disable=too-many-instance-attributes
         The model predicted training probabilities.
     proba_test : np.ndarray or None
         The model predicted testing probabilities.
+    indices_train : Sequence[int] or None
+        Indices of training set samples.
+    indices_test : Sequence[int] or None
+        Indices of test set samples.
     safemodel : list
         Results of safemodel disclosure checking.
     """
@@ -115,6 +135,8 @@ class Target:  # pylint: disable=too-many-instance-attributes
     y_test_orig: np.ndarray | None = None
     proba_train: np.ndarray | None = None
     proba_test: np.ndarray | None = None
+    indices_train: Sequence[int] | None = None
+    indices_test: Sequence[int] | None = None
 
     # Safemodel properties
     safemodel: list = field(default_factory=list)
@@ -151,6 +173,75 @@ class Target:  # pylint: disable=too-many-instance-attributes
         if isinstance(model, (SklearnModel, PytorchModel)):
             return model
         raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
+
+    def load_pytorch_dataset(self) -> None:  # pragma: no cover
+        """Wrap dataset for Pytorch models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
+        try:
+            # Create a new data handler with a supplied class
+            handler: PyTorchDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
+
+            # Get processed data
+            data = handler.get_dataset()
+            train_loader = handler.get_dataloader(data, self.indices_train)
+            test_loader = handler.get_dataloader(data, self.indices_test)
+
+            self.X_train, self.y_train = dataloader_to_numpy(train_loader)
+            self.X_test, self.y_test = dataloader_to_numpy(test_loader)
+
+            # Get raw unprocessed data
+            data = handler.get_raw_dataset()
+            if data:
+                train_loader = handler.get_dataloader(data, self.indices_train)
+                test_loader = handler.get_dataloader(data, self.indices_test)
+
+                self.X_train_orig, self.y_train_orig = dataloader_to_numpy(train_loader)
+                self.X_test_orig, self.y_test_orig = dataloader_to_numpy(test_loader)
+
+            # Display array shapes
+            for arr in ARRAYS:
+                if (array := getattr(self, arr)) is not None:
+                    logger.info("Loaded: %s shape: %s", arr, array.shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
+
+    def load_sklearn_dataset(self) -> None:  # pragma: no cover
+        """Wrap dataset for scikit-learn models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
+        try:
+            # Create a new data handler with a supplied class
+            handler: SklearnDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
+
+            # Get processed data
+            X, y = handler.get_data()
+            self.X_train, self.y_train = handler.get_subset(X, y, self.indices_train)
+            self.X_test, self.y_test = handler.get_subset(X, y, self.indices_test)
+
+            # Get raw unprocessed data
+            data = handler.get_raw_data()
+            if data:
+                X, y = data
+                self.X_train_orig, self.y_train_orig = handler.get_subset(
+                    X, y, self.indices_train
+                )
+                self.X_test_orig, self.y_test_orig = handler.get_subset(
+                    X, y, self.indices_test
+                )
+
+            # Display array shapes
+            for arr in ARRAYS:
+                if (array := getattr(self, arr)) is not None:
+                    logger.info("Loaded: %s shape: %s", arr, array.shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
 
     @property
     def n_features(self) -> int:
@@ -247,13 +338,21 @@ class Target:  # pylint: disable=too-many-instance-attributes
             self.features = {int(k): v for k, v in target["features"].items()}
 
         # Load paths
-        if "dataset_module_path" in target:
+        if "dataset_module_path" in target and target["dataset_module_path"] != "":
             self.dataset_module_path = os.path.join(path, target["dataset_module_path"])
 
         # Load model and data
         self._load_model(path, target)
         for attr in DATA_ATTRIBUTES:
             self._load_array(path, target, attr)
+
+        if self.dataset_module_path != "":
+            if isinstance(self.model, PytorchModel):
+                self.load_pytorch_dataset()
+            elif isinstance(self.model, SklearnModel):
+                self.load_sklearn_dataset()
+            else:  # pragma: no cover
+                logger.warning("Dataset module supplied for unsupported model type.")
 
     def _save_model(self, path: str, ext: str, target: dict) -> None:
         """Save model to disk."""
@@ -338,13 +437,15 @@ class Target:  # pylint: disable=too-many-instance-attributes
 
         setattr(self, attr_name, arr)
 
-    def _load_pickle(self, path: str, name: str) -> np.ndarray:  # pragma: no cover
+    def _load_pickle(self, path: str, name: str) -> Any:  # pragma: no cover
         """Load array from pickle file."""
         try:
             with open(path, "rb") as f:
                 arr = pickle.load(f)
                 if hasattr(arr, "shape"):
                     logger.info("%s shape: %s", name, arr.shape)
+                elif isinstance(arr, Sequence) and not isinstance(arr, str):
+                    logger.info("%s length: %d", name, len(arr))
                 else:
                     logger.info("%s is a scalar value", name)
                 return arr

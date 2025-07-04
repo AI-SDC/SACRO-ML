@@ -1,28 +1,32 @@
-"""Pytorch train function for testing."""
+"""An example Pytorch training module."""
 
-import numpy as np
 import torch
 from torch import nn, optim
+from torch.utils.data import DataLoader
 
 
-def train(  # pylint: disable=too-many-arguments
+def train(
     model: nn.Module,
-    X: np.ndarray,
-    y: np.ndarray,
+    dataloader: DataLoader,
     epochs: int,
     learning_rate: float,
     momentum: float,
 ) -> None:
-    """Train Pytorch model."""
-    x_tensor = torch.FloatTensor(X)
-    y_tensor = torch.LongTensor(y)
+    """Train model."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
+    model.train()
     for _ in range(epochs):
-        logits = model(x_tensor)
-        loss = criterion(logits, y_tensor)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        for inputs, labels in dataloader:
+            X = inputs.to(device, non_blocking=True)
+            y = labels.to(device, non_blocking=True)
+
+            optimizer.zero_grad()
+            logits = model(X)
+            loss = criterion(logits, y)
+            loss.backward()
+            optimizer.step()

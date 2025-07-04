@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import importlib
 import logging
 from copy import deepcopy
+from typing import Any
 
 import numpy as np
 import torch
 from torch import cuda
 from torch.nn.functional import softmax
+from torch.utils.data import DataLoader, TensorDataset
 
-from sacroml.attacks.model import Model, create_model, train_model
+from sacroml.attacks.model import Model, create_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -128,7 +131,7 @@ class PytorchModel(Model):
             logits = model(x_tensor)
             _, y_pred = torch.max(logits, 1)
 
-        return y_pred.cpu().numpy()
+        return y_pred.cpu().numpy().astype(np.float64)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
         """Fit a model from scratch.
@@ -149,8 +152,12 @@ class PytorchModel(Model):
         self.model = create_model(
             self.model_module_path, self.model_name, self.model_params
         )
+        # Create a dataloader
+        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
         #  Fit using the provided train function
-        return train_model(self.model, self.train_module_path, self.train_params, X, y)
+        return train_model(
+            self.model, self.train_module_path, self.train_params, dataloader
+        )
 
     def clone(self) -> PytorchModel:
         """Return a copy of the model.
@@ -192,10 +199,13 @@ class PytorchModel(Model):
         with torch.no_grad():
             x_tensor = torch.tensor(X, dtype=torch.float32).to(device)
             logits = self.model(x_tensor)
-            probabilities = softmax(logits, dim=1)
+            logits = torch.where(  # guard against nans
+                torch.isfinite(logits), logits, torch.zeros_like(logits)
+            )
+            probs = softmax(logits, dim=1)
 
         self.model.to("cpu")
-        return probabilities.cpu().numpy()  # should be softmax values
+        return probs.cpu().numpy().astype(np.float64)
 
     def get_classes(self) -> np.ndarray:  # pragma: no cover
         """Return the classes the model was trained to predict.
@@ -320,3 +330,77 @@ class PytorchModel(Model):
             train_module_path=train_module_path,
             train_params=train_params,
         )
+
+
+def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
+    """Convert DataLoader to numpy arrays.
+
+    Parameters
+    ----------
+    dataloader : DataLoader
+        Pytorch DataLoader to convert.
+
+    Returns
+    -------
+    np.ndarray, np.ndarray
+        Numpy arrays.
+    """
+    all_inputs, all_labels = [], []
+
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            all_inputs.append(inputs.cpu().numpy().astype(np.float64))
+            all_labels.append(labels.cpu().numpy().astype(np.int32))
+
+    X = np.concatenate(all_inputs, axis=0)
+    y = np.concatenate(all_labels, axis=0)
+    return X, y
+
+
+def numpy_to_dataloader(
+    X: np.ndarray, y: np.ndarray, batch_size: int = 32, shuffle: bool = False
+):
+    """Convert numpy arrays to PyTorch DataLoader."""
+    X_tensor = torch.from_numpy(X).float()
+    y_tensor = torch.from_numpy(y).long()
+
+    dataset = TensorDataset(X_tensor, y_tensor)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+
+
+def train_model(
+    model: Any, train_module_path: str, train_params: dict, dataloader: DataLoader
+) -> Any:
+    """Train a model from a code path.
+
+    Parameters
+    ----------
+    model : Any
+        Model to train.
+    train_module_path : str
+        Path to Python code containing a train function.
+    train_params : dict
+        Parameters for executing the train function.
+    dataloader : DataLoader
+        DataLoader with training data.
+
+    Returns
+    -------
+    Any
+        Trained model.
+    """
+    try:
+        # Convert file path to module path
+        train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
+        train_module_path = train_module_path.rstrip(".py")
+
+        # Import training function
+        module = importlib.import_module(train_module_path)
+        train_function = module.train
+
+        # Train model
+        train_function(model=model, dataloader=dataloader, **train_params)
+        return model
+
+    except Exception as e:  # pragma: no cover
+        raise ValueError(f"Failed to train model: {e}") from e

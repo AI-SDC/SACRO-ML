@@ -3,16 +3,12 @@
 from __future__ import annotations
 
 import importlib
-import logging
 import os
 import sys
 from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class Model(ABC):  # pylint: disable=too-many-instance-attributes
@@ -285,38 +281,44 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
         raise ValueError(f"Failed to create new model using supplied class: {e}") from e
 
 
-def train_model(
-    model: Any, train_module_path: str, train_params: dict, X: np.ndarray, y: np.ndarray
-) -> Any:
-    """Trains a model from a code path.
+def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
+    """Return a new dataset from a code path.
 
     Parameters
     ----------
-    model : Any
-        Model to train.
-    train_module_path : str
-        Path to Python code containing a train function.
-    train_params : dict
-        Parameters for executing the train function.
-    X : np.ndarray
-        Features of the samples to be fitted.
-    y : np.ndarray
-        Labels of the samples to be fitted.
+    dataset_module_path : str
+        Path to Python code containing a dataset class.
+    dataset_name : str
+        Name of the dataset class.
 
     Returns
     -------
     Any
-        Trained model.
+        New dataset.
     """
     try:
+        basename = os.path.basename(dataset_module_path)
+        if basename == dataset_module_path:  # pragma: no cover
+            # Add current directory to the system path
+            module_dir = os.getcwd()
+            sys.path.insert(0, module_dir)
+        else:
+            # Add the parent (target) directory to system path
+            module_dir = os.path.dirname(os.path.abspath(dataset_module_path))
+            parent_dir = os.path.dirname(module_dir)
+            if parent_dir not in sys.path:  # pragma: no cover
+                sys.path.insert(0, parent_dir)
+
         # Convert file path to module path
-        train_module_path = train_module_path.replace("/", ".").replace("\\", ".")
-        train_module_path = train_module_path.rstrip(".py")
-        # Import training function
-        module = importlib.import_module(train_module_path)
-        train_function = module.train
-        # Train model
-        train_function(model=model, X=X, y=y, **train_params)
-        return model
+        module_path = dataset_module_path.replace("/", ".").replace("\\", ".")
+        module_path = module_path.rstrip(".py")
+
+        # Import dataset class
+        module = importlib.import_module(module_path)
+        dataset_class = getattr(module, dataset_name)
+
+        # Instantiate dataset
+        return dataset_class()
+
     except Exception as e:  # pragma: no cover
-        raise ValueError(f"Failed to train model: {e}") from e
+        raise ValueError(f"Failed to create dataset using supplied class: {e}") from e

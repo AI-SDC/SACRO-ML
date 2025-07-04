@@ -4,16 +4,9 @@ This folder contains examples of how to run the code contained in this repositor
 
 ## Contents
 
-* Examples training a target model to be assessed:
-    - `train_rf_breast_cancer.py` - Trains RF on breast cancer dataset.
-    - `train_rf_nursery.py` - Trains RF on nursery dataset with one-hot encoding.
-* Examples programmatically running attacks:
-    - `attack_lira.py` - Simulated LiRA membership inference attack on breast cancer RF.
-    - `attack_worstcase.py` - Simulated worst case membership inference attack on breast cancer RF.
-    - `attack_attribute.py` - Simulated attribute inference attack on nursery RF.
-* Examples of attack integration within safemodel classes:
-    - `safemodel.py` - Simulated attacks on a safe RF trained on the nursery dataset.
-* Examples training and attacking a [Pytorch model](pytorch/);
+* Examples attacking [scikit-learn](sklearn) models.
+* Examples attacking [PyTorch](pytorch) models.
+* Examples of attack integration within [safemodel](safemodel) classes.
 
 ## Overview
 
@@ -37,10 +30,10 @@ To run a programmatic example:
 1. Run the relevant training script.
 2. Run the desired attack script.
 
-For example:
+For example, from the `sklearn/cancer/` folder:
 ```
-$ python -m examples.train_rf_breast_cancer
-$ python -m examples.attack_lira
+$ python -m train_rf_cancer
+$ python -m attack_rf_cancer
 ```
 
 ## CLI Execution
@@ -49,11 +42,11 @@ $ python -m examples.attack_lira
 2. Generate an `attack.yaml` config.
 3. Run the attack CLI tool.
 
-For example:
+For example, from the `sklearn/cancer/` folder:
 ```
-$ python -m examples.train_rf_nursery
+$ python -m train_rf_cancer
 $ sacroml gen-attack
-$ sacroml run target_rf_nursery attack.yaml
+$ sacroml run target_rf_cancer attack.yaml
 ```
 
 The `sacroml` package provides three basic commands:

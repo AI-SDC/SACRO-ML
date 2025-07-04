@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import numpy as np
 import torch
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
-from sacroml.attacks import (
-    attribute_attack,
-    likelihood_attack,
-    structural_attack,
-    worst_case_attack,
-)
+from sacroml.attacks.attribute_attack import AttributeAttack
+from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
-from tests.attacks.pytorch_model import SimpleNet
+from sacroml.attacks.worst_case_attack import WorstCaseAttack
+from tests.attacks.pytorch_dataset import Synthetic
+from tests.attacks.pytorch_model import OverfitNet
 from tests.attacks.pytorch_train import train
 
 output_dir = "output_pytorch"
@@ -26,78 +21,51 @@ torch.manual_seed(random_state)
 torch.cuda.manual_seed_all(random_state)
 
 
-def test_pytorch() -> None:  # pylint:disable=too-many-locals
-    """Test pytorch handling."""
-    # Make some data
-    x_dim = 4
-    y_dim = 4
-    X_orig, y_orig = make_classification(
-        n_samples=50,
-        n_features=x_dim,
-        n_informative=2,
-        n_redundant=0,
-        n_repeated=0,
-        n_classes=y_dim,
-        n_clusters_per_class=1,
-        random_state=random_state,
-    )
-    X_orig = np.asarray(X_orig)
-    y_orig = np.asarray(y_orig)
+def test_pytorch() -> None:
+    """Test PyTorch handling."""
+    # Access dataset
+    handler = Synthetic()
 
-    # Preprocess
-    input_encoder = StandardScaler()
-    X = input_encoder.fit_transform(X_orig)
-    y = y_orig  # leave as labels
+    # Get the (preprocessed) dataset
+    dataset = handler.get_dataset()
 
-    # Split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, shuffle=True, random_state=random_state
-    )
+    # Create data splits
+    indices_train, indices_test = handler.get_train_test_indices()
 
-    X = np.asarray(X)
-    y = np.asarray(y)
-    X_train = np.asarray(X_train)
-    y_train = np.asarray(y_train)
-    X_test = np.asarray(X_test)
-    y_test = np.asarray(y_test)
+    # Get dataloaders
+    train_loader = handler.get_dataloader(dataset, indices_train)
 
+    # Make and fit model
     model_params = {
-        "x_dim": x_dim,
-        "y_dim": y_dim,
+        "x_dim": 4,
+        "y_dim": 4,
+        "n_units": 1000,
     }
     train_params = {
         "epochs": 10,
         "learning_rate": 0.001,
         "momentum": 0.9,
     }
+    model = OverfitNet(**model_params)
 
-    # Make and fit pytorch model
-    model = SimpleNet(**model_params)
-    train(model, X_train, y_train, **train_params)
+    train(model, train_loader, **train_params)
 
-    # Create Target wrapper
+    # Wrap model and data
     target = Target(
         model=model,
         model_module_path="tests/attacks/pytorch_model.py",
         model_params=model_params,
         train_module_path="tests/attacks/pytorch_train.py",
         train_params=train_params,
-        dataset_name="synthetic",
-        # processed data
-        X_train=X_train,
-        y_train=y_train,
-        X_test=X_test,
-        y_test=y_test,
-        # original unprocessed data
-        X_train_orig=X_train,
-        y_train_orig=y_train,
-        X_test_orig=X_test,
-        y_test_orig=y_test,
+        dataset_module_path="tests/attacks/pytorch_dataset.py",
+        dataset_name="Synthetic",
+        indices_train=indices_train,
+        indices_test=indices_test,
     )
-    # Add feature details for attribute attack
-    for i in range(X.shape[1]):
+
+    for i in range(model_params["x_dim"]):
         target.add_feature(
-            name=f"A{i}",
+            name=f"X{i}",
             indices=[i],
             encoding="float",
         )
@@ -105,16 +73,17 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
     # Test saving and loading
     target.save(target_dir)
 
-    loaded_target = Target()
-    loaded_target.load(target_dir)
-    assert loaded_target.dataset_name == target.dataset_name
+    tgt = Target()
+    tgt.load(target_dir)
 
-    score = target.model.score(X_test, y_test)
-    loaded_score = loaded_target.model.score(X_test, y_test)
-    assert score == loaded_score
+    assert tgt.dataset_name == target.dataset_name
+    assert tgt.X_train is not None
+    assert tgt.y_train is not None
+    assert tgt.X_test is not None
+    assert tgt.y_test is not None
 
     # Test worst case attack
-    attack_obj = worst_case_attack.WorstCaseAttack(
+    attack = WorstCaseAttack(
         n_reps=10,
         n_dummy_reps=1,
         train_beta=5,
@@ -123,26 +92,40 @@ def test_pytorch() -> None:  # pylint:disable=too-many-locals
         test_prop=0.5,
         output_dir=output_dir,
     )
-    output = attack_obj.attack(target)
+    output = attack.attack(tgt)
     assert output
 
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert metrics["AUC"] > 0
 
     # Test structural attack
-    obj = structural_attack.StructuralAttack(output_dir=output_dir)
-    output = obj.attack(target)
+    attack = StructuralAttack(output_dir=output_dir)
+    output = attack.attack(tgt)
     assert not output  # expected not to run
 
     # Test attribute attack
-    obj = attribute_attack.AttributeAttack(n_cpu=2, output_dir=output_dir)
-    output = obj.attack(target)
+    attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
+    output = attack.attack(tgt)
     assert output
 
     # Test LiRA attack
-    obj = likelihood_attack.LIRAAttack(n_shadow_models=100, output_dir=output_dir)
-    output = obj.attack(target)
+    attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
+    output = attack.attack(tgt)
     assert output
 
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert metrics["AUC"] > 0
+
+    # Test generalisation function
+    res = tgt.model.get_generalisation_error(
+        tgt.X_train, tgt.y_train, tgt.X_test, tgt.y_test
+    )
+    assert res < 0
+
+    # Test score function
+    res = tgt.model.score(tgt.X_test, tgt.y_test)
+    assert res > 0
+
+    # Test predict function
+    res = tgt.model.predict(tgt.X_test)
+    assert len(res) > 0
