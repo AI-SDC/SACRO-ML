@@ -14,7 +14,7 @@ The privacy attacks can be run in one of two different ways:
 1. **Programmatic execution**, which involves running Python code that:
     1. Imports the desired attack(s);
     2. Instantiates the desired attack object(s);
-    3. Calls an `attack()` function, passing in a `sacroml.target.Target` object containing a wrapped model and dataset.
+    3. Calls an `attack()` function, passing in a `sacroml.attacks.target.Target` object containing a wrapped model and dataset.
 2. **Command line interface (CLI) execution**, which involves:
     1. A saved `target_dir/` folder containing the model, data, and metadata needed to load/train the model.
     2. An `attack.yaml` configuration file specifying which attacks to run.
