@@ -4,10 +4,11 @@ For models where `sacroml` does not provide complete support (e.g., those create
 
 The `attack.py` example provided here shows how the csv files can be loaded and attacks run. The `train.py` trains a scikit-learn model and saves the probabilities, however it is only provided for a complete working example: the csv files can be generated with any language.
 
-Note that the interactive prompt `sacroml target-gen` can also be used to create a loadable directory by supplying the paths to csv files.
+> [!WARNING]
+> CSV files must not have headers.
 
 > [!NOTE]
-> CSV files must not have headers.
+> The interactive prompt `sacroml target-gen` can also be used to create a loadable directory by supplying the paths to csv files.
 
 ## Contents
 
