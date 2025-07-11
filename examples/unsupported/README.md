@@ -8,7 +8,7 @@ The `attack.py` example provided here shows how the csv files can be loaded and 
 > CSV files must not have headers.
 
 > [!NOTE]
-> The interactive prompt `sacroml target-gen` can also be used to create a loadable directory by supplying the paths to csv files.
+> The interactive prompt `sacroml gen-target` can also be used to create a loadable directory by supplying the paths to csv files.
 
 ## Contents
 
