@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import os
 
 import numpy as np
 from fpdf import FPDF
@@ -75,6 +76,10 @@ class LIRAAttack(Attack):
                 self.result["in_prob"] = []
                 self.result["in_mean"] = []
                 self.result["in_std"] = []
+
+        # Create folder for saving trained shadow models
+        shadow_path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
+        os.makedirs(shadow_path, exist_ok=True)
 
     def __str__(self):
         """Return the name of the attack."""
@@ -226,12 +231,18 @@ class LIRAAttack(Attack):
             combined_y_train = np.vstack((y_train, y_test))
         combined_target_preds = np.vstack((proba_train, proba_test))
 
-        # Get the confidences of samples when in and not in the training set
-        out_conf, in_conf = self._train_shadow_models(
+        # Train shadow models
+        self._train_shadow_models(
             shadow_clf,
             combined_x_train,
             combined_y_train,
             n_train_rows,
+        )
+
+        # Get the confidences of samples when in and not in the training set
+        out_conf, in_conf = self._get_shadow_signals(
+            combined_x_train,
+            combined_y_train,
         )
 
         # Get the LiRA scores, and how many confidences were normally distributed
@@ -257,8 +268,8 @@ class LIRAAttack(Attack):
         self,
         combined_y_train: np.ndarray,
         combined_target_preds: np.ndarray,
-        out_conf: dict[list[float]],
-        in_conf: dict[list[float]],
+        out_conf: dict[int, list[float]],
+        in_conf: dict[int, list[float]],
     ) -> tuple[list[list[float]], int]:
         """Compute LiRA scores for each record."""
         logger.info("Computing scores")
@@ -319,13 +330,13 @@ class LIRAAttack(Attack):
         mean: float = 0
         std: float = 0
         if not np.isnan(scores).all():
-            mean = np.nanmean(scores)
-            std = np.nanstd(scores)
+            mean = float(np.nanmean(scores))
+            std = float(np.nanstd(scores))
         if self.fix_variance:
             std = global_std
         return mean, std
 
-    def _get_global_std(self, confidences: dict[str, list[float]]) -> float:
+    def _get_global_std(self, confidences: dict[int, list[float]]) -> float:
         """Return the global standard deviation."""
         global_std: float = 0
         if self.fix_variance:
@@ -333,7 +344,7 @@ class LIRAAttack(Attack):
             arrays = list(confidences.values())
             combined = np.concatenate(arrays)
             if not np.isnan(combined).all():
-                global_std = np.nanstd(combined)
+                global_std = float(np.nanstd(combined))
         return global_std
 
     def _get_p_normal(self, samples: np.ndarray) -> float:
@@ -344,14 +355,14 @@ class LIRAAttack(Attack):
                 _, p_normal = shapiro(samples)
         return p_normal
 
-    def _train_shadow_models(  # pylint: disable=too-many-locals
+    def _train_shadow_models(
         self,
         shadow_clf: Model,
         combined_x_train: np.ndarray,
         combined_y_train: np.ndarray,
         n_train_rows: int,
-    ) -> tuple[dict, dict]:
-        """Train shadow models and return confidence scores.
+    ) -> None:
+        """Train and save shadow models.
 
         Parameters
         ----------
@@ -363,6 +374,44 @@ class LIRAAttack(Attack):
             Array of combined train and test labels.
         n_train_rows : int
             Number of samples in the training set.
+        """
+        logger.info("Training shadow models")
+
+        n_combined: int = combined_x_train.shape[0]
+        indices: np.ndarray = np.arange(0, n_combined, 1)
+
+        for idx in range(self.n_shadow_models):
+            if idx % 10 == 0:
+                logger.info("Trained %d models", idx)
+
+            # Pick the indices to use for training this one
+            np.random.seed(idx)  # Reproducibility
+            indices_train = np.random.choice(indices, n_train_rows, replace=False)
+            indices_test = np.setdiff1d(indices, indices_train)
+
+            # Fit the shadow model
+            shadow_clf.set_params(random_state=idx)
+            shadow_clf.fit(
+                combined_x_train[indices_train, :],
+                combined_y_train[indices_train],
+            )
+
+            # Save model and indices
+            self.save_shadow_model(idx, shadow_clf, indices_train, indices_test)
+
+    def _get_shadow_signals(  # pylint: disable=too-many-locals
+        self,
+        combined_x_train: np.ndarray,
+        combined_y_train: np.ndarray,
+    ) -> tuple[dict[int, list[float]], dict[int, list[float]]]:
+        """Return confidence scores from saved shadow models.
+
+        Parameters
+        ----------
+        combined_x_train : np.ndarray
+            Array of combined train and test features.
+        combined_y_train : np.ndarray
+            Array of combined train and test labels.
 
         Returns
         -------
@@ -370,30 +419,21 @@ class LIRAAttack(Attack):
             Dictionary of confidences when not in the training set.
             Dictionary of confidences when in the training set.
         """
-        logger.info("Training shadow models")
+        logger.info("Getting shadow model signals")
 
-        n_combined = combined_x_train.shape[0]
-        out_conf: dict = {i: [] for i in range(n_combined)}
-        in_conf: dict = {i: [] for i in range(n_combined)}
-        indices: np.ndarray = np.arange(0, n_combined, 1)
+        n_shadow_models: int = self.get_n_shadow_models()
+        n_combined: int = combined_x_train.shape[0]
+        out_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
+        in_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
 
-        for model_idx in range(self.n_shadow_models):
-            if model_idx % 10 == 0:
-                logger.info("Trained %d models", model_idx)
-            # Pick the indices to use for training this one
-            np.random.seed(model_idx)  # Reproducibility
-            these_idx = np.random.choice(indices, n_train_rows, replace=False)
-            # Fit the shadow model
-            shadow_clf.set_params(random_state=model_idx)
-            shadow_clf.fit(
-                combined_x_train[these_idx, :],
-                combined_y_train[these_idx],
-            )
+        for model_idx in range(n_shadow_models):
+            # load shadow model
+            shadow_clf, indices_train, _ = self.get_shadow_model(model_idx)
             # map a class to a column
             class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
             # generate shadow confidences
             shadow_confidences = shadow_clf.predict_proba(combined_x_train)
-            these_idx = set(these_idx)
+            indices_train = set(indices_train)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
                 if combined_y_train.ndim == 1:  # label encoding
@@ -404,7 +444,7 @@ class LIRAAttack(Attack):
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
                 logit = _logit(0) if label < 0 else _logit(conf[label])
-                if i not in these_idx:
+                if i not in indices_train:
                     out_conf[i].append(logit)
                 else:
                     in_conf[i].append(logit)
