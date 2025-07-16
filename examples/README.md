@@ -7,6 +7,7 @@ This folder contains examples of how to run the code contained in this repositor
 * Examples attacking [scikit-learn](sklearn) models.
 * Examples attacking [PyTorch](pytorch) models.
 * Examples of attack integration within [safemodel](safemodel) classes.
+* Examples running attacks on [unsupported](unsupported) models where only csv probabilities are supplied.
 
 ## Overview
 
