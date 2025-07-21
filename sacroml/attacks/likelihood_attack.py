@@ -184,12 +184,14 @@ class LIRAAttack(Attack):
         """
         logger.info("Running %s LiRA, fix_variance=%s", self.mode, self.fix_variance)
 
-        n_train_rows = X_train.shape[0]
-        n_shadow_rows = X_test.shape[0]
+        n_train_rows: int = X_train.shape[0]
+        n_shadow_rows: int = X_test.shape[0]
 
-        combined_data = _combine_data(
-            X_train, y_train, proba_train, X_test, y_test, proba_test
-        )
+        combined_data: dict[str, np.ndarray] = {
+            "features": np.vstack((X_train, X_test)),
+            "labels": np.hstack((y_train, y_test)),
+            "predictions": np.vstack((proba_train, proba_test)),
+        }
 
         utils.train_shadow_models(
             shadow_clf=shadow_clf,
@@ -460,23 +462,3 @@ class LIRAAttack(Attack):
         def predict_proba(self, X_test):
             """Simply return the X_test."""
             return X_test
-
-
-def _combine_data(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    proba_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    proba_test: np.ndarray,
-) -> dict[str, np.ndarray]:
-    """Return a dictionary combining training and test data."""
-    combined_features = np.vstack((X_train, X_test))
-    combined_labels = np.hstack((y_train, y_test))
-    combined_predictions = np.vstack((proba_train, proba_test))
-
-    return {
-        "features": combined_features,
-        "labels": combined_labels,
-        "predictions": combined_predictions,
-    }
