@@ -280,7 +280,7 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         for i, label in enumerate(combined_y_train):
-            logit = utils.logit(combined_target_preds[i, label])
+            logit: float = utils.logit(combined_target_preds[i, label])
 
             out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
             in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
