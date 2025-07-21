@@ -142,7 +142,7 @@
     <span class="s2">&quot;grey curves in the left hand part of the plot are a sign of concern. &quot;</span>
 <span class="p">)</span>
 
-<span class="n">GLOSSARY</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">MIA_GLOSSARY</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;AUC&quot;</span><span class="p">:</span> <span class="s2">&quot;Area Under the ROC curve&quot;</span><span class="p">,</span>
     <span class="s2">&quot;True Positive Rate (TPR)&quot;</span><span class="p">:</span> <span class="p">(</span>
         <span class="s2">&quot;The true positive rate is the number of True Positives that are &quot;</span>
@@ -152,6 +152,46 @@
         <span class="s2">&quot;training set.&quot;</span>
     <span class="p">),</span>
     <span class="s2">&quot;ACC&quot;</span><span class="p">:</span> <span class="s2">&quot;The proportion of predictions that the attacker makes that are correct.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">STRUCTURAL_INTRODUCTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This report provides a summary of a series of &#39;static&#39; structural &quot;</span>
+    <span class="s2">&quot;attacks. These attacks do not require training a separate attack model, &quot;</span>
+    <span class="s2">&quot;but instead analyse the properties of the target model and its training &quot;</span>
+    <span class="s2">&quot;data to identify potential disclosure risks based on pre-defined rules &quot;</span>
+    <span class="s2">&quot;and thresholds. A &#39;risk detected&#39; result for any of the checks below &quot;</span>
+    <span class="s2">&quot;indicates a potential vulnerability that should be investigated.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">STRUCTURAL_GLOSSARY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;dof_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Degrees of Freedom (DoF) Risk: Checks if the model is overly complex &quot;</span>
+        <span class="s2">&quot;relative to the size of the training data. A model with too many &quot;</span>
+        <span class="s2">&quot;parameters (low residual DoF) can essentially memorize training &quot;</span>
+        <span class="s2">&quot;records, making it vulnerable to membership inference.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;k_anonymity_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;K-Anonymity Risk: This checks if any training data points fall into &quot;</span>
+        <span class="s2">&quot;very small groups (equivalence classes) based on the model&#39;s &quot;</span>
+        <span class="s2">&quot;predictions. If a group has fewer than &#39;k&#39; members, those &quot;</span>
+        <span class="s2">&quot;individuals are more easily re-identifiable.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;class_disclosure_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Class Disclosure Risk: Assesses whether the model&#39;s outputs might &quot;</span>
+        <span class="s2">&quot;inadvertently reveal the presence of small, disclosive groups within &quot;</span>
+        <span class="s2">&quot;the data, especially in combination with known class labels.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;unnecessary_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Unnecessary Risk: Checks if the model&#39;s hyperparameters (e.g., max &quot;</span>
+        <span class="s2">&quot;tree depth) are set to values known to be associated with higher &quot;</span>
+        <span class="s2">&quot;membership inference risk, without necessarily providing a &quot;</span>
+        <span class="s2">&quot;commensurate increase in accuracy.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;lowvals_cd_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Low Values Class Disclosure Risk: A specific check for class &quot;</span>
+        <span class="s2">&quot;disclosure where the frequency of a particular class within an &quot;</span>
+        <span class="s2">&quot;equivalence class is below a safe threshold.&quot;</span>
+    <span class="p">),</span>
 <span class="p">}</span>
 
 
@@ -367,10 +407,58 @@
 
     <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
     <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Glossary&quot;</span><span class="p">)</span>
-    <span class="n">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">GLOSSARY</span><span class="p">)</span>
+    <span class="n">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">MIA_GLOSSARY</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span></div>
+
+
+
+<div class="viewcode-block" id="create_structural_report">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.create_structural_report">[docs]</a>
+<span class="k">def</span> <span class="nf">create_structural_report</span><span class="p">(</span><span class="n">attack_output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a structural attack report.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attack_output : dict</span>
+<span class="sd">        Dictionary with metadata and global_metrics.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf : fpdf.FPDF</span>
+<span class="sd">        fpdf document object for the report.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">attack_output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span>
+
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_xy</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Structural Attack Report&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">STRUCTURAL_INTRODUCTION</span><span class="p">)</span>
+
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Experiment Summary&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span>
+        <span class="n">pdf</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Risk Summary&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">risk_status</span> <span class="o">=</span> <span class="s2">&quot;Risk Detected&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;Not Detected&quot;</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">risk_status</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Glossary&quot;</span><span class="p">)</span>
+    <span class="n">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">STRUCTURAL_GLOSSARY</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">pdf</span></div>
 
 
