@@ -163,6 +163,30 @@ def get_p_normal(samples: np.ndarray) -> float:
     return p_normal
 
 
+def logit(p: float) -> float:
+    """Return standard logit.
+
+    Parameters
+    ----------
+    p : float
+        value to evaluate logit at.
+
+    Returns
+    -------
+    float
+        logit(p)
+
+    Notes
+    -----
+    If `p` is close to 0 or 1, evaluating the log will result in numerical
+    instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
+    defaults at 1e-16.
+    """
+    p = min(p, 1 - EPS)
+    p = max(p, EPS)
+    return np.log(p / (1 - p))
+
+
 def get_class_by_name(class_path: str):
     """Return a class given its name."""
     module_path, class_name = class_path.rsplit(".", 1)

@@ -255,7 +255,7 @@ class LIRAAttack(Attack):
                 # Occasionally, the random data split will result in classes being
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
-                logit = _logit(0) if label < 0 else _logit(conf[label])
+                logit = utils.logit(0) if label < 0 else utils.logit(conf[label])
                 if i not in indices_train:
                     out_conf[i].append(logit)
                 else:
@@ -278,7 +278,7 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         for i, label in enumerate(combined_y_train):
-            logit = _logit(combined_target_preds[i, label])
+            logit = utils.logit(combined_target_preds[i, label])
 
             out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
             in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
@@ -480,27 +480,3 @@ def _combine_data(
         "labels": combined_labels,
         "predictions": combined_predictions,
     }
-
-
-def _logit(p: float) -> float:
-    """Return standard logit.
-
-    Parameters
-    ----------
-    p : float
-        value to evaluate logit at.
-
-    Returns
-    -------
-    float
-        logit(p)
-
-    Notes
-    -----
-    If `p` is close to 0 or 1, evaluating the log will result in numerical
-    instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
-    defaults at 1e-16.
-    """
-    p = min(p, 1 - EPS)
-    p = max(p, EPS)
-    return np.log(p / (1 - p))
