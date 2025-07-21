@@ -8,7 +8,6 @@ import os
 import numpy as np
 from fpdf import FPDF
 from scipy.stats import norm
-from sklearn.base import BaseEstimator
 
 from sacroml import metrics
 from sacroml.attacks import report, utils
@@ -121,7 +120,7 @@ class LIRAAttack(Attack):
         """
         # prepare
         shadow_clf = target.model.clone()
-        target = self._check_and_update_dataset(target)
+        target = utils.check_and_update_dataset(target)
         # execute attack
         self._run(
             shadow_clf,
@@ -138,42 +137,6 @@ class LIRAAttack(Attack):
         self._write_report(output)
         # return the report
         return output
-
-    def _check_and_update_dataset(self, target: Target) -> Target:
-        """Check that it is safe to use class variables to index prediction arrays.
-
-        This has two steps:
-        1. Replacing the values in y_train with their position in
-        target.model.classes (will normally result in no change)
-        2. Removing from the test set any rows corresponding to classes that
-        are not in the training set.
-        """
-        if not isinstance(target.model.model, BaseEstimator):
-            return target
-
-        y_train_new = []
-        classes = list(target.model.get_classes())
-        for y in target.y_train:
-            y_train_new.append(classes.index(y))
-        target.y_train = np.array(y_train_new, int)
-        logger.info(
-            "new y_train has values and counts: %s",
-            np.unique(target.y_train, return_counts=True),
-        )
-        ok_pos = []
-        y_test_new = []
-        for i, y in enumerate(target.y_test):
-            if y in classes:
-                ok_pos.append(i)
-                y_test_new.append(classes.index(y))
-        if len(y_test_new) != len(target.X_test):  # pragma: no cover
-            target.X_test = target.X_test[ok_pos, :]
-        target.y_test = np.array(y_test_new, int)
-        logger.info(
-            "new y_test has values and counts: %s",
-            np.unique(target.y_test, return_counts=True),
-        )
-        return target
 
     def _run(
         self,

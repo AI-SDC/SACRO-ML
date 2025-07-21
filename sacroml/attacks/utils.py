@@ -9,13 +9,58 @@ from typing import Any
 
 import numpy as np
 from scipy.stats import shapiro
+from sklearn.base import BaseEstimator
 
 from sacroml.attacks.model import Model
+from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 EPS: float = 1e-16  # Used to avoid numerical issues
+
+
+def check_and_update_dataset(target: Target) -> Target:
+    """Check that it is safe to use class variables to index prediction arrays.
+
+    This has two steps:
+    1. Replacing the values in y_train with their position in
+    target.model.classes (will normally result in no change)
+    2. Removing from the test set any rows corresponding to classes that
+    are not in the training set.
+    """
+    if (
+        not isinstance(target.model.model, BaseEstimator)
+        or target.y_train is None
+        or target.y_test is None
+        or target.X_train is None
+        or target.X_test is None
+    ):
+        return target
+
+    y_train_new = []
+    classes = list(target.model.get_classes())
+    for y in target.y_train:
+        y_train_new.append(classes.index(y))
+    target.y_train = np.array(y_train_new, int)
+    logger.info(
+        "new y_train has values and counts: %s",
+        np.unique(target.y_train, return_counts=True),
+    )
+    ok_pos = []
+    y_test_new = []
+    for i, y in enumerate(target.y_test):
+        if y in classes:
+            ok_pos.append(i)
+            y_test_new.append(classes.index(y))
+    if len(y_test_new) != len(target.X_test):  # pragma: no cover
+        target.X_test = target.X_test[ok_pos, :]
+    target.y_test = np.array(y_test_new, int)
+    logger.info(
+        "new y_test has values and counts: %s",
+        np.unique(target.y_test, return_counts=True),
+    )
+    return target
 
 
 def train_shadow_models(
