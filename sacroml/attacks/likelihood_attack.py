@@ -1,4 +1,19 @@
-"""Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf."""
+"""Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf.
+
+See p.6 (top of second column) for details.
+
+With mode "offline", we measure the probability of observing a
+confidence as high as the target model's under the null-hypothesis that
+the target point is a non-member. That is we, use the norm CDF.
+
+With mode "offline-carlini", we measure the probability that a target point
+did not come from the non-member distribution. That is, we use Carlini's
+implementation with a single norm (log) PDF.
+
+With mode "online-carlini", we use Carlini's implementation of the standard
+likelihood ratio test, measuring the ratio of probabilities the sample came
+from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
+"""
 
 from __future__ import annotations
 
@@ -150,25 +165,10 @@ class LIRAAttack(Attack):
     ) -> None:
         """Run the likelihood test.
 
-        See p.6 (top of second column) for details.
-
-        With mode "offline", we measure the probability of observing a
-        confidence as high as the target model's under the null-hypothesis that
-        the target point is a non-member. That is we, use the norm CDF.
-
-        With mode "offline-carlini", we measure the probability that a target point
-        did not come from the non-member distribution. That is, we use Carlini's
-        implementation with a single norm (log) PDF.
-
-        With mode "online-carlini", we use Carlini's implementation of the standard
-        likelihood ratio test, measuring the ratio of probabilities the sample came
-        from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
-
         Parameters
         ----------
         shadow_clf : Model
             A classifier that will be trained to form the shadow models.
-            All hyperparameters should have been set.
         X_train : np.ndarray
             Data that was used to train the target model.
         y_train : np.ndarray
