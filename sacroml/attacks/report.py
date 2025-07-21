@@ -69,7 +69,7 @@ LOGROC_CAPTION = (
     "grey curves in the left hand part of the plot are a sign of concern. "
 )
 
-GLOSSARY = {
+MIA_GLOSSARY = {
     "AUC": "Area Under the ROC curve",
     "True Positive Rate (TPR)": (
         "The true positive rate is the number of True Positives that are "
@@ -79,6 +79,46 @@ GLOSSARY = {
         "training set."
     ),
     "ACC": "The proportion of predictions that the attacker makes that are correct.",
+}
+
+STRUCTURAL_INTRODUCTION = (
+    "This report provides a summary of a series of 'static' structural "
+    "attacks. These attacks do not require training a separate attack model, "
+    "but instead analyse the properties of the target model and its training "
+    "data to identify potential disclosure risks based on pre-defined rules "
+    "and thresholds. A 'risk detected' result for any of the checks below "
+    "indicates a potential vulnerability that should be investigated."
+)
+
+STRUCTURAL_GLOSSARY = {
+    "dof_risk": (
+        "Degrees of Freedom (DoF) Risk: Checks if the model is overly complex "
+        "relative to the size of the training data. A model with too many "
+        "parameters (low residual DoF) can essentially memorize training "
+        "records, making it vulnerable to membership inference."
+    ),
+    "k_anonymity_risk": (
+        "K-Anonymity Risk: This checks if any training data points fall into "
+        "very small groups (equivalence classes) based on the model's "
+        "predictions. If a group has fewer than 'k' members, those "
+        "individuals are more easily re-identifiable."
+    ),
+    "class_disclosure_risk": (
+        "Class Disclosure Risk: Assesses whether the model's outputs might "
+        "inadvertently reveal the presence of small, disclosive groups within "
+        "the data, especially in combination with known class labels."
+    ),
+    "unnecessary_risk": (
+        "Unnecessary Risk: Checks if the model's hyperparameters (e.g., max "
+        "tree depth) are set to values known to be associated with higher "
+        "membership inference risk, without necessarily providing a "
+        "commensurate increase in accuracy."
+    ),
+    "lowvals_cd_risk": (
+        "Low Values Class Disclosure Risk: A specific check for class "
+        "disclosure where the frequency of a particular class within an "
+        "equivalence class is below a safe threshold."
+    ),
 }
 
 
@@ -274,10 +314,55 @@ def create_mia_report(attack_output: dict) -> FPDF:
 
     pdf.add_page()
     title(pdf, "Glossary")
-    _write_dict(pdf, GLOSSARY)
+    _write_dict(pdf, MIA_GLOSSARY)
 
     if os.path.exists(dest_log_roc):
         os.remove(dest_log_roc)
+    return pdf
+
+
+def create_structural_report(attack_output: dict) -> FPDF:
+    """Make a structural attack report.
+
+    Parameters
+    ----------
+    attack_output : dict
+        Dictionary with metadata and global_metrics.
+
+    Returns
+    -------
+    pdf : fpdf.FPDF
+        fpdf document object for the report.
+    """
+    metadata = attack_output["metadata"]
+    metrics = metadata["global_metrics"]
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_xy(0, 0)
+
+    title(pdf, "Structural Attack Report")
+    subtitle(pdf, "Introduction")
+    line(pdf, STRUCTURAL_INTRODUCTION)
+
+    subtitle(pdf, "Experiment Summary")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+        font="courier",
+    )
+    for key, value in metadata["attack_params"].items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+    subtitle(pdf, "Risk Summary")
+    for key, value in metrics.items():
+        risk_status = "Risk Detected" if value else "Not Detected"
+        line(pdf, f"{key:>30s}: {risk_status:30s}", font="courier")
+
+    pdf.add_page()
+    title(pdf, "Glossary")
+    _write_dict(pdf, STRUCTURAL_GLOSSARY)
+
     return pdf
 
 

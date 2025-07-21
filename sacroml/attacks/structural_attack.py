@@ -18,7 +18,7 @@ from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
-
+from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
 
@@ -422,6 +422,6 @@ class StructuralAttack(Attack):
         attack_metrics_experiment["lowvals_cd_risk"] = self.lowvals_cd_risk
         return attack_metrics_experiment
 
-    def _make_pdf(self, output: dict) -> None:
-        attack_name: str = output["metadata"]["attack_name"]
-        logger.info("PDF report not yet implemented for %s", attack_name)
+    def _make_pdf(self, output: dict) -> FPDF:
+        """Create PDF report."""
+        return report.create_structural_report(output)
