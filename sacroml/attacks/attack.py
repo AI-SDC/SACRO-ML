@@ -2,17 +2,13 @@
 
 from __future__ import annotations
 
-import importlib
 import inspect
 import logging
 import os
-import pickle
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any
 
-import numpy as np
 from fpdf import FPDF
 
 from sacroml.attacks import report
@@ -126,44 +122,3 @@ class Attack(ABC):
         for key in self._get_param_names():
             out[key] = getattr(self, key)
         return out
-
-    def save_shadow_model(
-        self, idx: int, model: Any, indices_train: np.ndarray, indices_test: np.ndarray
-    ) -> None:
-        """Save a trained shadow model."""
-        path: str = os.path.normpath(f"{self.output_dir}/shadow_models/{idx}")
-        os.makedirs(path, exist_ok=True)
-        with open(os.path.join(path, "model.pkl"), "wb") as f:
-            pickle.dump(model, f)
-        with open(os.path.join(path, "indices_train.pkl"), "wb") as f:
-            pickle.dump(indices_train, f)
-        with open(os.path.join(path, "indices_test.pkl"), "wb") as f:
-            pickle.dump(indices_test, f)
-
-    def get_shadow_model(self, idx: int) -> tuple[Any, np.ndarray, np.ndarray]:
-        """Return a shadow model and indices previously saved."""
-        path: str = os.path.normpath(f"{self.output_dir}/shadow_models/{idx}")
-        with open(os.path.join(path, "model.pkl"), "rb") as f:
-            model = pickle.load(f)
-        with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-            indices_train = pickle.load(f)
-        with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-            indices_test = pickle.load(f)
-        return model, indices_train, indices_test
-
-    def get_n_shadow_models(self) -> int:
-        """Return the number shadow models saved."""
-        path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
-        count: int = 0
-        for item in os.listdir(path):
-            item_path = os.path.join(path, item)
-            if os.path.isdir(item_path):
-                count += 1
-        return count
-
-
-def get_class_by_name(class_path: str):
-    """Return a class given its name."""
-    module_path, class_name = class_path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)

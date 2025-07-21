@@ -11,11 +11,10 @@ from scipy.stats import norm
 from sklearn.base import BaseEstimator
 
 from sacroml import metrics
-from sacroml.attacks import report
+from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
-from sacroml.attacks.utils import get_p_normal
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -229,11 +228,13 @@ class LIRAAttack(Attack):
             X_train, y_train, proba_train, X_test, y_test, proba_test
         )
 
-        self._train_shadow_models(
-            shadow_clf,
-            combined_data["features"],
-            combined_data["labels"],
-            n_train_rows,
+        utils.train_shadow_models(
+            shadow_clf=shadow_clf,
+            combined_x_train=combined_data["features"],
+            combined_y_train=combined_data["labels"],
+            n_train_rows=n_train_rows,
+            n_shadow_models=self.n_shadow_models,
+            output_dir=self.output_dir,
         )
 
         out_conf, in_conf = self._get_shadow_signals(
@@ -247,50 +248,6 @@ class LIRAAttack(Attack):
 
         self._save_attack_metrics(mia_scores, n_train_rows, n_shadow_rows, n_normal)
         logger.info("Finished scenario")
-
-    def _train_shadow_models(
-        self,
-        shadow_clf: Model,
-        combined_x_train: np.ndarray,
-        combined_y_train: np.ndarray,
-        n_train_rows: int,
-    ) -> None:
-        """Train and save shadow models.
-
-        Parameters
-        ----------
-        shadow_clf : Model
-            A classifier that will be trained to form the shadow models.
-        combined_x_train : np.ndarray
-            Array of combined train and test features.
-        combined_y_train : np.ndarray
-            Array of combined train and test labels.
-        n_train_rows : int
-            Number of samples in the training set.
-        """
-        logger.info("Training shadow models")
-
-        n_combined: int = combined_x_train.shape[0]
-        indices: np.ndarray = np.arange(0, n_combined, 1)
-
-        for idx in range(self.n_shadow_models):
-            if idx % 10 == 0:
-                logger.info("Trained %d models", idx)
-
-            # Pick the indices to use for training this one
-            np.random.seed(idx)
-            indices_train = np.random.choice(indices, n_train_rows, replace=False)
-            indices_test = np.setdiff1d(indices, indices_train)
-
-            # Fit the shadow model
-            shadow_clf.set_params(random_state=idx)
-            shadow_clf.fit(
-                combined_x_train[indices_train, :],
-                combined_y_train[indices_train],
-            )
-
-            # Save model and indices
-            self.save_shadow_model(idx, shadow_clf, indices_train, indices_test)
 
     def _get_shadow_signals(
         self,
@@ -314,14 +271,16 @@ class LIRAAttack(Attack):
         """
         logger.info("Getting shadow model signals")
 
-        n_shadow_models: int = self.get_n_shadow_models()
+        n_shadow_models: int = utils.get_n_shadow_models(self.output_dir)
         n_combined: int = combined_x_train.shape[0]
         out_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
         in_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
 
         for model_idx in range(n_shadow_models):
             # load shadow model
-            shadow_clf, indices_train, _ = self.get_shadow_model(model_idx)
+            shadow_clf, indices_train, _ = utils.get_shadow_model(
+                self.output_dir, model_idx
+            )
             # map a class to a column
             class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
             # generate shadow confidences
@@ -372,7 +331,7 @@ class LIRAAttack(Attack):
 
             mia_scores.append([pr_in, pr_out])
 
-            if get_p_normal(np.array(out_conf[i])) <= 0.05:
+            if utils.get_p_normal(np.array(out_conf[i])) <= 0.05:
                 n_normal += 1
 
             if self.report_individual:
@@ -450,7 +409,7 @@ class LIRAAttack(Attack):
         in_std: float,
     ) -> None:
         """Save individual record result."""
-        out_p_norm = get_p_normal(np.array(out_conf_sample))
+        out_p_norm = utils.get_p_normal(np.array(out_conf_sample))
 
         self.result["label"].append(label)
         self.result["target_logit"].append(target_logit)
