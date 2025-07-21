@@ -582,7 +582,6 @@ def _logit(p: float) -> float:
     instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
     defaults at 1e-16.
     """
-    if p > 1 - EPS:
-        p = 1 - EPS
+    p = min(p, 1 - EPS)
     p = max(p, EPS)
     return np.log(p / (1 - p))
