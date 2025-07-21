@@ -332,8 +332,7 @@ class StructuralAttack(Attack):
         self.dof_risk = residual_dof < self.DOF_THRESHOLD
 
         # k-anonymity
-        mink = np.min(np.array(equiv_counts))
-        self.k_anonymity_risk = mink < self.THRESHOLD
+        self.k_anonymity_risk = self.get_k_anonymity(equiv_counts)
 
         # unnecessary risk arising from poor hyper-parameter combination.
         self.unnecessary_risk = get_unnecessary_risk(model)
@@ -375,7 +374,16 @@ class StructuralAttack(Attack):
         return [equiv_classes, counts, members]
 
     def get_equivalence_classes(self) -> tuple:
-        """Get details of equivalence classes based on predicted probabilities."""
+        """Get details of equivalence classes based on predicted probabilities.
+
+        Records with the same predicted probabiliites are grouped together.
+
+        Returns
+        -------
+        tuple
+            list of unique classes
+            list of counts of records in each class
+        """
         uniques = np.unique(self.yprobs, axis=0, return_counts=True)
         equiv_classes = uniques[0]
         equiv_counts = uniques[1]
@@ -427,3 +435,19 @@ class StructuralAttack(Attack):
     def _make_pdf(self, output: dict) -> FPDF:
         """Create PDF report."""
         return report.create_structural_report(output)
+
+    def get_k_anonymity(self, equiv_counts) -> bool:
+        """Compare the size of the smallest group to the  TRE's threshold for reporting on small groups.
+
+        Parameters
+        ----------
+        equiv_counts : list
+            List of numbers of records in each equivalence class
+
+        Returns
+        -------
+        bool
+            size of smallest group is below threshold
+        """
+        mink = np.min(np.array(equiv_counts))
+        return mink < self.THRESHOLD
