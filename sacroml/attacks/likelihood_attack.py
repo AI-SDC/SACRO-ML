@@ -225,7 +225,7 @@ class LIRAAttack(Attack):
         n_train_rows = X_train.shape[0]
         n_shadow_rows = X_test.shape[0]
 
-        combined_data = self._combine_training_data(
+        combined_data = self._combine_data(
             X_train, y_train, proba_train, X_test, y_test, proba_test
         )
 
@@ -248,7 +248,7 @@ class LIRAAttack(Attack):
         self._save_attack_metrics(mia_scores, n_train_rows, n_shadow_rows, n_normal)
         logger.info("Finished scenario")
 
-    def _combine_training_data(
+    def _combine_data(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
