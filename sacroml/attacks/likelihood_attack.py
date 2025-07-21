@@ -269,12 +269,12 @@ class LIRAAttack(Attack):
             Dictionary of confidences when not in the training set.
             Dictionary of confidences when in the training set.
         """
-        logger.info("Getting shadow model signals")
-
         n_shadow_models: int = utils.get_n_shadow_models(self.output_dir)
         n_combined: int = combined_x_train.shape[0]
         out_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
         in_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
+
+        logger.info("Getting signals from %d shadow models", n_shadow_models)
 
         for model_idx in range(n_shadow_models):
             # load shadow model
