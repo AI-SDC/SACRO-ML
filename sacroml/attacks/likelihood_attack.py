@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import contextlib
 import logging
 import os
 
 import numpy as np
 from fpdf import FPDF
-from scipy.stats import norm, shapiro
+from scipy.stats import norm
 from sklearn.base import BaseEstimator
 
 from sacroml import metrics
@@ -16,17 +15,19 @@ from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
+from sacroml.attacks.utils import get_p_normal
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-EPS = 1e-16  # Used to avoid numerical issues
+EPS: float = 1e-16  # Used to avoid numerical issues
+MODES: list[str] = ["offline", "offline-carlini", "online-carlini"]
 
 
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         output_dir: str = "outputs",
         write_report: bool = True,
@@ -175,7 +176,7 @@ class LIRAAttack(Attack):
         )
         return target
 
-    def _run(  # pylint: disable=too-many-arguments,too-many-locals
+    def _run(
         self,
         shadow_clf: Model,
         X_train: np.ndarray,
@@ -221,139 +222,54 @@ class LIRAAttack(Attack):
         """
         logger.info("Running %s LiRA, fix_variance=%s", self.mode, self.fix_variance)
 
-        # Combine target and shadow train, from which to sample datasets
         n_train_rows = X_train.shape[0]
         n_shadow_rows = X_test.shape[0]
-        combined_x_train = np.vstack((X_train, X_test))
-        if y_train.ndim == 1 and y_test.ndim == 1:  # label encoding
-            combined_y_train = np.hstack((y_train, y_test))
-        else:  #  pragma: no cover (one-hot encoding)
-            combined_y_train = np.vstack((y_train, y_test))
-        combined_target_preds = np.vstack((proba_train, proba_test))
 
-        # Train shadow models
+        combined_data = self._combine_training_data(
+            X_train, y_train, proba_train, X_test, y_test, proba_test
+        )
+
         self._train_shadow_models(
             shadow_clf,
-            combined_x_train,
-            combined_y_train,
+            combined_data["features"],
+            combined_data["labels"],
             n_train_rows,
         )
 
-        # Get the confidences of samples when in and not in the training set
         out_conf, in_conf = self._get_shadow_signals(
-            combined_x_train,
-            combined_y_train,
+            combined_data["features"],
+            combined_data["labels"],
         )
 
-        # Get the LiRA scores, and how many confidences were normally distributed
         mia_scores, n_normal = self._compute_scores(
-            combined_y_train, combined_target_preds, out_conf, in_conf
+            combined_data["labels"], combined_data["predictions"], out_conf, in_conf
         )
 
-        # Save metrics
-        mia_clf = self._DummyClassifier()
-        mia_scores = np.array(mia_scores)
-        mia_labels = np.array([1] * n_train_rows + [0] * n_shadow_rows)
-        y_pred_proba = mia_clf.predict_proba(mia_scores)
-        self.attack_metrics = [metrics.get_metrics(y_pred_proba, mia_labels)]
-        self.attack_metrics[-1]["n_normal"] = n_normal / (n_train_rows + n_shadow_rows)
-        if self.report_individual:
-            self.result["score"] = [score[1] for score in mia_scores]
-            self.result["member"] = mia_labels
-            self.attack_metrics[-1]["individual"] = self.result
-
+        self._save_attack_metrics(mia_scores, n_train_rows, n_shadow_rows, n_normal)
         logger.info("Finished scenario")
 
-    def _compute_scores(  # pylint: disable=too-many-locals
+    def _combine_training_data(
         self,
-        combined_y_train: np.ndarray,
-        combined_target_preds: np.ndarray,
-        out_conf: dict[int, list[float]],
-        in_conf: dict[int, list[float]],
-    ) -> tuple[list[list[float]], int]:
-        """Compute LiRA scores for each record."""
-        logger.info("Computing scores")
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        proba_train: np.ndarray,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+        proba_test: np.ndarray,
+    ) -> dict[str, np.ndarray]:
+        """Combine training and test data.
 
-        mia_scores: list[list[float]] = []
-        n_normal: int = 0
-        global_in_std: float = self._get_global_std(in_conf)
-        global_out_std: float = self._get_global_std(out_conf)
+        Assumes label encoding.
+        """
+        combined_features = np.vstack((X_train, X_test))
+        combined_labels = np.hstack((y_train, y_test))
+        combined_predictions = np.vstack((proba_train, proba_test))
 
-        # score each record in the member and non-member sets
-        for i, y in enumerate(combined_y_train):
-            # get the target model behaviour on the record (handle one-hot or label)
-            label = np.argmax(y) if combined_y_train.ndim > 1 else y
-            target_logit: float = _logit(combined_target_preds[i, label])
-            # get behaviour observed with the record as a non-member
-            out_mean, out_std = self._describe_conf(out_conf[i], global_out_std)
-            # get behaviour observed with the record as a member
-            in_mean, in_std = self._describe_conf(in_conf[i], global_in_std)
-            # compare behaviour
-            if self.mode == "offline":
-                pr_out = norm.cdf(target_logit, loc=out_mean, scale=out_std + EPS)
-                pr_in = 1 - pr_out
-            elif self.mode == "online-carlini":
-                pr_out = -norm.logpdf(target_logit, out_mean, out_std + EPS)
-                pr_in = -norm.logpdf(target_logit, in_mean, in_std + EPS)
-                # ratio
-                pr_in = pr_in - pr_out
-                pr_out = -pr_in
-            elif self.mode == "offline-carlini":
-                pr_out = -norm.logpdf(target_logit, out_mean, out_std + EPS)
-                pr_in = -pr_out
-            else:
-                raise ValueError(f"Unsupported LiRA mode: {self.mode}")
-            mia_scores.append([pr_in, pr_out])
-            # test the non-member samples for normality
-            out_p_norm = self._get_p_normal(np.array(out_conf[i]))
-            if out_p_norm <= 0.05:
-                n_normal += 1
-            # save individual record result
-            if self.report_individual:
-                self.result["label"].append(label)
-                self.result["target_logit"].append(target_logit)
-                self.result["out_p_norm"].append(out_p_norm)
-                self.result["out_prob"].append(pr_out)
-                self.result["out_mean"].append(out_mean)
-                self.result["out_std"].append(out_std + EPS)
-                if self.mode == "online-carlini":
-                    self.result["in_prob"].append(pr_in)
-                    self.result["in_mean"].append(in_mean)
-                    self.result["in_std"].append(in_std + EPS)
-        return mia_scores, n_normal
-
-    def _describe_conf(
-        self, confidences: list[float], global_std: float
-    ) -> tuple[float, float]:
-        """Return the mean and standard deviation of a list of confidences."""
-        scores: np.ndarray = np.array(confidences)
-        mean: float = 0
-        std: float = 0
-        if not np.isnan(scores).all():
-            mean = float(np.nanmean(scores))
-            std = float(np.nanstd(scores))
-        if self.fix_variance:
-            std = global_std
-        return mean, std
-
-    def _get_global_std(self, confidences: dict[int, list[float]]) -> float:
-        """Return the global standard deviation."""
-        global_std: float = 0
-        if self.fix_variance:
-            # requires conversion from a dict of diff size proba lists
-            arrays = list(confidences.values())
-            combined = np.concatenate(arrays)
-            if not np.isnan(combined).all():
-                global_std = float(np.nanstd(combined))
-        return global_std
-
-    def _get_p_normal(self, samples: np.ndarray) -> float:
-        """Test whether a set of samples is normally distributed."""
-        p_normal: float = np.nan
-        if np.nanvar(samples) > EPS:
-            with contextlib.suppress(ValueError):
-                _, p_normal = shapiro(samples)
-        return p_normal
+        return {
+            "features": combined_features,
+            "labels": combined_labels,
+            "predictions": combined_predictions,
+        }
 
     def _train_shadow_models(
         self,
@@ -385,7 +301,7 @@ class LIRAAttack(Attack):
                 logger.info("Trained %d models", idx)
 
             # Pick the indices to use for training this one
-            np.random.seed(idx)  # Reproducibility
+            np.random.seed(idx)
             indices_train = np.random.choice(indices, n_train_rows, replace=False)
             indices_test = np.setdiff1d(indices, indices_train)
 
@@ -399,7 +315,7 @@ class LIRAAttack(Attack):
             # Save model and indices
             self.save_shadow_model(idx, shadow_clf, indices_train, indices_test)
 
-    def _get_shadow_signals(  # pylint: disable=too-many-locals
+    def _get_shadow_signals(
         self,
         combined_x_train: np.ndarray,
         combined_y_train: np.ndarray,
@@ -436,10 +352,7 @@ class LIRAAttack(Attack):
             indices_train = set(indices_train)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
-                if combined_y_train.ndim == 1:  # label encoding
-                    label = class_map.get(combined_y_train[i], -1)
-                else:  # pragma: no cover (one-hot encoding)
-                    label = np.argmax(combined_y_train[i])
+                label = class_map.get(combined_y_train[i], -1)
                 # Occasionally, the random data split will result in classes being
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
@@ -449,6 +362,155 @@ class LIRAAttack(Attack):
                 else:
                     in_conf[i].append(logit)
         return out_conf, in_conf
+
+    def _compute_scores(
+        self,
+        combined_y_train: np.ndarray,
+        combined_target_preds: np.ndarray,
+        out_conf: dict[int, list[float]],
+        in_conf: dict[int, list[float]],
+    ) -> tuple[list[list[float]], int]:
+        """Compute LiRA scores for each record."""
+        logger.info("Computing scores")
+
+        mia_scores: list[list[float]] = []
+        n_normal: int = 0
+        global_in_std: float = self._get_global_std(in_conf)
+        global_out_std: float = self._get_global_std(out_conf)
+
+        for i, label in enumerate(combined_y_train):
+            logit = _logit(combined_target_preds[i, label])
+
+            out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
+            in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
+
+            pr_in, pr_out = self._get_probabilities(
+                logit=logit,
+                out_mean=out_mean,
+                out_std=out_std,
+                in_mean=in_mean,
+                in_std=in_std,
+                mode=self.mode,
+            )
+
+            mia_scores.append([pr_in, pr_out])
+
+            if get_p_normal(np.array(out_conf[i])) <= 0.05:
+                n_normal += 1
+
+            if self.report_individual:
+                self._save_individual_result(
+                    label,
+                    logit,
+                    out_conf[i],
+                    pr_out,
+                    out_mean,
+                    out_std,
+                    pr_in,
+                    in_mean,
+                    in_std,
+                )
+
+        return mia_scores, n_normal
+
+    def _get_probabilities(
+        self,
+        logit: float,
+        out_mean: float,
+        out_std: float,
+        in_mean: float,
+        in_std: float,
+        mode: str,
+    ) -> tuple[float, float]:
+        """Calculate probabilities based on the selected mode."""
+        if mode == "offline":
+            pr_out = norm.cdf(logit, loc=out_mean, scale=out_std + EPS)
+            pr_in = 1 - pr_out
+        elif mode == "online-carlini":
+            pr_out = -norm.logpdf(logit, out_mean, out_std + EPS)
+            pr_in = -norm.logpdf(logit, in_mean, in_std + EPS)
+            pr_in = pr_in - pr_out
+            pr_out = -pr_in
+        elif mode == "offline-carlini":
+            pr_out = -norm.logpdf(logit, out_mean, out_std + EPS)
+            pr_in = -pr_out
+        else:
+            raise ValueError(f"Unsupported LiRA mode: {self.mode}")
+
+        return float(pr_in), float(pr_out)
+
+    def _save_attack_metrics(
+        self,
+        mia_scores: list[list[float]],
+        n_train_rows: int,
+        n_shadow_rows: int,
+        n_normal: int,
+    ) -> None:
+        """Save attack metrics and individual results."""
+        mia_clf = self._DummyClassifier()
+        mia_scores_array = np.array(mia_scores)
+        mia_labels = np.array([1] * n_train_rows + [0] * n_shadow_rows)
+        y_pred_proba = mia_clf.predict_proba(mia_scores_array)
+
+        self.attack_metrics = [metrics.get_metrics(y_pred_proba, mia_labels)]
+        self.attack_metrics[-1]["n_normal"] = n_normal / (n_train_rows + n_shadow_rows)
+
+        if self.report_individual:
+            self.result["score"] = [score[1] for score in mia_scores]
+            self.result["member"] = mia_labels
+            self.attack_metrics[-1]["individual"] = self.result
+
+    def _save_individual_result(
+        self,
+        label: int,
+        target_logit: float,
+        out_conf_sample: list[float],
+        pr_out: float,
+        out_mean: float,
+        out_std: float,
+        pr_in: float,
+        in_mean: float,
+        in_std: float,
+    ) -> None:
+        """Save individual record result."""
+        out_p_norm = get_p_normal(np.array(out_conf_sample))
+
+        self.result["label"].append(label)
+        self.result["target_logit"].append(target_logit)
+        self.result["out_p_norm"].append(out_p_norm)
+        self.result["out_prob"].append(pr_out)
+        self.result["out_mean"].append(out_mean)
+        self.result["out_std"].append(out_std + EPS)
+
+        if self.mode == "online-carlini":
+            self.result["in_prob"].append(pr_in)
+            self.result["in_mean"].append(in_mean)
+            self.result["in_std"].append(in_std + EPS)
+
+    def _get_mean_std(
+        self, confidences: list[float], global_std: float
+    ) -> tuple[float, float]:
+        """Return the mean and standard deviation of a list of confidences."""
+        scores: np.ndarray = np.array(confidences)
+        mean: float = 0
+        std: float = 0
+        if not np.isnan(scores).all():
+            mean = float(np.nanmean(scores))
+            std = float(np.nanstd(scores))
+        if self.fix_variance:
+            std = global_std
+        return mean, std
+
+    def _get_global_std(self, confidences: dict[int, list[float]]) -> float:
+        """Return the global standard deviation."""
+        global_std: float = 0
+        if self.fix_variance:
+            # requires conversion from a dict of diff size proba lists
+            arrays = list(confidences.values())
+            combined = np.concatenate(arrays)
+            if not np.isnan(combined).all():
+                global_std = float(np.nanstd(combined))
+        return global_std
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object."""
