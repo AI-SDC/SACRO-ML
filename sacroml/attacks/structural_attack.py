@@ -13,11 +13,13 @@ import logging
 
 import numpy as np
 from acro import ACRO
+from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
+
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
