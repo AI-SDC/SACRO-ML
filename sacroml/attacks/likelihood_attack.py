@@ -34,7 +34,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 EPS: float = 1e-16  # Used to avoid numerical issues
-MODES: list[str] = ["offline", "offline-carlini", "online-carlini"]
 
 
 class LIRAAttack(Attack):
