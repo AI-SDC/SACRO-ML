@@ -93,7 +93,7 @@ def train_shadow_models(
     logger.info("Training shadow models")
 
     n_models_trained: int = get_n_shadow_models(output_dir)
-    if n_models_trained > 0:
+    if n_models_trained > 0:  # pragma: no cover
         logger.info("Reusing %d models previously trained", n_models_trained)
 
     n_combined: int = combined_x_train.shape[0]
