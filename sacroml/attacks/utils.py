@@ -94,7 +94,7 @@ def train_shadow_models(
 
     n_models_trained: int = get_n_shadow_models(shadow_path)
     if n_models_trained > 0:  # pragma: no cover
-        logger.info("Reusing %d models previously trained", n_models_trained)
+        logger.info("Found %d models previously trained", n_models_trained)
 
     n_combined: int = combined_x_train.shape[0]
     indices: np.ndarray = np.arange(0, n_combined, 1)
