@@ -336,7 +336,7 @@ class LIRAAttack(Attack):
             pr_out = -norm.logpdf(logit, out_mean, out_std + EPS)
             pr_in = -pr_out
         else:
-            raise ValueError(f"Unsupported LiRA mode: {self.mode}")
+            raise ValueError(f"Unsupported LiRA mode: {mode}")
 
         return float(pr_in), float(pr_out)
 

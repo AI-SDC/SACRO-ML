@@ -73,6 +73,8 @@ def train_shadow_models(
 ) -> None:
     """Train and save shadow models.
 
+    Reuses any saved models that are available.
+
     Parameters
     ----------
     shadow_clf : Model
@@ -90,10 +92,14 @@ def train_shadow_models(
     """
     logger.info("Training shadow models")
 
+    n_models_trained: int = get_n_shadow_models(output_dir)
+    if n_models_trained > 0:
+        logger.info("Reusing %d models previously trained", n_models_trained)
+
     n_combined: int = combined_x_train.shape[0]
     indices: np.ndarray = np.arange(0, n_combined, 1)
 
-    for idx in range(n_shadow_models):
+    for idx in range(n_models_trained, n_shadow_models):
         if idx % 10 == 0:
             logger.info("Trained %d models", idx)
 
