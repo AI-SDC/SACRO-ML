@@ -293,17 +293,17 @@ class LIRAAttack(Attack):
                 n_normal += 1
 
             if self.report_individual:
-                self._save_individual_result(
-                    label,
-                    logit,
-                    out_conf[i],
-                    pr_out,
-                    out_mean,
-                    out_std,
-                    pr_in,
-                    in_mean,
-                    in_std,
-                )
+                out_p_norm: float = utils.get_p_normal(np.array(out_conf[i]))
+                self.result["label"].append(label)
+                self.result["target_logit"].append(logit)
+                self.result["out_p_norm"].append(out_p_norm)
+                self.result["out_prob"].append(pr_out)
+                self.result["out_mean"].append(out_mean)
+                self.result["out_std"].append(out_std + EPS)
+                if self.mode == "online-carlini":
+                    self.result["in_prob"].append(pr_in)
+                    self.result["in_mean"].append(in_mean)
+                    self.result["in_std"].append(in_std + EPS)
 
         return mia_scores, n_normal
 
@@ -353,33 +353,6 @@ class LIRAAttack(Attack):
             self.result["score"] = [score[1] for score in mia_scores]
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
-
-    def _save_individual_result(
-        self,
-        label: int,
-        target_logit: float,
-        out_conf_sample: list[float],
-        pr_out: float,
-        out_mean: float,
-        out_std: float,
-        pr_in: float,
-        in_mean: float,
-        in_std: float,
-    ) -> None:
-        """Save individual record result."""
-        out_p_norm = utils.get_p_normal(np.array(out_conf_sample))
-
-        self.result["label"].append(label)
-        self.result["target_logit"].append(target_logit)
-        self.result["out_p_norm"].append(out_p_norm)
-        self.result["out_prob"].append(pr_out)
-        self.result["out_mean"].append(out_mean)
-        self.result["out_std"].append(out_std + EPS)
-
-        if self.mode == "online-carlini":
-            self.result["in_prob"].append(pr_in)
-            self.result["in_mean"].append(in_mean)
-            self.result["in_std"].append(in_std + EPS)
 
     def _get_mean_std(
         self, confidences: list[float], global_std: float
