@@ -18,7 +18,6 @@ from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
 from __future__ import annotations
 
 import logging
-import os
 
 import numpy as np
 from fpdf import FPDF
@@ -89,10 +88,6 @@ class LIRAAttack(Attack):
                 self.result["in_prob"] = []
                 self.result["in_mean"] = []
                 self.result["in_std"] = []
-
-        # Create folder for saving trained shadow models
-        shadow_path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
-        os.makedirs(shadow_path, exist_ok=True)
 
     def __str__(self):
         """Return the name of the attack."""
@@ -198,7 +193,7 @@ class LIRAAttack(Attack):
             combined_y_train=combined_data["labels"],
             n_train_rows=n_train_rows,
             n_shadow_models=self.n_shadow_models,
-            output_dir=self.output_dir,
+            shadow_path=self.shadow_path,
         )
 
         out_conf, in_conf = self._get_shadow_signals(
@@ -233,7 +228,7 @@ class LIRAAttack(Attack):
             Dictionary of confidences when not in the training set.
             Dictionary of confidences when in the training set.
         """
-        n_shadow_models: int = utils.get_n_shadow_models(self.output_dir)
+        n_shadow_models: int = utils.get_n_shadow_models(self.shadow_path)
         n_combined: int = combined_x_train.shape[0]
         out_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
         in_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
@@ -243,7 +238,7 @@ class LIRAAttack(Attack):
         for model_idx in range(n_shadow_models):
             # load shadow model
             shadow_clf, indices_train, _ = utils.get_shadow_model(
-                self.output_dir, model_idx
+                self.shadow_path, model_idx
             )
             # map a class to a column
             class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}

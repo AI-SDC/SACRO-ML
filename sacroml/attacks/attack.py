@@ -38,6 +38,10 @@ class Attack(ABC):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
+        # Create folder for saving trained shadow models
+        self.shadow_path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
+        os.makedirs(self.shadow_path, exist_ok=True)
+
     @classmethod
     @abstractmethod
     def attackable(cls, target: Target) -> bool:
