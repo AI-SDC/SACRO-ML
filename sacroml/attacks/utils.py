@@ -152,7 +152,7 @@ def get_shadow_model(shadow_path: str, idx: int) -> tuple[Any, np.ndarray, np.nd
 def get_n_shadow_models(shadow_path: str) -> int:
     """Return the number shadow models saved."""
     count: int = 0
-    for item in os.listdir(shadow_path):
+    for item in os.listdir(shadow_path):  # pragma: no cover
         item_path = os.path.join(shadow_path, item)
         if os.path.isdir(item_path):
             count += 1
