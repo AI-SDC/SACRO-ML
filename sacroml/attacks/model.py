@@ -11,10 +11,10 @@ from typing import Any
 import numpy as np
 
 
-class Model(ABC):  # pylint: disable=too-many-instance-attributes
+class Model(ABC):
     """Interface to a target model."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         model: Any,
         model_path: str = "",
@@ -203,7 +203,7 @@ class Model(ABC):  # pylint: disable=too-many-instance-attributes
 
     @classmethod
     @abstractmethod
-    def load(  # pylint: disable=too-many-arguments
+    def load(
         cls,
         model_path: str,
         model_module_path: str,

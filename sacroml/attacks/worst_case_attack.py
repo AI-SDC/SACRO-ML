@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 P_THRESH = 0.05
 
 
-class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
+class WorstCaseAttack(Attack):
     """Worst case attack."""
 
-    def __init__(  # pylint: disable = too-many-arguments
+    def __init__(
         self,
         output_dir: str = "outputs",
         write_report: bool = True,
@@ -278,7 +278,7 @@ class WorstCaseAttack(Attack):  # pylint: disable=too-many-instance-attributes
             print("reproduce split now", split)
         return split
 
-    def run_attack_reps(  # pylint: disable = too-many-locals
+    def run_attack_reps(
         self,
         proba_train: np.ndarray,
         proba_test: np.ndarray,

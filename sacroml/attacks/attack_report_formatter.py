@@ -110,7 +110,7 @@ class AnalysisModule:
         raise NotImplementedError()
 
 
-class FinalRecommendationModule(AnalysisModule):  # pylint: disable=too-many-instance-attributes
+class FinalRecommendationModule(AnalysisModule):
     """Generate the first layer of a recommendation report."""
 
     def __init__(self, report: dict) -> None:
@@ -565,7 +565,7 @@ class GenerateTextReport:
 
         self.text_out.append(bucket_text)
 
-    def export_to_file(  # pylint: disable=too-many-arguments
+    def export_to_file(
         self,
         output_filename: str = "summary.txt",
         move_files: bool = False,

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class PytorchModel(Model):
     """Interface to Pytorch models."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         model: torch.nn.Module,
         model_path: str = "",
@@ -281,7 +281,7 @@ class PytorchModel(Model):
         torch.save(self.model.state_dict(), path)
 
     @classmethod
-    def load(  # pylint: disable=too-many-arguments
+    def load(
         cls,
         model_path: str,
         model_module_path: str,

@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Target:  # pylint: disable=too-many-instance-attributes
+class Target:
     """Store information about the target model and data.
 
     Attributes

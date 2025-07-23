@@ -5,15 +5,13 @@ this with details of the model you wish to create a wrapper for and then remove
 the comment which disables the pylint warning.
 """
 
-# pylint: disable=duplicate-code
-
 from __future__ import annotations
 
 import copy
 
 import numpy as np
 from dictdiffer import diff
-from sklearn.ensemble import ModelToMakeSafer  # pylint: disable=E0611
+from sklearn.ensemble import ModelToMakeSafer
 from sklearn.tree import DecisionTreeClassifier
 
 from sacroml.safemodel.safemodel import SafeModel
@@ -86,7 +84,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
 
-    def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
+    def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Perform model specific checks.
@@ -142,7 +140,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
                                     msg += f"Forest base estimators {idx} differ."
                                     msg += msg2
 
-                    except BaseException as error:  # pylint:disable=broad-except
+                    except BaseException as error:
                         msg += (
                             "In Safe ModelToMakeSafer.additional_checks: "
                             f"Unable to check {item} as an exception occurred: {error}.\n"

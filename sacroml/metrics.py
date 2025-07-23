@@ -212,7 +212,7 @@ def _permute_rows(X_test: np.ndarray, y_test: np.ndarray) -> None:
     y_test = y_test[order]
 
 
-def get_metrics(  # pylint: disable=too-many-locals
+def get_metrics(
     y_pred_proba: np.ndarray, y_test: np.ndarray, permute_rows: bool = True
 ) -> dict:
     """Calculate metrics, including attacker advantage for MIA binary.

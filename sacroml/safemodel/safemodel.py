@@ -18,7 +18,6 @@ from dictdiffer import diff
 from sacroml.attacks.factory import attack
 from sacroml.attacks.target import Target
 
-# pylint : disable=too-many-branches
 from .reporting import get_reporting_string
 
 logger = logging.getLogger(__name__)
@@ -160,7 +159,7 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     return msg, disclosive
 
 
-class SafeModel:  # pylint: disable = too-many-instance-attributes
+class SafeModel:
     """Privacy protected model base class.
 
     Attributes
