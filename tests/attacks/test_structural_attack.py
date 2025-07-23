@@ -227,7 +227,8 @@ def test_adaboost():
     myattack2.attack(target)
     assert myattack2.dof_risk, "should be  DoF risk with adaboost of deep trees"
     assert myattack2.k_anonymity_risk, (
-        "should be k-anonymity risk with adaboost unlimited depth and min_samples_leaf 2"
+        "should be k-anonymity risk with adaboost unlimited depth "
+        "and min_samples_leaf 2"
     )
     assert myattack2.class_disclosure_risk, (
         "should be class risk with adaboost unlimited depth and min_samples_leaf 2"

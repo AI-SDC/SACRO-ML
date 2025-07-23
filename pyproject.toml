@@ -98,7 +98,7 @@ lint.select = [
 #  "C90", # mccabe
   "D",   # pydocstyle
 #  "DTZ", # flake8-datetimez
-#  "E",   # pycodestyle
+  "E",   # pycodestyle
   "EM",  # flake8-errmsg
   "ERA", # eradicate
   "F",   # Pyflakes

@@ -268,10 +268,11 @@ def get_metrics(
     metrics = {}
     # true positive rate or recall
     metrics["TPR"] = round(float(tp / (tp + fn)), 8)
-    # false positive rate, proportion of negative examples incorrectly classified as positives
+    # false positive rate, proportion of negative examples
+    # incorrectly classified as positives
     metrics["FPR"] = round(float(fp / (fp + tn)), 8)
-    # False alarm rate, proportion of things classified as positives that are incorrect,
-    # also known as false discovery rate
+    # False alarm rate, proportion of things classified as positives
+    # that are incorrect, also known as false discovery rate
     metrics["FAR"] = _div(fp, (fp + tp), 0)
     # true negative rate or specificity
     metrics["TNR"] = round(float(tn / (tn + fp)), 8)

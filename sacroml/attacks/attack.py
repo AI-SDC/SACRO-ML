@@ -74,7 +74,7 @@ class Attack(ABC):
         logger.info("Generating report")
         self._construct_metadata()
 
-        if not target.model is None:
+        if target.model is not None:
             self.metadata["target_model"] = target.model.model_name
             self.metadata["target_model_params"] = target.model.model_params
             self.metadata["target_train_params"] = target.model.train_params

@@ -193,7 +193,8 @@ class SafeModel:
     ...     target=target,
     ... )
     WARNING: model parameters may present a disclosure risk:
-    - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+    - parameter min_samples_leaf = 1 identified as less than the
+    recommended min value of 5.
     Changed parameter min_samples_leaf = 5.
 
     Model parameters are within recommended ranges.

@@ -97,7 +97,8 @@ def test_params_checks_ok():
     correct_msg = ok_start
     msg, disclosive = model.preliminary_check()
     print(
-        f"exactly_boo is {model.exactly_boo} with type{type(model.exactly_boo).__name__}"
+        f"exactly_boo is {model.exactly_boo} with "
+        f"type{type(model.exactly_boo).__name__}"
     )
     assert msg == ok_start, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
     assert not disclosive
