@@ -104,7 +104,7 @@ def decision_tree_internal_trees_are_equal(
                         name="internal_attribute_differs", attr=attr
                     )
                     same = False
-    except BaseException as error:
+    except BaseException as error:  # pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
     return same, msg
 
