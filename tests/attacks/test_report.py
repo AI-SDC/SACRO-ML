@@ -40,7 +40,5 @@ def test_dict():
     pdf = FPDF()
     pdf.add_page()
     mydict = {"a": "hello", "b": "world"}
-    report._write_dict(  # pylint:disable=protected-access
-        pdf, mydict, border=BORDER
-    )
+    report._write_dict(pdf, mydict, border=BORDER)
     pdf.close()
