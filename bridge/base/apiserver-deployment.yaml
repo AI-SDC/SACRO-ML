@@ -1,0 +1,60 @@
+#! apiserver-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: apiserver
+    namespace: sacro-ml
+    labels:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: apiserver
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: sacro-ml
+            com.docker.compose.service: apiserver
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: sacro-ml
+                com.docker.compose.service: apiserver
+                com.docker.compose.network.default: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: apiserver
+                  image: dependencytrack/apiserver
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: ALPINE_DATABASE_DRIVER
+                      value: "org.postgresql.Driver"
+                    - name: ALPINE_DATABASE_MODE
+                      value: "external"
+                    - name: ALPINE_DATABASE_PASSWORD
+                      value: "dtrack"
+                    - name: ALPINE_DATABASE_URL
+                      value: "jdbc:postgresql://postgres:5432/dtrack"
+                    - name: ALPINE_DATABASE_USERNAME
+                      value: "dtrack"
+                  livenessProbe:
+                    exec:
+                        command:
+                            - /bin/sh
+                            - -c
+                            - wget -t 1 -T 3 --no-proxy -q -O /dev/null http://127.0.0.1:8080${CONTEXT}health || exit 1
+                    periodSeconds: 30
+                    initialDelaySeconds: 60
+                    timeoutSeconds: 3
+                  ports:
+                    - name: apiserver-8080
+                      containerPort: 8080
+                  volumeMounts:
+                    - name: data
+                      mountPath: /data
+            volumes:
+                - name: data
+                  persistentVolumeClaim:
+                    claimName: apiserver-dtrack-data

@@ -1,0 +1,17 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - 0-sacro-ml-namespace.yaml
+    - apiserver-deployment.yaml
+    - apiserver-dtrack-data-persistentVolumeClaim.yaml
+    - apiserver-expose.yaml
+    - apiserver-service.yaml
+    - default-network-policy.yaml
+    - frontend-deployment.yaml
+    - frontend-expose.yaml
+    - frontend-service.yaml
+    - postgres-deployment.yaml
+    - postgres-expose.yaml
+    - postgres-postgres-data-persistentVolumeClaim.yaml

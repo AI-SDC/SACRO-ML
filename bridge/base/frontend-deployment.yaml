@@ -1,0 +1,36 @@
+#! frontend-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: frontend
+    namespace: sacro-ml
+    labels:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: frontend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: sacro-ml
+            com.docker.compose.service: frontend
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: sacro-ml
+                com.docker.compose.service: frontend
+                com.docker.compose.network.default: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: frontend
+                  image: dependencytrack/frontend
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: API_BASE_URL
+                      value: "http://localhost:8081"
+                  ports:
+                    - name: frontend-8080
+                      containerPort: 8080

@@ -1,0 +1,23 @@
+# check if there is at least one published port
+
+#! apiserver-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: apiserver-published
+    namespace: sacro-ml
+    labels:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: apiserver
+spec:
+    selector:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: apiserver
+    ports:
+        - name: apiserver-8081
+          port: 8081
+          protocol: TCP
+          targetPort: apiserver-8080
+
+# check if there is at least one published port

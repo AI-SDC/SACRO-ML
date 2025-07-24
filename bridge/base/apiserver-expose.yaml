@@ -1,0 +1,18 @@
+#! apiserver-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: apiserver
+    namespace: sacro-ml
+    labels:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: apiserver
+spec:
+    selector:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: apiserver
+    ports:
+        - name: apiserver-8080
+          port: 8080
+          targetPort: apiserver-8080

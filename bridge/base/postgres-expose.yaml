@@ -1,0 +1,18 @@
+#! postgres-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: postgres
+    namespace: sacro-ml
+    labels:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: postgres
+spec:
+    selector:
+        com.docker.compose.project: sacro-ml
+        com.docker.compose.service: postgres
+    ports:
+        - name: postgres-5432
+          port: 5432
+          targetPort: postgres-5432

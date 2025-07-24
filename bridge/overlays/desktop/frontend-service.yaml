@@ -1,0 +1,9 @@
+#! frontend-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: frontend-published
+    namespace: sacro-ml
+spec:
+    type: LoadBalancer
