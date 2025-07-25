@@ -96,12 +96,12 @@
 
 <div class="viewcode-block" id="WorstCaseAttack">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack">[docs]</a>
-<span class="k">class</span> <span class="nc">WorstCaseAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<span class="k">class</span> <span class="nc">WorstCaseAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Worst case attack.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WorstCaseAttack.__init__">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-arguments</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
         <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -364,7 +364,7 @@
 
 <div class="viewcode-block" id="WorstCaseAttack.run_attack_reps">
 <a class="viewcode-back" href="../../../attacks/worst_case.html#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_attack_reps</span><span class="p">(</span>  <span class="c1"># pylint: disable = too-many-locals</span>
+    <span class="k">def</span> <span class="nf">run_attack_reps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">proba_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>

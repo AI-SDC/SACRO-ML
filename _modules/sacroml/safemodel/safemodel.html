@@ -91,7 +91,6 @@
 <span class="kn">from</span> <span class="nn">sacroml.attacks.factory</span> <span class="kn">import</span> <span class="n">attack</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
-<span class="c1"># pylint : disable=too-many-branches</span>
 <span class="kn">from</span> <span class="nn">.reporting</span> <span class="kn">import</span> <span class="n">get_reporting_string</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -247,7 +246,7 @@
 
 <div class="viewcode-block" id="SafeModel">
 <a class="viewcode-back" href="../../../safemodel/safemodel.html#sacroml.safemodel.safemodel.SafeModel">[docs]</a>
-<span class="k">class</span> <span class="nc">SafeModel</span><span class="p">:</span>  <span class="c1"># pylint: disable = too-many-instance-attributes</span>
+<span class="k">class</span> <span class="nc">SafeModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Privacy protected model base class.</span>
 
 <span class="sd">    Attributes</span>
@@ -281,7 +280,8 @@
 <span class="sd">    ...     target=target,</span>
 <span class="sd">    ... )</span>
 <span class="sd">    WARNING: model parameters may present a disclosure risk:</span>
-<span class="sd">    - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.</span>
+<span class="sd">    - parameter min_samples_leaf = 1 identified as less than the</span>
+<span class="sd">    recommended min value of 5.</span>
 <span class="sd">    Changed parameter min_samples_leaf = 5.</span>
 
 <span class="sd">    Model parameters are within recommended ranges.</span>

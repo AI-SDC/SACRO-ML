@@ -259,7 +259,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">combined_feature</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_get_inference_data</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">_get_inference_data</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memberset</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dataset of each sample with the attributes to test.&quot;&quot;&quot;</span>
@@ -294,7 +294,7 @@
     <span class="k">return</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">baseline</span>
 
 
-<span class="k">def</span> <span class="nf">_infer</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">_infer</span><span class="p">(</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
     <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -422,9 +422,7 @@
 
 <div class="viewcode-block" id="plot_categorical_risk">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_risk">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_categorical_risk</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
-    <span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">plot_categorical_risk</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing categorical risk scores.</span>
 
 <span class="sd">    Parameters</span>
@@ -472,9 +470,7 @@
 
 <div class="viewcode-block" id="plot_categorical_fraction">
 <a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_fraction">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_categorical_fraction</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
-    <span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">plot_categorical_fraction</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing fraction of dataset inferred.</span>
 
 <span class="sd">    Parameters</span>
@@ -569,7 +565,7 @@
     <span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-arguments</span>
+<span class="k">def</span> <span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>
     <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
     <span class="n">feat_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">feat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>

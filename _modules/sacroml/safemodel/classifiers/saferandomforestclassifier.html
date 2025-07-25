@@ -85,8 +85,6 @@
 
 <span class="kn">from</span> <span class="nn">.safedecisiontreeclassifier</span> <span class="kn">import</span> <span class="n">decision_trees_are_equal</span>
 
-<span class="c1"># pylint: disable=too-many-ancestors</span>
-
 
 <div class="viewcode-block" id="SafeRandomForestClassifier">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier">[docs]</a>
@@ -138,7 +136,7 @@
 
 <div class="viewcode-block" id="SafeRandomForestClassifier.additional_checks">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.additional_checks">[docs]</a>
-    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
+    <span class="k">def</span> <span class="nf">additional_checks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">curr_separate</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">saved_separate</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform Random Forest specific checks.</span>
@@ -151,7 +149,7 @@
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">examine_seperately_items</span><span class="p">:</span>
             <span class="c1"># template for class of things that make up forest</span>
             <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;estimator&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">curr_separate</span><span class="p">[</span><span class="n">item</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">saved_separate</span><span class="p">[</span><span class="n">item</span><span class="p">]):</span>
                     <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
                         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;param_changed_from_to&quot;</span><span class="p">,</span>
                         <span class="n">key</span><span class="o">=</span><span class="s2">&quot;estimator&quot;</span><span class="p">,</span>
@@ -184,9 +182,7 @@
                                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;forest_estimators_differ&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">num_diff_trees</span>
                             <span class="p">)</span>
                             <span class="n">disclosive</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">except</span> <span class="p">(</span>
-                    <span class="ne">BaseException</span>  <span class="c1"># pylint: disable=broad-except</span>
-                <span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pragma:no coverion</span>
+                <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pragma:no coverion</span>
                     <span class="n">msg</span> <span class="o">+=</span> <span class="n">get_reporting_string</span><span class="p">(</span>
                         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unable_to_check_item&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="n">item</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span>
                     <span class="p">)</span>
@@ -195,7 +191,6 @@
         <span class="k">return</span> <span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span></div>
 
 
-    <span class="c1"># pylint: disable=arguments-differ</span>
 <div class="viewcode-block" id="SafeRandomForestClassifier.fit">
 <a class="viewcode-back" href="../../../../safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.fit">[docs]</a>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

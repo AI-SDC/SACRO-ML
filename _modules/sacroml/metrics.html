@@ -293,7 +293,7 @@
 
 <div class="viewcode-block" id="get_metrics">
 <a class="viewcode-back" href="../../attacks/metrics.html#sacroml.metrics.get_metrics">[docs]</a>
-<span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
+<span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span>
     <span class="n">y_pred_proba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">permute_rows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate metrics, including attacker advantage for MIA binary.</span>
@@ -349,10 +349,11 @@
     <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># true positive rate or recall</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
-    <span class="c1"># false positive rate, proportion of negative examples incorrectly classified as positives</span>
+    <span class="c1"># false positive rate, proportion of negative examples</span>
+    <span class="c1"># incorrectly classified as positives</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fp</span> <span class="o">/</span> <span class="p">(</span><span class="n">fp</span> <span class="o">+</span> <span class="n">tn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
-    <span class="c1"># False alarm rate, proportion of things classified as positives that are incorrect,</span>
-    <span class="c1"># also known as false discovery rate</span>
+    <span class="c1"># False alarm rate, proportion of things classified as positives</span>
+    <span class="c1"># that are incorrect, also known as false discovery rate</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_div</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="p">(</span><span class="n">fp</span> <span class="o">+</span> <span class="n">tp</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="c1"># true negative rate or specificity</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TNR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tn</span> <span class="o">/</span> <span class="p">(</span><span class="n">tn</span> <span class="o">+</span> <span class="n">fp</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
