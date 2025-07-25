@@ -14,7 +14,7 @@ from sacroml.attacks.data import SklearnDataHandler
 random_state = 1
 
 
-class Nursery(SklearnDataHandler):  # pylint: disable=too-many-instance-attributes
+class Nursery(SklearnDataHandler):
     """Nursery dataset handler."""
 
     def __init__(self) -> None:

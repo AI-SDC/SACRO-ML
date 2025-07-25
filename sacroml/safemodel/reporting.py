@@ -75,25 +75,31 @@ def get_reporting_string(**kwargs: dict) -> str:
         "NULL": (""),
         "less_than_min_value": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
-            f" identified as less than the recommended min value of {inter_params['val']}."
+            " identified as less than the recommended min value of "
+            f"{inter_params['val']}."
         ),
         "greater_than_max_value": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
-            f" identified as greater than the recommended max value of {inter_params['val']}."
+            " identified as greater than the recommended max value of "
+            f"{inter_params['val']}."
         ),
         "different_than_fixed_value": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
-            f" identified as different than the recommended fixed value of {inter_params['val']}."
+            " identified as different than the recommended fixed value of "
+            f"{inter_params['val']}."
         ),
         "different_than_recommended_type": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
-            f" identified as different type to recommendation of {inter_params['val']}.\n"
+            " identified as different type to recommendation of "
+            f"{inter_params['val']}.\n"
         ),
         "change_param_type": (
-            f"\nChanged parameter type for {inter_params['key']} to {inter_params['val']}.\n"
+            f"\nChanged parameter type for {inter_params['key']} to "
+            f"{inter_params['val']}.\n"
         ),
         "not_implemented_for_change": (
-            f"Nothing currently implemented to change type of parameter {inter_params['key']} "
+            "Nothing currently implemented to change type of parameter "
+            f"{inter_params['key']} "
             f"from {type(inter_params['cur_val']).__name__} to {inter_params['val']}.\n"
         ),
         "changed_param_equal": (
@@ -135,7 +141,8 @@ def get_reporting_string(**kwargs: dict) -> str:
             f"current epsilon is: {inter_params['current_epsilon']}."
             "Calculated from the parameters:  "
             f"Num Samples = {inter_params['num_samples']}, "
-            f"batch_size = {inter_params['batch_size']}, epochs = {inter_params['epochs']}.\n"
+            f"batch_size = {inter_params['batch_size']}, "
+            f"epochs = {inter_params['epochs']}.\n"
         ),
         "dp_requirements_not_met": (
             f"The requirements for DP are not met, "
@@ -178,7 +185,9 @@ def get_reporting_string(**kwargs: dict) -> str:
             f"Error, item  {inter_params['item']} "
             "present in  current but not saved model.\n"
         ),
-        "both_item_removed": f"Note that item {inter_params['item']} missing from both versions.\n",
+        "both_item_removed": (
+            f"Note that item {inter_params['item']} missing from both versions.\n"
+        ),
         "trees_edited": (
             "Error: current version of model has had trees manually edited.\n"
         ),

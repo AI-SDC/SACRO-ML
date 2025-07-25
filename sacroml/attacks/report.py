@@ -172,7 +172,7 @@ def title(
     pdf.ln(h=5)
 
 
-def subtitle(  # pylint: disable = too-many-arguments
+def subtitle(
     pdf: FPDF,
     text: str,
     indent: int = 10,
@@ -186,7 +186,7 @@ def subtitle(  # pylint: disable = too-many-arguments
     pdf.cell(75, 10, text, border, 1)
 
 
-def line(  # pylint: disable = too-many-arguments
+def line(
     pdf: FPDF,
     text: str,
     indent: int = 0,

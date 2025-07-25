@@ -5,15 +5,13 @@ this with details of the model you wish to create a wrapper for and then remove
 the comment which disables the pylint warning.
 """
 
-# pylint: disable=duplicate-code
-
 from __future__ import annotations
 
 import copy
 
 import numpy as np
 from dictdiffer import diff
-from sklearn.ensemble import ModelToMakeSafer  # pylint: disable=E0611
+from sklearn.ensemble import ModelToMakeSafer
 from sklearn.tree import DecisionTreeClassifier
 
 from sacroml.safemodel.safemodel import SafeModel
@@ -86,7 +84,7 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
         ]
         self.examine_seperately_items = ["base_estimator", "estimators_"]
 
-    def additional_checks(  # pylint: disable=too-many-nested-blocks,too-many-branches
+    def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Perform model specific checks.
@@ -108,7 +106,10 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
                 try:
                     the_type = type(self.base_estimator)
                     if not isinstance(self.saved_model["base_estimator_"], the_type):
-                        msg += "Warning: model was fitted with different base estimator type.\n"
+                        msg += (
+                            "Warning: model was fitted with different "
+                            "base estimator type.\n"
+                        )
                         disclosive = True
                 except AttributeError:
                     msg += "Error: model has not been fitted to data.\n"
@@ -142,10 +143,11 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
                                     msg += f"Forest base estimators {idx} differ."
                                     msg += msg2
 
-                    except BaseException as error:  # pylint:disable=broad-except
+                    except BaseException as error:
                         msg += (
                             "In Safe ModelToMakeSafer.additional_checks: "
-                            f"Unable to check {item} as an exception occurred: {error}.\n"
+                            f"Unable to check {item} as an exception occurred: "
+                            f"{error}.\n"
                         )
                         same = False
 
@@ -153,7 +155,10 @@ class SafeModelToMakeSafe(SafeModel, ModelToMakeSafer):
                 diffs_list = list(diff(curr_separate[item], saved_separate[item]))
                 if len(diffs_list) > 0:
                     disclosive = True
-                    msg += f"structure {item} has {len(diffs_list)} differences: {diffs_list}"
+                    msg += (
+                        f"structure {item} has {len(diffs_list)} "
+                        f"differences: {diffs_list}"
+                    )
         return msg, disclosive
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:

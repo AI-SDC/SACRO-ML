@@ -64,6 +64,11 @@ Then to run on all files in the repository:
 $ pre-commit run -a
 ```
 
+Pre-commit can be configured to automatically run on every `git commit` with:
+```
+$ pre-commit install
+```
+
 ## Documentation
 
 Documentation is hosted here: https://ai-sdc.github.io/SACRO-ML/

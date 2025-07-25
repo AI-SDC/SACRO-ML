@@ -27,8 +27,6 @@ from sacroml.attacks.target import Target
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# pylint: disable=chained-comparison
-
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
@@ -225,8 +223,6 @@ def _get_model_param_count_mlp(model: MLPClassifier) -> int:
 
 class StructuralAttack(Attack):
     """Structural attacks based on the static structure of a model."""
-
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,

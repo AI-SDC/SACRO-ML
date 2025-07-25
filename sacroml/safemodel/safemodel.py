@@ -18,7 +18,6 @@ from dictdiffer import diff
 from sacroml.attacks.factory import attack
 from sacroml.attacks.target import Target
 
-# pylint : disable=too-many-branches
 from .reporting import get_reporting_string
 
 logger = logging.getLogger(__name__)
@@ -160,7 +159,7 @@ def check_type(key: str, val: Any, cur_val: Any) -> tuple[str, bool]:
     return msg, disclosive
 
 
-class SafeModel:  # pylint: disable = too-many-instance-attributes
+class SafeModel:
     """Privacy protected model base class.
 
     Attributes
@@ -194,7 +193,8 @@ class SafeModel:  # pylint: disable = too-many-instance-attributes
     ...     target=target,
     ... )
     WARNING: model parameters may present a disclosure risk:
-    - parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+    - parameter min_samples_leaf = 1 identified as less than the
+    recommended min value of 5.
     Changed parameter min_samples_leaf = 5.
 
     Model parameters are within recommended ranges.

@@ -84,40 +84,6 @@ packages = {find = {exclude = ["docs*", "examples*", "tests*", "user_stories*"]}
 [tool.setuptools.package-data]
 "sacroml.safemodel" = ["rules.json"]
 
-[tool.pylint]
-master.py-version = "3.9"
-reports.output-format = "colorized"
-disable = [
-    "invalid-name",
-    "no-member",
-    "duplicate-code",
-    "consider-using-min-builtin",
-]
-
-[tool.pylint.messages_control]
-enable = [
-    "useless-suppression",
-]
-
-disable = [
-    "R0917",  # too-many-positional-arguments
-]
-
-[tool.pylint.design]
-max-args = 5  # Maximum number of arguments for function / method (see R0913).
-max-attributes = 7  # Maximum number of attributes for a class (see R0902).
-max-branches = 12  # Maximum number of branch for function / method body (see R0912).
-max-locals = 15  # Maximum number of parents for a class (see R0914).
-max-parents = 7  # Maximum number of parents for a class (see R0901).
-max-public-methods = 20  # Maximum number of public methods for a class (see R0904).
-max-returns = 6  # Max number of return / yield for function / method body (see R0911).
-max-statements = 50  # Max number of statements in function / method body (see R0915).
-min-public-methods = 2  # Minimum number of public methods for a class (see R0903).
-
-[tool.pylint.format]
-max-line-length = 100  # Maximum number of characters on a single line.
-max-module-lines = 1000  # Maximum number of lines in a module.
-
 [tool.ruff]
 indent-width = 4
 line-length = 88
@@ -129,17 +95,17 @@ lint.select = [
   "ARG", # flake8-unused-arguments
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
-#  "C90", # mccabe
+  "C90", # mccabe
   "D",   # pydocstyle
 #  "DTZ", # flake8-datetimez
-#  "E",   # pycodestyle
+  "E",   # pycodestyle
   "EM",  # flake8-errmsg
   "ERA", # eradicate
   "F",   # Pyflakes
   "I",   # isort
   "ICN", # flake8-import-conventions
   "N",   # pep8-naming
-#  "PD",  # pandas-vet
+  "PD",  # pandas-vet
   "PGH", # pygrep-hooks
   "PIE", # flake8-pie
 #  "PL",  # Pylint
@@ -151,7 +117,7 @@ lint.select = [
   "Q",   # flake8-quotes
   "RET", # flake8-return
   "RUF100",  # Ruff-specific
-#  "S",   # flake8-bandit
+  "S",   # flake8-bandit
   "SIM", # flake8-simplify
 #  "T20", # flake8-print
   "TID", # flake8-tidy-imports
@@ -173,8 +139,10 @@ exclude = [
 lint.ignore = [
     "EM101",   # raw-string-in-exception
     "EM102",   # f-string-in-exception
-    "N818",    # error-suffix-on-exception-name
     "PLC0206", # dict-index-missing-items
+    "S101",    # allow asserts
+    "S301",    # allow pickle
+    "PD901",   # allow df for dataframe names
 ]
 
 [tool.ruff.lint.pep8-naming]
@@ -196,6 +164,7 @@ docstring-code-line-length = 80
 "user_stories/**/*" = ["ANN"]
 "tests/**/*" = ["S101", "PLR2004", "ANN"]
 "sacroml/attacks/structural_attack.py" = ["PLR2004"]
+"sacroml/safemodel/classifiers/new_model_template.py" = ["C901"]
 
 [tool.codespell]
 ignore-words-list = [
