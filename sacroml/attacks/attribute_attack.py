@@ -177,7 +177,7 @@ def _get_unique_features(
     return np.unique(combined_feature)
 
 
-def _get_inference_data(  # pylint: disable=too-many-locals
+def _get_inference_data(
     target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Return a dataset of each sample with the attributes to test."""
@@ -212,7 +212,7 @@ def _get_inference_data(  # pylint: disable=too-many-locals
     return x_values, y_values, baseline
 
 
-def _infer(  # pylint: disable=too-many-locals
+def _infer(
     target: Target,
     feature_id: int,
     threshold: float,
@@ -329,9 +329,7 @@ def plot_quantitative_risk(res: dict, path: str = "") -> None:
     logger.debug("Saved quantitative risk plot: %s", filename)
 
 
-def plot_categorical_risk(  # pylint: disable=too-many-locals
-    res: dict, path: str = ""
-) -> None:
+def plot_categorical_risk(res: dict, path: str = "") -> None:
     """Generate a bar chart showing categorical risk scores.
 
     Parameters
@@ -376,9 +374,7 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     logger.debug("Saved categorical risk plot: %s", filename)
 
 
-def plot_categorical_fraction(  # pylint: disable=too-many-locals
-    res: dict, path: str = ""
-) -> None:
+def plot_categorical_fraction(res: dict, path: str = "") -> None:
     """Generate a bar chart showing fraction of dataset inferred.
 
     Parameters
@@ -472,7 +468,7 @@ def _attack_brute_force(
     ]
 
 
-def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arguments
+def _get_bounds_risk_for_sample(
     target_model: Model,
     feat_id: int,
     feat_min: float,

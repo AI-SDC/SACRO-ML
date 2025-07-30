@@ -49,7 +49,8 @@ def run_user_story(release_config: dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a risk report after request_release() has been called by researcher"
+            "Generate a risk report after request_release() "
+            "has been called by researcher"
         )
     )
 

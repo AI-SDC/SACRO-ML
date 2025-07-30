@@ -49,7 +49,8 @@ def generate_report(
     print()
     print("Acting as TRE...")
     print(
-        "(when instructions on how to recreate the dataset have been provided by the researcher)"
+        "(when instructions on how to recreate the dataset have "
+        "been provided by the researcher)"
     )
     print(directory)
     print()

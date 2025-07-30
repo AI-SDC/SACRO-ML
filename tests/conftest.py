@@ -96,7 +96,7 @@ def _cleanup():
 
 
 @pytest.fixture
-def get_target(request) -> Target:  # pylint: disable=too-many-locals
+def get_target(request) -> Target:
     """Return a target object with test data and fitted model.
 
     Uses a randomly sampled 10+10% of the nursery data set.

@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Target:  # pylint: disable=too-many-instance-attributes
+class Target:
     """Store information about the target model and data.
 
     Attributes
@@ -457,7 +457,7 @@ class Target:  # pylint: disable=too-many-instance-attributes
     def _load_csv(self, path: str, name: str) -> np.ndarray:  # pragma: no cover
         """Load array from CSV file."""
         try:
-            arr = pd.read_csv(path, header=None).values
+            arr = pd.read_csv(path, header=None).to_numpy()
             logger.info("%s shape: %s", name, arr.shape)
             return arr
         except FileNotFoundError as e:

@@ -212,7 +212,7 @@ def _permute_rows(X_test: np.ndarray, y_test: np.ndarray) -> None:
     y_test = y_test[order]
 
 
-def get_metrics(  # pylint: disable=too-many-locals
+def get_metrics(
     y_pred_proba: np.ndarray, y_test: np.ndarray, permute_rows: bool = True
 ) -> dict:
     """Calculate metrics, including attacker advantage for MIA binary.
@@ -268,10 +268,11 @@ def get_metrics(  # pylint: disable=too-many-locals
     metrics = {}
     # true positive rate or recall
     metrics["TPR"] = round(float(tp / (tp + fn)), 8)
-    # false positive rate, proportion of negative examples incorrectly classified as positives
+    # false positive rate, proportion of negative examples
+    # incorrectly classified as positives
     metrics["FPR"] = round(float(fp / (fp + tn)), 8)
-    # False alarm rate, proportion of things classified as positives that are incorrect,
-    # also known as false discovery rate
+    # False alarm rate, proportion of things classified as positives
+    # that are incorrect, also known as false discovery rate
     metrics["FAR"] = _div(fp, (fp + tp), 0)
     # true negative rate or specificity
     metrics["TNR"] = round(float(tn / (tn + fp)), 8)

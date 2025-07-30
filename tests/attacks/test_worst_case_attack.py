@@ -130,17 +130,13 @@ def test_attack_data_prep():
     train_preds = np.array([[1, 0], [0, 1]], int)
     test_preds = np.array([[2, 0], [0, 2]], int)
 
-    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
-        train_preds, test_preds
-    )
+    mi_x, mi_y = attack_obj._prepare_attack_data(train_preds, test_preds)
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], int))
     # Test the x data produced. Each row should be sorted in descending order
     np.testing.assert_array_equal(mi_x, np.array([[1, 0], [1, 0], [2, 0], [2, 0]]))
     # With sort_probs = False, the rows of x should not be sorted
     attack_obj = worst_case_attack.WorstCaseAttack(sort_probs=False)
-    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
-        train_preds, test_preds
-    )
+    mi_x, mi_y = attack_obj._prepare_attack_data(train_preds, test_preds)
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], int))
     np.testing.assert_array_equal(mi_x, np.array([[1, 0], [0, 1], [2, 0], [0, 2]]))
 
@@ -157,7 +153,7 @@ def test_attack_data_prep_with_correct_feature():
     train_correct = np.array([1, 0], int)
     test_correct = np.array([0, 1], int)
 
-    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
+    mi_x, mi_y = attack_obj._prepare_attack_data(
         train_preds, test_preds, train_correct=train_correct, test_correct=test_correct
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], int))
@@ -170,7 +166,7 @@ def test_attack_data_prep_with_correct_feature():
     attack_obj = worst_case_attack.WorstCaseAttack(
         sort_probs=False, include_model_correct_feature=True
     )
-    mi_x, mi_y = attack_obj._prepare_attack_data(  # pylint: disable=protected-access
+    mi_x, mi_y = attack_obj._prepare_attack_data(
         train_preds, test_preds, train_correct=train_correct, test_correct=test_correct
     )
     np.testing.assert_array_equal(mi_y, np.array([1, 1, 0, 0], int))

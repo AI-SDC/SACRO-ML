@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SklearnModel(Model):
     """Interface to sklearn.base.BaseEstimator models."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         model: sklearn.base.BaseEstimator,
         model_path: str = "",
@@ -217,7 +217,7 @@ class SklearnModel(Model):
             raise ValueError(f"Unsupported file format for saving a model: {ext}")
 
     @classmethod
-    def load(  # pylint: disable=too-many-arguments
+    def load(
         cls,
         model_path: str,
         model_module_path: str,

@@ -83,7 +83,7 @@ class TestGenerateReport(unittest.TestCase):
             return file.read()
 
     def test_not_implemented(self):
-        """Test to make sure analysis module fails expectedly when functions are called directly."""
+        """Test analysis fails expectedly when functions are called directly."""
         a = AnalysisModule()
         with pytest.raises(NotImplementedError):
             a.process_dict()

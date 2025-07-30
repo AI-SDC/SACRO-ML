@@ -269,9 +269,9 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         # score each record in the member and non-member sets
-        for i, l in enumerate(combined_y_train):
+        for i, y in enumerate(combined_y_train):
             # get the target model behaviour on the record (handle one-hot or label)
-            label = np.argmax(l) if combined_y_train.ndim > 1 else l
+            label = np.argmax(y) if combined_y_train.ndim > 1 else y
             target_logit: float = _logit(combined_target_preds[i, label])
             # get behaviour observed with the record as a non-member
             out_mean, out_std = self._describe_conf(out_conf[i], global_out_std)

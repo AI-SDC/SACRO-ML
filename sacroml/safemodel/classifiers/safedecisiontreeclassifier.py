@@ -47,7 +47,7 @@ def decision_trees_are_equal(
             same = False
             msg += msg2
 
-    except BaseException as error:  # pylint:disable=broad-except  #pragma:no cover
+    except BaseException as error:
         msg += get_reporting_string(name="unable_to_check", error=error)
         same = False
 
@@ -104,7 +104,7 @@ def decision_tree_internal_trees_are_equal(
                         name="internal_attribute_differs", attr=attr
                     )
                     same = False
-    except BaseException as error:  # pylint:disable=broad-except #pragma:no cover
+    except BaseException as error:  # pragma:no cover
         msg += get_reporting_string(name="exception_occurred", error=error)
     return same, msg
 
@@ -116,7 +116,7 @@ def get_tree_k_anonymity(thetree: DecisionTreeClassifier, X: Any) -> int:
     return np.min(uniqs_counts[1])
 
 
-class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: disable=too-many-ancestors
+class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):
     """Privacy protected Decision Tree classifier."""
 
     def __init__(self, **kwargs: dict) -> None:
@@ -171,9 +171,7 @@ class SafeDecisionTreeClassifier(SafeModel, DecisionTreeClassifier):  # pylint: 
             msg += get_reporting_string(name="unexpected_item")
         return msg, disclosive
 
-    def fit(  # pylint: disable=arguments-differ
-        self, x: np.ndarray, y: np.ndarray
-    ) -> None:
+    def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """Fit model and store k-anonymity and model dict."""
         super().fit(x, y)
         # calculate k-anonymity her since we have the tainigf data
