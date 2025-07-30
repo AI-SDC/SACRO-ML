@@ -49,8 +49,6 @@ class StructuralAttackResults:
 
 # --- Standalone Helper Functions for Risk Assessment ---
 
-=======
-
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
