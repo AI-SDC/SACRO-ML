@@ -167,7 +167,7 @@ def test_non_trees():
 def test_dt():
     """Test for decision tree classifier."""
     # 'non' disclosive'
-    param_dict = {"max_depth": 1, "min_samples_leaf": 150}
+    param_dict = {"max_depth": 1, "min_samples_leaf": 200}
     target = get_target("dt", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
@@ -378,7 +378,7 @@ def test_sklearnmlp():
 
 def test_reporting():
     """Test reporting functionality."""
-    param_dict = {"max_depth": 1, "min_samples_leaf": 150}
+    param_dict = {"max_depth": 1, "min_samples_leaf": 200}
     target = get_target("dt", **param_dict)
     myattack = sa.StructuralAttack()
     myattack.attack(target)
