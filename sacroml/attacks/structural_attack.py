@@ -6,6 +6,14 @@ Runs a number of 'static' structural attacks based on:
 
 This module provides the `StructuralAttack` class, which assesses a trained
 machine learning model for several common structural vulnerabilities.
+
+These include:
+- Degrees of freedom risk
+- k-anonymity violations
+- Class label disclosure
+- Unnecessary model complexity
+
+The methodology is aligned with SACRO-ML's privacy risk framework.
 """
 
 from __future__ import annotations
@@ -35,7 +43,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class StructuralAttackResults:
-    """Dataclass to store the results of a structural attack."""
+    """
+    Dataclass to store the results of a structural attack.
+
+    Attributes
+    ----------
+    dof_risk (bool) : Risk based on degrees of freedom.
+    k_anonymity_risk (bool) : Risk based on k-anonymity violations.
+    class_disclosure_risk (bool) : Risk of class label disclosure.
+    lowvals_cd_risk (bool) : Risk from low-frequency class values.
+    unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
+    details (dict | None) : Optional additional metadata.
+    """
 
     dof_risk: bool
     k_anonymity_risk: bool
@@ -45,19 +64,18 @@ class StructuralAttackResults:
     details: dict | None = None
 
 
+"""
+Optional additional metadata, such as model-specific notes or thresholds used.
+"""
+
 # --- Standalone Helper Functions for Risk Assessment ---
 
 
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
 
-    This check is designed to assess whether a model is likely to be
-    **unnecessarily** risky, i.e., whether it is highly likely that a different
-    combination of hyper-parameters would have led to model with similar or
-    better accuracy on the task but with lower membership inference risk.
-
-    The rules were derived from an experimental study and are specific to
-    certain model types.
+     This check is based on a grid search and membership inference attack (MIA)
+     study described in: https://doi.org/10.48550/arXiv.2502.09396
 
     Parameters
     ----------
@@ -79,7 +97,11 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
 
 
 def _get_unnecessary_risk_dt(model: DecisionTreeClassifier) -> bool:
-    """Return whether DecisionTreeClassifier parameters are high risk."""
+    """Return whether DecisionTreeClassifier parameters are high risk.
+
+    This function applies decision rules extracted from a trained decision tree
+    classifier on hyperparameter configurations ranked by MIA AUC.
+    """
     max_depth = float(model.max_depth) if model.max_depth else 500
     max_features = model.max_features
     min_samples_leaf = model.min_samples_leaf
@@ -115,7 +137,11 @@ def _get_unnecessary_risk_dt(model: DecisionTreeClassifier) -> bool:
 
 
 def _get_unnecessary_risk_rf(model: RandomForestClassifier) -> bool:
-    """Return whether RandomForestClassifier parameters are high risk."""
+    """Return whether RandomForestClassifier parameters are high risk.
+
+    This function applies decision rules extracted from a trained decision tree
+    classifier on hyperparameter configurations ranked by MIA AUC.
+    """
     max_depth = float(model.max_depth) if model.max_depth else 500
     n_estimators = model.n_estimators
     max_features = model.max_features
@@ -140,7 +166,16 @@ def _get_unnecessary_risk_rf(model: RandomForestClassifier) -> bool:
 
 
 def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
-    """Return whether XGBClassifier parameters are high risk."""
+    """Return whether XGBClassifier parameters are high risk.
+
+    This function applies decision rules extracted from a trained decision tree
+    classifier on hyperparameter configurations ranked by MIA AUC.
+
+    Check whether params exist and using xgboost defaults if not using defaults
+    from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+    and here: https://xgboost.readthedocs.io/en/stable/parameter.html
+    The methodology for the unnecessary risk criteria is described in the aXiv paper https://doi.org/10.48550/arXiv.2502.09396
+    """
     n_estimators = int(model.n_estimators) if model.n_estimators else 100
     max_depth = float(model.max_depth) if model.max_depth else 6
     min_child_weight = float(model.min_child_weight) if model.min_child_weight else 1.0
@@ -155,7 +190,20 @@ def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
 
 
 def get_model_param_count(model: BaseEstimator) -> int:
-    """Return the number of trained parameters in a model."""
+    """Return the number of trained parameters in a model.
+
+    This includes learned weights, thresholds, and decision rules depending on
+    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost, and MLP
+    classifiers.
+
+    Parameters
+    ----------
+    model (BaseEstimator) : A trained scikit-learn or XGBoost model.
+
+    Returns
+    -------
+    int : Estimated number of learned parameters.
+    """
     if isinstance(model, DecisionTreeClassifier):
         return _get_model_param_count_dt(model)
     if isinstance(model, RandomForestClassifier):
@@ -228,7 +276,20 @@ def _get_model_param_count_mlp(model: MLPClassifier) -> int:
 
 
 class StructuralAttack(Attack):
-    """Structural attacks based on the static structure of a model."""
+    """Structural attacks based on the static structure of a model.
+
+    Performs structural privacy risk assessments on trained ML models.
+
+    This class implements static structural attacks based on model architecture
+    and hyperparameters, aligned with TRE risk appetite configurations.
+
+    Attack pipeline includes:
+    - Equivalence class analysis
+    - Degrees of freedom check
+    - k-anonymity check
+    - Class disclosure risk
+    - Complexity risk
+    """
 
     def __init__(
         self,
@@ -282,6 +343,11 @@ class StructuralAttack(Attack):
         This is the main orchestration method, called by the base class `run` method.
         It calls helper methods to perform individual risk checks and collates
         the results into a dictionary for reporting.
+        This method orchestrates the full structural attack pipeline, including:
+        - Degrees of freedom risk
+        - k-anonymity risk
+        - Class disclosure risk
+        - Unnecessary complexity risk
 
         Parameters
         ----------
@@ -291,7 +357,12 @@ class StructuralAttack(Attack):
         Returns
         -------
         dict
-            A dictionary containing the results and metadata of the attack.
+           Attack report. A dictionary containing the results and metadata
+           of the attack.
+
+         Note:
+         This method is invoked by the base class `run()` method.
+         It assumes the target model has been trained and validated
         """
         self.target = target
         model = target.model.model
@@ -328,7 +399,13 @@ class StructuralAttack(Attack):
         return output
 
     def _assess_dof_risk(self, model: BaseEstimator) -> bool:
-        """Assess risk based on Residual Degrees of Freedom."""
+        """Assess risk based on Residual Degrees of Freedom.
+
+        Returns
+        -------
+        bool : True if the model's residual degrees of freedom are below the
+               safe threshold.
+        """
         n_features = self.target.X_train.shape[1]
         n_samples = self.target.X_train.shape[0]
         n_params = get_model_param_count(model)
@@ -347,7 +424,12 @@ class StructuralAttack(Attack):
         return residual_dof < self.DOF_THRESHOLD
 
     def _assess_k_anonymity_risk(self, equiv_counts: np.ndarray) -> bool:
-        """Assess k-anonymity risk from equivalence class sizes."""
+        """Assess k-anonymity risk from equivalence class sizes.
+
+        Returns
+        -------
+        bool : True if the smallest equivalence class size is below the safe threshold.
+        """
         min_k = np.min(equiv_counts)
         logger.info("Smallest equivalence class size (k-anonymity) is %d", min_k)
         return min_k < self.THRESHOLD
@@ -355,7 +437,16 @@ class StructuralAttack(Attack):
     def _assess_class_disclosure_risk(
         self, equiv_classes: np.ndarray, equiv_counts: np.ndarray
     ) -> tuple[bool, bool]:
-        """Assess risk of disclosing class frequencies."""
+        """Assess risk of disclosing class frequencies.
+
+        Returns
+        -------
+               tuple[bool, bool]:
+                                 - class_disclosure_risk: True if any class
+                                   frequency is below the threshold.
+                                 - lowvals_cd_risk: True if low-frequency values
+                                   pose a disclosure risk.
+        """
         freqs = equiv_classes * equiv_counts[:, np.newaxis]
         class_disclosure_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
         lowvals_cd_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
@@ -387,7 +478,11 @@ class StructuralAttack(Attack):
         return equiv_classes, equiv_counts, members
 
     def _construct_metadata(self):
-        """Construct the metadata dictionary for reporting."""
+        """Construct the metadata dictionary for reporting.
+
+        Used internally to populate metadata for the attack report, including
+        thresholds and results.
+        """
         super()._construct_metadata()
         self.metadata["attack_specific_output"] = {
             "attack_name": str(self),
@@ -399,7 +494,10 @@ class StructuralAttack(Attack):
             self.metadata["global_metrics"] = asdict(self.results)
 
     def _get_attack_metrics_instances(self) -> dict:
-        """Return attack metrics. Required by the Attack base class."""
+        """Return attack metrics. Required by the Attack base class.
+
+        Used internally to expose metrics from the `StructuralAttackResults` dataclass.
+        """
         # This method is required by the abstract base class.
         # Its functionality is now handled by the `results` dataclass
         # and the `_construct_metadata` method.
@@ -409,5 +507,10 @@ class StructuralAttack(Attack):
         return {}
 
     def _make_pdf(self, output: dict) -> FPDF:
-        """Create PDF report using the external report module."""
+        """Create PDF report using the external report module.
+
+        Returns
+        -------
+        FPDF : A PDF object containing the formatted structural attack report.
+        """
         return report.create_structural_report(output)
