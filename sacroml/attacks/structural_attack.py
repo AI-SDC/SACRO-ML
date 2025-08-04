@@ -348,8 +348,6 @@ class StructuralAttack(Attack):
 
     def _assess_k_anonymity_risk(self, equiv_counts: np.ndarray) -> bool:
         """Assess k-anonymity risk from equivalence class sizes."""
-        if equiv_counts.size == 0:
-            return False
         min_k = np.min(equiv_counts)
         logger.info("Smallest equivalence class size (k-anonymity) is %d", min_k)
         return min_k < self.THRESHOLD
@@ -358,9 +356,6 @@ class StructuralAttack(Attack):
         self, equiv_classes: np.ndarray, equiv_counts: np.ndarray
     ) -> tuple[bool, bool]:
         """Assess risk of disclosing class frequencies."""
-        if equiv_classes.size == 0 or equiv_counts.size == 0:
-            return False, False
-
         freqs = equiv_classes * equiv_counts[:, np.newaxis]
         class_disclosure_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
         lowvals_cd_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
