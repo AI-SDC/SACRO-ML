@@ -91,6 +91,7 @@
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  | <a href="#X"><strong>X</strong></a>
  | <a href="#Y"><strong>Y</strong></a>
@@ -127,6 +128,8 @@
         <li><a href="attacks/report.html#sacroml.attacks.report.CustomJSONEncoder.__init__">(sacroml.attacks.report.CustomJSONEncoder method)</a>
 </li>
         <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.__init__">(sacroml.attacks.structural_attack.StructuralAttack method)</a>
+</li>
+        <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.__init__">(sacroml.attacks.structural_attack.StructuralAttackResults method)</a>
 </li>
         <li><a href="attacks/target.html#sacroml.attacks.target.Target.__init__">(sacroml.attacks.target.Target method)</a>
 </li>
@@ -223,6 +226,8 @@
 </li>
       <li><a href="safemodel/safemodel.html#sacroml.safemodel.safemodel.check_type">check_type() (in module sacroml.safemodel.safemodel)</a>
 </li>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.class_disclosure_risk">class_disclosure_risk (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path">cost_complexity_pruning_path() (sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier method)</a>
@@ -259,7 +264,9 @@
 </li>
       <li><a href="attacks/report.html#sacroml.attacks.report.CustomJSONEncoder.default">default() (sacroml.attacks.report.CustomJSONEncoder method)</a>
 </li>
-      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.dt_get_equivalence_classes">dt_get_equivalence_classes() (sacroml.attacks.structural_attack.StructuralAttack method)</a>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.details">details (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
+</li>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.dof_risk">dof_risk (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -345,8 +352,6 @@
 </li>
       <li><a href="safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth">get_depth() (sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier method)</a>
 </li>
-      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack.get_equivalence_classes">get_equivalence_classes() (sacroml.attacks.structural_attack.StructuralAttack method)</a>
-</li>
       <li><a href="attacks/target.html#sacroml.attacks.target.Target.get_generalisation_error">get_generalisation_error() (sacroml.attacks.target.Target method)</a>
 </li>
       <li><a href="safemodel/saferandomforest.html#sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier.get_k_anonymity">get_k_anonymity() (sacroml.safemodel.classifiers.saferandomforestclassifier.SafeRandomForestClassifier method)</a>
@@ -390,8 +395,6 @@
       <li><a href="attacks/data.html#sacroml.attacks.data.SklearnDataHandler.get_subset">get_subset() (sacroml.attacks.data.SklearnDataHandler method)</a>
 </li>
       <li><a href="safemodel/safedecisiontree.html#sacroml.safemodel.classifiers.safedecisiontreeclassifier.get_tree_k_anonymity">get_tree_k_anonymity() (in module sacroml.safemodel.classifiers.safedecisiontreeclassifier)</a>
-</li>
-      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.get_tree_parameter_count">get_tree_parameter_count() (in module sacroml.attacks.structural_attack)</a>
 </li>
       <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.get_unnecessary_risk">get_unnecessary_risk() (in module sacroml.attacks.structural_attack)</a>
 </li>
@@ -439,10 +442,12 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="safemodel/safesvc.html#sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm">k_hat_svm() (sacroml.safemodel.classifiers.safesvc.SafeSVC method)</a>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.k_anonymity_risk">k_anonymity_risk (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="safemodel/safesvc.html#sacroml.safemodel.classifiers.safesvc.SafeSVC.k_hat_svm">k_hat_svm() (sacroml.safemodel.classifiers.safesvc.SafeSVC method)</a>
+</li>
       <li><a href="attacks/report.html#sacroml.attacks.report.CustomJSONEncoder.key_separator">key_separator (sacroml.attacks.report.CustomJSONEncoder attribute)</a>
 </li>
   </ul></td>
@@ -464,6 +469,8 @@
       <li><a href="attacks/target.html#sacroml.attacks.target.Target.load_pytorch_dataset">load_pytorch_dataset() (sacroml.attacks.target.Target method)</a>
 </li>
       <li><a href="attacks/target.html#sacroml.attacks.target.Target.load_sklearn_dataset">load_sklearn_dataset() (sacroml.attacks.target.Target method)</a>
+</li>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.lowvals_cd_risk">lowvals_cd_risk (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -790,6 +797,8 @@
 </li>
       <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttack">StructuralAttack (class in sacroml.attacks.structural_attack)</a>
 </li>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults">StructuralAttackResults (class in sacroml.attacks.structural_attack)</a>
+</li>
       <li><a href="attacks/report.html#sacroml.attacks.report.subtitle">subtitle() (in module sacroml.attacks.report)</a>
 </li>
   </ul></td>
@@ -813,6 +822,14 @@
       <li><a href="attacks/target.html#sacroml.attacks.target.Target.train_module_path">train_module_path (sacroml.attacks.target.Target attribute)</a>
 </li>
       <li><a href="attacks/target.html#sacroml.attacks.target.Target.train_params">train_params (sacroml.attacks.target.Target attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults.unnecessary_risk">unnecessary_risk (sacroml.attacks.structural_attack.StructuralAttackResults attribute)</a>
 </li>
   </ul></td>
 </tr></table>
