@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib
 import inspect
 import logging
 import os
@@ -38,6 +37,10 @@ class Attack(ABC):
         self.metadata: dict = {}
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
+
+        # Create folder for saving trained shadow models
+        self.shadow_path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
+        os.makedirs(self.shadow_path, exist_ok=True)
 
     @classmethod
     @abstractmethod
@@ -123,10 +126,3 @@ class Attack(ABC):
         for key in self._get_param_names():
             out[key] = getattr(self, key)
         return out
-
-
-def get_class_by_name(class_path: str):
-    """Return a class given its name."""
-    module_path, class_name = class_path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)
