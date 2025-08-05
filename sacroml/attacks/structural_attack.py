@@ -10,8 +10,8 @@ machine learning model for several common structural vulnerabilities.
 These include:
 - Degrees of freedom risk
 - k-anonymity violations
-- Class label disclosure
-- Unnecessary model complexity
+- Class disclosure
+- 'Unnecessary Risk' caused by hyper-parameters likely to lead to undue model complexity
 
 The methodology is aligned with SACRO-ML's privacy risk framework.
 """
@@ -74,8 +74,8 @@ Optional additional metadata, such as model-specific notes or thresholds used.
 def get_unnecessary_risk(model: BaseEstimator) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
 
-     This check is based on a grid search and membership inference attack (MIA)
-     study described in: https://doi.org/10.48550/arXiv.2502.09396
+     This check is based on a classifier trained on results from a large
+     scale study described in: https://doi.org/10.48550/arXiv.2502.09396
 
     Parameters
     ----------
@@ -171,10 +171,9 @@ def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
     This function applies decision rules extracted from a trained decision tree
     classifier on hyperparameter configurations ranked by MIA AUC.
 
-    Check whether params exist and using xgboost defaults if not using defaults
+    If parameters have not been specified it takes the xgboost defaults
     from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
     and here: https://xgboost.readthedocs.io/en/stable/parameter.html
-    The methodology for the unnecessary risk criteria is described in the aXiv paper https://doi.org/10.48550/arXiv.2502.09396
     """
     n_estimators = int(model.n_estimators) if model.n_estimators else 100
     max_depth = float(model.max_depth) if model.max_depth else 6
