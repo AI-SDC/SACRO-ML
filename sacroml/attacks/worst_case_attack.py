@@ -12,8 +12,9 @@ from sklearn.model_selection import train_test_split
 
 from sacroml import metrics
 from sacroml.attacks import report
-from sacroml.attacks.attack import Attack, get_class_by_name
+from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
+from sacroml.attacks.utils import get_class_by_name
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
