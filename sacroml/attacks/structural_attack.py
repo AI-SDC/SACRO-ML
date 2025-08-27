@@ -30,6 +30,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
+try:
+    import torch
+except ImportError:
+    torch = None
+
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
@@ -39,6 +44,15 @@ logger = logging.getLogger(__name__)
 
 
 # --- Data Structure for Attack Results ---
+
+
+@dataclass
+class StructuralRecordLevelResults:
+    """Dataclass to store record-level outcomes for structural attack."""
+
+    k_anonymity: list[int]
+    class_disclosure: list[bool]
+    dof: list[int]
 
 
 @dataclass
@@ -203,6 +217,8 @@ def get_model_param_count(model: BaseEstimator) -> int:
     -------
     int : Estimated number of learned parameters.
     """
+    if torch is not None and isinstance(model, torch.nn.Module):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
     if isinstance(model, DecisionTreeClassifier):
         return _get_model_param_count_dt(model)
     if isinstance(model, RandomForestClassifier):
@@ -388,6 +404,27 @@ class StructuralAttack(Attack):
 
         # Let the base class generate the report dictionary.
         # It will internally call our overridden _construct_metadata method.
+
+        # Initialize record-level results
+        self.record_level_results = {
+            "k_anonymity": [],
+            "class_disclosure": [],
+            "dof": [],
+        }
+
+        # Populate record-level k-anonymity and class disclosure
+        for count, class_probs in zip(equiv_counts, equiv_classes):
+            self.record_level_results["k_anonymity"].append(count)
+            self.record_level_results["class_disclosure"].append(
+                bool(np.any((class_probs > 0) & (class_probs < self.THRESHOLD)))
+            )
+
+        # Populate record-level degrees of freedom
+        n_samples = self.target.X_train.shape[0]
+        n_params = get_model_param_count(model)
+        residual_dof = n_samples - n_params
+        self.record_level_results["dof"] = [residual_dof] * n_samples
+
         output = self._make_report(target)
 
         # If requested, write the JSON report file.
@@ -491,6 +528,10 @@ class StructuralAttack(Attack):
         }
         if self.results:
             self.metadata["global_metrics"] = asdict(self.results)
+
+        # Save record-level results in the attack metrics
+        self.attack_metrics = [{}]
+        self.attack_metrics[-1]["individual"] = self.record_level_results
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return attack metrics. Required by the Attack base class.
