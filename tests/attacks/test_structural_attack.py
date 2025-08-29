@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+import importlib
+import sys
+from unittest.mock import Mock, patch
+
 import numpy as np
+import pandas as pd
+import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -13,6 +19,17 @@ from xgboost.sklearn import XGBClassifier
 
 import sacroml.attacks.structural_attack as sa
 from sacroml.attacks.target import Target
+
+try:
+    import torch
+
+    from tests.attacks.pytorch_model import OverfitNet
+
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    OverfitNet = None
+    TORCH_AVAILABLE = False
 
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
@@ -390,3 +407,78 @@ def test_structural_multiclass(get_target_multiclass):
     attack_obj = sa.StructuralAttack()
     output = attack_obj.attack(target)
     assert output
+
+
+def test_pytorch_parameter_counting():
+    """Test PyTorch parameter counting functionality."""
+    if not TORCH_AVAILABLE:
+        pytest.skip("PyTorch not available")
+
+    # Create a PyTorch model using the existing test model
+    model = OverfitNet(x_dim=10, y_dim=2, n_units=5)
+    param_count = sa.get_model_param_count(model)
+
+    # Expected parameters: (10*5 + 5) + (5*2 + 2) = 55 + 12 = 67
+    expected_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    assert param_count == expected_count, (
+        f"Expected {expected_count}, got {param_count}"
+    )
+
+
+def test_xgb_empty_dataframe():
+    """Test XGBoost param counting when trees_to_dataframe returns empty DataFrame."""
+    # Create a mock XGBClassifier
+    mock_model = Mock(spec=XGBClassifier)
+    mock_booster = Mock()
+    mock_booster.trees_to_dataframe.return_value = pd.DataFrame()  # Empty DataFrame
+    mock_model.get_booster.return_value = mock_booster
+
+    # Test that it returns 0 for empty dataframe (covers line 275)
+    param_count = sa._get_model_param_count_xgb(mock_model)
+    msg = "Should return 0 for XGBoost model with empty trees dataframe"
+    assert param_count == 0, msg
+
+
+def test_get_attack_metrics_instances_no_results():
+    """Test _get_attack_metrics_instances when results is None."""
+    attack = sa.StructuralAttack()
+    attack.results = None
+
+    # This should test the return {} path (covers line 548)
+    metrics = attack._get_attack_metrics_instances()
+    assert metrics == {}, "Should return empty dict when results is None"
+
+
+def test_torch_import_error():
+    """Test torch ImportError handling during module import."""
+    # Save the original module if it exists
+    original_module = sys.modules.get("sacroml.attacks.structural_attack")
+
+    try:
+        # Remove the module from cache to force reimport
+        if "sacroml.attacks.structural_attack" in sys.modules:
+            del sys.modules["sacroml.attacks.structural_attack"]
+
+        # Mock torch import to raise ImportError
+        with patch("builtins.__import__") as mock_import:
+
+            def side_effect(name, *args, **kwargs):
+                if name == "torch":
+                    raise ImportError("No module named 'torch'")
+                return importlib.__import__(name, *args, **kwargs)
+
+            mock_import.side_effect = side_effect
+
+            # Import the module which should trigger the ImportError
+            reloaded_sa = importlib.import_module("sacroml.attacks.structural_attack")
+
+            # Verify torch is None after ImportError
+            assert reloaded_sa.torch is None, "torch should be None after ImportError"
+
+    finally:
+        # Restore the original module
+        if original_module is not None:
+            sys.modules["sacroml.attacks.structural_attack"] = original_module
+
+        # Reload the original module to restore normal state
+        importlib.reload(sa)
