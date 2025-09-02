@@ -42,7 +42,7 @@ jobs:
           merge-multiple: true
 
       - name: Attest
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-path: "dist/*"
 
