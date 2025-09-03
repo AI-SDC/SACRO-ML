@@ -101,8 +101,7 @@ def test_pytorch() -> None:
     # Test structural attack
     attack = StructuralAttack(output_dir=output_dir)
     output = attack.attack(tgt)
-    assert  output   # expected to run
-    
+    assert output  # expected to run
 
     # Test attribute attack
     attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
