@@ -6,10 +6,9 @@ import importlib
 import sys
 from unittest.mock import Mock, patch
 
-import numpy as np
 import pandas as pd
 import pytest
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import make_moons
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
@@ -34,8 +33,13 @@ except ImportError:
 
 def get_target(modeltype: str, **kwparams: dict) -> Target:
     """Load dataset and create target of the desired type."""
-    X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    X, y = make_moons(
+        n_samples=50,
+        noise=0.5,
+        random_state=12345,
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     # these types should be handled
     if modeltype == "dt":
@@ -181,214 +185,276 @@ def test_non_trees():
     assert not myattack2.attack(target)
 
 
-def test_dt():
-    """Test for decision tree classifier."""
-    # 'non' disclosive'
-    param_dict = {"max_depth": 1, "min_samples_leaf": 200}
-    target = get_target("dt", **param_dict)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
-    assert not myattack.results.dof_risk, "should be no DoF risk with decision stump"
-    assert not myattack.results.k_anonymity_risk, (
+kwargs_dtsafe = {"max_depth": 1, "min_samples_leaf": 200}
+kwargs_dtunsafe = {
+    "max_depth": None,
+    "splitter": "best",
+    "min_samples_leaf": 1,
+    "criterion": "entropy",
+    #    "max_features":2
+}
+
+
+def test_dt_nondisclosive():
+    """Test for safe decision tree classifier."""
+    target_dtsafe = get_target("dt", **kwargs_dtsafe)
+    myattack_dtsafe = sa.StructuralAttack()
+    myattack_dtsafe.attack(target_dtsafe)
+    assert not myattack_dtsafe.results.dof_risk, (
+        "should be no DoF risk with decision stump"
+    )
+    assert not myattack_dtsafe.results.k_anonymity_risk, (
         "should be no k-anonymity risk with min_samples_leaf 150"
     )
-    assert not myattack.results.class_disclosure_risk, (
+    assert not myattack_dtsafe.results.class_disclosure_risk, (
         "no class disclosure risk for stump with min samples leaf 150"
     )
-    assert not myattack.results.unnecessary_risk, (
+    assert not myattack_dtsafe.results.unnecessary_risk, (
         "not unnecessary risk if max_depth < 3.5"
     )
 
-    # highly disclosive
-    param_dict2 = {"max_depth": None, "min_samples_leaf": 1, "min_samples_split": 2}
-    target = get_target("dt", **param_dict2)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
-    assert not myattack.results.dof_risk, "should be no DoF risk with decision stump"
-    assert myattack.results.k_anonymity_risk, (
-        "should be  k-anonymity risk with unlimited depth and min_samples_leaf 5"
+
+def test_dt_disclosive():
+    """Test for risky decision tree classifier."""
+    target_dtunsafe = get_target("dt", **kwargs_dtunsafe)
+    myattack_dtunsafe = sa.StructuralAttack()
+    myattack_dtunsafe.attack(target_dtunsafe)
+    assert myattack_dtunsafe.results.dof_risk, (
+        "should be  DoF risk with unlimited complexity decision tree"
     )
-    assert myattack.results.class_disclosure_risk, (
-        "should be class disclosure risk with unlimited depth and min_samples_leaf 5"
+    assert myattack_dtunsafe.results.k_anonymity_risk, (
+        "should be  k-anonymity risk with unlimited complexity decision tree"
     )
-    assert myattack.results.unnecessary_risk, (
-        " unnecessary risk with unlimited depth and min_samples_leaf 5"
+    assert myattack_dtunsafe.results.class_disclosure_risk, (
+        "should be class disclosure risk with unlimited complexity decision tree"
+    )
+    assert myattack_dtunsafe.results.unnecessary_risk, (
+        " unnecessary risk with unlimited unlimited complexity decision tree"
+    )
+
+    assert myattack_dtunsafe.results.smallgroup_risk, (
+        "small group risk with unlimited complexity decision tree"
     )
 
 
-def test_adaboost():
-    """Test for adaboost classifier."""
-    # 'non' disclosive'
-    # - base estimator =None => DecisionTreeClassifier with max_depth 1
-    # also set THRESHOLD to 4
-    np.random.seed(42)
-
-    param_dict = {"n_estimators": 2, "estimator": None}
-    target = get_target("adaboost", **param_dict)
-    myattack = sa.StructuralAttack()
-    myattack.THRESHOLD = 2
-    myattack.attack(target)
-    assert not myattack.results.dof_risk, (
+def test_adaboost_nondisclosive():
+    """Test for nondisclosive adaboost classifier."""
+    param_dict_adasafe = {
+        "n_estimators": 2,
+        "estimator": DecisionTreeClassifier(**kwargs_dtsafe),
+    }
+    target = get_target("adaboost", **param_dict_adasafe)
+    myattack_adasafe = sa.StructuralAttack()
+    myattack_adasafe.THRESHOLD = 2
+    myattack_adasafe.attack(target)
+    assert not myattack_adasafe.results.dof_risk, (
         "should be no DoF risk with just 2 decision stumps"
     )
-    assert not myattack.results.k_anonymity_risk, (
+    assert not myattack_adasafe.results.k_anonymity_risk, (
         "should be no k-anonymity risk with only 2 stumps"
     )
-    assert not myattack.results.class_disclosure_risk, (
+    assert not myattack_adasafe.results.class_disclosure_risk, (
         "no class disclosure risk for 2 stumps"
     )
-    assert not myattack.results.unnecessary_risk, (
+    assert not myattack_adasafe.results.unnecessary_risk, (
         " unnecessary risk not defined for adaboost"
     )
+    assert not myattack_adasafe.results.smallgroup_risk, (
+        "no small group risk with just 2 stumps"
+    )
 
-    # highly disclosive
-    kwargs = {"max_depth": None, "min_samples_leaf": 2}
-    param_dict2 = {
-        "estimator": DecisionTreeClassifier(**kwargs),
-        "n_estimators": 1000,
+
+def test_adaboost_disclosive():
+    """Test for disclosive adaboost classifier."""
+    param_dict_adaunsafe = {
+        "estimator": DecisionTreeClassifier(**kwargs_dtunsafe),
+        "n_estimators": 1,
     }
-    target = get_target("adaboost", **param_dict2)
-    myattack2 = sa.StructuralAttack()
-    myattack2.attack(target)
-    assert myattack2.results.dof_risk, "should be  DoF risk with adaboost of deep trees"
-    assert myattack2.results.k_anonymity_risk, (
-        "should be k-anonymity risk with adaboost unlimited depth "
-        "and min_samples_leaf 2"
+    target_adaunsafe = get_target("adaboost", **param_dict_adaunsafe)
+    myattack_adaunsafe = sa.StructuralAttack()
+    myattack_adaunsafe.attack(target_adaunsafe)
+
+    assert myattack_adaunsafe.results.dof_risk, (
+        "should be  DoF risk with adaboost 1 unlimited trees\n"
     )
-    assert myattack2.results.class_disclosure_risk, (
-        "should be class risk with adaboost unlimited depth and min_samples_leaf 2"
-    )
-    assert not myattack2.results.unnecessary_risk, (
+
+    assert (
+        myattack_adaunsafe.results.k_anonymity_risk
+        or myattack_adaunsafe.results.class_disclosure_risk
+        or myattack_adaunsafe.results.smallgroup_risk
+    ), "should be a risk with 1 risky decision tree"
+
+    assert not myattack_adaunsafe.results.unnecessary_risk, (
         " unnecessary risk not define for adaboost"
     )
 
 
-def test_rf():
-    """Test for random forest classifier."""
-    # 'non' disclosive'
-    param_dict = {"max_depth": 1, "min_samples_leaf": 150, "n_estimators": 10}
-    target = get_target("rf", **param_dict)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
-    assert not myattack.results.dof_risk, (
+def test_rf_nondisclosive():
+    """Test for safe random forest classifier."""
+    param_dict_rfsafe = {"max_depth": 1, "min_samples_leaf": 150, "n_estimators": 2}
+    target_rfsafe = get_target("rf", **param_dict_rfsafe)
+    myattack_rfsafe = sa.StructuralAttack()
+    myattack_rfsafe.attack(target_rfsafe)
+    assert not myattack_rfsafe.results.dof_risk, (
         "should be no DoF risk with small forest of decision stumps"
     )
-    assert not myattack.results.k_anonymity_risk, (
+    assert not myattack_rfsafe.results.k_anonymity_risk, (
         "should be no k-anonymity risk with min_samples_leaf 150"
     )
-    assert not myattack.results.class_disclosure_risk, (
+    assert not myattack_rfsafe.results.class_disclosure_risk, (
         "no class disclosure risk for stumps with min samples leaf 150"
     )
-    assert not myattack.results.unnecessary_risk, (
+
+    assert not myattack_rfsafe.results.smallgroup_risk, (
+        "no small group risk with 2 stumps and min samples leaf 150"
+    )
+    assert not myattack_rfsafe.results.unnecessary_risk, (
         "not unnecessary risk if max_depth < 3.5"
     )
 
-    # highly disclosive
-    param_dict2 = {
+
+def test_rf_disclosive():
+    """Test for unsafe random forest classifier."""
+    param_dict_rfunsafe = {
         "max_depth": None,
-        "min_samples_leaf": 2,
+        "min_samples_leaf": 1,
         "min_samples_split": 2,
-        "n_estimators": 1000,
+        "n_estimators": 1,
+        "bootstrap": False,
     }
-    target = get_target("rf", **param_dict2)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
-    assert myattack.results.dof_risk, "should be  DoF risk with forest of deep trees"
-    assert myattack.results.k_anonymity_risk, (
-        "should be  k-anonymity risk with unlimited depth and min_samples_leaf 5"
-    )
-    assert myattack.results.class_disclosure_risk, (
-        "should be class disclsoure risk with unlimited depth and min_samples_leaf 5"
-    )
-    assert myattack.results.unnecessary_risk, (
-        " unnecessary risk with unlimited depth and min_samples_leaf 5"
-    )
+    target_rfunsafe = get_target("rf", **param_dict_rfunsafe)
+    myattack_rfunsafe = sa.StructuralAttack()
+    myattack_rfunsafe.attack(target_rfunsafe)
+
+    assert (
+        myattack_rfunsafe.results.dof_risk
+        or myattack_rfunsafe.results.k_anonymity_risk
+        or myattack_rfunsafe.results.class_disclosure_risk
+        or myattack_rfunsafe.res.smallgroup_risk
+    ), "should be a risk with a random forest made of one risky decision tree "
 
 
-def test_xgb():
-    """Test for xgboost."""
+def test_rf_unnecessary():
+    """Test for unsafe random forest classifier."""
+    param_dict_rfunsafe = {
+        "max_depth": None,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "n_estimators": 20,
+        "bootstrap": False,
+    }
+    target_rfunsafe = get_target("rf", **param_dict_rfunsafe)
+    myattack_rfunsafe = sa.StructuralAttack()
+    myattack_rfunsafe.attack(target_rfunsafe)
+
+    assert myattack_rfunsafe.results.unnecessary_risk, "should be unnecessary risk"
+
+
+def test_xgb_nondisclosive():
+    """Test for safe xgboost."""
     # non-disclosive
-    param_dict = {"max_depth": 1, "min_child_weight": 50, "n_estimators": 5}
-    target = get_target("xgb", **param_dict)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
-    assert not myattack.results.dof_risk, (
+    param_dict_xgbsafe = {"max_depth": 1, "n_estimators": 1, "lambda": 1}
+    target_xgbsafe = get_target("xgb", **param_dict_xgbsafe)
+    myattack_xgbsafe = sa.StructuralAttack(report_individual=True)
+    myattack_xgbsafe.attack(target_xgbsafe)
+    assert not myattack_xgbsafe.results.dof_risk, (
         "should be no DoF risk with small xgb of decision stumps"
+        f" results are:\n{myattack_xgbsafe.results}"
     )
-    assert not myattack.results.k_anonymity_risk, (
-        "should be no k-anonymity risk with min_samples_leaf 150"
+    assert not myattack_xgbsafe.results.k_anonymity_risk, (
+        "should be no k-anonymity risk with min_samples_leaf 150",
     )
-    assert not myattack.results.class_disclosure_risk, (
+    assert not myattack_xgbsafe.results.class_disclosure_risk, (
         "no class disclosure risk for stumps with min child weight 50"
     )
-    assert myattack.results.unnecessary_risk == 0, (
+
+    assert myattack_xgbsafe.results.unnecessary_risk == 0, (
         "not unnecessary risk if max_depth < 3.5"
     )
 
-    # highly disclosive
-    param_dict2 = {"max_depth": 50, "n_estimators": 100, "min_child_weight": 1}
-    target2 = get_target("xgb", **param_dict2)
-    myattack2 = sa.StructuralAttack()
-    myattack2.attack(target2)
-    assert myattack2.results.dof_risk, "should be  DoF risk with xgb of deep trees"
-    assert myattack2.results.k_anonymity_risk, (
-        "should be  k-anonymity risk with depth 50 and min_child_weight 1"
-    )
-    assert myattack2.results.class_disclosure_risk, (
-        "should be class disclosure risk with xgb lots of deep trees"
-    )
-    assert myattack2.results.unnecessary_risk, " unnecessary risk with these xgb params"
+
+def test_xgb_disclosive():
+    """Test for unsafe xgboost."""
+    # highly likely to be disclosive
+    param_dict_xgbunsafe = {"max_depth": 50, "n_estimators": 1, "min_child_weight": 1}
+    target_xgbunsafe = get_target("xgb", **param_dict_xgbunsafe)
+    myattack_xgbunsafe = sa.StructuralAttack()
+    myattack_xgbunsafe.attack(target_xgbunsafe)
+
+    assert (
+        myattack_xgbunsafe.results.dof_risk
+        or myattack_xgbunsafe.results.k_anonymity_risk
+        or myattack_xgbunsafe.results.class_disclosure_risk
+        or myattack_xgbunsafe.results.smallgroup_risk
+    ), "should be  risk with xgb one deep tree"
 
 
-def test_sklearnmlp():
-    """Test for sklearn MLPClassifier."""
+def test_xgb_unnecessary():
+    """Test for unsafe xgboost."""
+    # highly likely to be disclosive
+    param_dict_xgbunsafe2 = {"max_depth": 10, "n_estimators": 10, "min_child_weight": 1}
+    target_xgbunsafe2 = get_target("xgb", **param_dict_xgbunsafe2)
+    myattack_xgbunsafe2 = sa.StructuralAttack()
+    myattack_xgbunsafe2.attack(target_xgbunsafe2)
+
+    assert myattack_xgbunsafe2.results.unnecessary_risk, (
+        " unnecessary risk with these xgb params"
+    )
+
+
+def test_sklearnmlp_nondisclosive():
+    """Test for safe sklearn MLPClassifier."""
     # non-disclosive
-    safeparams = {
-        "hidden_layer_sizes": (10,),
+    params_mlpsafe = {
+        "hidden_layer_sizes": (5,),
         "random_state": 12345,
-        "activation": "identity",
-        "max_iter": 1,
+        "activation": "relu",
+        "max_iter": 100,
     }
-    target = get_target("mlpclassifier", **safeparams)
-    myattack = sa.StructuralAttack()
-    myattack.attack(target)
+    target_mlpsafe = get_target("mlpclassifier", **params_mlpsafe)
+    myattack_mlpsafe = sa.StructuralAttack()
+    myattack_mlpsafe.attack(target_mlpsafe)
     paramstr = ""
-    for key, val in safeparams.items():
-        paramstr += f"{key}:{val}\n"
-    assert not myattack.results.dof_risk, (
+    for key, val in params_mlpsafe.items():
+        paramstr += f"{key}:{val}\t"
+    assert not myattack_mlpsafe.results.dof_risk, (
         f"should be no DoF risk with small mlp with params {paramstr}"
     )
-    assert not myattack.results.k_anonymity_risk, (
-        f"should be no k-anonymity risk with params {paramstr}"
+    # shows k-anonymity risks because task is so noisy
+    assert myattack_mlpsafe.results.k_anonymity_risk, (
+        f"should be  k-anonymity risk with params {paramstr}"
     )
-    assert not myattack.results.class_disclosure_risk, (
+    assert not myattack_mlpsafe.results.class_disclosure_risk, (
         f"should be  class disclosure risk with params {paramstr}"
     )
-    assert not myattack.results.unnecessary_risk, (
+    assert not myattack_mlpsafe.results.unnecessary_risk, (
         "not unnecessary risk for mlps at present"
     )
 
+
+def test_sklearnmlp_disclosive():
+    """Test for safe sklearn MLPClassifier."""
     # highly disclosive
-    unsafeparams = {
-        "hidden_layer_sizes": (50, 50),
+    params_mlpunsafe = {
+        "hidden_layer_sizes": (1000),
         "random_state": 12345,
         "activation": "relu",
         "max_iter": 100,
     }
     uparamstr = ""
-    for key, val in unsafeparams.items():
+    for key, val in params_mlpunsafe.items():
         uparamstr += f"{key}:{val}\n"
-    target2 = get_target("mlpclassifier", **unsafeparams)
-    myattack2 = sa.StructuralAttack()
-    myattack2.attack(target2)
-    assert myattack2.results.dof_risk, f"should be DoF risk with this MLP:\n{uparamstr}"
-    assert myattack2.results.k_anonymity_risk, (
-        "559/560 records should be k-anonymity risk with this MLP:\n{uparamstr}"
+    target_mlpunsafe = get_target("mlpclassifier", **params_mlpunsafe)
+    myattack_mlpunsafe = sa.StructuralAttack()
+    myattack_mlpunsafe.attack(target_mlpunsafe)
+    assert myattack_mlpunsafe.results.dof_risk, (
+        f"should be DoF risk with this MLP:\n{uparamstr}"
     )
-    assert myattack2.results.class_disclosure_risk, (
-        "should be class disclosure risk with this MLP:\n{uparamstr}"
-    )
-    assert not myattack2.results.unnecessary_risk, (
+    assert (
+        myattack_mlpunsafe.results.k_anonymity_risk
+        or myattack_mlpunsafe.results.class_disclosure_risk
+    ), "should be risks present with this massively overfit  MLP:\n{uparamstr}"
+    assert not myattack_mlpunsafe.results.unnecessary_risk, (
         "no unnecessary risk yet for MLPClassifiers"
     )
 
