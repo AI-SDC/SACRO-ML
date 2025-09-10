@@ -643,10 +643,12 @@ class StructuralAttack(Attack):
         attack_metrics_instances = {}
         if self.results:
             attack_metrics_instances["instance_0"] = asdict(self.results)
-        if self.report_individual and self.record_level_results:
-            individuals = {"individual": asdict(self.record_level_results)}
-            attack_metrics_instances["instance_0"].update(individuals)
-        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+            if self.report_individual and self.record_level_results:
+                individuals = {"individual": asdict(self.record_level_results)}
+                attack_metrics_instances["instance_0"].update(individuals)
+            attack_metrics_experiment["attack_instance_logger"] = (
+                attack_metrics_instances
+            )
         return attack_metrics_experiment
 
     def _make_pdf(self, output: dict) -> FPDF:

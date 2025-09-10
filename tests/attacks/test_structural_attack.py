@@ -512,7 +512,7 @@ def test_get_attack_metrics_instances_no_results():
 
     # This should test the return {} path (covers line 548)
     metrics = attack._get_attack_metrics_instances()
-    assert metrics == {}, "Should return empty dict when results is None"
+    assert metrics == {}, f"Should return empty dict when results is None not {metrics}"
 
 
 def test_torch_import_error():
