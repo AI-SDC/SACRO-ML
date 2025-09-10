@@ -614,18 +614,21 @@ class StructuralAttack(Attack):
         thresholds and results.
         """
         super()._construct_metadata()
-        self.metadata["attack_specific_output"] = {
+        attack_specific_output = {
             "attack_name": str(self),
             "risk_appetite_config": self.risk_appetite_config,
             "safe_threshold": self.THRESHOLD,
             "safe_dof_threshold": self.DOF_THRESHOLD,
         }
+        self.metadata["attack_params"].update(attack_specific_output)
         if self.results:
             self.metadata["global_metrics"] = asdict(self.results)
 
-        # Save record-level results in the attack metrics
-        self.attack_metrics = [{}]
-        self.attack_metrics[-1]["individual"] = self.record_level_results
+        # Save global and record-level results in the attack metrics
+        self.attack_metrics = {}
+        for key, val in asdict(self.results).items():
+            self.attack_metrics[key] = val
+        self.attack_metrics["individual"] = asdict(self.record_level_results)
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return attack metrics. Required by the Attack base class.
@@ -636,9 +639,15 @@ class StructuralAttack(Attack):
         # Its functionality is now handled by the `results` dataclass
         # and the `_construct_metadata` method.
         # We return the metrics from the results object if available.
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
         if self.results:
-            return asdict(self.results)
-        return {}
+            attack_metrics_instances["instance_0"] = asdict(self.results)
+        if self.report_individual and self.record_level_results:
+            individuals = {"individual": asdict(self.record_level_results)}
+            attack_metrics_instances["instance_0"].update(individuals)
+        attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
+        return attack_metrics_experiment
 
     def _make_pdf(self, output: dict) -> FPDF:
         """Create PDF report using the external report module.
