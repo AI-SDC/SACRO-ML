@@ -6,6 +6,7 @@ import importlib
 import sys
 from unittest.mock import Mock, patch
 
+import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import make_moons
@@ -548,3 +549,153 @@ def test_torch_import_error():
 
         # Reload the original module to restore normal state
         importlib.reload(sa)
+
+
+def get_target_xor(modeltype: str, reps: int = 10, **kwparams: dict) -> Target:
+    """Load simple XOR-based dataset and create target of the desired type."""
+    X = np.vstack(([[0, 0]] * reps, [[1, 0]] * reps, [[0, 1]] * reps, [[1, 1]] * reps))
+    y = np.abs(X[:, 0] - X[:, 1])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, shuffle=True, test_size=0.2, random_state=1
+    )
+
+    # these types should be handled
+    if modeltype == "dt":
+        target_model = DecisionTreeClassifier(**kwparams)
+    elif modeltype == "rf":
+        target_model = RandomForestClassifier(**kwparams)
+    elif modeltype == "xgb":
+        target_model = XGBClassifier(**kwparams)
+    elif modeltype == "adaboost":
+        target_model = AdaBoostClassifier(**kwparams)
+    elif modeltype == "mlpclassifier":
+        target_model = MLPClassifier(**kwparams)
+    # should get polite error but not DoF yet
+    elif modeltype == "svc":
+        target_model = SVC(**kwparams)
+    else:
+        raise NotImplementedError("model type passed to get_model unknown")
+
+    # Train the classifier
+    target_model.fit(X_train, y_train)
+
+    #  Wrap the model and data in a Target object
+    return Target(
+        model=target_model,
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
+
+
+kwargs_dtsafe = {"max_depth": 1, "min_samples_leaf": 200, "random_state": 0}
+kwargs_dtunsafe = {
+    "max_depth": None,
+    "splitter": "best",
+    "min_samples_leaf": 1,
+    "criterion": "entropy",
+    "random_state": 0,
+}
+
+
+def test_dt_nondisclosive_xor_reporting():
+    """Test for safe decision tree classifier with full reporting xor."""
+    target_dtsafe = get_target_xor("dt", reps=20, **kwargs_dtsafe)
+
+    outputdir = "outputs"
+
+    myattack_dtsafe = sa.StructuralAttack(report_individual=True, output_dir=outputdir)
+
+    output = myattack_dtsafe.attack(target_dtsafe)
+    assert not myattack_dtsafe.results.dof_risk, (
+        "should be no DoF risk with decision stump"
+    )
+    assert not myattack_dtsafe.results.k_anonymity_risk, (
+        "should be no k-anonymity risk with min_samples_leaf 150"
+    )
+    assert not myattack_dtsafe.results.class_disclosure_risk, (
+        "no class disclosure risk for stump with min samples leaf 150"
+    )
+    assert not myattack_dtsafe.results.unnecessary_risk, (
+        "not unnecessary risk if max_depth < 3.5"
+    )
+    gm = output["metadata"]["global_metrics"]
+    inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    for metric in [
+        "unnecessary_risk",
+        "dof_risk",
+        "k_anonymity_risk",
+        "class_disclosure_risk",
+        "smallgroup_risk",
+    ]:
+        assert not gm[metric], f"global metric {metric} should be false"
+        assert not inst[metric], f"instance metric {metric} should be false"
+
+    assert inst["individual"]["k_anonymity"] == [64] * 64, (
+        "indiv records k_anon should all be 64"
+    )
+    for metric in [
+        "unnecessary_risk",
+        "dof_risk",
+        "class_disclosure",
+        "smallgroup_risk",
+    ]:
+        assert inst["individual"][metric] == [False] * 64, (
+            f"individual records for {metric} should all be False"
+        )
+
+
+def test_dt_disclosive_xor_reporting():
+    """Test for risky decision tree classifier."""
+    target_dtunsafe = get_target_xor("dt", reps=2, **kwargs_dtunsafe)
+
+    outputdir = "outputs"
+
+    myattack_dtunsafe = sa.StructuralAttack(
+        report_individual=True, output_dir=outputdir
+    )
+    output = myattack_dtunsafe.attack(target_dtunsafe)
+    assert myattack_dtunsafe.results.dof_risk, (
+        "should be  DoF risk with unlimited complexity decision tree"
+    )
+    assert myattack_dtunsafe.results.k_anonymity_risk, (
+        "should be  k-anonymity risk with unlimited complexity decision tree"
+    )
+    assert myattack_dtunsafe.results.class_disclosure_risk, (
+        "should be class disclosure risk with unlimited complexity decision tree"
+    )
+    assert myattack_dtunsafe.results.unnecessary_risk, (
+        " unnecessary risk with unlimited unlimited complexity decision tree"
+    )
+
+    assert myattack_dtunsafe.results.smallgroup_risk, (
+        "small group risk with unlimited complexity decision tree"
+    )
+
+    gm = output["metadata"]["global_metrics"]
+    inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    for metric in [
+        "unnecessary_risk",
+        "dof_risk",
+        "k_anonymity_risk",
+        "class_disclosure_risk",
+        "smallgroup_risk",
+    ]:
+        assert gm[metric], f"global metric {metric} should be True"
+        assert inst[metric], f"instance metric {metric} should be True"
+
+    assert inst["individual"]["k_anonymity"] == [2, 1, 2, 2, 1, 2], (
+        "k_anon records should be [2, 1, 2, 2, 1, 2] "
+        f"not {inst['individual']['k_anonymity']}"
+    )
+    for metric in [
+        "unnecessary_risk",
+        "dof_risk",
+        "class_disclosure",
+        "smallgroup_risk",
+    ]:
+        assert inst["individual"][metric] == [True] * 6, (
+            f"individual records for {metric} should all be True"
+        )

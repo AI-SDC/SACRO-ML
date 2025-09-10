@@ -494,7 +494,7 @@ class StructuralAttack(Attack):
         logger.info(
             "Samples=%d, Parameters=%d, DoF=%d", n_samples, n_params, residual_dof
         )
-        return residual_dof < self.DOF_THRESHOLD
+        return bool(residual_dof < self.DOF_THRESHOLD)
 
     def _assess_k_anonymity_risk(
         self, eqclass_inv_indices: np.array, eqclass_counts: np.array
@@ -508,7 +508,7 @@ class StructuralAttack(Attack):
         """
         min_k = np.min(eqclass_counts)
         logger.info("Smallest equivalence class size (k-anonymity) is %d", min_k)
-        global_risk = np.any(eqclass_counts < self.THRESHOLD)
+        global_risk = bool(np.any(eqclass_counts < self.THRESHOLD))
 
         record_level: list = [int(eqclass_counts[i]) for i in eqclass_inv_indices]
 
@@ -532,7 +532,7 @@ class StructuralAttack(Attack):
         """
         # list of bools-one for eqch equivalence class
         eqclass_cdrisks = np.any(np.isclose(eqclass_probas, 0.0), axis=1)
-        overall = np.any(eqclass_cdrisks)
+        overall = bool(np.any(eqclass_cdrisks))
         record_level = [bool(eqclass_cdrisks[i]) for i in eqclass_inv_indices]
 
         return overall, record_level
@@ -561,7 +561,7 @@ class StructuralAttack(Attack):
         freqs = eqclass_probas * eqclass_counts[:, np.newaxis]
 
         eqclass_smallgrouprisk = np.any((freqs > 0) & (freqs < self.THRESHOLD), axis=1)
-        overall = np.any(eqclass_smallgrouprisk)
+        overall = bool(np.any(eqclass_smallgrouprisk))
         record_level = [bool(eqclass_smallgrouprisk[i]) for i in eqclass_inv_indices]
 
         return overall, record_level
