@@ -221,7 +221,7 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     int : Estimated number of learned parameters.
     """
     if torch is not None and isinstance(model, torch.nn.Module):
-        return _get_pytorch_parameter_count(model)
+        return _get_model_param_count_pytorch(model)
     if isinstance(model, DecisionTreeClassifier):
         return _get_model_param_count_dt(model)
     if isinstance(model, RandomForestClassifier):
@@ -238,7 +238,7 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     return 0
 
 
-def _get_pytorch_parameter_count(model: torch.nn.Module) -> int:
+def _get_model_param_count_pytorch(model: torch.nn.Module) -> int:
     """Return number of trainable parameters in a pytorch model.
 
     Parameters
