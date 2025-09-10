@@ -487,6 +487,7 @@ def test_pytorch_parameter_counting():
 
     # Expected parameters: (10*5 + 5) + (5*2 + 2) = 55 + 12 = 67
     expected_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    assert expected_count == 67, f"Expected 67 got {expected_count}"
     assert param_count == expected_count, (
         f"Expected {expected_count}, got {param_count}"
     )

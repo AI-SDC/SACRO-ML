@@ -318,7 +318,7 @@ class StructuralAttack(Attack):
     Attack pipeline includes checks for:
     - Residual Degrees of freedom
     - Complexity risk
-    - and uses theEquivalence class analysis to identify risks of:
+    - and uses Equivalence class analysis to identify risks of:
        - K-anonymity
        - Class disclosure:
        (partitions of decision space with zero probability for some labels)
@@ -530,7 +530,7 @@ class StructuralAttack(Attack):
                 - recordlevel: True if the equivalencce class a record belongs to
                                has near-zero predicted probab. for one or more labels
         """
-        # list of bools-one for eqch equivalence class
+        # list of bools-one for each equivalence class
         eqclass_cdrisks = np.any(np.isclose(eqclass_probas, 0.0), axis=1)
         overall = bool(np.any(eqclass_cdrisks))
         record_level = [bool(eqclass_cdrisks[i]) for i in eqclass_inv_indices]
