@@ -409,6 +409,8 @@
         <span class="n">metrics</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpr</span>
 
     <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">roc_thresh</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">)</span>
+    <span class="c1"># fix for np.inf in first position of  roc curves</span>
+    <span class="n">roc_thresh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;fpr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fpr</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;tpr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpr</span>
     <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;roc_thresh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roc_thresh</span>

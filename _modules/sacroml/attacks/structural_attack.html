@@ -85,7 +85,7 @@
 <span class="sd">- k-anonymity violations</span>
 <span class="sd">- Class disclosure</span>
 <span class="sd">- &#39;Unnecessary Risk&#39; caused by hyper-parameters likely to lead to undue model complexity</span>
-
+<span class="sd">   (not defined for all types of model)</span>
 <span class="sd">The methodology is aligned with SACRO-ML&#39;s privacy risk framework.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -103,6 +103,11 @@
 <span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
 <span class="kn">from</span> <span class="nn">xgboost.sklearn</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">torch</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">torch</span> <span class="o">=</span> <span class="kc">None</span>
+
 <span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
 <span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
@@ -114,6 +119,20 @@
 <span class="c1"># --- Data Structure for Attack Results ---</span>
 
 
+<div class="viewcode-block" id="StructuralRecordLevelResults">
+<a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.StructuralRecordLevelResults">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">StructuralRecordLevelResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass to store record-level outcomes for structural attack.&quot;&quot;&quot;</span>
+
+    <span class="n">unnecessary_risk</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">dof_risk</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">k_anonymity</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">class_disclosure</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">smallgroup_risk</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="StructuralAttackResults">
 <a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.StructuralAttackResults">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -123,19 +142,19 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.</span>
 <span class="sd">    dof_risk (bool) : Risk based on degrees of freedom.</span>
 <span class="sd">    k_anonymity_risk (bool) : Risk based on k-anonymity violations.</span>
 <span class="sd">    class_disclosure_risk (bool) : Risk of class label disclosure.</span>
 <span class="sd">    lowvals_cd_risk (bool) : Risk from low-frequency class values.</span>
-<span class="sd">    unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.</span>
 <span class="sd">    details (dict | None) : Optional additional metadata.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">unnecessary_risk</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">dof_risk</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">k_anonymity_risk</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">class_disclosure_risk</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">lowvals_cd_risk</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">unnecessary_risk</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">smallgroup_risk</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
@@ -149,7 +168,7 @@
 
 <div class="viewcode-block" id="get_unnecessary_risk">
 <a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.get_unnecessary_risk">[docs]</a>
-<span class="k">def</span> <span class="nf">get_unnecessary_risk</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_unnecessary_risk</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether model hyperparameters are in the top 20% most risky.</span>
 
 <span class="sd">     This check is based on a classifier trained on results from a large</span>
@@ -157,7 +176,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    model : BaseEstimator</span>
+<span class="sd">    model : BaseEstimator|torch.nn.Module</span>
 <span class="sd">        The trained model to check for risk.</span>
 
 <span class="sd">    Returns</span>
@@ -171,6 +190,7 @@
         <span class="k">return</span> <span class="n">_get_unnecessary_risk_rf</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">XGBClassifier</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_get_unnecessary_risk_xgb</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unnecessary risk not define for models of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
@@ -269,21 +289,23 @@
 
 <div class="viewcode-block" id="get_model_param_count">
 <a class="viewcode-back" href="../../../attacks/structural.html#sacroml.attacks.structural_attack.get_model_param_count">[docs]</a>
-<span class="k">def</span> <span class="nf">get_model_param_count</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_model_param_count</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the number of trained parameters in a model.</span>
 
 <span class="sd">    This includes learned weights, thresholds, and decision rules depending on</span>
-<span class="sd">    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost, and MLP</span>
+<span class="sd">    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost,  MLP and torch</span>
 <span class="sd">    classifiers.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    model (BaseEstimator) : A trained scikit-learn or XGBoost model.</span>
+<span class="sd">    model (BaseEstimator|torch.nn.Module) : A trained classification model.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    int : Estimated number of learned parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">torch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_get_model_param_count_torch</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_get_model_param_count_dt</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">):</span>
@@ -299,6 +321,20 @@
     <span class="p">)</span>
     <span class="k">return</span> <span class="mi">0</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">_get_model_param_count_torch</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return number of trainable parameters in a pytorch model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : torch.nn.Module</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int count of trainable params</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_tree_parameter_count</span><span class="p">(</span><span class="n">dtree</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -364,14 +400,17 @@
 <span class="sd">    Performs structural privacy risk assessments on trained ML models.</span>
 
 <span class="sd">    This class implements static structural attacks based on model architecture</span>
-<span class="sd">    and hyperparameters, aligned with TRE risk appetite configurations.</span>
+<span class="sd">    and hyperparameters, aligned with TRE risk appetite for &#39;traditional&#39; outputs.</span>
 
-<span class="sd">    Attack pipeline includes:</span>
-<span class="sd">    - Equivalence class analysis</span>
-<span class="sd">    - Degrees of freedom check</span>
-<span class="sd">    - k-anonymity check</span>
-<span class="sd">    - Class disclosure risk</span>
+<span class="sd">    Attack pipeline includes checks for:</span>
+<span class="sd">    - Residual Degrees of freedom</span>
 <span class="sd">    - Complexity risk</span>
+<span class="sd">    - and uses Equivalence class analysis to identify risks of:</span>
+<span class="sd">       - K-anonymity</span>
+<span class="sd">       - Class disclosure:</span>
+<span class="sd">       (partitions of decision space with zero probability for some labels)</span>
+<span class="sd">       - Reidentification through small groups</span>
+<span class="sd">       (partitions of decision space with some groups below the cell count threshold)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="StructuralAttack.__init__">
@@ -381,6 +420,7 @@
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
         <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">risk_appetite_config</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">report_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an object to execute a structural attack.</span>
 
@@ -392,10 +432,13 @@
 <span class="sd">            Whether to generate a JSON and PDF report.</span>
 <span class="sd">        risk_appetite_config : str</span>
 <span class="sd">            Path to yaml file specifying TRE risk appetite.</span>
+<span class="sd">        report_individual : bool</span>
+<span class="sd">            Whether to report metrics for each individual record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">write_report</span><span class="o">=</span><span class="n">write_report</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="n">StructuralAttackResults</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span> <span class="o">=</span> <span class="n">report_individual</span>
 
         <span class="c1"># Load risk appetite from ACRO config</span>
         <span class="n">myacro</span> <span class="o">=</span> <span class="n">ACRO</span><span class="p">(</span><span class="n">risk_appetite_config</span><span class="p">)</span>
@@ -416,9 +459,13 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with StructuralAttack.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;target.model.model is missing, cannot proceed&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Class of module is </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">))</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span>
             <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -434,9 +481,14 @@
 <span class="sd">        the results into a dictionary for reporting.</span>
 <span class="sd">        This method orchestrates the full structural attack pipeline, including:</span>
 <span class="sd">        - Degrees of freedom risk</span>
-<span class="sd">        - k-anonymity risk</span>
-<span class="sd">        - Class disclosure risk</span>
 <span class="sd">        - Unnecessary complexity risk</span>
+<span class="sd">        - Equivalence class analysis leading to checks for risk of</span>
+<span class="sd">        -- K-anonymity below threshold</span>
+<span class="sd">        -- Class disclosure :</span>
+<span class="sd">           presence of partitions with zero probability for one or more labels</span>
+<span class="sd">        - smallgroup_risk :</span>
+<span class="sd">           presence of partitions where count of records with some labels</span>
+<span class="sd">           is below Cell Count Threshold</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -457,27 +509,51 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>
 
         <span class="c1"># Calculate equivalence classes, which are needed for several checks</span>
-        <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">equiv_counts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_equivalence_classes</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">eqclass_probas</span><span class="p">,</span> <span class="n">eqclass_inv_indices</span><span class="p">,</span> <span class="n">eqclass_counts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_equivalence_classes</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="c1"># check shapes are sane</span>
+        <span class="n">num_eqclasses</span><span class="p">,</span> <span class="n">num_outputs</span> <span class="o">=</span> <span class="n">eqclass_probas</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">eqclass_counts</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_eqclasses</span>
+        <span class="n">num_samples</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">eqclass_inv_indices</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_samples</span>
 
-        <span class="c1"># Run individual risk assessments</span>
-        <span class="n">dof_risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_dof_risk</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">k_anonymity_risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_k_anonymity_risk</span><span class="p">(</span><span class="n">equiv_counts</span><span class="p">)</span>
-        <span class="n">unnecessary_risk</span> <span class="o">=</span> <span class="n">get_unnecessary_risk</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">class_disclosure_risk</span><span class="p">,</span> <span class="n">lowvals_cd_risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_class_disclosure_risk</span><span class="p">(</span>
-            <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">equiv_counts</span>
+        <span class="c1"># Run different risk assessments, some just return  global value</span>
+        <span class="n">global_dof_risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_dof_risk</span><span class="p">()</span>
+        <span class="n">record_level_dof_risk</span> <span class="o">=</span> <span class="p">[</span><span class="n">global_dof_risk</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_samples</span>
+
+        <span class="n">global_unnecessary_risk</span> <span class="o">=</span> <span class="n">get_unnecessary_risk</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">record_level_unnecessary_risk</span> <span class="o">=</span> <span class="p">[</span><span class="n">global_unnecessary_risk</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_samples</span>
+
+        <span class="c1"># Other tests return global value and one for each training record</span>
+        <span class="n">global_krisk</span><span class="p">,</span> <span class="n">record_level_kval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_k_anonymity_risk</span><span class="p">(</span>
+            <span class="n">eqclass_inv_indices</span><span class="p">,</span> <span class="n">eqclass_counts</span>
         <span class="p">)</span>
 
-        <span class="c1"># Collate results into the structured dataclass</span>
+        <span class="n">global_cd</span><span class="p">,</span> <span class="n">record_level_cd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_class_disclosure_risk</span><span class="p">(</span>
+            <span class="n">eqclass_probas</span><span class="p">,</span> <span class="n">eqclass_inv_indices</span>
+        <span class="p">)</span>
+
+        <span class="n">global_small</span><span class="p">,</span> <span class="n">record_level_small</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assess_smallgroup_risk</span><span class="p">(</span>
+            <span class="n">eqclass_probas</span><span class="p">,</span> <span class="n">eqclass_inv_indices</span><span class="p">,</span> <span class="n">eqclass_counts</span>
+        <span class="p">)</span>
+
+        <span class="c1"># make storage for results</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">StructuralAttackResults</span><span class="p">(</span>
-            <span class="n">dof_risk</span><span class="o">=</span><span class="n">dof_risk</span><span class="p">,</span>
-            <span class="n">k_anonymity_risk</span><span class="o">=</span><span class="n">k_anonymity_risk</span><span class="p">,</span>
-            <span class="n">unnecessary_risk</span><span class="o">=</span><span class="n">unnecessary_risk</span><span class="p">,</span>
-            <span class="n">class_disclosure_risk</span><span class="o">=</span><span class="n">class_disclosure_risk</span><span class="p">,</span>
-            <span class="n">lowvals_cd_risk</span><span class="o">=</span><span class="n">lowvals_cd_risk</span><span class="p">,</span>
+            <span class="n">dof_risk</span><span class="o">=</span><span class="n">global_dof_risk</span><span class="p">,</span>
+            <span class="n">unnecessary_risk</span><span class="o">=</span><span class="n">global_unnecessary_risk</span><span class="p">,</span>
+            <span class="n">k_anonymity_risk</span><span class="o">=</span><span class="n">global_krisk</span><span class="p">,</span>
+            <span class="n">class_disclosure_risk</span><span class="o">=</span><span class="n">global_cd</span><span class="p">,</span>
+            <span class="n">smallgroup_risk</span><span class="o">=</span><span class="n">global_small</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_level_results</span> <span class="o">=</span> <span class="n">StructuralRecordLevelResults</span><span class="p">(</span>
+            <span class="n">unnecessary_risk</span><span class="o">=</span><span class="n">record_level_unnecessary_risk</span><span class="p">,</span>
+            <span class="n">dof_risk</span><span class="o">=</span><span class="n">record_level_dof_risk</span><span class="p">,</span>
+            <span class="n">k_anonymity</span><span class="o">=</span><span class="n">record_level_kval</span><span class="p">,</span>
+            <span class="n">class_disclosure</span><span class="o">=</span><span class="n">record_level_cd</span><span class="p">,</span>
+            <span class="n">smallgroup_risk</span><span class="o">=</span><span class="n">record_level_small</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># Let the base class generate the report dictionary.</span>
-        <span class="c1"># It will internally call our overridden _construct_metadata method.</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
         <span class="c1"># If requested, write the JSON report file.</span>
@@ -487,7 +563,7 @@
 
         <span class="k">return</span> <span class="n">output</span>
 
-    <span class="k">def</span> <span class="nf">_assess_dof_risk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_assess_dof_risk</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assess risk based on Residual Degrees of Freedom.</span>
 
 <span class="sd">        Returns</span>
@@ -497,6 +573,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>
         <span class="n">n_params</span> <span class="o">=</span> <span class="n">get_model_param_count</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">n_params</span> <span class="o">&lt;</span> <span class="n">n_features</span><span class="p">:</span>
@@ -510,61 +587,118 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Samples=</span><span class="si">%d</span><span class="s2">, Parameters=</span><span class="si">%d</span><span class="s2">, DoF=</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_params</span><span class="p">,</span> <span class="n">residual_dof</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">residual_dof</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">DOF_THRESHOLD</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">residual_dof</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">DOF_THRESHOLD</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_assess_k_anonymity_risk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equiv_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_assess_k_anonymity_risk</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eqclass_inv_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">eqclass_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assess k-anonymity risk from equivalence class sizes.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool : True if the smallest equivalence class size is below the safe threshold.</span>
+<span class="sd">        list : size of class each record belongs to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">min_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">equiv_counts</span><span class="p">)</span>
+        <span class="n">min_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">eqclass_counts</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Smallest equivalence class size (k-anonymity) is </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">min_k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">min_k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span>
+        <span class="n">global_risk</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">eqclass_counts</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span><span class="p">))</span>
+
+        <span class="n">record_level</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">eqclass_counts</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">eqclass_inv_indices</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">global_risk</span><span class="p">,</span> <span class="n">record_level</span>
 
     <span class="k">def</span> <span class="nf">_assess_class_disclosure_risk</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">equiv_classes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">equiv_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assess risk of disclosing class frequencies.</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eqclass_probas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">eqclass_inv_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assess risk of class disclosing class frequencies.</span>
+
+<span class="sd">        i.e. reporting that for some groups</span>
+<span class="sd">        there is zero probability of observing one or more labels.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">               tuple[bool, bool]:</span>
-<span class="sd">                                 - class_disclosure_risk: True if any class</span>
-<span class="sd">                                   frequency is below the threshold.</span>
-<span class="sd">                                 - lowvals_cd_risk: True if low-frequency values</span>
-<span class="sd">                                   pose a disclosure risk.</span>
+<span class="sd">               tuple[bool, list]:</span>
+<span class="sd">                - overall : True if any equivalence class has any near-zero values</span>
+<span class="sd">                             in its predicted probability for any label</span>
+<span class="sd">                - recordlevel: True if the equivalencce class a record belongs to</span>
+<span class="sd">                               has near-zero predicted probab. for one or more labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">freqs</span> <span class="o">=</span> <span class="n">equiv_classes</span> <span class="o">*</span> <span class="n">equiv_counts</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="n">class_disclosure_risk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span><span class="p">))</span>
-        <span class="n">lowvals_cd_risk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span><span class="p">))</span>
+        <span class="c1"># list of bools-one for each equivalence class</span>
+        <span class="n">eqclass_cdrisks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">eqclass_probas</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">overall</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">eqclass_cdrisks</span><span class="p">))</span>
+        <span class="n">record_level</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">eqclass_cdrisks</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">eqclass_inv_indices</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">class_disclosure_risk</span><span class="p">,</span> <span class="n">lowvals_cd_risk</span>
+        <span class="k">return</span> <span class="n">overall</span><span class="p">,</span> <span class="n">record_level</span>
 
-    <span class="k">def</span> <span class="nf">_calculate_equivalence_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate equivalence classes based on model type and predictions.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_assess_smallgroup_risk</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">eqclass_probas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">eqclass_inv_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+        <span class="n">eqclass_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assess risk of reporting on a group with only a few members for a label.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">               tuple[bool, list]:</span>
+<span class="sd">                - Overall smallgroup_risk:</span>
+<span class="sd">                  True if for any equivalence class for any label,</span>
+<span class="sd">                  0 &lt; estimated number of examples &lt;self.THRESHOLD</span>
+<span class="sd">                - Record level.</span>
+<span class="sd">                  True if relation holds within the record&#39;s equivalence class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># small groups risk:</span>
+        <span class="c1">#   report on a group of smaller than self.THRESHOLD training records</span>
+        <span class="c1">#   freqs is an estimate:</span>
+        <span class="c1">#    number of records in a class multtiplied by output probabilities</span>
+        <span class="n">freqs</span> <span class="o">=</span> <span class="n">eqclass_probas</span> <span class="o">*</span> <span class="n">eqclass_counts</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="n">eqclass_smallgrouprisk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">overall</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">eqclass_smallgrouprisk</span><span class="p">))</span>
+        <span class="n">record_level</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">eqclass_smallgrouprisk</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">eqclass_inv_indices</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">overall</span><span class="p">,</span> <span class="n">record_level</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_equivalence_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate equivalence classes based on model type and predictions.</span>
+
+<span class="sd">        For decision trees there is one equivalence class per leaf</span>
+<span class="sd">        For all other models an equivalence class is all the training records</span>
+<span class="sd">        for which the model predicts the same output probabilities.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        eq_class_probas (numpy.ndarray):</span>
+<span class="sd">            array of output probabilities (columns)</span>
+<span class="sd">            for all the distinct equivalence classes (rows)</span>
+<span class="sd">        eqclass_inv_indices (np.array);</span>
+<span class="sd">            holds indices of equivalence class for each training record</span>
+<span class="sd">        eqclass_counts (np.array):</span>
+<span class="sd">            holds count of members in eacgh equivalence class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dt_get_equivalence_classes</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_equivalence_classes_from_probas</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dt_get_equivalence_classes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_equivalence_classes_from_probas</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_dt_get_equivalence_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_dt_get_equivalence_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get equivalence classes for a Decision Tree via leaf nodes.&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>
+        <span class="c1"># find out which leaves records end up in</span>
         <span class="n">destinations</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
-        <span class="n">leaves</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">destinations</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">destinations</span> <span class="o">==</span> <span class="n">leaf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">]</span>
-        <span class="n">sample_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="n">members</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">equiv_classes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">[</span><span class="n">sample_indices</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">members</span>
-
-    <span class="k">def</span> <span class="nf">_get_equivalence_classes_from_probas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get equivalence classes based on predicted probabilities.&quot;&quot;&quot;</span>
-        <span class="n">y_probs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
-        <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">inverse_indices</span><span class="p">,</span> <span class="n">equiv_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
-            <span class="n">y_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">leaves</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">inv_indices</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">destinations</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
-        <span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inverse_indices</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">equiv_classes</span><span class="p">))]</span>
-        <span class="k">return</span> <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">equiv_counts</span><span class="p">,</span> <span class="n">members</span>
+
+        <span class="c1"># get prediction probabilities for each leaf</span>
+        <span class="c1"># this means equiv_classes may not be unique in this case (e.g. XOR problem)</span>
+        <span class="n">equiv_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">equiv_classes</span><span class="p">,</span> <span class="n">inv_indices</span><span class="p">,</span> <span class="n">counts</span>
+
+    <span class="k">def</span> <span class="nf">_get_equivalence_classes_from_probas</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get equivalence classes based on predicted probabilities.&quot;&quot;&quot;</span>
+        <span class="n">y_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata dictionary for reporting.</span>
@@ -573,14 +707,21 @@
 <span class="sd">        thresholds and results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_construct_metadata</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_specific_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">attack_specific_output</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;attack_name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
             <span class="s2">&quot;risk_appetite_config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_appetite_config</span><span class="p">,</span>
             <span class="s2">&quot;safe_threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">THRESHOLD</span><span class="p">,</span>
             <span class="s2">&quot;safe_dof_threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">DOF_THRESHOLD</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attack_specific_output</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="c1"># Save global and record-level results in the attack metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_level_results</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return attack metrics. Required by the Attack base class.</span>
@@ -591,9 +732,17 @@
         <span class="c1"># Its functionality is now handled by the `results` dataclass</span>
         <span class="c1"># and the `_construct_metadata` method.</span>
         <span class="c1"># We return the metrics from the results object if available.</span>
+        <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{}</span>
+            <span class="n">attack_metrics_instances</span><span class="p">[</span><span class="s2">&quot;instance_0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_level_results</span><span class="p">:</span>
+                <span class="n">individuals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_level_results</span><span class="p">)}</span>
+                <span class="n">attack_metrics_instances</span><span class="p">[</span><span class="s2">&quot;instance_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">individuals</span><span class="p">)</span>
+            <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">attack_metrics_instances</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
 
     <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report using the external report module.</span>
