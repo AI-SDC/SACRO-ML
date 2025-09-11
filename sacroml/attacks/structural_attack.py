@@ -95,7 +95,7 @@ def get_unnecessary_risk(model: BaseEstimator | torch.nn.Module) -> bool:
 
     Parameters
     ----------
-    model : BaseEstimator|pytorch.nn.Module
+    model : BaseEstimator|torch.nn.Module
         The trained model to check for risk.
 
     Returns
@@ -209,7 +209,7 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     """Return the number of trained parameters in a model.
 
     This includes learned weights, thresholds, and decision rules depending on
-    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost,  MLP and pytorch
+    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost,  MLP and torch
     classifiers.
 
     Parameters
@@ -221,7 +221,7 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     int : Estimated number of learned parameters.
     """
     if torch is not None and isinstance(model, torch.nn.Module):
-        return _get_model_param_count_pytorch(model)
+        return _get_model_param_count_torch(model)
     if isinstance(model, DecisionTreeClassifier):
         return _get_model_param_count_dt(model)
     if isinstance(model, RandomForestClassifier):
@@ -238,7 +238,7 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     return 0
 
 
-def _get_model_param_count_pytorch(model: torch.nn.Module) -> int:
+def _get_model_param_count_torch(model: torch.nn.Module) -> int:
     """Return number of trainable parameters in a pytorch model.
 
     Parameters
