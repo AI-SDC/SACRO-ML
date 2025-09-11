@@ -328,6 +328,8 @@ def get_metrics(
         metrics[name] = tpr
 
     fpr, tpr, roc_thresh = roc_curve(y_test, y_pred_proba)
+    # fix for np.inf in first position of  roc curves
+    roc_thresh[0] = 1.0
     metrics["fpr"] = fpr
     metrics["tpr"] = tpr
     metrics["roc_thresh"] = roc_thresh

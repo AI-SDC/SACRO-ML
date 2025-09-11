@@ -6,3 +6,15 @@ ignore:
   - "examples"
   - "setup.py"
   - "user_stories"
+  - "tests"  # Exclude test files from coverage calculation
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%

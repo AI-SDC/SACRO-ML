@@ -12,7 +12,7 @@ These include:
 - k-anonymity violations
 - Class disclosure
 - 'Unnecessary Risk' caused by hyper-parameters likely to lead to undue model complexity
-
+   (not defined for all types of model)
 The methodology is aligned with SACRO-ML's privacy risk framework.
 """
 
@@ -30,6 +30,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost.sklearn import XGBClassifier
 
+try:
+    import torch
+except ImportError:
+    torch = None
+
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
@@ -42,25 +47,36 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class StructuralRecordLevelResults:
+    """Dataclass to store record-level outcomes for structural attack."""
+
+    unnecessary_risk: list[bool]
+    dof_risk: list[bool]
+    k_anonymity: list[int]
+    class_disclosure: list[bool]
+    smallgroup_risk: list[bool]
+
+
+@dataclass
 class StructuralAttackResults:
     """
     Dataclass to store the results of a structural attack.
 
     Attributes
     ----------
+    unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
     dof_risk (bool) : Risk based on degrees of freedom.
     k_anonymity_risk (bool) : Risk based on k-anonymity violations.
     class_disclosure_risk (bool) : Risk of class label disclosure.
     lowvals_cd_risk (bool) : Risk from low-frequency class values.
-    unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
     details (dict | None) : Optional additional metadata.
     """
 
+    unnecessary_risk: bool
     dof_risk: bool
     k_anonymity_risk: bool
     class_disclosure_risk: bool
-    lowvals_cd_risk: bool
-    unnecessary_risk: bool
+    smallgroup_risk: bool
     details: dict | None = None
 
 
@@ -71,7 +87,7 @@ Optional additional metadata, such as model-specific notes or thresholds used.
 # --- Standalone Helper Functions for Risk Assessment ---
 
 
-def get_unnecessary_risk(model: BaseEstimator) -> bool:
+def get_unnecessary_risk(model: BaseEstimator | torch.nn.Module) -> bool:
     """Check whether model hyperparameters are in the top 20% most risky.
 
      This check is based on a classifier trained on results from a large
@@ -79,7 +95,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
 
     Parameters
     ----------
-    model : BaseEstimator
+    model : BaseEstimator|torch.nn.Module
         The trained model to check for risk.
 
     Returns
@@ -93,6 +109,7 @@ def get_unnecessary_risk(model: BaseEstimator) -> bool:
         return _get_unnecessary_risk_rf(model)
     if isinstance(model, XGBClassifier):
         return _get_unnecessary_risk_xgb(model)
+    logger.info("Unnecessary risk not define for models of type %s", type(model))
     return False
 
 
@@ -188,21 +205,23 @@ def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
 # --- Standalone Helper Functions for Parameter Counting ---
 
 
-def get_model_param_count(model: BaseEstimator) -> int:
+def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     """Return the number of trained parameters in a model.
 
     This includes learned weights, thresholds, and decision rules depending on
-    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost, and MLP
+    model type. Supports DecisionTree, RandomForest, AdaBoost, XGBoost,  MLP and torch
     classifiers.
 
     Parameters
     ----------
-    model (BaseEstimator) : A trained scikit-learn or XGBoost model.
+    model (BaseEstimator|torch.nn.Module) : A trained classification model.
 
     Returns
     -------
     int : Estimated number of learned parameters.
     """
+    if torch is not None and isinstance(model, torch.nn.Module):
+        return _get_model_param_count_torch(model)
     if isinstance(model, DecisionTreeClassifier):
         return _get_model_param_count_dt(model)
     if isinstance(model, RandomForestClassifier):
@@ -217,6 +236,20 @@ def get_model_param_count(model: BaseEstimator) -> int:
         "Parameter counting not implemented for model type %s", type(model).__name__
     )
     return 0
+
+
+def _get_model_param_count_torch(model: torch.nn.Module) -> int:
+    """Return number of trainable parameters in a pytorch model.
+
+    Parameters
+    ----------
+    model : torch.nn.Module
+
+    Returns
+    -------
+    int count of trainable params
+    """
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 def _get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
@@ -280,14 +313,17 @@ class StructuralAttack(Attack):
     Performs structural privacy risk assessments on trained ML models.
 
     This class implements static structural attacks based on model architecture
-    and hyperparameters, aligned with TRE risk appetite configurations.
+    and hyperparameters, aligned with TRE risk appetite for 'traditional' outputs.
 
-    Attack pipeline includes:
-    - Equivalence class analysis
-    - Degrees of freedom check
-    - k-anonymity check
-    - Class disclosure risk
+    Attack pipeline includes checks for:
+    - Residual Degrees of freedom
     - Complexity risk
+    - and uses Equivalence class analysis to identify risks of:
+       - K-anonymity
+       - Class disclosure:
+       (partitions of decision space with zero probability for some labels)
+       - Reidentification through small groups
+       (partitions of decision space with some groups below the cell count threshold)
     """
 
     def __init__(
@@ -295,6 +331,7 @@ class StructuralAttack(Attack):
         output_dir: str = "outputs",
         write_report: bool = True,
         risk_appetite_config: str = "default",
+        report_individual: bool = False,
     ) -> None:
         """Construct an object to execute a structural attack.
 
@@ -306,10 +343,13 @@ class StructuralAttack(Attack):
             Whether to generate a JSON and PDF report.
         risk_appetite_config : str
             Path to yaml file specifying TRE risk appetite.
+        report_individual : bool
+            Whether to report metrics for each individual record.
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.target: Target | None = None
         self.results: StructuralAttackResults | None = None
+        self.report_individual = report_individual
 
         # Load risk appetite from ACRO config
         myacro = ACRO(risk_appetite_config)
@@ -327,9 +367,13 @@ class StructuralAttack(Attack):
     @classmethod
     def attackable(cls, target: Target) -> bool:
         """Return whether a target can be assessed with StructuralAttack."""
+        if not target.has_model():
+            logger.info("target.model.model is missing, cannot proceed")
+            return False
+        logger.info("Class of module is %s ", type(target.model.model))
         if (
             target.has_model()
-            and isinstance(target.model.model, BaseEstimator)
+            and isinstance(target.model.model, BaseEstimator | torch.nn.Module)
             and target.has_data()
         ):
             return True
@@ -344,9 +388,14 @@ class StructuralAttack(Attack):
         the results into a dictionary for reporting.
         This method orchestrates the full structural attack pipeline, including:
         - Degrees of freedom risk
-        - k-anonymity risk
-        - Class disclosure risk
         - Unnecessary complexity risk
+        - Equivalence class analysis leading to checks for risk of
+        -- K-anonymity below threshold
+        -- Class disclosure :
+           presence of partitions with zero probability for one or more labels
+        - smallgroup_risk :
+           presence of partitions where count of records with some labels
+           is below Cell Count Threshold
 
         Parameters
         ----------
@@ -367,27 +416,51 @@ class StructuralAttack(Attack):
         model = target.model.model
 
         # Calculate equivalence classes, which are needed for several checks
-        equiv_classes, equiv_counts, _ = self._calculate_equivalence_classes(model)
+        eqclass_probas, eqclass_inv_indices, eqclass_counts = (
+            self._calculate_equivalence_classes()
+        )
+        # check shapes are sane
+        num_eqclasses, num_outputs = eqclass_probas.shape
+        assert len(eqclass_counts) == num_eqclasses
+        num_samples = target.y_train.shape[0]
+        assert len(eqclass_inv_indices) == num_samples
 
-        # Run individual risk assessments
-        dof_risk = self._assess_dof_risk(model)
-        k_anonymity_risk = self._assess_k_anonymity_risk(equiv_counts)
-        unnecessary_risk = get_unnecessary_risk(model)
-        class_disclosure_risk, lowvals_cd_risk = self._assess_class_disclosure_risk(
-            equiv_classes, equiv_counts
+        # Run different risk assessments, some just return  global value
+        global_dof_risk = self._assess_dof_risk()
+        record_level_dof_risk = [global_dof_risk] * num_samples
+
+        global_unnecessary_risk = get_unnecessary_risk(model)
+        record_level_unnecessary_risk = [global_unnecessary_risk] * num_samples
+
+        # Other tests return global value and one for each training record
+        global_krisk, record_level_kval = self._assess_k_anonymity_risk(
+            eqclass_inv_indices, eqclass_counts
         )
 
-        # Collate results into the structured dataclass
+        global_cd, record_level_cd = self._assess_class_disclosure_risk(
+            eqclass_probas, eqclass_inv_indices
+        )
+
+        global_small, record_level_small = self._assess_smallgroup_risk(
+            eqclass_probas, eqclass_inv_indices, eqclass_counts
+        )
+
+        # make storage for results
         self.results = StructuralAttackResults(
-            dof_risk=dof_risk,
-            k_anonymity_risk=k_anonymity_risk,
-            unnecessary_risk=unnecessary_risk,
-            class_disclosure_risk=class_disclosure_risk,
-            lowvals_cd_risk=lowvals_cd_risk,
+            dof_risk=global_dof_risk,
+            unnecessary_risk=global_unnecessary_risk,
+            k_anonymity_risk=global_krisk,
+            class_disclosure_risk=global_cd,
+            smallgroup_risk=global_small,
+        )
+        self.record_level_results = StructuralRecordLevelResults(
+            unnecessary_risk=record_level_unnecessary_risk,
+            dof_risk=record_level_dof_risk,
+            k_anonymity=record_level_kval,
+            class_disclosure=record_level_cd,
+            smallgroup_risk=record_level_small,
         )
 
-        # Let the base class generate the report dictionary.
-        # It will internally call our overridden _construct_metadata method.
         output = self._make_report(target)
 
         # If requested, write the JSON report file.
@@ -397,7 +470,7 @@ class StructuralAttack(Attack):
 
         return output
 
-    def _assess_dof_risk(self, model: BaseEstimator) -> bool:
+    def _assess_dof_risk(self) -> bool:
         """Assess risk based on Residual Degrees of Freedom.
 
         Returns
@@ -407,6 +480,7 @@ class StructuralAttack(Attack):
         """
         n_features = self.target.X_train.shape[1]
         n_samples = self.target.X_train.shape[0]
+        model = self.target.model.model
         n_params = get_model_param_count(model)
 
         if n_params < n_features:
@@ -420,61 +494,118 @@ class StructuralAttack(Attack):
         logger.info(
             "Samples=%d, Parameters=%d, DoF=%d", n_samples, n_params, residual_dof
         )
-        return residual_dof < self.DOF_THRESHOLD
+        return bool(residual_dof < self.DOF_THRESHOLD)
 
-    def _assess_k_anonymity_risk(self, equiv_counts: np.ndarray) -> bool:
+    def _assess_k_anonymity_risk(
+        self, eqclass_inv_indices: np.array, eqclass_counts: np.array
+    ) -> tuple(bool, list):
         """Assess k-anonymity risk from equivalence class sizes.
 
         Returns
         -------
         bool : True if the smallest equivalence class size is below the safe threshold.
+        list : size of class each record belongs to
         """
-        min_k = np.min(equiv_counts)
+        min_k = np.min(eqclass_counts)
         logger.info("Smallest equivalence class size (k-anonymity) is %d", min_k)
-        return min_k < self.THRESHOLD
+        global_risk = bool(np.any(eqclass_counts < self.THRESHOLD))
+
+        record_level: list = [int(eqclass_counts[i]) for i in eqclass_inv_indices]
+
+        return global_risk, record_level
 
     def _assess_class_disclosure_risk(
-        self, equiv_classes: np.ndarray, equiv_counts: np.ndarray
-    ) -> tuple[bool, bool]:
-        """Assess risk of disclosing class frequencies.
+        self, eqclass_probas: np.ndarray, eqclass_inv_indices: np.array
+    ) -> tuple[bool, list]:
+        """Assess risk of class disclosing class frequencies.
+
+        i.e. reporting that for some groups
+        there is zero probability of observing one or more labels.
 
         Returns
         -------
-               tuple[bool, bool]:
-                                 - class_disclosure_risk: True if any class
-                                   frequency is below the threshold.
-                                 - lowvals_cd_risk: True if low-frequency values
-                                   pose a disclosure risk.
+               tuple[bool, list]:
+                - overall : True if any equivalence class has any near-zero values
+                             in its predicted probability for any label
+                - recordlevel: True if the equivalencce class a record belongs to
+                               has near-zero predicted probab. for one or more labels
         """
-        freqs = equiv_classes * equiv_counts[:, np.newaxis]
-        class_disclosure_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
-        lowvals_cd_risk = np.any((freqs > 0) & (freqs < self.THRESHOLD))
+        # list of bools-one for each equivalence class
+        eqclass_cdrisks = np.any(np.isclose(eqclass_probas, 0.0), axis=1)
+        overall = bool(np.any(eqclass_cdrisks))
+        record_level = [bool(eqclass_cdrisks[i]) for i in eqclass_inv_indices]
 
-        return class_disclosure_risk, lowvals_cd_risk
+        return overall, record_level
 
-    def _calculate_equivalence_classes(self, model: BaseEstimator) -> tuple:
-        """Calculate equivalence classes based on model type and predictions."""
+    def _assess_smallgroup_risk(
+        self,
+        eqclass_probas: np.ndarray,
+        eqclass_inv_indices: np.array,
+        eqclass_counts: np.array,
+    ) -> tuple[bool, list]:
+        """Assess risk of reporting on a group with only a few members for a label.
+
+        Returns
+        -------
+               tuple[bool, list]:
+                - Overall smallgroup_risk:
+                  True if for any equivalence class for any label,
+                  0 < estimated number of examples <self.THRESHOLD
+                - Record level.
+                  True if relation holds within the record's equivalence class
+        """
+        # small groups risk:
+        #   report on a group of smaller than self.THRESHOLD training records
+        #   freqs is an estimate:
+        #    number of records in a class multtiplied by output probabilities
+        freqs = eqclass_probas * eqclass_counts[:, np.newaxis]
+
+        eqclass_smallgrouprisk = np.any((freqs > 0) & (freqs < self.THRESHOLD), axis=1)
+        overall = bool(np.any(eqclass_smallgrouprisk))
+        record_level = [bool(eqclass_smallgrouprisk[i]) for i in eqclass_inv_indices]
+
+        return overall, record_level
+
+    def _calculate_equivalence_classes(self) -> tuple:
+        """Calculate equivalence classes based on model type and predictions.
+
+        For decision trees there is one equivalence class per leaf
+        For all other models an equivalence class is all the training records
+        for which the model predicts the same output probabilities.
+
+        Returns
+        -------
+        eq_class_probas (numpy.ndarray):
+            array of output probabilities (columns)
+            for all the distinct equivalence classes (rows)
+        eqclass_inv_indices (np.array);
+            holds indices of equivalence class for each training record
+        eqclass_counts (np.array):
+            holds count of members in eacgh equivalence class
+        """
+        model = self.target.model.model
         if isinstance(model, DecisionTreeClassifier):
-            return self._dt_get_equivalence_classes(model)
-        return self._get_equivalence_classes_from_probas(model)
+            return self._dt_get_equivalence_classes()
+        return self._get_equivalence_classes_from_probas()
 
-    def _dt_get_equivalence_classes(self, model: DecisionTreeClassifier) -> tuple:
+    def _dt_get_equivalence_classes(self) -> tuple:
         """Get equivalence classes for a Decision Tree via leaf nodes."""
+        model = self.target.model.model
+        # find out which leaves records end up in
         destinations = model.apply(self.target.X_train)
-        leaves, counts = np.unique(destinations, return_counts=True)
-        members = [np.where(destinations == leaf)[0] for leaf in leaves]
-        sample_indices = [mem[0] for mem in members if len(mem) > 0]
-        equiv_classes = model.predict_proba(self.target.X_train[sample_indices])
-        return equiv_classes, counts, members
-
-    def _get_equivalence_classes_from_probas(self, model: BaseEstimator) -> tuple:
-        """Get equivalence classes based on predicted probabilities."""
-        y_probs = model.predict_proba(self.target.X_train)
-        equiv_classes, inverse_indices, equiv_counts = np.unique(
-            y_probs, axis=0, return_inverse=True, return_counts=True
+        leaves, indices, inv_indices, counts = np.unique(
+            destinations, return_index=True, return_inverse=True, return_counts=True
         )
-        members = [np.where(inverse_indices == i)[0] for i in range(len(equiv_classes))]
-        return equiv_classes, equiv_counts, members
+
+        # get prediction probabilities for each leaf
+        # this means equiv_classes may not be unique in this case (e.g. XOR problem)
+        equiv_classes = self.target.model.predict_proba(self.target.X_train[indices])
+        return equiv_classes, inv_indices, counts
+
+    def _get_equivalence_classes_from_probas(self) -> tuple:
+        """Get equivalence classes based on predicted probabilities."""
+        y_probs = self.target.model.predict_proba(self.target.X_train)
+        return np.unique(y_probs, axis=0, return_inverse=True, return_counts=True)
 
     def _construct_metadata(self):
         """Construct the metadata dictionary for reporting.
@@ -483,14 +614,21 @@ class StructuralAttack(Attack):
         thresholds and results.
         """
         super()._construct_metadata()
-        self.metadata["attack_specific_output"] = {
+        attack_specific_output = {
             "attack_name": str(self),
             "risk_appetite_config": self.risk_appetite_config,
             "safe_threshold": self.THRESHOLD,
             "safe_dof_threshold": self.DOF_THRESHOLD,
         }
+        self.metadata["attack_params"].update(attack_specific_output)
         if self.results:
             self.metadata["global_metrics"] = asdict(self.results)
+
+        # Save global and record-level results in the attack metrics
+        self.attack_metrics = {}
+        for key, val in asdict(self.results).items():
+            self.attack_metrics[key] = val
+        self.attack_metrics["individual"] = asdict(self.record_level_results)
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return attack metrics. Required by the Attack base class.
@@ -501,9 +639,17 @@ class StructuralAttack(Attack):
         # Its functionality is now handled by the `results` dataclass
         # and the `_construct_metadata` method.
         # We return the metrics from the results object if available.
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
         if self.results:
-            return asdict(self.results)
-        return {}
+            attack_metrics_instances["instance_0"] = asdict(self.results)
+            if self.report_individual and self.record_level_results:
+                individuals = {"individual": asdict(self.record_level_results)}
+                attack_metrics_instances["instance_0"].update(individuals)
+            attack_metrics_experiment["attack_instance_logger"] = (
+                attack_metrics_instances
+            )
+        return attack_metrics_experiment
 
     def _make_pdf(self, output: dict) -> FPDF:
         """Create PDF report using the external report module.
