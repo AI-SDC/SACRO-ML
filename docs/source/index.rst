@@ -1,62 +1,175 @@
-.. Documentation master file
+========================================
+Welcome to the AI-SDC family of tools
+========================================
 
-Welcome to SACRO-ML
-===================
+Our tools are designed to help researchers assess the privacy disclosure risks of their outputs, including tables, plots, statistical models, and trained machine learning models
+
 
 .. toctree::
    :maxdepth: 1
    :hidden:
 
+   introduction
    support
    installation
    notebook_examples
    user_guide
 
-An increasing body of work has shown that `machine learning <https://en.wikipedia.org/wiki/Machine_learning>`_ (ML) models may expose confidential properties of the data on which they are trained. This has resulted in a wide range of proposed attack methods with varying assumptions that exploit the model structure and/or behaviour to infer sensitive information.
+.. grid:: 2
 
-The ``sacroml`` package is a collection of tools and resources for managing the `statistical disclosure control <https://en.wikipedia.org/wiki/Statistical_disclosure_control>`_ (SDC) of trained ML models. In particular, it provides:
+    .. grid-item-card:: ACRO (Python)
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-info
 
-* A **safemodel** package that extends commonly used ML models to provide *ante-hoc* SDC by assessing the theoretical risk posed by the training regime (such as hyperparameter, dataset, and architecture combinations) *before* (potentially) costly model fitting is performed. In addition, it ensures that best practice is followed with respect to privacy, e.g., using `differential privacy <https://en.wikipedia.org/wiki/Differential_privacy>`_ optimisers where available. For large models and datasets, *ante-hoc* analysis has the potential for significant time and cost savings by helping to avoid wasting resources training models that are likely to be found to be disclosive after running intensive *post-hoc* analysis.
-* An **attacks** package that provides *post-hoc* SDC by assessing the empirical disclosure risk of a classification model through a variety of simulated attacks *after* training. It provides an integrated suite of attacks with a common application programming interface (API) and is designed to support the inclusion of additional state-of-the-art attacks as they become available. In addition to membership inference attacks (MIA) such as the likelihood ratio attack (`LiRA <https://doi.org/10.1109/SP46214.2022.9833649>`_) and attribute inference, the package provides novel `structural attacks <https://arxiv.org/abs/2502.09396>`_ that report cheap-to-compute metrics, which can serve as indicators of model disclosiveness after model fitting, but before needing to run more computationally expensive MIAs.
-* Summaries of the results are written in a simple human-readable report.
+        **Statistical Disclosure Control for Python**
 
-Classification models from `scikit-learn <https://scikit-learn.org>`_ (including those implementing ``sklearn.base.BaseEstimator``) and `PyTorch <https://pytorch.org>`_ are broadly supported within the package. Some attacks can still be run if only `CSV <https://en.wikipedia.org/wiki/Comma-separated_values>`_ files of the model predicted probabilities are supplied, e.g., if the model was produced in another language.
+        Tools for the Semi-Automatic Checking of Research Outputs. Drop-in replacements for common analysis commands with built-in privacy protection.
 
-Usage
------
+        +++
 
-Quick-start example:
+        :bdg-info:`Statistical Analysis` `Visit ACRO Docs →`
 
-.. code-block:: python
+    .. grid-item-card:: SACRO-ML
+        :link: introduction
+        :link-type: doc
+        :shadow: md
+        :class-header: bg-primary
 
-   from sklearn.datasets import load_breast_cancer
-   from sklearn.ensemble import RandomForestClassifier
-   from sklearn.model_selection import train_test_split
+        **Machine Learning Privacy Tools**
 
-   from sacroml.attacks.likelihood_attack import LIRAAttack
-   from sacroml.attacks.target import Target
+        Collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
 
-   # Load dataset
-   X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+        +++
 
-   # Fit model
-   model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
-   model.fit(X_train, y_train)
+        :bdg-primary:`Current Documentation Focus` :doc:`Get Started → <introduction>`
 
-   # Wrap model and data
-   target = Target(
-       model=model,
-       dataset_name="breast cancer",
-       X_train=X_train,
-       y_train=y_train,
-       X_test=X_test,
-       y_test=y_test,
-   )
+.. grid:: 2
 
-   # Create an attack object and run the attack
-   attack = LIRAAttack(n_shadow_models=100, output_dir="output_example")
-   attack.attack(target)
+    .. grid-item-card:: ACRO-R
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-success
+
+        **R Package Integration**
+
+        R-language interface for the Python ACRO library, providing familiar R syntax for statistical disclosure control.
+
+        +++
+
+        :bdg-success:`R Integration` `Explore ACRO-R →`
+
+    .. grid-item-card:: SACRO-Viewer
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-warning
+
+        **Graphical User Interface**
+
+        A graphical user interface for fast, secure and effective output checking, which can work in any TRE (Trusted Research Environment).
+
+        +++
+
+        :bdg-warning:`GUI Tool` `View Docs →`
+
+SACRO-ML: Machine Learning Privacy Tools
+=========================================
+
+SACRO-ML is a free and open source collection of tools and resources for managing the statistical disclosure control (SDC) of trained machine learning models. It provides both ante-hoc and post-hoc privacy assessment capabilities for researchers working with ML models in secure data environments.
+
+.. note::
+   **New in v1.4.0:** Enhanced support for PyTorch models and improved structural attack capabilities.
+
+What is SACRO-ML?
+=================
+
+SACRO-ML implements comprehensive privacy assessment for machine learning models that:
+
+* Automatically assesses theoretical privacy risks before model training
+* Evaluates empirical disclosure risks through simulated attacks after training
+* Provides integrated attack suite with common API
+* Generates human-readable privacy assessment reports
+
+
+Core Features
+=============
+
+Comprehensive Privacy Assessment
+--------------------------------
+
+* **Ante-hoc analysis** with safemodel package for theoretical risk assessment before training
+* **Post-hoc attacks** including membership inference, attribute inference, and structural attacks
+* **Multi-framework support**: scikit-learn, PyTorch, and CSV-based model outputs
+* **Automated reporting**: JSON and human-readable privacy assessment reports
+* **Configurable parameters** for different privacy requirements
+* **Extensible architecture** for adding new attack methods
+
+Design Principles
+-----------------
+
+* **Free and open source** under MIT license
+* **Easy to install** via PyPI or conda; cross-platform (Linux, macOS, Windows)
+* **Familiar APIs** - integrates with existing ML workflows
+* **Comprehensive coverage** - classification models from major ML frameworks
+* **Transparent & auditable** - clear reports and documented methodologies
+* **Research-focused** - designed for use in Trusted Research Environments
+* **Scalable** - efficient implementation for large models and datasets
+
+Getting Started
+===============
+
+.. grid:: 3
+
+    .. grid-item-card:: Install
+        :link: installation
+        :link-type: doc
+        :class-header: bg-light
+
+        Get SACRO-ML installed and configured in your environment
+
+    .. grid-item-card:: Learn
+        :link: notebook_examples
+        :link-type: doc
+        :class-header: bg-light
+
+        Explore Jupyter notebook examples for common use cases
+
+    .. grid-item-card:: Reference
+        :link: attacks/index
+        :link-type: doc
+        :class-header: bg-light
+
+        Complete API documentation and attack reference
+
+Key Components
+--------------
+
+* **Privacy attacks** - e.g. :py:class:`~sacroml.attacks.likelihood_attack.LIRAAttack`
+* **Safe model wrappers** - e.g. :py:class:`~sacroml.safemodel.classifiers.SafeRandomForestClassifier`
+* **Target model management** - e.g. :py:class:`~sacroml.attacks.target.Target`
+* **Attack methods** - comprehensive suite of privacy assessment tools
+
+Community and Support
+=====================
+
+.. grid:: 2
+
+    .. grid-item-card:: Get Help
+        :class-header: bg-light
+
+        * `GitHub Issues <https://github.com/AI-SDC/SACRO-ML/issues>`_
+        * `Discussion Forum <https://github.com/AI-SDC/SACRO-ML/discussions>`_
+        * Email: sacro.contact@uwe.ac.uk
+
+    .. grid-item-card:: Contribute
+        :class-header: bg-light
+
+        * `Contributing Guide <https://github.com/AI-SDC/SACRO-ML/blob/main/CONTRIBUTING.md>`_
+        * `Source Code <https://github.com/AI-SDC/SACRO-ML>`_
+        * `Report Issues <https://github.com/AI-SDC/SACRO-ML/issues/new>`_
 
 Indices and tables
 ==================

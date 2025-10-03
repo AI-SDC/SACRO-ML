@@ -31,6 +31,7 @@ extensions = [
     "pydata_sphinx_theme",
     "sphinxcontrib.bibtex",
     "nbsphinx",
+    "sphinx_design",
 ]
 
 exclude_patterns = []
