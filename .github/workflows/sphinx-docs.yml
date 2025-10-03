@@ -8,7 +8,6 @@ on:
     paths-ignore:
       - '**.md'
       - '**.cff'
-      - 'setup.py'
 
 jobs:
   build:
@@ -17,28 +16,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Install Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: '3.1.2'
+
+      - name: Copy notebooks to source directory
+        run: cp -r examples/notebooks docs/source
 
       - name: Run sphinx
         run: |
           pip install .[doc]
           sphinx-build ./docs/source ./docs/_build/html/
 
-      - name: Commit changes
-        run: |
-          git clone https://github.com/AI-SDC/SACRO-ML.git --branch gh-pages --single-branch gh-pages
-          cp -r docs/_build/html/* gh-pages/
-          cd gh-pages
-          touch .nojekyll
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update documentation" -a || true
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: gh-pages
-          directory: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html/
+          force_orphan: true
 ...
