@@ -70,6 +70,10 @@ doc = [
     "sphinx-rtd-theme",
     "sphinx",
     "sphinxcontrib-bibtex",
+    "nbsphinx",
+    "ipykernel",
+    "pydata-sphinx-theme",
+    "sphinx-design",
 ]
 test = [
     "pytest",

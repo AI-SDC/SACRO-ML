@@ -1,15 +1,175 @@
-.. Documentation master file
+========================================
+Welcome to the AI-SDC family of tools
+========================================
 
-Welcome to the SACRO-ML documentation!
-======================================
+Our tools are designed to help researchers assess the privacy disclosure risks of their outputs, including tables, plots, statistical models, and trained machine learning models
+
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :hidden:
 
    introduction
-   attacks/index
-   safemodel/index
+   support
+   installation
+   notebook_examples
+   user_guide
+
+.. grid:: 2
+
+    .. grid-item-card:: ACRO (Python)
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-info
+
+        **Statistical Disclosure Control for Python**
+
+        Tools for the Semi-Automatic Checking of Research Outputs. Drop-in replacements for common analysis commands with built-in privacy protection.
+
+        +++
+
+        :bdg-info:`Statistical Analysis` `Visit ACRO Docs →`
+
+    .. grid-item-card:: SACRO-ML
+        :link: introduction
+        :link-type: doc
+        :shadow: md
+        :class-header: bg-primary
+
+        **Machine Learning Privacy Tools**
+
+        Collection of tools and resources for managing the statistical disclosure control of trained machine learning models.
+
+        +++
+
+        :bdg-primary:`Current Documentation Focus` :doc:`Get Started → <introduction>`
+
+.. grid:: 2
+
+    .. grid-item-card:: ACRO-R
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-success
+
+        **R Package Integration**
+
+        R-language interface for the Python ACRO library, providing familiar R syntax for statistical disclosure control.
+
+        +++
+
+        :bdg-success:`R Integration` `Explore ACRO-R →`
+
+    .. grid-item-card:: SACRO-Viewer
+        :link: https://jessuwe.github.io/ACRO/
+        :link-type: url
+        :shadow: md
+        :class-header: bg-warning
+
+        **Graphical User Interface**
+
+        A graphical user interface for fast, secure and effective output checking, which can work in any TRE (Trusted Research Environment).
+
+        +++
+
+        :bdg-warning:`GUI Tool` `View Docs →`
+
+SACRO-ML: Machine Learning Privacy Tools
+=========================================
+
+SACRO-ML is a free and open source collection of tools and resources for managing the statistical disclosure control (SDC) of trained machine learning models. It provides both ante-hoc and post-hoc privacy assessment capabilities for researchers working with ML models in secure data environments.
+
+.. note::
+   **New in v1.4.0:** Enhanced support for PyTorch models and improved structural attack capabilities.
+
+What is SACRO-ML?
+=================
+
+SACRO-ML implements comprehensive privacy assessment for machine learning models that:
+
+* Automatically assesses theoretical privacy risks before model training
+* Evaluates empirical disclosure risks through simulated attacks after training
+* Provides integrated attack suite with common API
+* Generates human-readable privacy assessment reports
+
+
+Core Features
+=============
+
+Comprehensive Privacy Assessment
+--------------------------------
+
+* **Ante-hoc analysis** with safemodel package for theoretical risk assessment before training
+* **Post-hoc attacks** including membership inference, attribute inference, and structural attacks
+* **Multi-framework support**: scikit-learn, PyTorch, and CSV-based model outputs
+* **Automated reporting**: JSON and human-readable privacy assessment reports
+* **Configurable parameters** for different privacy requirements
+* **Extensible architecture** for adding new attack methods
+
+Design Principles
+-----------------
+
+* **Free and open source** under MIT license
+* **Easy to install** via PyPI or conda; cross-platform (Linux, macOS, Windows)
+* **Familiar APIs** - integrates with existing ML workflows
+* **Comprehensive coverage** - classification models from major ML frameworks
+* **Transparent & auditable** - clear reports and documented methodologies
+* **Research-focused** - designed for use in Trusted Research Environments
+* **Scalable** - efficient implementation for large models and datasets
+
+Getting Started
+===============
+
+.. grid:: 3
+
+    .. grid-item-card:: Install
+        :link: installation
+        :link-type: doc
+        :class-header: bg-light
+
+        Get SACRO-ML installed and configured in your environment
+
+    .. grid-item-card:: Learn
+        :link: notebook_examples
+        :link-type: doc
+        :class-header: bg-light
+
+        Explore Jupyter notebook examples for common use cases
+
+    .. grid-item-card:: Reference
+        :link: attacks/index
+        :link-type: doc
+        :class-header: bg-light
+
+        Complete API documentation and attack reference
+
+Key Components
+--------------
+
+* **Privacy attacks** - e.g. :py:class:`~sacroml.attacks.likelihood_attack.LIRAAttack`
+* **Safe model wrappers** - e.g. :py:class:`~sacroml.safemodel.classifiers.SafeRandomForestClassifier`
+* **Target model management** - e.g. :py:class:`~sacroml.attacks.target.Target`
+* **Attack methods** - comprehensive suite of privacy assessment tools
+
+Community and Support
+=====================
+
+.. grid:: 2
+
+    .. grid-item-card:: Get Help
+        :class-header: bg-light
+
+        * `GitHub Issues <https://github.com/AI-SDC/SACRO-ML/issues>`_
+        * `Discussion Forum <https://github.com/AI-SDC/SACRO-ML/discussions>`_
+        * Email: sacro.contact@uwe.ac.uk
+
+    .. grid-item-card:: Contribute
+        :class-header: bg-light
+
+        * `Contributing Guide <https://github.com/AI-SDC/SACRO-ML/blob/main/CONTRIBUTING.md>`_
+        * `Source Code <https://github.com/AI-SDC/SACRO-ML>`_
+        * `Report Issues <https://github.com/AI-SDC/SACRO-ML/issues/new>`_
 
 Indices and tables
 ==================
@@ -18,10 +178,10 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-Funding Statement
-=================
+Acknowledgement
+===============
 
-This work was funded by UK Research and Innovation under Grant Numbers MC_PC_21033 and MC_PC_23006 as part of Phase 1 of the `DARE UK <https://dareuk.org.uk>`_ (Data and Analytics Research Environments UK) programme, delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automatic checking of Research Outputs (SACRO; MC_PC_23006) and  Guidelines and Resources for AI Model Access from TrusTEd Research environments (GRAIMATTER; MC_PC_21033).­This project has also been supported by MRC and EPSRC [grant number MR/S010351/1]: PICTURES.
+This work was supported by UK Research and Innovation as part of the Data and Analytics Research Environments UK (`DARE UK <https://dareuk.org.uk>`_) programme, delivered in partnership with Health Data Research UK (HDR UK) and Administrative Data Research UK (ADR UK). The specific projects were Semi-Automated Checking of Research Outputs (`SACRO <https://gtr.ukri.org/projects?ref=MC_PC_23006>`_; MC_PC_23006), Guidelines and Resources for AI Model Access from TrusTEd Research environments (`GRAIMATTER <https://gtr.ukri.org/projects?ref=MC_PC_21033>`_; MC_PC_21033), and `TREvolution <https://dareuk.org.uk/trevolution>`_ (MC_PC_24038). This project has also been supported by MRC and EPSRC (`PICTURES <https://gtr.ukri.org/projects?ref=MR%2FS010351%2F1>`_; MR/S010351/1).
 
 .. image:: images/UK_Research_and_Innovation_logo.svg
    :width: 200
