@@ -73,6 +73,7 @@ doc = [
     "nbsphinx",
     "ipykernel",
     "pydata-sphinx-theme",
+    "sphinx-design",
 ]
 test = [
     "pytest",
