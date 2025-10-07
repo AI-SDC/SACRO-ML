@@ -168,6 +168,7 @@ docstring-code-line-length = 80
 
 [tool.codespell]
 ignore-words-list = [
+    "SOM",
     "fpr",
     "tre",
     "sav",
