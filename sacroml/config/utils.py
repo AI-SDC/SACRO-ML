@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import os
 import shutil
 
@@ -46,12 +47,38 @@ def check_dir(path: str) -> str:
     """
     if os.path.isdir(path):
         print(f"Directory '{path}' already exists.")
-        resp = get_bool(
-            "Continue using this directory and delete its current contents?"
-        )
+        resp = get_bool("Keep using this directory and delete its current contents?")
         if resp:
             shutil.rmtree(path)
         else:
             path = input("Specify an alternative directory: ")
             return check_dir(path)
+
+    os.makedirs(path, exist_ok=True)
     return path
+
+
+def get_class_names(path: str) -> list[str]:
+    """Return a list of class names given a Python file.
+
+    Parameters
+    ----------
+    path : str
+        Path to a Python (.py) file.
+
+    Returns
+    -------
+    list[str]
+        List of class names.
+    """
+    classes: list[str] = []
+    try:
+        with open(path, encoding="utf-8") as f:
+            contents = f.read()
+        tree = ast.parse(contents)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                classes.append(node.name)
+    except FileNotFoundError:
+        print(f"Error: File not found at '{path}'")
+    return classes

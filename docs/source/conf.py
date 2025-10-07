@@ -13,22 +13,24 @@ sys.path.insert(1, os.path.abspath("../../attacks/"))
 project = "SACRO-ML"
 copyright = "2025, GRAIMATTER and SACRO Project Team"
 author = "GRAIMATTER and SACRO Project Team"
-release = "1.2.2"
+release = "1.4.0"
 
 # -- General configuration ---------------------------------------------------
 
 extensions = [
     "numpydoc",
-    "sphinx-prompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.imgconverter",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx_autopackagesummary",
     "sphinx_issues",
+    "sphinx_prompt",
     "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
+    "sphinxcontrib.bibtex",
 ]
 
 exclude_patterns = []
@@ -37,7 +39,11 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {"navigation_depth": 2}
-html_static_path = ["_static"]
+
+# -- References --------------------------------------------------------------
+
+bibtex_bibfiles = ["references.bib"]
+bibtex_default_style = "unsrt"
 
 # -- -------------------------------------------------------------------------
 

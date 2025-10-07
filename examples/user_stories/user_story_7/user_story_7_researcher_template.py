@@ -95,11 +95,17 @@ def run_user_story():
     model.request_release(path=directory, ext="pkl")
 
     # Wrap the model and data in a Target object
-    target = Target(model=model)
-    target.name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
-    target.add_raw_data(
-        data, labels, X_train_orig, y_train_orig, X_test_orig, y_test_orig
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train_orig,
+        y_train_orig=y_train_orig,
+        X_test_orig=X_test_orig,
+        y_test_orig=y_test_orig,
     )
     for i in range(n_features):
         target.add_feature(data_df.columns[i], indices[i], "onehot")

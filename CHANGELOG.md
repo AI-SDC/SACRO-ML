@@ -1,5 +1,32 @@
 # Changelog
 
+Changes:
+*   Add example running attacks with only csv probabilities supplied ([#353](https://github.com/AI-SDC/SACRO-ML/pull/353))
+*   Add PDF report generation for structural attacks ([#355](https://github.com/AI-SDC/SACRO-ML/pull/355))
+*   Save and reuse trained shadow models ([#357](https://github.com/AI-SDC/SACRO-ML/pull/357))
+
+## Version 1.4.0 (Jul 4, 2025)
+
+Changes:
+*   Improve attribute inference attack documentation ([#340](https://github.com/AI-SDC/SACRO-ML/pull/340))
+*   Refactor `Target` class - standardise use of constructor to wrap data ([#342](https://github.com/AI-SDC/SACRO-ML/pull/342))
+*   Add LiRA support for multidimensional vectors such as images with multiple channels ([#343](https://github.com/AI-SDC/SACRO-ML/pull/343))
+*   Remove redundant `X_orig` and `y_orig` from `Target` class ([#344](https://github.com/AI-SDC/SACRO-ML/pull/344))
+*   Update `acro` dependency to v0.4.9 ([#349](https://github.com/AI-SDC/SACRO-ML/pull/349))
+*   Improve data handling for users - add support for researcher supplied Python code for loading datasets ([#345](https://github.com/AI-SDC/SACRO-ML/pull/345))
+
+## Version 1.3.0 (Jun 17, 2025)
+
+Changes:
+*   Abstract target model and enable support for Pytorch ([#330](https://github.com/AI-SDC/SACRO-ML/pull/330))
+
+## Version 1.2.3 (Apr 17, 2025)
+
+Changes:
+*   Remove data preprocessing modules ([#333](https://github.com/AI-SDC/SACRO-ML/pull/333))
+*   Remove tensorflow-privacy support including safekeras/safetf ([#335](https://github.com/AI-SDC/SACRO-ML/pull/335))
+*   Add internal version number and move all package config to `pyproject.toml` ([#331](https://github.com/AI-SDC/SACRO-ML/pull/331))
+
 ## Version 1.2.2 (Feb 20, 2025)
 
 Changes:

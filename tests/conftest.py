@@ -22,10 +22,11 @@ folders = [
     "dt.sav",
     "fit.tf",
     "fit2.tf",
-    "keras_save.tf",
     "outputs",
     "output_attribute",
     "output_lira",
+    "output_pytorch",
+    "output_sklearn",
     "output_worstcase",
     "outputs_factory",
     "outputs_lira",
@@ -33,10 +34,11 @@ folders = [
     "outputs_structural",
     "refit.tf",
     "release_dir",
-    "safekeras.tf",
     "save_test",
     "target",
     "target_factory",
+    "target_sklearn",
+    "target_pytorch",
     "test_lira_target",
     "test_output_lira",
     "test_output_sa",
@@ -62,7 +64,6 @@ files = [
     "results.txt",
     "rf_test.pkl",
     "rf_test.sav",
-    "safekeras.h5",
     "target.json",
     "test.json",
     "test_data.csv",
@@ -95,7 +96,7 @@ def _cleanup():
 
 
 @pytest.fixture
-def get_target(request) -> Target:  # pylint: disable=too-many-locals
+def get_target(request) -> Target:
     """Return a target object with test data and fitted model.
 
     Uses a randomly sampled 10+10% of the nursery data set.
@@ -158,20 +159,27 @@ def get_target(request) -> Target:  # pylint: disable=too-many-locals
     X_train_orig = np.hstack((X_train_orig, dummy_tr))
     X_test = np.hstack((X_test, dummy_te))
     X_test_orig = np.hstack((X_test_orig, dummy_te))
-    xmore = np.concatenate((X_train_orig, X_test_orig))
     n_features = np.shape(X_train_orig)[1]
 
     # fit model
     model.fit(X_train, y_train)
 
     # wrap
-    target = Target(model=model)
-    target.dataset_name = "nursery"
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=model,
+        dataset_name="nursery",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train_orig,
+        y_train_orig=y_train_orig,
+        X_test_orig=X_test_orig,
+        y_test_orig=y_test_orig,
+    )
     for i in range(n_features - 1):
         target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
-    target.add_raw_data(xmore, y, X_train_orig, y_train_orig, X_test_orig, y_test_orig)
     return target
 
 
@@ -211,8 +219,6 @@ def get_target_multiclass() -> Target:
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        X_orig=X,
-        y_orig=y,
         X_train_orig=X_train,
         y_train_orig=y_train,
         X_test_orig=X_test,

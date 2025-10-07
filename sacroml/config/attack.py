@@ -5,9 +5,12 @@ from __future__ import annotations
 import logging
 
 import yaml
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
 from sacroml.attacks import factory
 from sacroml.config import utils
+from sacroml.version import __version__
 
 
 def _get_defaults(name: str) -> dict:
@@ -22,7 +25,7 @@ def _prompt_for_params(params: dict) -> None:
         print(f"The current value for '{key}' is {val}.")
         if utils.get_bool("Do you want to change it?"):
             while True:
-                new_val = input(f"Enter new value for '{key}': ").strip()
+                new_val = prompt(f"Enter new value for '{key}': ").strip()
                 try:
                     params[key] = type(val)(new_val)
                     break
@@ -42,10 +45,11 @@ def _prompt_for_attacks() -> list[dict]:
     """Prompt user for individual attack configurations."""
     attacks: list[dict] = []
     names: list[str] = list(factory.registry.keys())
+    completer = WordCompleter(names)
     while utils.get_bool("Would you like to add an attack?"):
         while True:
             print(f"Attacks available: {', '.join(names)}")
-            name: str = input("Which attack?: ")
+            name: str = prompt("Which attack?: ", completer=completer)
             if name in names:
                 attack = _get_attack(name)
                 attacks.append(attack)
@@ -69,6 +73,7 @@ def _default_config() -> list[dict]:
 def prompt_for_attack() -> None:
     """Prompt user for information to generate attack config."""
     logging.disable(logging.ERROR)  # suppress info/warnings
+    print(f"sacroml version {__version__}")
 
     # get attack configuration
     if utils.get_bool("Generate default config with all attacks?"):

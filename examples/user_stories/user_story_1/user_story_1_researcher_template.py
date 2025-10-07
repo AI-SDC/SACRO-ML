@@ -109,8 +109,6 @@ def main():
         X_test=X_test,
         y_test=y_test,
         # original unprocessed data
-        X_orig=data,
-        y_orig=labels,
         X_train_orig=X_train_orig,
         y_train_orig=y_train_orig,
         X_test_orig=X_test_orig,

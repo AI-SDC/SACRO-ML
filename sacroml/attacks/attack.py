@@ -2,23 +2,24 @@
 
 from __future__ import annotations
 
-import importlib
 import inspect
 import logging
 import os
 import uuid
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 from fpdf import FPDF
 
 from sacroml.attacks import report
 from sacroml.attacks.target import Target
+from sacroml.version import __version__
 
 logger = logging.getLogger(__name__)
 
 
-class Attack:
-    """Base class to represent an attack."""
+class Attack(ABC):
+    """Abstract Base class to represent an attack."""
 
     def __init__(self, output_dir: str = "outputs", write_report: bool = True) -> None:
         """Instantiate an attack.
@@ -37,32 +38,50 @@ class Attack:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
-    def attack(self, target: Target) -> dict:
+        # Create folder for saving trained shadow models
+        self.shadow_path: str = os.path.normpath(f"{self.output_dir}/shadow_models")
+        os.makedirs(self.shadow_path, exist_ok=True)
+
+    @classmethod
+    @abstractmethod
+    def attackable(cls, target: Target) -> bool:
+        """Return whether a given target can be assessed with an attack."""
+
+    @abstractmethod
+    def _attack(self, target: Target) -> dict:
         """Run an attack."""
-        raise NotImplementedError
+
+    def attack(self, target: Target) -> dict:
+        """Check whether an attack can be performed and run the attack."""
+        return self._attack(target) if type(self).attackable(target) else {}
 
     def _construct_metadata(self) -> None:
         """Generate attack metadata."""
         self.metadata = {
+            "sacroml_version": __version__,
             "attack_name": str(self),
             "attack_params": self.get_params(),
             "global_metrics": {},
         }
 
+    @abstractmethod
     def _get_attack_metrics_instances(self) -> dict:
         """Get metrics for each individual repetition of an attack."""
-        raise NotImplementedError  # pragma: no cover
 
+    @abstractmethod
     def _make_pdf(self, output: dict) -> FPDF | None:
         """Create PDF report."""
-        raise NotImplementedError  # pragma: no cover
 
     def _make_report(self, target: Target) -> dict:
         """Create attack report."""
         logger.info("Generating report")
         self._construct_metadata()
-        self.metadata["target_model"] = target.model_name
-        self.metadata["target_model_params"] = target.model_params
+
+        if target.model is not None:
+            self.metadata["target_model"] = target.model.model_name
+            self.metadata["target_model_params"] = target.model.model_params
+            self.metadata["target_train_params"] = target.model.train_params
+
         output: dict = {
             "log_id": str(uuid.uuid4()),
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
@@ -81,9 +100,9 @@ class Attack:
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
 
+    @abstractmethod
     def __str__(self) -> str:
         """Return the string representation of an attack."""
-        raise NotImplementedError
 
     @classmethod
     def _get_param_names(cls) -> list[str]:
@@ -107,10 +126,3 @@ class Attack:
         for key in self._get_param_names():
             out[key] = getattr(self, key)
         return out
-
-
-def get_class_by_name(class_path: str):
-    """Return a class given its name."""
-    module_path, class_name = class_path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)

@@ -14,6 +14,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -50,7 +51,30 @@ class AttributeAttack(Attack):
         """Return the name of the attack."""
         return "Attribute inference attack"
 
-    def attack(self, target: Target) -> dict:
+    @classmethod
+    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+        """Return whether a target can be assessed with AttributeAttack."""
+        can_attack: bool = True
+
+        if target.n_features < 1 or not target.has_data() or not target.has_raw_data():
+            logger.info("WARNING: AttributeAttack requires features to be defined.")
+            can_attack = False
+
+        if not target.has_model():
+            logger.info("WARNING: AttributeAttack requires a loadable model.")
+            can_attack = False
+
+        required_methods = ["predict_proba", "predict"]
+        for method in required_methods:
+            if not hasattr(target.model, method):
+                logger.info(
+                    "WARNING: AttributeAttack requires model with: %s()", method
+                )
+                can_attack = False
+
+        return can_attack
+
+    def _attack(self, target: Target) -> dict:
         """Run attribute inference attack.
 
         To be used when code has access to Target class and trained target model.
@@ -65,14 +89,6 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if target.model is None or not target.has_data():  # pragma: no cover
-            logger.info("WARNING: AttributeAttack requires a loadable model.")
-            return {}
-
-        if target.n_features < 1 or not target.has_raw_data():  # pragma: no cover
-            logger.info("WARNING: AttributeAttack requires features to be defined.")
-            return {}
-
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
         output = self._make_report(target)
@@ -102,6 +118,11 @@ class AttributeAttack(Attack):
         report.subtitle(pdf, "Introduction")
         # Add attack parameters
         report.subtitle(pdf, "Metadata")
+        report.line(
+            pdf,
+            f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+            font="courier",
+        )
         for key, value in metadata["attack_params"].items():
             report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
         # Add attack results
@@ -146,13 +167,23 @@ def _unique_max(confidences: list[float], threshold: float) -> bool:
     return False
 
 
-def _get_inference_data(  # pylint: disable=too-many-locals
+def _get_unique_features(
+    X_train: np.ndarray, X_test: np.ndarray, feature_id: int
+) -> np.ndarray:
+    """Return unique values of a given feature."""
+    feature_train = X_train[:, feature_id]
+    feature_test = X_test[:, feature_id]
+    combined_feature = np.concatenate((feature_train, feature_test))
+    return np.unique(combined_feature)
+
+
+def _get_inference_data(
     target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Return a dataset of each sample with the attributes to test."""
     attack_feature: dict = target.features[feature_id]
     indices: list[int] = attack_feature["indices"]
-    unique = np.unique(target.X_orig[:, feature_id])
+    unique = _get_unique_features(target.X_train_orig, target.X_test_orig, feature_id)
     n_unique: int = len(unique)
     values = unique
     if attack_feature["encoding"] == "onehot":
@@ -181,7 +212,7 @@ def _get_inference_data(  # pylint: disable=too-many-locals
     return x_values, y_values, baseline
 
 
-def _infer(  # pylint: disable=too-many-locals
+def _infer(
     target: Target,
     feature_id: int,
     threshold: float,
@@ -298,9 +329,7 @@ def plot_quantitative_risk(res: dict, path: str = "") -> None:
     logger.debug("Saved quantitative risk plot: %s", filename)
 
 
-def plot_categorical_risk(  # pylint: disable=too-many-locals
-    res: dict, path: str = ""
-) -> None:
+def plot_categorical_risk(res: dict, path: str = "") -> None:
     """Generate a bar chart showing categorical risk scores.
 
     Parameters
@@ -345,9 +374,7 @@ def plot_categorical_risk(  # pylint: disable=too-many-locals
     logger.debug("Saved categorical risk plot: %s", filename)
 
 
-def plot_categorical_fraction(  # pylint: disable=too-many-locals
-    res: dict, path: str = ""
-) -> None:
+def plot_categorical_fraction(res: dict, path: str = "") -> None:
     """Generate a bar chart showing fraction of dataset inferred.
 
     Parameters
@@ -424,12 +451,25 @@ def _attack_brute_force(
     """
     logger.debug("Brute force attacking categorical features")
     args = [(target, feature_id, attack_threshold) for feature_id in features]
-    with mp.Pool(processes=n_cpu) as pool:
-        return pool.starmap(_infer_categorical, args)
+
+    # use multiprocessing if possible
+    if isinstance(target.model.model, BaseEstimator):
+        with mp.Pool(processes=n_cpu) as pool:
+            return pool.starmap(_infer_categorical, args)
+
+    # fall back to sequential processing
+    return [
+        _infer_categorical(
+            target=target,
+            feature_id=feature_id,
+            threshold=threshold,
+        )
+        for target, feature_id, threshold in args
+    ]
 
 
-def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arguments
-    target_model: BaseEstimator,
+def _get_bounds_risk_for_sample(
+    target_model: Model,
     feat_id: int,
     feat_min: float,
     feat_max: float,
@@ -445,7 +485,7 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
 
     Parameters
     ----------
-    target_model : BaseEstimator
+    target_model : Model
         Trained target model.
     feat_id : int
         Index of missing feature.
@@ -503,7 +543,7 @@ def _get_bounds_risk_for_sample(  # pylint: disable=too-many-locals,too-many-arg
 
 
 def _get_bounds_risk_for_feature(
-    target_model: BaseEstimator, feature_id: int, samples: np.ndarray
+    target_model: Model, feature_id: int, samples: np.ndarray
 ) -> float:
     """Return the average feature risk score over a set of samples."""
     feature_risk: int = 0
@@ -515,16 +555,13 @@ def _get_bounds_risk_for_feature(
         risk = _get_bounds_risk_for_sample(
             target_model, feature_id, feat_min, feat_max, sample
         )
-        if risk:  # pragma:no cover
-            # can be seen working in examples
-            # testing uses nursery with dummy cont. feature
-            # which is not predictive
+        if risk:  # pragma: no cover
             feature_risk += 1
     return feature_risk / n_samples if n_samples > 0 else 0
 
 
 def _get_bounds_risk(
-    target_model: BaseEstimator,
+    target_model: Model,
     feature_name: str,
     feature_id: int,
     X_train: np.ndarray,
@@ -551,8 +588,23 @@ def _get_bounds_risks(target: Target, features: list[int], n_cpu: int) -> list[d
         )
         for feature_id in features
     ]
-    with mp.Pool(processes=n_cpu) as pool:
-        return pool.starmap(_get_bounds_risk, args)
+
+    # use multiprocessing if possible
+    if isinstance(target.model.model, BaseEstimator):
+        with mp.Pool(processes=n_cpu) as pool:
+            return pool.starmap(_get_bounds_risk, args)
+
+    # fall back to sequential processing
+    return [
+        _get_bounds_risk(
+            target_model=model,
+            feature_name=name,
+            feature_id=feature_id,
+            X_train=X_train,
+            X_test=X_test,
+        )
+        for model, name, feature_id, X_train, X_test in args
+    ]
 
 
 def _attribute_inference(target: Target, n_cpu: int) -> dict:

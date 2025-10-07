@@ -9,7 +9,7 @@ Clone the repository and install the local package including all dependencies wi
 ```
 $ git clone https://github.com/AI-SDC/SACRO-ML.git
 $ cd SACRO-ML
-$ pip install .[test]
+$ pip install -e .[test]
 ```
 
 Then to run the tests:
@@ -35,12 +35,10 @@ SACRO-ML
 ├── sacroml [Contains the sacroml source code]
 │   ├── attacks [Contains a variety of privacy attacks on machine learning models]
 │   ├── config [Contains code to generate configuration files]
-│   ├── preprocessing [Contains preprocessing modules for test datasets]
 │   └── safemodel [safemodel wrappers for common machine learning models]
 └── tests [Contains unit tests]
     ├── attacks
     ├── datasets
-    ├── preprocessing
     └── safemodel
 ```
 
@@ -64,6 +62,11 @@ $ pip install pre-commit
 Then to run on all files in the repository:
 ```
 $ pre-commit run -a
+```
+
+Pre-commit can be configured to automatically run on every `git commit` with:
+```
+$ pre-commit install
 ```
 
 ## Documentation

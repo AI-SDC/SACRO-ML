@@ -58,7 +58,7 @@ def run_user_story():
 
     X_train, X_test, y_train, y_test = train_test_split(
         feature_dataframe.values,
-        target_dataframe.values.flatten(),
+        target_dataframe.to_numpy().flatten(),
         test_size=0.7,
         random_state=42,
     )

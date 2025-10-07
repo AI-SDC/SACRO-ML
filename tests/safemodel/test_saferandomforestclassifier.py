@@ -204,7 +204,8 @@ def test_randomforest_hacked_postfit_trees_removed():
     """Test various combinations of removing trees."""
     x, y = get_data()
     model = SafeRandomForestClassifier(random_state=1, n_estimators=5)
-    # code that checks estimators_ : one other or both missing or different number or size
+    # code that checks estimators_ :
+    # one other or both missing or different number or size
     model.fit(x, y)
 
     # tree removed from current
@@ -237,7 +238,8 @@ def test_randomforest_hacked_postfit_trees_swapped():
         random_state=1, n_estimators=5, max_depth=2
     )
 
-    # code that checks estimators_ : one other or both missing or different number or size
+    # code that checks estimators_ :
+    # one other or both missing or different number or size
     model.fit(x, y)
     diffsizemodel.fit(x, y)
 

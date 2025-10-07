@@ -12,8 +12,6 @@ from sacroml.safemodel.safemodel import SafeModel
 
 from .safedecisiontreeclassifier import decision_trees_are_equal
 
-# pylint: disable=too-many-ancestors, unidiomatic-typecheck
-
 
 class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
     """Privacy protected Random Forest classifier."""
@@ -58,7 +56,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         self.examine_seperately_items = ["estimators_", "estimator"]
         self.k_anonymity = 0
 
-    def additional_checks(  # pylint: disable=too-many-nested-blocks
+    def additional_checks(
         self, curr_separate: dict, saved_separate: dict
     ) -> tuple[str, str]:
         """Perform Random Forest specific checks.
@@ -71,7 +69,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
         for item in self.examine_seperately_items:
             # template for class of things that make up forest
             if item == "estimator":
-                if type(curr_separate[item]) != type(saved_separate[item]):
+                if type(curr_separate[item]) is not type(saved_separate[item]):
                     msg += get_reporting_string(
                         name="param_changed_from_to",
                         key="estimator",
@@ -104,9 +102,7 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
                                 name="forest_estimators_differ", idx=num_diff_trees
                             )
                             disclosive = True
-                except (
-                    BaseException  # pylint: disable=broad-except
-                ) as error:  # pragma:no coverion
+                except BaseException as error:  # pragma:no coverion
                     msg += get_reporting_string(
                         name="unable_to_check_item", item=item, error=error
                     )
@@ -114,7 +110,6 @@ class SafeRandomForestClassifier(SafeModel, RandomForestClassifier):
 
         return msg, disclosive
 
-    # pylint: disable=arguments-differ
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """Fit model and store model dict."""
         super().fit(x, y)
