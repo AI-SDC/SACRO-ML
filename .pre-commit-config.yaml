@@ -8,7 +8,7 @@ repos:
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-merge-conflict
@@ -32,7 +32,7 @@ repos:
 
   # Ruff, the Python auto-correcting linter/formatter written in Rust
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.9
+    rev: v0.12.10
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
@@ -40,7 +40,7 @@ repos:
 
   # Format docstrings
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
+    rev: v0.7.5
     hooks:
       - id: pydocstringformatter
         args: ["--style=numpydoc"]

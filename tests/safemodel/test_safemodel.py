@@ -10,6 +10,7 @@ import joblib
 import numpy as np
 import yaml
 from sklearn import datasets
+from sklearn.base import BaseEstimator
 
 from sacroml.safemodel.reporting import get_reporting_string
 from sacroml.safemodel.safemodel import SafeModel
@@ -18,10 +19,9 @@ notok_start = get_reporting_string(name="warn_possible_disclosure_risk")
 ok_start = get_reporting_string(name="within_recommended_ranges")
 
 
-class DummyClassifier:
+class DummyClassifier(BaseEstimator):
     """Dummy Classifier that always returns predictions of zero."""
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self, at_least_5f=5.0, at_most_5i=5, exactly_boo="boo", key_a=True, key_b=True
     ):
@@ -50,7 +50,7 @@ def get_data():
     return x, y
 
 
-class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-many-instance-attributes
+class SafeDummyClassifier(SafeModel, DummyClassifier):
     """Privacy protected dummy classifier."""
 
     def __init__(self, **kwargs) -> None:
@@ -82,7 +82,7 @@ class SafeDummyClassifier(SafeModel, DummyClassifier):  # pylint:disable=too-man
     def set_params(self, **kwargs):  # pragma: no cover
         """Set params."""
         for _, val in kwargs.items():
-            self.key = val  # pylint:disable=attribute-defined-outside-init
+            self.key = val
 
     def fit(self, x: np.ndarray, y: np.ndarray):  # noqa: ARG002
         """Fit a safe dummy classifier."""
@@ -96,7 +96,8 @@ def test_params_checks_ok():
     correct_msg = ok_start
     msg, disclosive = model.preliminary_check()
     print(
-        f"exactly_boo is {model.exactly_boo} with type{type(model.exactly_boo).__name__}"
+        f"exactly_boo is {model.exactly_boo} with "
+        f"type{type(model.exactly_boo).__name__}"
     )
     assert msg == ok_start, f"Correct msg:\n{correct_msg}\nActual msg:\n{msg}\n"
     assert not disclosive
@@ -244,7 +245,6 @@ def test_params_checks_wrong_type_int():
 
 def test_check_unknown_param():
     """Test handling of malformed json rule."""
-    # pylint:disable=protected-access,no-member
     model = SafeDummyClassifier()
     _, _ = model.preliminary_check()
     odd_rule = {"operator": "unknown", "keyword": "exactly_boo", "value": "some_val"}
@@ -322,11 +322,11 @@ def test_saves():
     model.save("mymodel.unsupported")
 
     # cannot be pickled
-    model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
+    model.square = lambda x: x * x
     model.save("unpicklable.pkl")
 
     # cannot be joblibbed
-    model.square = lambda x: x * x  # pylint: disable=attribute-defined-outside-init
+    model.square = lambda x: x * x
     model.save("unpicklable.sav")
 
 
@@ -446,9 +446,7 @@ def test_get_saved_model_exception():
     """Test the exception handling in get_current_and_saved_models()."""
     model = SafeDummyClassifier()
     # add generator which can't be pickled or copied
-    model.a_generator = (  # pylint: disable=attribute-defined-outside-init
-        i for i in [1, 2, 3]
-    )
+    model.a_generator = (i for i in [1, 2, 3])
     current, saved = model.get_current_and_saved_models()
     assert saved == {}  # since we haven;t called fit()
     assert "a_generator" not in current
@@ -500,7 +498,7 @@ def test_request_release_without_attacks():
     x, y = get_data()
     model.fit(x, y)
     # give it k_anonymity
-    model.k_anonymity = 5  # pylint: disable=attribute-defined-outside-init
+    model.k_anonymity = 5
 
     # no file provided, has k_anonymity
 

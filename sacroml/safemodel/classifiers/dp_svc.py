@@ -13,8 +13,6 @@ local_logger.setLevel(logging.WARNING)
 
 SMALL_NUMBER = 1e-16  # used to set gamma value if zero to avoid divide by zero
 
-# pylint: disable=too-many-instance-attributes
-
 
 class DPSVC:
     """Differentially private SVM.

@@ -9,6 +9,7 @@ from sacroml.attacks.likelihood_attack import LIRAAttack
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
+from sacroml.version import __version__
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ def create_attack(attack_name: str, **kwargs: dict) -> None:
     """Instantiate an attack."""
     if attack_name in registry:
         return registry[attack_name](**kwargs)
-    raise ValueError(f"Unknown Attack: {attack_name}")
+    raise ValueError(f"Unknown Attack: {attack_name}")  # pragma: no cover
 
 
 def attack(target: Target, attack_name: str, **kwargs: dict) -> dict:
@@ -44,6 +45,7 @@ def run_attacks(target_dir: str, attack_filename: str) -> None:
     attack_filename : str
         Name of a YAML file containing an attack configuration.
     """
+    logger.info("sacroml version %s", __version__)
     logger.info("Preparing Target")
     target = Target()
     target.load(target_dir)

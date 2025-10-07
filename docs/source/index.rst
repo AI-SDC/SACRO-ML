@@ -10,7 +10,6 @@ Welcome to the SACRO-ML documentation!
    introduction
    attacks/index
    safemodel/index
-   preprocessing/index
 
 Indices and tables
 ==================

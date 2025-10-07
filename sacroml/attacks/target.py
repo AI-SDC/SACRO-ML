@@ -5,122 +5,248 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+import shutil
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import sklearn
+import torch
 import yaml
+
+from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
+from sacroml.attacks.model import create_dataset
+from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
+from sacroml.attacks.model_sklearn import SklearnModel
+
+MODEL_REGISTRY: dict[str, Any] = {
+    "PytorchModel": PytorchModel,
+    "SklearnModel": SklearnModel,
+}
+
+DATA_ATTRIBUTES: list[str] = [
+    "X_train",
+    "y_train",
+    "X_test",
+    "y_test",
+    "X_train_orig",
+    "y_train_orig",
+    "X_test_orig",
+    "y_test_orig",
+    "proba_train",
+    "proba_test",
+    "indices_train",
+    "indices_test",
+]
+
+ARRAYS: tuple[str, ...] = (
+    "X_train",
+    "y_train",
+    "X_test",
+    "y_test",
+    "X_train_orig",
+    "y_train_orig",
+    "X_test_orig",
+    "y_test_orig",
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Target:  # pylint: disable=too-many-instance-attributes
-    """Store information about the target model and data."""
+@dataclass
+class Target:
+    """Store information about the target model and data.
 
-    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
-        self,
-        model: sklearn.base.BaseEstimator | None = None,
-        dataset_name: str = "",
-        features: dict | None = None,
-        X_train: np.ndarray | None = None,
-        y_train: np.ndarray | None = None,
-        X_test: np.ndarray | None = None,
-        y_test: np.ndarray | None = None,
-        X_orig: np.ndarray | None = None,
-        y_orig: np.ndarray | None = None,
-        X_train_orig: np.ndarray | None = None,
-        y_train_orig: np.ndarray | None = None,
-        X_test_orig: np.ndarray | None = None,
-        y_test_orig: np.ndarray | None = None,
-        proba_train: np.ndarray | None = None,
-        proba_test: np.ndarray | None = None,
-    ) -> None:
-        """Store information about a target model and associated data.
+    Attributes
+    ----------
+    model : Any
+        Trained target model.
+    model_path : str
+        Path to a saved model.
+    model_module_path : str
+        Path to module containing model class.
+    model_name : str
+        Class name of model.
+    model_params : dict or None
+        Hyperparameters for instantiating the model.
+    train_module_path : str
+        Path to module containing training function.
+    train_params : dict or None
+        Hyperparameters for training the model.
+    dataset_name : str
+        The name of the dataset.
+    dataset_module_path : str
+        Path to module containing dataset loading function.
+    features : dict
+        Dictionary describing the dataset features.
+    X_train : np.ndarray or None
+        The (processed) training inputs.
+    y_train : np.ndarray or None
+        The (processed) training outputs.
+    X_test : np.ndarray or None
+        The (processed) testing inputs.
+    y_test : np.ndarray or None
+        The (processed) testing outputs.
+    X_train_orig : np.ndarray or None
+        The original (unprocessed) training inputs.
+    y_train_orig : np.ndarray or None
+        The original (unprocessed) training outputs.
+    X_test_orig : np.ndarray or None
+        The original (unprocessed) testing inputs.
+    y_test_orig : np.ndarray or None
+        The original (unprocessed) testing outputs.
+    proba_train : np.ndarray or None
+        The model predicted training probabilities.
+    proba_test : np.ndarray or None
+        The model predicted testing probabilities.
+    indices_train : Sequence[int] or None
+        Indices of training set samples.
+    indices_test : Sequence[int] or None
+        Indices of test set samples.
+    safemodel : list
+        Results of safemodel disclosure checking.
+    """
 
-        Parameters
-        ----------
-        model : sklearn.base.BaseEstimator | None, optional
-            Trained target model. Any class that implements the
-            sklearn.base.BaseEstimator interface (i.e. has fit, predict and
-            predict_proba methods)
-        dataset_name : str
-            The name of the dataset.
-        features : dict
-            Dictionary describing the dataset features.
-        X_train : np.ndarray | None
-            The (processed) training inputs.
-        y_train : np.ndarray | None
-            The (processed) training outputs.
-        X_test : np.ndarray | None
-            The (processed) testing inputs.
-        y_test : np.ndarray | None
-            The (processed) testing outputs.
-        X_orig : np.ndarray | None
-            The original (unprocessed) dataset inputs.
-        y_orig : np.ndarray | None
-            The original (unprocessed) dataset outputs.
-        X_train_orig : np.ndarray | None
-            The original (unprocessed) training inputs.
-        y_train_orig : np.ndarray | None
-            The original (unprocessed) training outputs.
-        X_test_orig : np.ndarray | None
-            The original (unprocessed) testing inputs.
-        y_test_orig : np.ndarray | None
-            The original (unprocessed) testing outputs.
-        proba_train : np.ndarray | None
-            The model predicted training probabilities.
-        proba_test : np.ndarray | None
-            The model predicted testing probabilities.
-        """
-        # Model - details
-        self.model: sklearn.base.BaseEstimator | None = model
-        self.model_name: str = "unknown"
-        self.model_params: dict = {}
-        if self.model is not None:
-            self.model_name = type(self.model).__name__
-            self.model_params = self.model.get_params()
-        # Model - predicted probabilities
-        self.proba_train: np.ndarray | None = proba_train
-        self.proba_test: np.ndarray | None = proba_test
-        #  Dataset - details
-        self.dataset_name: str = dataset_name
-        #  Dataset - processed
-        self.X_train: np.ndarray | None = X_train
-        self.y_train: np.ndarray | None = y_train
-        self.X_test: np.ndarray | None = X_test
-        self.y_test: np.ndarray | None = y_test
-        self.n_samples: int = 0
-        if X_train is not None and X_test is not None:
-            self.n_samples = len(X_train) + len(X_test)
-        #  Dataset - unprocessed
-        self.X_orig: np.ndarray | None = X_orig
-        self.y_orig: np.ndarray | None = y_orig
-        self.X_train_orig: np.ndarray | None = X_train_orig
-        self.y_train_orig: np.ndarray | None = y_train_orig
-        self.X_test_orig: np.ndarray | None = X_test_orig
-        self.y_test_orig: np.ndarray | None = y_test_orig
-        self.n_samples_orig: int = 0
-        if X_train_orig is not None and X_test_orig is not None:
-            self.n_samples_orig = len(X_train_orig) + len(X_test_orig)
-        self.features: dict = features if features is not None else {}
-        self.n_features: int = len(self.features)
-        #  Safemodel report
-        self.safemodel: list = []
+    # Model attributes
+    model: Any = None
+    model_path: str = ""
+    model_module_path: str = ""
+    model_name: str = ""
+    model_params: dict | None = None
+    train_module_path: str = ""
+    train_params: dict | None = None
 
-    def add_processed_data(
-        self,
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_test: np.ndarray,
-        y_test: np.ndarray,
-    ) -> None:
-        """Add a processed and split dataset."""
-        self.X_train = X_train
-        self.y_train = np.array(y_train, int)
-        self.X_test = X_test
-        self.y_test = np.array(y_test, int)
-        self.n_samples = len(X_train) + len(X_test)
+    # Dataset attributes
+    dataset_name: str = ""
+    dataset_module_path: str = ""
+    features: dict = field(default_factory=dict)
+
+    # Data arrays
+    X_train: np.ndarray | None = None
+    y_train: np.ndarray | None = None
+    X_test: np.ndarray | None = None
+    y_test: np.ndarray | None = None
+    X_train_orig: np.ndarray | None = None
+    y_train_orig: np.ndarray | None = None
+    X_test_orig: np.ndarray | None = None
+    y_test_orig: np.ndarray | None = None
+    proba_train: np.ndarray | None = None
+    proba_test: np.ndarray | None = None
+    indices_train: Sequence[int] | None = None
+    indices_test: Sequence[int] | None = None
+
+    # Safemodel properties
+    safemodel: list = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialise the model wrapper after dataclass creation."""
+        self.model = self._wrap_model(self.model)
+
+    def _wrap_model(self, model: Any) -> Any:
+        """Wrap the model in a wrapper class."""
+        if model is None:
+            return None
+
+        if isinstance(model, sklearn.base.BaseEstimator):
+            return SklearnModel(
+                model=model,
+                model_path=self.model_path,
+                model_module_path=self.model_module_path,
+                model_name=self.model_name,
+                model_params=self.model_params,
+                train_module_path=self.train_module_path,
+                train_params=self.train_params,
+            )
+        if isinstance(model, torch.nn.Module):
+            return PytorchModel(
+                model=model,
+                model_path=self.model_path,
+                model_module_path=self.model_module_path,
+                model_name=self.model_name,
+                model_params=self.model_params,
+                train_module_path=self.train_module_path,
+                train_params=self.train_params,
+            )
+        if isinstance(model, (SklearnModel, PytorchModel)):
+            return model
+        raise ValueError(f"Unsupported model type: {type(model)}")  # pragma: no cover
+
+    def load_pytorch_dataset(self) -> None:  # pragma: no cover
+        """Wrap dataset for Pytorch models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
+        try:
+            # Create a new data handler with a supplied class
+            handler: PyTorchDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
+
+            # Get processed data
+            data = handler.get_dataset()
+            train_loader = handler.get_dataloader(data, self.indices_train)
+            test_loader = handler.get_dataloader(data, self.indices_test)
+
+            self.X_train, self.y_train = dataloader_to_numpy(train_loader)
+            self.X_test, self.y_test = dataloader_to_numpy(test_loader)
+
+            # Get raw unprocessed data
+            data = handler.get_raw_dataset()
+            if data:
+                train_loader = handler.get_dataloader(data, self.indices_train)
+                test_loader = handler.get_dataloader(data, self.indices_test)
+
+                self.X_train_orig, self.y_train_orig = dataloader_to_numpy(train_loader)
+                self.X_test_orig, self.y_test_orig = dataloader_to_numpy(test_loader)
+
+            # Display array shapes
+            for arr in ARRAYS:
+                if (array := getattr(self, arr)) is not None:
+                    logger.info("Loaded: %s shape: %s", arr, array.shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
+
+    def load_sklearn_dataset(self) -> None:  # pragma: no cover
+        """Wrap dataset for scikit-learn models given a dataset Python script."""
+        if self.indices_train is None or self.indices_test is None:
+            raise ValueError("Can't load dataset module without indices.")
+        try:
+            # Create a new data handler with a supplied class
+            handler: SklearnDataHandler = create_dataset(
+                self.dataset_module_path, self.dataset_name
+            )
+
+            # Get processed data
+            X, y = handler.get_data()
+            self.X_train, self.y_train = handler.get_subset(X, y, self.indices_train)
+            self.X_test, self.y_test = handler.get_subset(X, y, self.indices_test)
+
+            # Get raw unprocessed data
+            data = handler.get_raw_data()
+            if data:
+                X, y = data
+                self.X_train_orig, self.y_train_orig = handler.get_subset(
+                    X, y, self.indices_train
+                )
+                self.X_test_orig, self.y_test_orig = handler.get_subset(
+                    X, y, self.indices_test
+                )
+
+            # Display array shapes
+            for arr in ARRAYS:
+                if (array := getattr(self, arr)) is not None:
+                    logger.info("Loaded: %s shape: %s", arr, array.shape)
+
+        except Exception as e:  # pragma: no cover
+            raise ValueError(f"Failed to load data using class: {e}") from e
+
+    @property
+    def n_features(self) -> int:
+        """Number of features."""
+        return len(self.features)
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""
@@ -130,337 +256,213 @@ class Target:  # pylint: disable=too-many-instance-attributes
             "indices": indices,
             "encoding": encoding,
         }
-        self.n_features = len(self.features)
-
-    def add_raw_data(  # pylint: disable=too-many-arguments
-        self,
-        X_orig: np.ndarray,
-        y_orig: np.ndarray,
-        X_train_orig: np.ndarray,
-        y_train_orig: np.ndarray,
-        X_test_orig: np.ndarray,
-        y_test_orig: np.ndarray,
-    ) -> None:
-        """Add original unprocessed dataset."""
-        self.X_orig = X_orig
-        self.y_orig = y_orig
-        self.X_train_orig = X_train_orig
-        self.y_train_orig = y_train_orig
-        self.X_test_orig = X_test_orig
-        self.y_test_orig = y_test_orig
-        self.n_samples_orig = len(X_orig)
-
-    def _save_model(self, path: str, ext: str, target: dict) -> None:
-        """Save the target model.
-
-        Parameters
-        ----------
-        path : str
-            Path to write the model.
-        ext : str
-            File extension defining the model saved format, e.g., "pkl" or "sav".
-        target : dict
-            Target class as a dictionary for writing yaml.
-        """
-        # write model
-        filename: str = os.path.normpath(f"{path}/model.{ext}")
-        if hasattr(self.model, "save"):
-            self.model.save(filename)
-        elif ext == "pkl":
-            with open(filename, "wb") as fp:
-                pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for saving a model: {ext}")
-        target["model_path"] = f"model.{ext}"
-        # write hyperparameters
-        target["model_name"] = self.model_name
-        target["model_params"] = self.model_params
-
-    def load_model(self, model_path: str) -> None:
-        """Load the target model.
-
-        Parameters
-        ----------
-        model_path : str
-            Path to load the model.
-        """
-        path = os.path.normpath(model_path)
-        _, ext = os.path.splitext(path)
-        if ext == ".pkl":
-            with open(path, "rb") as fp:
-                self.model = pickle.load(fp)
-                model_type = type(self.model)
-                logger.info("Loaded: %s", model_type.__name__)
-        else:  # pragma: no cover
-            raise ValueError(f"Unsupported file format for loading a model: {ext}")
-
-    def _save_numpy(self, path: str, target: dict, name: str) -> None:
-        """Save a numpy array variable as pickle.
-
-        Parameters
-        ----------
-        path : str
-            Path to save the data.
-        target : dict
-            Target class as a dictionary for writing yaml.
-        name : str
-            Name of the numpy array to save.
-        """
-        if getattr(self, name) is not None:
-            np_path: str = os.path.normpath(f"{path}/{name}.pkl")
-            target[f"{name}_path"] = f"{name}.pkl"
-            with open(np_path, "wb") as fp:
-                pickle.dump(getattr(self, name), fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:
-            target[f"{name}_path"] = ""
-
-    def load_array(self, arr_path: str, name: str) -> None:
-        """Load a data array variable from file.
-
-        Handles both .pkl and .csv files.
-
-        Parameters
-        ----------
-        arr_path : str
-            Filename of a data array.
-        name : str
-            Name of the data array to load.
-        """
-        path = os.path.normpath(arr_path)
-        _, ext = os.path.splitext(path)
-        if ext == ".pkl":
-            arr = get_array_pkl(path, name)
-        elif ext == ".csv":  # pragma: no cover
-            arr = get_array_csv(path, name)
-        else:  # pragma: no cover
-            raise ValueError(f"Target cannot load {ext} files.") from None
-        setattr(self, name, arr)
-
-    def _load_array(self, arr_path: str, target: dict, name: str) -> None:
-        """Load a data array variable contained in a yaml config.
-
-        Parameters
-        ----------
-        arr_path : str
-            Filename of a data array.
-        target : dict
-            Target class as a dictionary read from yaml.
-        name : str
-            Name of the data array to load.
-        """
-        key = f"{name}_path"
-        if key in target and target[key] != "":
-            path = f"{arr_path}/{target[key]}"
-            self.load_array(path, name)
-
-    def _save_data(self, path: str, target: dict) -> None:
-        """Save the target model data.
-
-        Parameters
-        ----------
-        path : str
-            Path to save the data.
-        target : dict
-            Target class as a dictionary for writing yaml.
-        """
-        self._save_numpy(path, target, "X_train")
-        self._save_numpy(path, target, "y_train")
-        self._save_numpy(path, target, "X_test")
-        self._save_numpy(path, target, "y_test")
-        self._save_numpy(path, target, "X_orig")
-        self._save_numpy(path, target, "y_orig")
-        self._save_numpy(path, target, "X_train_orig")
-        self._save_numpy(path, target, "y_train_orig")
-        self._save_numpy(path, target, "X_test_orig")
-        self._save_numpy(path, target, "y_test_orig")
-        self._save_numpy(path, target, "proba_train")
-        self._save_numpy(path, target, "proba_test")
-
-    def _load_data(self, path: str, target: dict) -> None:
-        """Load the target model data.
-
-        Parameters
-        ----------
-        path : str
-            Path to load the data.
-        target : dict
-            Target class as a dictionary read from yaml.
-        """
-        self._load_array(path, target, "X_train")
-        self._load_array(path, target, "y_train")
-        self._load_array(path, target, "X_test")
-        self._load_array(path, target, "y_test")
-        self._load_array(path, target, "X_orig")
-        self._load_array(path, target, "y_orig")
-        self._load_array(path, target, "X_train_orig")
-        self._load_array(path, target, "y_train_orig")
-        self._load_array(path, target, "X_test_orig")
-        self._load_array(path, target, "y_test_orig")
-        self._load_array(path, target, "proba_train")
-        self._load_array(path, target, "proba_test")
-
-    def _ge(self) -> float:
-        """Return the model generalisation error.
-
-        Returns
-        -------
-        float
-            Generalisation error.
-        """
-        if (
-            hasattr(self.model, "score")
-            and self.X_train is not None
-            and self.y_train is not None
-            and self.X_test is not None
-            and self.y_test is not None
-        ):
-            try:
-                train = self.model.score(self.X_train, self.y_train)
-                test = self.model.score(self.X_test, self.y_test)
-                return test - train
-            except sklearn.exceptions.NotFittedError:
-                return np.nan
-        return np.nan
-
-    def save(self, path: str = "target", ext: str = "pkl") -> None:
-        """Save the target class to persistent storage.
-
-        Parameters
-        ----------
-        path : str
-            Name of the output folder to save target information.
-        ext : str
-            File extension defining the model saved format, e.g., "pkl" or "sav".
-        """
-        path: str = os.path.normpath(path)
-        filename: str = os.path.normpath(f"{path}/target.yaml")
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        # convert Target to dict
-        target: dict = {
-            "dataset_name": self.dataset_name,
-            "n_samples": self.n_samples,
-            "features": self.features,
-            "n_features": self.n_features,
-            "n_samples_orig": self.n_samples_orig,
-            "generalisation_error": self._ge(),
-            "safemodel": self.safemodel,
-        }
-        # write model and add path
-        if self.model is not None:
-            self._save_model(path, ext, target)
-        # write data arrays and add paths
-        self._save_data(path, target)
-        # write yaml
-        with open(filename, "w", encoding="utf-8") as fp:
-            yaml.dump(target, fp, default_flow_style=False, sort_keys=False)
-
-    def load(self, path: str = "target") -> None:
-        """Load the target class from persistent storage.
-
-        Parameters
-        ----------
-        path : str
-            Name of the output folder containing a target yaml file.
-        """
-        target: dict = {}
-        # load yaml
-        filename: str = os.path.normpath(f"{path}/target.yaml")
-        with open(filename, encoding="utf-8") as fp:
-            target = yaml.safe_load(fp)
-        # load parameters
-        if "dataset_name" in target:
-            self.dataset_name = target["dataset_name"]
-            logger.info("dataset_name: %s", self.dataset_name)
-        if "n_samples" in target:
-            self.n_samples = target["n_samples"]
-        if "features" in target:
-            features: dict = target["features"]
-            # convert str keys to int
-            self.features = {int(key): value for key, value in features.items()}
-        if "n_features" in target:
-            self.n_features = target["n_features"]
-            logger.info("n_features: %d", self.n_features)
-        if "n_samples_orig" in target:
-            self.n_samples_orig = target["n_samples_orig"]
-        if "safemodel" in target:
-            self.safemodel = target["safemodel"]
-        # load model
-        if "model_name" in target:
-            self.model_name = target["model_name"]
-        if "model_params" in target:
-            self.model_params = target["model_params"]
-        if "model_path" in target:
-            model_path = os.path.normpath(f"{path}/{target['model_path']}")
-            self.load_model(model_path)
-        # load data
-        self._load_data(path, target)
 
     def add_safemodel_results(self, data: list) -> None:
-        """Add the results of safemodel disclosure checking.
-
-        Parameters
-        ----------
-        data : list
-            The results of safemodel disclosure checking.
-        """
+        """Add safemodel disclosure checking results."""
         self.safemodel = data
+
+    def has_model(self) -> bool:
+        """Return whether the target has a loaded model."""
+        return self.model is not None and self.model.model is not None
 
     def has_data(self) -> bool:
         """Return whether the target has all processed data."""
-        return (
-            self.X_train is not None
-            and self.y_train is not None
-            and self.X_test is not None
-            and self.y_test is not None
-        )
+        attrs: list[str] = ["X_train", "y_train", "X_test", "y_test"]
+        return all(getattr(self, attr) is not None for attr in attrs)
 
     def has_raw_data(self) -> bool:
         """Return whether the target has all raw data."""
-        return (
-            self.X_orig is not None
-            and self.y_orig is not None
-            and self.X_train_orig is not None
-            and self.y_train_orig is not None
-            and self.X_test_orig is not None
-            and self.y_test_orig is not None
-        )
+        attrs: list[str] = [
+            "X_train_orig",
+            "y_train_orig",
+            "X_test_orig",
+            "y_test_orig",
+        ]
+        return all(getattr(self, attr) is not None for attr in attrs)
 
     def has_probas(self) -> bool:
         """Return whether the target has all probability data."""
         return self.proba_train is not None and self.proba_test is not None
 
-    def __str__(self) -> str:
-        """Return the name of the dataset used."""
-        return self.dataset_name
+    def get_generalisation_error(self) -> float:
+        """Calculate model generalisation error."""
+        if not (self.has_model() and self.has_data()):
+            return np.nan
+        return self.model.get_generalisation_error(
+            self.X_train, self.y_train, self.X_test, self.y_test
+        )
 
+    def save(self, path: str = "target", ext: str = "pkl") -> None:
+        """Save target to persistent storage."""
+        path = os.path.normpath(path)
+        os.makedirs(path, exist_ok=True)
 
-def get_array_pkl(path: str, name: str):  # pragma: no cover
-    """Load a data array from pickle."""
-    try:
-        with open(path, "rb") as fp:
-            arr = pickle.load(fp)
-            try:
-                logger.info("%s shape: %s", name, arr.shape)
-            except AttributeError:
-                logger.info("%s is a scalar value.", name)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Pickle file not found: {path}") from e
-    except Exception as e:
-        raise ValueError(f"Error loading pickle file {path}: {e}") from None
-    return arr
+        # Create target dictionary
+        target = {
+            "dataset_name": self.dataset_name,
+            "dataset_module_path": self.dataset_module_path,
+            "features": self.features,
+            "generalisation_error": self.get_generalisation_error(),
+            "safemodel": self.safemodel,
+        }
 
+        # Save model
+        self._save_model(path, ext, target)
 
-def get_array_csv(path: str, name: str):  # pragma: no cover
-    """Load a data array from csv."""
-    try:
-        arr = pd.read_csv(path, header=None).values
-        logger.info("%s shape: %s", name, arr.shape)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"CSV file not found: {path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise ValueError(f"CSV file is empty: {path}") from e
-    except pd.errors.ParserError as e:
-        raise ValueError(f"Error parsing CSV file {path}: {e}") from e
-    except Exception as e:
-        raise ValueError(f"Error reading CSV file {path}: {e}") from None
-    return arr
+        # Save dataset module
+        self._save_dataset_module(path, target)
+
+        # Save data arrays
+        for attr in DATA_ATTRIBUTES:
+            self._save_array(path, target, attr)
+
+        # Save YAML config
+        yaml_path = os.path.join(path, "target.yaml")
+        with open(yaml_path, "w", encoding="utf-8") as f:
+            yaml.dump(target, f, default_flow_style=False, sort_keys=False)
+
+    def load(self, path: str = "target") -> None:
+        """Load target from persistent storage."""
+        yaml_path = os.path.join(path, "target.yaml")
+
+        with open(yaml_path, encoding="utf-8") as f:
+            target = yaml.safe_load(f)
+
+        # Load basic attributes
+        for attr in ["dataset_name", "safemodel"]:
+            if attr in target:
+                setattr(self, attr, target[attr])
+
+        # Load features (convert string keys to int)
+        if "features" in target:
+            self.features = {int(k): v for k, v in target["features"].items()}
+
+        # Load paths
+        if "dataset_module_path" in target and target["dataset_module_path"] != "":
+            self.dataset_module_path = os.path.join(path, target["dataset_module_path"])
+
+        # Load model and data
+        self._load_model(path, target)
+        for attr in DATA_ATTRIBUTES:
+            self._load_array(path, target, attr)
+
+        if self.dataset_module_path != "":
+            if isinstance(self.model, PytorchModel):
+                self.load_pytorch_dataset()
+            elif isinstance(self.model, SklearnModel):
+                self.load_sklearn_dataset()
+            else:  # pragma: no cover
+                logger.warning("Dataset module supplied for unsupported model type.")
+
+    def _save_model(self, path: str, ext: str, target: dict) -> None:
+        """Save model to disk."""
+        if self.model is None:  # pragma: no cover
+            return
+
+        target.update(
+            {
+                "model_type": self.model.model_type,
+                "model_name": self.model.model_name,
+                "model_params": self.model.get_params(),
+            }
+        )
+
+        # Copy module files
+        if self.model_module_path:
+            shutil.copy2(self.model_module_path, os.path.join(path, "model.py"))
+            target["model_module_path"] = "model.py"
+
+        if getattr(self.model, "train_module_path", ""):
+            shutil.copy2(self.model.train_module_path, os.path.join(path, "train.py"))
+            target["train_module_path"] = "train.py"
+            target["train_params"] = self.model.train_params
+
+        # Save model
+        model_path = os.path.join(path, f"model.{ext}")
+        self.model.save(model_path)
+        target["model_path"] = f"model.{ext}"
+
+    def _save_dataset_module(self, path: str, target: dict) -> None:
+        """Save dataset module."""
+        if self.dataset_module_path:  # pragma: no cover
+            shutil.copy2(self.dataset_module_path, os.path.join(path, "dataset.py"))
+            target["dataset_module_path"] = "dataset.py"
+
+    def _save_array(self, path: str, target: dict, attr_name: str) -> None:
+        """Save numpy array as pickle."""
+        arr = getattr(self, attr_name)
+        if arr is not None:
+            arr_path = os.path.join(path, f"{attr_name}.pkl")
+            with open(arr_path, "wb") as f:
+                pickle.dump(arr, f, protocol=pickle.HIGHEST_PROTOCOL)
+            target[f"{attr_name}_path"] = f"{attr_name}.pkl"
+        else:
+            target[f"{attr_name}_path"] = ""
+
+    def _load_model(self, path: str, target: dict) -> None:
+        """Load model from disk."""
+        model_type = target.get("model_type", "")
+        if not model_type or model_type not in MODEL_REGISTRY:  # pragma: no cover
+            logger.info("Cannot load model: %s", model_type)
+            return
+
+        model_class = MODEL_REGISTRY[model_type]
+        self.model = model_class.load(
+            model_path=os.path.join(path, target.get("model_path", "")),
+            model_module_path=os.path.join(path, target.get("model_module_path", "")),
+            model_name=target.get("model_name", ""),
+            model_params=target.get("model_params", {}),
+            train_module_path=os.path.join(path, target.get("train_module_path", "")),
+            train_params=target.get("train_params", {}),
+        )
+        logger.info("Loaded: %s : %s", model_type, target.get("model_name", ""))
+
+    def _load_array(self, path: str, target: dict, attr_name: str) -> None:
+        """Load array from disk."""
+        path_key = f"{attr_name}_path"
+        if path_key in target and target[path_key]:
+            arr_path = os.path.join(path, target[path_key])
+            self.load_array(arr_path, attr_name)
+
+    def load_array(self, arr_path: str, attr_name: str) -> None:
+        """Load array from pickle or CSV file."""
+        _, ext = os.path.splitext(arr_path)
+
+        if ext == ".pkl":
+            arr = self._load_pickle(arr_path, attr_name)
+        elif ext == ".csv":  # pragma: no cover
+            arr = self._load_csv(arr_path, attr_name)
+        else:  # pragma: no cover
+            raise ValueError(f"Unsupported file extension: {ext}")
+
+        setattr(self, attr_name, arr)
+
+    def _load_pickle(self, path: str, name: str) -> Any:  # pragma: no cover
+        """Load array from pickle file."""
+        try:
+            with open(path, "rb") as f:
+                arr = pickle.load(f)
+                if hasattr(arr, "shape"):
+                    logger.info("%s shape: %s", name, arr.shape)
+                elif isinstance(arr, Sequence) and not isinstance(arr, str):
+                    logger.info("%s length: %d", name, len(arr))
+                else:
+                    logger.info("%s is a scalar value", name)
+                return arr
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Pickle file not found: {path}") from e
+        except Exception as e:
+            raise ValueError(f"Error loading pickle file {path}: {e}") from e
+
+    def _load_csv(self, path: str, name: str) -> np.ndarray:  # pragma: no cover
+        """Load array from CSV file."""
+        try:
+            arr = pd.read_csv(path, header=None).to_numpy()
+            logger.info("%s shape: %s", name, arr.shape)
+            return arr
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"CSV file not found: {path}") from e
+        except pd.errors.EmptyDataError as e:
+            raise ValueError(f"CSV file is empty: {path}") from e
+        except Exception as e:
+            raise ValueError(f"Error reading CSV file {path}: {e}") from e

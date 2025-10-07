@@ -15,7 +15,7 @@ from sacroml.attacks.target import Target
 @pytest.fixture(name="dummy_classifier_setup")
 def fixture_dummy_classifier_setup():
     """Set up common things for DummyClassifier."""
-    dummy = LIRAAttack._DummyClassifier()  # pylint: disable=protected-access
+    dummy = LIRAAttack._DummyClassifier()
     X = np.array([[0.2, 0.8], [0.7, 0.3]])
     return dummy, X
 
@@ -44,8 +44,13 @@ def fixture_lira_classifier_setup():
         n_estimators=100, min_samples_split=2, min_samples_leaf=1
     )
     target_model.fit(X_train, y_train)
-    target = Target(target_model)
-    target.add_processed_data(X_train, y_train, X_test, y_test)
+    target = Target(
+        model=target_model,
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
     target.save(path="test_lira_target")
     return target
 

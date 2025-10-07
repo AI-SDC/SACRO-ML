@@ -6,14 +6,14 @@ A membership inference attack (MIA) estimates the likelihood of specific data
  of data breach. If low, it is unlikely.
 
 The Worst-Case is a white box MIA scenario, and it does not need any shadow model. It is
- described in `Rezaei`_  as the easiest possible for the attacker. To perform a MIA, a 
- new binary set of data (member, non-member of target train data) was created containing 
- the predicted probabilities of the training and test data by the target model. A Random 
+ described in `Rezaei`_  as the easiest possible for the attacker. To perform a MIA, a
+ new binary set of data (member, non-member of target train data) was created containing
+ the predicted probabilities of the training and test data by the target model. A Random
  Forest Classifier was fitted with half of this new set.
 
 This scenario was not supposed to simulate a realistic attack (if the attacker has access
  to the data, they do not need to attack) but instead to assess whether there were potential
- vulnerabilities in the model that could potentially be leveraged by an attacker. This can 
+ vulnerabilities in the model that could potentially be leveraged by an attacker. This can
  give a good estimation of the maximum capability of an attacker to succeed.
 
  .. image:: ../images/WorstCase_diagram.png
@@ -22,15 +22,15 @@ This scenario was not supposed to simulate a realistic attack (if the attacker h
     :height: 350px
     :alt: Data breaches of sensitive and personal data must be avoided.
 
-In some cases, the risk of data leakage could be overestimated, but it does guarantee (as 
-much as possible) that any ML model allowed out of a TRE or the host environment is safe. At 
+In some cases, the risk of data leakage could be overestimated, but it does guarantee (as
+much as possible) that any ML model allowed out of a TRE or the host environment is safe. At
 the same time, it’s easy to implement (see figure below).
 
 This attack is, however, evaluated using average-case “accuracy” metrics that fail to characterize
- whether the attack can confidently identify any members of the training set. For instance, imagine 
- the dataset includes 2 people with a rare disease, which are all the cases in a given region. In 
- such case these two cases could be at higher risk of being identified even if the overall estimate 
- risk of disclosure is low. For a more comprehensive checks a :ref:`likelihood scenario attacks/likelihood` 
+ whether the attack can confidently identify any members of the training set. For instance, imagine
+ the dataset includes 2 people with a rare disease, which are all the cases in a given region. In
+ such case these two cases could be at higher risk of being identified even if the overall estimate
+ risk of disclosure is low. For a more comprehensive checks a :ref:`likelihood scenario attacks/likelihood`
  is recommended.
 
 
