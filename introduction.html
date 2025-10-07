@@ -45,7 +45,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-sacro-ml">What is SACRO-ML?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-safemodel">What is safemodel?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-are-simulated-attacks">What are simulated attacks?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attacks/index.html">Attacks</a></li>
@@ -78,6 +80,30 @@
              
   <section id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
+<section id="what-is-sacro-ml">
+<h2>What is SACRO-ML?<a class="headerlink" href="#what-is-sacro-ml" title="Link to this heading"></a></h2>
+<a class="reference internal image-reference" href="_images/ML_leakage_bee.png"><img alt="Data breaches of sensitive and personal data must be avoided." class="align-center" src="_images/ML_leakage_bee.png" style="width: 320px; height: 350px;" />
+</a>
+<dl>
+<dt>SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)</dt><dd><p>models. ML models enable the discovery of intricate relationships that a human eye,
+and traditional statistical methods can’t. These types of powerful tools are becoming</p>
+<blockquote>
+<div><p>increasingly popular in many different fields. These includes medical applications
+and any project involving personal and sensitive data. Data breaches must be avoided.
+SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
+estimate the risk of identifying any personal and sensitive data employed to build the ML model.</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.</p>
+<dl>
+<dt>Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which</dt><dd><p>is a secure enclave. In such environments it is essential to check outputs before releasing them to
+guarantee there is no data breach.</p>
+<a class="reference internal image-reference" href="_images/TRE-project-outputcheck-overview.jpg"><img alt="Timeline of a life cycle of a ML model containing sensitive and personal data." class="align-center" src="_images/TRE-project-outputcheck-overview.jpg" style="width: 400px; height: 300px;" />
+</a>
+</dd>
+</dl>
+</section>
 <section id="what-is-safemodel">
 <h2>What is safemodel?<a class="headerlink" href="#what-is-safemodel" title="Link to this heading"></a></h2>
 <p>The safemodel package is an open source wrapper for common machine learning
@@ -102,6 +128,41 @@ more compliant with disclosure control.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+</section>
+<section id="what-are-simulated-attacks">
+<h2>What are simulated attacks?<a class="headerlink" href="#what-are-simulated-attacks" title="Link to this heading"></a></h2>
+<p>Simulated attacks are those scenarios where a ML is attacked under controlled circumstances,
+and the risk of data breach is estimated. It may be used before releasing a ML model
+publicly to ensure privacy.</p>
+<section id="when-can-sacro-ml-attack-simulation-be-used">
+<h3>When can SACRO-ML attack simulation be used?<a class="headerlink" href="#when-can-sacro-ml-attack-simulation-be-used" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>When an ML model has been trained with sensitive data and want to avoid data leakage.</p></li>
+<li><p>The model does not contain embedded data points. Find <a href="#id1"><span class="problematic" id="id2">`</span></a>an example</p></li>
+</ul>
+<p>&lt;<a class="reference external" href="https://github.com/AI-SDC/SACRO-ML/blob/329-add-more-documentation/examples/risk_examples/python/instance_based_mimic.ipynb">https://github.com/AI-SDC/SACRO-ML/blob/329-add-more-documentation/examples/risk_examples/python/instance_based_mimic.ipynb</a>&gt;`_
+of issues with instance-based ML models.
+- When the test data has not been seen by the trained model. Any data point seen by the
+model during the training phase is considered part of the training data.
+- The test data must have ideally 30 to 50% of the original set, and at least 20%.
+- For models which predict with numerical values as opposed to binary (i.e. yes|no).</p>
+</section>
+<section id="what-sacro-ml-attack-simulation-is-not-intended-for">
+<h3>What SACRO-ML attack simulation is not intended for?<a class="headerlink" href="#what-sacro-ml-attack-simulation-is-not-intended-for" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>For anonymous and non-sensitive datasets.</p></li>
+<li><p>For those ML models which contain embedded data. For example, instance-based methods</p></li>
+</ul>
+<p>including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC), Self
+Organising Map (SOM), Learning Vector Quantization (LVQ), Locally Weighted Learning
+(LWL), Case-Based Reasoning, Gaussian Process, Kernel-based models, etc. These models
+are breaching data.
+- Many of the deep learning models are at high risk of including data careful consideration should
+be applied before using SACRO-ML.
+- When there is no test data, or the test data has been seen by the model during the training phase.
+- For any other concern that the trained model might be at risk of data breach.
+- When less than 20% of the data is available (from the original dataset) for the simulated attacks.</p>
+</section>
 </section>
 </section>
 
