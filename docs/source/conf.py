@@ -29,6 +29,7 @@ extensions = [
     "sphinx_issues",
     "sphinx_prompt",
     "sphinx_rtd_theme",
+    "sphinx.ext.autosectionlabel",
     "sphinxcontrib.bibtex",
 ]
 
