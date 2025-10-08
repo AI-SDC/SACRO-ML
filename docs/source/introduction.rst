@@ -1,48 +1,91 @@
 Welcome to SACRO-ML
 ===================
 
-An increasing body of work has shown that `machine learning <https://en.wikipedia.org/wiki/Machine_learning>`_ (ML) models may expose confidential properties of the data on which they are trained. This has resulted in a wide range of proposed attack methods with varying assumptions that exploit the model structure and/or behaviour to infer sensitive information.
+What is SACRO-ML?
+-----------------
 
-The ``sacroml`` package is a collection of tools and resources for managing the `statistical disclosure control <https://en.wikipedia.org/wiki/Statistical_disclosure_control>`_ (SDC) of trained ML models. In particular, it provides:
+.. image:: images/ML_leakage_bee.png
+    :width: 320px
+    :align: center
+    :height: 350px
+    :alt: Data breaches of sensitive and personal data must be avoided.
 
-* A **safemodel** package that extends commonly used ML models to provide *ante-hoc* SDC by assessing the theoretical risk posed by the training regime (such as hyperparameter, dataset, and architecture combinations) *before* (potentially) costly model fitting is performed. In addition, it ensures that best practice is followed with respect to privacy, e.g., using `differential privacy <https://en.wikipedia.org/wiki/Differential_privacy>`_ optimisers where available. For large models and datasets, *ante-hoc* analysis has the potential for significant time and cost savings by helping to avoid wasting resources training models that are likely to be found to be disclosive after running intensive *post-hoc* analysis.
-* An **attacks** package that provides *post-hoc* SDC by assessing the empirical disclosure risk of a classification model through a variety of simulated attacks *after* training. It provides an integrated suite of attacks with a common application programming interface (API) and is designed to support the inclusion of additional state-of-the-art attacks as they become available. In addition to membership inference attacks (MIA) such as the likelihood ratio attack (`LiRA <https://doi.org/10.1109/SP46214.2022.9833649>`_) and attribute inference, the package provides novel `structural attacks <https://arxiv.org/abs/2502.09396>`_ that report cheap-to-compute metrics, which can serve as indicators of model disclosiveness after model fitting, but before needing to run more computationally expensive MIAs.
-* Summaries of the results are written in a simple human-readable report.
+SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)
+ models. ML models enable the discovery of intricate relationships that a human eye,
+ and traditional statistical methods can’t. These types of powerful tools are becoming
+  increasingly popular in many different fields. These includes medical applications
+  and any project involving personal and sensitive data. Data breaches must be avoided.
+  SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
+  estimate the risk of identifying any personal and sensitive data employed to build the ML model.
 
-Classification models from `scikit-learn <https://scikit-learn.org>`_ (including those implementing ``sklearn.base.BaseEstimator``) and `PyTorch <https://pytorch.org>`_ are broadly supported within the package. Some attacks can still be run if only `CSV <https://en.wikipedia.org/wiki/Comma-separated_values>`_ files of the model predicted probabilities are supplied, e.g., if the model was produced in another language.
+It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.
 
-Usage
------
+Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which
+ is a secure enclave. In such environments it is essential to check outputs before releasing them to
+ guarantee there is no data breach.
 
-Quick-start example:
+ .. image:: images/TRE-project-outputcheck-overview.jpg
+    :width: 400px
+    :align: center
+    :height: 300px
+    :alt: Timeline of a life cycle of a ML model containing sensitive and personal data.
 
-.. code-block:: python
+What is safemodel?
+------------------
 
-   from sklearn.datasets import load_breast_cancer
-   from sklearn.ensemble import RandomForestClassifier
-   from sklearn.model_selection import train_test_split
+The safemodel package is an open source wrapper for common machine learning
+models. It is designed for use by researchers in Trusted Research Environments
+(TREs) where disclosure control methods must be implemented.
 
-   from sacroml.attacks.likelihood_attack import LIRAAttack
-   from sacroml.attacks.target import Target
+Safemodel aims to give researchers greater confidence that their models are
+more compliant with disclosure control.
 
-   # Load dataset
-   X, y = load_breast_cancer(return_X_y=True, as_frame=False)
-   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+Safemodel provides feedback to the researcher through a JSON parseable
+'checkfile' report:
 
-   # Fit model
-   model = RandomForestClassifier(min_samples_split=2, min_samples_leaf=1)
-   model.fit(X_train, y_train)
+.. code-block:: json
 
-   # Wrap model and data
-   target = Target(
-       model=model,
-       dataset_name="breast cancer",
-       X_train=X_train,
-       y_train=y_train,
-       X_test=X_test,
-       y_test=y_test,
-   )
+	{
+	    "researcher": "andy",
+	    "model_type": "DecisionTreeClassifier",
+	    "model_save_file": "unsafe.pkl",
+	    "details": "WARNING: model parameters may present a disclosure risk:\n- para
+	meter min_samples_leaf = 1 identified as less than the recommended min value of
+	5.",
+	    "recommendation": "Do not allow release",
+	    "reason": "WARNING: model parameters may present a disclosure risk:\n- param
+	eter min_samples_leaf = 1 identified as less than the recommended min value of 5
+	.Error: user has not called fit() method or has deleted saved values.Recommendat
+	ion: Do not release."
+	}
 
-   # Create an attack object and run the attack
-   attack = LIRAAttack(n_shadow_models=100, output_dir="output_example")
-   attack.attack(target)
+What are simulated attacks?
+--------------------------
+Simulated attacks are those scenarios where a ML is attacked under controlled circumstances,
+and the risk of data breach is estimated. It may be used before releasing a ML model
+publicly to ensure privacy.
+
+When can SACRO-ML attack simulation be used?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+- When an ML model has been trained with sensitive data and want to avoid data leakage.
+- The model does not contain embedded data points. Find `an example
+<https://github.com/AI-SDC/SACRO-ML/blob/329-add-more-documentation/examples/risk_examples/python/instance_based_mimic.ipynb>`_
+of issues with instance-based ML models.
+- When the test data has not been seen by the trained model. Any data point seen by the
+model during the training phase is considered part of the training data.
+- The test data must have ideally 30 to 50% of the original set, and at least 20%.
+- For models which predict with numerical values as opposed to binary (i.e. yes|no).
+
+What SACRO-ML attack simulation is not intended for?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- For anonymous and non-sensitive datasets.
+- For those ML models which contain embedded data. For example, instance-based methods
+including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC), Self
+Organising Map, Learning Vector Quantization (LVQ), Locally Weighted Learning
+(LWL), Case-Based Reasoning, Gaussian Process, Kernel-based models, etc. These models
+are breaching data.
+- Many of the deep learning models are at high risk of including data careful consideration should
+be applied before using SACRO-ML.
+- When there is no test data, or the test data has been seen by the model during the training phase.
+- For any other concern that the trained model might be at risk of data breach.
+- When less than 20% of the data is available (from the original dataset) for the simulated attacks.

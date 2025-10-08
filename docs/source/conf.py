@@ -29,9 +29,11 @@ extensions = [
     "sphinx_issues",
     "sphinx_prompt",
     "pydata_sphinx_theme",
+    "sphinx.ext.autosectionlabel",
     "sphinxcontrib.bibtex",
     "nbsphinx",
     "sphinx_design",
+    "myst_parser",
 ]
 
 exclude_patterns = []

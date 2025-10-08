@@ -67,12 +67,12 @@ doc = [
     "sphinx-autopackagesummary",
     "sphinx-issues",
     "sphinx-prompt",
-    "sphinx-rtd-theme",
     "sphinx",
     "sphinxcontrib-bibtex",
     "nbsphinx",
     "ipykernel",
     "pydata-sphinx-theme",
+    "myst_parser",
 ]
 test = [
     "pytest",

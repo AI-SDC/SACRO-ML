@@ -12,7 +12,7 @@ Our tools are designed to help researchers assess the privacy disclosure risks o
    introduction
    support
    installation
-   notebook_examples
+   examples
    user_guide
 
 .. grid:: 2
@@ -83,40 +83,6 @@ SACRO-ML is a free and open source collection of tools and resources for managin
 .. note::
    **New in v1.4.0:** Enhanced support for PyTorch models and improved structural attack capabilities.
 
-What is SACRO-ML?
-=================
-
-SACRO-ML implements comprehensive privacy assessment for machine learning models that:
-
-* Automatically assesses theoretical privacy risks before model training
-* Evaluates empirical disclosure risks through simulated attacks after training
-* Provides integrated attack suite with common API
-* Generates human-readable privacy assessment reports
-
-
-Core Features
-=============
-
-Comprehensive Privacy Assessment
---------------------------------
-
-* **Ante-hoc analysis** with safemodel package for theoretical risk assessment before training
-* **Post-hoc attacks** including membership inference, attribute inference, and structural attacks
-* **Multi-framework support**: scikit-learn, PyTorch, and CSV-based model outputs
-* **Automated reporting**: JSON and human-readable privacy assessment reports
-* **Configurable parameters** for different privacy requirements
-* **Extensible architecture** for adding new attack methods
-
-Design Principles
------------------
-
-* **Free and open source** under MIT license
-* **Easy to install** via PyPI or conda; cross-platform (Linux, macOS, Windows)
-* **Familiar APIs** - integrates with existing ML workflows
-* **Comprehensive coverage** - classification models from major ML frameworks
-* **Transparent & auditable** - clear reports and documented methodologies
-* **Research-focused** - designed for use in Trusted Research Environments
-* **Scalable** - efficient implementation for large models and datasets
 
 Getting Started
 ===============
@@ -131,11 +97,11 @@ Getting Started
         Get SACRO-ML installed and configured in your environment
 
     .. grid-item-card:: Learn
-        :link: notebook_examples
+        :link: examples
         :link-type: doc
         :class-header: bg-light
 
-        Explore Jupyter notebook examples for common use cases
+        Explore comprehensive examples for all frameworks and use cases
 
     .. grid-item-card:: Reference
         :link: attacks/index
