@@ -72,7 +72,6 @@ doc = [
     "nbsphinx",
     "ipykernel",
     "pydata-sphinx-theme",
-    "myst_parser",
 ]
 test = [
     "pytest",
