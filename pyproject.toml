@@ -63,7 +63,7 @@ sacroml = "sacroml.main:main"
 
 [project.optional-dependencies]
 doc = [
-    "numpydoc",
+   "numpydoc",
     "sphinx-autopackagesummary",
     "sphinx-issues",
     "sphinx-prompt",
@@ -72,6 +72,7 @@ doc = [
     "nbsphinx",
     "ipykernel",
     "pydata-sphinx-theme",
+    "sphinx_design"
 ]
 test = [
     "pytest",
