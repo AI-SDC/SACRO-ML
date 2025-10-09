@@ -110,13 +110,7 @@ Getting Started
 
         Complete API documentation and attack reference
 
-Key Components
---------------
 
-* **Privacy attacks** - e.g. :py:class:`~sacroml.attacks.likelihood_attack.LIRAAttack`
-* **Safe model wrappers** - e.g. :py:class:`~sacroml.safemodel.classifiers.SafeRandomForestClassifier`
-* **Target model management** - e.g. :py:class:`~sacroml.attacks.target.Target`
-* **Attack methods** - comprehensive suite of privacy assessment tools
 
 Community and Support
 =====================
@@ -133,7 +127,7 @@ Community and Support
     .. grid-item-card:: Contribute
         :class-header: bg-light
 
-        * `Contributing Guide <https://github.com/AI-SDC/SACRO-ML/blob/main/CONTRIBUTING.md>`_
+        * :doc:`Contributing Guide <contributing>`
         * `Source Code <https://github.com/AI-SDC/SACRO-ML>`_
         * `Report Issues <https://github.com/AI-SDC/SACRO-ML/issues/new>`_
 

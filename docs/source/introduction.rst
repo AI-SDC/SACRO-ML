@@ -81,7 +81,7 @@ What SACRO-ML attack simulation is not intended for?
 - For anonymous and non-sensitive datasets.
 - For those ML models which contain embedded data. For example, instance-based methods
 including: K-nearest neighbours (KNN), Super Vector Classifier, (SVC), Self
-Organising Map, Learning Vector Quantization (LVQ), Locally Weighted Learning
+Organising Map (SOM), Learning Vector Quantization (LVQ), Locally Weighted Learning
 (LWL), Case-Based Reasoning, Gaussian Process, Kernel-based models, etc. These models
 are breaching data.
 - Many of the deep learning models are at high risk of including data careful consideration should
