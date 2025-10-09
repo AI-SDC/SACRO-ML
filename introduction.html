@@ -46,7 +46,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-sacro-ml">What is SACRO-ML?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#what-is-safemodel">What is safemodel?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-safemodel">What is SafeModel?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-are-simulated-attacks">What are simulated attacks?</a></li>
 </ul>
 </li>
@@ -82,36 +82,33 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
 <section id="what-is-sacro-ml">
 <h2>What is SACRO-ML?<a class="headerlink" href="#what-is-sacro-ml" title="Link to this heading"></a></h2>
-<a class="reference internal image-reference" href="_images/ML_leakage_bee.png"><img alt="Data breaches of sensitive and personal data must be avoided." class="align-center" src="_images/ML_leakage_bee.png" style="width: 320px; height: 350px;" />
+<a class="reference internal image-reference" href="_images/ML_leakage_bee.png"><img alt="Data breaches of sensitive and personal data must be avoided." class="align-center" src="_images/ML_leakage_bee.png" style="width: 350px; height: 350px;" />
 </a>
-<dl>
-<dt>SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)</dt><dd><p>models. ML models enable the discovery of intricate relationships that a human eye,
-and traditional statistical methods can’t. These types of powerful tools are becoming</p>
-<blockquote>
-<div><p>increasingly popular in many different fields. These includes medical applications
+<p>SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)
+models. ML models enable the discovery of intricate relationships that a human eye,
+and traditional statistical methods can’t. These types of powerful tools are becoming
+increasingly popular in many different fields. These includes medical applications
 and any project involving personal and sensitive data. Data breaches must be avoided.
 SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
 estimate the risk of identifying any personal and sensitive data employed to build the ML model.</p>
-</div></blockquote>
-</dd>
-</dl>
 <p>It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.</p>
-<dl>
-<dt>Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which</dt><dd><p>is a secure enclave. In such environments it is essential to check outputs before releasing them to
+<p>Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which
+is a secure enclave. In such environments it is essential to check outputs before releasing them to
 guarantee there is no data breach.</p>
-<a class="reference internal image-reference" href="_images/TRE-project-outputcheck-overview.jpg"><img alt="Timeline of a life cycle of a ML model containing sensitive and personal data." class="align-center" src="_images/TRE-project-outputcheck-overview.jpg" style="width: 400px; height: 300px;" />
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/TRE-ML-project-timeline.jpg"><img alt="Timeline of a life cycle of a ML model containing sensitive and personal data." class="align-center" src="_images/TRE-ML-project-timeline.jpg" style="width: 560px; height: 250px;" />
 </a>
-</dd>
-</dl>
+</div></blockquote>
+<p>SACRO-ML has two main components: SafeModel wrappers and simulated attacks. While the SafeModel wrappers are recommended to use while creating a model, the simulated attacks are to be used once the model is created to test for data privacy leakage.</p>
 </section>
 <section id="what-is-safemodel">
-<h2>What is safemodel?<a class="headerlink" href="#what-is-safemodel" title="Link to this heading"></a></h2>
-<p>The safemodel package is an open source wrapper for common machine learning
+<h2>What is SafeModel?<a class="headerlink" href="#what-is-safemodel" title="Link to this heading"></a></h2>
+<p>The SafeModel package is an open source wrapper for common machine learning
 models. It is designed for use by researchers in Trusted Research Environments
 (TREs) where disclosure control methods must be implemented.</p>
-<p>Safemodel aims to give researchers greater confidence that their models are
+<p>SafeModel aims to give researchers greater confidence that their models are
 more compliant with disclosure control.</p>
-<p>Safemodel provides feedback to the researcher through a JSON parseable
+<p>SafeModel provides feedback to the researcher through a JSON parseable
 ‘checkfile’ report:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;researcher&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;andy&quot;</span><span class="p">,</span>
