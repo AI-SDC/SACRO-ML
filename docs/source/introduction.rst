@@ -30,7 +30,7 @@ guarantee there is no data breach.
     :height: 250px
     :alt: Timeline of a life cycle of a ML model containing sensitive and personal data.
 
-SACRO-ML has two main components: SafeModel wrappers and simulated attacks. While the SafeModel wrappers one are recommended to use while creating a model, the simulated attacks are to be used once the model is crated to test for data privacy leakage.
+SACRO-ML has two main components: SafeModel wrappers and simulated attacks. While the SafeModel wrappers are recommended to use while creating a model, the simulated attacks are to be used once the model is created to test for data privacy leakage.
 
 What is SafeModel?
 ------------------
