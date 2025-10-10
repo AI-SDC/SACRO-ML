@@ -1,8 +1,6 @@
 Welcome to SACRO-ML
 ===================
 
-What is SACRO-ML?
------------------
 
 .. image:: images/ML_leakage_bee.png
     :width: 320px
