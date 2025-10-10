@@ -1,8 +1,6 @@
 Welcome to SACRO-ML
 ===================
 
-What is SACRO-ML?
------------------
 
 .. image:: images/ML_leakage_bee.png
     :width: 320px
@@ -10,12 +8,9 @@ What is SACRO-ML?
     :height: 350px
     :alt: Data breaches of sensitive and personal data must be avoided.
 
-SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)
- models. ML models enable the discovery of intricate relationships that a human eye,
- and traditional statistical methods can’t. These types of powerful tools are becoming
-  increasingly popular in many different fields. These includes medical applications
-  and any project involving personal and sensitive data. Data breaches must be avoided.
-  SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
+SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML) models. ML models enable the discovery of intricate relationships that a human eye,
+ and traditional statistical methods can’t. These types of powerful tools are becoming increasingly popular in many different fields. These includes medical applications
+  and any project involving personal and sensitive data. Data breaches must be avoided. SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
   estimate the risk of identifying any personal and sensitive data employed to build the ML model.
 
 It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.

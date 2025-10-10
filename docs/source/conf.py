@@ -55,7 +55,7 @@ bibtex_default_style = "unsrt"
 
 # -- Notebook configuration --------------------------------------------------
 
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 nbsphinx_allow_errors = True
 nbsphinx_timeout = 60
 
