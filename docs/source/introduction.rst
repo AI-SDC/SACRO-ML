@@ -8,16 +8,11 @@ Welcome to SACRO-ML
     :height: 350px
     :alt: Data breaches of sensitive and personal data must be avoided.
 
-SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML) models. ML models enable the discovery of intricate relationships that a human eye,
- and traditional statistical methods can’t. These types of powerful tools are becoming increasingly popular in many different fields. These includes medical applications
-  and any project involving personal and sensitive data. Data breaches must be avoided. SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
-  estimate the risk of identifying any personal and sensitive data employed to build the ML model.
+SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML) models. ML models enable the discovery of intricate relationships that a human eye and traditional statistical methods can’t. These types of powerful tools are becoming increasingly popular in many different fields. These includes medical applications and any project involving personal and sensitive data. Data breaches must be avoided. SACRO-ML helps to apply some mitigation strategies like the use of safemodels and estimate the risk of identifying any personal and sensitive data employed to build the ML model.
 
 It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.
 
-Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which
- is a secure enclave. In such environments it is essential to check outputs before releasing them to
- guarantee there is no data breach.
+Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which is a secure enclave. In such environments it is essential to check outputs before releasing them to guarantee there is no data breach.
 
  .. image:: images/TRE-project-outputcheck-overview.jpg
     :width: 400px

@@ -24,7 +24,9 @@ jobs:
           version: '3.1.2'
 
       - name: Copy notebooks to source directory
-        run: cp -r examples/notebooks docs/source
+        run: |
+          cp -r examples/notebooks/* docs/source/notebooks/
+          cp examples/risk_examples/python/*.ipynb docs/source/notebooks/
 
       - name: Run sphinx
         run: |

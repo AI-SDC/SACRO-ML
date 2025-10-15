@@ -1,3 +1,10 @@
+.. raw:: html
+
+   <div style="text-align: left; margin: 20px 0;">
+      <img src="./_static/SACRO_Logo_final.png" alt="SACRO Logo" width="100" style="background: transparent !important; border: none;" />
+   </div>
+
+
 ========================================
 Welcome to the AI-SDC family of tools
 ========================================
@@ -18,7 +25,7 @@ Our tools are designed to help researchers assess the privacy disclosure risks o
 .. grid:: 2
 
     .. grid-item-card:: ACRO (Python)
-        :link: https://jessuwe.github.io/ACRO/
+        :link: https://jessuwe.github.io/ACRO/introduction.html
         :link-type: url
         :shadow: md
         :class-header: bg-info
@@ -48,7 +55,7 @@ Our tools are designed to help researchers assess the privacy disclosure risks o
 .. grid:: 2
 
     .. grid-item-card:: ACRO-R
-        :link: https://jessuwe.github.io/ACRO/
+        :link: https://jessuwe.github.io/ACRO/introduction.html
         :link-type: url
         :shadow: md
         :class-header: bg-success
@@ -62,7 +69,7 @@ Our tools are designed to help researchers assess the privacy disclosure risks o
         :bdg-success:`R Integration` `Explore ACRO-R →`
 
     .. grid-item-card:: SACRO-Viewer
-        :link: https://jessuwe.github.io/ACRO/
+        :link: https://jessuwe.github.io/SACRO-Viewer/introduction.html
         :link-type: url
         :shadow: md
         :class-header: bg-warning

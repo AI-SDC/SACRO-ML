@@ -6,6 +6,6 @@ This section contains interactive Jupyter notebook examples demonstrating how to
 .. toctree::
    :maxdepth: 1
 
-   notebooks/example-notebook-decisiontree
-   notebooks/example-notebook-randomforest
-   notebooks/example-notebook-SVC
+   notebooks/example-notebook-decisiontree.ipynb
+   notebooks/example-notebook-randomforest.ipynb
+   notebooks/example-notebook-SVC.ipynb
