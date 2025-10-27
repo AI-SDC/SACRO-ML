@@ -7,7 +7,7 @@ name = "sacroml"
 dynamic = ["version"]
 description = "Tools for the statistical disclosure control of machine learning models"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 maintainers = [
     {name = "Jim Smith", email = "james.smith@uwe.ac.uk"}
@@ -26,11 +26,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -87,7 +87,7 @@ packages = {find = {exclude = ["docs*", "examples*", "tests*", "user_stories*"]}
 [tool.ruff]
 indent-width = 4
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 extend-include = ["*.ipynb"]
 
 lint.select = [
