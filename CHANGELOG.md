@@ -1,9 +1,12 @@
 # Changelog
 
+## Version 1.4.1 (Oct 27, 2025)
+
 Changes:
 *   Add example running attacks with only csv probabilities supplied ([#353](https://github.com/AI-SDC/SACRO-ML/pull/353))
-*   Add PDF report generation for structural attacks ([#355](https://github.com/AI-SDC/SACRO-ML/pull/355))
 *   Save and reuse trained shadow models ([#357](https://github.com/AI-SDC/SACRO-ML/pull/357))
+*   Refactor `StructualAttack`, add PDF report generation, record level reporting, and PyTorch support ([#355](https://github.com/AI-SDC/SACRO-ML/pull/355), [#362](https://github.com/AI-SDC/SACRO-ML/pull/362), [#367](https://github.com/AI-SDC/SACRO-ML/pull/367))
+*   Add more documentation ([#374](https://github.com/AI-SDC/SACRO-ML/pull/374), [#375](https://github.com/AI-SDC/SACRO-ML/pull/375))
 
 ## Version 1.4.0 (Jul 4, 2025)
 
