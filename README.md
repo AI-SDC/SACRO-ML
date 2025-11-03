@@ -1,6 +1,6 @@
-# SACRO-ML
+# SACRO-ML: Disclosure Control Tools for ML Models
 
-[![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
+[![arXiv](https://img.shields.io/badge/arXiv-2212.01233-b31b1b.svg)](https://arxiv.org/abs/2212.01233)
 [![PyPI package](https://img.shields.io/pypi/v/sacroml.svg)](https://pypi.org/project/sacroml)
 [![Conda](https://img.shields.io/conda/vn/conda-forge/sacroml.svg)](https://github.com/conda-forge/sacroml-feedstock)
 [![Python versions](https://img.shields.io/pypi/pyversions/sacroml.svg)](https://pypi.org/project/sacroml)
