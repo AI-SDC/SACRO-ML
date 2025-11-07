@@ -51,13 +51,13 @@
     .sd-container-fluid .sd-row {
         flex-direction: column;
     }
-    
+
     .sd-col {
         flex: 0 0 100% !important;
         max-width: 100% !important;
         width: 100% !important;
     }
-    
+
     .sd-card {
         margin-bottom: 1rem;
         width: 100% !important;
@@ -71,11 +71,11 @@
         text-overflow: ellipsis;
         max-width: 120px;
     }
-    
+
     .navbar-nav {
         font-size: 0.85rem;
     }
-    
+
     .navbar-nav .nav-link {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
