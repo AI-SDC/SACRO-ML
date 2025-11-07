@@ -141,7 +141,7 @@ Write pytests to confirm core functionality
 --------------------------------------------
 
 Write pytests to confirm the corefunctionality.
-Example test suites can be found in SACRO-ML/tests/
+Example test suites can be found in tests/safemodel/
 
 Include any optional helper functions
 -------------------------------------
