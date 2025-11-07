@@ -1,0 +1,1290 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Safe Decision Tree Notebook &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/example-notebook-decisiontree';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Safe Random Forest Notebook" href="example-notebook-randomforest.html" />
+    <link rel="prev" title="Notebook Examples" href="../notebook_examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../notebook_examples.html">Notebook Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Safe Decision Tree Notebook</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="example-notebook-randomforest.html">Safe Random Forest Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example-notebook-SVC.html">Safe Support Vector Machine Notebook</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../scikit_learn_examples.html">Scikit-learn Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch_examples.html">PyTorch Examples</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../risk_examples.html">Risk Assessment Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="membership_inference_cancer.html">Drug response prediction for cancer patients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attribute_inference_cancer.html">Risk of cancer prediction for patients with multiple disorders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instance_based_mimic.html">Instance based attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../safemodel_examples.html">SafeModel Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unsupported_examples.html">Unsupported Model Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_stories.html">User Stories</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../notebook_examples.html" class="nav-link">Notebook Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Safe Decision Tree Notebook</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Safe-Decision-Tree-Notebook">
+<h1>Safe Decision Tree Notebook<a class="headerlink" href="#Safe-Decision-Tree-Notebook" title="Link to this heading">#</a></h1>
+</section>
+<section id="Next-cell-is-for-developers-only:">
+<h1>Next cell is for developers only:<a class="headerlink" href="#Next-cell-is-for-developers-only:" title="Link to this heading">#</a></h1>
+<p>First set some path variables: this notebook expects to find the repository root in your home directory. You can change this by editing the last sys.path.append line to reflect with the repository root is found on your system</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># from os.path import expanduser</span>
+
+<span class="c1"># ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(&quot;&quot;)))</span>
+<span class="c1"># sys.path.append(ROOT_DIR)</span>
+<span class="c1"># home = expanduser(&quot;~&quot;)</span>
+<span class="c1"># sys.path.append(os.path.abspath(home + &quot;/AI-SDC&quot;))</span>
+<span class="c1"># sys.path.insert(0,os.path.abspath(&quot;..&quot;))</span>
+</pre></div>
+</div>
+</div>
+<section id="Some-basic-examples-to-explore-what-the-wrapper-class-could-look-like-and-be-implemented">
+<h2>Some basic examples to explore what the wrapper class could look like and be implemented<a class="headerlink" href="#Some-basic-examples-to-explore-what-the-wrapper-class-could-look-like-and-be-implemented" title="Link to this heading">#</a></h2>
+<section id="Lets-start-by-making-some-data-with-one-disclosive-case">
+<h3>Lets start by making some data with one disclosive case<a class="headerlink" href="#Lets-start-by-making-some-data-with-one-disclosive-case" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We’ll do this by adding an example to the iris data and give it a new class to make things really obvious.</p></li>
+<li><p>The same risks exist for more complex data sets but <em>everyone knows iris</em></p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+
+<span class="n">iris</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">data</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span>
+
+
+<span class="c1"># print the max and min values in each feature to help hand-craft the disclosive point</span>
+<span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;feature </span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s2"> min </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="n">feature</span><span class="p">])</span><span class="si">}</span><span class="s2">, min </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="n">feature</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># now add a single disclosve point with features [7,2,4.5,1] and label 3</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+feature 0 min 4.3, min 7.9
+feature 1 min 2.0, min 4.4
+feature 2 min 1.0, min 6.9
+feature 3 min 0.1, min 2.5
+</pre></div></div>
+</div>
+</section>
+<section id="and-import-some-basic-libraries-to-show-our-point">
+<h3>and import some basic libraries to show our point<a class="headerlink" href="#and-import-some-basic-libraries-to-show-our-point" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">plot_tree</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Here's-the-raw-version">
+<h2>Here’s the raw version<a class="headerlink" href="#Here's-the-raw-version" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>note I am setting random_state=1 to make it deterministic, just so you get the same reults as me</p></li>
+<li><p>the general point is not that someone always will, but that they could</p></li>
+<li><p>in practice I ran 10 times not setting random state and got the same tree 4/5 times</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># example code with no safety</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="n">rawDT</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;gini&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rawDT</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training set accuracy in this naive case is </span><span class="si">{</span><span class="n">rawDT</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">plot_tree</span><span class="p">(</span><span class="n">rawDT</span><span class="p">,</span> <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Training set accuracy in this naive case is 1.0
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_example-notebook-decisiontree_7_1.png" src="../_images/notebooks_example-notebook-decisiontree_7_1.png" />
+</div>
+</div>
+<section id="As-we-can-see-we-have-several-disclosive-nodes,-one-of-which-is-our-added-point-(in-purple)">
+<h3>As we can see we have several disclosive nodes, one of which is our added point (in purple)<a class="headerlink" href="#As-we-can-see-we-have-several-disclosive-nodes,-one-of-which-is-our-added-point-(in-purple)" title="Link to this heading">#</a></h3>
+<div class="line-block">
+<div class="line">The exact values cannot be inferred but if we (reasonably) assume all features are non-negative we can get uper and lower bounds for the attribute values on that node:</div>
+<div class="line">&gt; (6.95,inf), [0,2.6], (0,4.95], (0.8, 1.65]</div>
+</div>
+<p>so this is disclosive to a certain degree.</p>
+<ul class="simple">
+<li><p>In this case I spent 5 minutes manually tuning the values of the added point so that the tree included at least one decision node for each feature</p></li>
+<li><p>It would be fairly trivial to use something like a Genetic Algorithm to automatically tune the feature values of the added point minimising the difference between the upper and lower bounds for each feature.</p></li>
+<li><p>But that is not really the point of this exercise which was to show that allowing the user to set inappropriate values for a single parameter could produce a disclosive tree.</p></li>
+</ul>
+</section>
+<section id="Diligent-user-realises-problem,-and-changes-their-code-to-enforce-at-least-n-samples-in-each-leaf">
+<h3>Diligent user realises problem, and changes their code to enforce at least n samples in each leaf<a class="headerlink" href="#Diligent-user-realises-problem,-and-changes-their-code-to-enforce-at-least-n-samples-in-each-leaf" title="Link to this heading">#</a></h3>
+<p>We’ll use n=5</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">manualDT</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">manualDT</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training set accuracy with threshold rule enforced is </span><span class="si">{</span><span class="n">manualDT</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">plot_tree</span><span class="p">(</span><span class="n">manualDT</span><span class="p">,</span> <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Training set accuracy with threshold rule enforced is 0.9668874172185431
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_example-notebook-decisiontree_10_1.png" src="../_images/notebooks_example-notebook-decisiontree_10_1.png" />
+</div>
+</div>
+</section>
+<section id="output-is-now-non-disclosive-(at-least-according-to-the-threshold-rule)">
+<h3>output is now non-disclosive (at least according to the threshold rule)<a class="headerlink" href="#output-is-now-non-disclosive-(at-least-according-to-the-threshold-rule)" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>You can easily see we don’t get a node for the new class 3</p></li>
+</ul>
+</section>
+</section>
+<section id="So-lets-define-a-new-class-SafeDecisionTreeClassifier">
+<h2>So lets define a new class SafeDecisionTreeClassifier<a class="headerlink" href="#So-lets-define-a-new-class-SafeDecisionTreeClassifier" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aisdc.safemodel.classifiers</span> <span class="kn">import</span> <span class="n">SafeDecisionTreeClassifier</span>
+<span class="kn">from</span> <span class="nn">aisdc.safemodel.safemodel</span> <span class="kn">import</span> <span class="n">SafeModel</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noNameModel</span> <span class="o">=</span> <span class="n">SafeModel</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">noNameModel</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;super class has no attributes to print&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+None with parameters: {&#39;model_type&#39;: &#39;None&#39;, &#39;model&#39;: None, &#39;saved_model&#39;: None, &#39;model_load_file&#39;: &#39;None&#39;, &#39;model_save_file&#39;: &#39;None&#39;, &#39;ignore_items&#39;: [], &#39;examine_seperately_items&#39;: [], &#39;basemodel_paramnames&#39;: [], &#39;filename&#39;: &#39;None&#39;, &#39;researcher&#39;: &#39;j4-smith&#39;, &#39;timestamp&#39;: &#39;None&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">safeDTModel</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># (criterion=&quot;entropy&quot;)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">safeDTModel</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Preliminary checks: Model parameters are within recommended ranges.
+
+DecisionTreeClassifier with parameters: {&#39;model_type&#39;: &#39;DecisionTreeClassifier&#39;, &#39;model&#39;: None, &#39;saved_model&#39;: None, &#39;model_load_file&#39;: &#39;None&#39;, &#39;model_save_file&#39;: &#39;None&#39;, &#39;ignore_items&#39;: [&#39;model_save_file&#39;, &#39;basemodel_paramnames&#39;, &#39;ignore_items&#39;, &#39;timestamp&#39;], &#39;examine_seperately_items&#39;: [&#39;tree_&#39;], &#39;basemodel_paramnames&#39;: [&#39;criterion&#39;, &#39;splitter&#39;, &#39;max_depth&#39;, &#39;min_samples_split&#39;, &#39;min_samples_leaf&#39;, &#39;min_weight_fraction_leaf&#39;, &#39;max_features&#39;, &#39;random_state&#39;, &#39;max_leaf_nodes&#39;, &#39;min_impurity_decrease&#39;, &#39;class_weight&#39;, &#39;ccp_alpha&#39;], &#39;filename&#39;: &#39;None&#39;, &#39;researcher&#39;: &#39;j4-smith&#39;, &#39;timestamp&#39;: &#39;None&#39;, &#39;criterion&#39;: &#39;gini&#39;, &#39;splitter&#39;: &#39;best&#39;, &#39;max_depth&#39;: None, &#39;min_samples_split&#39;: 2, &#39;min_samples_leaf&#39;: 5, &#39;min_weight_fraction_leaf&#39;: 0.0, &#39;max_features&#39;: None, &#39;max_leaf_nodes&#39;: None, &#39;random_state&#39;: None, &#39;min_impurity_decrease&#39;: 0.0, &#39;class_weight&#39;: None, &#39;ccp_alpha&#39;: 0.0, &#39;k_anonymity&#39;: 0}
+</pre></div></div>
+</div>
+</section>
+<section id="Do-the-posthoc_check">
+<h2>Do the posthoc_check<a class="headerlink" href="#Do-the-posthoc_check" title="Link to this heading">#</a></h2>
+<p>In this cell the model has not run fit()</p>
+<p>posthoc_check detects that fit has not been run and reports a warning.</p>
+<p>Subsequently we run fit and report the accuracy.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span> <span class="o">=</span> <span class="n">safeDTModel</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;disclosive currently </span><span class="si">{</span><span class="n">disclosive</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Because &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training set accuracy in this naive case is </span><span class="si">{</span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+disclosive currently True
+Because Error: user has not called fit() method or has deleted saved values.Recommendation: Do not release.
+Training set accuracy in this naive case is 0.9668874172185431
+</pre></div></div>
+</div>
+</section>
+<section id="We-check-our-now-fitted-model-from-the-previous-step">
+<h2>We check our now fitted model from the previous step<a class="headerlink" href="#We-check-our-now-fitted-model-from-the-previous-step" title="Link to this heading">#</a></h2>
+<p>posthoc_check reports it is not disclosive (safer)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span> <span class="o">=</span> <span class="n">safeDTModel</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;disclosive currently </span><span class="si">{</span><span class="n">disclosive</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">disclosive</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Because &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+disclosive currently False
+</pre></div></div>
+</div>
+</section>
+<section id="We-modify-the-parameters">
+<h2>We modify the parameters<a class="headerlink" href="#We-modify-the-parameters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>min_samples_leaf = 9</p></li>
+<li><p>min_samples_split = 1</p></li>
+</ul>
+<p>We use posthoc_check to detect whether model has been modified or interfered with since fit() was last run. We are warned that the model may be disclosive because the two parameters were changed after model was fitted.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span> <span class="o">=</span> <span class="n">safeDTModel</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;disclosive currently </span><span class="si">{</span><span class="n">disclosive</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">disclosive</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Because &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+disclosive currently True
+Because Warning: basic parameters differ in 2 places:
+parameter min_samples_split changed from 2 to 1 after model was fitted.
+parameter min_samples_leaf changed from 5 to 9 after model was fitted.
+
+</pre></div></div>
+</div>
+<p>We modify the parameters, returning min_samples_leaf and min_samples split to their original values.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>min_samples_leaf = 5
+min_samples_split = 2
+</pre></div>
+</div>
+<p>We use posthoc_check to detect whether model has been modified or interfered with since fit() was last run. Because the parameters are the same as the fit model, the model is not considered disclosive.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span> <span class="o">=</span> <span class="n">safeDTModel</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;disclosive currently </span><span class="si">{</span><span class="n">disclosive</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">disclosive</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Because &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+disclosive currently False
+</pre></div></div>
+</div>
+<section id="We-extract-and-plot-the-decision-tree-in-order-to-visualize-it.">
+<h3>We extract and plot the decision tree in order to visualize it.<a class="headerlink" href="#We-extract-and-plot-the-decision-tree-in-order-to-visualize-it." title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="c1"># output = plot_tree(safeDTModel.model,filled=True, ax=ax,fontsize=11)</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">plot_tree</span><span class="p">(</span><span class="n">safeDTModel</span><span class="p">,</span> <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;testSave.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;testSave&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Preliminary checks: Model parameters are within recommended ranges.
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_example-notebook-decisiontree_25_1.png" src="../_images/notebooks_example-notebook-decisiontree_25_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Demonstrate-the-save-and-reporting-functionality">
+<h2>Demonstrate the save and reporting functionality<a class="headerlink" href="#Demonstrate-the-save-and-reporting-functionality" title="Link to this heading">#</a></h2>
+<p>save(name=”testSave.pkl”) - Writes model to file in appropriate format (.pkl). #### perform a preliminary_check safeDTModel.preliminary_check() - Checks whether current model parameters violate the safe rules. Optionally automatically fixes any violations. #### Request Release safeDTModel.request_release(“testSave.pkl”) - Saves model to filename specified and creates a report for the TRE output checkers.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;testSave.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;testSave&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Preliminary checks: Model parameters are within recommended ranges.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Now-lets-try-to-attack-this-approach">
+<h2>Now lets try to attack this approach<a class="headerlink" href="#Now-lets-try-to-attack-this-approach" title="Link to this heading">#</a></h2>
+<section id="starting-with-listing-the-params-then-trying-to-set-the-params-manually-after-init">
+<h3>starting with listing the params then trying to set the params manually after init<a class="headerlink" href="#starting-with-listing-the-params-then-trying-to-set-the-params-manually-after-init" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">safeDTModel</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;model_type&#39;: &#39;DecisionTreeClassifier&#39;, &#39;model&#39;: None, &#39;saved_model&#39;: {&#39;model_type&#39;: &#39;DecisionTreeClassifier&#39;, &#39;model&#39;: None, &#39;saved_model&#39;: None, &#39;model_load_file&#39;: &#39;None&#39;, &#39;model_save_file&#39;: &#39;None&#39;, &#39;ignore_items&#39;: [&#39;model_save_file&#39;, &#39;basemodel_paramnames&#39;, &#39;ignore_items&#39;, &#39;timestamp&#39;], &#39;examine_seperately_items&#39;: [&#39;tree_&#39;], &#39;basemodel_paramnames&#39;: [&#39;criterion&#39;, &#39;splitter&#39;, &#39;max_depth&#39;, &#39;min_samples_split&#39;, &#39;min_samples_leaf&#39;, &#39;min_weight_fraction_leaf&#39;, &#39;max_features&#39;, &#39;random_state&#39;, &#39;max_leaf_nodes&#39;, &#39;min_impurity_decrease&#39;, &#39;class_weight&#39;, &#39;ccp_alpha&#39;], &#39;filename&#39;: &#39;None&#39;, &#39;researcher&#39;: &#39;j4-smith&#39;, &#39;timestamp&#39;: &#39;None&#39;, &#39;criterion&#39;: &#39;gini&#39;, &#39;splitter&#39;: &#39;best&#39;, &#39;max_depth&#39;: None, &#39;min_samples_split&#39;: 2, &#39;min_samples_leaf&#39;: 5, &#39;min_weight_fraction_leaf&#39;: 0.0, &#39;max_features&#39;: None, &#39;max_leaf_nodes&#39;: None, &#39;random_state&#39;: None, &#39;min_impurity_decrease&#39;: 0.0, &#39;class_weight&#39;: None, &#39;ccp_alpha&#39;: 0.0, &#39;k_anonymity&#39;: 5, &#39;n_features_in_&#39;: 4, &#39;n_outputs_&#39;: 1, &#39;classes_&#39;: array([0, 1, 2, 4]), &#39;n_classes_&#39;: 4, &#39;max_features_&#39;: 4, &#39;tree_&#39;: &lt;sklearn.tree._tree.Tree object at 0x292909340&gt;}, &#39;model_load_file&#39;: &#39;None&#39;, &#39;model_save_file&#39;: &#39;testSave/model.pkl&#39;, &#39;ignore_items&#39;: [&#39;model_save_file&#39;, &#39;basemodel_paramnames&#39;, &#39;ignore_items&#39;, &#39;timestamp&#39;], &#39;examine_seperately_items&#39;: [&#39;tree_&#39;], &#39;basemodel_paramnames&#39;: [&#39;criterion&#39;, &#39;splitter&#39;, &#39;max_depth&#39;, &#39;min_samples_split&#39;, &#39;min_samples_leaf&#39;, &#39;min_weight_fraction_leaf&#39;, &#39;max_features&#39;, &#39;random_state&#39;, &#39;max_leaf_nodes&#39;, &#39;min_impurity_decrease&#39;, &#39;class_weight&#39;, &#39;ccp_alpha&#39;], &#39;filename&#39;: &#39;None&#39;, &#39;researcher&#39;: &#39;j4-smith&#39;, &#39;timestamp&#39;: &#39;2023-10-12 01:47:21&#39;, &#39;criterion&#39;: &#39;gini&#39;, &#39;splitter&#39;: &#39;best&#39;, &#39;max_depth&#39;: None, &#39;min_samples_split&#39;: 2, &#39;min_samples_leaf&#39;: 5, &#39;min_weight_fraction_leaf&#39;: 0.0, &#39;max_features&#39;: None, &#39;max_leaf_nodes&#39;: None, &#39;random_state&#39;: None, &#39;min_impurity_decrease&#39;: 0.0, &#39;class_weight&#39;: None, &#39;ccp_alpha&#39;: 0.0, &#39;k_anonymity&#39;: 5, &#39;n_features_in_&#39;: 4, &#39;n_outputs_&#39;: 1, &#39;classes_&#39;: array([0, 1, 2, 4]), &#39;n_classes_&#39;: 4, &#39;max_features_&#39;: 4, &#39;tree_&#39;: &lt;sklearn.tree._tree.Tree object at 0x292909260&gt;}
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Train-a-model-where-the-min_samples_leaf-is-1">
+<h2>Train a model where the min_samples_leaf is 1<a class="headerlink" href="#Train-a-model-where-the-min_samples_leaf-is-1" title="Link to this heading">#</a></h2>
+<section id="We-extract-and-plot-the-decision-tree.">
+<h3>We extract and plot the decision tree.<a class="headerlink" href="#We-extract-and-plot-the-decision-tree." title="Link to this heading">#</a></h3>
+</section>
+<section id="Because-min_samples_leaf-is-1-this-poses-a-disclosure-risk.">
+<h3>Because min_samples_leaf is 1 this poses a disclosure risk.<a class="headerlink" href="#Because-min_samples_leaf-is-1-this-poses-a-disclosure-risk." title="Link to this heading">#</a></h3>
+</section>
+<section id="The-prelimanary-check-reports-this.">
+<h3>The prelimanary check reports this.<a class="headerlink" href="#The-prelimanary-check-reports-this." title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training set accuracy in this naive case is </span><span class="si">{</span><span class="n">safeDTModel</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">plot_tree</span><span class="p">(</span><span class="n">safeDTModel</span><span class="p">,</span> <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;testSave.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;testSave&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Training set accuracy in this naive case is 1.0
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_example-notebook-decisiontree_31_1.png" src="../_images/notebooks_example-notebook-decisiontree_31_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Example-Implementation-runs">
+<h2>Example Implementation runs<a class="headerlink" href="#Example-Implementation-runs" title="Link to this heading">#</a></h2>
+<section id="The-researcher-doesn't-change-recomended-params">
+<h3>The researcher doesn’t change recomended params<a class="headerlink" href="#The-researcher-doesn't-change-recomended-params" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create and fit using recomended params</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;***researcher doesn&#39;t change recomended params&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel2</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">()</span>
+<span class="n">safeDTModel2</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">safeDTModel2</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;safe2.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel2</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel2</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="n">safeDTModel2</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;safe2&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+***researcher doesn&#39;t change recomended params
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+</pre></div></div>
+</div>
+</section>
+<section id="The-researcher-changes-params-safely">
+<h3>The researcher changes params safely<a class="headerlink" href="#The-researcher-changes-params-safely" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># change model params to recommended values</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">***researcher changes params safely&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel3</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">()</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;safe3.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="n">safeDTModel3</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;safe3&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+***researcher changes params safely
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+Preliminary checks: Model parameters are within recommended ranges.
+
+</pre></div></div>
+</div>
+</section>
+<section id="id1">
+<h3>The researcher changes params safely<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># change model params in a safe way</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">***researcher changes params safely&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel4</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">()</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;safe4.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="n">safeDTModel4</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;safe4&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+***researcher changes params safely
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+Preliminary checks: Model parameters are within recommended ranges.
+
+</pre></div></div>
+</div>
+</section>
+<section id="The-researcher-changes-params-unsafely">
+<h3>The researcher changes params unsafely<a class="headerlink" href="#The-researcher-changes-params-unsafely" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># change model params in an  unsafe way</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">***researcher changes params unsafely&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel5</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">()</span>
+<span class="n">safeDTModel5</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">safeDTModel5</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;unsafe.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel5</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel5</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="n">safeDTModel5</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;unsafe&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+***researcher changes params unsafely
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+</pre></div></div>
+</div>
+</section>
+<section id="The-researcher-asks-for-a-safe_decision-tree-but-supplies-with-unsafe-params">
+<h3>The researcher asks for a safe_decision tree but supplies with unsafe params<a class="headerlink" href="#The-researcher-asks-for-a-safe_decision-tree-but-supplies-with-unsafe-params" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ask for a model with unsafe param values</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">***researcher asks for a safe_decision tree but supplies with unsafe params&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel6</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">safeDTModel6</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">safeDTModel6</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;fixed-unsafe.pkl&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel6</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="n">safeDTModel6</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="n">safeDTModel6</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;fixed_unsafe&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+***researcher asks for a safe_decision tree but supplies with unsafe params
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+</pre></div></div>
+</div>
+</section>
+<section id="The-researcher-asks-for-a-safe_decision-tree,-changes-values-to-unsafe-before-fit()-then-back-afterwards">
+<h3>The researcher asks for a safe_decision tree, changes values to unsafe before fit() then back afterwards<a class="headerlink" href="#The-researcher-asks-for-a-safe_decision-tree,-changes-values-to-unsafe-before-fit()-then-back-afterwards" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># trains a model with unsafe param values then  hacks values back to safe ones later</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">***researcher asks for a safe_decision tree, changes values to unsafe before fit() then back afterwards&quot;</span>
+<span class="p">)</span>
+<span class="n">safeDTModel7</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">safeDTModel7</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">safeDTModel7</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;safeDTmodel7.score on training set is </span><span class="si">{</span><span class="n">safeDTModel7</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit called. with min_samples_leaf = </span><span class="si">{</span><span class="n">safeDTModel7</span><span class="o">.</span><span class="n">min_samples_leaf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel7</span><span class="o">.</span><span class="n">min_samples_leaf</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<span class="n">safeDTModel7</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hacked-unsafe.pkl&quot;</span><span class="p">)</span>
+<span class="n">msg</span><span class="p">,</span> <span class="n">disclosive</span> <span class="o">=</span> <span class="n">safeDTModel7</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;preliminary message is:</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;preliminary disclosive is:</span><span class="si">{</span><span class="n">disclosive</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">msg2</span><span class="p">,</span> <span class="n">disclosive2</span> <span class="o">=</span> <span class="n">safeDTModel7</span><span class="o">.</span><span class="n">posthoc_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;posthoc message is:</span><span class="si">{</span><span class="n">msg2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;posthoc disclosive is:</span><span class="si">{</span><span class="n">disclosive2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">safeDTModel7</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;hacked_unsafe&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+***researcher asks for a safe_decision tree, changes values to unsafe before fit() then back afterwards
+Preliminary checks: WARNING: model parameters may present a disclosure risk:
+- parameter min_samples_leaf = 1 identified as less than the recommended min value of 5.
+safeDTmodel7.score on training set is 1.0
+fit called. with min_samples_leaf = 1
+Preliminary checks: Model parameters are within recommended ranges.
+
+preliminary message is:Model parameters are within recommended ranges.
+
+preliminary disclosive is:False
+posthoc message is:Warning: basic parameters differ in 1 places:
+parameter min_samples_leaf changed from 1 to 5 after model was fitted.
+
+posthoc disclosive is:True
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Examine-the-contents-of-the-checkfile.">
+<h2>Examine the contents of the checkfile.<a class="headerlink" href="#Examine-the-contents-of-the-checkfile." title="Link to this heading">#</a></h2>
+<section id="The-checkfile-is-written-in-JSON-format">
+<h3>The checkfile is written in JSON format<a class="headerlink" href="#The-checkfile-is-written-in-JSON-format" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">target_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="s2">&quot;hacked_unsafe/target.json&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">target_json</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;data_name&#34;: &#34;&#34;,
+    &#34;n_samples&#34;: 0,
+    &#34;features&#34;: {},
+    &#34;n_features&#34;: 0,
+    &#34;n_samples_orig&#34;: 0,
+    &#34;generalisation_error&#34;: &#34;unknown&#34;,
+    &#34;safemodel&#34;: [
+        {
+            &#34;researcher&#34;: &#34;j4-smith&#34;,
+            &#34;model_type&#34;: &#34;DecisionTreeClassifier&#34;,
+            &#34;details&#34;: &#34;Model parameters are within recommended ranges.\n&#34;,
+            &#34;k_anonymity&#34;: &#34;1&#34;,
+            &#34;recommendation&#34;: &#34;Do not allow release&#34;,
+            &#34;reason&#34;: &#34;Model parameters are within recommended ranges.\nWarning: basic parameters differ in 1 places:\nparameter min_samples_leaf changed from 1 to 5 after model was fitted.\n&#34;,
+            &#34;timestamp&#34;: &#34;2023-10-12 01:47:21&#34;
+        }
+    ],
+    &#34;model_path&#34;: &#34;model.pkl&#34;,
+    &#34;model_name&#34;: &#34;SafeDecisionTreeClassifier&#34;,
+    &#34;model_params&#34;: {
+        &#34;criterion&#34;: &#34;gini&#34;,
+        &#34;splitter&#34;: &#34;best&#34;,
+        &#34;max_depth&#34;: null,
+        &#34;min_samples_split&#34;: 2,
+        &#34;min_samples_leaf&#34;: 5,
+        &#34;min_weight_fraction_leaf&#34;: 0.0,
+        &#34;max_features&#34;: null,
+        &#34;max_leaf_nodes&#34;: null,
+        &#34;random_state&#34;: null,
+        &#34;min_impurity_decrease&#34;: 0.0,
+        &#34;class_weight&#34;: null,
+        &#34;ccp_alpha&#34;: 0.0
+    }
+}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../notebook_examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Notebook Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="example-notebook-randomforest.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Safe Random Forest Notebook</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Safe Decision Tree Notebook</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Next-cell-is-for-developers-only:">Next cell is for developers only:</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Some-basic-examples-to-explore-what-the-wrapper-class-could-look-like-and-be-implemented">Some basic examples to explore what the wrapper class could look like and be implemented</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Lets-start-by-making-some-data-with-one-disclosive-case">Lets start by making some data with one disclosive case</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#and-import-some-basic-libraries-to-show-our-point">and import some basic libraries to show our point</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Here's-the-raw-version">Here’s the raw version</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#As-we-can-see-we-have-several-disclosive-nodes,-one-of-which-is-our-added-point-(in-purple)">As we can see we have several disclosive nodes, one of which is our added point (in purple)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Diligent-user-realises-problem,-and-changes-their-code-to-enforce-at-least-n-samples-in-each-leaf">Diligent user realises problem, and changes their code to enforce at least n samples in each leaf</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-is-now-non-disclosive-(at-least-according-to-the-threshold-rule)">output is now non-disclosive (at least according to the threshold rule)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#So-lets-define-a-new-class-SafeDecisionTreeClassifier">So lets define a new class SafeDecisionTreeClassifier</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Do-the-posthoc_check">Do the posthoc_check</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#We-check-our-now-fitted-model-from-the-previous-step">We check our now fitted model from the previous step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#We-modify-the-parameters">We modify the parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#We-extract-and-plot-the-decision-tree-in-order-to-visualize-it.">We extract and plot the decision tree in order to visualize it.</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Demonstrate-the-save-and-reporting-functionality">Demonstrate the save and reporting functionality</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Now-lets-try-to-attack-this-approach">Now lets try to attack this approach</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-with-listing-the-params-then-trying-to-set-the-params-manually-after-init">starting with listing the params then trying to set the params manually after init</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-a-model-where-the-min_samples_leaf-is-1">Train a model where the min_samples_leaf is 1</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#We-extract-and-plot-the-decision-tree.">We extract and plot the decision tree.</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Because-min_samples_leaf-is-1-this-poses-a-disclosure-risk.">Because min_samples_leaf is 1 this poses a disclosure risk.</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-prelimanary-check-reports-this.">The prelimanary check reports this.</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-Implementation-runs">Example Implementation runs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-researcher-doesn't-change-recomended-params">The researcher doesn’t change recomended params</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-researcher-changes-params-safely">The researcher changes params safely</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">The researcher changes params safely</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-researcher-changes-params-unsafely">The researcher changes params unsafely</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-researcher-asks-for-a-safe_decision-tree-but-supplies-with-unsafe-params">The researcher asks for a safe_decision tree but supplies with unsafe params</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-researcher-asks-for-a-safe_decision-tree,-changes-values-to-unsafe-before-fit()-then-back-afterwards">The researcher asks for a safe_decision tree, changes values to unsafe before fit() then back afterwards</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Examine-the-contents-of-the-checkfile.">Examine the contents of the checkfile.</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#The-checkfile-is-written-in-JSON-format">The checkfile is written in JSON format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/notebooks/example-notebook-decisiontree.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

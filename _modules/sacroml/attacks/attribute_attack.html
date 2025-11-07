@@ -1,0 +1,1074 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sacroml.attacks.attribute_attack &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sacroml/attacks/attribute_attack';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sacroml.attacks.attribute_attack</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sacroml.attacks.attribute_attack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Attribute inference attacks.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">multiprocess</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+
+<span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">COLOR_A</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#86bf91&quot;</span>  <span class="c1"># training set plot colour</span>
+<span class="n">COLOR_B</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;steelblue&quot;</span>  <span class="c1"># testing set plot colour</span>
+
+
+<div class="viewcode-block" id="AttributeAttack">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack">[docs]</a>
+<span class="k">class</span> <span class="nc">AttributeAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attribute inference attack.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AttributeAttack.__init__">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an object to execute an attribute inference attack.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_cpu : int</span>
+<span class="sd">            number of CPUs used to run the attack</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            name of the directory where outputs are stored</span>
+<span class="sd">        write_report : bool</span>
+<span class="sd">            Whether to generate a JSON and PDF report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">write_report</span><span class="o">=</span><span class="n">write_report</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_cpu</span> <span class="o">=</span> <span class="n">n_cpu</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Attribute inference attack&quot;</span>
+
+<div class="viewcode-block" id="AttributeAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.AttributeAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with AttributeAttack.&quot;&quot;&quot;</span>
+        <span class="n">can_attack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">n_features</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_raw_data</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires features to be defined.&quot;</span><span class="p">)</span>
+            <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: AttributeAttack requires a loadable model.&quot;</span><span class="p">)</span>
+            <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">required_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span> <span class="s2">&quot;predict&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">required_methods</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;WARNING: AttributeAttack requires model with: </span><span class="si">%s</span><span class="s2">()&quot;</span><span class="p">,</span> <span class="n">method</span>
+                <span class="p">)</span>
+                <span class="n">can_attack</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">can_attack</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run attribute inference attack.</span>
+
+<span class="sd">        To be used when code has access to Target class and trained target model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target : attacks.target.Target</span>
+<span class="sd">            target is a Target class object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Attack report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running attribute inference attack&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="n">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cpu</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the instances metric calculated, during attacks.&quot;&quot;&quot;</span>
+        <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attack_metrics_instances</span><span class="p">[</span><span class="s2">&quot;instance_0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span>
+        <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_metrics_instances</span>
+        <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
+
+    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report.&quot;&quot;&quot;</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+        <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;attack_experiment_logger&quot;</span><span class="p">][</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;instance_0&quot;</span>
+        <span class="p">]</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">][</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+        <span class="c1"># Create PDF</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">()</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">set_xy</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Attribute Inference Attack Report&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
+        <span class="c1"># Add attack parameters</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metadata&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+        <span class="c1"># Add attack results</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metrics&quot;</span><span class="p">)</span>
+        <span class="c1"># Categorical</span>
+        <span class="n">categ_rep</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_categorical</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">categ_rep</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Categorical Features:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">categ_rep</span><span class="p">:</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+        <span class="c1"># Quantatitive</span>
+        <span class="n">quant_rep</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_quantitative</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quant_rep</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Quantitative Features:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">quant_rep</span><span class="p">:</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+        <span class="c1"># Add plots</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Plots&quot;</span><span class="p">)</span>
+        <span class="n">plot_categorical_risk</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>  <span class="c1"># Create pngs</span>
+        <span class="n">plot_categorical_fraction</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">plot_quantitative_risk</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">graphs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cat_risk.png&quot;</span><span class="p">,</span> <span class="s2">&quot;cat_frac.png&quot;</span><span class="p">,</span> <span class="s2">&quot;quant_risk.png&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_unique_max</span><span class="p">(</span><span class="n">confidences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return if there is a unique maximum confidence value above threshold.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">max_conf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_conf</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">unique</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">confidences</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unique</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">==</span> <span class="n">max_conf</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_get_unique_features</span><span class="p">(</span>
+    <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">X_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return unique values of a given feature.&quot;&quot;&quot;</span>
+    <span class="n">feature_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">]</span>
+    <span class="n">feature_test</span> <span class="o">=</span> <span class="n">X_test</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">]</span>
+    <span class="n">combined_feature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">feature_train</span><span class="p">,</span> <span class="n">feature_test</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">combined_feature</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_inference_data</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memberset</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dataset of each sample with the attributes to test.&quot;&quot;&quot;</span>
+    <span class="n">attack_feature</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">]</span>
+    <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_feature</span><span class="p">[</span><span class="s2">&quot;indices&quot;</span><span class="p">]</span>
+    <span class="n">unique</span> <span class="o">=</span> <span class="n">_get_unique_features</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train_orig</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test_orig</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">)</span>
+    <span class="n">n_unique</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">unique</span>
+    <span class="k">if</span> <span class="n">attack_feature</span><span class="p">[</span><span class="s2">&quot;encoding&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;onehot&quot;</span><span class="p">:</span>
+        <span class="n">onehot_enc</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">onehot_enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">unique</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="c1"># samples after encoding (e.g. one-hot)</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_train</span>
+    <span class="c1"># samples before encoding (e.g. str)</span>
+    <span class="n">samples_orig</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_train_orig</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">memberset</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test</span>
+        <span class="n">samples_orig</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test_orig</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">x_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="n">x_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_unique</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">y_values</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="c1"># for each sample to perform inference on</span>
+    <span class="c1"># add each possible missing feature value</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="n">x_values</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x_values</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">samples_orig</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">],</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;feature: </span><span class="si">%d</span><span class="s2"> x_values shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x_values</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;feature: </span><span class="si">%d</span><span class="s2"> y_values shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y_values</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">baseline</span>
+
+
+<span class="k">def</span> <span class="nf">_infer</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
+    <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">memberset</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infer attribute.</span>
+
+<span class="sd">    For each possible missing value, compute the confidence scores and label</span>
+<span class="sd">    with the target model; if the label matches the known target model label</span>
+<span class="sd">    for the original sample, and the highest confidence score is unique, infer</span>
+<span class="sd">    that attribute if the confidence score is greater than a threshold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Attacking feature </span><span class="si">%d</span><span class="s2"> set </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">memberset</span><span class="p">))</span>
+    <span class="n">correct</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># number of correct inferences made</span>
+    <span class="n">total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># total number of inferences made</span>
+    <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">baseline</span> <span class="o">=</span> <span class="n">_get_inference_data</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">memberset</span><span class="p">)</span>
+    <span class="n">n_unique</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">X_train</span> <span class="k">if</span> <span class="n">memberset</span> <span class="k">else</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_values</span><span class="p">):</span>  <span class="c1"># each sample to perform inference on</span>
+        <span class="c1"># get model confidence scores for all possible values for the sample</span>
+        <span class="n">confidence</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># confidences for each possible value with correct label</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># features for each possible value with correct label</span>
+        <span class="c1"># for each possible attribute value,</span>
+        <span class="c1"># if the label matches the known target model label</span>
+        <span class="c1"># then store the confidence score and the tested feature vector</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_unique</span><span class="p">):</span>
+            <span class="n">this_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">confidence</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">confidence</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">this_label</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">this_label</span> <span class="o">==</span> <span class="n">y_values</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">conf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+                <span class="n">attr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+        <span class="c1"># is there is a unique maximum confidence score above threshold?</span>
+        <span class="k">if</span> <span class="n">_unique_max</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">conf</span><span class="p">)]</span> <span class="o">==</span> <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">correct</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished attacking feature </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">correct</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">n_unique</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="report_categorical">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.report_categorical">[docs]</a>
+<span class="k">def</span> <span class="nf">report_categorical</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a string report of the categorical results.&quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">n_unique</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Attacking categorical feature </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">n_unique</span><span class="si">}</span><span class="s2"> unique values:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">tranche</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">):</span>
+            <span class="n">correct</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="n">tranche</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Correctly inferred </span><span class="si">{</span><span class="p">(</span><span class="n">correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">% &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;of </span><span class="si">{</span><span class="p">(</span><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n_samples</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">% of the </span><span class="si">{</span><span class="n">tranche</span><span class="si">}</span><span class="s2"> set; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;baseline: </span><span class="si">{</span><span class="n">baseline</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Unable to make any inferences of the </span><span class="si">{</span><span class="n">tranche</span><span class="si">}</span><span class="s2"> set</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">msg</span></div>
+
+
+
+<div class="viewcode-block" id="report_quantitative">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.report_quantitative">[docs]</a>
+<span class="k">def</span> <span class="nf">report_quantitative</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a string report of the quantitative results.&quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;quantitative&quot;</span><span class="p">]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> train risk, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> test risk</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">msg</span></div>
+
+
+
+<div class="viewcode-block" id="plot_quantitative_risk">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_quantitative_risk">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_quantitative_risk</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing quantitative value risk scores.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    res : dict</span>
+<span class="sd">        Dictionary containing attribute inference attack results.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Directory to write plots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;quantitative&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Plotting quantitative feature risk scores&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+    <span class="n">ya</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">yb</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">ya</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">yb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train set&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_B</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test set&quot;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Percentage of Set at Risk for Quantitative Attributes&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;quant_risk.png&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saved quantitative risk plot: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_categorical_risk">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_risk">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_categorical_risk</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing categorical risk scores.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    res : dict</span>
+<span class="sd">        Dictionary containing attribute inference attack results.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Directory to write plots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Plotting categorical feature risk scores&quot;</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+    <span class="n">ya</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">yb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">correct_a</span><span class="p">,</span> <span class="n">total_a</span><span class="p">,</span> <span class="n">baseline_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+        <span class="n">correct_b</span><span class="p">,</span> <span class="n">total_b</span><span class="p">,</span> <span class="n">baseline_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">((</span><span class="n">correct_a</span> <span class="o">/</span> <span class="n">total_a</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-</span> <span class="n">baseline_a</span> <span class="k">if</span> <span class="n">total_a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">((</span><span class="n">correct_b</span> <span class="o">/</span> <span class="n">total_b</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-</span> <span class="n">baseline_b</span> <span class="k">if</span> <span class="n">total_b</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">ya</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">yb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train set&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_B</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test set&quot;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Improvement Over Most Common Value Estimate&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;cat_risk.png&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saved categorical risk plot: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_categorical_fraction">
+<a class="viewcode-back" href="../../../attacks/attribute.html#sacroml.attacks.attribute_attack.plot_categorical_fraction">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_categorical_fraction</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a bar chart showing fraction of dataset inferred.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    res : dict</span>
+<span class="sd">        Dictionary containing attribute inference attack results.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Directory to write plots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Plotting categorical feature tranche sizes&quot;</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+    <span class="n">ya</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">yb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">total_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">n_samples_a</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">total_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">n_samples_b</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">((</span><span class="n">total_a</span> <span class="o">/</span> <span class="n">n_samples_a</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_samples_a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">((</span><span class="n">total_b</span> <span class="o">/</span> <span class="n">n_samples_b</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_samples_b</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">ya</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">yb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train set&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">COLOR_B</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test set&quot;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Percentage of Set at Risk&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;cat_frac.png&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saved categorical fraction plot: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_infer_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the training and test set risks of a categorical feature.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">_infer</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">_infer</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_is_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether a feature is categorical.</span>
+
+<span class="sd">    For simplicity, assumes integer datatypes are categorical.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">][</span><span class="s2">&quot;encoding&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">encoding</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">encoding</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;onehot&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_attack_brute_force</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">attack_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform a brute force attribute inference attack.</span>
+
+<span class="sd">    Computes the target model confidence scores for every value in the list and</span>
+<span class="sd">    makes an inference if there is a unique highest confidence score that</span>
+<span class="sd">    exceeds attack_threshold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Brute force attacking categorical features&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">attack_threshold</span><span class="p">)</span> <span class="k">for</span> <span class="n">feature_id</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
+
+    <span class="c1"># use multiprocessing if possible</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_infer_categorical</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># fall back to sequential processing</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_infer_categorical</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">feature_id</span><span class="o">=</span><span class="n">feature_id</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">args</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_get_bounds_risk_for_sample</span><span class="p">(</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+    <span class="n">feat_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">feat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">feat_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sample</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">c_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">protection_limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">feat_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether a quantitative feature is at risk for the sample.</span>
+
+<span class="sd">    Returns a bool based on conditions surrounding upper and lower bounds of</span>
+<span class="sd">    guesses that would lead to the same model confidence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_model : Model</span>
+<span class="sd">        Trained target model.</span>
+<span class="sd">    feat_id : int</span>
+<span class="sd">        Index of missing feature.</span>
+<span class="sd">    feat_min : float</span>
+<span class="sd">        Minimum value of missing feature.</span>
+<span class="sd">    feat_max : float</span>
+<span class="sd">        Maximum value of missing feature.</span>
+<span class="sd">    sample : np.ndarray</span>
+<span class="sd">        Original known feature vector.</span>
+<span class="sd">    c_min : float</span>
+<span class="sd">        Defines the confidence threshold below which we say we don&#39;t care.</span>
+<span class="sd">    protection_limit : float</span>
+<span class="sd">        Lower [upper] bound on estimated value must not be</span>
+<span class="sd">        above[below] lower[upper] bounds e.g. 10% of value.</span>
+<span class="sd">    feat_n : int</span>
+<span class="sd">        Number of attribute values to test per sample.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Whether the quantitative feature is at risk for the sample.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># attribute values to test - linearly sampled</span>
+    <span class="n">x_feat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">feat_min</span><span class="p">,</span> <span class="n">feat_max</span><span class="p">,</span> <span class="n">feat_n</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># get known label</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># a matrix containing feature vector with linearly spaced target attribute</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">feat_n</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">x1</span><span class="p">[:,</span> <span class="n">feat_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_feat</span>
+    <span class="c1"># get the target model confidences across the attribute range</span>
+    <span class="n">confidences</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">confidences</span><span class="p">[:,</span> <span class="n">label</span><span class="p">]</span>  <span class="c1"># scores just for the model predicted label</span>
+    <span class="n">peak</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="c1"># find lowest and highest values with peak confidence</span>
+    <span class="n">lower_bound_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">scores</span><span class="p">[</span><span class="n">lower_bound_index</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">peak</span><span class="p">:</span>
+        <span class="n">lower_bound_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">upper_bound_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">feat_n</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">scores</span><span class="p">[</span><span class="n">upper_bound_index</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">peak</span><span class="p">:</span>
+        <span class="n">upper_bound_index</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="c1"># condition 1: confidence in prediction above some threshold</span>
+    <span class="c1"># condition 2: confidence for true value == max_confidence</span>
+    <span class="c1"># condition 3: lower bound above lower protection limit</span>
+    <span class="c1"># condition 4: upper bound of estimate below upper protection limit</span>
+    <span class="n">actual_value</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">feat_id</span><span class="p">]</span>
+    <span class="n">actual_probs</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">x_feat</span><span class="p">[</span><span class="n">lower_bound_index</span><span class="p">]</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">x_feat</span><span class="p">[</span><span class="n">upper_bound_index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">peak</span> <span class="o">&gt;</span> <span class="n">c_min</span>
+        <span class="ow">and</span> <span class="n">actual_probs</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">==</span> <span class="n">peak</span>
+        <span class="ow">and</span> <span class="n">lower_bound</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">protection_limit</span><span class="p">)</span> <span class="o">*</span> <span class="n">actual_value</span>
+        <span class="ow">and</span> <span class="n">upper_bound</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">protection_limit</span><span class="p">)</span> <span class="o">*</span> <span class="n">actual_value</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_bounds_risk_for_feature</span><span class="p">(</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the average feature risk score over a set of samples.&quot;&quot;&quot;</span>
+    <span class="n">feature_risk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="n">feat_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">])</span>
+    <span class="n">feat_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">feature_id</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">risk</span> <span class="o">=</span> <span class="n">_get_bounds_risk_for_sample</span><span class="p">(</span>
+            <span class="n">target_model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">feat_min</span><span class="p">,</span> <span class="n">feat_max</span><span class="p">,</span> <span class="n">sample</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">risk</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">feature_risk</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">feature_risk</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+
+<span class="k">def</span> <span class="nf">_get_bounds_risk</span><span class="p">(</span>
+    <span class="n">target_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+    <span class="n">feature_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">feature_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">X_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dict containing the dataset risks of a quantitative feature.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">feature_name</span><span class="p">,</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">_get_bounds_risk_for_feature</span><span class="p">(</span><span class="n">target_model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">X_train</span><span class="p">),</span>
+        <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">_get_bounds_risk_for_feature</span><span class="p">(</span><span class="n">target_model</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">X_test</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_get_bounds_risks</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the bounds risk for all specified features.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Computing bounds risk for all specified features&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">feature_id</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+            <span class="n">feature_id</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">feature_id</span> <span class="ow">in</span> <span class="n">features</span>
+    <span class="p">]</span>
+
+    <span class="c1"># use multiprocessing if possible</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_get_bounds_risk</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># fall back to sequential processing</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_bounds_risk</span><span class="p">(</span>
+            <span class="n">target_model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">feature_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">feature_id</span><span class="o">=</span><span class="n">feature_id</span><span class="p">,</span>
+            <span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+            <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="ow">in</span> <span class="n">args</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_attribute_inference</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute attribute inference attacks on a target given a trained model.&quot;&quot;&quot;</span>
+    <span class="c1"># brute force attack categorical attributes using dataset unique values</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attacking dataset: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attacking categorical attributes...&quot;</span><span class="p">)</span>
+    <span class="n">feature_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">n_features</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_is_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
+            <span class="n">feature_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+    <span class="n">results_a</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">_attack_brute_force</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_list</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">)</span>
+    <span class="c1"># compute risk scores for quantitative attributes</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attacking quantitative attributes...&quot;</span><span class="p">)</span>
+    <span class="n">feature_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">n_features</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_categorical</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
+            <span class="n">feature_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+    <span class="n">results_b</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_bounds_risks</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">feature_list</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">)</span>
+    <span class="c1"># combine results into single object</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">target</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">,</span>
+        <span class="s2">&quot;categorical&quot;</span><span class="p">:</span> <span class="n">results_a</span><span class="p">,</span>
+        <span class="s2">&quot;quantitative&quot;</span><span class="p">:</span> <span class="n">results_b</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

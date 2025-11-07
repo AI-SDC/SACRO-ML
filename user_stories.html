@@ -1,0 +1,1503 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Stories &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=9172181d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_stories';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Guide" href="user_guide.html" />
+    <link rel="prev" title="Unsupported Model Examples" href="unsupported_examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="notebook_examples.html">Notebook Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-decisiontree.html">Safe Decision Tree Notebook</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-randomforest.html">Safe Random Forest Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-SVC.html">Safe Support Vector Machine Notebook</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="scikit_learn_examples.html">Scikit-learn Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch_examples.html">PyTorch Examples</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="risk_examples.html">Risk Assessment Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/membership_inference_cancer.html">Drug response prediction for cancer patients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/attribute_inference_cancer.html">Risk of cancer prediction for patients with multiple disorders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/instance_based_mimic.html">Instance based attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="safemodel_examples.html">SafeModel Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unsupported_examples.html">Unsupported Model Examples</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">User Stories</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">User Stories</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="user-stories">
+<h1>User Stories<a class="headerlink" href="#user-stories" title="Link to this heading">#</a></h1>
+<p>This section contains real-world user stories demonstrating how SACRO-ML is used in Trusted Research Environments (TREs).</p>
+<section id="user-story-1-basic-model-training-and-attack">
+<h2>User Story 1: Basic Model Training and Attack<a class="headerlink" href="#user-story-1-basic-model-training-and-attack" title="Link to this heading">#</a></h2>
+<p>A basic workflow showing model training and privacy assessment.</p>
+<p><strong>Researcher Template:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">User Story 1 - Researcher Template</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;RESEARCHER EXAMPLE FOR USER STORY 1.</span>
+<span class="linenos">  2</span>
+<span class="linenos">  3</span><span class="sd">This file is an example of a researcher creating/training a machine learning</span>
+<span class="linenos">  4</span><span class="sd">model and requesting for it to be released.</span>
+<span class="linenos">  5</span>
+<span class="linenos">  6</span><span class="sd">This specific example uses the nursery dataset: data is read in and</span>
+<span class="linenos">  7</span><span class="sd">pre-processed, and a classifier is trained and tested on this dataset.</span>
+<span class="linenos">  8</span>
+<span class="linenos">  9</span><span class="sd">This example follows User Story 1.</span>
+<span class="linenos"> 10</span>
+<span class="linenos"> 11</span><span class="sd">Steps:</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="sd">- Researcher reads in data and processes it.</span>
+<span class="linenos"> 14</span><span class="sd">- Researcher creates and trains a classifier.</span>
+<span class="linenos"> 15</span><span class="sd">- Researcher runs experiments themselves to check if their model is disclosive</span>
+<span class="linenos"> 16</span><span class="sd">  or not.</span>
+<span class="linenos"> 17</span><span class="sd">- Once satisfied, researcher calls request_release() to make it ready for TRE</span>
+<span class="linenos"> 18</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 19</span>
+<span class="linenos"> 20</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 21</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 22</span>
+<span class="linenos"> 23</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos"> 24</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="linenos"> 25</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="linenos"> 26</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 29</span><span class="kn">from</span> <span class="nn">sacroml.safemodel.classifiers</span> <span class="kn">import</span> <span class="n">SafeDecisionTreeClassifier</span>
+<span class="linenos"> 30</span>
+<span class="linenos"> 31</span>
+<span class="linenos"> 32</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos"> 33</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and train a model to be released.&quot;&quot;&quot;</span>
+<span class="linenos"> 34</span>    <span class="c1"># This section is not necessary but helpful - cleans up files that are</span>
+<span class="linenos"> 35</span>    <span class="c1"># created by sacroml</span>
+<span class="linenos"> 36</span>    <span class="n">save_directory</span> <span class="o">=</span> <span class="s2">&quot;training_artefacts&quot;</span>
+<span class="linenos"> 37</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating directory for training artefacts&quot;</span><span class="p">)</span>
+<span class="linenos"> 38</span>
+<span class="linenos"> 39</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">save_directory</span><span class="p">):</span>
+<span class="linenos"> 40</span>        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_directory</span><span class="p">)</span>
+<span class="linenos"> 41</span>
+<span class="linenos"> 42</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 43</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acting as researcher...&quot;</span><span class="p">)</span>
+<span class="linenos"> 44</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 45</span>
+<span class="linenos"> 46</span>    <span class="c1"># Read in and pre-process the dataset - replace this with your data</span>
+<span class="linenos"> 47</span>    <span class="c1"># reading/pre-processing code</span>
+<span class="linenos"> 48</span>    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+<span class="linenos"> 49</span>    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;user_stories_resources&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_26_nursery.csv&quot;</span><span class="p">)</span>
+<span class="linenos"> 50</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading data from &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 51</span>    <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 52</span>
+<span class="linenos"> 53</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 54</span>
+<span class="linenos"> 55</span>    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_df</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
+<span class="linenos"> 56</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="linenos"> 57</span>
+<span class="linenos"> 58</span>    <span class="n">n_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="linenos"> 59</span>    <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos"> 60</span>        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>  <span class="c1"># parents</span>
+<span class="linenos"> 61</span>        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>  <span class="c1"># has_nurs</span>
+<span class="linenos"> 62</span>        <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span>  <span class="c1"># form</span>
+<span class="linenos"> 63</span>        <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>  <span class="c1"># children</span>
+<span class="linenos"> 64</span>        <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span>  <span class="c1"># housing</span>
+<span class="linenos"> 65</span>        <span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>  <span class="c1"># finance</span>
+<span class="linenos"> 66</span>        <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span>  <span class="c1"># social</span>
+<span class="linenos"> 67</span>        <span class="p">[</span><span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">],</span>  <span class="c1"># health</span>
+<span class="linenos"> 68</span>    <span class="p">]</span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span>    <span class="p">(</span>
+<span class="linenos"> 71</span>        <span class="n">X_train_orig</span><span class="p">,</span>
+<span class="linenos"> 72</span>        <span class="n">X_test_orig</span><span class="p">,</span>
+<span class="linenos"> 73</span>        <span class="n">y_train_orig</span><span class="p">,</span>
+<span class="linenos"> 74</span>        <span class="n">y_test_orig</span><span class="p">,</span>
+<span class="linenos"> 75</span>    <span class="p">)</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="linenos"> 76</span>        <span class="n">data</span><span class="p">,</span>
+<span class="linenos"> 77</span>        <span class="n">labels</span><span class="p">,</span>
+<span class="linenos"> 78</span>        <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="linenos"> 79</span>        <span class="n">stratify</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+<span class="linenos"> 80</span>        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos"> 81</span>    <span class="p">)</span>
+<span class="linenos"> 82</span>
+<span class="linenos"> 83</span>    <span class="n">label_enc</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+<span class="linenos"> 84</span>    <span class="n">feature_enc</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="linenos"> 85</span>    <span class="n">X_train</span> <span class="o">=</span> <span class="n">feature_enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train_orig</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="linenos"> 86</span>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">label_enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y_train_orig</span><span class="p">)</span>
+<span class="linenos"> 87</span>    <span class="n">X_test</span> <span class="o">=</span> <span class="n">feature_enc</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test_orig</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="linenos"> 88</span>    <span class="n">y_test</span> <span class="o">=</span> <span class="n">label_enc</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y_test_orig</span><span class="p">)</span>
+<span class="linenos"> 89</span>
+<span class="linenos"> 90</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-reps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 91</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;prep-attack-data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 92</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-from-preds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 93</span>
+<span class="linenos"> 94</span>    <span class="c1"># Create and train a SafeDecisionTree classifier on the above data</span>
+<span class="linenos"> 95</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos"> 96</span>    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="linenos"> 97</span>
+<span class="linenos"> 98</span>    <span class="c1"># Run a preliminary check to make sure the model is not disclosive</span>
+<span class="linenos"> 99</span>    <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">preliminary_check</span><span class="p">()</span>
+<span class="linenos">100</span>
+<span class="linenos">101</span>    <span class="c1"># Wrap the model and data in a Target object</span>
+<span class="linenos">102</span>    <span class="c1"># needed in order to call request_release()</span>
+<span class="linenos">103</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos">104</span>        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">105</span>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;nursery&quot;</span><span class="p">,</span>
+<span class="linenos">106</span>        <span class="c1"># processed data</span>
+<span class="linenos">107</span>        <span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+<span class="linenos">108</span>        <span class="n">y_train</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span>
+<span class="linenos">109</span>        <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+<span class="linenos">110</span>        <span class="n">y_test</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<span class="linenos">111</span>        <span class="c1"># original unprocessed data</span>
+<span class="linenos">112</span>        <span class="n">X_train_orig</span><span class="o">=</span><span class="n">X_train_orig</span><span class="p">,</span>
+<span class="linenos">113</span>        <span class="n">y_train_orig</span><span class="o">=</span><span class="n">y_train_orig</span><span class="p">,</span>
+<span class="linenos">114</span>        <span class="n">X_test_orig</span><span class="o">=</span><span class="n">X_test_orig</span><span class="p">,</span>
+<span class="linenos">115</span>        <span class="n">y_test_orig</span><span class="o">=</span><span class="n">y_test_orig</span><span class="p">,</span>
+<span class="linenos">116</span>    <span class="p">)</span>
+<span class="linenos">117</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_features</span><span class="p">):</span>
+<span class="linenos">118</span>        <span class="n">target</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">data_df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;onehot&quot;</span><span class="p">)</span>
+<span class="linenos">119</span>
+<span class="linenos">120</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Dataset: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">)</span>
+<span class="linenos">121</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Features: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+<span class="linenos">122</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;X_train shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="linenos">123</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;y_train shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="linenos">124</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;X_test shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="linenos">125</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;y_test shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="linenos">126</span>
+<span class="linenos">127</span>    <span class="c1"># Researcher can check for themselves whether their model passes individual</span>
+<span class="linenos">128</span>    <span class="c1"># disclosure checks.Leave this code as-is for output disclosure checking.</span>
+<span class="linenos">129</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==========&gt; first running attacks explicitly via run_attack()&quot;</span><span class="p">)</span>
+<span class="linenos">130</span>    <span class="k">for</span> <span class="n">attack_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;worst_case&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">,</span> <span class="s2">&quot;lira&quot;</span><span class="p">]:</span>
+<span class="linenos">131</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;===&gt; running </span><span class="si">{</span><span class="n">attack_name</span><span class="si">}</span><span class="s2"> attack directly&quot;</span><span class="p">)</span>
+<span class="linenos">132</span>        <span class="n">metadata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run_attack</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">attack_name</span><span class="p">,</span> <span class="n">save_directory</span><span class="p">)</span>
+<span class="linenos">133</span>        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;metadata is:&quot;</span><span class="p">)</span>
+<span class="linenos">134</span>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="linenos">135</span>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos">136</span>                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+<span class="linenos">137</span>                <span class="k">for</span> <span class="n">key1</span><span class="p">,</span> <span class="n">val2</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="linenos">138</span>                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> : </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key1</span><span class="p">,</span> <span class="n">val2</span><span class="p">)</span>
+<span class="linenos">139</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos">140</span>                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> : </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="linenos">141</span>
+<span class="linenos">142</span>    <span class="c1"># Modify/re-run all of the above code until you&#39;re happy with the model</span>
+<span class="linenos">143</span>    <span class="c1"># you&#39;ve created. If the tests do not pass, try changing the model or</span>
+<span class="linenos">144</span>    <span class="c1"># hyperparameters until the tests pass. When you are satisfied and ready to</span>
+<span class="linenos">145</span>    <span class="c1"># release your model, call the request release() function with the Target</span>
+<span class="linenos">146</span>    <span class="c1"># class you created above.</span>
+<span class="linenos">147</span>
+<span class="linenos">148</span>    <span class="c1"># This code will run checks for the TRE staff.</span>
+<span class="linenos">149</span>
+<span class="linenos">150</span>    <span class="c1"># NOTE: you should only do this when you have confirmed that the above</span>
+<span class="linenos">151</span>    <span class="c1"># tests pass. You would not normally waste your and TRE time calling this</span>
+<span class="linenos">152</span>    <span class="c1"># unless you have already checked that your model is not disclosive or can</span>
+<span class="linenos">153</span>    <span class="c1"># provide a justification for an exception request.</span>
+<span class="linenos">154</span>
+<span class="linenos">155</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===&gt; now running attacks implicitly via request_release()&quot;</span><span class="p">)</span>
+<span class="linenos">156</span>    <span class="n">model</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">save_directory</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos">157</span>
+<span class="linenos">158</span>    <span class="c1"># The files generated can be found in this file location.</span>
+<span class="linenos">159</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please see the files generated in: </span><span class="si">{</span><span class="n">save_directory</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">160</span>
+<span class="linenos">161</span>
+<span class="linenos">162</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">163</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><strong>TRE Implementation:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">User Story 1 - TRE Implementation</span><a class="headerlink" href="#id2" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;TRE SCRIPT FOR USER STORY 1.</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="sd">This file contains the code needed to run user story 1.</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="sd">To run: change the user_story key inside the .yaml config file to &#39;1&#39;, and run</span>
+<span class="linenos"> 6</span><span class="sd">the &#39;generate_disclosure_risk_report.py&#39; file.</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="sd">NOTE: you should not need to change this file at all, set all parameters via</span>
+<span class="linenos"> 9</span><span class="sd">the .yaml file.</span>
+<span class="linenos">10</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="linenos">13</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="kn">import</span> <span class="nn">yaml</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="kn">from</span> <span class="nn">sacroml.attacks.attack_report_formatter</span> <span class="kn">import</span> <span class="n">GenerateTextReport</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">attack_results</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+<span class="linenos">21</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate report based on target model.&quot;&quot;&quot;</span>
+<span class="linenos">22</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos">23</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acting as TRE...&quot;</span><span class="p">)</span>
+<span class="linenos">24</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span>    <span class="n">text_report</span> <span class="o">=</span> <span class="n">GenerateTextReport</span><span class="p">()</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span>    <span class="n">attack_pathname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">attack_results</span><span class="p">)</span>
+<span class="linenos">29</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">process_attack_target_json</span><span class="p">(</span>
+<span class="linenos">30</span>        <span class="n">attack_pathname</span><span class="p">,</span> <span class="n">target_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="linenos">31</span>    <span class="p">)</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span>    <span class="n">out_pathname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+<span class="linenos">34</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="n">output_filename</span><span class="o">=</span><span class="n">out_pathname</span><span class="p">,</span> <span class="n">move_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results written to &quot;</span> <span class="o">+</span> <span class="n">out_pathname</span><span class="p">)</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="k">def</span> <span class="nf">run_user_story</span><span class="p">(</span><span class="n">release_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos">40</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the user story, parsing arguments and then invoking report generation.&quot;&quot;&quot;</span>
+<span class="linenos">41</span>    <span class="n">generate_report</span><span class="p">(</span>
+<span class="linenos">42</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;training_artefacts_dir&quot;</span><span class="p">],</span>
+<span class="linenos">43</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;attack_results&quot;</span><span class="p">],</span>
+<span class="linenos">44</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;target_results&quot;</span><span class="p">],</span>
+<span class="linenos">45</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;outfile&quot;</span><span class="p">],</span>
+<span class="linenos">46</span>    <span class="p">)</span>
+<span class="linenos">47</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">50</span>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+<span class="linenos">51</span>        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+<span class="linenos">52</span>            <span class="s2">&quot;Generate a risk report after request_release() &quot;</span>
+<span class="linenos">53</span>            <span class="s2">&quot;has been called by researcher&quot;</span>
+<span class="linenos">54</span>        <span class="p">)</span>
+<span class="linenos">55</span>    <span class="p">)</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<span class="linenos">58</span>        <span class="s2">&quot;--config_file&quot;</span><span class="p">,</span>
+<span class="linenos">59</span>        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+<span class="linenos">60</span>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+<span class="linenos">61</span>        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;config_file&quot;</span><span class="p">,</span>
+<span class="linenos">62</span>        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">63</span>        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default_config.yaml&quot;</span><span class="p">,</span>
+<span class="linenos">64</span>        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Name of yaml configuration file&quot;</span><span class="p">),</span>
+<span class="linenos">65</span>    <span class="p">)</span>
+<span class="linenos">66</span>
+<span class="linenos">67</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="linenos">68</span>
+<span class="linenos">69</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">70</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+<span class="linenos">71</span>            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="linenos">72</span>    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="linenos">73</span>        <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">74</span>            <span class="sa">f</span><span class="s2">&quot;Invalid command. Try --help to get more detailserror message is </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">75</span>        <span class="p">)</span>
+<span class="linenos">76</span>
+<span class="linenos">77</span>    <span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="user-story-2-data-processing-and-privacy-assessment">
+<h2>User Story 2: Data Processing and Privacy Assessment<a class="headerlink" href="#user-story-2-data-processing-and-privacy-assessment" title="Link to this heading">#</a></h2>
+<p>Advanced workflow including data preprocessing and comprehensive privacy assessment.</p>
+<p><strong>Data Processing:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">User Story 2 - Data Processing</span><a class="headerlink" href="#id3" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;SUPPORTING FILE FOR USER STORY 2.</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="sd">This file is an example of a function created by a researcher that will</span>
+<span class="linenos"> 4</span><span class="sd">pre-process a dataset.</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="sd">To use: write a function that will process your input data, and output the</span>
+<span class="linenos"> 7</span><span class="sd">processed version.</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="sd">NOTE: in order to work, this function needs to:</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="sd">- take a single parameter (the data to be processed)</span>
+<span class="linenos">12</span><span class="sd">- return a dictionary</span>
+<span class="linenos">13</span><span class="sd">- which contains the keys ]</span>
+<span class="linenos">14</span><span class="sd">    [&#39;n_features_raw_data&#39;, &#39;X_transformed&#39;, &#39;y_transformed&#39;, &#39;train_indices&#39;]</span>
+<span class="linenos">15</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos">18</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="linenos">19</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="k">def</span> <span class="nf">process_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="linenos">23</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a function that does the data pre-processing for user story 2.&quot;&quot;&quot;</span>
+<span class="linenos">24</span>    <span class="c1"># Replace the contents of this function with your pre-processing code</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span>    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
+<span class="linenos">27</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="n">n_features_raw_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>    <span class="n">label_enc</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+<span class="linenos">32</span>    <span class="n">feature_enc</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="linenos">33</span>    <span class="n">X_transformed</span> <span class="o">=</span> <span class="n">feature_enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="linenos">34</span>    <span class="n">y_transformed</span> <span class="o">=</span> <span class="n">label_enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span>    <span class="n">row_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X_transformed</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>    <span class="c1"># This step is not necessary, however it&#39;s the simplest way of getting</span>
+<span class="linenos">39</span>    <span class="c1"># training indices from the data. Any method of generating indices of</span>
+<span class="linenos">40</span>    <span class="c1"># samples to be used for training will work here.</span>
+<span class="linenos">41</span>    <span class="p">(</span>
+<span class="linenos">42</span>        <span class="n">X_train</span><span class="p">,</span>
+<span class="linenos">43</span>        <span class="n">X_test</span><span class="p">,</span>
+<span class="linenos">44</span>        <span class="n">y_train</span><span class="p">,</span>
+<span class="linenos">45</span>        <span class="n">y_test</span><span class="p">,</span>
+<span class="linenos">46</span>        <span class="n">train_indices</span><span class="p">,</span>
+<span class="linenos">47</span>        <span class="n">test_indices</span><span class="p">,</span>
+<span class="linenos">48</span>    <span class="p">)</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="linenos">49</span>        <span class="n">X_transformed</span><span class="p">,</span>
+<span class="linenos">50</span>        <span class="n">y_transformed</span><span class="p">,</span>
+<span class="linenos">51</span>        <span class="n">row_indices</span><span class="p">,</span>
+<span class="linenos">52</span>        <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="linenos">53</span>        <span class="n">stratify</span><span class="o">=</span><span class="n">y_transformed</span><span class="p">,</span>
+<span class="linenos">54</span>        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">55</span>    <span class="p">)</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span>    <span class="n">returned</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="linenos">58</span>    <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;n_features_raw_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_features_raw_data</span>
+<span class="linenos">59</span>    <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;X_transformed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_transformed</span>
+<span class="linenos">60</span>    <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;y_transformed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_transformed</span>
+<span class="linenos">61</span>    <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;train_indices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_indices</span>
+<span class="linenos">62</span>
+<span class="linenos">63</span>    <span class="k">return</span> <span class="n">returned</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Researcher Template:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">User Story 2 - Researcher Template</span><a class="headerlink" href="#id4" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;RESEARCHER EXAMPLE FOR USER STORY 2.</span>
+<span class="linenos">  2</span>
+<span class="linenos">  3</span><span class="sd">This file is an example of a researcher creating/training a machine learning</span>
+<span class="linenos">  4</span><span class="sd">model and to be released form a secure environment.</span>
+<span class="linenos">  5</span>
+<span class="linenos">  6</span><span class="sd">This specific example uses the nursery dataset: data is read in and</span>
+<span class="linenos">  7</span><span class="sd">pre-processed, and a classifier is trained and tested on this dataset.</span>
+<span class="linenos">  8</span>
+<span class="linenos">  9</span><span class="sd">This example follows User Story 2.</span>
+<span class="linenos"> 10</span>
+<span class="linenos"> 11</span><span class="sd">Steps:</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="sd">- Researcher creates a function to read and process a dataset, which a TRE can</span>
+<span class="linenos"> 14</span><span class="sd">  also use and call.</span>
+<span class="linenos"> 15</span><span class="sd">- Researcher creates and trains a classifier on this data.</span>
+<span class="linenos"> 16</span><span class="sd">- Researcher emails (or otherwise contacts) TRE to request the model be released.</span>
+<span class="linenos"> 17</span><span class="sd">- TREs will use this code/functions to test the model themselves.</span>
+<span class="linenos"> 18</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 19</span>
+<span class="linenos"> 20</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 21</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 22</span>
+<span class="linenos"> 23</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos"> 24</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="linenos"> 25</span><span class="kn">from</span> <span class="nn">data_processing_researcher</span> <span class="kn">import</span> <span class="n">process_dataset</span>
+<span class="linenos"> 26</span>
+<span class="linenos"> 27</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 28</span><span class="kn">from</span> <span class="nn">sacroml.safemodel.classifiers</span> <span class="kn">import</span> <span class="n">SafeDecisionTreeClassifier</span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span>
+<span class="linenos"> 31</span><span class="k">def</span> <span class="nf">run_user_story</span><span class="p">():</span>
+<span class="linenos"> 32</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and train a model to be released.&quot;&quot;&quot;</span>
+<span class="linenos"> 33</span>    <span class="c1"># This section is not necessary but helpful - cleans up files that are</span>
+<span class="linenos"> 34</span>    <span class="c1"># created by sacroml</span>
+<span class="linenos"> 35</span>    <span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;training_artefacts&quot;</span>
+<span class="linenos"> 36</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating directory for training artefacts&quot;</span><span class="p">)</span>
+<span class="linenos"> 37</span>
+<span class="linenos"> 38</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<span class="linenos"> 39</span>        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 40</span>
+<span class="linenos"> 41</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 42</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acting as researcher...&quot;</span><span class="p">)</span>
+<span class="linenos"> 43</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 44</span>
+<span class="linenos"> 45</span>    <span class="c1"># Read in and pre-process the dataset - replace this with your dataset</span>
+<span class="linenos"> 46</span>    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;user_stories_resources&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_26_nursery.csv&quot;</span><span class="p">)</span>
+<span class="linenos"> 47</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading data from &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 48</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 49</span>
+<span class="linenos"> 50</span>    <span class="c1"># Write a function to pre-process the data that the TRE can call (see</span>
+<span class="linenos"> 51</span>    <span class="c1"># data_processing_researcher.py) Use the output of this function to split</span>
+<span class="linenos"> 52</span>    <span class="c1"># the data into training/testing sets.</span>
+<span class="linenos"> 53</span>
+<span class="linenos"> 54</span>    <span class="c1"># NOTE: to use this user story/script, the process_dataset function MUST:</span>
+<span class="linenos"> 55</span>    <span class="c1"># take a single parameter (the data to be processed) return a dictionary</span>
+<span class="linenos"> 56</span>    <span class="c1"># which contains the keys:</span>
+<span class="linenos"> 57</span>    <span class="c1"># &gt;&gt;&gt; [&#39;n_features_raw_data&#39;, &#39;X_transformed&#39;, &#39;y_transformed&#39;, &#39;train_indices&#39;]</span>
+<span class="linenos"> 58</span>    <span class="c1"># as in this example.</span>
+<span class="linenos"> 59</span>
+<span class="linenos"> 60</span>    <span class="n">returned</span> <span class="o">=</span> <span class="n">process_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="linenos"> 61</span>
+<span class="linenos"> 62</span>    <span class="n">X_transformed</span> <span class="o">=</span> <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;X_transformed&quot;</span><span class="p">]</span>
+<span class="linenos"> 63</span>    <span class="n">y_transformed</span> <span class="o">=</span> <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;y_transformed&quot;</span><span class="p">]</span>
+<span class="linenos"> 64</span>
+<span class="linenos"> 65</span>    <span class="n">train_indices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">returned</span><span class="p">[</span><span class="s2">&quot;train_indices&quot;</span><span class="p">])</span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span>    <span class="n">X_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 68</span>    <span class="n">X_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 69</span>    <span class="n">y_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 70</span>    <span class="n">y_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 71</span>
+<span class="linenos"> 72</span>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y_transformed</span><span class="p">):</span>
+<span class="linenos"> 73</span>        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">train_indices</span><span class="p">:</span>
+<span class="linenos"> 74</span>            <span class="n">X_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_transformed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="linenos"> 75</span>            <span class="n">y_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="linenos"> 76</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 77</span>            <span class="n">X_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_transformed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="linenos"> 78</span>            <span class="n">y_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="linenos"> 79</span>
+<span class="linenos"> 80</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-reps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 81</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;prep-attack-data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 82</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-from-preds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 83</span>
+<span class="linenos"> 84</span>    <span class="c1"># Build a model and request its release</span>
+<span class="linenos"> 85</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">SafeDecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos"> 86</span>    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="linenos"> 87</span>    <span class="n">model</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+<span class="linenos"> 88</span>
+<span class="linenos"> 89</span>    <span class="c1"># Wrap the model and data in a Target object</span>
+<span class="linenos"> 90</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos"> 91</span>        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos"> 92</span>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;nursery&quot;</span><span class="p">,</span>
+<span class="linenos"> 93</span>        <span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+<span class="linenos"> 94</span>        <span class="n">y_train</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span>
+<span class="linenos"> 95</span>        <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+<span class="linenos"> 96</span>        <span class="n">y_test</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<span class="linenos"> 97</span>    <span class="p">)</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span>    <span class="c1"># NOTE: we assume here that the researcher does not use the target.save()</span>
+<span class="linenos">100</span>    <span class="c1"># function and instead provides only the model and the list of indices</span>
+<span class="linenos">101</span>    <span class="c1"># which have been used to split the dataset, which will allow a TRE to</span>
+<span class="linenos">102</span>    <span class="c1"># re-create the input data used in training.</span>
+<span class="linenos">103</span>
+<span class="linenos">104</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Dataset: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="linenos">105</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Features: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+<span class="linenos">106</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;X_train shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">))</span>
+<span class="linenos">107</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;y_train shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="p">))</span>
+<span class="linenos">108</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;X_test shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">))</span>
+<span class="linenos">109</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;y_test shape = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">y_test</span><span class="p">))</span>
+<span class="linenos">110</span>
+<span class="linenos">111</span>
+<span class="linenos">112</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">113</span>    <span class="n">run_user_story</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><strong>TRE Implementation:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">User Story 2 - TRE Implementation</span><a class="headerlink" href="#id5" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;TRE SCRIPT FOR USER STORY 2.</span>
+<span class="linenos">  2</span>
+<span class="linenos">  3</span><span class="sd">This file contains the code needed to run user story 2.</span>
+<span class="linenos">  4</span>
+<span class="linenos">  5</span><span class="sd">To run: change the user_story key inside the .yaml config file to &#39;2&#39;, and run</span>
+<span class="linenos">  6</span><span class="sd">the &#39;generate_disclosure_risk_report.py&#39; file.</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="sd">NOTE: you should not need to change this file at all, set all parameters via</span>
+<span class="linenos">  9</span><span class="sd">the .yaml file.</span>
+<span class="linenos"> 10</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 11</span>
+<span class="linenos"> 12</span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="linenos"> 13</span><span class="kn">import</span> <span class="nn">importlib</span>
+<span class="linenos"> 14</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 15</span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos"> 18</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="linenos"> 19</span><span class="kn">import</span> <span class="nn">yaml</span>
+<span class="linenos"> 20</span>
+<span class="linenos"> 21</span><span class="kn">from</span> <span class="nn">sacroml.attacks.attack_report_formatter</span> <span class="kn">import</span> <span class="n">GenerateTextReport</span>
+<span class="linenos"> 22</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 23</span>
+<span class="linenos"> 24</span>
+<span class="linenos"> 25</span><span class="k">def</span> <span class="nf">process_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">data_to_be_processed</span><span class="p">):</span>
+<span class="linenos"> 26</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Process dataset.</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span><span class="sd">    DO NOT CHANGE: this is a wrapper function that allows a callable function</span>
+<span class="linenos"> 29</span><span class="sd">    to be read from a file.</span>
+<span class="linenos"> 30</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 31</span>    <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">function_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 32</span>    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="linenos"> 33</span>    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+<span class="linenos"> 34</span>    <span class="n">function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
+<span class="linenos"> 35</span>    <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="n">data_to_be_processed</span><span class="p">)</span>
+<span class="linenos"> 36</span>
+<span class="linenos"> 37</span>
+<span class="linenos"> 38</span><span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span>
+<span class="linenos"> 39</span>    <span class="n">data_processing_filename</span><span class="p">,</span>
+<span class="linenos"> 40</span>    <span class="n">data_processing_function_name</span><span class="p">,</span>
+<span class="linenos"> 41</span>    <span class="n">dataset_filename</span><span class="p">,</span>
+<span class="linenos"> 42</span>    <span class="n">directory</span><span class="p">,</span>
+<span class="linenos"> 43</span>    <span class="n">target_model</span><span class="p">,</span>
+<span class="linenos"> 44</span>    <span class="n">attack_results</span><span class="p">,</span>
+<span class="linenos"> 45</span>    <span class="n">target_filename</span><span class="p">,</span>
+<span class="linenos"> 46</span>    <span class="n">outfile</span><span class="p">,</span>
+<span class="linenos"> 47</span><span class="p">):</span>
+<span class="linenos"> 48</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate report based on target model.&quot;&quot;&quot;</span>
+<span class="linenos"> 49</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 50</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acting as TRE...&quot;</span><span class="p">)</span>
+<span class="linenos"> 51</span>    <span class="nb">print</span><span class="p">(</span>
+<span class="linenos"> 52</span>        <span class="s2">&quot;(when instructions on how to recreate the dataset have &quot;</span>
+<span class="linenos"> 53</span>        <span class="s2">&quot;been provided by the researcher)&quot;</span>
+<span class="linenos"> 54</span>    <span class="p">)</span>
+<span class="linenos"> 55</span>    <span class="nb">print</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 56</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 57</span>
+<span class="linenos"> 58</span>    <span class="c1"># Read in the model supplied by the researcher</span>
+<span class="linenos"> 59</span>    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">target_model</span><span class="p">)</span>
+<span class="linenos"> 60</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading target model from &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos"> 61</span>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="linenos"> 62</span>        <span class="n">target_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="linenos"> 63</span>
+<span class="linenos"> 64</span>    <span class="c1"># Read the data used by the researcher, and process it using their defined function</span>
+<span class="linenos"> 65</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading data from &quot;</span> <span class="o">+</span> <span class="n">dataset_filename</span><span class="p">)</span>
+<span class="linenos"> 66</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">dataset_filename</span><span class="p">)</span>
+<span class="linenos"> 67</span>
+<span class="linenos"> 68</span>    <span class="n">returned</span> <span class="o">=</span> <span class="n">process_dataset</span><span class="p">(</span>
+<span class="linenos"> 69</span>        <span class="n">data_processing_filename</span><span class="p">,</span> <span class="n">data_processing_function_name</span><span class="p">,</span> <span class="n">data</span>
+<span class="linenos"> 70</span>    <span class="p">)</span>
+<span class="linenos"> 71</span>    <span class="n">X_transformed</span> <span class="o">=</span> <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;X_transformed&quot;</span><span class="p">]</span>
+<span class="linenos"> 72</span>    <span class="n">y_transformed</span> <span class="o">=</span> <span class="n">returned</span><span class="p">[</span><span class="s2">&quot;y_transformed&quot;</span><span class="p">]</span>
+<span class="linenos"> 73</span>    <span class="n">train_indices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">returned</span><span class="p">[</span><span class="s2">&quot;train_indices&quot;</span><span class="p">])</span>
+<span class="linenos"> 74</span>
+<span class="linenos"> 75</span>    <span class="n">X_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 76</span>    <span class="n">X_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 77</span>    <span class="n">y_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 78</span>    <span class="n">y_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 79</span>
+<span class="linenos"> 80</span>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y_transformed</span><span class="p">):</span>
+<span class="linenos"> 81</span>        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">train_indices</span><span class="p">:</span>
+<span class="linenos"> 82</span>            <span class="n">X_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_transformed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="linenos"> 83</span>            <span class="n">y_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="linenos"> 84</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 85</span>            <span class="n">X_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_transformed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="linenos"> 86</span>            <span class="n">y_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="linenos"> 87</span>
+<span class="linenos"> 88</span>    <span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="linenos"> 89</span>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+<span class="linenos"> 90</span>    <span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="linenos"> 91</span>    <span class="n">y_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span>
+<span class="linenos"> 92</span>
+<span class="linenos"> 93</span>    <span class="c1"># Wrap the model and data in a Target object</span>
+<span class="linenos"> 94</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos"> 95</span>        <span class="n">model</span><span class="o">=</span><span class="n">target_model</span><span class="p">,</span>
+<span class="linenos"> 96</span>        <span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+<span class="linenos"> 97</span>        <span class="n">y_train</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span>
+<span class="linenos"> 98</span>        <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+<span class="linenos"> 99</span>        <span class="n">y_test</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<span class="linenos">100</span>    <span class="p">)</span>
+<span class="linenos">101</span>
+<span class="linenos">102</span>    <span class="c1"># TRE calls request_release()</span>
+<span class="linenos">103</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===&gt; now running attacks implicitly via request_release()&quot;</span><span class="p">)</span>
+<span class="linenos">104</span>    <span class="n">target_model</span><span class="o">.</span><span class="n">request_release</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos">105</span>
+<span class="linenos">106</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please see the files generated in: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">107</span>
+<span class="linenos">108</span>    <span class="c1"># Generate a report indicating calculated disclosure risk</span>
+<span class="linenos">109</span>    <span class="n">text_report</span> <span class="o">=</span> <span class="n">GenerateTextReport</span><span class="p">()</span>
+<span class="linenos">110</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">process_attack_target_json</span><span class="p">(</span>
+<span class="linenos">111</span>        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">attack_results</span><span class="p">),</span>
+<span class="linenos">112</span>        <span class="n">target_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">),</span>
+<span class="linenos">113</span>    <span class="p">)</span>
+<span class="linenos">114</span>
+<span class="linenos">115</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span>
+<span class="linenos">116</span>        <span class="n">output_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outfile</span><span class="p">),</span> <span class="n">move_files</span><span class="o">=</span><span class="kc">True</span>
+<span class="linenos">117</span>    <span class="p">)</span>
+<span class="linenos">118</span>
+<span class="linenos">119</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results written to &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)))</span>
+<span class="linenos">120</span>
+<span class="linenos">121</span>
+<span class="linenos">122</span><span class="k">def</span> <span class="nf">run_user_story</span><span class="p">(</span><span class="n">release_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos">123</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the user story, parsing arguments and then invoking report generation.&quot;&quot;&quot;</span>
+<span class="linenos">124</span>    <span class="n">generate_report</span><span class="p">(</span>
+<span class="linenos">125</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;data_processing_filename&quot;</span><span class="p">],</span>
+<span class="linenos">126</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;data_processing_function_name&quot;</span><span class="p">],</span>
+<span class="linenos">127</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;dataset_filename&quot;</span><span class="p">],</span>
+<span class="linenos">128</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;training_artefacts_dir&quot;</span><span class="p">],</span>
+<span class="linenos">129</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;target_model&quot;</span><span class="p">],</span>
+<span class="linenos">130</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;attack_results&quot;</span><span class="p">],</span>
+<span class="linenos">131</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;target_results&quot;</span><span class="p">],</span>
+<span class="linenos">132</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;outfile&quot;</span><span class="p">],</span>
+<span class="linenos">133</span>    <span class="p">)</span>
+<span class="linenos">134</span>
+<span class="linenos">135</span>
+<span class="linenos">136</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">137</span>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+<span class="linenos">138</span>        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+<span class="linenos">139</span>            <span class="s2">&quot;Generate a risk report after request_release() &quot;</span>
+<span class="linenos">140</span>            <span class="s2">&quot;has been called by researcher&quot;</span>
+<span class="linenos">141</span>        <span class="p">)</span>
+<span class="linenos">142</span>    <span class="p">)</span>
+<span class="linenos">143</span>
+<span class="linenos">144</span>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<span class="linenos">145</span>        <span class="s2">&quot;--config_file&quot;</span><span class="p">,</span>
+<span class="linenos">146</span>        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+<span class="linenos">147</span>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+<span class="linenos">148</span>        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;config_file&quot;</span><span class="p">,</span>
+<span class="linenos">149</span>        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">150</span>        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default_config.yaml&quot;</span><span class="p">,</span>
+<span class="linenos">151</span>        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Name of yaml configuration file&quot;</span><span class="p">),</span>
+<span class="linenos">152</span>    <span class="p">)</span>
+<span class="linenos">153</span>
+<span class="linenos">154</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="linenos">155</span>
+<span class="linenos">156</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">157</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+<span class="linenos">158</span>            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="linenos">159</span>    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="linenos">160</span>        <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">161</span>            <span class="sa">f</span><span class="s2">&quot;Invalid command. Try --help to get more detailserror message is </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">162</span>        <span class="p">)</span>
+<span class="linenos">163</span>
+<span class="linenos">164</span>    <span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="user-story-3-advanced-privacy-analysis">
+<h2>User Story 3: Advanced Privacy Analysis<a class="headerlink" href="#user-story-3-advanced-privacy-analysis" title="Link to this heading">#</a></h2>
+<p>Comprehensive privacy analysis workflow for sensitive datasets.</p>
+<p><strong>Researcher Template:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">User Story 3 - Researcher Template</span><a class="headerlink" href="#id6" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;RESEARCHER EXAMPLE FOR USER STORY 3.</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="sd">This file is an example of a researcher creating/training a machine learning</span>
+<span class="linenos"> 4</span><span class="sd">model and to be released form a secure environment.</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="sd">This specific example uses the nursery dataset: data is read in and</span>
+<span class="linenos"> 7</span><span class="sd">pre-processed, and a classifier is trained and tested on this dataset.</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="sd">This example follows User Story 3.</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="sd">Steps:</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="sd">- Researcher creates and pre-processes a dataset.</span>
+<span class="linenos">14</span><span class="sd">- Researcher creates and trains a classifier on this data.</span>
+<span class="linenos">15</span><span class="sd">- Reasercher saves the model manually (e.g. using pickle, not through</span>
+<span class="linenos">16</span><span class="sd">  request_release() or similar).</span>
+<span class="linenos">17</span><span class="sd">- Researcher emails (or otherwise contacts) TRE to request the model be released.</span>
+<span class="linenos">18</span><span class="sd">- TREs will use this model and data to test the model themselves.</span>
+<span class="linenos">19</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos">22</span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos">25</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="linenos">26</span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="linenos">27</span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="linenos">28</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="linenos">29</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="k">def</span> <span class="nf">run_user_story</span><span class="p">():</span>
+<span class="linenos">33</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and train a model to be released.&quot;&quot;&quot;</span>
+<span class="linenos">34</span>    <span class="c1"># This section is not necessary but helpful - cleans up files that are</span>
+<span class="linenos">35</span>    <span class="c1"># created by sacroml</span>
+<span class="linenos">36</span>    <span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;training_artefacts&quot;</span>
+<span class="linenos">37</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating directory for training artefacts&quot;</span><span class="p">)</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<span class="linenos">40</span>        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span>    <span class="c1"># Read in and pre-process the dataset - replace this with your data</span>
+<span class="linenos">43</span>    <span class="c1"># reading/pre-processing code.</span>
+<span class="linenos">44</span>    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;user_stories_resources&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_26_nursery.csv&quot;</span><span class="p">)</span>
+<span class="linenos">45</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading data from &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos">46</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="linenos">47</span>
+<span class="linenos">48</span>    <span class="n">target_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+<span class="linenos">49</span>    <span class="n">target_vals</span> <span class="o">=</span> <span class="n">target_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="linenos">50</span>    <span class="n">target_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="n">target_vals</span><span class="p">})</span>
+<span class="linenos">51</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">52</span>
+<span class="linenos">53</span>    <span class="n">feature_encoder</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="linenos">54</span>    <span class="n">X_encoded</span> <span class="o">=</span> <span class="n">feature_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="linenos">55</span>    <span class="n">feature_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="linenos">56</span>        <span class="n">X_encoded</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">feature_encoder</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+<span class="linenos">57</span>    <span class="p">)</span>
+<span class="linenos">58</span>
+<span class="linenos">59</span>    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="linenos">60</span>        <span class="n">feature_dataframe</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+<span class="linenos">61</span>        <span class="n">target_dataframe</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+<span class="linenos">62</span>        <span class="n">test_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+<span class="linenos">63</span>        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="linenos">64</span>    <span class="p">)</span>
+<span class="linenos">65</span>
+<span class="linenos">66</span>    <span class="c1"># Save the training and test data to a file which a TRE can access</span>
+<span class="linenos">67</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saving training/testing data to ./&quot;</span> <span class="o">+</span> <span class="n">directory</span><span class="p">)</span>
+<span class="linenos">68</span>    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;X_train.txt&quot;</span><span class="p">),</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">69</span>    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;y_train.txt&quot;</span><span class="p">),</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">70</span>    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;X_test.txt&quot;</span><span class="p">),</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">71</span>    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;y_test.txt&quot;</span><span class="p">),</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">72</span>
+<span class="linenos">73</span>    <span class="c1"># Create, train and test a model</span>
+<span class="linenos">74</span>    <span class="c1"># Replace this with your training and testing code</span>
+<span class="linenos">75</span>    <span class="n">hyperparameters</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="linenos">76</span>    <span class="n">hyperparameters</span><span class="p">[</span><span class="s2">&quot;min_samples_split&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="linenos">77</span>    <span class="n">hyperparameters</span><span class="p">[</span><span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="linenos">78</span>    <span class="n">hyperparameters</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="linenos">79</span>    <span class="n">hyperparameters</span><span class="p">[</span><span class="s2">&quot;bootstrap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">80</span>
+<span class="linenos">81</span>    <span class="n">target_model</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">hyperparameters</span><span class="p">)</span>
+<span class="linenos">82</span>    <span class="n">target_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="linenos">83</span>
+<span class="linenos">84</span>    <span class="n">train_acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">target_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">))</span>
+<span class="linenos">85</span>    <span class="n">test_acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">target_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">))</span>
+<span class="linenos">86</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training accuracy on model: </span><span class="si">{</span><span class="n">train_acc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">87</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing accuracy on model: </span><span class="si">{</span><span class="n">test_acc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">88</span>
+<span class="linenos">89</span>    <span class="c1"># Save your model somewhere a TRE can access</span>
+<span class="linenos">90</span>    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;model.pkl&quot;</span><span class="p">)</span>
+<span class="linenos">91</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saving model to &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+<span class="linenos">92</span>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="linenos">93</span>        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">target_model</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+<span class="linenos">94</span>
+<span class="linenos">95</span>
+<span class="linenos">96</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">97</span>    <span class="n">run_user_story</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><strong>TRE Implementation:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">User Story 3 - TRE Implementation</span><a class="headerlink" href="#id7" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;TRE SCRIPT FOR USER STORY 3.</span>
+<span class="linenos">  2</span>
+<span class="linenos">  3</span><span class="sd">This file contains the code needed to run user story 3.</span>
+<span class="linenos">  4</span>
+<span class="linenos">  5</span><span class="sd">To run: change the user_story key inside the .yaml config file to &#39;3&#39;, and run</span>
+<span class="linenos">  6</span><span class="sd">the &#39;generate_disclosure_risk_report.py&#39; file.</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="sd">NOTE: you should not need to change this file at all, set all parameters via</span>
+<span class="linenos">  9</span><span class="sd">the .yaml file.</span>
+<span class="linenos"> 10</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 11</span>
+<span class="linenos"> 12</span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="linenos"> 13</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 14</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 15</span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos"> 18</span><span class="kn">import</span> <span class="nn">yaml</span>
+<span class="linenos"> 19</span>
+<span class="linenos"> 20</span><span class="kn">from</span> <span class="nn">sacroml.attacks.attack_report_formatter</span> <span class="kn">import</span> <span class="n">GenerateTextReport</span>
+<span class="linenos"> 21</span><span class="kn">from</span> <span class="nn">sacroml.attacks.likelihood_attack</span> <span class="kn">import</span> <span class="n">LIRAAttack</span>
+<span class="linenos"> 22</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 23</span><span class="kn">from</span> <span class="nn">sacroml.attacks.worst_case_attack</span> <span class="kn">import</span> <span class="n">WorstCaseAttack</span>
+<span class="linenos"> 24</span>
+<span class="linenos"> 25</span>
+<span class="linenos"> 26</span><span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span>
+<span class="linenos"> 27</span>    <span class="n">directory</span><span class="p">,</span>
+<span class="linenos"> 28</span>    <span class="n">target_model</span><span class="p">,</span>
+<span class="linenos"> 29</span>    <span class="n">X_train</span><span class="p">,</span>
+<span class="linenos"> 30</span>    <span class="n">y_train</span><span class="p">,</span>
+<span class="linenos"> 31</span>    <span class="n">X_test</span><span class="p">,</span>
+<span class="linenos"> 32</span>    <span class="n">y_test</span><span class="p">,</span>
+<span class="linenos"> 33</span>    <span class="n">target_filename</span><span class="p">,</span>
+<span class="linenos"> 34</span>    <span class="n">outfile</span><span class="p">,</span>
+<span class="linenos"> 35</span><span class="p">):</span>
+<span class="linenos"> 36</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate report based on target model.&quot;&quot;&quot;</span>
+<span class="linenos"> 37</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 38</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acting as TRE...&quot;</span><span class="p">)</span>
+<span class="linenos"> 39</span>    <span class="nb">print</span><span class="p">()</span>
+<span class="linenos"> 40</span>
+<span class="linenos"> 41</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<span class="linenos"> 42</span>        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 43</span>
+<span class="linenos"> 44</span>    <span class="c1"># Suppress messages from SACRO-ML -- comment out these lines to</span>
+<span class="linenos"> 45</span>    <span class="c1"># see all the sacroml logging statements</span>
+<span class="linenos"> 46</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-reps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 47</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;prep-attack-data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 48</span>    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;attack-from-preds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="linenos"> 49</span>
+<span class="linenos"> 50</span>    <span class="c1"># Read the model to be released as supplied by the researcher</span>
+<span class="linenos"> 51</span>    <span class="n">model_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">target_model</span><span class="p">)</span>
+<span class="linenos"> 52</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading target model from &quot;</span> <span class="o">+</span> <span class="n">model_filename</span><span class="p">)</span>
+<span class="linenos"> 53</span>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="linenos"> 54</span>        <span class="n">target_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span>    <span class="c1"># Read the training/testing data as supplied by the researcher</span>
+<span class="linenos"> 57</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading training/testing data from ./&quot;</span> <span class="o">+</span> <span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 58</span>    <span class="n">train_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">X_train</span><span class="p">))</span>
+<span class="linenos"> 59</span>    <span class="n">train_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span>
+<span class="linenos"> 60</span>    <span class="n">test_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">X_test</span><span class="p">))</span>
+<span class="linenos"> 61</span>    <span class="n">test_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+<span class="linenos"> 62</span>
+<span class="linenos"> 63</span>    <span class="c1"># Wrap the training and test data into the Target object</span>
+<span class="linenos"> 64</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos"> 65</span>        <span class="n">model</span><span class="o">=</span><span class="n">target_model</span><span class="p">,</span>
+<span class="linenos"> 66</span>        <span class="n">X_train</span><span class="o">=</span><span class="n">train_x</span><span class="p">,</span>
+<span class="linenos"> 67</span>        <span class="n">y_train</span><span class="o">=</span><span class="n">train_y</span><span class="p">,</span>
+<span class="linenos"> 68</span>        <span class="n">X_test</span><span class="o">=</span><span class="n">test_x</span><span class="p">,</span>
+<span class="linenos"> 69</span>        <span class="n">y_test</span><span class="o">=</span><span class="n">test_y</span><span class="p">,</span>
+<span class="linenos"> 70</span>    <span class="p">)</span>
+<span class="linenos"> 71</span>    <span class="n">target</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">))</span>
+<span class="linenos"> 72</span>
+<span class="linenos"> 73</span>    <span class="c1"># Run the attack</span>
+<span class="linenos"> 74</span>    <span class="n">wca</span> <span class="o">=</span> <span class="n">WorstCaseAttack</span><span class="p">(</span><span class="n">n_dummy_reps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 75</span>    <span class="n">wca</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos"> 76</span>
+<span class="linenos"> 77</span>    <span class="c1"># Run the LiRA attack to test disclosure risk</span>
+<span class="linenos"> 78</span>    <span class="n">lira_attack_obj</span> <span class="o">=</span> <span class="n">LIRAAttack</span><span class="p">(</span><span class="n">n_shadow_models</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+<span class="linenos"> 79</span>    <span class="n">lira_attack_obj</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos"> 80</span>
+<span class="linenos"> 81</span>    <span class="n">text_report</span> <span class="o">=</span> <span class="n">GenerateTextReport</span><span class="p">()</span>
+<span class="linenos"> 82</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">process_attack_target_json</span><span class="p">(</span>
+<span class="linenos"> 83</span>        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span>
+<span class="linenos"> 84</span>        <span class="n">target_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">),</span>
+<span class="linenos"> 85</span>    <span class="p">)</span>
+<span class="linenos"> 86</span>
+<span class="linenos"> 87</span>    <span class="n">text_report</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span>
+<span class="linenos"> 88</span>        <span class="n">output_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outfile</span><span class="p">),</span>
+<span class="linenos"> 89</span>        <span class="n">move_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos"> 90</span>        <span class="n">model_filename</span><span class="o">=</span><span class="n">model_filename</span><span class="p">,</span>
+<span class="linenos"> 91</span>    <span class="p">)</span>
+<span class="linenos"> 92</span>
+<span class="linenos"> 93</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results written to &quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outfile</span><span class="p">))</span>
+<span class="linenos"> 94</span>
+<span class="linenos"> 95</span>
+<span class="linenos"> 96</span><span class="k">def</span> <span class="nf">run_user_story</span><span class="p">(</span><span class="n">release_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos"> 97</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the user story, parsing arguments and then invoking report generation.&quot;&quot;&quot;</span>
+<span class="linenos"> 98</span>    <span class="n">generate_report</span><span class="p">(</span>
+<span class="linenos"> 99</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;training_artefacts_dir&quot;</span><span class="p">],</span>
+<span class="linenos">100</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;target_model&quot;</span><span class="p">],</span>
+<span class="linenos">101</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;X_train_path&quot;</span><span class="p">],</span>
+<span class="linenos">102</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;y_train_path&quot;</span><span class="p">],</span>
+<span class="linenos">103</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;X_test_path&quot;</span><span class="p">],</span>
+<span class="linenos">104</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;y_test_path&quot;</span><span class="p">],</span>
+<span class="linenos">105</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;target_results&quot;</span><span class="p">],</span>
+<span class="linenos">106</span>        <span class="n">release_config</span><span class="p">[</span><span class="s2">&quot;outfile&quot;</span><span class="p">],</span>
+<span class="linenos">107</span>    <span class="p">)</span>
+<span class="linenos">108</span>
+<span class="linenos">109</span>
+<span class="linenos">110</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">111</span>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+<span class="linenos">112</span>        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+<span class="linenos">113</span>            <span class="s2">&quot;Generate a risk report after request_release() &quot;</span>
+<span class="linenos">114</span>            <span class="s2">&quot;has been called by researcher&quot;</span>
+<span class="linenos">115</span>        <span class="p">)</span>
+<span class="linenos">116</span>    <span class="p">)</span>
+<span class="linenos">117</span>
+<span class="linenos">118</span>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<span class="linenos">119</span>        <span class="s2">&quot;--config_file&quot;</span><span class="p">,</span>
+<span class="linenos">120</span>        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+<span class="linenos">121</span>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+<span class="linenos">122</span>        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;config_file&quot;</span><span class="p">,</span>
+<span class="linenos">123</span>        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">124</span>        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default_config.yaml&quot;</span><span class="p">,</span>
+<span class="linenos">125</span>        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Name of yaml configuration file&quot;</span><span class="p">),</span>
+<span class="linenos">126</span>    <span class="p">)</span>
+<span class="linenos">127</span>
+<span class="linenos">128</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="linenos">129</span>
+<span class="linenos">130</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">131</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+<span class="linenos">132</span>            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="linenos">133</span>    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="linenos">134</span>        <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">135</span>            <span class="sa">f</span><span class="s2">&quot;Invalid command. Try --help to get more detailserror message is </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">136</span>        <span class="p">)</span>
+<span class="linenos">137</span>
+<span class="linenos">138</span>    <span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="configuration-and-utilities">
+<h2>Configuration and Utilities<a class="headerlink" href="#configuration-and-utilities" title="Link to this heading">#</a></h2>
+<p><strong>Default Configuration:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">Default Configuration File</span><a class="headerlink" href="#id8" title="Link to this code">#</a></div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nn">---</span>
+<span class="linenos"> 2</span><span class="c1"># DIRECTIONS FOR USE</span>
+<span class="linenos"> 3</span><span class="c1">#</span>
+<span class="linenos"> 4</span><span class="c1"># Researcher should fill in this file with relevant parameters for the model</span>
+<span class="linenos"> 5</span><span class="c1"># they are releasing. Parameters tagged with a &#39;generated by code&#39; label are</span>
+<span class="linenos"> 6</span><span class="c1"># files that are generated by sacroml. You can change the filename, but it is</span>
+<span class="linenos"> 7</span><span class="c1"># not necessary. All other parameters need to be set by either the researcher</span>
+<span class="linenos"> 8</span><span class="c1"># or TRE.</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># Scenario to be run</span>
+<span class="linenos">11</span><span class="nt">user_story</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UNDEFINED</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="c1"># Details of experiments and files - replace these with the relevant filenames.</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="c1"># Path to the dataset used to train the model.</span>
+<span class="linenos">16</span><span class="c1"># Researcher should supply this.</span>
+<span class="linenos">17</span><span class="nt">dataset_filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./user_stories_resources/dataset_26_nursery.csv&quot;</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1"># Name of the file (or directory for keras) containing the saved model.</span>
+<span class="linenos">20</span><span class="c1"># Researcher should supply this.</span>
+<span class="linenos">21</span><span class="nt">target_model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;model.pkl&quot;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="c1"># Location of the directory with all the files needed to assess this release.</span>
+<span class="linenos">24</span><span class="c1"># Generated by code.</span>
+<span class="linenos">25</span><span class="nt">outfile</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;summary.txt&quot;</span>
+<span class="linenos">26</span><span class="nt">attack_results</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;report.json&quot;</span>
+<span class="linenos">27</span><span class="nt">training_artefacts_dir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;training_artefacts&quot;</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="c1"># User story 1, 2 or 3: name of the target results file generated by sacroml.</span>
+<span class="linenos">30</span><span class="c1"># Generated by code.</span>
+<span class="linenos">31</span><span class="nt">target_results</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;target.yaml&quot;</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="c1"># User story 2</span>
+<span class="linenos">34</span><span class="nt">data_processing_filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_story_2/data_processing_researcher.py</span>
+<span class="linenos">35</span><span class="nt">data_processing_function_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">process_dataset</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span><span class="c1"># User story 3</span>
+<span class="linenos">38</span><span class="nt">X_train_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;X_train.txt&quot;</span>
+<span class="linenos">39</span><span class="nt">y_train_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;y_train.txt&quot;</span>
+<span class="linenos">40</span><span class="nt">X_test_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;X_test.txt&quot;</span>
+<span class="linenos">41</span><span class="nt">y_test_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;y_test.txt&quot;</span>
+<span class="linenos">42</span>
+<span class="linenos">43</span><span class="c1"># User story 4 - replace with path to csv files</span>
+<span class="linenos">44</span><span class="nt">train_probabilities</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;output_train.csv&quot;</span>
+<span class="linenos">45</span><span class="nt">test_probabilities</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;output_test.csv&quot;</span>
+<span class="linenos">46</span><span class="nn">...</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Report Generation:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Disclosure Risk Report Generation</span><a class="headerlink" href="#id9" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;TRE script to perform disclosure checking for a trained ML model.</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="sd">Researchers should fill out the relevant parameters in the .yaml file, which</span>
+<span class="linenos"> 4</span><span class="sd">should be in the same directory as this file. TREs can change the script that</span>
+<span class="linenos"> 5</span><span class="sd">is run using the user_story parameter at the top of the file.</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="sd">To run this code:</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="sd">python generate_disclosure_risk_report.py (with the .yaml file in the same directory)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="sd">NOTE: you should not need to change this file at all.</span>
+<span class="linenos">12</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="kn">import</span> <span class="nn">yaml</span>
+<span class="linenos">17</span><span class="kn">from</span> <span class="nn">user_story_1</span> <span class="kn">import</span> <span class="n">user_story_1_tre</span>
+<span class="linenos">18</span><span class="kn">from</span> <span class="nn">user_story_2</span> <span class="kn">import</span> <span class="n">user_story_2_tre</span>
+<span class="linenos">19</span><span class="kn">from</span> <span class="nn">user_story_3</span> <span class="kn">import</span> <span class="n">user_story_3_tre</span>
+<span class="linenos">20</span><span class="kn">from</span> <span class="nn">user_story_4</span> <span class="kn">import</span> <span class="n">user_story_4_tre</span>
+<span class="linenos">21</span><span class="kn">from</span> <span class="nn">user_story_7</span> <span class="kn">import</span> <span class="n">user_story_7_tre</span>
+<span class="linenos">22</span><span class="kn">from</span> <span class="nn">user_story_8</span> <span class="kn">import</span> <span class="n">user_story_8_tre</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">25</span>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+<span class="linenos">26</span>        <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Run user stories code from a config file&quot;</span><span class="p">)</span>
+<span class="linenos">27</span>    <span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<span class="linenos">30</span>        <span class="s2">&quot;--config_file&quot;</span><span class="p">,</span>
+<span class="linenos">31</span>        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+<span class="linenos">32</span>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+<span class="linenos">33</span>        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;config_file&quot;</span><span class="p">,</span>
+<span class="linenos">34</span>        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">35</span>        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default_config.yaml&quot;</span><span class="p">,</span>
+<span class="linenos">36</span>        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Name of yaml configuration file&quot;</span><span class="p">),</span>
+<span class="linenos">37</span>    <span class="p">)</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="linenos">40</span>
+<span class="linenos">41</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">42</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+<span class="linenos">43</span>            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="linenos">44</span>    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pragma:no cover</span>
+<span class="linenos">45</span>        <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">46</span>            <span class="sa">f</span><span class="s2">&quot;Invalid command. Try --help to get more detailserror message is </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">47</span>        <span class="p">)</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span>    <span class="n">user_story</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;user_story&quot;</span><span class="p">]</span>
+<span class="linenos">50</span>    <span class="k">if</span> <span class="n">user_story</span> <span class="o">==</span> <span class="s2">&quot;UNDEFINED&quot;</span><span class="p">:</span>
+<span class="linenos">51</span>        <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">52</span>            <span class="s2">&quot;User story not selected, please select a user story by &quot;</span>
+<span class="linenos">53</span>            <span class="s2">&quot;referring to user_stories_flow_chart.png and adding the &quot;</span>
+<span class="linenos">54</span>            <span class="s2">&quot;relevant number to the the first line of &#39;default_config.yaml&#39;&quot;</span>
+<span class="linenos">55</span>        <span class="p">)</span>
+<span class="linenos">56</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<span class="linenos">57</span>        <span class="n">user_story_1_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">58</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+<span class="linenos">59</span>        <span class="n">user_story_2_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">60</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos">61</span>        <span class="n">user_story_3_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">62</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+<span class="linenos">63</span>        <span class="n">user_story_4_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">64</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+<span class="linenos">65</span>        <span class="n">user_story_7_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">66</span>    <span class="k">elif</span> <span class="n">user_story</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+<span class="linenos">67</span>        <span class="n">user_story_8_tre</span><span class="o">.</span><span class="n">run_user_story</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">68</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">69</span>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User story </span><span class="si">{</span><span class="n">user_story</span><span class="si">}</span><span class="s2"> has not been implemented&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="unsupported_examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Unsupported Model Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="user_guide.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">User Guide</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-story-1-basic-model-training-and-attack">User Story 1: Basic Model Training and Attack</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-story-2-data-processing-and-privacy-assessment">User Story 2: Data Processing and Privacy Assessment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-story-3-advanced-privacy-analysis">User Story 3: Advanced Privacy Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-and-utilities">Configuration and Utilities</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/user_stories.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

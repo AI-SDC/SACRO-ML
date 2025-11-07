@@ -1,0 +1,709 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Worst Case Attack &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'attacks/worst_case';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structural Attack" href="structural.html" />
+    <link rel="prev" title="LiRA Attack" href="likelihood.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Attacks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="likelihood.html">LiRA Attack</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Worst Case Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structural.html">Structural Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attribute.html">Attribute Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="target.html">Target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataset Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report.html">Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html">JSON Output for Attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../safemodel/index.html">Safemodel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/safemodel.html">Base Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/safedecisiontree.html">SafeDecisionTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/saferandomforest.html">SafeRandomForest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/safesvc.html">SafeSVC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safemodel/extending.html">Extending SafeModel</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Attacks</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Worst Case Attack</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="worst-case-attack">
+<h1>Worst Case Attack<a class="headerlink" href="#worst-case-attack" title="Link to this heading">#</a></h1>
+<p>A membership inference attack (MIA) estimates the likelihood of specific data
+points were included to train the ML model. If high, then the model is at risk
+of data breach. If low, it is unlikely.</p>
+<p>The Worst-Case is a black-box MIA scenario, and it does not need any shadow model. It is
+described in <a class="reference external" href="https://openaccess.thecvf.com/content/CVPR2021/papers/Rezaei_On_the_Difficulty_of_Membership_Inference_Attacks_CVPR_2021_paper.pdf">Rezaei</a>  as the easiest possible for the attacker. To perform a MIA, a
+new binary set of data (member, non-member of target train data) was created containing
+the predicted probabilities of the training and test data by the target model. By default,
+a Random Forest Classifier is fitted with half of this new set, though any sklearn classifier
+can be configured as the attack model.</p>
+<p>This scenario was not supposed to simulate a realistic attack (if the attacker has access
+to the data, they do not need to attack) but instead to assess whether there were potential
+vulnerabilities in the model that could potentially be leveraged by an attacker. This can
+give a good estimation of the maximum capability of an attacker to succeed.</p>
+<a class="reference internal image-reference" href="../_images/WorstCase_diagram.png"><img alt="Data breaches of sensitive and personal data must be avoided." class="align-center" src="../_images/WorstCase_diagram.png" style="width: 350px; height: 350px;" />
+</a>
+<p>In some cases, the risk of data leakage could be overestimated, but it aims to ensure (as
+much as possible) that any ML model allowed out of a TRE or the host environment is safe. At
+the same time, it’s easy to implement (see figure below).</p>
+<p>This attack is, however, evaluated using average-case “accuracy” metrics that fail to characterize
+whether the attack can confidently identify any members of the training set. For instance, imagine
+the dataset includes 2 people with a rare disease, which are all the cases in a given region. In
+such case these two cases could be at higher risk of being identified even if the overall estimate
+risk of disclosure is low. For a more comprehensive check, the <a class="reference internal" href="likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack" title="sacroml.attacks.likelihood_attack.LIRAAttack"><code class="xref py py-class docutils literal notranslate"><span class="pre">LIRAAttack</span></code></a>
+is recommended. While more statistically rigorous, it comes at a much greater computational cost
+than the WorstCaseAttack since it requires training multiple shadow models.</p>
+<p id="module-sacroml.attacks.worst_case_attack">Run a worst case attack based upon predictive probabilities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.attacks.worst_case_attack.</span></span><span class="sig-name descname"><span class="pre">WorstCaseAttack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reproduce_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dummy_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_model_correct_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sklearn.ensemble.RandomForestClassifier'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack" title="Link to this definition">#</a></dt>
+<dd><p>Worst case attack.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(target)</p></td>
+<td><p>Check whether an attack can be performed and run the attack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack_from_preds</span></code></a>(proba_train, proba_test[, ...])</p></td>
+<td><p>Run attack based upon the predictions in proba_train and proba_test.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attackable" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.attackable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attackable</span></code></a>(target)</p></td>
+<td><p>Return whether a target can be assessed with WorstCaseAttack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_arrays</span></code></a>(n_rows_in, n_rows_out[, ...])</p></td>
+<td><p>Generate train and test prediction arrays, used when computing baseline.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>()</p></td>
+<td><p>Get parameters for this attack.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps" title="sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_attack_reps</span></code></a>(proba_train, proba_test[, ...])</p></td>
+<td><p>Run actual attack reps from train and test predictions.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reproduce_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dummy_reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_model_correct_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sklearn.ensemble.RandomForestClassifier'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_model_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Construct an object to execute a worst case attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>Name of the directory where outputs are stored.</p>
+</dd>
+<dt><strong>write_report</strong><span class="classifier">bool</span></dt><dd><p>Whether to generate a JSON and PDF report.</p>
+</dd>
+<dt><strong>n_reps</strong><span class="classifier">int</span></dt><dd><p>Number of attacks to run – in each iteration an attack model
+is trained on a different subset of the data.</p>
+</dd>
+<dt><strong>reproduce_split</strong><span class="classifier">int or Iterable[int] or None</span></dt><dd><p>Variable that controls the reproducibility of the data split.
+It can be an integer or a list of integers of length <cite>n_reps</cite>.
+Default : 5.</p>
+</dd>
+<dt><strong>p_thresh</strong><span class="classifier">float</span></dt><dd><p>Threshold to determine significance of things. For instance
+<cite>auc_p_value</cite> and <cite>pdif_vals</cite>.</p>
+</dd>
+<dt><strong>n_dummy_reps</strong><span class="classifier">int</span></dt><dd><p>Number of baseline (dummy) experiments to do.</p>
+</dd>
+<dt><strong>train_beta</strong><span class="classifier">int</span></dt><dd><p>Value of b for beta distribution used to sample the in-sample
+(training) probabilities.</p>
+</dd>
+<dt><strong>test_beta</strong><span class="classifier">int</span></dt><dd><p>Value of b for beta distribution used to sample the out-of-sample
+(test) probabilities.</p>
+</dd>
+<dt><strong>test_prop</strong><span class="classifier">float</span></dt><dd><p>Proportion of data to use as a test set for the attack model.</p>
+</dd>
+<dt><strong>include_model_correct_feature</strong><span class="classifier">bool</span></dt><dd><p>Inclusion of additional feature to hold whether or not the target model
+made a correct prediction for each example.</p>
+</dd>
+<dt><strong>sort_probs</strong><span class="classifier">bool</span></dt><dd><p>Whether to sort combined preds (from training and test)
+to have highest probabilities in the first column.</p>
+</dd>
+<dt><strong>attack_model</strong><span class="classifier">str</span></dt><dd><p>Class name of the attack model.</p>
+</dd>
+<dt><strong>attack_model_params</strong><span class="classifier">dict or None</span></dt><dd><p>Dictionary of hyperparameters for the <cite>attack_model</cite>
+such as <cite>min_sample_split</cite>, <cite>min_samples_leaf</cite>, etc.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack">
+<span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack" title="Link to this definition">#</a></dt>
+<dd><p>Check whether an attack can be performed and run the attack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds">
+<span class="sig-name descname"><span class="pre">attack_from_preds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proba_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proba_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.attack_from_preds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds" title="Link to this definition">#</a></dt>
+<dd><p>Run attack based upon the predictions in proba_train and proba_test.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of train predictions. One row per example, one column per class.</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of test predictions. One row per example, one column per class.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.attackable">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attackable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.attackable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attackable" title="Link to this definition">#</a></dt>
+<dd><p>Return whether a target can be assessed with WorstCaseAttack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays">
+<span class="sig-name descname"><span class="pre">generate_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_rows_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rows_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.generate_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays" title="Link to this definition">#</a></dt>
+<dd><p>Generate train and test prediction arrays, used when computing baseline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_rows_in</strong><span class="classifier">int</span></dt><dd><p>Number of rows of in-sample (training) probabilities.</p>
+</dd>
+<dt><strong>n_rows_out</strong><span class="classifier">int</span></dt><dd><p>Number of rows of out-of-sample (testing) probabilities.</p>
+</dd>
+<dt><strong>train_beta</strong><span class="classifier">float</span></dt><dd><p>Beta value for generating train probabilities.</p>
+</dd>
+<dt><strong>test_beta</strong><span class="classifier">float:</span></dt><dd><p>Beta value for generating test probabilities.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of train predictions (n_rows x 2 columns).</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of test predictions (n_rows x 2 columns).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params" title="Link to this definition">#</a></dt>
+<dd><p>Get parameters for this attack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params</strong><span class="classifier">dict</span></dt><dd><p>Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps">
+<span class="sig-name descname"><span class="pre">run_attack_reps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proba_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proba_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/sacroml/attacks/worst_case_attack.html#WorstCaseAttack.run_attack_reps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps" title="Link to this definition">#</a></dt>
+<dd><p>Run actual attack reps from train and test predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>proba_train</strong><span class="classifier">np.ndarray</span></dt><dd><p>Predictions from the model on training (in-sample) data.</p>
+</dd>
+<dt><strong>proba_test</strong><span class="classifier">np.ndarray</span></dt><dd><p>Predictions from the model on testing (out-of-sample) data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Dictionary of mia_metrics (a list of metric across repetitions).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="likelihood.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">LiRA Attack</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="structural.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Structural Attack</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.__init__"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.attack()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attack_from_preds"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.attack_from_preds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.attackable"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.attackable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.generate_arrays"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.generate_arrays()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.get_params"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.get_params()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.attacks.worst_case_attack.WorstCaseAttack.run_attack_reps"><code class="docutils literal notranslate"><span class="pre">WorstCaseAttack.run_attack_reps()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/attacks/worst_case.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

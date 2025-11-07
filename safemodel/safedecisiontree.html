@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SafeDecisionTree &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'safemodel/safedecisiontree';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SafeRandomForest" href="saferandomforest.html" />
+    <link rel="prev" title="Base Class" href="safemodel.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../attacks/index.html">Attacks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/likelihood.html">LiRA Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/worst_case.html">Worst Case Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/structural.html">Structural Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/attribute.html">Attribute Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/target.html">Target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/data.html">Dataset Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/metrics.html">Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/report.html">Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../attacks/output_format.html">JSON Output for Attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Safemodel</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="safemodel.html">Base Class</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">SafeDecisionTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="saferandomforest.html">SafeRandomForest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="safesvc.html">SafeSVC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extending.html">Extending SafeModel</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Safemodel</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SafeDecisionTree</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="safedecisiontree">
+<h1>SafeDecisionTree<a class="headerlink" href="#safedecisiontree" title="Link to this heading">#</a></h1>
+<p>An example Python Notebook is available  <a class="reference external" href="https://github.com/AI-SDC/SACRO-ML/blob/main/examples/notebooks/example-notebook-decisiontree.ipynb">Here</a></p>
+<p id="module-sacroml.safemodel.classifiers.safedecisiontreeclassifier">Privacy protected Decision Tree classifier.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sacroml.safemodel.classifiers.safedecisiontreeclassifier.</span></span><span class="sig-name descname"><span class="pre">SafeDecisionTreeClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#SafeDecisionTreeClassifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier" title="Link to this definition">#</a></dt>
+<dd><p>Privacy protected Decision Tree classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.feature_importances_" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.feature_importances_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_importances_</span></code></a></dt><dd><p>Return the feature importances.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">additional_checks</span></code></a>(curr_separate, saved_separate)</p></td>
+<td><p>Decision Tree-specific checks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.apply" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(X[, check_input])</p></td>
+<td><p>Return the index of the leaf that each sample is predicted as.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cost_complexity_pruning_path</span></code></a>(X, y[, ...])</p></td>
+<td><p>Compute the pruning path during Minimal Cost-Complexity Pruning.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.decision_path" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.decision_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decision_path</span></code></a>(X[, check_input])</p></td>
+<td><p>Return the decision path in the tree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.examine_seperate_items" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.examine_seperate_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">examine_seperate_items</span></code></a>(curr_vals, saved_vals)</p></td>
+<td><p>Check model-specific items exist in both current and saved copies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(x, y)</p></td>
+<td><p>Fit model and store k-anonymity and model dict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_current_and_saved_models" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_current_and_saved_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_and_saved_models</span></code></a>()</p></td>
+<td><p>Copy self.__dict__ and split into dicts for current and saved versions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_depth</span></code></a>()</p></td>
+<td><p>Return the depth of the decision tree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_metadata_routing" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_metadata_routing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata_routing</span></code></a>()</p></td>
+<td><p>Get metadata routing of this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_n_leaves" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_n_leaves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n_leaves</span></code></a>()</p></td>
+<td><p>Return the number of leaves of the decision tree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_params" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<td><p>Get a dictionary of parameter values restricted to those expected.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.posthoc_check" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.posthoc_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">posthoc_check</span></code></a>()</p></td>
+<td><p>Check whether model has been interfered with since fit() was last run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X[, check_input])</p></td>
+<td><p>Predict class or regression value for X.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_log_proba" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</p></td>
+<td><p>Predict class log-probabilities of the input samples X.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_proba" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X[, check_input])</p></td>
+<td><p>Predict class probabilities of the input samples X.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.preliminary_check" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.preliminary_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preliminary_check</span></code></a>([verbose, apply_constraints])</p></td>
+<td><p>Check whether current model parameters violate the safe rules.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.request_release" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.request_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_release</span></code></a>(path, ext[, target])</p></td>
+<td><p>Save model and create a report for the TRE output checkers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.run_attack" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.run_attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_attack</span></code></a>(target, attack_name[, output_dir])</p></td>
+<td><p>Run a specified attack on the trained model and save report to file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.save" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([name])</p></td>
+<td><p>Write model to file in appropriate format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.score" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X, y[, sample_weight])</p></td>
+<td><p>Return <span class="xref std std-ref">accuracy</span> on provided data and labels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_fit_request" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_fit_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fit_request</span></code></a>(*[, sample_weight])</p></td>
+<td><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_params" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<td><p>Set the parameters of this estimator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_score_request" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_score_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_score_request</span></code></a>(*[, sample_weight])</p></td>
+<td><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#SafeDecisionTreeClassifier.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Create model and apply constraints to params.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks">
+<span class="sig-name descname"><span class="pre">additional_checks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#SafeDecisionTreeClassifier.additional_checks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks" title="Link to this definition">#</a></dt>
+<dd><p>Decision Tree-specific checks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.apply" title="Link to this definition">#</a></dt>
+<dd><p>Return the index of the leaf that each sample is predicted as.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.17.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
+</dd>
+<dt><strong>check_input</strong><span class="classifier">bool, default=True</span></dt><dd><p>Allow to bypass several input checking.
+Don’t use this parameter unless you know what you’re doing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>X_leaves</strong><span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>For each datapoint x in X, return the index of the leaf x
+ends up in. Leaves are numbered within
+<code class="docutils literal notranslate"><span class="pre">[0;</span> <span class="pre">self.tree_.node_count)</span></code>, possibly with gaps in the
+numbering.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path">
+<span class="sig-name descname"><span class="pre">cost_complexity_pruning_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path" title="Link to this definition">#</a></dt>
+<dd><p>Compute the pruning path during Minimal Cost-Complexity Pruning.</p>
+<p>See <span class="xref std std-ref">minimal_cost_complexity_pruning</span> for details on the pruning
+process.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The training input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csc_matrix</span></code>.</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt><dd><p>The target values (class labels) as integers or strings.</p>
+</dd>
+<dt><strong>sample_weight</strong><span class="classifier">array-like of shape (n_samples,), default=None</span></dt><dd><p>Sample weights. If None, then samples are equally weighted. Splits
+that would create child nodes with net zero or negative weight are
+ignored while searching for a split in each node. Splits are also
+ignored if they would result in any single class carrying a
+negative weight in either child node.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>ccp_path</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bunch</span></code></span></dt><dd><p>Dictionary-like object, with the following attributes.</p>
+<dl class="simple">
+<dt>ccp_alphas<span class="classifier">ndarray</span></dt><dd><p>Effective alphas of subtree during pruning.</p>
+</dd>
+<dt>impurities<span class="classifier">ndarray</span></dt><dd><p>Sum of the impurities of the subtree leaves for the
+corresponding alpha value in <code class="docutils literal notranslate"><span class="pre">ccp_alphas</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.decision_path">
+<span class="sig-name descname"><span class="pre">decision_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.decision_path" title="Link to this definition">#</a></dt>
+<dd><p>Return the decision path in the tree.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.18.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
+</dd>
+<dt><strong>check_input</strong><span class="classifier">bool, default=True</span></dt><dd><p>Allow to bypass several input checking.
+Don’t use this parameter unless you know what you’re doing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>indicator</strong><span class="classifier">sparse matrix of shape (n_samples, n_nodes)</span></dt><dd><p>Return a node indicator CSR matrix where non zero elements
+indicates that the samples goes through the nodes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.examine_seperate_items">
+<span class="sig-name descname"><span class="pre">examine_seperate_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.examine_seperate_items" title="Link to this definition">#</a></dt>
+<dd><p>Check model-specific items exist in both current and saved copies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#SafeDecisionTreeClassifier.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit model and store k-anonymity and model dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_current_and_saved_models">
+<span class="sig-name descname"><span class="pre">get_current_and_saved_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_current_and_saved_models" title="Link to this definition">#</a></dt>
+<dd><p>Copy self.__dict__ and split into dicts for current and saved versions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth">
+<span class="sig-name descname"><span class="pre">get_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth" title="Link to this definition">#</a></dt>
+<dd><p>Return the depth of the decision tree.</p>
+<p>The depth of a tree is the maximum distance between the root
+and any leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>self.tree_.max_depth</strong><span class="classifier">int</span></dt><dd><p>The maximum depth of the tree.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_metadata_routing">
+<span class="sig-name descname"><span class="pre">get_metadata_routing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_metadata_routing" title="Link to this definition">#</a></dt>
+<dd><p>Get metadata routing of this object.</p>
+<p>Please check <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>routing</strong><span class="classifier">MetadataRequest</span></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">MetadataRequest</span></code> encapsulating
+routing information.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_n_leaves">
+<span class="sig-name descname"><span class="pre">get_n_leaves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_n_leaves" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of leaves of the decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>self.tree_.n_leaves</strong><span class="classifier">int</span></dt><dd><p>Number of leaves.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_params" title="Link to this definition">#</a></dt>
+<dd><p>Get a dictionary of parameter values restricted to those expected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.posthoc_check">
+<span class="sig-name descname"><span class="pre">posthoc_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.posthoc_check" title="Link to this definition">#</a></dt>
+<dd><p>Check whether model has been interfered with since fit() was last run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict" title="Link to this definition">#</a></dt>
+<dd><p>Predict class or regression value for X.</p>
+<p>For a classification model, the predicted class for each sample in X is
+returned. For a regression model, the predicted value based on X is
+returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
+</dd>
+<dt><strong>check_input</strong><span class="classifier">bool, default=True</span></dt><dd><p>Allow to bypass several input checking.
+Don’t use this parameter unless you know what you’re doing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>y</strong><span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt><dd><p>The predicted classes, or the predict values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_log_proba">
+<span class="sig-name descname"><span class="pre">predict_log_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_log_proba" title="Link to this definition">#</a></dt>
+<dd><p>Predict class log-probabilities of the input samples X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>proba</strong><span class="classifier">ndarray of shape (n_samples, n_classes) or list of n_outputs             such arrays if n_outputs &gt; 1</span></dt><dd><p>The class log-probabilities of the input samples. The order of the
+classes corresponds to that in the attribute <span class="xref std std-term">classes_</span>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_proba" title="Link to this definition">#</a></dt>
+<dd><p>Predict class probabilities of the input samples X.</p>
+<p>The predicted class probability is the fraction of samples of the same
+class in a leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
+</dd>
+<dt><strong>check_input</strong><span class="classifier">bool, default=True</span></dt><dd><p>Allow to bypass several input checking.
+Don’t use this parameter unless you know what you’re doing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>proba</strong><span class="classifier">ndarray of shape (n_samples, n_classes) or list of n_outputs             such arrays if n_outputs &gt; 1</span></dt><dd><p>The class probabilities of the input samples. The order of the
+classes corresponds to that in the attribute <span class="xref std std-term">classes_</span>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.preliminary_check">
+<span class="sig-name descname"><span class="pre">preliminary_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.preliminary_check" title="Link to this definition">#</a></dt>
+<dd><p>Check whether current model parameters violate the safe rules.</p>
+<p>Optionally fixes violations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>A boolean value to determine increased output level.</p>
+</dd>
+<dt><strong>apply_constraints</strong><span class="classifier">bool</span></dt><dd><p>A boolean to determine whether identified constraints are
+to be upheld and applied.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>msg</strong><span class="classifier">string</span></dt><dd><p>A message string.</p>
+</dd>
+<dt><strong>disclosive</strong><span class="classifier">bool</span></dt><dd><p>A boolean value indicating whether the model is potentially
+disclosive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.request_release">
+<span class="sig-name descname"><span class="pre">request_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../attacks/target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.request_release" title="Link to this definition">#</a></dt>
+<dd><p>Save model and create a report for the TRE output checkers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">string</span></dt><dd><p>Path to save the outputs.</p>
+</dd>
+<dt><strong>ext</strong><span class="classifier">str</span></dt><dd><p>File extension defining the model saved format, e.g., “pkl” or “sav”.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">attacks.target.Target</span></dt><dd><p>Contains model and dataset information.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If target is not null, then worst case MIA and attribute inference
+attacks are called via run_attack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.run_attack">
+<span class="sig-name descname"><span class="pre">run_attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../attacks/target.html#sacroml.attacks.target.Target" title="sacroml.attacks.target.Target"><span class="pre">Target</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'outputs_safemodel'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.run_attack" title="Link to this definition">#</a></dt>
+<dd><p>Run a specified attack on the trained model and save report to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">Target</span></dt><dd><p>The target in the form of a Target object.</p>
+</dd>
+<dt><strong>attack_name</strong><span class="classifier">str</span></dt><dd><p>Name of the attack to run.</p>
+</dd>
+<dt><strong>output_dir</strong><span class="classifier">str</span></dt><dd><p>Name of the directory to store JSON and PDF reports.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Metadata results.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'undefined'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.save" title="Link to this definition">#</a></dt>
+<dd><p>Write model to file in appropriate format.</p>
+<p>Note this is overloaded in <cite>SafeKerasClassifer</cite>
+to deal with tensorflow specifics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">string</span></dt><dd><p>The name of the file to save.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Optimizer is deliberately excluded to prevent possible restart to
+training and thus possible back door into attacks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.score" title="Link to this definition">#</a></dt>
+<dd><p>Return <span class="xref std std-ref">accuracy</span> on provided data and labels.</p>
+<p>In multi-label classification, this is the subset accuracy
+which is a harsh metric since you require for each sample that
+each label set be correctly predicted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">array-like of shape (n_samples, n_features)</span></dt><dd><p>Test samples.</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt><dd><p>True labels for <cite>X</cite>.</p>
+</dd>
+<dt><strong>sample_weight</strong><span class="classifier">array-like of shape (n_samples,), default=None</span></dt><dd><p>Sample weights.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">float</span></dt><dd><p>Mean accuracy of <code class="docutils literal notranslate"><span class="pre">self.predict(X)</span></code> w.r.t. <cite>y</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_fit_request">
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier"><span class="pre">SafeDecisionTreeClassifier</span></a></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_fit_request" title="Link to this definition">#</a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <span class="xref std std-term">meta-estimator</span> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please check the <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sample_weight</strong><span class="classifier">str, True, False, or None,                     default=sklearn.utils.metadata_routing.UNCHANGED</span></dt><dd><p>Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>self</strong><span class="classifier">object</span></dt><dd><p>The updated object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_params" title="Link to this definition">#</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>). The latter have
+parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
+possible to update each component of a nested object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**params</strong><span class="classifier">dict</span></dt><dd><p>Estimator parameters.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>self</strong><span class="classifier">estimator instance</span></dt><dd><p>Estimator instance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_score_request">
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier" title="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier"><span class="pre">SafeDecisionTreeClassifier</span></a></span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_score_request" title="Link to this definition">#</a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <span class="xref std std-term">meta-estimator</span> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please check the <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">score</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sample_weight</strong><span class="classifier">str, True, False, or None,                     default=sklearn.utils.metadata_routing.UNCHANGED</span></dt><dd><p>Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>self</strong><span class="classifier">object</span></dt><dd><p>The updated object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.feature_importances_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_importances_</span></span><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.feature_importances_" title="Link to this definition">#</a></dt>
+<dd><p>Return the feature importances.</p>
+<p>The importance of a feature is computed as the (normalized) total
+reduction of the criterion brought by that feature.
+It is also known as the Gini importance.</p>
+<p>Warning: impurity-based feature importances can be misleading for
+high cardinality features (many unique values). See
+<code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.inspection.permutation_importance()</span></code> as an alternative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>feature_importances_</strong><span class="classifier">ndarray of shape (n_features,)</span></dt><dd><p>Normalized total reduction of criteria by feature
+(Gini importance).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_tree_internal_trees_are_equal">
+<span class="sig-prename descclassname"><span class="pre">sacroml.safemodel.classifiers.safedecisiontreeclassifier.</span></span><span class="sig-name descname"><span class="pre">decision_tree_internal_trees_are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree1_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree2_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#decision_tree_internal_trees_are_equal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_tree_internal_trees_are_equal" title="Link to this definition">#</a></dt>
+<dd><p>Test for equality of the internal structures in a sklearn.tree._tree.</p>
+<p>For example, the structure, feature and threshold in each internal node etc.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_trees_are_equal">
+<span class="sig-prename descclassname"><span class="pre">sacroml.safemodel.classifiers.safedecisiontreeclassifier.</span></span><span class="sig-name descname"><span class="pre">decision_trees_are_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DecisionTreeClassifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DecisionTreeClassifier</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#decision_trees_are_equal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_trees_are_equal" title="Link to this definition">#</a></dt>
+<dd><p>Compare two estimators of type sklearn.tree.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sacroml.safemodel.classifiers.safedecisiontreeclassifier.get_tree_k_anonymity">
+<span class="sig-prename descclassname"><span class="pre">sacroml.safemodel.classifiers.safedecisiontreeclassifier.</span></span><span class="sig-name descname"><span class="pre">get_tree_k_anonymity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thetree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DecisionTreeClassifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/sacroml/safemodel/classifiers/safedecisiontreeclassifier.html#get_tree_k_anonymity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.get_tree_k_anonymity" title="Link to this definition">#</a></dt>
+<dd><p>Return the smallest number of data items in any leaf.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="safemodel.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Base Class</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="saferandomforest.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SafeRandomForest</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.__init__"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.additional_checks"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.additional_checks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.apply"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.apply()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.cost_complexity_pruning_path"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.cost_complexity_pruning_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.decision_path"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.decision_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.examine_seperate_items"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.examine_seperate_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.fit"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.fit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_current_and_saved_models"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.get_current_and_saved_models()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_depth"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.get_depth()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_metadata_routing"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.get_metadata_routing()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_n_leaves"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.get_n_leaves()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.get_params"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.get_params()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.posthoc_check"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.posthoc_check()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.predict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_log_proba"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.predict_log_proba()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.predict_proba"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.predict_proba()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.preliminary_check"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.preliminary_check()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.request_release"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.request_release()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.run_attack"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.run_attack()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.save"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.score"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.score()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_fit_request"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.set_fit_request()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_params"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.set_params()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.set_score_request"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.set_score_request()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.SafeDecisionTreeClassifier.feature_importances_"><code class="docutils literal notranslate"><span class="pre">SafeDecisionTreeClassifier.feature_importances_</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_tree_internal_trees_are_equal"><code class="docutils literal notranslate"><span class="pre">decision_tree_internal_trees_are_equal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.decision_trees_are_equal"><code class="docutils literal notranslate"><span class="pre">decision_trees_are_equal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sacroml.safemodel.classifiers.safedecisiontreeclassifier.get_tree_k_anonymity"><code class="docutils literal notranslate"><span class="pre">get_tree_k_anonymity()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/safemodel/safedecisiontree.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

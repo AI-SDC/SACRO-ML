@@ -1,0 +1,897 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PyTorch Examples &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=9172181d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pytorch_examples';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Risk Assessment Examples" href="risk_examples.html" />
+    <link rel="prev" title="Scikit-learn Examples" href="scikit_learn_examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="notebook_examples.html">Notebook Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-decisiontree.html">Safe Decision Tree Notebook</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-randomforest.html">Safe Random Forest Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example-notebook-SVC.html">Safe Support Vector Machine Notebook</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="scikit_learn_examples.html">Scikit-learn Examples</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">PyTorch Examples</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="risk_examples.html">Risk Assessment Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/membership_inference_cancer.html">Drug response prediction for cancer patients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/attribute_inference_cancer.html">Risk of cancer prediction for patients with multiple disorders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/instance_based_mimic.html">Instance based attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="safemodel_examples.html">SafeModel Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unsupported_examples.html">Unsupported Model Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_stories.html">User Stories</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PyTorch Examples</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pytorch-examples">
+<h1>PyTorch Examples<a class="headerlink" href="#pytorch-examples" title="Link to this heading">#</a></h1>
+<p>This section demonstrates how to use SACRO-ML with PyTorch models for privacy assessment.</p>
+<section id="simple-pytorch-example">
+<h2>Simple PyTorch Example<a class="headerlink" href="#simple-pytorch-example" title="Link to this heading">#</a></h2>
+<p>A basic example showing how to train a simple PyTorch model and run privacy attacks.</p>
+<p><strong>Training the Model:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Simple PyTorch Model Training</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;Train a classifier on synthetic data using sacroml Target and Dataset classes.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">dataset</span> <span class="kn">import</span> <span class="n">Synthetic</span>
+<span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">OverfitNet</span>
+<span class="linenos"> 8</span><span class="kn">from</span> <span class="nn">train</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span> <span class="n">train</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">target_dir</span> <span class="o">=</span> <span class="s2">&quot;target_pytorch&quot;</span>
+<span class="linenos">13</span><span class="n">random_state</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">16</span>    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+<span class="linenos">17</span>    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+<span class="linenos">18</span>        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+<span class="linenos">19</span>        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">()))</span>
+<span class="linenos">20</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">21</span>        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found no NVIDIA driver on your system&quot;</span><span class="p">)</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">24</span>    <span class="c1"># Dataset loading and model training</span>
+<span class="linenos">25</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading dataset&quot;</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="c1"># Access dataset</span>
+<span class="linenos">30</span>    <span class="n">data_handler</span> <span class="o">=</span> <span class="n">Synthetic</span><span class="p">()</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>    <span class="c1"># Get the (preprocessed) dataset</span>
+<span class="linenos">33</span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">()</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span>    <span class="c1"># Create data splits</span>
+<span class="linenos">36</span>    <span class="n">indices_train</span><span class="p">,</span> <span class="n">indices_test</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_train_test_indices</span><span class="p">()</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>    <span class="c1"># Get dataloaders</span>
+<span class="linenos">39</span>    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataloader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indices_train</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">40</span>    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataloader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indices_test</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Defining the model&quot;</span><span class="p">)</span>
+<span class="linenos">43</span>
+<span class="linenos">44</span>    <span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">45</span>        <span class="s2">&quot;x_dim&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="linenos">46</span>        <span class="s2">&quot;y_dim&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="linenos">47</span>        <span class="s2">&quot;n_units&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+<span class="linenos">48</span>    <span class="p">}</span>
+<span class="linenos">49</span>    <span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">50</span>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+<span class="linenos">51</span>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="linenos">52</span>        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+<span class="linenos">53</span>    <span class="p">}</span>
+<span class="linenos">54</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">OverfitNet</span><span class="p">(</span><span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+<span class="linenos">55</span>
+<span class="linenos">56</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training the model&quot;</span><span class="p">)</span>
+<span class="linenos">57</span>    <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="o">**</span><span class="n">train_params</span><span class="p">)</span>
+<span class="linenos">58</span>
+<span class="linenos">59</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Testing the model&quot;</span><span class="p">)</span>
+<span class="linenos">60</span>    <span class="n">test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">)</span>
+<span class="linenos">61</span>
+<span class="linenos">62</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">63</span>    <span class="c1"># Below shows the use of the Target class to help generate the target_dir/</span>
+<span class="linenos">64</span>    <span class="c1"># If you have already saved your model, you can use the CLI target generator.</span>
+<span class="linenos">65</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">66</span>
+<span class="linenos">67</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrapping the model and data in a Target object&quot;</span><span class="p">)</span>
+<span class="linenos">68</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos">69</span>        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">70</span>        <span class="n">model_module_path</span><span class="o">=</span><span class="s2">&quot;model.py&quot;</span><span class="p">,</span>
+<span class="linenos">71</span>        <span class="n">model_params</span><span class="o">=</span><span class="n">model_params</span><span class="p">,</span>  <span class="c1"># Must match all required in model constructor</span>
+<span class="linenos">72</span>        <span class="n">train_module_path</span><span class="o">=</span><span class="s2">&quot;train.py&quot;</span><span class="p">,</span>
+<span class="linenos">73</span>        <span class="n">train_params</span><span class="o">=</span><span class="n">train_params</span><span class="p">,</span>  <span class="c1"># Must match all required in the train function</span>
+<span class="linenos">74</span>        <span class="n">dataset_module_path</span><span class="o">=</span><span class="s2">&quot;dataset.py&quot;</span><span class="p">,</span>
+<span class="linenos">75</span>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;Synthetic&quot;</span><span class="p">,</span>  <span class="c1"># Must match the class name in dataset module</span>
+<span class="linenos">76</span>        <span class="n">indices_train</span><span class="o">=</span><span class="n">indices_train</span><span class="p">,</span>
+<span class="linenos">77</span>        <span class="n">indices_test</span><span class="o">=</span><span class="n">indices_test</span><span class="p">,</span>
+<span class="linenos">78</span>    <span class="p">)</span>
+<span class="linenos">79</span>
+<span class="linenos">80</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing Target object to directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">81</span>    <span class="n">target</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: the training script above is included from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/simple/train_pytorch.py</span></code>; any variables or helper functions it references (for example dataset preparation or target definitions) are defined in the example source files shown below.</p>
+<p><strong>Model Definition:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Simple PyTorch Model Architecture (from examples/pytorch/simple/model.py)</span><a class="headerlink" href="#id2" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;An example Pytorch classifier.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="k">class</span> <span class="nc">OverfitNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="linenos"> 7</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;An example Pytorch classification model.&quot;&quot;&quot;</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_units</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">10</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a simple Pytorch model.&quot;&quot;&quot;</span>
+<span class="linenos">11</span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="linenos">12</span>        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+<span class="linenos">13</span>            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">n_units</span><span class="p">),</span>
+<span class="linenos">14</span>            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+<span class="linenos">15</span>            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">,</span> <span class="n">y_dim</span><span class="p">),</span>
+<span class="linenos">16</span>        <span class="p">)</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="linenos">19</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward propagate input.&quot;&quot;&quot;</span>
+<span class="linenos">20</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: this model code is included from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/simple/model.py</span></code>. Definitions used by other snippets on this page (for example a variable named <code class="docutils literal notranslate"><span class="pre">target</span></code> or model class definitions) come from this file.</p>
+<p><strong>Running Privacy Attacks:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Privacy Attacks on Simple PyTorch Model (from examples/pytorch/simple/attack_pytorch.py)</span><a class="headerlink" href="#id3" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;Example of how to run attacks on a model saved with the Target wrapper.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">sacroml.attacks.likelihood_attack</span> <span class="kn">import</span> <span class="n">LIRAAttack</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">sacroml.attacks.worst_case_attack</span> <span class="kn">import</span> <span class="n">WorstCaseAttack</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output_pytorch&quot;</span>
+<span class="linenos">10</span><span class="n">target_dir</span> <span class="o">=</span> <span class="s2">&quot;target_pytorch&quot;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">14</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading Target object from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="n">target</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running attacks...&quot;</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>    <span class="n">attack</span> <span class="o">=</span> <span class="n">WorstCaseAttack</span><span class="p">(</span><span class="n">n_reps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="linenos">22</span>    <span class="n">attack</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span>    <span class="n">attack</span> <span class="o">=</span> <span class="n">LIRAAttack</span><span class="p">(</span><span class="n">n_shadow_models</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="linenos">25</span>    <span class="n">attack</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: the attack examples are included from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/simple/attack_pytorch.py</span></code> and may call into the training or model files for required functions/objects.</p>
+</section>
+<section id="cifar-dataset-example">
+<h2>CIFAR Dataset Example<a class="headerlink" href="#cifar-dataset-example" title="Link to this heading">#</a></h2>
+<p>Advanced example using CIFAR dataset with convolutional neural networks.</p>
+<p><strong>Training the Model:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;Train a PyTorch classifier on CIFAR10 using sacroml Target and Dataset classes.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">dataset</span> <span class="kn">import</span> <span class="n">Cifar10</span>
+<span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">Net</span>
+<span class="linenos"> 8</span><span class="kn">from</span> <span class="nn">train</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span> <span class="n">train</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">target_dir</span> <span class="o">=</span> <span class="s2">&quot;target_pytorch&quot;</span>
+<span class="linenos">13</span><span class="n">random_state</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">16</span>    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+<span class="linenos">17</span>    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+<span class="linenos">18</span>        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+<span class="linenos">19</span>        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">()))</span>
+<span class="linenos">20</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">21</span>        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found no NVIDIA driver on your system&quot;</span><span class="p">)</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">24</span>    <span class="c1"># Dataset loading and model training</span>
+<span class="linenos">25</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading dataset&quot;</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="c1"># Access dataset</span>
+<span class="linenos">30</span>    <span class="n">data_handler</span> <span class="o">=</span> <span class="n">Cifar10</span><span class="p">()</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>    <span class="c1"># Get the (preprocessed) dataset</span>
+<span class="linenos">33</span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">()</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span>    <span class="c1"># Create data splits</span>
+<span class="linenos">36</span>    <span class="n">indices_train</span><span class="p">,</span> <span class="n">indices_test</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_train_test_indices</span><span class="p">()</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>    <span class="c1"># Get dataloaders</span>
+<span class="linenos">39</span>    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataloader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indices_train</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">40</span>    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">get_dataloader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indices_test</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Defining the model&quot;</span><span class="p">)</span>
+<span class="linenos">43</span>
+<span class="linenos">44</span>    <span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">45</span>        <span class="s2">&quot;n_kernel&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+<span class="linenos">46</span>    <span class="p">}</span>
+<span class="linenos">47</span>    <span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">48</span>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+<span class="linenos">49</span>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="linenos">50</span>        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+<span class="linenos">51</span>    <span class="p">}</span>
+<span class="linenos">52</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">(</span><span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+<span class="linenos">53</span>
+<span class="linenos">54</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training the model&quot;</span><span class="p">)</span>
+<span class="linenos">55</span>    <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="o">**</span><span class="n">train_params</span><span class="p">)</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Testing the model&quot;</span><span class="p">)</span>
+<span class="linenos">58</span>    <span class="n">test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">data_handler</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+<span class="linenos">59</span>
+<span class="linenos">60</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">61</span>    <span class="c1"># Below shows the use of the Target class to help generate the target_dir/</span>
+<span class="linenos">62</span>    <span class="c1"># If you have already saved your model, you can use the CLI target generator.</span>
+<span class="linenos">63</span>    <span class="c1">#############################################################################</span>
+<span class="linenos">64</span>
+<span class="linenos">65</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrapping the model and data in a Target object&quot;</span><span class="p">)</span>
+<span class="linenos">66</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+<span class="linenos">67</span>        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">68</span>        <span class="n">model_module_path</span><span class="o">=</span><span class="s2">&quot;model.py&quot;</span><span class="p">,</span>
+<span class="linenos">69</span>        <span class="n">model_params</span><span class="o">=</span><span class="n">model_params</span><span class="p">,</span>  <span class="c1"># Must match all required in model constructor</span>
+<span class="linenos">70</span>        <span class="n">train_module_path</span><span class="o">=</span><span class="s2">&quot;train.py&quot;</span><span class="p">,</span>
+<span class="linenos">71</span>        <span class="n">train_params</span><span class="o">=</span><span class="n">train_params</span><span class="p">,</span>  <span class="c1"># Must match all required in the train function</span>
+<span class="linenos">72</span>        <span class="n">dataset_module_path</span><span class="o">=</span><span class="s2">&quot;dataset.py&quot;</span><span class="p">,</span>
+<span class="linenos">73</span>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;Cifar10&quot;</span><span class="p">,</span>  <span class="c1"># Must match the class name in dataset module</span>
+<span class="linenos">74</span>        <span class="n">indices_train</span><span class="o">=</span><span class="n">indices_train</span><span class="p">,</span>
+<span class="linenos">75</span>        <span class="n">indices_test</span><span class="o">=</span><span class="n">indices_test</span><span class="p">,</span>
+<span class="linenos">76</span>    <span class="p">)</span>
+<span class="linenos">77</span>
+<span class="linenos">78</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing Target object to directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">79</span>    <span class="n">target</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Note: the training script above is included from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/cifar/train_pytorch.py</span></code>; dataset handling and model definitions referenced below are defined in their respective files.</dt><dd><dl class="field-list simple">
+<dt class="field-odd">caption<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CIFAR Dataset PyTorch Training (from examples/pytorch/cifar/train_pytorch.py)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><strong>Model Architecture:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">CIFAR CNN Model Architecture (from examples/pytorch/cifar/model.py)</span><a class="headerlink" href="#id4" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;An example Pytorch classifier.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="linenos"> 4</span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="k">class</span> <span class="nc">Net</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;A Pytorch classification model for cifar10.&quot;&quot;&quot;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_kernel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+<span class="linenos">11</span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="linenos">12</span>        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">n_kernel</span><span class="p">)</span>
+<span class="linenos">13</span>        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="linenos">14</span>        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">n_kernel</span><span class="p">)</span>
+<span class="linenos">15</span>        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span> <span class="o">*</span> <span class="n">n_kernel</span> <span class="o">*</span> <span class="n">n_kernel</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
+<span class="linenos">16</span>        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">84</span><span class="p">)</span>
+<span class="linenos">17</span>        <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="linenos">20</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward propagate input.&quot;&quot;&quot;</span>
+<span class="linenos">21</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<span class="linenos">22</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<span class="linenos">23</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="linenos">24</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="linenos">25</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="linenos">26</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: this model architecture is included from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/cifar/model.py</span></code> and contains the network and related definitions used by the training script.</p>
+<p><strong>Dataset Processing:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">CIFAR Dataset Processing (from examples/pytorch/cifar/dataset.py)</span><a class="headerlink" href="#id5" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;Example dataset handler for CIFAR10.</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="sd">PyTorch datasets must implement `sacroml.attacks.data.PyTorchDataHandler`.</span>
+<span class="linenos"> 4</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">ConcatDataset</span><span class="p">,</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">Subset</span>
+<span class="linenos"> 9</span><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="linenos">10</span><span class="kn">from</span> <span class="nn">torchvision.datasets</span> <span class="kn">import</span> <span class="n">CIFAR10</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="kn">from</span> <span class="nn">sacroml.attacks.data</span> <span class="kn">import</span> <span class="n">PyTorchDataHandler</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="k">class</span> <span class="nc">Cifar10</span><span class="p">(</span><span class="n">PyTorchDataHandler</span><span class="p">):</span>
+<span class="linenos">16</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;CIFAR10 dataset handler.&quot;&quot;&quot;</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">19</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch and process CIFAR10.&quot;&quot;&quot;</span>
+<span class="linenos">20</span>        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+<span class="linenos">21</span>            <span class="p">[</span>
+<span class="linenos">22</span>                <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+<span class="linenos">23</span>                <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)),</span>
+<span class="linenos">24</span>            <span class="p">]</span>
+<span class="linenos">25</span>        <span class="p">)</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>        <span class="n">train_set</span> <span class="o">=</span> <span class="n">CIFAR10</span><span class="p">(</span>
+<span class="linenos">28</span>            <span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span>
+<span class="linenos">29</span>        <span class="p">)</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>        <span class="n">test_set</span> <span class="o">=</span> <span class="n">CIFAR10</span><span class="p">(</span>
+<span class="linenos">32</span>            <span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span>
+<span class="linenos">33</span>        <span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span>        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ConcatDataset</span><span class="p">([</span><span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span><span class="p">])</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span>        <span class="bp">self</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos">38</span>            <span class="s2">&quot;plane&quot;</span><span class="p">,</span>
+<span class="linenos">39</span>            <span class="s2">&quot;car&quot;</span><span class="p">,</span>
+<span class="linenos">40</span>            <span class="s2">&quot;bird&quot;</span><span class="p">,</span>
+<span class="linenos">41</span>            <span class="s2">&quot;cat&quot;</span><span class="p">,</span>
+<span class="linenos">42</span>            <span class="s2">&quot;deer&quot;</span><span class="p">,</span>
+<span class="linenos">43</span>            <span class="s2">&quot;dog&quot;</span><span class="p">,</span>
+<span class="linenos">44</span>            <span class="s2">&quot;frog&quot;</span><span class="p">,</span>
+<span class="linenos">45</span>            <span class="s2">&quot;horse&quot;</span><span class="p">,</span>
+<span class="linenos">46</span>            <span class="s2">&quot;ship&quot;</span><span class="p">,</span>
+<span class="linenos">47</span>            <span class="s2">&quot;truck&quot;</span><span class="p">,</span>
+<span class="linenos">48</span>        <span class="p">)</span>
+<span class="linenos">49</span>
+<span class="linenos">50</span>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="linenos">51</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the length of the dataset.&quot;&quot;&quot;</span>
+<span class="linenos">52</span>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+<span class="linenos">53</span>
+<span class="linenos">54</span>    <span class="k">def</span> <span class="nf">get_raw_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">55</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a raw unprocessed dataset.&quot;&quot;&quot;</span>
+<span class="linenos">56</span>        <span class="c1"># Raw data only required for attribute inference</span>
+<span class="linenos">57</span>        <span class="k">return</span> <span class="kc">None</span>
+<span class="linenos">58</span>
+<span class="linenos">59</span>    <span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="linenos">60</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a preprocessed dataset.&quot;&quot;&quot;</span>
+<span class="linenos">61</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+<span class="linenos">62</span>
+<span class="linenos">63</span>    <span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span>
+<span class="linenos">64</span>        <span class="bp">self</span><span class="p">,</span>
+<span class="linenos">65</span>        <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span>
+<span class="linenos">66</span>        <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="linenos">67</span>        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+<span class="linenos">68</span>        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="linenos">69</span>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
+<span class="linenos">70</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a data loader with a requested subset of samples.&quot;&quot;&quot;</span>
+<span class="linenos">71</span>        <span class="n">subset</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+<span class="linenos">72</span>        <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">)</span>
+<span class="linenos">73</span>
+<span class="linenos">74</span>    <span class="k">def</span> <span class="nf">get_train_test_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="linenos">75</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return train and test set indices.&quot;&quot;&quot;</span>
+<span class="linenos">76</span>        <span class="n">train</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50000</span><span class="p">)</span>
+<span class="linenos">77</span>        <span class="n">test</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50000</span><span class="p">,</span> <span class="mi">60000</span><span class="p">)</span>
+<span class="linenos">78</span>        <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
+</pre></div>
+</div>
+</div>
+<p>Note: dataset loading and preprocessing functions are provided in <code class="docutils literal notranslate"><span class="pre">examples/pytorch/cifar/dataset.py</span></code>; training and evaluation snippets reference these utilities.</p>
+<p><strong>Running Privacy Attacks:</strong></p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Privacy Attacks on CIFAR Model (from examples/pytorch/cifar/attack_pytorch.py)</span><a class="headerlink" href="#id6" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;Example of how to run attacks on a model saved with the Target wrapper.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">sacroml.attacks.likelihood_attack</span> <span class="kn">import</span> <span class="n">LIRAAttack</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">sacroml.attacks.worst_case_attack</span> <span class="kn">import</span> <span class="n">WorstCaseAttack</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output_pytorch&quot;</span>
+<span class="linenos">10</span><span class="n">target_dir</span> <span class="o">=</span> <span class="s2">&quot;target_pytorch&quot;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">14</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading Target object from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span>    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="n">target</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span>    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running attacks...&quot;</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>    <span class="n">attack</span> <span class="o">=</span> <span class="n">WorstCaseAttack</span><span class="p">(</span><span class="n">n_reps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="linenos">22</span>    <span class="n">attack</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span>    <span class="n">attack</span> <span class="o">=</span> <span class="n">LIRAAttack</span><span class="p">(</span><span class="n">n_shadow_models</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="linenos">25</span>    <span class="n">attack</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: the attack code is taken from <code class="docutils literal notranslate"><span class="pre">examples/pytorch/cifar/attack_pytorch.py</span></code> and may depend on the model and dataset code linked above.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scikit_learn_examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Scikit-learn Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="risk_examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Risk Assessment Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-pytorch-example">Simple PyTorch Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cifar-dataset-example">CIFAR Dataset Example</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pytorch_examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

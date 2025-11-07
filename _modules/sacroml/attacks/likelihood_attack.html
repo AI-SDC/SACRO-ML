@@ -1,0 +1,857 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sacroml.attacks.likelihood_attack &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sacroml/attacks/likelihood_attack';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sacroml.attacks.likelihood_attack</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sacroml.attacks.likelihood_attack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Likelihood testing scenario from https://arxiv.org/pdf/2112.03570.pdf.</span>
+
+<span class="sd">See p.6 (top of second column) for details.</span>
+
+<span class="sd">With mode &quot;offline&quot;, we measure the probability of observing a</span>
+<span class="sd">confidence as high as the target model&#39;s under the null-hypothesis that</span>
+<span class="sd">the target point is a non-member. That is we, use the norm CDF.</span>
+
+<span class="sd">With mode &quot;offline-carlini&quot;, we measure the probability that a target point</span>
+<span class="sd">did not come from the non-member distribution. That is, we use Carlini&#39;s</span>
+<span class="sd">implementation with a single norm (log) PDF.</span>
+
+<span class="sd">With mode &quot;online-carlini&quot;, we use Carlini&#39;s implementation of the standard</span>
+<span class="sd">likelihood ratio test, measuring the ratio of probabilities the sample came</span>
+<span class="sd">from the two distributions. That is, the (log) PDF of pr_in minus pr_out.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="kn">from</span> <span class="nn">sacroml</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">EPS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-16</span>  <span class="c1"># Used to avoid numerical issues</span>
+
+
+<div class="viewcode-block" id="LIRAAttack">
+<a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack">[docs]</a>
+<span class="k">class</span> <span class="nc">LIRAAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The main LiRA Attack class.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LIRAAttack.__init__">
+<a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_shadow_models</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">p_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;offline&quot;</span><span class="p">,</span>
+        <span class="n">fix_variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">report_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an object to execute a LiRA attack.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            Name of the directory where outputs are stored.</span>
+<span class="sd">        write_report : bool</span>
+<span class="sd">            Whether to generate a JSON and PDF report.</span>
+<span class="sd">        n_shadow_models : int</span>
+<span class="sd">            Number of shadow models to be trained.</span>
+<span class="sd">        p_thresh : float</span>
+<span class="sd">            Threshold to determine significance of things. For instance</span>
+<span class="sd">            auc_p_value and pdif_vals.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            Attack mode: {&quot;offline&quot;, &quot;offline-carlini&quot;, &quot;online-carlini&quot;}</span>
+<span class="sd">        fix_variance : bool</span>
+<span class="sd">            Whether to use the global standard deviation or per record.</span>
+<span class="sd">        report_individual : bool</span>
+<span class="sd">            Whether to report metrics for each individual record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">write_report</span><span class="o">=</span><span class="n">write_report</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_shadow_models</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">n_shadow_models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">p_thresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">fix_variance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">report_individual</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># individual record results</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;target_logit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_p_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_prob&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;online-carlini&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_prob&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the attack.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;LiRA Attack&quot;</span>
+
+<div class="viewcode-block" id="LIRAAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/likelihood.html#sacroml.attacks.likelihood_attack.LIRAAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a target can be assessed with LIRAAttack.&quot;&quot;&quot;</span>
+        <span class="n">required_methods</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;clone&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;predict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;get_classes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set_params&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">required_methods</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARNING: LiRA requires a loadable model.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a LiRA attack from a Target object and a target model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target : attacks.target.Target</span>
+<span class="sd">            target as an instance of the Target class.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Attack report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># prepare</span>
+        <span class="n">shadow_clf</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_and_update_dataset</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="c1"># execute attack</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span>
+            <span class="n">shadow_clf</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">),</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># create the report</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="c1"># write the report</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="c1"># return the report</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">shadow_clf</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+        <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">proba_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">X_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">y_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">proba_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the likelihood test.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shadow_clf : Model</span>
+<span class="sd">            A classifier that will be trained to form the shadow models.</span>
+<span class="sd">        X_train : np.ndarray</span>
+<span class="sd">            Data that was used to train the target model.</span>
+<span class="sd">        y_train : np.ndarray</span>
+<span class="sd">            Labels that were used to train the target model.</span>
+<span class="sd">        proba_train : np.ndarray</span>
+<span class="sd">            Array of predictions produced by the target model on the training data.</span>
+<span class="sd">        X_test : np.ndarray</span>
+<span class="sd">            Data that will be used to train the shadow models.</span>
+<span class="sd">        y_test : np.ndarray</span>
+<span class="sd">            Labels that will be used to train the shadow models.</span>
+<span class="sd">        proba_test : np.ndarray</span>
+<span class="sd">            Array of predictions produced by the target model on the shadow data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running </span><span class="si">%s</span><span class="s2"> LiRA, fix_variance=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_variance</span><span class="p">)</span>
+
+        <span class="n">n_train_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_shadow_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">combined_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)),</span>
+            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)),</span>
+            <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">proba_train</span><span class="p">,</span> <span class="n">proba_test</span><span class="p">)),</span>
+        <span class="p">}</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">train_shadow_models</span><span class="p">(</span>
+            <span class="n">shadow_clf</span><span class="o">=</span><span class="n">shadow_clf</span><span class="p">,</span>
+            <span class="n">combined_x_train</span><span class="o">=</span><span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">],</span>
+            <span class="n">combined_y_train</span><span class="o">=</span><span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">],</span>
+            <span class="n">n_train_rows</span><span class="o">=</span><span class="n">n_train_rows</span><span class="p">,</span>
+            <span class="n">n_shadow_models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_shadow_models</span><span class="p">,</span>
+            <span class="n">shadow_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shadow_path</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">out_conf</span><span class="p">,</span> <span class="n">in_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shadow_signals</span><span class="p">(</span>
+            <span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">],</span>
+            <span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">mia_scores</span><span class="p">,</span> <span class="n">n_normal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_scores</span><span class="p">(</span>
+            <span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">],</span> <span class="n">combined_data</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">],</span> <span class="n">out_conf</span><span class="p">,</span> <span class="n">in_conf</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_attack_metrics</span><span class="p">(</span><span class="n">mia_scores</span><span class="p">,</span> <span class="n">n_train_rows</span><span class="p">,</span> <span class="n">n_shadow_rows</span><span class="p">,</span> <span class="n">n_normal</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished scenario&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_shadow_signals</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">combined_x_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">combined_y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return confidence scores from saved shadow models.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        combined_x_train : np.ndarray</span>
+<span class="sd">            Array of combined train and test features.</span>
+<span class="sd">        combined_y_train : np.ndarray</span>
+<span class="sd">            Array of combined train and test labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[dict, dict]</span>
+<span class="sd">            Dictionary of confidences when not in the training set.</span>
+<span class="sd">            Dictionary of confidences when in the training set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_combined</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">combined_x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">out_conf</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_combined</span><span class="p">)}</span>
+        <span class="n">in_conf</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_combined</span><span class="p">)}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Getting signals from </span><span class="si">%d</span><span class="s2"> shadow models&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_shadow_models</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">model_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_shadow_models</span><span class="p">):</span>
+            <span class="c1"># load shadow model</span>
+            <span class="n">shadow_clf</span><span class="p">,</span> <span class="n">indices_train</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_shadow_model</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">shadow_path</span><span class="p">,</span> <span class="n">model_idx</span>
+            <span class="p">)</span>
+            <span class="c1"># map a class to a column</span>
+            <span class="n">class_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shadow_clf</span><span class="o">.</span><span class="n">get_classes</span><span class="p">())}</span>
+            <span class="c1"># generate shadow confidences</span>
+            <span class="n">shadow_confidences</span> <span class="o">=</span> <span class="n">shadow_clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">combined_x_train</span><span class="p">)</span>
+            <span class="n">indices_train</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">indices_train</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">conf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shadow_confidences</span><span class="p">):</span>
+                <span class="c1"># logit of the correct class</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">class_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># Occasionally, the random data split will result in classes being</span>
+                <span class="c1"># absent from the training set. In these cases label will be -1 and</span>
+                <span class="c1"># we include logit(0) instead of discarding</span>
+                <span class="n">logit</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">logit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">utils</span><span class="o">.</span><span class="n">logit</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices_train</span><span class="p">:</span>
+                    <span class="n">out_conf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">in_conf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out_conf</span><span class="p">,</span> <span class="n">in_conf</span>
+
+    <span class="k">def</span> <span class="nf">_compute_scores</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">combined_y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">combined_target_preds</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">out_conf</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="n">in_conf</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute LiRA scores for each record.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computing scores&quot;</span><span class="p">)</span>
+
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_normal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">global_in_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_global_std</span><span class="p">(</span><span class="n">in_conf</span><span class="p">)</span>
+        <span class="n">global_out_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_global_std</span><span class="p">(</span><span class="n">out_conf</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">combined_y_train</span><span class="p">):</span>
+            <span class="n">logit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">logit</span><span class="p">(</span><span class="n">combined_target_preds</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">label</span><span class="p">])</span>
+
+            <span class="n">out_mean</span><span class="p">,</span> <span class="n">out_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mean_std</span><span class="p">(</span><span class="n">out_conf</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">global_out_std</span><span class="p">)</span>
+            <span class="n">in_mean</span><span class="p">,</span> <span class="n">in_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mean_std</span><span class="p">(</span><span class="n">in_conf</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">global_in_std</span><span class="p">)</span>
+
+            <span class="n">pr_in</span><span class="p">,</span> <span class="n">pr_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_probabilities</span><span class="p">(</span>
+                <span class="n">logit</span><span class="o">=</span><span class="n">logit</span><span class="p">,</span>
+                <span class="n">out_mean</span><span class="o">=</span><span class="n">out_mean</span><span class="p">,</span>
+                <span class="n">out_std</span><span class="o">=</span><span class="n">out_std</span><span class="p">,</span>
+                <span class="n">in_mean</span><span class="o">=</span><span class="n">in_mean</span><span class="p">,</span>
+                <span class="n">in_std</span><span class="o">=</span><span class="n">in_std</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">mia_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">pr_in</span><span class="p">,</span> <span class="n">pr_out</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_p_normal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out_conf</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">&lt;=</span> <span class="mf">0.05</span><span class="p">:</span>
+                <span class="n">n_normal</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span><span class="p">:</span>
+                <span class="n">out_p_norm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_p_normal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out_conf</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;target_logit&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_p_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_p_norm</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_prob&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pr_out</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_mean</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;out_std&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;online-carlini&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_prob&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pr_in</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_mean</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;in_std&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">n_normal</span>
+
+    <span class="k">def</span> <span class="nf">_get_probabilities</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">logit</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">out_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">out_std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">in_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">in_std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate probabilities based on the selected mode.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;offline&quot;</span><span class="p">:</span>
+            <span class="n">pr_out</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">out_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">out_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+            <span class="n">pr_in</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pr_out</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;online-carlini&quot;</span><span class="p">:</span>
+            <span class="n">pr_out</span> <span class="o">=</span> <span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">out_mean</span><span class="p">,</span> <span class="n">out_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+            <span class="n">pr_in</span> <span class="o">=</span> <span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">in_mean</span><span class="p">,</span> <span class="n">in_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+            <span class="n">pr_in</span> <span class="o">=</span> <span class="n">pr_in</span> <span class="o">-</span> <span class="n">pr_out</span>
+            <span class="n">pr_out</span> <span class="o">=</span> <span class="o">-</span><span class="n">pr_in</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;offline-carlini&quot;</span><span class="p">:</span>
+            <span class="n">pr_out</span> <span class="o">=</span> <span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">out_mean</span><span class="p">,</span> <span class="n">out_std</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
+            <span class="n">pr_in</span> <span class="o">=</span> <span class="o">-</span><span class="n">pr_out</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported LiRA mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">pr_in</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">pr_out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_save_attack_metrics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="n">n_train_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_shadow_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_normal</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save attack metrics and individual results.&quot;&quot;&quot;</span>
+        <span class="n">mia_clf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DummyClassifier</span><span class="p">()</span>
+        <span class="n">mia_scores_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mia_scores</span><span class="p">)</span>
+        <span class="n">mia_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_train_rows</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shadow_rows</span><span class="p">)</span>
+        <span class="n">y_pred_proba</span> <span class="o">=</span> <span class="n">mia_clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">mia_scores_array</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">metrics</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">mia_labels</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;n_normal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_normal</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_train_rows</span> <span class="o">+</span> <span class="n">n_shadow_rows</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_individual</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">mia_scores</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;member&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mia_labels</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_get_mean_std</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">confidences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">global_std</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mean and standard deviation of a list of confidences.&quot;&quot;&quot;</span>
+        <span class="n">scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span>
+        <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">scores</span><span class="p">))</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">scores</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_variance</span><span class="p">:</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="n">global_std</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span>
+
+    <span class="k">def</span> <span class="nf">_get_global_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confidences</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the global standard deviation.&quot;&quot;&quot;</span>
+        <span class="n">global_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_variance</span><span class="p">:</span>
+            <span class="c1"># requires conversion from a dict of diff size proba lists</span>
+            <span class="n">arrays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">confidences</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">global_std</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">combined</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">global_std</span>
+
+    <span class="k">def</span> <span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_construct_metadata</span><span class="p">()</span>
+
+        <span class="n">pdif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;PDIF01&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">][</span><span class="s2">&quot;PDIF_sig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Significant at p=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">pdif</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Not significant at p=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">auc_p</span><span class="p">,</span> <span class="n">auc_std</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">auc_p_val</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;AUC&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;n_pos_test_examples&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;n_neg_test_examples&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">][</span><span class="s2">&quot;AUC_sig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Significant at p=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">auc_p</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Not significant at p=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_thresh</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">][</span><span class="s2">&quot;null_auc_3sd_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">auc_std</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">auc_std</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create PDF report.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">report</span><span class="o">.</span><span class="n">create_lr_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the metadata object after attacks.&quot;&quot;&quot;</span>
+        <span class="n">attack_metrics_experiment</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attack_metrics_instances</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">rep</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">):</span>
+            <span class="n">attack_metrics_instances</span><span class="p">[</span><span class="s2">&quot;instance_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rep</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span>
+        <span class="n">attack_metrics_experiment</span><span class="p">[</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attack_metrics_instances</span>
+        <span class="k">return</span> <span class="n">attack_metrics_experiment</span>
+
+    <span class="k">class</span> <span class="nc">_DummyClassifier</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A Dummy Classifier to allow this code to work with get_metrics.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return an array of 1/0 depending on value in second column.&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Simply return the X_test.&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">X_test</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

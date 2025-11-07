@@ -1,0 +1,767 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sacroml.metrics &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sacroml/metrics';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sacroml.metrics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sacroml.metrics</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Calculate metrics.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">roc_curve</span>
+
+<span class="n">VAR_THRESH</span> <span class="o">=</span> <span class="mf">1e-2</span>
+
+
+<span class="k">def</span> <span class="nf">_div</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve the problem of division by 0 and round up.</span>
+
+<span class="sd">    If y is non-zero, perform x/y and round to 8dp. If it is zero, return the</span>
+<span class="sd">    default.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        numerator</span>
+<span class="sd">    y : float</span>
+<span class="sd">        denominator</span>
+<span class="sd">    default : float</span>
+<span class="sd">        return value if y == 0</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    division : float</span>
+<span class="sd">        x / y, or default if y == 0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tpr_at_fpr</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">y_score</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">fpr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">fpr_perc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the TPR at a fixed FPR.</span>
+
+<span class="sd">    In particular, returns the TPR value corresponding to a particular FPR.</span>
+<span class="sd">    Uses interpolation to fill in gaps.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_true : Iterable[float]</span>
+<span class="sd">        actual class labels</span>
+<span class="sd">    y_score : Iterable[float]</span>
+<span class="sd">        predicted score</span>
+<span class="sd">    fpr : float</span>
+<span class="sd">        false positive rate at which to compute true positive rate</span>
+<span class="sd">    fpr_perc : bool</span>
+<span class="sd">        if the fpr is defined as a percentage</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tpr : float</span>
+<span class="sd">        true positive rate at fpr</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fpr_perc</span><span class="p">:</span>
+        <span class="n">fpr</span> <span class="o">/=</span> <span class="mf">100.0</span>
+
+    <span class="n">fpr_vals</span><span class="p">,</span> <span class="n">tpr_vals</span><span class="p">,</span> <span class="n">thresh_vals</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_score</span><span class="p">)</span>
+    <span class="n">thresh_from_fpr</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">fpr_vals</span><span class="p">,</span> <span class="n">thresh_vals</span><span class="p">)</span>
+    <span class="n">tpr_from_thresh</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">thresh_vals</span><span class="p">,</span> <span class="n">tpr_vals</span><span class="p">)</span>
+
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">thresh_from_fpr</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tpr_from_thresh</span><span class="p">(</span><span class="n">thresh</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_expected_auc_var</span><span class="p">(</span><span class="n">auc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_neg</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute variance of AUC under assumption of uniform probabilities.</span>
+
+<span class="sd">    Uses the expression given as eqn (2) in  https://cs.nyu.edu/~mohri/pub/area.pdf.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    auc : float</span>
+<span class="sd">        auc value at which to compute the variance</span>
+<span class="sd">    num_pos : int</span>
+<span class="sd">        number of positive examples</span>
+<span class="sd">    num_neg : int</span>
+<span class="sd">        number of negative examples</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    var : float</span>
+<span class="sd">        null variance of AUC</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p_xxy</span> <span class="o">=</span> <span class="n">p_xyy</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">auc</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">auc</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">num_pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_xxy</span> <span class="o">-</span> <span class="n">auc</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">num_neg</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_xyy</span> <span class="o">-</span> <span class="n">auc</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_pos</span> <span class="o">*</span> <span class="n">num_neg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="min_max_disc">
+<a class="viewcode-back" href="../../attacks/metrics.html#sacroml.metrics.min_max_disc">[docs]</a>
+<span class="k">def</span> <span class="nf">min_max_disc</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pred_probs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x_prop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">log_p</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return non-average-case methods for MIA attacks.</span>
+
+<span class="sd">    Considers actual frequency of membership amongst samples with highest- and</span>
+<span class="sd">    lowest- assessed probability of membership. If an MIA method confidently</span>
+<span class="sd">    asserts that 5% of samples are members and 5% of samples are not, but</span>
+<span class="sd">    cannot tell for the remaining 90% of samples, then these metrics will flag</span>
+<span class="sd">    this behaviour, but AUC/advantage may not. Since the difference may be</span>
+<span class="sd">    noisy, a p-value against a null of independence of true membership and</span>
+<span class="sd">    assessed membership probability (that is, membership probabilities are</span>
+<span class="sd">    essentially random) is also used as a metric (using a usual Gaussian</span>
+<span class="sd">    approximation to binomial). If the p-value is low and the frequency</span>
+<span class="sd">    difference is high (&gt;0.5) then the MIA attack is successful for some</span>
+<span class="sd">    samples.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        true labels</span>
+<span class="sd">    yp : np.ndarray</span>
+<span class="sd">        probabilities of labels, or monotonic transformation of probabilities</span>
+<span class="sd">    xprop : float</span>
+<span class="sd">        proportion of samples with highest- and lowest- probability of membership to be</span>
+<span class="sd">        considered</span>
+<span class="sd">    logp : bool</span>
+<span class="sd">        convert p-values to log(p).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    maxd : float</span>
+<span class="sd">        frequency of y=1 amongst proportion xprop of individuals with highest assessed</span>
+<span class="sd">        membership probability</span>
+<span class="sd">    mind : float</span>
+<span class="sd">        frequency of y=1 amongst proportion xprop of individuals with lowest assessed</span>
+<span class="sd">        membership probability</span>
+<span class="sd">    mmd : float</span>
+<span class="sd">        difference between maxd and mind</span>
+<span class="sd">    pval : float</span>
+<span class="sd">        p-value or log-p value corresponding to mmd against null hypothesis that random</span>
+<span class="sd">        variables corresponding to y and yp are independent.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; y = np.random.choice(2, 100)</span>
+<span class="sd">    &gt;&gt;&gt; yp = np.random.rand(100)</span>
+<span class="sd">    &gt;&gt;&gt; maxd, mind, mmd, pval = min_max_desc(y, yp, xprop=0.2, logp=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_examples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_prop</span><span class="p">))</span>
+    <span class="n">pos_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>  <span class="c1"># average frequency</span>
+    <span class="n">y_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">pred_probs</span><span class="p">)</span>  <span class="c1"># ordering permutation</span>
+
+    <span class="c1"># Frequencies</span>
+    <span class="c1"># y values corresponding to lowest k values of yp</span>
+    <span class="n">y_lowest_n</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">y_order</span><span class="p">[:</span><span class="n">n_examples</span><span class="p">]]</span>
+    <span class="c1"># y values corresponding to highest k values of yp</span>
+    <span class="n">y_highest_n</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">y_order</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">n_examples</span><span class="p">):]]</span>
+    <span class="n">maxd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_highest_n</span><span class="p">)</span>
+    <span class="n">mind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_lowest_n</span><span class="p">)</span>
+    <span class="n">mmd</span> <span class="o">=</span> <span class="n">maxd</span> <span class="o">-</span> <span class="n">mind</span>
+
+    <span class="c1"># P-value</span>
+    <span class="c1"># mmd is asymptotically distributed as N(0,sdm^2) under null.</span>
+    <span class="n">sdm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pos_frequency</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pos_frequency</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_examples</span><span class="p">)</span>
+    <span class="n">pval</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">mmd</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sdm</span><span class="p">)</span>  <span class="c1"># normal CDF</span>
+    <span class="k">if</span> <span class="n">log_p</span><span class="p">:</span>
+        <span class="n">pval</span> <span class="o">=</span> <span class="o">-</span><span class="mf">115.13</span> <span class="k">if</span> <span class="n">pval</span> <span class="o">&lt;</span> <span class="mf">1e-50</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span>
+    <span class="c1"># Return</span>
+    <span class="k">return</span> <span class="n">maxd</span><span class="p">,</span> <span class="n">mind</span><span class="p">,</span> <span class="n">mmd</span><span class="p">,</span> <span class="n">pval</span></div>
+
+
+
+<div class="viewcode-block" id="auc_p_val">
+<a class="viewcode-back" href="../../attacks/metrics.html#sacroml.metrics.auc_p_val">[docs]</a>
+<span class="k">def</span> <span class="nf">auc_p_val</span><span class="p">(</span><span class="n">auc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_neg</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the p-value for a given AUC.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    auc : float</span>
+<span class="sd">        Observed AUC value</span>
+<span class="sd">    n_pos : int</span>
+<span class="sd">        Number of positive examples</span>
+<span class="sd">    n_neg : int</span>
+<span class="sd">        Number of negative examples</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    auc_p : float</span>
+<span class="sd">        p-value of observing an AUC &gt; auc by chance</span>
+<span class="sd">    auc_std : float</span>
+<span class="sd">        standard deviation of the NULL AUC diustribution (mean = 0.5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">auc_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_expected_auc_var</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_pos</span><span class="p">,</span> <span class="n">n_neg</span><span class="p">))</span>
+    <span class="n">auc_p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">auc</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">auc_std</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">auc_p</span><span class="p">,</span> <span class="n">auc_std</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_permute_rows</span><span class="p">(</span><span class="n">X_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Permute rows.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X_test : np.ndarray</span>
+<span class="sd">        Array of features to be permuted.</span>
+<span class="sd">    y_test : np.ndarray</span>
+<span class="sd">        Array of labels to be permuted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">X_test</span><span class="p">[</span><span class="n">order</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_metrics">
+<a class="viewcode-back" href="../../attacks/metrics.html#sacroml.metrics.get_metrics">[docs]</a>
+<span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span>
+    <span class="n">y_pred_proba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_test</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">permute_rows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate metrics, including attacker advantage for MIA binary.</span>
+
+<span class="sd">    Implemented as Definition 4 on https://arxiv.org/pdf/1709.01604.pdf</span>
+<span class="sd">    which is also implemented in tensorFlow-privacy</span>
+<span class="sd">    https://github.com/tensorflow/privacy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_test : np.ndarray</span>
+<span class="sd">        Test data labels.</span>
+<span class="sd">    y_pred_proba : np.ndarray of shape [x,2] and type float</span>
+<span class="sd">        Predicted probabilities.</span>
+<span class="sd">    permute_rows : bool, default True</span>
+<span class="sd">        Whether to permute arrays, see: https://github.com/AI-SDC/SACRO-ML/issues/106</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    metrics : dict</span>
+<span class="sd">        dictionary of metric values</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Includes the following metrics:</span>
+
+<span class="sd">    * True positive rate or recall (TPR).</span>
+<span class="sd">    * False positive rate (FPR), proportion of negative examples incorrectly \</span>
+<span class="sd">    classified as positives.</span>
+<span class="sd">    * False alarm rate (FAR), proportion of objects classified as positives \</span>
+<span class="sd">    that are incorrect, also known as false discovery rate.</span>
+<span class="sd">    * True neagative rate (TNR).</span>
+<span class="sd">    * Positive predictive value or precision (PPV).</span>
+<span class="sd">    * Negative predictive value (NPV).</span>
+<span class="sd">    * False neagative rate (FNR).</span>
+<span class="sd">    * Accuracy (ACC).</span>
+<span class="sd">    * F1 Score - harmonic mean of precision and recall.</span>
+<span class="sd">    * Advantage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_pred_proba</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;y_pred must be an array of floats of shape [x,2]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">y_pred_proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Metrics for multiclass classification are unsupported&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">permute_rows</span><span class="p">:</span>
+        <span class="n">_permute_rows</span><span class="p">(</span><span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y_pred_proba</span> <span class="o">=</span> <span class="n">y_pred_proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">tn</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># true positive rate or recall</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># false positive rate, proportion of negative examples</span>
+    <span class="c1"># incorrectly classified as positives</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fp</span> <span class="o">/</span> <span class="p">(</span><span class="n">fp</span> <span class="o">+</span> <span class="n">tn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># False alarm rate, proportion of things classified as positives</span>
+    <span class="c1"># that are incorrect, also known as false discovery rate</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_div</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="p">(</span><span class="n">fp</span> <span class="o">+</span> <span class="n">tp</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># true negative rate or specificity</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TNR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tn</span> <span class="o">/</span> <span class="p">(</span><span class="n">tn</span> <span class="o">+</span> <span class="n">fp</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># precision or positive predictive value</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PPV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_div</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># negative predictive value</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;NPV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_div</span><span class="p">(</span><span class="n">tn</span><span class="p">,</span> <span class="p">(</span><span class="n">tn</span> <span class="o">+</span> <span class="n">fn</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># false negative rate</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FNR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fn</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># overall accuracy</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;ACC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">((</span><span class="n">tp</span> <span class="o">+</span> <span class="n">tn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">+</span> <span class="n">tn</span><span class="p">)),</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># harmonic mean of precision and sensitivity</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;F1score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_div</span><span class="p">(</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PPV&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PPV&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">],</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="c1"># Advantage</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;Advantage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FPR&quot;</span><span class="p">]))</span>
+
+    <span class="c1"># calculate AUC of model</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;AUC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
+
+    <span class="c1"># Calculate AUC p-val</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;P_HIGHER_AUC&quot;</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">auc_p_val</span><span class="p">(</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;AUC&quot;</span><span class="p">],</span> <span class="n">y_test</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span> <span class="o">-</span> <span class="n">y_test</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">fmax</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fdif</span><span class="p">,</span> <span class="n">pdif</span> <span class="o">=</span> <span class="n">min_max_disc</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">)</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMAX01&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmax</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMIN01&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FDIF01&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdif</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PDIF01&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pdif</span>  <span class="c1"># use -log(p) so answer is positive</span>
+
+    <span class="n">fmax</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fdif</span><span class="p">,</span> <span class="n">pdif</span> <span class="o">=</span> <span class="n">min_max_disc</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">x_prop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMAX02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmax</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMIN02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FDIF02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdif</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PDIF02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pdif</span>  <span class="c1"># use -log(p) so answer is positive</span>
+
+    <span class="n">fmax</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fdif</span><span class="p">,</span> <span class="n">pdif</span> <span class="o">=</span> <span class="n">min_max_disc</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">x_prop</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMAX001&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmax</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FMIN001&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;FDIF001&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdif</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;PDIF001&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pdif</span>  <span class="c1"># use -log(p) so answer is positive</span>
+
+    <span class="c1"># Add some things useful for debugging / filtering</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;pred_prob_var&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_pred_proba</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+
+    <span class="c1"># TPR at various FPR</span>
+    <span class="n">fpr_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.00001</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">fpr</span> <span class="ow">in</span> <span class="n">fpr_vals</span><span class="p">:</span>
+        <span class="n">tpr</span> <span class="o">=</span> <span class="n">_tpr_at_fpr</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">fpr</span><span class="o">=</span><span class="n">fpr</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TPR@</span><span class="si">{</span><span class="n">fpr</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpr</span>
+
+    <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">roc_thresh</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">)</span>
+    <span class="c1"># fix for np.inf in first position of  roc curves</span>
+    <span class="n">roc_thresh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;fpr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fpr</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;tpr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpr</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;roc_thresh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roc_thresh</span>
+
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_pos_test_examples&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_neg_test_examples&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_test</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">metrics</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

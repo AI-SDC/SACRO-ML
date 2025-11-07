@@ -1,0 +1,986 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Drug response prediction for cancer patients &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/membership_inference_cancer';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Risk of cancer prediction for patients with multiple disorders" href="attribute_inference_cancer.html" />
+    <link rel="prev" title="Risk Assessment Examples" href="../risk_examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notebook_examples.html">Notebook Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="example-notebook-decisiontree.html">Safe Decision Tree Notebook</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="example-notebook-randomforest.html">Safe Random Forest Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example-notebook-SVC.html">Safe Support Vector Machine Notebook</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../scikit_learn_examples.html">Scikit-learn Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch_examples.html">PyTorch Examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../risk_examples.html">Risk Assessment Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Drug response prediction for cancer patients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attribute_inference_cancer.html">Risk of cancer prediction for patients with multiple disorders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instance_based_mimic.html">Instance based attacks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../safemodel_examples.html">SafeModel Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unsupported_examples.html">Unsupported Model Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_stories.html">User Stories</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../risk_examples.html" class="nav-link">Risk Assessment Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Drug response prediction for cancer patients</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Drug-response-prediction-for-cancer-patients">
+<h1>Drug response prediction for cancer patients<a class="headerlink" href="#Drug-response-prediction-for-cancer-patients" title="Link to this heading">#</a></h1>
+<p>Scientists have created a model to predict whether or not cancer patients will respond to a drug.</p>
+<p>The same scientist published the details of their research, how the model was built and a detailed description of the data (e.g., the health conditions investigated), the NHS board where the data was collected. The data was deidentified and was not released as it is confidential patient information, and any leak might break existing legislation.</p>
+<p>The researchers balanced the benefits and potential risks of the model realease, and it was decided that overall, there is a clear benefit for the population for the model to be made public.</p>
+<p>What they didn’t realise, is that the NHS board in question is home to a famous Member of Parliament (MP). This famous MP is a former Prime Minister. There had been some speculation that the MP had cancer, but it is not in the public domain.</p>
+<section id="Membership-Inference">
+<h2>Membership Inference<a class="headerlink" href="#Membership-Inference" title="Link to this heading">#</a></h2>
+<p>We will use this example to demonstrate a <em>membership inference</em> attack. In such an attack, an attacker has access to information about a particular individual (maybe they are famous), and attempts to find out if their data was used to train the model. In this case, knowing if they were in the training set for the model would be disclosive as it would reveal that they had indeed suffered from cancer (all people in the training set had cancer)</p>
+</section>
+<section id="Let's-get-hands-on-with-this-example.">
+<h2>Let’s get hands on with this example.<a class="headerlink" href="#Let's-get-hands-on-with-this-example." title="Link to this heading">#</a></h2>
+<p>The following code imports some standard libraries that we will need.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-the-original-model">
+<h2>Create the original model<a class="headerlink" href="#Create-the-original-model" title="Link to this heading">#</a></h2>
+<p>We are assuming that a model is trained within a TRE on real data. However, we do not have access to real data, so we will randomly generate some realistic looking data.</p>
+<p>In particular, we will generate data for 200 people: all are cancer patients, 100 responded well to the drug, and 100 did not. Our MP will be one of the patients in the good responders set.</p>
+<p>For each patient, we generate six values that in reality would be extracted from their electronic health records:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">diabetes</span></code> – whether or not the patient suffers from diabetes (1 = yes, 0 = no)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">asthma</span></code> – whether or not the patient suffers from asthma (1 = yes, 0 = no)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmi_group</span></code> – the BMI group in which the patient falls (1, 2, 3, or 4)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blood_pressure</span></code> – the blood pressure group in which the patient falls (0, 1, 2, 3, 4, or 5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoker</span></code> – whether or not the patient is a smoker (1 = yes, 0 = no)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">age</span></code> – the patient’s age</p></li>
+</ol>
+<p>Each patient is also associated with a value to indicate whether they responded well to the drug (1) or not (0).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1 is cancer, 0 is no cancer, this is our label and what we want to predict.</span>
+<span class="n">response</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">99</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+<span class="c1"># diabetes 0 no, 1 yes</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;diabetes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># asthma 0 no, 1 yes</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;asthma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># bmi group 1 under, 2 normal, 3 overweight, 4 obese</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;bmi_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+<span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+
+<span class="c1"># blood pressure 0 is low, 1 is normal, 5 is extremly high</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;blood_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+<span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># smoker 0 is non smoker, 1 is smoker</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;smoker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># age</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">72</span><span class="p">)</span>
+<span class="n">age</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pmf</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">)]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">55</span><span class="p">)</span>
+<span class="n">age2</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pmf</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">age</span> <span class="o">+</span> <span class="n">age2</span>
+
+<span class="c1"># Add the data of your MP</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">response</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># add new row to end of DataFrame</span>
+<span class="c1"># the order of the list indicates in order diabetes, asthma, bmi_group, blood_pressure, smoker, age</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">62</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>This looks like the kind of data that might exist within a TRE. Here’s the first few rows:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+   diabetes  asthma  bmi_group  blood_pressure  smoker  age
+0         1       0          4               3       1   72
+1         1       1          2               3       0   83
+2         0       0          4               3       1   63
+3         1       1          4               3       0   77
+4         1       1          4               2       1   87
+</pre></div></div>
+</div>
+<p>Our MP is the final row of the data, here are their values:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">199</span><span class="p">,</span> <span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+diabetes           1
+asthma             1
+bmi_group          3
+blood_pressure     2
+smoker             1
+age               62
+Name: 199, dtype: int64
+</pre></div></div>
+</div>
+</section>
+<section id="Model-training">
+<h2>Model training<a class="headerlink" href="#Model-training" title="Link to this heading">#</a></h2>
+<p>The researcher trained a particular machine learning model called a Support Vector Machine (SVM). This is a very popular model for tasks in which we want to assign things (in this case patients) to groups (in this case cancer v non-cancer). The attribute inference attack we will perform is not unique to SVMs, we just use them as a popular example.</p>
+<p>Training the model is very straightforward – just a couple of lines of code (the details are not important).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Train a model</span>
+<span class="n">prng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">prng</span><span class="p">)</span>
+<span class="n">svc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SVC(C=1, gamma=3, probability=True,
+    random_state=RandomState(MT19937) at 0x159E5341140)
+</pre></div></div>
+</div>
+<p>The trained model can be used to make predictions about new individuals. Given data for an individual, it will produce two scores (probabilities). The first is how likely they are to belong to the non-responders group (higher = more likely) and the second how likely they are to belong to the responders group. The scores are always positive, and sum to 1.</p>
+<p>For example, if we have an individual who has diabetes, has asthma, has a bmi group of 1, blood pressure of 5. is a non-smoker and is 42 years old, we can use the model to predict whether or not they should belong in the cancer or non-cancer groups:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_example</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;diabetes&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;asthma&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;bmi_group&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;blood_pressure&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;smoker&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_example</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;non-responders score = </span><span class="si">{</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;responders score = </span><span class="si">{</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+non-responders score = 0.49
+responders score = 0.51
+</pre></div></div>
+</div>
+</section>
+<section id="The-attack">
+<h2>The attack<a class="headerlink" href="#The-attack" title="Link to this heading">#</a></h2>
+<p>We now assume the role of the attacker. The attacker knows some general properties about the data – for example, they know the range of values each variable can take. They also know the configuration of the classifier that was trained (that it was an SVM and any parameters that were used to define it (more on this later)). Finally, they know (or can make a good guess at) the input data for the MP (they are famous and this information is perhaps in the public domain). The attacker is going to
+try and determine, from this information, and with access to the trained model, whether or not the MP was in the dataset and hence determine if they had cancer or not.</p>
+</section>
+<section id="How-does-the-attack-work?">
+<h2>How does the attack work?<a class="headerlink" href="#How-does-the-attack-work?" title="Link to this heading">#</a></h2>
+<p>Recall that when we used the model to make predictions, the model provided two scores – the cancer and non-cancer scores. The more extreme these scores become (e.g one is close to 1 and the other to 0 (recall that they have to add up to 1)), the more <em>confident</em> the model is in assigning that example. It is not uncommon for models to have higher confidence for examples that they were trained on than examples that they haven’t seen before. It is this property that the attacker will make use of.</p>
+<p>In particular, the attacker will generate their own dataset (known as <em>shadow</em> data) that has similar properties to the original. They can do this randomly – it doesn’t matter that it won’t be quite right – all they need to know is the rough ranges of the variables. They will then use some of this data to train their own model (a <em>shadow</em> model). This allows them to see roughly what kind of confidence their model gives to examples it was trained on, and examples it wasn’t trained on. This
+gives them an idea about how confident the original model is likely to be on data it was trained on, and data it wasn’t trained on. Comparing this to the actual confidence obtained when the MPs data is given to the original model will allow them to infer if the MP was in the training data or not.</p>
+<p>Let’s look at that step-by-step…</p>
+<p>Firstly, the attacker presents the MPs data to the original model to see what the model’s predictions are…</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mp_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;diabetes&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;asthma&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;bmi_group&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;blood_pressure&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;smoker&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">62</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">mp_preds</span> <span class="o">=</span> <span class="n">svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">mp_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mp_preds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[0.06161495 0.93838505]]
+</pre></div></div>
+</div>
+<p>The model stronly predicts that the MP is in the reponder class. This in itself doesn’t tell the attacker that the model was in the training set. What the attacker needs is to estimate how confident the model is when presented with examples from the training set, and when not. This is where the <em>shadow</em> model comes in – they hope that their shadow model is similar enough to the original that the confidences it gives can be used as a proxy against which to compare these values for the MP.</p>
+<p>The attacker generates their <em>shadow</em> data. There are lots of ways they could do this, in this case they use the same process we used above.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1 is cancer, 0 is no response, this is our label and what we want to predict.</span>
+<span class="n">shadow_response</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">shadow_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+<span class="c1"># diabetes 0 no, 1 yes</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;diabetes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># asthma 0 no, 1 yes</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;asthma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># bmi group 1 under, 2 normal, 3 overweight, 4 obese</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;bmi_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+
+<span class="c1"># blood pressure 0 is low, 1 is normal, 5 is extremly high</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;blood_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># smoker 0 is non smoker, 1 is smoker</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;smoker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># age</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">72</span><span class="p">)</span>
+<span class="n">age</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pmf</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">55</span><span class="p">)</span>
+<span class="n">age2</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pmf</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+<span class="n">shadow_df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">age</span> <span class="o">+</span> <span class="n">age2</span>
+</pre></div>
+</div>
+</div>
+<p>Now, we split the shadow data into two. We will use one set to train the shadow model</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shadow_train_x</span><span class="p">,</span> <span class="n">shadow_test_x</span><span class="p">,</span> <span class="n">shadow_train_y</span><span class="p">,</span> <span class="n">shadow_test_y</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">shadow_df</span><span class="p">,</span> <span class="n">shadow_response</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And train the shadow model…</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Train a model</span>
+<span class="n">prng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">shadow_svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">prng</span><span class="p">)</span>
+<span class="n">shadow_svc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">shadow_train_x</span><span class="p">,</span> <span class="n">shadow_train_y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SVC(C=1, gamma=3, probability=True,
+    random_state=RandomState(MT19937) at 0x159E5341840)
+</pre></div></div>
+</div>
+<p>The attacker now passes the portion of shadow data used for training, and the portion used for testing through the trained shadow model to extract the model’s confidence. For each example, the attacker just needs the highest of the two values (reponse confidence or non-response confidence, whichever is larger). A quick look at the average of these values for the two sets tells us that the shadow model assigns much higher confidence to training examples than non-training examples</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_preds</span> <span class="o">=</span> <span class="n">shadow_svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">shadow_train_x</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">test_preds</span> <span class="o">=</span> <span class="n">shadow_svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">shadow_test_x</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of confidence for training examples = </span><span class="si">{</span><span class="n">train_preds</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of confidence for non-training examples = </span><span class="si">{</span><span class="n">test_preds</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mean of confidence for training examples = 0.92
+Mean of confidence for non-training examples = 0.54
+</pre></div></div>
+</div>
+<p>The attacker now knows the kind of confidence values that their shadow model gives to training and non-training examples. They’re confident that the data they generated is similar enough to the original data, and that their model is confifgured similarly to the original model (remember that the researcher released this information) to assume that these confidence values are similar to those that the original model would give on training and non-training data. They can therefore use them as a
+baseline against which to compare the the value they got when they presented the MP’s data to the original model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Maximum confidence for MP in original model: </span><span class="si">{</span><span class="n">mp_preds</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Maximum confidence for MP in original model: 0.84
+</pre></div></div>
+</div>
+<p>The attacker can do this comparison in a number of ways. Here we will assume that the attacker trains another ML model (the <em>attack</em> model) to distinguish between these two sets of confidences. We use a LogisticRegression model (a very simple classifier), but the attacker could use anything.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">train_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">train_preds</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">test_preds</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]))</span>
+<span class="n">train_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_preds</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_preds</span><span class="p">))))</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+LogisticRegression()
+</pre></div></div>
+</div>
+<p>The attacker now passes the maximum confidence value they got from the original model with the MPs data to this new model to obtain a prediction as to whether or not it was in the training data. Note that the prediction takes the same form as previous predictions: two confidence values. One the confidence of it not having been in the training set, another the confidence that it was:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">mp_preds</span><span class="o">.</span><span class="n">max</span><span class="p">()]])</span>
+<span class="n">prob_membership</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence of non-membership = </span><span class="si">{</span><span class="n">prob_membership</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence of membership = </span><span class="si">{</span><span class="n">prob_membership</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Confidence of non-membership = 0.20
+Confidence of membership = 0.80
+</pre></div></div>
+</div>
+<p>The model is making a strong prediction that the MP <em>was</em> in the training data, and therefore the attacker concludes that they <em>did</em> have Cancer. This prediction is correct.</p>
+</section>
+<section id="Mitigation">
+<h2>Mitigation<a class="headerlink" href="#Mitigation" title="Link to this heading">#</a></h2>
+<p>Mitigating this kind of attack involves configuring the classifier to not give different confidences to examples that it has been trained upon. In this case, decreasing the SVMs <code class="docutils literal notranslate"><span class="pre">gamma</span></code> parameter will have a strong effect. For example, here is what happens in the attack if the original model’s <code class="docutils literal notranslate"><span class="pre">gamma</span></code> is reduced from 3 to 0.1</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">prng</span><span class="p">)</span>
+<span class="n">svc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+<span class="n">mp_preds</span> <span class="o">=</span> <span class="n">svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">mp_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mp_preds</span><span class="p">)</span>
+
+<span class="n">shadow_svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">prng</span><span class="p">)</span>
+<span class="n">shadow_svc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">shadow_train_x</span><span class="p">,</span> <span class="n">shadow_train_y</span><span class="p">)</span>
+
+<span class="n">train_preds</span> <span class="o">=</span> <span class="n">shadow_svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">shadow_train_x</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">test_preds</span> <span class="o">=</span> <span class="n">shadow_svc</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">shadow_test_x</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of confidence for training examples = </span><span class="si">{</span><span class="n">train_preds</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of confidence for non-training examples = </span><span class="si">{</span><span class="n">test_preds</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">train_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">train_preds</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">test_preds</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]))</span>
+<span class="n">train_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_preds</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_preds</span><span class="p">))))</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
+
+
+<span class="n">input_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">mp_preds</span><span class="o">.</span><span class="n">max</span><span class="p">()]])</span>
+<span class="n">prob_membership</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence of non-membership = </span><span class="si">{</span><span class="n">prob_membership</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence of membership = </span><span class="si">{</span><span class="n">prob_membership</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[0.15803859 0.84196141]]
+Mean of confidence for training examples = 0.93
+Mean of confidence for non-training examples = 0.90
+Confidence of non-membership = 0.52
+Confidence of membership = 0.48
+</pre></div></div>
+</div>
+<p>The attack is now almost completely ambiguous, providing the attacker with no information as to whether or not the MP was in the training set.</p>
+<p>The technical effect <code class="docutils literal notranslate"><span class="pre">gamma</span></code> has on the SVM is unimportant – the important point is that changes to the model’s configuration can play a significant role in its vulnerability.</p>
+</section>
+<section id="Conclusions">
+<h2>Conclusions<a class="headerlink" href="#Conclusions" title="Link to this heading">#</a></h2>
+<p>This example has shown how an attacker can perform a membership inference attack to determine that a well-known individual was in a model’s training data.</p>
+<p>It is hopefully clear that this is non-trivial – the attacker has to put in quite a lot of effort. Their success is also contingent on them knowing certain things about the problem. In particular:</p>
+<ol class="arabic simple">
+<li><p>Enough information about the original data that they can generate a shadow dataset. This will be things like: types of variables, ranges of variables, distributions of variables. Such information is often available at population levels (e.g. average age, proportion of population with diabetes etc).</p></li>
+<li><p>Configuration information about the original model. In this case, it was the parameters that define the model and, in particular a parameter called <code class="docutils literal notranslate"><span class="pre">gamma</span></code> that is used in the SVM. It is quite common for researchers to publish this information.</p></li>
+<li><p>The input values for the individual in question. This is harder to come by, but for famous individuals, it’s conceivable that a lot of this information might be in the public domain.</p></li>
+</ol>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../risk_examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Risk Assessment Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="attribute_inference_cancer.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Risk of cancer prediction for patients with multiple disorders</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Membership-Inference">Membership Inference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Let's-get-hands-on-with-this-example.">Let’s get hands on with this example.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-the-original-model">Create the original model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-training">Model training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-attack">The attack</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#How-does-the-attack-work?">How does the attack work?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Mitigation">Mitigation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Conclusions">Conclusions</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/notebooks/membership_inference_cancer.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

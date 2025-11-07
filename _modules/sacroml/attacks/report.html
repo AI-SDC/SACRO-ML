@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sacroml.attacks.report &#8212; SACRO-ML 1.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9172181d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sacroml/attacks/report';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 1.4.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sacroml.attacks.report</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sacroml.attacks.report</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Code for automatic report generation.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">pypdf</span> <span class="kn">import</span> <span class="n">PdfWriter</span>
+
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack_report_formatter</span> <span class="kn">import</span> <span class="n">GenerateJSONModule</span>
+
+<span class="c1"># Adds a border to all pdf cells of set to 1 -- useful for debugging</span>
+<span class="n">BORDER</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">DISPLAY_METRICS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AUC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ACC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Advantage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FDIF01&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PDIF01&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TPR@0.1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TPR@0.01&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TPR@0.001&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TPR@1e-05&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">MAPPINGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;PDIF01&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)}</span>
+
+<span class="n">INTRODUCTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This report provides a summary of a series of simulated attack experiments &quot;</span>
+    <span class="s2">&quot;performed on the model outputs provided. An attack model is trained to &quot;</span>
+    <span class="s2">&quot;attempt to distinguish between outputs from training (in-sample) and &quot;</span>
+    <span class="s2">&quot;testing (out-of-sample) data. The metrics below describe the success of &quot;</span>
+    <span class="s2">&quot;this classifier. A successful classifier indicates that the original model &quot;</span>
+    <span class="s2">&quot;is unsafe and should not be allowed to be released from the TRE.</span><span class="se">\n</span><span class="s2"> In &quot;</span>
+    <span class="s2">&quot;particular, the simulation splits the data provided into test and train &quot;</span>
+    <span class="s2">&quot;sets (each will in- and out-of-sample examples). The classifier is trained &quot;</span>
+    <span class="s2">&quot;on the train set and evaluated on the test set. This is repeated with &quot;</span>
+    <span class="s2">&quot;different train/test splits a user-specified number of times.</span><span class="se">\n</span><span class="s2"> To help &quot;</span>
+    <span class="s2">&quot;place the results in context, the code may also have run a series of &quot;</span>
+    <span class="s2">&quot;baseline experiments. In these, random model outputs for hypothetical in- &quot;</span>
+    <span class="s2">&quot;and out-of-sample data are generated with identical statistical properties. &quot;</span>
+    <span class="s2">&quot;In these baseline cases, there is no signal that an attacker could leverage &quot;</span>
+    <span class="s2">&quot;and therefore these values provide a baseline against which the actual &quot;</span>
+    <span class="s2">&quot;values can be compared.</span><span class="se">\n</span><span class="s2"> For some metrics (FDIF and AUC), we are able to &quot;</span>
+    <span class="s2">&quot;compute p-values. In each case, shown below (in the Global metrics &quot;</span>
+    <span class="s2">&quot;sections) is the number of repetitions that exceeded the p-value threshold &quot;</span>
+    <span class="s2">&quot;both without, and with correction for multiple testing (Benjamini-Hochberg &quot;</span>
+    <span class="s2">&quot;procedure).</span><span class="se">\n</span><span class="s2"> ROC curves for all real (red) and dummy (blue) repetitions are &quot;</span>
+    <span class="s2">&quot;provided. These are shown in log space (as reommended here [ADD URL]) to &quot;</span>
+    <span class="s2">&quot;emphasise the region in which risk is highest -- the bottom left (are high &quot;</span>
+    <span class="s2">&quot;true positive rates possible with low false positive rates).</span><span class="se">\n</span><span class="s2"> A description &quot;</span>
+    <span class="s2">&quot;of the metrics and how to interpret them within the context of an attack is &quot;</span>
+    <span class="s2">&quot;given below.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">LOGROC_CAPTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This plot shows the False Positive Rate (x) versus the True Positive Rate &quot;</span>
+    <span class="s2">&quot;(y). The axes are in log space enabling us to focus on areas where the &quot;</span>
+    <span class="s2">&quot;False Positive Rate is low (left hand area). Curves above the y = x line &quot;</span>
+    <span class="s2">&quot;(black dashes) in this region represent a disclosure risk as an attacker &quot;</span>
+    <span class="s2">&quot;can obtain many more true than false positives. The solid coloured lines &quot;</span>
+    <span class="s2">&quot;show the curves for the attack simulations with the true model outputs. The &quot;</span>
+    <span class="s2">&quot;lighter grey lines show the curves for randomly generated outputs with no &quot;</span>
+    <span class="s2">&quot;structure (i.e. in- and out-of- sample predictions are generated from the &quot;</span>
+    <span class="s2">&quot;same distributions. Solid curves consistently higher than the &quot;</span>
+    <span class="s2">&quot;grey curves in the left hand part of the plot are a sign of concern. &quot;</span>
+<span class="p">)</span>
+
+<span class="n">MIA_GLOSSARY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AUC&quot;</span><span class="p">:</span> <span class="s2">&quot;Area Under the ROC curve&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;True Positive Rate (TPR)&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;The true positive rate is the number of True Positives that are &quot;</span>
+        <span class="s2">&quot;predicted as positive as a proportion of the total number of positives. &quot;</span>
+        <span class="s2">&quot;If an attacker has N examples that were actually in the training set, &quot;</span>
+        <span class="s2">&quot;the TPR is the proportion of these that they predict as being in the &quot;</span>
+        <span class="s2">&quot;training set.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;ACC&quot;</span><span class="p">:</span> <span class="s2">&quot;The proportion of predictions that the attacker makes that are correct.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">STRUCTURAL_INTRODUCTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This report provides a summary of a series of &#39;static&#39; structural &quot;</span>
+    <span class="s2">&quot;attacks. These attacks do not require training a separate attack model, &quot;</span>
+    <span class="s2">&quot;but instead analyse the properties of the target model and its training &quot;</span>
+    <span class="s2">&quot;data to identify potential disclosure risks based on pre-defined rules &quot;</span>
+    <span class="s2">&quot;and thresholds. A &#39;risk detected&#39; result for any of the checks below &quot;</span>
+    <span class="s2">&quot;indicates a potential vulnerability that should be investigated.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">STRUCTURAL_GLOSSARY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;dof_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Degrees of Freedom (DoF) Risk: Checks if the model is overly complex &quot;</span>
+        <span class="s2">&quot;relative to the size of the training data. A model with too many &quot;</span>
+        <span class="s2">&quot;parameters (low residual DoF) can essentially memorize training &quot;</span>
+        <span class="s2">&quot;records, making it vulnerable to membership inference.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;k_anonymity_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;K-Anonymity Risk: This checks if any training data points fall into &quot;</span>
+        <span class="s2">&quot;very small groups (equivalence classes) based on the model&#39;s &quot;</span>
+        <span class="s2">&quot;predictions. If a group has fewer than &#39;k&#39; members, those &quot;</span>
+        <span class="s2">&quot;individuals are more easily re-identifiable.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;class_disclosure_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Class Disclosure Risk: Assesses whether the model&#39;s outputs might &quot;</span>
+        <span class="s2">&quot;inadvertently reveal the presence of small, disclosive groups within &quot;</span>
+        <span class="s2">&quot;the data, especially in combination with known class labels.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;unnecessary_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Unnecessary Risk: Checks if the model&#39;s hyperparameters (e.g., max &quot;</span>
+        <span class="s2">&quot;tree depth) are set to values known to be associated with higher &quot;</span>
+        <span class="s2">&quot;membership inference risk, without necessarily providing a &quot;</span>
+        <span class="s2">&quot;commensurate increase in accuracy.&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;lowvals_cd_risk&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Low Values Class Disclosure Risk: A specific check for class &quot;</span>
+        <span class="s2">&quot;disclosure where the frequency of a particular class within an &quot;</span>
+        <span class="s2">&quot;equivalence class is below a safe threshold.&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="write_json">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.write_json">[docs]</a>
+<span class="k">def</span> <span class="nf">write_json</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write attack report to JSON.&quot;&quot;&quot;</span>
+    <span class="n">attack_formatter</span> <span class="o">=</span> <span class="n">GenerateJSONModule</span><span class="p">(</span><span class="n">dest</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+    <span class="n">attack_report</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">CustomJSONEncoder</span><span class="p">)</span>
+    <span class="n">attack_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;attack_name&quot;</span><span class="p">]</span>
+    <span class="n">attack_formatter</span><span class="o">.</span><span class="n">add_attack_output</span><span class="p">(</span><span class="n">attack_report</span><span class="p">,</span> <span class="n">attack_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="CustomJSONEncoder">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.CustomJSONEncoder">[docs]</a>
+<span class="k">class</span> <span class="nc">CustomJSONEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;JSON encoder that can cope with numpy arrays, etc.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CustomJSONEncoder.default">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.CustomJSONEncoder.default">[docs]</a>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If an object is an np.ndarray, convert to list.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="c1"># Try the default method first</span>
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>  <span class="c1"># If object is not serializable, convert it to a string</span></div>
+</div>
+
+
+
+<span class="k">def</span> <span class="nf">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">:</span> <span class="n">FPDF</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">border</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">BORDER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a dictionary to the pdf.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">multi_cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">ln</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="title">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.title">[docs]</a>
+<span class="k">def</span> <span class="nf">title</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">FPDF</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">border</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">BORDER</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="n">font_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a title block.&quot;&quot;&quot;</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span> <span class="n">font_style</span><span class="p">,</span> <span class="n">font_size</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">ln</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">ln</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="subtitle">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.subtitle">[docs]</a>
+<span class="k">def</span> <span class="nf">subtitle</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">FPDF</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">border</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">BORDER</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">font_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a subtitle block.&quot;&quot;&quot;</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span> <span class="n">font_style</span><span class="p">,</span> <span class="n">font_size</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="line">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.line">[docs]</a>
+<span class="k">def</span> <span class="nf">line</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">FPDF</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">border</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">BORDER</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="n">font_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">font</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;arial&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a standard block.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">indent</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">font_style</span><span class="p">,</span> <span class="n">font_size</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">multi_cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_roc_plot_single</span><span class="p">(</span><span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">save_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a roc_plot for a single experiment.&quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;k--&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;fpr&quot;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;tpr&quot;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True Positive Rate&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;False Positive Rate&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_roc_plot</span><span class="p">(</span><span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">save_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a roc plot for multiple repetitions.&quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;k--&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Compute average ROC</span>
+    <span class="n">base_fpr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">all_tpr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_fpr</span><span class="p">)),</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">metric_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>
+        <span class="n">all_tpr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">base_fpr</span><span class="p">,</span> <span class="n">metric_set</span><span class="p">[</span><span class="s2">&quot;fpr&quot;</span><span class="p">],</span> <span class="n">metric_set</span><span class="p">[</span><span class="s2">&quot;tpr&quot;</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">metric_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">metric_set</span><span class="p">[</span><span class="s2">&quot;fpr&quot;</span><span class="p">],</span> <span class="n">metric_set</span><span class="p">[</span><span class="s2">&quot;tpr&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightsalmon&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span>
+        <span class="p">)</span>
+
+    <span class="n">tpr_mu</span> <span class="o">=</span> <span class="n">all_tpr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">base_fpr</span><span class="p">,</span> <span class="n">tpr_mu</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;False Positive Rate&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True Positive Rate&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_name</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_mia_report">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.create_mia_report">[docs]</a>
+<span class="k">def</span> <span class="nf">create_mia_report</span><span class="p">(</span><span class="n">attack_output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a worst case membership inference report.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attack_output : dict</span>
+<span class="sd">        Dictionary with the following items:</span>
+
+<span class="sd">        metadata : dict</span>
+<span class="sd">            Dictionary of metadata.</span>
+<span class="sd">        attack_experiment_logger : dict</span>
+<span class="sd">            List of metrics as dictionary items for an experiment.</span>
+<span class="sd">        dummy_attack_experiment_logger : dict</span>
+<span class="sd">            List of metrics as dictionary items across dummy experiments.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf : fpdf.FPDF</span>
+<span class="sd">        fpdf document object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mia_metrics</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attack_output</span><span class="p">[</span><span class="s2">&quot;attack_experiment_logger&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;attack_instance_logger&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">attack_output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">][</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+    <span class="n">dest_log_roc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;log_roc.png&quot;</span><span class="p">)</span>
+    <span class="n">_roc_plot</span><span class="p">(</span><span class="n">mia_metrics</span><span class="p">,</span> <span class="n">dest_log_roc</span><span class="p">)</span>
+
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_xy</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;WorstCase MIA attack result report&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">INTRODUCTION</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Experiment summary&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span>
+        <span class="n">pdf</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Global metrics&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metrics&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span>
+        <span class="n">pdf</span><span class="p">,</span>
+        <span class="s2">&quot;The following show summaries of the attack metrics over the repetitions&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">DISPLAY_METRICS</span><span class="p">:</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mia_metrics</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">MAPPINGS</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">MAPPINGS</span><span class="p">[</span><span class="n">metric</span><span class="p">](</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">])</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2"> mean = </span><span class="si">{</span><span class="n">vals</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, var = </span><span class="si">{</span><span class="n">vals</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;min = </span><span class="si">{</span><span class="n">vals</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, max = </span><span class="si">{</span><span class="n">vals</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">_add_log_roc_to_page</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">,</span> <span class="n">pdf</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">LOGROC_CAPTION</span><span class="p">)</span>
+
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Glossary&quot;</span><span class="p">)</span>
+    <span class="n">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">MIA_GLOSSARY</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span></div>
+
+
+
+<div class="viewcode-block" id="create_structural_report">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.create_structural_report">[docs]</a>
+<span class="k">def</span> <span class="nf">create_structural_report</span><span class="p">(</span><span class="n">attack_output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a structural attack report.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attack_output : dict</span>
+<span class="sd">        Dictionary with metadata and global_metrics.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf : fpdf.FPDF</span>
+<span class="sd">        fpdf document object for the report.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">attack_output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span>
+
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_xy</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Structural Attack Report&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">STRUCTURAL_INTRODUCTION</span><span class="p">)</span>
+
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Experiment Summary&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span>
+        <span class="n">pdf</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Risk Summary&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">risk_status</span> <span class="o">=</span> <span class="s2">&quot;Risk Detected&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;Not Detected&quot;</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">risk_status</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Glossary&quot;</span><span class="p">)</span>
+    <span class="n">_write_dict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">STRUCTURAL_GLOSSARY</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pdf</span></div>
+
+
+
+<div class="viewcode-block" id="write_pdf">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.write_pdf">[docs]</a>
+<span class="k">def</span> <span class="nf">write_pdf</span><span class="p">(</span><span class="n">report_dest</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pdf_report</span><span class="p">:</span> <span class="n">FPDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create pdf and append contents if it already exists.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">report_dest</span> <span class="o">+</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">):</span>
+        <span class="n">old_pdf</span> <span class="o">=</span> <span class="n">report_dest</span> <span class="o">+</span> <span class="s2">&quot;.pdf&quot;</span>
+        <span class="n">new_pdf</span> <span class="o">=</span> <span class="n">report_dest</span> <span class="o">+</span> <span class="s2">&quot;_new.pdf&quot;</span>
+        <span class="n">pdf_report</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">new_pdf</span><span class="p">)</span>
+        <span class="n">merger</span> <span class="o">=</span> <span class="n">PdfWriter</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="p">[</span><span class="n">old_pdf</span><span class="p">,</span> <span class="n">new_pdf</span><span class="p">]:</span>
+            <span class="n">merger</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+        <span class="n">merger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">old_pdf</span><span class="p">)</span>
+        <span class="n">merger</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">new_pdf</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pdf_report</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">report_dest</span> <span class="o">+</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_add_log_roc_to_page</span><span class="p">(</span><span class="n">log_roc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pdf_obj</span><span class="p">:</span> <span class="n">FPDF</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">log_roc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pdf_obj</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+        <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf_obj</span><span class="p">,</span> <span class="s2">&quot;Log ROC&quot;</span><span class="p">)</span>
+        <span class="n">pdf_obj</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">log_roc</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">pdf_obj</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s2">&quot;arial&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_plot_lira_individuals</span><span class="p">(</span><span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a plot of the individual record LiRA scores.&quot;&quot;&quot;</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">][</span><span class="s2">&quot;score&quot;</span><span class="p">])</span>
+    <span class="n">member</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">][</span><span class="s2">&quot;member&quot;</span><span class="p">])</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+
+    <span class="c1"># members</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">member</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">y_train</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">sorted_indicies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+    <span class="n">y_sorted</span> <span class="o">=</span> <span class="n">y_train</span><span class="p">[</span><span class="n">sorted_indicies</span><span class="p">]</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_sorted</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LiRA Probability&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Member Records&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Record (sorted)&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># nonmembers</span>
+    <span class="n">y_test</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">sorted_indicies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span>
+    <span class="n">y_sorted</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">sorted_indicies</span><span class="p">]</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_sorted</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LiRA Probability&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Nonmember Records&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Record (sorted)&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_lr_report">
+<a class="viewcode-back" href="../../../attacks/report.html#sacroml.attacks.report.create_lr_report">[docs]</a>
+<span class="k">def</span> <span class="nf">create_lr_report</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a lira membership inference report.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output : dict</span>
+<span class="sd">        Dictionary with the following items:</span>
+
+<span class="sd">        metadata : dict</span>
+<span class="sd">            Dictionary of metadata.</span>
+
+<span class="sd">        attack_experiment_logger : dict</span>
+<span class="sd">            List of metrics as dictionary items for an experiments.</span>
+<span class="sd">            In case of LiRA attack scenario, this will have dictionary items of</span>
+<span class="sd">            `attack_instance_logger` that will have a single metrics dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf : fpdf.FPDF</span>
+<span class="sd">        fpdf document object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mia_metrics</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;attack_experiment_logger&quot;</span><span class="p">][</span><span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">][</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+    <span class="n">dest_log_roc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;log_roc.png&quot;</span><span class="p">)</span>
+    <span class="n">_roc_plot_single</span><span class="p">(</span><span class="n">mia_metrics</span><span class="p">,</span> <span class="n">dest_log_roc</span><span class="p">)</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">set_xy</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Likelihood Ratio Attack Report&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metadata&quot;</span><span class="p">)</span>
+    <span class="n">line</span><span class="p">(</span>
+        <span class="n">pdf</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;sacroml_version&#39;</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sacroml_version&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;attack_params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Metrics&quot;</span><span class="p">)</span>
+    <span class="n">sub_metrics_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mia_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sub_metrics_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">MAPPINGS</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">MAPPINGS</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&gt;30s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier&quot;</span><span class="p">)</span>
+
+    <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+    <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;ROC Curve&quot;</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">dest_log_roc</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">dest_ind_plot</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;lira_individual.png&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">mia_metrics</span><span class="p">:</span>
+        <span class="n">_plot_lira_individuals</span><span class="p">(</span><span class="n">mia_metrics</span><span class="p">,</span> <span class="n">dest_ind_plot</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+        <span class="n">subtitle</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="s2">&quot;Individual LiRA Scores&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">dest_ind_plot</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># clean up</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">dest_log_roc</span><span class="p">,</span> <span class="n">dest_ind_plot</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
