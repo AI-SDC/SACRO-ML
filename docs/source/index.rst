@@ -25,7 +25,7 @@ Our tools are designed to help researchers assess the privacy disclosure risks o
 .. grid:: 2
 
     .. grid-item-card:: ACRO (Python)
-        :link: https://jessuwe.github.io/ACRO/introduction.html
+        :link: https://sacro-tools.org/ACRO/introduction.html
         :link-type: url
         :shadow: md
         :class-header: bg-info
