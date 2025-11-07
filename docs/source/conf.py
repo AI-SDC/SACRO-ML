@@ -28,36 +28,22 @@ extensions = [
     "sphinx_autopackagesummary",
     "sphinx_issues",
     "sphinx_prompt",
-    "pydata_sphinx_theme",
+    "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
     "sphinxcontrib.bibtex",
-    "nbsphinx",
-    "sphinx_design",
-    "myst_parser",
 ]
 
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "pydata_sphinx_theme"
+html_theme = "sphinx_rtd_theme"
 html_theme_options = {"navigation_depth": 2}
-
-html_static_path = ["_static"]
-html_css_files = [
-    "css/custom.css",
-]
 
 # -- References --------------------------------------------------------------
 
 bibtex_bibfiles = ["references.bib"]
 bibtex_default_style = "unsrt"
-
-# -- Notebook configuration --------------------------------------------------
-
-nbsphinx_execute = "never"
-nbsphinx_allow_errors = True
-nbsphinx_timeout = 60
 
 # -- -------------------------------------------------------------------------
 

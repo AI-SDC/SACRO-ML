@@ -1,10 +1,11 @@
-# SACRO-ML
+# SACRO-ML: Disclosure Control Tools for ML Models
 
-[![DOI](https://zenodo.org/badge/518801511.svg)](https://zenodo.org/badge/latestdoi/518801511)
+[![arXiv](https://img.shields.io/badge/arXiv-2212.01233-b31b1b.svg)](https://arxiv.org/abs/2212.01233)
 [![PyPI package](https://img.shields.io/pypi/v/sacroml.svg)](https://pypi.org/project/sacroml)
 [![Conda](https://img.shields.io/conda/vn/conda-forge/sacroml.svg)](https://github.com/conda-forge/sacroml-feedstock)
 [![Python versions](https://img.shields.io/pypi/pyversions/sacroml.svg)](https://pypi.org/project/sacroml)
 [![codecov](https://codecov.io/gh/AI-SDC/SACRO-ML/branch/main/graph/badge.svg?token=AXX2XCXUNU)](https://codecov.io/gh/AI-SDC/SACRO-ML)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AI-SDC/SACRO-ML)
 
 An increasing body of work has shown that [machine learning](https://en.wikipedia.org/wiki/Machine_learning) (ML) models may expose confidential properties of the data on which they are trained. This has resulted in a wide range of proposed attack methods with varying assumptions that exploit the model structure and/or behaviour to infer sensitive information.
 

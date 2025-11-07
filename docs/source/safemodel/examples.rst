@@ -18,3 +18,9 @@ SafeSVC Quick Start Notebook
 
 A quick start implementation guide for SafeSVC is detailed
 in this `notebook <https://github.com/AI-SDC/SACRO-ML/blob/main/examples/notebooks/example-notebook-SVC.ipynb>`__
+
+SafeKeras Quick Start Notebook
+------------------------------
+
+A quick start implementation guide for SafeKeras is detailed
+in this `notebook <https://github.com/AI-SDC/SACRO-ML/blob/main/examples/notebooks/example-notebook-keras.ipynb>`__
