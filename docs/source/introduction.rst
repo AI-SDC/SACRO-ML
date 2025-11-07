@@ -20,36 +20,6 @@ Typically, sensitive data is accessed via a Trusted Research Environment (TRE) o
     :height: 300px
     :alt: Timeline of a life cycle of a ML model containing sensitive and personal data.
 
-What is SACRO-ML?
------------------
-
-.. image:: images/ML_leakage_bee.png
-    :width: 350px
-    :align: center
-    :height: 350px
-    :alt: Data breaches of sensitive and personal data must be avoided.
-
-SACRO-ML is a set of tools for disclosure control of trained Machine Learning (ML)
-models. ML models enable the discovery of intricate relationships that a human eye,
-and traditional statistical methods can’t. These types of powerful tools are becoming
-increasingly popular in many different fields. These includes medical applications
-and any project involving personal and sensitive data. Data breaches must be avoided.
-SACRO-ML helps to apply some mitigation strategies like the use of safemodels and
-estimate the risk of identifying any personal and sensitive data employed to build the ML model.
-
-It is especially designed bearing in mind data privacy and mitigation strategies for disclosure control.
-
-Typically, sensitive data is accessed via a Trusted Research Environment (TRE) or Save Heaven, which
-is a secure enclave. In such environments it is essential to check outputs before releasing them to
-guarantee there is no data breach.
-
- .. image:: images/TRE-ML-project-timeline.jpg
-    :width: 560px
-    :align: center
-    :height: 250px
-    :alt: Timeline of a life cycle of a ML model containing sensitive and personal data.
-
-SACRO-ML has two main components: SafeModel wrappers and simulated attacks. While the SafeModel wrappers are recommended to use while creating a model, the simulated attacks are to be used once the model is created to test for data privacy leakage.
 
 What is SafeModel?
 ------------------
