@@ -30,13 +30,14 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "acro==0.4.9",
+    "acro==0.4.11",
     "fpdf",
     "pypdf",
     "multiprocess",
