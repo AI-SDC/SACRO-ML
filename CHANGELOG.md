@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.4.2 (Nov 24, 2025)
+
+Changes:
+*   Add documentation ([#373](https://github.com/AI-SDC/SACRO-ML/pull/373))
+*   Fix: use dataloaders for PyTorch model wrapper attack predictions ([#384](https://github.com/AI-SDC/SACRO-ML/pull/384))
+*   Update `acro` dependency to v0.4.11 to enable Python 3.14 support ([#385](https://github.com/AI-SDC/SACRO-ML/pull/385))
+
 ## Version 1.4.1 (Oct 27, 2025)
 
 Changes:
