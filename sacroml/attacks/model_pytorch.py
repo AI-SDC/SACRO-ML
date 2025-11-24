@@ -122,16 +122,26 @@ class PytorchModel(Model):
             Model predictions (label encoding).
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(device)
+        self.model.eval()
 
-        x_tensor = torch.FloatTensor(X).to(device)
-        model = self.model.to(device)
+        # Create a dataloader
+        X_tensor = torch.from_numpy(X).float()
+        dataset = TensorDataset(X_tensor)
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
 
-        model.eval()
+        # Compute predictions
+        all_preds = []
         with torch.no_grad():
-            logits = model(x_tensor)
-            _, y_pred = torch.max(logits, 1)
+            for batch in dataloader:
+                x_batch = batch[0].to(device)
+                logits = self.model(x_batch)
+                _, y_pred = torch.max(logits, 1)
+                all_preds.append(y_pred.cpu())
 
-        return y_pred.cpu().numpy().astype(np.float64)
+        all_preds = torch.cat(all_preds, dim=0)
+        self.model.to("cpu")
+        return all_preds.numpy().astype(np.float64)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
         """Fit a model from scratch.
@@ -196,16 +206,26 @@ class PytorchModel(Model):
         self.model.to(device)
         self.model.eval()
 
-        with torch.no_grad():
-            x_tensor = torch.tensor(X, dtype=torch.float32).to(device)
-            logits = self.model(x_tensor)
-            logits = torch.where(  # guard against nans
-                torch.isfinite(logits), logits, torch.zeros_like(logits)
-            )
-            probs = softmax(logits, dim=1)
+        # Create a dataloader
+        X_tensor = torch.from_numpy(X).float()
+        dataset = TensorDataset(X_tensor)
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
 
+        # Compute the probabilities
+        all_probs = []
+        with torch.no_grad():
+            for batch in dataloader:
+                x_batch = batch[0].to(device)
+                logits = self.model(x_batch)
+                logits = torch.where(  # guard against nans
+                    torch.isfinite(logits), logits, torch.zeros_like(logits)
+                )
+                probs = softmax(logits, dim=1)
+                all_probs.append(probs.cpu())
+
+        all_probs = torch.cat(all_probs, dim=0)
         self.model.to("cpu")
-        return probs.cpu().numpy().astype(np.float64)
+        return all_probs.numpy().astype(np.float64)
 
     def get_classes(self) -> np.ndarray:  # pragma: no cover
         """Return the classes the model was trained to predict.
