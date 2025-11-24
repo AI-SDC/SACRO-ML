@@ -26,11 +26,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # fix missing tkinter on Windows
-      - name: Install Tcl/Tk on Windows
-        if: runner.os == 'Windows'
-        run: choco install tcl -y
-
       # xgboost requires libomp on macOS
       - name: Install dependencies on macOS
         if: runner.os == 'macOS'
