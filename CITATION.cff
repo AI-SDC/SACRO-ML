@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: SACRO-ML
 version: 1.4.2
-doi:
+doi: 10.5281/zenodo.17699074
 date-released: 2025-11-24
 license: MIT
 repository-code: https://github.com/AI-SDC/SACRO-ML
@@ -55,6 +55,9 @@ authors:
     orcid: https://orcid.org/0000-0002-5350-8049
   - family-names: Atefi
     given-names: Kay
+    affiliation: University of the West of England
+  - family-names: Ikechukwu
+    given-names: Jessica
     affiliation: University of the West of England
 identifiers:
   - type: doi
@@ -114,3 +117,6 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.17455192
     description: This is the archived snapshot of SACRO-ML v1.4.1.
+  - type: doi
+    value: 10.5281/zenodo.17699074
+    description: This is the archived snapshot of SACRO-ML v1.4.2.
