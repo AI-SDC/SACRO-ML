@@ -81,7 +81,7 @@ Pre-commit can be configured to automatically run on every ``git commit`` with:
 Documentation
 -------------
 
-Documentation is hosted here: https://ai-sdc.github.io/SACRO-ML/
+Documentation is hosted here: https://sacro-ml.sacro-tools.org/
 
 The documentation is automatically built using `Sphinx <https://www.sphinx-doc.org>`_ and github actions.
 
