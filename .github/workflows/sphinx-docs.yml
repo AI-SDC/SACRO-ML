@@ -38,5 +38,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html/
+          cname: sacro-ml.sacro-tools.org
           force_orphan: true
 ...
