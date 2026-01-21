@@ -159,7 +159,11 @@ class DPSVC(SVC):
         for i in range(alpha.shape[1]):
             weights = weights + alpha[0, i] * self.phi_hat(xi[i, :])
 
-        self.intercept = self.svc.intercept_
+        # svc.intercept_ is in general a numpy ndarray of shape
+        # given by (n_classes * (n_classes - 1) / 2,)
+        # but we have already tested above that this is a binary classification problem
+        # with labels 0 and 1 so the next cast is valid
+        self.intercept = float(self.svc.intercept_[0])
 
         # Add Laplacian noise
         self.noisy_weights = weights + np.random.laplace(
