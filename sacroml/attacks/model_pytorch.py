@@ -106,16 +106,12 @@ class PytorchModel(Model):
             array of losses (1.0 - predicted confidence for correct label)
         """
         labelidxs = self.get_label_indices(labels)
-        try:
-            numrows = len(data)
-            allprobs = self.predict_proba(data)
-            losses = np.zeros(numrows)
-            for i in range(numrows):
-                losses[i] = 1.0 - allprobs[i, labelidxs[i]]
-            return losses
-        except NotImplementedError as e:
-            return e
-        return NotImplementedError
+        numrows = len(data)
+        allprobs = self.predict_proba(data)
+        losses = np.zeros(numrows)
+        for i in range(numrows):
+            losses[i] = 1.0 - allprobs[i, labelidxs[i]]
+        return losses
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model accuracy for a set of samples.

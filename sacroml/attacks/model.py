@@ -62,15 +62,10 @@ class Model(ABC):
             if len(labels.shape) == 1:
                 return np.array(labels)
             return np.array(np.argmax(labels, axis=1))
+
         # sparse matrix
-        try:
-            indices = np.argmax(labels, axis=1)
-            return np.array(indices.flatten())[0]
-        except Exception as e:
-            raise NotImplementedError(
-                "labels should be ndarrayor scipy sparse array from labelencoder"
-                f"Error message:\n {e}"
-            ) from None
+        indices = np.argmax(labels, axis=1)
+        return np.array(indices.flatten())[0]
 
     @abstractmethod
     def get_generalisation_error(
