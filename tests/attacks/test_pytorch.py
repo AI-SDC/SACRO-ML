@@ -129,3 +129,11 @@ def test_pytorch() -> None:
     # Test predict function
     res = tgt.model.predict(tgt.X_test)
     assert len(res) > 0
+
+    # test get_losses
+    # test get_losses
+    testloss = tgt.model.get_losses(tgt.X_test, tgt.y_test)
+    predictions = tgt.model.predict_proba(tgt.X_test)
+    indices = tgt.model.get_label_indices(tgt.y_test)
+    for i in range(len(tgt.y_test)):
+        assert testloss[i] == 1.0 - predictions[i][indices[i]]

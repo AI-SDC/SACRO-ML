@@ -24,6 +24,7 @@ from dataclasses import asdict, dataclass
 import numpy as np
 from acro import ACRO
 from fpdf import FPDF
+from scipy.stats import ks_2samp
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
@@ -43,6 +44,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+ALPHA = 0.05  # Pval cut-off for statistical significance tests
+
 # --- Data Structure for Attack Results ---
 
 
@@ -50,8 +53,6 @@ logger = logging.getLogger(__name__)
 class StructuralRecordLevelResults:
     """Dataclass to store record-level outcomes for structural attack."""
 
-    unnecessary_risk: list[bool]
-    dof_risk: list[bool]
     k_anonymity: list[int]
     class_disclosure: list[bool]
     smallgroup_risk: list[bool]
@@ -65,6 +66,8 @@ class StructuralAttackResults:
     Attributes
     ----------
     unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
+    generalisation_error (float) : The target's generalisation error
+    gen_error_risk (bool) : Risk that train/ test loss distns significantly differ
     dof_risk (bool) : Risk based on degrees of freedom.
     k_anonymity_risk (bool) : Risk based on k-anonymity violations.
     class_disclosure_risk (bool) : Risk of class label disclosure.
@@ -72,6 +75,8 @@ class StructuralAttackResults:
     details (dict | None) : Optional additional metadata.
     """
 
+    generalisation_error: float
+    gen_error_risk: bool
     unnecessary_risk: bool
     dof_risk: bool
     k_anonymity_risk: bool
@@ -426,13 +431,18 @@ class StructuralAttack(Attack):
         assert len(eqclass_inv_indices) == num_samples
 
         # Run different risk assessments, some just return  global value
-        global_dof_risk = self._assess_dof_risk()
-        record_level_dof_risk = [global_dof_risk] * num_samples
+        generalisation_error = self.target.model.get_generalisation_error(
+            self.target.X_train,
+            self.target.y_train,
+            self.target.X_test,
+            self.target.y_test,
+        )
+        gen_error_risk = self._assess_generalisation_error_risk()
+        dof_risk = self._assess_dof_risk()
 
-        global_unnecessary_risk = get_unnecessary_risk(model)
-        record_level_unnecessary_risk = [global_unnecessary_risk] * num_samples
+        unnecessary_risk = get_unnecessary_risk(model)
 
-        # Other tests return global value and one for each training record
+        # Run assessments that return global value and one for each training record
         global_krisk, record_level_kval = self._assess_k_anonymity_risk(
             eqclass_inv_indices, eqclass_counts
         )
@@ -447,15 +457,15 @@ class StructuralAttack(Attack):
 
         # make storage for results
         self.results = StructuralAttackResults(
-            dof_risk=global_dof_risk,
-            unnecessary_risk=global_unnecessary_risk,
+            generalisation_error=generalisation_error,
+            gen_error_risk=gen_error_risk,
+            dof_risk=dof_risk,
+            unnecessary_risk=unnecessary_risk,
             k_anonymity_risk=global_krisk,
             class_disclosure_risk=global_cd,
             smallgroup_risk=global_small,
         )
         self.record_level_results = StructuralRecordLevelResults(
-            unnecessary_risk=record_level_unnecessary_risk,
-            dof_risk=record_level_dof_risk,
             k_anonymity=record_level_kval,
             class_disclosure=record_level_cd,
             smallgroup_risk=record_level_small,
@@ -469,6 +479,26 @@ class StructuralAttack(Attack):
             self._write_report(output)
 
         return output
+
+    def _assess_generalisation_error_risk(self) -> bool:
+        """Assess probability that generalisation error is statistically significant.
+
+        Uses Kolmogorov-Smirnov 2 samples test
+        to compare distributions of train/test losses
+
+        Returns
+        -------
+        bool : True if KS test returns P<0.05
+        """
+        train_losses = self.target.model.get_losses(
+            self.target.X_train, self.target.y_train
+        )
+        test_losses = self.target.model.get_losses(
+            self.target.X_test, self.target.y_test
+        )
+        ks_2samp_results = ks_2samp(train_losses, test_losses)
+        pval = ks_2samp_results.pvalue
+        return pval < ALPHA
 
     def _assess_dof_risk(self) -> bool:
         """Assess risk based on Residual Degrees of Freedom.

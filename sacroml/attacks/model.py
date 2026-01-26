@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 
 class Model(ABC):
@@ -55,6 +56,22 @@ class Model(ABC):
             self.model_name = type(self.model).__name__
             self.model_type = type(self).__name__
 
+    def get_label_indices(self, labels: np.ndarray | csr_matrix) -> np.array:
+        """Get array of col_ids for true labels."""
+        if isinstance(labels, np.ndarray):
+            if len(labels.shape) == 1:
+                return np.array(labels)
+            return np.array(np.argmax(labels, axis=1))
+        # sparse matrix
+        try:
+            indices = np.argmax(labels, axis=1)
+            return np.array(indices.flatten())[0]
+        except Exception as e:
+            raise NotImplementedError(
+                "labels should be ndarrayor scipy sparse array from labelencoder"
+                f"Error message:\n {e}"
+            ) from None
+
     @abstractmethod
     def get_generalisation_error(
         self,
@@ -80,6 +97,23 @@ class Model(ABC):
         -------
         float
             Model generalisation error.
+        """
+
+    @abstractmethod
+    def get_losses(self, data: np.ndarray, labels: np.ndarray) -> np.array:
+        """Return the losses for a given set of samples.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            Features of the records for whicgh losses are required
+        labels : np.ndarray
+            Actual labels
+
+        Returns
+        -------
+        np.array
+            array of losses (1.0 - proba value for correct label)
         """
 
     @abstractmethod

@@ -91,6 +91,34 @@ class SklearnModel(Model):
                 return np.nan
         return np.nan  # pragma: no cover
 
+    def get_losses(self, data: np.ndarray, labels: np.ndarray) -> np.array:
+        """Return the losses for a given set of samples.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            Features of the records for whicgh losses are required
+        labels : np.ndarray
+            Actual labels
+
+        Returns
+        -------
+        np.array
+            array of losses (1.0 - proba value for correct label)
+        """
+        labelidxs = self.get_label_indices(labels)
+        if hasattr(self.model, "predict_proba"):
+            try:
+                numrows = len(data)
+                allprobs = self.model.predict_proba(data)
+                losses = np.zeros(numrows)
+                for i in range(numrows):
+                    losses[i] = 1.0 - allprobs[i, labelidxs[i]]
+                return losses
+            except NotImplementedError as e:
+                return e
+        return NotImplementedError
+
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model scores for a set of samples.
 

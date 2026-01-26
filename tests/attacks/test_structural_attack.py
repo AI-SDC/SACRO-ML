@@ -622,30 +622,26 @@ def test_dt_nondisclosive_xor_reporting():
     assert not myattack_dtsafe.results.unnecessary_risk, (
         "not unnecessary risk if max_depth < 3.5"
     )
+
+    assert not myattack_dtsafe.results.gen_error_risk, (
+        f"gen_error_risk is {myattack_dtsafe.results.gen_error_risk}"
+        f"generalisation error is {myattack_dtsafe.results.generalisation_error}"
+    )
+
     gm = output["metadata"]["global_metrics"]
     inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-    for metric in [
-        "unnecessary_risk",
-        "dof_risk",
-        "k_anonymity_risk",
-        "class_disclosure_risk",
-        "smallgroup_risk",
-    ]:
-        assert not gm[metric], f"global metric {metric} should be false"
-        assert not inst[metric], f"instance metric {metric} should be false"
+    global_only_metrics = ["unnecessary_risk", "dof_risk", "gen_error_risk"]
+    both_metrics = ["k_anonymity_risk", "class_disclosure_risk", "smallgroup_risk"]
 
-    assert inst["individual"]["k_anonymity"] == [64] * 64, (
-        "indiv records k_anon should all be 64"
-    )
-    for metric in [
-        "unnecessary_risk",
-        "dof_risk",
-        "class_disclosure",
-        "smallgroup_risk",
-    ]:
-        assert inst["individual"][metric] == [False] * 64, (
-            f"individual records for {metric} should all be False"
-        )
+    for metric in global_only_metrics:
+        assert not gm[metric], f"gm[{metric}] should be False"
+    assert round(gm["generalisation_error"], 6) == -0.15625
+
+    for metric in both_metrics:
+        assert not gm[metric], f"global metric {metric} should be False"
+        assert not inst[metric], f"instance metric {metric} should be True"
+
+    assert inst["individual"]["k_anonymity"] == 64 * [64]
 
 
 def test_dt_disclosive_xor_reporting():
@@ -675,28 +671,26 @@ def test_dt_disclosive_xor_reporting():
         "small group risk with unlimited complexity decision tree"
     )
 
+    assert not myattack_dtunsafe.results.gen_error_risk, (
+        f"gen_error_risk is {myattack_dtunsafe.results.gen_error_risk}"
+        f"generalisation error is {myattack_dtunsafe.results.generalisation_error}"
+    )
+    assert myattack_dtunsafe.results.generalisation_error == 00
+
     gm = output["metadata"]["global_metrics"]
     inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-    for metric in [
+    global_only_metrics = [
         "unnecessary_risk",
         "dof_risk",
-        "k_anonymity_risk",
-        "class_disclosure_risk",
-        "smallgroup_risk",
-    ]:
+    ]
+    both_metrics = ["k_anonymity_risk", "class_disclosure_risk", "smallgroup_risk"]
+
+    for metric in global_only_metrics:
+        assert gm[metric], f"gm[{metric}] should be True"
+    assert not gm["gen_error_risk"], f"gen_error_risk is {gm['gen_error_risk']}"
+    assert round(gm["generalisation_error"], 6) == 0.0
+    for metric in both_metrics:
         assert gm[metric], f"global metric {metric} should be True"
         assert inst[metric], f"instance metric {metric} should be True"
 
-    assert inst["individual"]["k_anonymity"] == [2, 1, 2, 2, 1, 2], (
-        "k_anon records should be [2, 1, 2, 2, 1, 2] "
-        f"not {inst['individual']['k_anonymity']}"
-    )
-    for metric in [
-        "unnecessary_risk",
-        "dof_risk",
-        "class_disclosure",
-        "smallgroup_risk",
-    ]:
-        assert inst["individual"][metric] == [True] * 6, (
-            f"individual records for {metric} should all be True"
-        )
+    assert inst["individual"]["k_anonymity"] == [2, 1, 2, 2, 1, 2]
