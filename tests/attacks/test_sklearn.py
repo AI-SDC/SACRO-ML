@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
@@ -96,3 +98,23 @@ def test_sklearn() -> None:
         target.X_train, target.y_train, target.X_test, target.y_test
     )
     assert res < 0
+
+    # test get label indexes
+    records = np.array(["a", "b", "c", "a", "c", "b"]).reshape(-1, 1)
+    indices = np.array([0, 1, 2, 0, 2, 1])
+
+    le = LabelEncoder().fit_transform(records)
+    assert (target.model.get_label_indices(le) == indices).all()
+
+    oh = OneHotEncoder().fit_transform(records)
+    assert (target.model.get_label_indices(oh) == indices).all()
+
+    oh1 = OneHotEncoder(sparse_output=False).fit_transform(records)
+    assert (target.model.get_label_indices(oh1) == indices).all()
+
+    # test get_losses
+    testloss = target.model.get_losses(target.X_test, target.y_test)
+    predictions = target.model.predict_proba(target.X_test)
+    indices = target.model.get_label_indices(target.y_test)
+    for i in range(len(target.y_test)):
+        assert testloss[i] == 1.0 - predictions[i][indices[i]]
