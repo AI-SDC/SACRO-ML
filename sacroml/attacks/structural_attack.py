@@ -66,6 +66,8 @@ class StructuralAttackResults:
     Attributes
     ----------
     unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
+    train_acc (float) : target accuracy on test  set
+    test_acc (float) : target accuracy on training  set
     generalisation_error (float) : The target's generalisation error
     gen_error_risk (bool) : Risk that train/ test loss distns significantly differ
     dof_risk (bool) : Risk based on degrees of freedom.
@@ -75,6 +77,8 @@ class StructuralAttackResults:
     details (dict | None) : Optional additional metadata.
     """
 
+    test_acc: float
+    train_acc: float
     generalisation_error: float
     gen_error_risk: bool
     unnecessary_risk: bool
@@ -431,6 +435,10 @@ class StructuralAttack(Attack):
         assert len(eqclass_inv_indices) == num_samples
 
         # Run different risk assessments, some just return  global value
+
+        test_acc = self.target.model.score(self.target.X_test, self.target.y_test)
+        train_acc = self.target.model.score(self.target.X_train, self.target.y_train)
+
         generalisation_error = self.target.model.get_generalisation_error(
             self.target.X_train,
             self.target.y_train,
@@ -457,6 +465,8 @@ class StructuralAttack(Attack):
 
         # make storage for results
         self.results = StructuralAttackResults(
+            test_acc=test_acc,
+            train_acc=train_acc,
             generalisation_error=generalisation_error,
             gen_error_risk=gen_error_risk,
             dof_risk=dof_risk,
