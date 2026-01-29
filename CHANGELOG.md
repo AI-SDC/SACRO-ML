@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.4.3 (Jan 29, 2026)
+
+Changes:
+*   Docs: Update documentation ([#391](https://github.com/AI-SDC/SACRO-ML/pull/391), [#392](https://github.com/AI-SDC/SACRO-ML/pull/392), [#407](https://github.com/AI-SDC/SACRO-ML/pull/407))
+*   Fix: Update Safemodel notebooks ([#397](https://github.com/AI-SDC/SACRO-ML/pull/397))
+*   Fix: Explicit cast of dp-svc intercept to float ([#403](https://github.com/AI-SDC/SACRO-ML/pull/403))
+*   Feat: Add accuracy-based metrics to `StructuralAttack` ([#406](https://github.com/AI-SDC/SACRO-ML/pull/406))
+
 ## Version 1.4.2 (Nov 24, 2025)
 
 Changes:
