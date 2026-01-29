@@ -6,7 +6,7 @@ Contributions to this repository are very welcome. If you are interested in cont
 
 Clone the repository and install the local package including all dependencies within a virtual environment:
 
-```
+```shell
 $ git clone https://github.com/AI-SDC/SACRO-ML.git
 $ cd SACRO-ML
 $ pip install -e .[test]
@@ -14,7 +14,7 @@ $ pip install -e .[test]
 
 Then to run the tests:
 
-```
+```shell
 $ pytest .
 ```
 
@@ -44,9 +44,8 @@ SACRO-ML
 
 ## Style Guide
 
-Python code should be linted with [pylint](https://github.com/PyCQA/pylint).
-
 A [pre-commit](https://pre-commit.com) configuration [file](../tree/main/.pre-commit-config.yaml) is provided to automatically:
+
 * Trim trailing whitespace and fix line endings;
 * Check for spelling errors;
 * Check and format JSON files;
@@ -56,17 +55,70 @@ A [pre-commit](https://pre-commit.com) configuration [file](../tree/main/.pre-co
 * Sort Python imports.
 
 Pre-commit can be setup as follows:
-```
+
+```shell
 $ pip install pre-commit
 ```
+
 Then to run on all files in the repository:
-```
+
+```shell
 $ pre-commit run -a
 ```
 
 Pre-commit can be configured to automatically run on every `git commit` with:
-```
+
+```shell
 $ pre-commit install
+```
+
+## Pull Request Titles
+
+Titles for pull requests should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+This is a lightweight convention on top of commit messages. It provides a simple set of rules for creating an explicit, readable, and automation-friendly project history.
+
+Individual commit messages in branches may follow an unrestricted policy, but **PR titles must follow Conventional Commits**.
+
+### Why We Use Conventional Commit PR Titles
+
+We require PR titles to follow the Conventional Commits format because it:
+
+- **Enables automatic changelogs** - release notes can be generated from PR titles without manual work.
+- **Clearly communicates intent** - reviewers can immediately see whether a PR is a `feat`, `fix`, `chore`, etc.
+- **Improves git history navigation** - makes it easy to scan and understand changes over time.
+- **Aligns with Semantic Versioning (SemVer)** - structured titles help determine version bumps automatically.
+- **Supports better PR labeling & filtering** - PRs are labeled by type, making them easier to prioritise and review.
+- **Flags breaking changes** - adding `!` (e.g. `feat!:`) automatically marks a PR as a breaking change.
+
+### Format
+
+The general structure is:
+
+```text
+<type>[optional scope]: <description>
+```
+
+Example:
+
+```text
+feat: send an email to the customer when a product is shipped
+```
+
+Types:
+
+```text
+feat — new feature
+fix — bug fix
+docs — documentation changes
+style — formatting/styling (no code logic)
+refactor — code changes without feature/bug impact
+perf — performance improvements
+test — adding/updating tests
+build — changes to build system or dependencies
+ci — changes to CI config/scripts
+chore — miscellaneous maintenance tasks
+revert — reverts an earlier commit
 ```
 
 ## Documentation
@@ -107,7 +159,7 @@ There are lots of online tutorials for writing rst such as the [Restructured Tex
 
 It is possible to include images like this
 
-```
+```rst
 .. image:: stars.jpg
     :width: 200px
     :align: center
@@ -121,12 +173,12 @@ It is useful to be able to generate your docs locally (to check for bugs, etc.)
 
 First install the Python dependencies with:
 
-```
-$ pip install .[doc]
+```shell
+$ pip install -e .[doc]
 ```
 
 Then run Sphinx with the following command and it should create a folder `docs/_build/html/` that will contain the html files where you can open the index.html with your web browser.
 
-```
+```shell
 $ sphinx-build ./docs/source ./docs/_build/html/
 ```
