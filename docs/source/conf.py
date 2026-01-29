@@ -11,9 +11,9 @@ sys.path.insert(1, os.path.abspath("../../attacks/"))
 # -- Project information -----------------------------------------------------
 
 project = "SACRO-ML"
-copyright = "2025, GRAIMATTER and SACRO Project Team"
+copyright = "2026, GRAIMATTER and SACRO Project Team"
 author = "GRAIMATTER and SACRO Project Team"
-release = "1.4.2"
+release = "1.4.3"
 
 # -- General configuration ---------------------------------------------------
 
