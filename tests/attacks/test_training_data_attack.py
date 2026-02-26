@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 from sklearn.datasets import make_moons
+from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
@@ -254,8 +255,6 @@ def test_attackable_svc_precomputed_kernel():
     """SVC with kernel='precomputed' should not be attackable."""
     X, y = make_moons(n_samples=30, noise=0.3, random_state=42)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    from sklearn.metrics.pairwise import rbf_kernel
-
     gram_train = rbf_kernel(X_train, X_train)
     model = SVC(kernel="precomputed")
     model.fit(gram_train, y_train)

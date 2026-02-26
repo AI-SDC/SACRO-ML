@@ -66,18 +66,14 @@ def _has_dp_embedding(model: BaseEstimator) -> bool:
 
 
 def _is_attackable_model(model: BaseEstimator) -> bool:
-    """Return True if model type is SVC or KNeighborsClassifier (excluding DP variants)."""
+    """Return True if model is SVC or KNeighborsClassifier (excluding DP variants)."""
     if _has_dp_embedding(model):
         return False
     final = _get_final_estimator(model)
     if isinstance(final, SVC):
         # kernel="precomputed" stores gram matrix, not input-space vectors
-        if getattr(final, "kernel", "") == "precomputed":
-            return False
-        return True
-    if isinstance(final, KNeighborsClassifier):
-        return True
-    return False
+        return getattr(final, "kernel", "") != "precomputed"
+    return isinstance(final, KNeighborsClassifier)
 
 
 def _to_dense(arr: np.ndarray) -> np.ndarray:
