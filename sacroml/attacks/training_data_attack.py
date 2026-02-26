@@ -136,9 +136,7 @@ def _values_preview(arr: np.ndarray, idx: int, max_vals: int = 5) -> list:
     return row.tolist()[:max_vals]
 
 
-def _find_matches(
-    stored: np.ndarray, train_data: np.ndarray
-) -> list[dict[str, Any]]:
+def _find_matches(stored: np.ndarray, train_data: np.ndarray) -> list[dict[str, Any]]:
     """
     Find rows in stored that match rows in train_data.
 

@@ -422,13 +422,35 @@ def create_training_data_report(attack_output: dict) -> FPDF:
         line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
     subtitle(pdf, "Results")
-    risk_status = "Risk Detected" if metrics.get("contains_training_data") else "Not Detected"
+    risk_status = (
+        "Risk Detected" if metrics.get("contains_training_data") else "Not Detected"
+    )
     line(pdf, f"{'contains_training_data':>30s}: {risk_status:30s}", font="courier")
-    line(pdf, f"{'model_type':>30s}: {str(metrics.get('model_type', '')):30s}", font="courier")
-    line(pdf, f"{'n_stored':>30s}: {str(metrics.get('n_stored', '')):30s}", font="courier")
-    line(pdf, f"{'n_training':>30s}: {str(metrics.get('n_training', '')):30s}", font="courier")
-    line(pdf, f"{'n_matches':>30s}: {str(metrics.get('n_matches', '')):30s}", font="courier")
-    line(pdf, f"{'dp_space_caveat':>30s}: {str(metrics.get('dp_space_caveat', '')):30s}", font="courier")
+    line(
+        pdf,
+        f"{'model_type':>30s}: {str(metrics.get('model_type', '')):30s}",
+        font="courier",
+    )
+    line(
+        pdf,
+        f"{'n_stored':>30s}: {str(metrics.get('n_stored', '')):30s}",
+        font="courier",
+    )
+    line(
+        pdf,
+        f"{'n_training':>30s}: {str(metrics.get('n_training', '')):30s}",
+        font="courier",
+    )
+    line(
+        pdf,
+        f"{'n_matches':>30s}: {str(metrics.get('n_matches', '')):30s}",
+        font="courier",
+    )
+    line(
+        pdf,
+        f"{'dp_space_caveat':>30s}: {str(metrics.get('dp_space_caveat', '')):30s}",
+        font="courier",
+    )
 
     if metrics.get("dp_space_caveat"):
         subtitle(pdf, "Caveat")

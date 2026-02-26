@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -268,5 +267,3 @@ def test_attackable_svc_precomputed_kernel():
         y_test=y_test,
     )
     assert not TrainingDataInModelAttack.attackable(target)
-
-
