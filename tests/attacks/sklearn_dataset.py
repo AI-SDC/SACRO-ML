@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import numpy as np
-from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.data import SklearnDataHandler
+from tests.conftest import _make_local_nursery_data
 
 random_state = 1
 
@@ -18,11 +18,8 @@ class Nursery(SklearnDataHandler):
     """Nursery dataset handler."""
 
     def __init__(self) -> None:
-        """Fetch and process the nursery dataset."""
-        # Get original dataset
-        nursery_data = fetch_openml(data_id=26, as_frame=True)
-        self.X_orig = np.asarray(nursery_data.data, dtype=str)
-        self.y_orig = np.asarray(nursery_data.target, dtype=str)
+        """Build and process the nursery dataset."""
+        self.X_orig, self.y_orig, self.feature_names = _make_local_nursery_data()
 
         # Use only a sample to speed testing
         self.X_orig, _, self.y_orig, _ = train_test_split(
@@ -50,7 +47,6 @@ class Nursery(SklearnDataHandler):
             [21, 22, 23],  # social
             [24, 25, 26],  # health
         ]
-        self.feature_names = nursery_data.feature_names
 
     def __len__(self) -> int:
         """Return the length of the dataset."""
