@@ -8,7 +8,7 @@ from datetime import date
 import numpy as np
 import pytest
 import sklearn
-from sklearn.datasets import fetch_openml, make_classification
+from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -77,6 +77,57 @@ files = [
 ]
 
 
+def _make_local_nursery_data(
+    n_samples: int = 6000, random_state: int = 1
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Create deterministic nursery-like categorical data for tests."""
+    feature_names = [
+        "parents",
+        "has_nurs",
+        "form",
+        "children",
+        "housing",
+        "finance",
+        "social",
+        "health",
+    ]
+    categories = [
+        ["usual", "pretentious", "great_pret"],
+        ["proper", "less_proper", "improper", "critical", "very_crit"],
+        ["complete", "completed", "incomplete", "foster"],
+        ["1", "2", "3", "more"],
+        ["convenient", "less_conv", "critical"],
+        ["convenient", "inconv"],
+        ["nonprob", "slightly_prob", "problematic"],
+        ["recommended", "priority", "not_recom"],
+    ]
+    class_names = np.asarray(
+        ["not_recom", "recommend", "very_recom", "priority", "spec_prior"],
+        dtype=str,
+    )
+
+    X_num, y_num = make_classification(
+        n_samples=n_samples,
+        n_features=len(feature_names),
+        n_informative=6,
+        n_redundant=0,
+        n_repeated=0,
+        n_classes=len(class_names),
+        n_clusters_per_class=1,
+        class_sep=1.2,
+        random_state=random_state,
+    )
+    X_cat = np.empty((n_samples, len(feature_names)), dtype=object)
+    for idx, values in enumerate(categories):
+        col = X_num[:, idx]
+        thresholds = np.quantile(col, np.linspace(0, 1, len(values) + 1)[1:-1])
+        bins = np.digitize(col, thresholds)
+        X_cat[:, idx] = np.asarray(values, dtype=str)[bins]
+
+    y = class_names[y_num]
+    return X_cat.astype(str), y.astype(str), feature_names
+
+
 @pytest.fixture(name="cleanup", autouse=True)
 def _cleanup():
     """Remove created files and directories."""
@@ -103,9 +154,7 @@ def get_target(request) -> Target:
     """
     model: sklearn.BaseEstimator = request.param
 
-    nursery_data = fetch_openml(data_id=26, as_frame=True)
-    x = np.asarray(nursery_data.data, dtype=str)
-    y = np.asarray(nursery_data.target, dtype=str)
+    x, y, feature_names = _make_local_nursery_data()
     # change labels from recommend to priority for the two odd cases
     num = len(y)
     for i in range(num):
@@ -178,7 +227,7 @@ def get_target(request) -> Target:
         y_test_orig=y_test_orig,
     )
     for i in range(n_features - 1):
-        target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+        target.add_feature(feature_names[i], indices[i], "onehot")
     target.add_feature("dummy", indices[n_features - 1], "float")
     return target
 
