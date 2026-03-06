@@ -126,6 +126,9 @@ def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
     attack_formatter = GenerateJSONModule(dest + ".json")
     attack_report: str = json.dumps(output, cls=CustomJSONEncoder)
+    attack_report = attack_report.replace("-Infinity", "null")
+    attack_report = attack_report.replace("Infinity", "null")
+    attack_report = attack_report.replace("NaN", "null")
     attack_name: str = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 

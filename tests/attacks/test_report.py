@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import json
+import os
+import tempfile
+
 import numpy as np
+import pytest
 from fpdf import FPDF
 
 from sacroml.attacks import report
@@ -42,3 +47,40 @@ def test_dict():
     mydict = {"a": "hello", "b": "world"}
     report._write_dict(pdf, mydict, border=BORDER)
     pdf.close()
+
+
+def test_write_json_sanitises_non_finite_floats():
+    """Test write_json replaces nan/inf values with null in JSON output.
+
+    Parameters
+    ----------
+    None
+
+    Notes
+    -----
+    Ensures that float('nan'), float('inf'), and float('-inf') are serialised
+    as JSON null rather than the bare NaN/Infinity tokens that violate the
+    JSON specification.
+    """
+    metrics = {
+        "a_nan": float("nan"),
+        "b_inf": float("inf"),
+        "c_neginf": float("-inf"),
+        "d_normal": 1.5,
+    }
+    output = {
+        "metadata": {"attack_name": "test_attack"},
+        "metrics": metrics,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dest = os.path.join(tmpdir, "report")
+        report.write_json(output, dest)
+        path = dest + ".json"
+        with open(path, encoding="utf-8") as fp:
+            data = json.load(fp)
+
+    inner = data["test_attack"]["metrics"]
+    assert inner["a_nan"] is None
+    assert inner["b_inf"] is None
+    assert inner["c_neginf"] is None
+    assert inner["d_normal"] == pytest.approx(1.5)
