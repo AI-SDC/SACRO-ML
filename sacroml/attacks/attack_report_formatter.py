@@ -127,9 +127,7 @@ class FinalRecommendationModule(AnalysisModule):
         self.scores = []
         self.reasons = []
 
-    def _is_instance_based_model(
-        self, instance_based_model_score: int | float
-    ) -> bool:
+    def _is_instance_based_model(self, instance_based_model_score: int | float) -> bool:
         if "model_name" in self.report:
             if self.report["model_name"] == "SVC":
                 self.scores.append(instance_based_model_score)
