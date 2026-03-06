@@ -141,7 +141,7 @@ class Target:
     # Safemodel properties
     safemodel: list = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialise the model wrapper after dataclass creation."""
         self.model = self._wrap_model(self.model)
 

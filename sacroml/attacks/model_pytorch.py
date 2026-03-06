@@ -284,7 +284,7 @@ class PytorchModel(Model):
                 "No Linear layer found and model has no 'classes' attribute"
             ) from error
 
-    def set_params(self, **kwargs) -> PytorchModel:
+    def set_params(self, **kwargs: Any) -> PytorchModel:
         """Set the parameters of this model.
 
         Parameters
@@ -402,7 +402,7 @@ def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]
 
 def numpy_to_dataloader(
     X: np.ndarray, y: np.ndarray, batch_size: int = 32, shuffle: bool = False
-):
+) -> DataLoader:
     """Convert numpy arrays to PyTorch DataLoader."""
     X_tensor = torch.from_numpy(X).float()
     y_tensor = torch.from_numpy(y).long()

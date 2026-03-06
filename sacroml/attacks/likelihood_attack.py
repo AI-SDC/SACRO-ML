@@ -89,7 +89,7 @@ class LIRAAttack(Attack):
                 self.result["in_mean"] = []
                 self.result["in_std"] = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the attack."""
         return "LiRA Attack"
 
@@ -421,10 +421,10 @@ class LIRAAttack(Attack):
     class _DummyClassifier:
         """A Dummy Classifier to allow this code to work with get_metrics."""
 
-        def predict(self, X_test):
+        def predict(self, X_test: np.ndarray) -> np.ndarray:
             """Return an array of 1/0 depending on value in second column."""
             return 1 * (X_test[:, 1] > 0.5)
 
-        def predict_proba(self, X_test):
+        def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
             """Simply return the X_test."""
             return X_test

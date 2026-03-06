@@ -127,7 +127,9 @@ class FinalRecommendationModule(AnalysisModule):
         self.scores = []
         self.reasons = []
 
-    def _is_instance_based_model(self, instance_based_model_score) -> bool:
+    def _is_instance_based_model(
+        self, instance_based_model_score: int | float
+    ) -> bool:
         if "model_name" in self.report:
             if self.report["model_name"] == "SVC":
                 self.scores.append(instance_based_model_score)
@@ -263,7 +265,7 @@ class FinalRecommendationModule(AnalysisModule):
 class SummariseUnivariateMetricsModule(AnalysisModule):
     """Summarise a set of chosen univariate metrics from the output dictionary."""
 
-    def __init__(self, report: dict, metrics_list=None) -> None:
+    def __init__(self, report: dict, metrics_list: list[str] | None = None) -> None:
         super().__init__()
 
         if metrics_list is None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable
+from typing import Any
 
 import numpy as np
 from fpdf import FPDF
@@ -234,7 +235,7 @@ class WorstCaseAttack(Attack):
         mi_y = np.hstack((np.ones(len(proba_train)), np.zeros(len(proba_test))))
         return (mi_x, mi_y)
 
-    def _get_attack_model(self):
+    def _get_attack_model(self) -> Any:
         """Return an instantiated attack model."""
         # load attack model module and get class
         model = get_class_by_name(self.attack_model)

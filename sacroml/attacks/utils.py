@@ -192,7 +192,7 @@ def logit(p: float) -> float:
     return np.log(p / (1 - p))
 
 
-def get_class_by_name(class_path: str):
+def get_class_by_name(class_path: str) -> type[Any]:
     """Return a class given its name."""
     module_path, class_name = class_path.rsplit(".", 1)
     module = importlib.import_module(module_path)

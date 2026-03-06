@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import pickle
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import sklearn
@@ -199,7 +200,7 @@ class SklearnModel(Model):
         """
         return self.model.classes_
 
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs: Any) -> Model:
         """Set the parameters of this model.
 
         Parameters
