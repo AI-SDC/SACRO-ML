@@ -2,7 +2,6 @@
 
 import json
 import os
-from typing import Any
 
 import numpy as np
 import pylab as plt
@@ -155,7 +154,7 @@ def write_json(output: dict, dest: str) -> None:
 class CustomJSONEncoder(json.JSONEncoder):
     """JSON encoder that can cope with numpy arrays, etc."""
 
-    def default(self, o: Any):
+    def default(self, o: object) -> object:
         """If an object is an np.ndarray, convert to list."""
         if isinstance(o, np.ndarray):
             return o.tolist()

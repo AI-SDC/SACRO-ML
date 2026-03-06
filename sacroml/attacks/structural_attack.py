@@ -647,7 +647,7 @@ class StructuralAttack(Attack):
         y_probs = self.target.model.predict_proba(self.target.X_train)
         return np.unique(y_probs, axis=0, return_inverse=True, return_counts=True)
 
-    def _construct_metadata(self):
+    def _construct_metadata(self) -> None:
         """Construct the metadata dictionary for reporting.
 
         Used internally to populate metadata for the attack report, including

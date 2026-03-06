@@ -196,7 +196,7 @@ class Model(ABC):
         """
 
     @abstractmethod
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs: Any) -> Model:
         """Set the parameters of this model.
 
         Parameters
