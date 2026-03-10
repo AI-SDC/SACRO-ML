@@ -106,7 +106,7 @@ def _make_local_nursery_data(
         dtype=str,
     )
 
-    X_num, y_num = make_classification(
+    x_num, y_num = make_classification(
         n_samples=n_samples,
         n_features=len(feature_names),
         n_informative=6,
@@ -117,15 +117,15 @@ def _make_local_nursery_data(
         class_sep=1.2,
         random_state=random_state,
     )
-    X_cat = np.empty((n_samples, len(feature_names)), dtype=object)
+    x_cat = np.empty((n_samples, len(feature_names)), dtype=object)
     for idx, values in enumerate(categories):
-        col = X_num[:, idx]
+        col = x_num[:, idx]
         thresholds = np.quantile(col, np.linspace(0, 1, len(values) + 1)[1:-1])
         bins = np.digitize(col, thresholds)
-        X_cat[:, idx] = np.asarray(values, dtype=str)[bins]
+        x_cat[:, idx] = np.asarray(values, dtype=str)[bins]
 
     y = class_names[y_num]
-    return X_cat.astype(str), y.astype(str), feature_names
+    return x_cat.astype(str), y.astype(str), feature_names
 
 
 @pytest.fixture(name="cleanup", autouse=True)
@@ -198,9 +198,10 @@ def get_target(request) -> Target:
     X_test = feature_enc.transform(X_test_orig).toarray()
     y_test = label_enc.transform(y_test_orig)
 
-    # add dummy continuous valued attribute from N(0.5,0.05)
-    dummy_tr = 0.5 + 0.05 * np.random.randn(X_train.shape[0])
-    dummy_te = 0.5 + 0.05 * np.random.randn(X_test.shape[0])
+    # Use a local RNG so this fixture stays deterministic regardless of test order.
+    rng = np.random.default_rng(1)
+    dummy_tr = 0.5 + 0.05 * rng.standard_normal(X_train.shape[0])
+    dummy_te = 0.5 + 0.05 * rng.standard_normal(X_test.shape[0])
     dummy_tr = dummy_tr.reshape(-1, 1)
     dummy_te = dummy_te.reshape(-1, 1)
 

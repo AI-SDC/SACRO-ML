@@ -50,5 +50,5 @@ def test_factory(monkeypatch, get_target):
     metrics = report[nr]["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    assert metrics["TPR"] == pytest.approx(0.91, abs=0.01)
-    assert metrics["FPR"] == pytest.approx(0.41, abs=0.01)
+    assert metrics["TPR"] == pytest.approx(0.95, abs=0.01)
+    assert metrics["FPR"] == pytest.approx(0.45, abs=0.01)
