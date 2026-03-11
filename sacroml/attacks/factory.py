@@ -8,7 +8,6 @@ from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
-from sacroml.attacks.training_data_attack import TrainingDataInModelAttack
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
 from sacroml.version import __version__
 
@@ -19,7 +18,6 @@ registry: dict = {
     "attribute": AttributeAttack,
     "lira": LIRAAttack,
     "structural": StructuralAttack,
-    "trainingdata": TrainingDataInModelAttack,
     "worstcase": WorstCaseAttack,
 }
 
