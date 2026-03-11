@@ -6,7 +6,6 @@ import importlib
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import Any
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -17,7 +16,7 @@ class Model(ABC):
 
     def __init__(
         self,
-        model: Any,
+        model: object,
         model_path: str = "",
         model_module_path: str = "",
         model_name: str = "",
@@ -44,7 +43,7 @@ class Model(ABC):
         train_params : dict | None
             Hyperparameters for training the model.
         """
-        self.model: Any = model
+        self.model: object = model
         self.model_path: str = model_path
         self.model_module_path: str = model_module_path
         self.model_name: str = model_name
@@ -196,7 +195,7 @@ class Model(ABC):
         """
 
     @abstractmethod
-    def set_params(self, **kwargs: Any) -> Model:
+    def set_params(self, **kwargs: object) -> Model:
         """Set the parameters of this model.
 
         Parameters
@@ -265,7 +264,9 @@ class Model(ABC):
         """
 
 
-def create_model(model_module_path: str, model_name: str, model_params: dict) -> Any:
+def create_model(
+    model_module_path: str, model_name: str, model_params: dict[str, object]
+) -> object:
     """Return a new model from a code path.
 
     Parameters
@@ -301,7 +302,7 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
 
         # Import model class
         module = importlib.import_module(model_module_path)
-        model_class = getattr(module, model_name)
+        model_class: type[object] = getattr(module, model_name)
 
         # Instantiate model
         return model_class(**model_params)
@@ -310,7 +311,7 @@ def create_model(model_module_path: str, model_name: str, model_params: dict) ->
         raise ValueError(f"Failed to create new model using supplied class: {e}") from e
 
 
-def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
+def create_dataset(dataset_module_path: str, dataset_name: str) -> object:
     """Return a new dataset from a code path.
 
     Parameters
@@ -344,7 +345,7 @@ def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
 
         # Import dataset class
         module = importlib.import_module(module_path)
-        dataset_class = getattr(module, dataset_name)
+        dataset_class: type[object] = getattr(module, dataset_name)
 
         # Instantiate dataset
         return dataset_class()

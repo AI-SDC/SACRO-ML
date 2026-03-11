@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import pickle
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import sklearn
@@ -200,7 +199,7 @@ class SklearnModel(Model):
         """
         return self.model.classes_
 
-    def set_params(self, **kwargs: Any) -> Model:
+    def set_params(self, **kwargs: object) -> Model:
         """Set the parameters of this model.
 
         Parameters
@@ -275,7 +274,7 @@ class SklearnModel(Model):
         ext: str = Path(model_path).suffix
         if ext == ".pkl":
             with open(model_path, "rb") as fp:
-                model = pickle.load(fp)
+                model: sklearn.base.BaseEstimator = pickle.load(fp)
         else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for loading a model: {ext}")
         return cls(

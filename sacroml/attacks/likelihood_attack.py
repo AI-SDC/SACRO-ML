@@ -128,7 +128,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # prepare
-        shadow_clf = target.model.clone()
+        shadow_clf: Model = target.model.clone()
         target = utils.check_and_update_dataset(target)
         # execute attack
         self._run(
@@ -141,7 +141,7 @@ class LIRAAttack(Attack):
             target.model.predict_proba(target.X_test),
         )
         # create the report
-        output = self._make_report(target)
+        output: dict = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report
@@ -240,10 +240,12 @@ class LIRAAttack(Attack):
                 self.shadow_path, model_idx
             )
             # map a class to a column
-            class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
+            class_map: dict[int, int] = {
+                c: i for i, c in enumerate(shadow_clf.get_classes())
+            }
             # generate shadow confidences
-            shadow_confidences = shadow_clf.predict_proba(combined_x_train)
-            indices_train = set(indices_train)
+            shadow_confidences: np.ndarray = shadow_clf.predict_proba(combined_x_train)
+            indices_train: set[int] = set(indices_train)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
                 label = class_map.get(combined_y_train[i], -1)

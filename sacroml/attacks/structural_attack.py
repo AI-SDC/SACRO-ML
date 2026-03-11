@@ -128,11 +128,11 @@ def _get_unnecessary_risk_dt(model: DecisionTreeClassifier) -> bool:
     This function applies decision rules extracted from a trained decision tree
     classifier on hyperparameter configurations ranked by MIA AUC.
     """
-    max_depth = float(model.max_depth) if model.max_depth else 500
-    max_features = model.max_features
-    min_samples_leaf = model.min_samples_leaf
-    min_samples_split = model.min_samples_split
-    splitter = model.splitter
+    max_depth: float = float(model.max_depth) if model.max_depth else 500
+    max_features: str | int | float | None = model.max_features
+    min_samples_leaf: int | float = model.min_samples_leaf
+    min_samples_split: int | float = model.min_samples_split
+    splitter: str = model.splitter
     return (
         (max_depth > 7.5 and min_samples_leaf <= 7.5 and min_samples_split <= 15)
         or (
@@ -168,11 +168,11 @@ def _get_unnecessary_risk_rf(model: RandomForestClassifier) -> bool:
     This function applies decision rules extracted from a trained decision tree
     classifier on hyperparameter configurations ranked by MIA AUC.
     """
-    max_depth = float(model.max_depth) if model.max_depth else 500
-    n_estimators = model.n_estimators
-    max_features = model.max_features
-    min_samples_leaf = model.min_samples_leaf
-    min_samples_split = model.min_samples_split
+    max_depth: float = float(model.max_depth) if model.max_depth else 500
+    n_estimators: int = model.n_estimators
+    max_features: str | int | float | None = model.max_features
+    min_samples_leaf: int | float = model.min_samples_leaf
+    min_samples_split: int | float = model.min_samples_split
     return (
         (max_depth > 3.5 and n_estimators > 35 and max_features is not None)
         or (
@@ -201,9 +201,11 @@ def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
     from https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
     and here: https://xgboost.readthedocs.io/en/stable/parameter.html
     """
-    n_estimators = int(model.n_estimators) if model.n_estimators else 100
-    max_depth = float(model.max_depth) if model.max_depth else 6
-    min_child_weight = float(model.min_child_weight) if model.min_child_weight else 1.0
+    n_estimators: int = int(model.n_estimators) if model.n_estimators else 100
+    max_depth: float = float(model.max_depth) if model.max_depth else 6
+    min_child_weight: float = (
+        float(model.min_child_weight) if model.min_child_weight else 1.0
+    )
     return (
         (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
         or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
@@ -263,10 +265,10 @@ def _get_model_param_count_torch(model: torch.nn.Module) -> int:
 
 def _get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
     """Read the tree structure and return the number of learned parameters."""
-    n_nodes = dtree.tree_.node_count
-    is_leaf = dtree.tree_.children_left == dtree.tree_.children_right
-    n_leaves = np.sum(is_leaf)
-    n_internal_nodes = n_nodes - n_leaves
+    n_nodes: int = dtree.tree_.node_count
+    is_leaf: np.ndarray = dtree.tree_.children_left == dtree.tree_.children_right
+    n_leaves: int = np.sum(is_leaf)
+    n_internal_nodes: int = n_nodes - n_leaves
     # 2 params (feature, threshold) per internal node
     # (n_classes - 1) params per leaf node for the probability distribution
     return 2 * n_internal_nodes + n_leaves * (dtree.n_classes_ - 1)
@@ -299,9 +301,9 @@ def _get_model_param_count_xgb(model: XGBClassifier) -> int:
     df = model.get_booster().trees_to_dataframe()
     if df.empty:
         return 0
-    n_trees = df["Tree"].max() + 1
-    n_leaves = len(df[df.Feature == "Leaf"])
-    n_internal_nodes = len(df) - n_leaves
+    n_trees: int = df["Tree"].max() + 1
+    n_leaves: int = len(df[df.Feature == "Leaf"])
+    n_internal_nodes: int = len(df) - n_leaves
     # 2 params per internal node, (n_classes-1) per leaf, one weight per tree
     return 2 * n_internal_nodes + (model.n_classes_ - 1) * n_leaves + n_trees
 
@@ -361,7 +363,7 @@ class StructuralAttack(Attack):
         self.report_individual = report_individual
 
         # Load risk appetite from ACRO config
-        myacro = ACRO(risk_appetite_config)
+        myacro: ACRO = ACRO(risk_appetite_config)
         self.risk_appetite_config = risk_appetite_config
         self.THRESHOLD = myacro.config["safe_threshold"]
         self.DOF_THRESHOLD = myacro.config["safe_dof_threshold"]
@@ -422,7 +424,7 @@ class StructuralAttack(Attack):
          It assumes the target model has been trained and validated
         """
         self.target = target
-        model = target.model.model
+        model: BaseEstimator | torch.nn.Module = target.model.model
 
         # Calculate equivalence classes, which are needed for several checks
         eqclass_probas, eqclass_inv_indices, eqclass_counts = (
@@ -431,24 +433,26 @@ class StructuralAttack(Attack):
         # check shapes are sane
         num_eqclasses, num_outputs = eqclass_probas.shape
         assert len(eqclass_counts) == num_eqclasses
-        num_samples = target.y_train.shape[0]
+        num_samples: int = target.y_train.shape[0]
         assert len(eqclass_inv_indices) == num_samples
 
         # Run different risk assessments, some just return  global value
 
-        test_acc = self.target.model.score(self.target.X_test, self.target.y_test)
-        train_acc = self.target.model.score(self.target.X_train, self.target.y_train)
+        test_acc: float = self.target.model.score(self.target.X_test, self.target.y_test)
+        train_acc: float = self.target.model.score(
+            self.target.X_train, self.target.y_train
+        )
 
-        generalisation_error = self.target.model.get_generalisation_error(
+        generalisation_error: float = self.target.model.get_generalisation_error(
             self.target.X_train,
             self.target.y_train,
             self.target.X_test,
             self.target.y_test,
         )
-        gen_error_risk = self._assess_generalisation_error_risk()
-        dof_risk = self._assess_dof_risk()
+        gen_error_risk: bool = self._assess_generalisation_error_risk()
+        dof_risk: bool = self._assess_dof_risk()
 
-        unnecessary_risk = get_unnecessary_risk(model)
+        unnecessary_risk: bool = get_unnecessary_risk(model)
 
         # Run assessments that return global value and one for each training record
         global_krisk, record_level_kval = self._assess_k_anonymity_risk(
@@ -481,7 +485,7 @@ class StructuralAttack(Attack):
             smallgroup_risk=record_level_small,
         )
 
-        output = self._make_report(target)
+        output: dict = self._make_report(target)
 
         # If requested, write the JSON report file.
         # The PDF is generated by the main runner script from all JSON files.
@@ -500,14 +504,14 @@ class StructuralAttack(Attack):
         -------
         bool : True if KS test returns P<0.05
         """
-        train_losses = self.target.model.get_losses(
+        train_losses: np.ndarray = self.target.model.get_losses(
             self.target.X_train, self.target.y_train
         )
-        test_losses = self.target.model.get_losses(
+        test_losses: np.ndarray = self.target.model.get_losses(
             self.target.X_test, self.target.y_test
         )
         ks_2samp_results = ks_2samp(train_losses, test_losses)
-        pval = ks_2samp_results.pvalue
+        pval: float = ks_2samp_results.pvalue
         return pval < ALPHA
 
     def _assess_dof_risk(self) -> bool:
@@ -518,10 +522,10 @@ class StructuralAttack(Attack):
         bool : True if the model's residual degrees of freedom are below the
                safe threshold.
         """
-        n_features = self.target.X_train.shape[1]
-        n_samples = self.target.X_train.shape[0]
-        model = self.target.model.model
-        n_params = get_model_param_count(model)
+        n_features: int = self.target.X_train.shape[1]
+        n_samples: int = self.target.X_train.shape[0]
+        model: BaseEstimator | torch.nn.Module = self.target.model.model
+        n_params: int = get_model_param_count(model)
 
         if n_params < n_features:
             logger.info(
@@ -530,7 +534,7 @@ class StructuralAttack(Attack):
                 n_features,
             )
 
-        residual_dof = n_samples - n_params
+        residual_dof: int = n_samples - n_params
         logger.info(
             "Samples=%d, Parameters=%d, DoF=%d", n_samples, n_params, residual_dof
         )
@@ -546,7 +550,7 @@ class StructuralAttack(Attack):
         bool : True if the smallest equivalence class size is below the safe threshold.
         list : size of class each record belongs to
         """
-        min_k = np.min(eqclass_counts)
+        min_k: int = np.min(eqclass_counts)
         logger.info("Smallest equivalence class size (k-anonymity) is %d", min_k)
         global_risk = bool(np.any(eqclass_counts < self.THRESHOLD))
 
@@ -623,16 +627,16 @@ class StructuralAttack(Attack):
         eqclass_counts (np.array):
             holds count of members in eacgh equivalence class
         """
-        model = self.target.model.model
+        model: BaseEstimator | torch.nn.Module = self.target.model.model
         if isinstance(model, DecisionTreeClassifier):
             return self._dt_get_equivalence_classes()
         return self._get_equivalence_classes_from_probas()
 
     def _dt_get_equivalence_classes(self) -> tuple:
         """Get equivalence classes for a Decision Tree via leaf nodes."""
-        model = self.target.model.model
+        model: DecisionTreeClassifier = self.target.model.model
         # find out which leaves records end up in
-        destinations = model.apply(self.target.X_train)
+        destinations: np.ndarray = model.apply(self.target.X_train)
         leaves, indices, inv_indices, counts = np.unique(
             destinations, return_index=True, return_inverse=True, return_counts=True
         )
@@ -644,7 +648,7 @@ class StructuralAttack(Attack):
 
     def _get_equivalence_classes_from_probas(self) -> tuple:
         """Get equivalence classes based on predicted probabilities."""
-        y_probs = self.target.model.predict_proba(self.target.X_train)
+        y_probs: np.ndarray = self.target.model.predict_proba(self.target.X_train)
         return np.unique(y_probs, axis=0, return_inverse=True, return_counts=True)
 
     def _construct_metadata(self) -> None:
@@ -654,7 +658,7 @@ class StructuralAttack(Attack):
         thresholds and results.
         """
         super()._construct_metadata()
-        attack_specific_output = {
+        attack_specific_output: dict = {
             "attack_name": str(self),
             "risk_appetite_config": self.risk_appetite_config,
             "safe_threshold": self.THRESHOLD,
@@ -679,12 +683,12 @@ class StructuralAttack(Attack):
         # Its functionality is now handled by the `results` dataclass
         # and the `_construct_metadata` method.
         # We return the metrics from the results object if available.
-        attack_metrics_experiment = {}
-        attack_metrics_instances = {}
+        attack_metrics_experiment: dict = {}
+        attack_metrics_instances: dict = {}
         if self.results:
             attack_metrics_instances["instance_0"] = asdict(self.results)
             if self.report_individual and self.record_level_results:
-                individuals = {"individual": asdict(self.record_level_results)}
+                individuals: dict = {"individual": asdict(self.record_level_results)}
                 attack_metrics_instances["instance_0"].update(individuals)
             attack_metrics_experiment["attack_instance_logger"] = (
                 attack_metrics_instances
