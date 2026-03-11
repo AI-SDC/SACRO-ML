@@ -15,9 +15,9 @@ def test_tests_do_not_use_openml() -> None:
             offenders.append(str(path.relative_to(tests_dir.parent)))
 
     assert offenders == [], f"OpenML usage found in tests: {offenders}"
-"""Guard against introducing OpenML network dependency into tests."""
 
-from pathlib import Path
+
+"""Guard against introducing OpenML network dependency into tests."""
 
 
 def test_tests_do_not_use_openml() -> None:
