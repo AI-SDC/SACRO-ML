@@ -3,10 +3,17 @@ name: test
 
 on:
   push:
+    branches:
+      - main
     paths-ignore:
       - '**.md'
       - '**.cff'
-      - 'setup.py'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.cff'
 
 jobs:
   build:
