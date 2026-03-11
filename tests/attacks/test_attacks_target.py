@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
@@ -50,3 +52,55 @@ def test_target(get_target):
         y_test_orig=target.y_test_orig,
     )
     assert new_target
+
+
+def test_save_skips_data_arrays_when_dataset_module_set(tmp_path):
+    """Test data arrays are not serialised when a dataset module path is set.
+
+    Regression test for issue #411: after a round-trip load() followed by
+    save(), data array pkl files must not be written when a dataset module
+    is provided.
+    """
+    module_path = tmp_path / "mock_dataset.py"
+    module_path.write_text(
+        "import numpy as np\n"
+        "from sacroml.attacks.data import SklearnDataHandler\n\n\n"
+        "class MockDataset(SklearnDataHandler):\n"
+        "    def __init__(self):\n"
+        "        pass\n\n"
+        "    def __len__(self):\n"
+        "        return 10\n\n"
+        "    def get_data(self):\n"
+        "        return np.zeros((10, 2)), np.zeros(10)\n\n"
+        "    def get_raw_data(self):\n"
+        "        return None\n\n"
+        "    def get_subset(self, X, y, indices):\n"
+        "        idx = list(indices)\n"
+        "        return X[idx], y[idx]\n",
+        encoding="utf-8",
+    )
+
+    X_train = np.zeros((6, 2))
+    y_train = np.zeros(6)
+    X_test = np.zeros((4, 2))
+    y_test = np.zeros(4)
+    model = RandomForestClassifier(n_estimators=1, random_state=0)
+    model.fit(X_train, y_train)
+
+    # Simulate the state after load() calls load_sklearn_dataset():
+    # dataset_module_path is set AND data arrays are populated in memory.
+    save_dir = str(tmp_path / "target_dataset_module")
+    target = Target(
+        model=model,
+        dataset_module_path=str(module_path),
+        dataset_name="MockDataset",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+    )
+
+    target.save(save_dir)
+
+    for arr_name in ["X_train", "y_train", "X_test", "y_test"]:
+        assert not os.path.exists(os.path.join(save_dir, f"{arr_name}.pkl"))
