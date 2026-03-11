@@ -3,7 +3,7 @@
 from pathlib import Path
 
 
-def test_tests_do_not_use_openml() -> None:
+def test_openml_dependency_guard() -> None:
     """Ensure tests remain independent of OpenML/network availability."""
     tests_dir = Path(__file__).parent
     forbidden = "fetch_" + "openml("
