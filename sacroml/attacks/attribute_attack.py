@@ -237,7 +237,9 @@ def _infer(
         # get model confidence scores for all possible values for the sample
         confidence: np.ndarray = target.model.predict_proba(x)
         conf: list[float] = []  # confidences for each possible value with correct label
-        attr: list[np.ndarray] = []  # features for each possible value with correct label
+        attr: list[
+            np.ndarray
+        ] = []  # features for each possible value with correct label
         # for each possible attribute value,
         # if the label matches the known target model label
         # then store the confidence score and the tested feature vector

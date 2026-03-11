@@ -412,7 +412,9 @@ class Target:
             logger.info("Cannot load model: %s", model_type)
             return
 
-        model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[model_type]
+        model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[
+            model_type
+        ]
         self.model = model_class.load(
             model_path=os.path.join(path, target.get("model_path", "")),
             model_module_path=os.path.join(path, target.get("model_module_path", "")),

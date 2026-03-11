@@ -136,7 +136,9 @@ def save_shadow_model(
         pickle.dump(indices_test, f)
 
 
-def get_shadow_model(shadow_path: str, idx: int) -> tuple[Model, np.ndarray, np.ndarray]:
+def get_shadow_model(
+    shadow_path: str, idx: int
+) -> tuple[Model, np.ndarray, np.ndarray]:
     """Return a shadow model and indices previously saved."""
     path: str = os.path.normpath(f"{shadow_path}/{idx}")
     with open(os.path.join(path, "model.pkl"), "rb") as f:

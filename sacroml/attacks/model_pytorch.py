@@ -400,7 +400,8 @@ def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]
 
 
 def numpy_to_dataloader(
-    X: np.ndarray, y: np.ndarray, batch_size: int = 32, shuffle: bool = False) -> DataLoader:
+    X: np.ndarray, y: np.ndarray, batch_size: int = 32, shuffle: bool = False
+) -> DataLoader:
     """Convert numpy arrays to PyTorch DataLoader."""
     X_tensor = torch.from_numpy(X).float()
     y_tensor = torch.from_numpy(y).long()

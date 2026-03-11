@@ -232,7 +232,9 @@ class WorstCaseAttack(Attack):
             proba_test = np.hstack((proba_test, test_correct[:, None]))
 
         mi_x: np.ndarray = np.vstack((proba_train, proba_test))
-        mi_y: np.ndarray = np.hstack((np.ones(len(proba_train)), np.zeros(len(proba_test))))
+        mi_y: np.ndarray = np.hstack(
+            (np.ones(len(proba_train)), np.zeros(len(proba_test)))
+        )
         return (mi_x, mi_y)
 
     def _get_attack_model(self) -> BaseEstimator:

@@ -438,7 +438,9 @@ class StructuralAttack(Attack):
 
         # Run different risk assessments, some just return  global value
 
-        test_acc: float = self.target.model.score(self.target.X_test, self.target.y_test)
+        test_acc: float = self.target.model.score(
+            self.target.X_test, self.target.y_test
+        )
         train_acc: float = self.target.model.score(
             self.target.X_train, self.target.y_train
         )
