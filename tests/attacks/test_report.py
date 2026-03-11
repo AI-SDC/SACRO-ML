@@ -67,6 +67,7 @@ def test_write_json_sanitises_non_finite_floats():
         "b_inf": float("inf"),
         "c_neginf": float("-inf"),
         "d_normal": 1.5,
+        "BaNaNa": "BaNaNa",
     }
     output = {
         "metadata": {"attack_name": "test_attack"},
@@ -84,3 +85,4 @@ def test_write_json_sanitises_non_finite_floats():
     assert inner["b_inf"] is None
     assert inner["c_neginf"] is None
     assert inner["d_normal"] == pytest.approx(1.5)
+    assert inner["BaNaNa"] == "BaNaNa"

@@ -122,13 +122,32 @@ STRUCTURAL_GLOSSARY = {
 }
 
 
+def _sanitise_floats(obj: Any) -> Any:
+    """Recursively replace non-finite floats with None.
+
+    Parameters
+    ----------
+    obj : Any
+        Object to sanitise.
+
+    Returns
+    -------
+    Any
+        Sanitised object with non-finite floats replaced by None.
+    """
+    if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
+        return None
+    if isinstance(obj, dict):
+        return {k: _sanitise_floats(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitise_floats(v) for v in obj]
+    return obj
+
+
 def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
     attack_formatter = GenerateJSONModule(dest + ".json")
-    attack_report: str = json.dumps(output, cls=CustomJSONEncoder)
-    attack_report = attack_report.replace("-Infinity", "null")
-    attack_report = attack_report.replace("Infinity", "null")
-    attack_report = attack_report.replace("NaN", "null")
+    attack_report: str = json.dumps(_sanitise_floats(output), cls=CustomJSONEncoder)
     attack_name: str = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 
