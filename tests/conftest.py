@@ -106,7 +106,7 @@ def _make_local_nursery_data(
         dtype=str,
     )
 
-    X_num, y_num = make_classification(
+    x_num, y_num = make_classification(
         n_samples=n_samples,
         n_features=len(feature_names),
         n_informative=6,
@@ -117,15 +117,15 @@ def _make_local_nursery_data(
         class_sep=1.2,
         random_state=random_state,
     )
-    X_cat = np.empty((n_samples, len(feature_names)), dtype=object)
+    x_cat = np.empty((n_samples, len(feature_names)), dtype=object)
     for idx, values in enumerate(categories):
-        col = X_num[:, idx]
+        col = x_num[:, idx]
         thresholds = np.quantile(col, np.linspace(0, 1, len(values) + 1)[1:-1])
         bins = np.digitize(col, thresholds)
-        X_cat[:, idx] = np.asarray(values, dtype=str)[bins]
+        x_cat[:, idx] = np.asarray(values, dtype=str)[bins]
 
     y = class_names[y_num]
-    return X_cat.astype(str), y.astype(str), feature_names
+    return x_cat.astype(str), y.astype(str), feature_names
 
 
 @pytest.fixture(name="cleanup", autouse=True)
