@@ -137,6 +137,8 @@ def _sanitise_floats(obj: Any) -> Any:
     """
     if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
         return None
+    if isinstance(obj, np.ndarray):
+        return _sanitise_floats(obj.tolist())
     if isinstance(obj, dict):
         return {k: _sanitise_floats(v) for k, v in obj.items()}
     if isinstance(obj, list):
