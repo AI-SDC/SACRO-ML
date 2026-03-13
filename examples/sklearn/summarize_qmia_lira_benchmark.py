@@ -88,6 +88,18 @@ def _print_table(rows: list[dict[str, Any]]) -> None:
         )
 
 
+def _print_scenario_summary(scenario: str, scenario_rows: list[dict[str, Any]]) -> None:
+    print(f"\nScenario: {scenario} (runs: {len(scenario_rows)})")
+    fastest = _pick_fastest(scenario_rows)
+    best_auc = _pick_best_auc(scenario_rows)
+    best_auc_per_sec = _pick_best_auc_per_sec(scenario_rows)
+    print(f"  Fastest:         {_format_row(fastest)}")
+    print(f"  Best AUC:        {_format_row(best_auc)}")
+    print(f"  Best AUC / sec:  {_format_row(best_auc_per_sec)}")
+    print("  Leaderboard (sorted by AUC):")
+    _print_table(scenario_rows)
+
+
 def summarize(path: Path, title: str | None = None) -> None:
     rows = _load_rows(path)
     grouped = _group_by_scenario(rows)
@@ -99,15 +111,7 @@ def summarize(path: Path, title: str | None = None) -> None:
         print(f"Source: {path}")
     print(f"Total runs: {len(rows)} | Scenarios: {len(grouped)}")
     for scenario, scenario_rows in grouped.items():
-        print(f"\nScenario: {scenario} (runs: {len(scenario_rows)})")
-        fastest = _pick_fastest(scenario_rows)
-        best_auc = _pick_best_auc(scenario_rows)
-        best_auc_per_sec = _pick_best_auc_per_sec(scenario_rows)
-        print(f"  Fastest:         {_format_row(fastest)}")
-        print(f"  Best AUC:        {_format_row(best_auc)}")
-        print(f"  Best AUC / sec:  {_format_row(best_auc_per_sec)}")
-        print("  Leaderboard (sorted by AUC):")
-        _print_table(scenario_rows)
+        _print_scenario_summary(scenario, scenario_rows)
 
 
 def summarize_multiple(paths: list[Path]) -> None:
@@ -126,15 +130,7 @@ def summarize_multiple(paths: list[Path]) -> None:
     print(f"Sources: {combined_path_label}")
     print(f"Total runs: {len(combined_rows)} | Scenarios: {len(grouped)}")
     for scenario, scenario_rows in grouped.items():
-        print(f"\nScenario: {scenario} (runs: {len(scenario_rows)})")
-        fastest = _pick_fastest(scenario_rows)
-        best_auc = _pick_best_auc(scenario_rows)
-        best_auc_per_sec = _pick_best_auc_per_sec(scenario_rows)
-        print(f"  Fastest:         {_format_row(fastest)}")
-        print(f"  Best AUC:        {_format_row(best_auc)}")
-        print(f"  Best AUC / sec:  {_format_row(best_auc_per_sec)}")
-        print("  Leaderboard (sorted by AUC):")
-        _print_table(scenario_rows)
+        _print_scenario_summary(scenario, scenario_rows)
 
 
 def parse_args() -> argparse.Namespace:

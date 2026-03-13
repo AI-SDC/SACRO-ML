@@ -22,6 +22,8 @@ LARGE_QMIA_LEARNING_RATE ?= 0.03
 LARGE_QMIA_L2_LEAF_REG ?= 5.0
 LARGE_QMIA_SUBSAMPLE ?= 0.9
 FULL_SUMMARY_TXT ?= outputs/benchmarks/qmia_vs_lira_full_summary_make.txt
+BENCH_JSONS := outputs/benchmarks/qmia_vs_lira_make.json outputs/benchmarks/qmia_vs_lira_sklearn_make.json outputs/benchmarks/qmia_vs_lira_strong_make.json outputs/benchmarks/qmia_vs_lira_large_make.json
+COMMON_QMIA_ARGS := --qmia-alpha $(QMIA_ALPHA) --qmia-iterations $(QMIA_ITERATIONS) --qmia-depth $(QMIA_DEPTH) --qmia-learning-rate $(QMIA_LEARNING_RATE) --qmia-l2-leaf-reg $(QMIA_L2_LEAF_REG) --qmia-subsample $(QMIA_SUBSAMPLE)
 
 .DEFAULT_GOAL := help
 
@@ -47,8 +49,6 @@ help:
 clean:
 	rm -f outputs/benchmarks/qmia_vs_lira*_make.json
 	rm -f outputs/benchmarks/qmia_vs_lira*_make.csv
-	rm -f outputs/benchmarks/qmia_vs_lira_smoke_make.json
-	rm -f outputs/benchmarks/qmia_vs_lira_smoke_make.csv
 	rm -f $(FULL_SUMMARY_TXT)
 
 qmia-bench:
@@ -57,12 +57,7 @@ qmia-bench:
 		--sklearn-datasets $(SKLEARN_DATASETS) \
 		--rf-estimators $(RF_ESTIMATORS) \
 		--lira-shadow-models $(LIRA_SHADOW_MODELS) \
-		--qmia-alpha $(QMIA_ALPHA) \
-		--qmia-iterations $(QMIA_ITERATIONS) \
-		--qmia-depth $(QMIA_DEPTH) \
-		--qmia-learning-rate $(QMIA_LEARNING_RATE) \
-		--qmia-l2-leaf-reg $(QMIA_L2_LEAF_REG) \
-		--qmia-subsample $(QMIA_SUBSAMPLE) \
+		$(COMMON_QMIA_ARGS) \
 		--out-json $(QMIA_BENCH_JSON) \
 		--out-csv $(QMIA_BENCH_CSV)
 
@@ -80,12 +75,7 @@ qmia-bench-sklearn:
 		--sklearn-datasets $(SKLEARN_DATASETS) \
 		--rf-estimators $(RF_ESTIMATORS) \
 		--lira-shadow-models $(LIRA_SHADOW_MODELS) \
-		--qmia-alpha $(QMIA_ALPHA) \
-		--qmia-iterations $(QMIA_ITERATIONS) \
-		--qmia-depth $(QMIA_DEPTH) \
-		--qmia-learning-rate $(QMIA_LEARNING_RATE) \
-		--qmia-l2-leaf-reg $(QMIA_L2_LEAF_REG) \
-		--qmia-subsample $(QMIA_SUBSAMPLE) \
+		$(COMMON_QMIA_ARGS) \
 		--out-json outputs/benchmarks/qmia_vs_lira_sklearn_make.json \
 		--out-csv outputs/benchmarks/qmia_vs_lira_sklearn_make.csv
 
@@ -136,17 +126,9 @@ qmia-bench-summary-large:
 	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) outputs/benchmarks/qmia_vs_lira_large_make.json
 
 qmia-bench-summary-all:
-	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) \
-		outputs/benchmarks/qmia_vs_lira_make.json \
-		outputs/benchmarks/qmia_vs_lira_sklearn_make.json \
-		outputs/benchmarks/qmia_vs_lira_strong_make.json \
-		outputs/benchmarks/qmia_vs_lira_large_make.json
+	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) $(BENCH_JSONS)
 
 qmia-bench-summary-full:
 	@mkdir -p outputs/benchmarks
 	@echo "Writing full benchmark summary to: $(FULL_SUMMARY_TXT)"
-	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) \
-		outputs/benchmarks/qmia_vs_lira_make.json \
-		outputs/benchmarks/qmia_vs_lira_sklearn_make.json \
-		outputs/benchmarks/qmia_vs_lira_strong_make.json \
-		outputs/benchmarks/qmia_vs_lira_large_make.json | tee $(FULL_SUMMARY_TXT)
+	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) $(BENCH_JSONS) | tee $(FULL_SUMMARY_TXT)
