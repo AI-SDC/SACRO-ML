@@ -38,6 +38,7 @@ classifiers = [
 ]
 dependencies = [
     "acro==0.4.11",
+    "catboost",
     "fpdf",
     "pypdf",
     "multiprocess",

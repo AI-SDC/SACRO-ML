@@ -73,6 +73,91 @@ attack.attack(target)
 
 For more information, see the [examples](examples/).
 
+## QMIA vs LiRA benchmark (development stage)
+
+This repository now includes a reproducible benchmark runner:
+
+- Script: `examples/sklearn/benchmark_qmia_vs_lira.py`
+- One-command make targets: `make qmia-bench`, `make qmia-bench-sklearn`, `make qmia-bench-strong`
+
+Important: this benchmark is currently intended for **development-stage
+validation** while we figure out tuning and behavior of the new QMIA path. It
+helps answer:
+
+- whether QMIA is functioning correctly,
+- whether QMIA is computationally cheaper than shadow-model attacks (LiRA),
+- how sensitive QMIA is to parameter choices.
+
+It is **not** a final, publication-grade comparison yet.
+
+### Quick run (synthetic scenarios)
+
+```bash
+make qmia-bench
+```
+
+Outputs are written to:
+
+- `outputs/benchmarks/qmia_vs_lira_make.json`
+- `outputs/benchmarks/qmia_vs_lira_make.csv`
+
+### Run on sklearn dataset presets (second way)
+
+This uses built-in sklearn datasets as a development-stage “real data” option.
+Current presets:
+
+- `breast_cancer`
+- `wine_binary` (wine class 0 vs rest; staged as binary for QMIA v1)
+
+```bash
+make qmia-bench-sklearn
+```
+
+Outputs:
+
+- `outputs/benchmarks/qmia_vs_lira_sklearn_make.json`
+- `outputs/benchmarks/qmia_vs_lira_sklearn_make.csv`
+
+### Fast smoke run
+
+```bash
+make qmia-bench-smoke
+```
+
+### Stronger tuning preset
+
+Use this to test a stronger (and slower) QMIA/LiRA sweep during development:
+
+```bash
+make qmia-bench-strong
+```
+
+### Override tuning knobs from the command line
+
+```bash
+make qmia-bench LIRA_SHADOW_MODELS=20,40,100 QMIA_ALPHA=0.02 QMIA_ITERATIONS=100 QMIA_DEPTH=6 QMIA_LEARNING_RATE=0.03 QMIA_L2_LEAF_REG=5.0 QMIA_SUBSAMPLE=0.9
+```
+
+To force sklearn datasets with custom presets:
+
+```bash
+make qmia-bench DATASET_SOURCE=sklearn SKLEARN_DATASETS=breast_cancer,wine_binary
+```
+
+### Post-process benchmark results (winner summary)
+
+Print per-scenario winners for:
+
+- fastest runtime
+- best AUC
+- best AUC-per-second
+
+```bash
+make qmia-bench-summary
+make qmia-bench-summary-sklearn
+make qmia-bench-summary-strong
+```
+
 ## Documentation
 
 See [API documentation](https://ai-sdc.github.io/SACRO-ML/).

@@ -1,0 +1,137 @@
+{
+  "created_at": "2026-03-13T12:35:37",
+  "config": {
+    "dataset_source": "synthetic",
+    "sklearn_datasets": [
+      "breast_cancer",
+      "wine_binary"
+    ],
+    "dataset_random_state": 7,
+    "rf_estimators": 50,
+    "test_size": 0.4,
+    "qmia_alpha": 0.02,
+    "qmia_iterations": 200,
+    "qmia_depth": 6,
+    "qmia_learning_rate": 0.03,
+    "qmia_l2_leaf_reg": 5.0,
+    "qmia_subsample": 0.9,
+    "qmia_catboost_params_json": null,
+    "lira_shadow_models": [
+      20,
+      40,
+      100
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "small_easy",
+      "n_samples": 240,
+      "n_features": 8,
+      "class_sep": 1.25,
+      "random_state": 7
+    },
+    {
+      "name": "medium_harder",
+      "n_samples": 600,
+      "n_features": 16,
+      "class_sep": 0.9,
+      "random_state": 13
+    }
+  ],
+  "results": [
+    {
+      "scenario": "small_easy",
+      "attack": "qmia_gaussian",
+      "seconds": 0.532603,
+      "AUC": 0.54991319,
+      "Advantage": 0.20833333,
+      "TPR": 0.20833333,
+      "FPR": 0.0,
+      "observed_public_fpr": 0.0
+    },
+    {
+      "scenario": "small_easy",
+      "attack": "qmia_quantile",
+      "seconds": 0.396208,
+      "AUC": 0.4609375,
+      "Advantage": 0.19444444,
+      "TPR": 0.23611111,
+      "FPR": 0.04166667,
+      "observed_public_fpr": 0.041666666666666664
+    },
+    {
+      "scenario": "small_easy",
+      "attack": "lira_20",
+      "seconds": 1.01758,
+      "AUC": 0.79202836,
+      "Advantage": 0.41666667,
+      "TPR": 0.8125,
+      "FPR": 0.39583333
+    },
+    {
+      "scenario": "small_easy",
+      "attack": "lira_40",
+      "seconds": 1.674582,
+      "AUC": 0.81394676,
+      "Advantage": 0.42708333,
+      "TPR": 0.77083333,
+      "FPR": 0.34375
+    },
+    {
+      "scenario": "small_easy",
+      "attack": "lira_100",
+      "seconds": 3.959623,
+      "AUC": 0.82349537,
+      "Advantage": 0.45833333,
+      "TPR": 0.77083333,
+      "FPR": 0.3125
+    },
+    {
+      "scenario": "medium_harder",
+      "attack": "qmia_gaussian",
+      "seconds": 0.671328,
+      "AUC": 0.95927083,
+      "Advantage": 0.75833333,
+      "TPR": 0.75833333,
+      "FPR": 0.0,
+      "observed_public_fpr": 0.0
+    },
+    {
+      "scenario": "medium_harder",
+      "attack": "qmia_quantile",
+      "seconds": 0.41048,
+      "AUC": 0.93303241,
+      "Advantage": 0.74166666,
+      "TPR": 0.75833333,
+      "FPR": 0.01666667,
+      "observed_public_fpr": 0.016666666666666666
+    },
+    {
+      "scenario": "medium_harder",
+      "attack": "lira_20",
+      "seconds": 1.372647,
+      "AUC": 0.94603009,
+      "Advantage": 0.56111111,
+      "TPR": 0.97777778,
+      "FPR": 0.41666667
+    },
+    {
+      "scenario": "medium_harder",
+      "attack": "lira_40",
+      "seconds": 2.538806,
+      "AUC": 0.95700231,
+      "Advantage": 0.55972223,
+      "TPR": 0.98055556,
+      "FPR": 0.42083333
+    },
+    {
+      "scenario": "medium_harder",
+      "attack": "lira_100",
+      "seconds": 6.091644,
+      "AUC": 0.96326389,
+      "Advantage": 0.57916666,
+      "TPR": 0.98333333,
+      "FPR": 0.40416667
+    }
+  ]
+}

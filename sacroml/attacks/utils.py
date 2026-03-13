@@ -192,6 +192,90 @@ def logit(p: float) -> float:
     return np.log(p / (1 - p))
 
 
+def extract_true_label_probs(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Extract the probability assigned to each row's true label.
+
+    Parameters
+    ----------
+    probas : np.ndarray
+        Predicted probabilities with one row per example.
+    labels : np.ndarray
+        Integer-encoded labels aligned with the probability columns.
+
+    Returns
+    -------
+    np.ndarray
+        The true-label probability for each row.
+    """
+    if probas.ndim != 2:
+        raise ValueError("Expected probas to be a 2D array.")
+
+    labels = np.asarray(labels, dtype=int)
+    if probas.shape[0] != labels.shape[0]:
+        raise ValueError("Expected probas and labels to have the same number of rows.")
+
+    if np.any(labels < 0) or np.any(labels >= probas.shape[1]):
+        raise ValueError("Labels must index valid probability columns.")
+
+    rows = np.arange(labels.shape[0])
+    return probas[rows, labels]
+
+
+def qmia_binary_score(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Return the reference-style QMIA score for binary classification.
+
+    The tabular reference implementation uses a signed logit transformation that
+    is equivalent to the logit of the probability assigned to the true label.
+
+    Parameters
+    ----------
+    probas : np.ndarray
+        Binary predicted probabilities with shape ``(n_rows, 2)``.
+    labels : np.ndarray
+        Integer-encoded binary labels with values in ``{0, 1}``.
+
+    Returns
+    -------
+    np.ndarray
+        One QMIA score per input row.
+    """
+    if probas.ndim != 2 or probas.shape[1] != 2:
+        raise ValueError("QMIA binary score expects probability rows with 2 columns.")
+
+    true_label_probs = extract_true_label_probs(probas, labels)
+    return np.array([logit(float(prob)) for prob in true_label_probs])
+
+
+def membership_labels(n_train: int, n_test: int) -> np.ndarray:
+    """Return membership labels for concatenated train and test rows."""
+    return np.hstack((np.ones(n_train, dtype=int), np.zeros(n_test, dtype=int)))
+
+
+def margins_to_two_column_probs(margins: np.ndarray) -> np.ndarray:
+    """Convert member-vs-non-member margins into shape ``(n_rows, 2)``.
+
+    Parameters
+    ----------
+    margins : np.ndarray
+        Continuous QMIA margins, where positive values favour membership.
+
+    Returns
+    -------
+    np.ndarray
+        Two-column array ``[p_non_member, p_member]``.
+
+    Notes
+    -----
+    The sigmoid transform is only used to adapt QMIA margins to the existing
+    binary membership metrics API. These values are monotone score proxies, not
+    calibrated posterior membership probabilities.
+    """
+    margins = np.asarray(margins, dtype=float)
+    clipped = np.clip(margins, -60.0, 60.0)
+    member_prob = 1.0 / (1.0 + np.exp(-clipped))
+    return np.column_stack((1.0 - member_prob, member_prob))
+
+
 def get_class_by_name(class_path: str):
     """Return a class given its name."""
     module_path, class_name = class_path.rsplit(".", 1)
