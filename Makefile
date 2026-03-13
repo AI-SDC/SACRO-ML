@@ -24,32 +24,40 @@ LARGE_QMIA_SUBSAMPLE ?= 0.9
 FULL_SUMMARY_TXT ?= outputs/benchmarks/qmia_vs_lira_full_summary_make.txt
 BENCH_JSONS := outputs/benchmarks/qmia_vs_lira_make.json outputs/benchmarks/qmia_vs_lira_sklearn_make.json outputs/benchmarks/qmia_vs_lira_strong_make.json outputs/benchmarks/qmia_vs_lira_large_make.json
 COMMON_QMIA_ARGS := --qmia-alpha $(QMIA_ALPHA) --qmia-iterations $(QMIA_ITERATIONS) --qmia-depth $(QMIA_DEPTH) --qmia-learning-rate $(QMIA_LEARNING_RATE) --qmia-l2-leaf-reg $(QMIA_L2_LEAF_REG) --qmia-subsample $(QMIA_SUBSAMPLE)
+CLEAN_PATTERNS := outputs/benchmarks/qmia_vs_lira*_make.json outputs/benchmarks/qmia_vs_lira*_make.csv $(FULL_SUMMARY_TXT)
+CLEAN_FILES := $(wildcard $(CLEAN_PATTERNS))
 
 .DEFAULT_GOAL := help
 
-.PHONY: help clean qmia-bench qmia-bench-smoke qmia-bench-sklearn qmia-bench-strong qmia-bench-large qmia-bench-all qmia-bench-full qmia-bench-summary qmia-bench-summary-sklearn qmia-bench-summary-strong qmia-bench-summary-large qmia-bench-summary-all qmia-bench-summary-full
+.PHONY: help clean qmia-bench qmia-bench-smoke qmia-bench-sklearn qmia-bench-strong qmia-bench-large qmia-bench-all qmia-bench-full qmia-bench-summary qmia-bench-summary-sklearn qmia-bench-summary-strong qmia-bench-summary-large qmia-bench-summary-full
 
 help:
-	@echo "Available make targets:"
-	@echo "  make clean                   Remove generated benchmark JSON/CSV files"
-	@echo "  make qmia-bench              Run default QMIA vs LiRA benchmark"
-	@echo "  make qmia-bench-smoke        Run a quick smoke benchmark"
-	@echo "  make qmia-bench-sklearn      Run benchmark on sklearn datasets"
-	@echo "  make qmia-bench-strong       Run stronger benchmark configuration"
-	@echo "  make qmia-bench-large        Run larger synthetic benchmark sweep"
-	@echo "  make qmia-bench-all          Run default+sklearn+strong+large benchmarks"
-	@echo "  make qmia-bench-full         Run all benchmarks + full analysis summary"
-	@echo "  make qmia-bench-summary      Summarize default benchmark JSON"
+	@echo "Run targets:"
+	@echo "  make clean                    Remove generated benchmark JSON/CSV files"
+	@echo "  make qmia-bench               Run default QMIA vs LiRA benchmark"
+	@echo "  make qmia-bench-smoke         Run a quick smoke benchmark"
+	@echo "  make qmia-bench-sklearn       Run benchmark on sklearn datasets"
+	@echo "  make qmia-bench-strong        Run stronger benchmark configuration"
+	@echo "  make qmia-bench-large         Run larger synthetic benchmark sweep"
+	@echo "  make qmia-bench-all           Run default + sklearn + strong + large benchmarks"
+	@echo ""
+	@echo "Summary targets:"
+	@echo "  make qmia-bench-summary       Summarize default benchmark JSON"
 	@echo "  make qmia-bench-summary-sklearn  Summarize sklearn benchmark JSON"
 	@echo "  make qmia-bench-summary-strong   Summarize strong benchmark JSON"
 	@echo "  make qmia-bench-summary-large    Summarize large benchmark JSON"
-	@echo "  make qmia-bench-summary-all      Combined summary across all benchmark JSONs"
 	@echo "  make qmia-bench-summary-full     Combined summary and save to text report"
+	@echo ""
+	@echo "Combined convenience target:"
+	@echo "  make qmia-bench-full          Run all benchmarks, then run full summary"
 
 clean:
-	rm -f outputs/benchmarks/qmia_vs_lira*_make.json
-	rm -f outputs/benchmarks/qmia_vs_lira*_make.csv
-	rm -f $(FULL_SUMMARY_TXT)
+ifneq ($(strip $(CLEAN_FILES)),)
+	@rm -f $(CLEAN_FILES)
+	@echo "Removed benchmark artifacts."
+else
+	@:
+endif
 
 qmia-bench:
 	$(PYTHON) $(QMIA_BENCH_SCRIPT) \
@@ -124,9 +132,6 @@ qmia-bench-summary-strong:
 
 qmia-bench-summary-large:
 	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) outputs/benchmarks/qmia_vs_lira_large_make.json
-
-qmia-bench-summary-all:
-	$(PYTHON) $(QMIA_SUMMARY_SCRIPT) $(BENCH_JSONS)
 
 qmia-bench-summary-full:
 	@mkdir -p outputs/benchmarks
