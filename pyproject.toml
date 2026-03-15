@@ -147,6 +147,7 @@ lint.ignore = [
     "PLC0206", # dict-index-missing-items
     "S101",    # allow asserts
     "S301",    # allow pickle
+#   "PD901",   # allow df for dataframe names
 ]
 
 [tool.ruff.lint.pep8-naming]
