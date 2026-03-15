@@ -15,7 +15,6 @@ import sklearn
 import torch
 import yaml
 
-from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
 from sacroml.attacks.model import create_dataset
 from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
@@ -185,12 +184,12 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler: PyTorchDataHandler = create_dataset(
+            handler = create_dataset(
                 self.dataset_module_path, self.dataset_name
             )
 
             # Get processed data
-            data: object = handler.get_dataset()
+            data = handler.get_dataset()
             train_loader = handler.get_dataloader(data, self.indices_train)
             test_loader = handler.get_dataloader(data, self.indices_test)
 
@@ -220,7 +219,7 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler: SklearnDataHandler = create_dataset(
+            handler = create_dataset(
                 self.dataset_module_path, self.dataset_name
             )
 
@@ -257,7 +256,7 @@ class Target:
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""
-        index: int = len(self.features)
+        index = len(self.features)
         self.features[index] = {
             "name": name,
             "indices": indices,
@@ -324,16 +323,16 @@ class Target:
             self._save_array(path, target, attr)
 
         # Save YAML config
-        yaml_path: str = os.path.join(path, "target.yaml")
+        yaml_path = os.path.join(path, "target.yaml")
         with open(yaml_path, "w", encoding="utf-8") as f:
             yaml.dump(target, f, default_flow_style=False, sort_keys=False)
 
     def load(self, path: str = "target") -> None:
         """Load target from persistent storage."""
-        yaml_path: str = os.path.join(path, "target.yaml")
+        yaml_path = os.path.join(path, "target.yaml")
 
         with open(yaml_path, encoding="utf-8") as f:
-            target: dict[str, object] = yaml.safe_load(f)
+            target = yaml.safe_load(f)
 
         # Load basic attributes
         for attr in ["dataset_name", "safemodel"]:
@@ -397,7 +396,7 @@ class Target:
 
     def _save_array(self, path: str, target: dict, attr_name: str) -> None:
         """Save numpy array as pickle."""
-        arr: object = getattr(self, attr_name)
+        arr = getattr(self, attr_name)
         if arr is not None:
             arr_path = os.path.join(path, f"{attr_name}.pkl")
             with open(arr_path, "wb") as f:
@@ -408,7 +407,7 @@ class Target:
 
     def _load_model(self, path: str, target: dict) -> None:
         """Load model from disk."""
-        model_type: str = target.get("model_type", "")
+        model_type = target.get("model_type", "")
         if not model_type or model_type not in MODEL_REGISTRY:  # pragma: no cover
             logger.info("Cannot load model: %s", model_type)
             return
@@ -438,7 +437,7 @@ class Target:
         _, ext = os.path.splitext(arr_path)
 
         if ext == ".pkl":
-            arr: object = self._load_pickle(arr_path, attr_name)
+            arr = self._load_pickle(arr_path, attr_name)
         elif ext == ".csv":  # pragma: no cover
             arr = self._load_csv(arr_path, attr_name)
         else:  # pragma: no cover

@@ -171,7 +171,7 @@ class SklearnModel(Model):
         Model
             A cloned model.
         """
-        model: sklearn.base.BaseEstimator = sklearn.base.clone(self.model)
+        model = sklearn.base.clone(self.model)
         return SklearnModel(model)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
@@ -232,7 +232,7 @@ class SklearnModel(Model):
         path : str
             Path including file extension to save model.
         """
-        ext: str = Path(path).suffix
+        ext = Path(path).suffix
         if ext == ".pkl":
             with open(path, "wb") as fp:
                 pickle.dump(self.model, fp, protocol=pickle.HIGHEST_PROTOCOL)
@@ -271,10 +271,10 @@ class SklearnModel(Model):
         SklearnModel
             A loaded sklearn model.
         """
-        ext: str = Path(model_path).suffix
+        ext = Path(model_path).suffix
         if ext == ".pkl":
             with open(model_path, "rb") as fp:
-                model: sklearn.base.BaseEstimator = pickle.load(fp)
+                model = pickle.load(fp)
         else:  # pragma: no cover
             raise ValueError(f"Unsupported file format for loading a model: {ext}")
         return cls(

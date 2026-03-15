@@ -143,7 +143,9 @@ class PytorchModel(Model):
         np.ndarray
             Model predictions (label encoding).
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
         self.model.to(device)
         self.model.eval()
 
@@ -185,7 +187,7 @@ class PytorchModel(Model):
             self.model_module_path, self.model_name, self.model_params
         )
         # Create a dataloader
-        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
+        dataloader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
         #  Fit using the provided train function
         return train_model(
             self.model, self.train_module_path, self.train_params, dataloader
@@ -199,7 +201,7 @@ class PytorchModel(Model):
         Model
             A cloned model.
         """
-        model: torch.nn.Module = deepcopy(self.model)
+        model = deepcopy(self.model)
 
         return PytorchModel(
             model=model,
@@ -260,7 +262,7 @@ class PytorchModel(Model):
         last_linear = None
 
         # First try to find a named output layer
-        names = ["output", "classifier", "head", "pred"]
+        names: list[str] = ["output", "classifier", "head", "pred"]
         for name, module in self.model.named_modules():
             if isinstance(module, torch.nn.Linear):
                 last_linear = module
@@ -358,7 +360,9 @@ class PytorchModel(Model):
         model = create_model(model_module_path, model_name, model_params)
 
         # Load weights
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
 

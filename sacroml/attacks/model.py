@@ -302,7 +302,7 @@ def create_model(
 
         # Import model class
         module = importlib.import_module(model_module_path)
-        model_class: type[object] = getattr(module, model_name)
+        model_class = getattr(module, model_name)
 
         # Instantiate model
         return model_class(**model_params)
@@ -345,7 +345,7 @@ def create_dataset(dataset_module_path: str, dataset_name: str) -> object:
 
         # Import dataset class
         module = importlib.import_module(module_path)
-        dataset_class: type[object] = getattr(module, dataset_name)
+        dataset_class = getattr(module, dataset_name)
 
         # Instantiate dataset
         return dataset_class()

@@ -124,8 +124,8 @@ STRUCTURAL_GLOSSARY = {
 def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
     attack_formatter = GenerateJSONModule(dest + ".json")
-    attack_report: str = json.dumps(output, cls=CustomJSONEncoder)
-    attack_name: str = output["metadata"]["attack_name"]
+    attack_report = json.dumps(output, cls=CustomJSONEncoder)
+    attack_name = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 
 
@@ -270,7 +270,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
     ]
     metadata = attack_output["metadata"]
 
-    path: str = metadata["attack_params"]["output_dir"]
+    path = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot(mia_metrics, dest_log_roc)
 
@@ -452,7 +452,7 @@ def create_lr_report(output: dict) -> FPDF:
     ][0]
     metadata = output["metadata"]
 
-    path: str = metadata["attack_params"]["output_dir"]
+    path = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()

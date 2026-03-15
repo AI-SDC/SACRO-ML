@@ -93,9 +93,9 @@ class AnalysisModule:
     """Wrapper module for metrics analysis modules."""
 
     def __init__(self) -> None:
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
+        self.immediate_rejection: list = []
+        self.support_rejection: list = []
+        self.support_release: list = []
 
     def process_dict(self) -> dict:
         """Produce a risk summary output based on analysis in this module."""
@@ -185,7 +185,7 @@ class FinalRecommendationModule(AnalysisModule):
         stat_sig_score: float,
         mean_auc_score: float,
     ) -> None:
-        stat_sig_auc = []
+        stat_sig_auc: list[float] = []
         for k in self.report:
             if (
                 isinstance(self.report[k], dict)
@@ -447,18 +447,18 @@ class GenerateTextReport:
     """Generate a text report from a JSON input."""
 
     def __init__(self) -> None:
-        self.text_out = []
-        self.target_yaml_filename = None
-        self.attack_json_filename = None
-        self.model_name_from_target = None
+        self.text_out: list = []
+        self.target_yaml_filename: str | None = None
+        self.attack_json_filename: str | None = None
+        self.model_name_from_target: str | None = None
 
-        self.immediate_rejection = []
-        self.support_rejection = []
-        self.support_release = []
+        self.immediate_rejection: list = []
+        self.support_rejection: list = []
+        self.support_release: list = []
 
     def _process_target_yaml(self) -> None:
         """Create a summary of a target model YAML file."""
-        model_params_of_interest = [
+        model_params_of_interest: list[str] = [
             "C",
             "kernel",
             "n_neighbors",

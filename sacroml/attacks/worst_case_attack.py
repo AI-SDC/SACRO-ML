@@ -103,7 +103,7 @@ class WorstCaseAttack(Attack):
     @classmethod
     def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with WorstCaseAttack."""
-        required_methods = ["predict_proba", "predict"]
+        required_methods: list[str] = ["predict_proba", "predict"]
         if (
             target.has_model()
             and target.has_data()
@@ -178,7 +178,7 @@ class WorstCaseAttack(Attack):
             Array of test predictions. One row per example, one column per class.
         """
         logger.info("Running main attack repetitions")
-        attack_metric_dict: dict[str, list] = self.run_attack_reps(
+        attack_metric_dict = self.run_attack_reps(
             proba_train,
             proba_test,
             train_correct=train_correct,
@@ -198,10 +198,10 @@ class WorstCaseAttack(Attack):
                     self.train_beta,
                     self.test_beta,
                 )
-                temp_attack_metric_dict: dict[str, list] = self.run_attack_reps(
+                temp_attack_metric_dict = self.run_attack_reps(
                     d_train_preds, d_test_preds
                 )
-                temp_metrics: list[dict] = temp_attack_metric_dict["mia_metrics"]
+                temp_metrics = temp_attack_metric_dict["mia_metrics"]
                 self.dummy_attack_metrics.append(temp_metrics)
 
         logger.info("Finished running attacks")
@@ -240,8 +240,8 @@ class WorstCaseAttack(Attack):
     def _get_attack_model(self) -> BaseEstimator:
         """Return an instantiated attack model."""
         # load attack model module and get class
-        model: type[BaseEstimator] = get_class_by_name(self.attack_model)
-        params: dict[str, object] | None = self.attack_model_params
+        model = get_class_by_name(self.attack_model)
+        params = self.attack_model_params
         if (  # set custom default parameters for RF attack model
             self.attack_model == "sklearn.ensemble.RandomForestClassifier"
             and self.attack_model_params is None
@@ -257,7 +257,7 @@ class WorstCaseAttack(Attack):
     def _get_reproducible_split(self) -> list:
         """Return a list of splits."""
         split: int | Iterable[int] | None = self.reproduce_split
-        n_reps: int = self.n_reps
+        n_reps = self.n_reps
         if isinstance(split, int):
             split = [split] + [x**2 for x in range(split, split + n_reps - 1)]
         else:
@@ -308,7 +308,7 @@ class WorstCaseAttack(Attack):
         )
 
         mia_metrics: list[dict] = []
-        split: list = self._get_reproducible_split()
+        split = self._get_reproducible_split()
 
         for rep in range(self.n_reps):
             logger.info("Rep %d of %d split %d", rep + 1, self.n_reps, split[rep])
@@ -322,7 +322,7 @@ class WorstCaseAttack(Attack):
                 shuffle=True,
             )
 
-            attack_classifier: BaseEstimator = self._get_attack_model()
+            attack_classifier = self._get_attack_model()
             attack_classifier.fit(mi_train_x, mi_train_y)
 
             y_pred_proba = attack_classifier.predict_proba(mi_test_x)
@@ -354,7 +354,7 @@ class WorstCaseAttack(Attack):
         global_metrics : Dict
             Dictionary of summary metrics
         """
-        global_metrics: dict = {}
+        global_metrics = {}
         if attack_metrics is not None and len(attack_metrics) != 0:
             auc_p_vals = [
                 metrics.auc_p_val(
@@ -363,7 +363,7 @@ class WorstCaseAttack(Attack):
                 for m in attack_metrics
             ]
 
-            m: dict = attack_metrics[0]
+            m = attack_metrics[0]
             _, auc_std = metrics.auc_p_val(
                 0.5, m["n_pos_test_examples"], m["n_neg_test_examples"]
             )
@@ -399,7 +399,9 @@ class WorstCaseAttack(Attack):
             return sum(1 for p in p_val_list if p <= p_thresh)
         p_val_list = np.asarray(sorted(p_val_list))
         n_vals = len(p_val_list)
-        hoch_vals = np.array([(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)])
+        hoch_vals = np.array(
+            [(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)]
+        )
         bh_sig_list = p_val_list <= hoch_vals
         return np.where(bh_sig_list)[0].max() + 1 if any(bh_sig_list) else 0
 
@@ -418,7 +420,7 @@ class WorstCaseAttack(Attack):
         preds : np.ndarray
             Array of predictions. Two columns, `n_rows` rows.
         """
-        preds: np.ndarray = np.zeros((n_rows, 2), float)
+        preds = np.zeros((n_rows, 2), float)
         for row_idx in range(n_rows):
             train_class = np.random.choice(2)
             train_prob = np.random.beta(1, beta)
@@ -453,8 +455,8 @@ class WorstCaseAttack(Attack):
         proba_test : np.ndarray
             Array of test predictions (n_rows x 2 columns).
         """
-        proba_train: np.ndarray = self._generate_array(n_rows_in, train_beta)
-        proba_test: np.ndarray = self._generate_array(n_rows_out, test_beta)
+        proba_train = self._generate_array(n_rows_in, train_beta)
+        proba_test = self._generate_array(n_rows_out, test_beta)
         return proba_train, proba_test
 
     def _construct_metadata(self) -> None:
@@ -468,16 +470,16 @@ class WorstCaseAttack(Attack):
 
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
         """Construct the metadata object after attacks."""
-        dummy_attack_metrics_instances: list = []
+        dummy_attack_metrics_instances = []
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics: list = self.dummy_attack_metrics[exp_rep]
+            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
             dummy_attack_metrics_instances += temp_dummy_attack_metrics
         return dummy_attack_metrics_instances
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the metadata object after attacks."""
-        attack_metrics_experiment: dict = {}
-        attack_metrics_instances: dict = {}
+        attack_metrics_experiment = {}
+        attack_metrics_instances = {}
         for rep, _ in enumerate(self.attack_metrics):
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
@@ -485,15 +487,15 @@ class WorstCaseAttack(Attack):
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
         """Construct the metadata object after attacks."""
-        dummy_attack_metrics_experiments: dict = {}
+        dummy_attack_metrics_experiments = {}
         for exp_rep, _ in enumerate(self.dummy_attack_metrics):
-            temp_dummy_attack_metrics: list = self.dummy_attack_metrics[exp_rep]
-            dummy_attack_metric_instances: dict = {}
+            temp_dummy_attack_metrics = self.dummy_attack_metrics[exp_rep]
+            dummy_attack_metric_instances = {}
             for rep, _ in enumerate(temp_dummy_attack_metrics):
                 dummy_attack_metric_instances["instance_" + str(rep)] = (
                     temp_dummy_attack_metrics[rep]
                 )
-            temp: dict = {}
+            temp = {}
             temp["attack_instance_logger"] = dummy_attack_metric_instances
             dummy_attack_metrics_experiments[
                 "dummy_attack_metrics_experiment_" + str(exp_rep)
