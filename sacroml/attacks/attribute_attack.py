@@ -185,9 +185,7 @@ def _get_inference_data(
     """Return a dataset of each sample with the attributes to test."""
     attack_feature = target.features[feature_id]
     indices = attack_feature["indices"]
-    unique = _get_unique_features(
-        target.X_train_orig, target.X_test_orig, feature_id
-    )
+    unique = _get_unique_features(target.X_train_orig, target.X_test_orig, feature_id)
     n_unique = len(unique)
     values = unique
     if attack_feature["encoding"] == "onehot":
@@ -457,8 +455,7 @@ def _attack_brute_force(
     """
     logger.debug("Brute force attacking categorical features")
     args: list[tuple] = [
-        (target, feature_id, attack_threshold)
-        for feature_id in features
+        (target, feature_id, attack_threshold) for feature_id in features
     ]
 
     # use multiprocessing if possible

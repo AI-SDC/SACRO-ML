@@ -184,9 +184,7 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler = create_dataset(
-                self.dataset_module_path, self.dataset_name
-            )
+            handler = create_dataset(self.dataset_module_path, self.dataset_name)
 
             # Get processed data
             data = handler.get_dataset()
@@ -219,9 +217,7 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler = create_dataset(
-                self.dataset_module_path, self.dataset_name
-            )
+            handler = create_dataset(self.dataset_module_path, self.dataset_name)
 
             # Get processed data
             X: np.ndarray

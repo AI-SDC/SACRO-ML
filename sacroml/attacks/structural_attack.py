@@ -203,9 +203,7 @@ def _get_unnecessary_risk_xgb(model: XGBClassifier) -> bool:
     """
     n_estimators = int(model.n_estimators) if model.n_estimators else 100
     max_depth = float(model.max_depth) if model.max_depth else 6
-    min_child_weight = (
-        float(model.min_child_weight) if model.min_child_weight else 1.0
-    )
+    min_child_weight = float(model.min_child_weight) if model.min_child_weight else 1.0
     return (
         (max_depth > 3.5 and 3.5 < n_estimators <= 12.5 and min_child_weight <= 1.5)
         or (max_depth > 3.5 and n_estimators > 12.5 and min_child_weight <= 3)
@@ -438,12 +436,8 @@ class StructuralAttack(Attack):
 
         # Run different risk assessments, some just return  global value
 
-        test_acc = self.target.model.score(
-            self.target.X_test, self.target.y_test
-        )
-        train_acc = self.target.model.score(
-            self.target.X_train, self.target.y_train
-        )
+        test_acc = self.target.model.score(self.target.X_test, self.target.y_test)
+        train_acc = self.target.model.score(self.target.X_train, self.target.y_train)
 
         generalisation_error = self.target.model.get_generalisation_error(
             self.target.X_train,
@@ -608,9 +602,7 @@ class StructuralAttack(Attack):
         #    number of records in a class multtiplied by output probabilities
         freqs = eqclass_probas * eqclass_counts[:, np.newaxis]
 
-        eqclass_smallgrouprisk = np.any(
-            (freqs > 0) & (freqs < self.THRESHOLD), axis=1
-        )
+        eqclass_smallgrouprisk = np.any((freqs > 0) & (freqs < self.THRESHOLD), axis=1)
         overall = bool(np.any(eqclass_smallgrouprisk))
         record_level: list[bool] = [
             bool(eqclass_smallgrouprisk[i]) for i in eqclass_inv_indices
@@ -655,9 +647,7 @@ class StructuralAttack(Attack):
 
         # get prediction probabilities for each leaf
         # this means equiv_classes may not be unique in this case (e.g. XOR problem)
-        equiv_classes = self.target.model.predict_proba(
-            self.target.X_train[indices]
-        )
+        equiv_classes = self.target.model.predict_proba(self.target.X_train[indices])
         return equiv_classes, inv_indices, counts
 
     def _get_equivalence_classes_from_probas(self) -> tuple:

@@ -399,9 +399,7 @@ class WorstCaseAttack(Attack):
             return sum(1 for p in p_val_list if p <= p_thresh)
         p_val_list = np.asarray(sorted(p_val_list))
         n_vals = len(p_val_list)
-        hoch_vals = np.array(
-            [(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)]
-        )
+        hoch_vals = np.array([(k / n_vals) * P_THRESH for k in range(1, n_vals + 1)])
         bh_sig_list = p_val_list <= hoch_vals
         return np.where(bh_sig_list)[0].max() + 1 if any(bh_sig_list) else 0
 

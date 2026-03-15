@@ -69,9 +69,7 @@ def _get_feature_encoding(feat: int) -> str:
 def _get_feature_indices(feat: int) -> list[int]:
     """Prompt user for feature indices."""
     while True:
-        indices = prompt(
-            f"What are the indices for feature {feat}, e.g., [1,2,3]? "
-        )
+        indices = prompt(f"What are the indices for feature {feat}, e.g., [1,2,3]? ")
         try:
             indices = ast.literal_eval(indices)
             if isinstance(indices, list) and all(isinstance(i, int) for i in indices):

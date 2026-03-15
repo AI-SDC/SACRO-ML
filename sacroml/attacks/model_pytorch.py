@@ -143,9 +143,7 @@ class PytorchModel(Model):
         np.ndarray
             Model predictions (label encoding).
         """
-        device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.to(device)
         self.model.eval()
 
@@ -360,9 +358,7 @@ class PytorchModel(Model):
         model = create_model(model_module_path, model_name, model_params)
 
         # Load weights
-        device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
 

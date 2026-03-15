@@ -104,9 +104,7 @@ def train_shadow_models(
 
         # Pick the indices to use for training this shadow model
         np.random.seed(idx)
-        indices_train = np.random.choice(
-            indices, n_train_rows, replace=False
-        )
+        indices_train = np.random.choice(indices, n_train_rows, replace=False)
         indices_test = np.setdiff1d(indices, indices_train)
 
         # Fit the shadow model
