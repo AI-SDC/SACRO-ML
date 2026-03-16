@@ -121,28 +121,6 @@ STRUCTURAL_GLOSSARY = {
     ),
 }
 
-TRAINING_DATA_INTRODUCTION = (
-    "This report assesses whether the model stores training data. "
-    "Instance-based models (Support Vector Machine, k-Nearest Neighbors) "
-    "store training examples within the model file. If a researcher exports "
-    "the model from the TRE, this constitutes a disclosure risk. "
-    "The attack extracts support vectors (SVM) or stored neighbors (kNN), "
-    "compares them to the training data, and reports matches."
-)
-
-TRAINING_DATA_GLOSSARY = {
-    "contains_training_data": (
-        "Whether the model stores training data that can be extracted. "
-        "True indicates a disclosure risk."
-    ),
-    "n_stored": "Number of vectors/rows stored in the model.",
-    "n_matches": "Number of stored vectors that match training data.",
-    "dp_space_caveat": (
-        "If the model uses DP embedding, stored vectors may not directly "
-        "correspond to raw training data."
-    ),
-}
-
 
 def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
@@ -384,89 +362,6 @@ def create_structural_report(attack_output: dict) -> FPDF:
     pdf.add_page()
     title(pdf, "Glossary")
     _write_dict(pdf, STRUCTURAL_GLOSSARY)
-
-    return pdf
-
-
-def create_training_data_report(attack_output: dict) -> FPDF:
-    """Make a training data in model attack report.
-
-    Parameters
-    ----------
-    attack_output : dict
-        Dictionary with metadata and global_metrics.
-
-    Returns
-    -------
-    pdf : fpdf.FPDF
-        fpdf document object for the report.
-    """
-    metadata = attack_output["metadata"]
-    metrics = metadata.get("global_metrics", {})
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_xy(0, 0)
-
-    title(pdf, "Training Data in Model Attack Report")
-    subtitle(pdf, "Introduction")
-    line(pdf, TRAINING_DATA_INTRODUCTION)
-
-    subtitle(pdf, "Experiment Summary")
-    line(
-        pdf,
-        f"{'sacroml_version':>30s}: {str(metadata.get('sacroml_version', '')):30s}",
-        font="courier",
-    )
-    for key, value in metadata.get("attack_params", {}).items():
-        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
-
-    subtitle(pdf, "Results")
-    risk_status = (
-        "Risk Detected" if metrics.get("contains_training_data") else "Not Detected"
-    )
-    line(pdf, f"{'contains_training_data':>30s}: {risk_status:30s}", font="courier")
-    line(
-        pdf,
-        f"{'model_type':>30s}: {str(metrics.get('model_type', '')):30s}",
-        font="courier",
-    )
-    line(
-        pdf,
-        f"{'n_stored':>30s}: {str(metrics.get('n_stored', '')):30s}",
-        font="courier",
-    )
-    line(
-        pdf,
-        f"{'n_training':>30s}: {str(metrics.get('n_training', '')):30s}",
-        font="courier",
-    )
-    line(
-        pdf,
-        f"{'n_matches':>30s}: {str(metrics.get('n_matches', '')):30s}",
-        font="courier",
-    )
-    line(
-        pdf,
-        f"{'dp_space_caveat':>30s}: {str(metrics.get('dp_space_caveat', '')):30s}",
-        font="courier",
-    )
-
-    if metrics.get("dp_space_caveat"):
-        subtitle(pdf, "Caveat")
-        line(
-            pdf,
-            "Model may use DP embedding; stored vectors may not directly "
-            "correspond to raw training data.",
-        )
-
-    subtitle(pdf, "Mitigations")
-    for m in metrics.get("mitigations", []):
-        line(pdf, f"  - {m}")
-
-    pdf.add_page()
-    title(pdf, "Glossary")
-    _write_dict(pdf, TRAINING_DATA_GLOSSARY)
 
     return pdf
 
