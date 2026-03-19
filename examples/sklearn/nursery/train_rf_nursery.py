@@ -1,4 +1,4 @@
-"""Example training a Random Forest classifier on the OpenML nursery dataset.
+"""Example training a Random Forest classifier on the nursery dataset.
 
 This example demonstrates how a dataset module can be supplied to the Target
 wrapper along with the train and test indices. This is in contrast to the

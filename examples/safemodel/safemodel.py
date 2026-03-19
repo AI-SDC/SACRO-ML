@@ -1,22 +1,25 @@
 """Example showing how to integrate attacks into safemodel classes."""
 
 import logging
+import sys
+from pathlib import Path
 
 import numpy as np
-from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.target import Target
 from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from nursery_data import _make_local_nursery_data
+
 output_dir = "outputs_safemodel"
+
 
 if __name__ == "__main__":
     logging.info("Loading dataset")
-    nursery_data = fetch_openml(data_id=26, as_frame=True)
-    X = np.asarray(nursery_data.data, dtype=str)
-    y = np.asarray(nursery_data.target, dtype=str)
+    X, y, feature_names = _make_local_nursery_data()
 
     n_features = np.shape(X)[1]
     indices = [
@@ -70,7 +73,7 @@ if __name__ == "__main__":
         y_test_orig=y_test_orig,
     )
     for i in range(n_features):
-        target.add_feature(nursery_data.feature_names[i], indices[i], "onehot")
+        target.add_feature(feature_names[i], indices[i], "onehot")
 
     logging.info("Dataset: %s", target.dataset_name)
     logging.info("Features: %s", target.features)
