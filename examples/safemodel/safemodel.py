@@ -1,67 +1,20 @@
 """Example showing how to integrate attacks into safemodel classes."""
 
 import logging
+import sys
+from pathlib import Path
 
 import numpy as np
-from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.target import Target
 from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from nursery_data import _make_local_nursery_data  # noqa: E402
+
 output_dir = "outputs_safemodel"
-
-
-def _make_local_nursery_data(
-    n_samples: int = 6000, random_state: int = 1
-) -> tuple[np.ndarray, np.ndarray, list[str]]:
-    """Create deterministic nursery-like categorical data locally."""
-    feature_names: list[str] = [
-        "parents",
-        "has_nurs",
-        "form",
-        "children",
-        "housing",
-        "finance",
-        "social",
-        "health",
-    ]
-    categories: list[list[str]] = [
-        ["usual", "pretentious", "great_pret"],
-        ["proper", "less_proper", "improper", "critical", "very_crit"],
-        ["complete", "completed", "incomplete", "foster"],
-        ["1", "2", "3", "more"],
-        ["convenient", "less_conv", "critical"],
-        ["convenient", "inconv"],
-        ["nonprob", "slightly_prob", "problematic"],
-        ["recommended", "priority", "not_recom"],
-    ]
-    class_names = np.asarray(
-        ["not_recom", "recommend", "very_recom", "priority", "spec_prior"],
-        dtype=str,
-    )
-
-    x_num, y_num = make_classification(
-        n_samples=n_samples,
-        n_features=len(feature_names),
-        n_informative=6,
-        n_redundant=0,
-        n_repeated=0,
-        n_classes=len(class_names),
-        n_clusters_per_class=1,
-        class_sep=1.2,
-        random_state=random_state,
-    )
-    x_cat = np.empty((n_samples, len(feature_names)), dtype=object)
-    for idx, values in enumerate(categories):
-        col = x_num[:, idx]
-        thresholds = np.quantile(col, np.linspace(0, 1, len(values) + 1)[1:-1])
-        bins = np.digitize(col, thresholds)
-        x_cat[:, idx] = np.asarray(values, dtype=str)[bins]
-
-    y = class_names[y_num]
-    return x_cat.astype(str), y.astype(str), feature_names
 
 
 if __name__ == "__main__":
