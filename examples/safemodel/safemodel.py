@@ -12,7 +12,7 @@ from sacroml.attacks.target import Target
 from sacroml.safemodel.classifiers import SafeDecisionTreeClassifier
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from nursery_data import _make_local_nursery_data  # noqa: E402
+from nursery_data import _make_local_nursery_data
 
 output_dir = "outputs_safemodel"
 
