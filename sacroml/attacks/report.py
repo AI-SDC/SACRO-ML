@@ -293,9 +293,9 @@ def create_mia_report(attack_output: dict) -> FPDF:
             "attack_instance_logger"
         ].items()
     ]
-    metadata = attack_output["metadata"]
+    metadata: dict = attack_output["metadata"]
 
-    path = metadata["attack_params"]["output_dir"]
+    path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot(mia_metrics, dest_log_roc)
 
@@ -475,9 +475,9 @@ def create_lr_report(output: dict) -> FPDF:
         v
         for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
     ][0]
-    metadata = output["metadata"]
+    metadata: dict = output["metadata"]
 
-    path = metadata["attack_params"]["output_dir"]
+    path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
     _roc_plot_single(mia_metrics, dest_log_roc)
     pdf = FPDF()

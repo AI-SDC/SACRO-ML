@@ -241,7 +241,7 @@ class WorstCaseAttack(Attack):
         """Return an instantiated attack model."""
         # load attack model module and get class
         model = get_class_by_name(self.attack_model)
-        params = self.attack_model_params
+        params: dict[str, object] | None = self.attack_model_params
         if (  # set custom default parameters for RF attack model
             self.attack_model == "sklearn.ensemble.RandomForestClassifier"
             and self.attack_model_params is None

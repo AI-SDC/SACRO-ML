@@ -252,7 +252,7 @@ class Target:
 
     def add_feature(self, name: str, indices: list[int], encoding: str) -> None:
         """Add a feature description to the data dictionary."""
-        index = len(self.features)
+        index: int = len(self.features)
         self.features[index] = {
             "name": name,
             "indices": indices,

@@ -150,7 +150,7 @@ class PytorchModel(Model):
         # Create a dataloader
         X_tensor = torch.from_numpy(X).float()
         dataset = TensorDataset(X_tensor)
-        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
+        dataloader: DataLoader = DataLoader(dataset, batch_size=32, shuffle=False)
 
         # Compute predictions
         all_preds = []
@@ -185,7 +185,7 @@ class PytorchModel(Model):
             self.model_module_path, self.model_name, self.model_params
         )
         # Create a dataloader
-        dataloader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
+        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
         #  Fit using the provided train function
         return train_model(
             self.model, self.train_module_path, self.train_params, dataloader
@@ -199,7 +199,7 @@ class PytorchModel(Model):
         Model
             A cloned model.
         """
-        model = deepcopy(self.model)
+        model: torch.nn.Module = deepcopy(self.model)
 
         return PytorchModel(
             model=model,
@@ -231,7 +231,7 @@ class PytorchModel(Model):
         # Create a dataloader
         X_tensor = torch.from_numpy(X).float()
         dataset = TensorDataset(X_tensor)
-        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
+        dataloader: DataLoader = DataLoader(dataset, batch_size=32, shuffle=False)
 
         # Compute the probabilities
         all_probs = []

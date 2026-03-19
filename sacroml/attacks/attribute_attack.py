@@ -54,7 +54,7 @@ class AttributeAttack(Attack):
     @classmethod
     def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with AttributeAttack."""
-        can_attack = True
+        can_attack: bool = True
 
         if target.n_features < 1 or not target.has_data() or not target.has_raw_data():
             logger.info("WARNING: AttributeAttack requires features to be defined.")
@@ -91,25 +91,25 @@ class AttributeAttack(Attack):
         """
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
-        output = self._make_report(target)
+        output: dict = self._make_report(target)
         self._write_report(output)
         return output
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct the instances metric calculated, during attacks."""
-        attack_metrics_experiment = {}
-        attack_metrics_instances = {}
+        attack_metrics_experiment: dict = {}
+        attack_metrics_instances: dict = {}
         attack_metrics_instances["instance_0"] = self.attack_metrics
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
 
     def _make_pdf(self, output: dict) -> FPDF:
         """Create PDF report."""
-        metadata = output["metadata"]
-        metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+        metadata: dict = output["metadata"]
+        metrics: dict = output["attack_experiment_logger"]["attack_instance_logger"][
             "instance_0"
         ]
-        path = metadata["attack_params"]["output_dir"]
+        path: str = metadata["attack_params"]["output_dir"]
         # Create PDF
         pdf = FPDF()
         pdf.add_page()
@@ -128,13 +128,13 @@ class AttributeAttack(Attack):
         # Add attack results
         report.subtitle(pdf, "Metrics")
         # Categorical
-        categ_rep = report_categorical(metrics).split("\n")
+        categ_rep: list[str] = report_categorical(metrics).split("\n")
         if len(categ_rep) > 1:
             report.line(pdf, "Categorical Features:", font="courier")
             for line in categ_rep:
                 report.line(pdf, line, font="courier")
         # Quantatitive
-        quant_rep = report_quantitative(metrics).split("\n")
+        quant_rep: list[str] = report_quantitative(metrics).split("\n")
         if len(quant_rep) > 1:
             report.line(pdf, "Quantitative Features:", font="courier")
             for line in quant_rep:
@@ -157,7 +157,7 @@ class AttributeAttack(Attack):
 def _unique_max(confidences: list[float], threshold: float) -> bool:
     """Return if there is a unique maximum confidence value above threshold."""
     if len(confidences) > 0:
-        max_conf = np.max(confidences)
+        max_conf: float = np.max(confidences)
         if max_conf < threshold:
             return False
         unique: np.ndarray
@@ -173,9 +173,9 @@ def _get_unique_features(
     X_train: np.ndarray, X_test: np.ndarray, feature_id: int
 ) -> np.ndarray:
     """Return unique values of a given feature."""
-    feature_train = X_train[:, feature_id]
-    feature_test = X_test[:, feature_id]
-    combined_feature = np.concatenate((feature_train, feature_test))
+    feature_train: np.ndarray = X_train[:, feature_id]
+    feature_test: np.ndarray = X_test[:, feature_id]
+    combined_feature: np.ndarray = np.concatenate((feature_train, feature_test))
     return np.unique(combined_feature)
 
 
@@ -183,18 +183,18 @@ def _get_inference_data(
     target: Target, feature_id: int, memberset: bool
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Return a dataset of each sample with the attributes to test."""
-    attack_feature = target.features[feature_id]
-    indices = attack_feature["indices"]
+    attack_feature: dict = target.features[feature_id]
+    indices: list[int] = attack_feature["indices"]
     unique = _get_unique_features(target.X_train_orig, target.X_test_orig, feature_id)
-    n_unique = len(unique)
-    values = unique
+    n_unique: int = len(unique)
+    values: np.ndarray = unique
     if attack_feature["encoding"] == "onehot":
         onehot_enc = OneHotEncoder()
         values = onehot_enc.fit_transform(unique.reshape(-1, 1)).toarray()
     # samples after encoding (e.g. one-hot)
-    samples = target.X_train
+    samples: np.ndarray = target.X_train
     # samples before encoding (e.g. str)
-    samples_orig = target.X_train_orig
+    samples_orig: np.ndarray = target.X_train_orig
     if not memberset:
         samples = target.X_test
         samples_orig = target.X_test_orig
@@ -228,14 +228,14 @@ def _infer(
     that attribute if the confidence score is greater than a threshold.
     """
     logger.debug("Attacking feature %d set %d", feature_id, int(memberset))
-    correct = 0  # number of correct inferences made
-    total = 0  # total number of inferences made
+    correct: int = 0  # number of correct inferences made
+    total: int = 0  # total number of inferences made
     x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
-    n_unique = len(x_values[1])
-    samples = target.X_train if memberset else target.X_test
+    n_unique: int = len(x_values[1])
+    samples: np.ndarray = target.X_train if memberset else target.X_test
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
-        confidence = target.model.predict_proba(x)
+        confidence: np.ndarray = target.model.predict_proba(x)
         conf: list[float] = []  # confidences for each possible value with correct label
         attr: list[
             np.ndarray
@@ -261,7 +261,7 @@ def _infer(
 def report_categorical(results: dict) -> str:
     """Return a string report of the categorical results."""
     results = results["categorical"]
-    msg = ""
+    msg: str = ""
     for feature in results:
         name = feature["name"]
         _, _, _, n_unique, _ = feature["train"]
@@ -282,7 +282,7 @@ def report_categorical(results: dict) -> str:
 def report_quantitative(results: dict) -> str:
     """Return a string report of the quantitative results."""
     results = results["quantitative"]
-    msg = ""
+    msg: str = ""
     for feature in results:
         msg += (
             f"{feature['name']}: "
@@ -302,11 +302,11 @@ def plot_quantitative_risk(res: dict, path: str = "") -> None:
     path : str
         Directory to write plots.
     """
-    results = res["quantitative"]
+    results: list[dict] = res["quantitative"]
     if len(results) < 1:  # pragma: no cover
         return
     logger.debug("Plotting quantitative feature risk scores")
-    x = np.arange(len(results))
+    x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
     names: list[str] = []
@@ -320,7 +320,7 @@ def plot_quantitative_risk(res: dict, path: str = "") -> None:
     ax.set_ylim([0, 100])
     ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
     ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
-    title = "Percentage of Set at Risk for Quantitative Attributes"
+    title: str = "Percentage of Set at Risk for Quantitative Attributes"
     ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
@@ -343,11 +343,11 @@ def plot_categorical_risk(res: dict, path: str = "") -> None:
     path : str
         Directory to write plots.
     """
-    results = res["categorical"]
+    results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
         return
     logger.debug("Plotting categorical feature risk scores")
-    x = np.arange(len(results))
+    x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
     names: list[str] = []
@@ -365,7 +365,7 @@ def plot_categorical_risk(res: dict, path: str = "") -> None:
     ax.set_ylim([-100, 100])
     ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
     ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
-    title = "Improvement Over Most Common Value Estimate"
+    title: str = "Improvement Over Most Common Value Estimate"
     ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
@@ -388,11 +388,11 @@ def plot_categorical_fraction(res: dict, path: str = "") -> None:
     path : str
         Directory to write plots.
     """
-    results = res["categorical"]
+    results: list[dict] = res["categorical"]
     if len(results) < 1:  # pragma: no cover
         return
     logger.debug("Plotting categorical feature tranche sizes")
-    x = np.arange(len(results))
+    x: np.ndarray = np.arange(len(results))
     ya: list[float] = []
     yb: list[float] = []
     names: list[str] = []
@@ -410,7 +410,7 @@ def plot_categorical_fraction(res: dict, path: str = "") -> None:
     ax.set_ylim([0, 100])
     ax.bar(x + 0.2, ya, 0.4, align="center", color=COLOR_A, label="train set")
     ax.bar(x - 0.2, yb, 0.4, align="center", color=COLOR_B, label="test set")
-    title = "Percentage of Set at Risk"
+    title: str = "Percentage of Set at Risk"
     ax.set_title(f"{res['name']}\n{title}")
     ax.tick_params(axis="x", labelsize=10)
     ax.tick_params(axis="y", labelsize=10)
@@ -437,7 +437,7 @@ def _is_categorical(target: Target, feature_id: int) -> bool:
 
     For simplicity, assumes integer datatypes are categorical.
     """
-    encoding = target.features[feature_id]["encoding"]
+    encoding: str = target.features[feature_id]["encoding"]
     return encoding[:3] in ("str", "int") or encoding[:6] in ("onehot")
 
 
@@ -517,20 +517,20 @@ def _get_bounds_risk_for_sample(
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
     # get known label
-    label = int(target_model.predict(sample.reshape(1, -1))[0])
+    label: int = int(target_model.predict(sample.reshape(1, -1))[0])
     # a matrix containing feature vector with linearly spaced target attribute
     x1 = np.repeat(sample.reshape(1, -1), feat_n, axis=0)
     x1[:, feat_id] = x_feat
     # get the target model confidences across the attribute range
     confidences = target_model.predict_proba(x1)
     # scores just for the model predicted label
-    scores = confidences[:, label]
-    peak = np.max(scores)
+    scores: np.ndarray = confidences[:, label]
+    peak: float = np.max(scores)
     # find lowest and highest values with peak confidence
-    lower_bound_index = 0
+    lower_bound_index: int = 0
     while scores[lower_bound_index] < peak:
         lower_bound_index += 1
-    upper_bound_index = feat_n - 1
+    upper_bound_index: int = feat_n - 1
     while scores[upper_bound_index] < peak:
         upper_bound_index -= 1
     # condition 1: confidence in prediction above some threshold
@@ -539,8 +539,8 @@ def _get_bounds_risk_for_sample(
     # condition 4: upper bound of estimate below upper protection limit
     actual_value = sample[feat_id]
     actual_probs = target_model.predict_proba(sample.reshape(1, -1))[0]
-    lower_bound = x_feat[lower_bound_index]
-    upper_bound = x_feat[upper_bound_index]
+    lower_bound: float = x_feat[lower_bound_index]
+    upper_bound: float = x_feat[upper_bound_index]
     return (
         peak > c_min
         and actual_probs[label] == peak
@@ -553,10 +553,10 @@ def _get_bounds_risk_for_feature(
     target_model: Model, feature_id: int, samples: np.ndarray
 ) -> float:
     """Return the average feature risk score over a set of samples."""
-    feature_risk = 0
-    n_samples = len(samples)
-    feat_min = np.min(samples[:, feature_id])
-    feat_max = np.max(samples[:, feature_id])
+    feature_risk: int = 0
+    n_samples: int = len(samples)
+    feat_min: float = np.min(samples[:, feature_id])
+    feat_max: float = np.max(samples[:, feature_id])
     for i in range(n_samples):
         sample = samples[i]
         risk = _get_bounds_risk_for_sample(
@@ -623,14 +623,14 @@ def _attribute_inference(target: Target, n_cpu: int) -> dict:
     for feature in range(target.n_features):
         if _is_categorical(target, feature):
             feature_list.append(feature)
-    results_a = _attack_brute_force(target, feature_list, n_cpu)
+    results_a: list[dict] = _attack_brute_force(target, feature_list, n_cpu)
     # compute risk scores for quantitative attributes
     logger.info("Attacking quantitative attributes...")
     feature_list = []
     for feature in range(target.n_features):
         if not _is_categorical(target, feature):
             feature_list.append(feature)
-    results_b = _get_bounds_risks(target, feature_list, n_cpu)
+    results_b: list[dict] = _get_bounds_risks(target, feature_list, n_cpu)
     # combine results into single object
     return {
         "name": target.dataset_name,

@@ -128,7 +128,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # prepare
-        shadow_clf = target.model.clone()
+        shadow_clf: Model = target.model.clone()
         target = utils.check_and_update_dataset(target)
         # execute attack
         self._run(
@@ -141,7 +141,7 @@ class LIRAAttack(Attack):
             target.model.predict_proba(target.X_test),
         )
         # create the report
-        output = self._make_report(target)
+        output: dict = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report
@@ -178,8 +178,8 @@ class LIRAAttack(Attack):
         """
         logger.info("Running %s LiRA, fix_variance=%s", self.mode, self.fix_variance)
 
-        n_train_rows = X_train.shape[0]
-        n_shadow_rows = X_test.shape[0]
+        n_train_rows: int = X_train.shape[0]
+        n_shadow_rows: int = X_test.shape[0]
 
         combined_data: dict[str, np.ndarray] = {
             "features": np.vstack((X_train, X_test)),
@@ -228,7 +228,7 @@ class LIRAAttack(Attack):
             Dictionary of confidences when not in the training set.
             Dictionary of confidences when in the training set.
         """
-        n_combined = combined_x_train.shape[0]
+        n_combined: int = combined_x_train.shape[0]
         out_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
         in_conf: dict[int, list[float]] = {i: [] for i in range(n_combined)}
 
@@ -245,7 +245,7 @@ class LIRAAttack(Attack):
             }
             # generate shadow confidences
             shadow_confidences: np.ndarray = shadow_clf.predict_proba(combined_x_train)
-            indices_train: set[int] = set(indices_train)
+            train_set: set[int] = set(indices_train)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
                 label = class_map.get(combined_y_train[i], -1)
@@ -253,7 +253,7 @@ class LIRAAttack(Attack):
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
                 logit = utils.logit(0) if label < 0 else utils.logit(conf[label])
-                if i not in indices_train:
+                if i not in train_set:
                     out_conf[i].append(logit)
                 else:
                     in_conf[i].append(logit)
@@ -270,12 +270,12 @@ class LIRAAttack(Attack):
         logger.info("Computing scores")
 
         mia_scores: list[list[float]] = []
-        n_normal = 0
-        global_in_std = self._get_global_std(in_conf)
-        global_out_std = self._get_global_std(out_conf)
+        n_normal: int = 0
+        global_in_std: float = self._get_global_std(in_conf)
+        global_out_std: float = self._get_global_std(out_conf)
 
         for i, label in enumerate(combined_y_train):
-            logit = utils.logit(combined_target_preds[i, label])
+            logit: float = utils.logit(combined_target_preds[i, label])
 
             out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
             in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
@@ -295,7 +295,7 @@ class LIRAAttack(Attack):
                 n_normal += 1
 
             if self.report_individual:
-                out_p_norm = utils.get_p_normal(np.array(out_conf[i]))
+                out_p_norm: float = utils.get_p_normal(np.array(out_conf[i]))
                 self.result["label"].append(label)
                 self.result["target_logit"].append(logit)
                 self.result["out_p_norm"].append(out_p_norm)
@@ -360,9 +360,9 @@ class LIRAAttack(Attack):
         self, confidences: list[float], global_std: float
     ) -> tuple[float, float]:
         """Return the mean and standard deviation of a list of confidences."""
-        scores = np.array(confidences)
-        mean = 0
-        std = 0
+        scores: np.ndarray = np.array(confidences)
+        mean: float = 0
+        std: float = 0
         if not np.isnan(scores).all():
             mean = float(np.nanmean(scores))
             std = float(np.nanstd(scores))
@@ -372,7 +372,7 @@ class LIRAAttack(Attack):
 
     def _get_global_std(self, confidences: dict[int, list[float]]) -> float:
         """Return the global standard deviation."""
-        global_std = 0
+        global_std: float = 0
         if self.fix_variance:
             # requires conversion from a dict of diff size proba lists
             arrays = list(confidences.values())

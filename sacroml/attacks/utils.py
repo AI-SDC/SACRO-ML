@@ -38,7 +38,7 @@ def check_and_update_dataset(target: Target) -> Target:
         return target
 
     y_train_new: list[int] = []
-    classes = list(target.model.get_classes())
+    classes: list[int] = list(target.model.get_classes())
     for y in target.y_train:
         y_train_new.append(classes.index(y))
     target.y_train = np.array(y_train_new, int)
@@ -91,12 +91,12 @@ def train_shadow_models(
     """
     logger.info("Training shadow models")
 
-    n_models_trained = get_n_shadow_models(shadow_path)
+    n_models_trained: int = get_n_shadow_models(shadow_path)
     if n_models_trained > 0:  # pragma: no cover
         logger.info("Found %d models previously trained", n_models_trained)
 
-    n_combined = combined_x_train.shape[0]
-    indices = np.arange(0, n_combined, 1)
+    n_combined: int = combined_x_train.shape[0]
+    indices: np.ndarray = np.arange(0, n_combined, 1)
 
     for idx in range(n_models_trained, n_shadow_models):
         if idx % 10 == 0:
@@ -126,7 +126,7 @@ def save_shadow_model(
     indices_test: np.ndarray,
 ) -> None:
     """Save a trained shadow model."""
-    path = os.path.normpath(f"{shadow_path}/{idx}")
+    path: str = os.path.normpath(f"{shadow_path}/{idx}")
     os.makedirs(path, exist_ok=True)
     with open(os.path.join(path, "model.pkl"), "wb") as f:
         pickle.dump(model, f)
@@ -140,19 +140,19 @@ def get_shadow_model(
     shadow_path: str, idx: int
 ) -> tuple[Model, np.ndarray, np.ndarray]:
     """Return a shadow model and indices previously saved."""
-    path = os.path.normpath(f"{shadow_path}/{idx}")
+    path: str = os.path.normpath(f"{shadow_path}/{idx}")
     with open(os.path.join(path, "model.pkl"), "rb") as f:
-        model = pickle.load(f)
+        model: Model = pickle.load(f)
     with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-        indices_train = pickle.load(f)
+        indices_train: np.ndarray = pickle.load(f)
     with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-        indices_test = pickle.load(f)
+        indices_test: np.ndarray = pickle.load(f)
     return model, indices_train, indices_test
 
 
 def get_n_shadow_models(shadow_path: str) -> int:
     """Return the number shadow models saved."""
-    count = 0
+    count: int = 0
     for item in os.listdir(shadow_path):  # pragma: no cover
         item_path = os.path.join(shadow_path, item)
         if os.path.isdir(item_path):
@@ -162,7 +162,7 @@ def get_n_shadow_models(shadow_path: str) -> int:
 
 def get_p_normal(samples: np.ndarray) -> float:
     """Test whether a set of samples is normally distributed."""
-    p_normal = np.nan
+    p_normal: float = np.nan
     if np.nanvar(samples) > EPS:
         with contextlib.suppress(ValueError):
             _, p_normal = shapiro(samples)
@@ -188,7 +188,7 @@ def logit(p: float) -> float:
     instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
     defaults at 1e-16.
     """
-    p = min(p, 1 - EPS)
+    p: float = min(p, 1 - EPS)
     p = max(p, EPS)
     return np.log(p / (1 - p))
 
