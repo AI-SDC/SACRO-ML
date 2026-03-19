@@ -8,7 +8,6 @@ import pickle
 import shutil
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -16,12 +15,16 @@ import sklearn
 import torch
 import yaml
 
-from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
 from sacroml.attacks.model import create_dataset
 from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
 
-MODEL_REGISTRY: dict[str, Any] = {
+ModelLike = (
+    SklearnModel | PytorchModel | sklearn.base.BaseEstimator | torch.nn.Module | None
+)
+WrappedModel = SklearnModel | PytorchModel | None
+
+MODEL_REGISTRY: dict[str, type[SklearnModel] | type[PytorchModel]] = {
     "PytorchModel": PytorchModel,
     "SklearnModel": SklearnModel,
 }
@@ -62,7 +65,8 @@ class Target:
 
     Attributes
     ----------
-    model : Any
+    model : SklearnModel | PytorchModel | sklearn.base.BaseEstimator |
+        torch.nn.Module | None
         Trained target model.
     model_path : str
         Path to a saved model.
@@ -111,7 +115,7 @@ class Target:
     """
 
     # Model attributes
-    model: Any = None
+    model: ModelLike = None
     model_path: str = ""
     model_module_path: str = ""
     model_name: str = ""
@@ -141,11 +145,11 @@ class Target:
     # Safemodel properties
     safemodel: list = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialise the model wrapper after dataclass creation."""
         self.model = self._wrap_model(self.model)
 
-    def _wrap_model(self, model: Any) -> Any:
+    def _wrap_model(self, model: ModelLike) -> WrappedModel:
         """Wrap the model in a wrapper class."""
         if model is None:
             return None
@@ -180,9 +184,7 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler: PyTorchDataHandler = create_dataset(
-                self.dataset_module_path, self.dataset_name
-            )
+            handler = create_dataset(self.dataset_module_path, self.dataset_name)
 
             # Get processed data
             data = handler.get_dataset()
@@ -215,11 +217,11 @@ class Target:
             raise ValueError("Can't load dataset module without indices.")
         try:
             # Create a new data handler with a supplied class
-            handler: SklearnDataHandler = create_dataset(
-                self.dataset_module_path, self.dataset_name
-            )
+            handler = create_dataset(self.dataset_module_path, self.dataset_name)
 
             # Get processed data
+            X: np.ndarray
+            y: np.ndarray
             X, y = handler.get_data()
             self.X_train, self.y_train = handler.get_subset(X, y, self.indices_train)
             self.X_test, self.y_test = handler.get_subset(X, y, self.indices_test)
@@ -298,7 +300,7 @@ class Target:
         os.makedirs(path, exist_ok=True)
 
         # Create target dictionary
-        target = {
+        target: dict[str, object] = {
             "dataset_name": self.dataset_name,
             "dataset_module_path": self.dataset_module_path,
             "features": self.features,
@@ -406,7 +408,9 @@ class Target:
             logger.info("Cannot load model: %s", model_type)
             return
 
-        model_class = MODEL_REGISTRY[model_type]
+        model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[
+            model_type
+        ]
         self.model = model_class.load(
             model_path=os.path.join(path, target.get("model_path", "")),
             model_module_path=os.path.join(path, target.get("model_module_path", "")),
@@ -437,7 +441,7 @@ class Target:
 
         setattr(self, attr_name, arr)
 
-    def _load_pickle(self, path: str, name: str) -> Any:  # pragma: no cover
+    def _load_pickle(self, path: str, name: str) -> object:  # pragma: no cover
         """Load array from pickle file."""
         try:
             with open(path, "rb") as f:

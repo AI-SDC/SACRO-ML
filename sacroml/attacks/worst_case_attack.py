@@ -7,6 +7,7 @@ from collections.abc import Iterable
 
 import numpy as np
 from fpdf import FPDF
+from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
@@ -39,7 +40,7 @@ class WorstCaseAttack(Attack):
         include_model_correct_feature: bool = False,
         sort_probs: bool = True,
         attack_model: str = "sklearn.ensemble.RandomForestClassifier",
-        attack_model_params: dict | None = None,
+        attack_model_params: dict[str, object] | None = None,
     ) -> None:
         """Construct an object to execute a worst case attack.
 
@@ -92,7 +93,7 @@ class WorstCaseAttack(Attack):
         self.include_model_correct_feature: bool = include_model_correct_feature
         self.sort_probs: bool = sort_probs
         self.attack_model: str = attack_model
-        self.attack_model_params: dict | None = attack_model_params
+        self.attack_model_params: dict[str, object] | None = attack_model_params
         self.dummy_attack_metrics: list = []
 
     def __str__(self) -> str:
@@ -102,7 +103,7 @@ class WorstCaseAttack(Attack):
     @classmethod
     def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with WorstCaseAttack."""
-        required_methods = ["predict_proba", "predict"]
+        required_methods: list[str] = ["predict_proba", "predict"]
         if (
             target.has_model()
             and target.has_data()
@@ -125,8 +126,8 @@ class WorstCaseAttack(Attack):
         dict
             Attack report.
         """
-        train_c = None
-        test_c = None
+        train_c: np.ndarray | None = None
+        test_c: np.ndarray | None = None
         # compute target model probas if possible
         if target.has_model() and target.has_data():  # pragma: no cover
             proba_train = target.model.predict_proba(target.X_train)
@@ -146,7 +147,7 @@ class WorstCaseAttack(Attack):
             test_correct=test_c,
         )
         # create the report
-        output = self._make_report(target)
+        output: dict = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report
@@ -230,15 +231,17 @@ class WorstCaseAttack(Attack):
             proba_train = np.hstack((proba_train, train_correct[:, None]))
             proba_test = np.hstack((proba_test, test_correct[:, None]))
 
-        mi_x = np.vstack((proba_train, proba_test))
-        mi_y = np.hstack((np.ones(len(proba_train)), np.zeros(len(proba_test))))
+        mi_x: np.ndarray = np.vstack((proba_train, proba_test))
+        mi_y: np.ndarray = np.hstack(
+            (np.ones(len(proba_train)), np.zeros(len(proba_test)))
+        )
         return (mi_x, mi_y)
 
-    def _get_attack_model(self):
+    def _get_attack_model(self) -> BaseEstimator:
         """Return an instantiated attack model."""
         # load attack model module and get class
         model = get_class_by_name(self.attack_model)
-        params = self.attack_model_params
+        params: dict[str, object] | None = self.attack_model_params
         if (  # set custom default parameters for RF attack model
             self.attack_model == "sklearn.ensemble.RandomForestClassifier"
             and self.attack_model_params is None
@@ -253,7 +256,7 @@ class WorstCaseAttack(Attack):
 
     def _get_reproducible_split(self) -> list:
         """Return a list of splits."""
-        split = self.reproduce_split
+        split: int | Iterable[int] | None = self.reproduce_split
         n_reps = self.n_reps
         if isinstance(split, int):
             split = [split] + [x**2 for x in range(split, split + n_reps - 1)]
@@ -304,7 +307,7 @@ class WorstCaseAttack(Attack):
             proba_train, proba_test, train_correct, test_correct
         )
 
-        mia_metrics = []
+        mia_metrics: list[dict] = []
         split = self._get_reproducible_split()
 
         for rep in range(self.n_reps):
