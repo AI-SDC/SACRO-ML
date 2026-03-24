@@ -403,6 +403,7 @@ def test_xgb_unnecessary():
     )
 
 
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_sklearnmlp_nondisclosive():
     """Test for safe sklearn MLPClassifier."""
     # non-disclosive
@@ -433,6 +434,7 @@ def test_sklearnmlp_nondisclosive():
     )
 
 
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_sklearnmlp_disclosive():
     """Test for safe sklearn MLPClassifier."""
     # highly disclosive

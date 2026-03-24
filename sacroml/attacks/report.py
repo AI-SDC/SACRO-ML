@@ -214,6 +214,7 @@ def _roc_plot_single(metrics: dict, save_name: str) -> None:
     plt.xlabel("False Positive Rate")
     plt.tight_layout()
     plt.savefig(save_name)
+    plt.close()
 
 
 def _roc_plot(metrics: dict, save_name: str) -> None:
@@ -241,6 +242,7 @@ def _roc_plot(metrics: dict, save_name: str) -> None:
     plt.tight_layout()
     plt.grid()
     plt.savefig(save_name)
+    plt.close()
 
 
 def create_mia_report(attack_output: dict) -> FPDF:

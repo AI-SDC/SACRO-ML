@@ -1,4 +1,8 @@
-"""Common utility functions for testing."""
+"""Pytest configuration for the test suite."""
+
+import matplotlib as mpl
+
+mpl.use("Agg")
 
 import contextlib
 import os
