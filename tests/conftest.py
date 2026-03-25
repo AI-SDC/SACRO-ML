@@ -1,4 +1,8 @@
-"""Common utility functions for testing."""
+"""Pytest configuration for the test suite."""
+
+import matplotlib as mpl
+
+mpl.use("Agg")
 
 import contextlib
 import os
@@ -16,6 +20,14 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sacroml.attacks.target import Target
 
 np.random.seed(1)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Remove test-created target directories after all tests complete."""
+    for folder in ("target_pytorch", "target_sklearn"):
+        with contextlib.suppress(Exception):
+            shutil.rmtree(folder)
+
 
 folders = [
     "RES",
