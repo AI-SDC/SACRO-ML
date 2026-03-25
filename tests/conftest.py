@@ -21,6 +21,14 @@ from sacroml.attacks.target import Target
 
 np.random.seed(1)
 
+
+def pytest_sessionfinish(_session, _exitstatus):
+    """Remove test-created target directories after all tests complete."""
+    for folder in ("target_pytorch", "target_sklearn"):
+        with contextlib.suppress(Exception):
+            shutil.rmtree(folder)
+
+
 folders = [
     "RES",
     "dt.sav",
