@@ -4,6 +4,11 @@
 # Or to run every time you commit: pre-commit install
 # To update this file: pre-commit autoupdate
 
+ci:
+  autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+  autoupdate_schedule: monthly
+
 repos:
 
   # Standard hooks
