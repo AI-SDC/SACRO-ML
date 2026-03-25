@@ -22,7 +22,7 @@ from sacroml.attacks.target import Target
 np.random.seed(1)
 
 
-def pytest_sessionfinish(_session, _exitstatus):
+def pytest_sessionfinish(session, exitstatus):  # noqa: ARG001
     """Remove test-created target directories after all tests complete."""
     for folder in ("target_pytorch", "target_sklearn"):
         with contextlib.suppress(Exception):
