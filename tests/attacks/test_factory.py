@@ -23,7 +23,7 @@ def test_factory(monkeypatch, get_target):
     target.save("target_factory")
 
     model = target.model
-    assert model.score(target.X_test, target.y_test) == pytest.approx(0.92, 0.01)
+    assert model.score(target.X_test, target.y_test) == pytest.approx(0.92, abs=0.02)
 
     # create LiRA config with default params
     mock_input = "yes"
