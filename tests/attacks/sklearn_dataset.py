@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import types
 from collections.abc import Sequence
 
 import numpy as np
-from sklearn.datasets import fetch_openml
+from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
@@ -14,13 +15,64 @@ from sacroml.attacks.data import SklearnDataHandler
 random_state = 1
 
 
+def _generate_nursery_data(n_samples=2000, random_state=1):
+    """Generate synthetic categorical data mimicking the nursery dataset.
+
+    Uses make_classification to create a learnable classification problem,
+    then discretises continuous features into categories matching the
+    OpenML nursery dataset (data_id=26) structure so that one-hot encoding
+    yields the same column layout.
+    """
+    feature_specs = [
+        ("parents", ["great_pret", "pretentious", "usual"]),
+        ("has_nurs", ["critical", "less_proper", "proper", "slightly_prob", "very_crit"]),
+        ("form", ["complete", "foster", "other", "others"]),
+        ("children", ["1", "2", "3", "more"]),
+        ("housing", ["convenient", "less_proper", "slightly_prob"]),
+        ("finance", ["convenient", "inconv"]),
+        ("social", ["non_prob", "slightly_prob", "very_recom"]),
+        ("health", ["not_recom", "priority", "recommended"]),
+    ]
+    target_classes = ["not_recom", "priority", "spec_prior", "very_recom"]
+
+    n_features = len(feature_specs)
+    n_classes = len(target_classes)
+
+    X_cont, y_int = make_classification(
+        n_samples=n_samples,
+        n_features=n_features,
+        n_informative=n_features,
+        n_redundant=0,
+        n_classes=n_classes,
+        n_clusters_per_class=1,
+        class_sep=2.0,
+        random_state=random_state,
+    )
+
+    # Discretise each continuous feature into categories via percentile binning
+    feature_names = []
+    columns = []
+    for i, (name, categories) in enumerate(feature_specs):
+        feature_names.append(name)
+        n_cats = len(categories)
+        percentiles = np.linspace(0, 100, n_cats + 1)[1:-1]
+        bins = np.percentile(X_cont[:, i], percentiles)
+        bin_indices = np.digitize(X_cont[:, i], bins)
+        columns.append(np.array([categories[idx] for idx in bin_indices]))
+
+    data = np.column_stack(columns)
+    target = np.array([target_classes[idx] for idx in y_int])
+
+    return types.SimpleNamespace(data=data, target=target, feature_names=feature_names)
+
+
 class Nursery(SklearnDataHandler):
     """Nursery dataset handler."""
 
     def __init__(self) -> None:
         """Fetch and process the nursery dataset."""
         # Get original dataset
-        nursery_data = fetch_openml(data_id=26, as_frame=True)
+        nursery_data = _generate_nursery_data()
         self.X_orig = np.asarray(nursery_data.data, dtype=str)
         self.y_orig = np.asarray(nursery_data.target, dtype=str)
 
