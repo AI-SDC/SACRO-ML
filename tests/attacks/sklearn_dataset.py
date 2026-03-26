@@ -25,7 +25,10 @@ def _generate_nursery_data(n_samples=2000, random_state=1):
     """
     feature_specs = [
         ("parents", ["great_pret", "pretentious", "usual"]),
-        ("has_nurs", ["critical", "less_proper", "proper", "slightly_prob", "very_crit"]),
+        (
+            "has_nurs",
+            ["critical", "less_proper", "proper", "slightly_prob", "very_crit"],
+        ),
         ("form", ["complete", "foster", "other", "others"]),
         ("children", ["1", "2", "3", "more"]),
         ("housing", ["convenient", "less_proper", "slightly_prob"]),
