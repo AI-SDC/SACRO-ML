@@ -41,7 +41,7 @@ def _generate_nursery_data(n_samples=2000, random_state=1):
     n_features = len(feature_specs)
     n_classes = len(target_classes)
 
-    X_cont, y_int = make_classification(
+    x_cont, y_int = make_classification(
         n_samples=n_samples,
         n_features=n_features,
         n_informative=n_features,
@@ -59,8 +59,8 @@ def _generate_nursery_data(n_samples=2000, random_state=1):
         feature_names.append(name)
         n_cats = len(categories)
         percentiles = np.linspace(0, 100, n_cats + 1)[1:-1]
-        bins = np.percentile(X_cont[:, i], percentiles)
-        bin_indices = np.digitize(X_cont[:, i], bins)
+        bins = np.percentile(x_cont[:, i], percentiles)
+        bin_indices = np.digitize(x_cont[:, i], bins)
         columns.append(np.array([categories[idx] for idx in bin_indices]))
 
     data = np.column_stack(columns)
