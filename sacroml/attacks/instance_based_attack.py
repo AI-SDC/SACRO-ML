@@ -164,9 +164,7 @@ class InstanceBasedAttack(Attack):
         """
         if Pipeline is not None and isinstance(model, Pipeline):
             final_estimator = model.steps[-1][1]
-            preprocessor = (
-                Pipeline(model.steps[:-1]) if len(model.steps) > 1 else None
-            )
+            preprocessor = Pipeline(model.steps[:-1]) if len(model.steps) > 1 else None
             return final_estimator, preprocessor
         return model, None
 
@@ -369,9 +367,7 @@ class InstanceBasedAttack(Attack):
                 match_fraction=0.0,
                 example_matches=[],
                 data_leakage_confirmed=False,
-                mitigations=self._build_mitigations(
-                    is_svm, is_knn, is_dp_safe
-                ),
+                mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
             )
             output = self._make_report(target)
             self._write_report(output)
@@ -399,9 +395,7 @@ class InstanceBasedAttack(Attack):
                 match_fraction=0.0,
                 example_matches=[],
                 data_leakage_confirmed=False,
-                mitigations=self._build_mitigations(
-                    is_svm, is_knn, is_dp_safe
-                ),
+                mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
                 details={"error": "Feature dimension mismatch"},
             )
             output = self._make_report(target)
@@ -475,9 +469,9 @@ class InstanceBasedAttack(Attack):
         """
         metadata = output["metadata"]
         metrics = metadata["global_metrics"]
-        instance_data = output["attack_experiment_logger"][
-            "attack_instance_logger"
-        ]["instance_0"]
+        instance_data = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
 
         pdf = FPDF()
         pdf.add_page()
@@ -490,14 +484,11 @@ class InstanceBasedAttack(Attack):
         report.subtitle(pdf, "Experiment Summary")
         report.line(
             pdf,
-            f"{'sacroml_version':>30s}: "
-            f"{str(metadata['sacroml_version']):30s}",
+            f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
             font="courier",
         )
         for key, value in metadata["attack_params"].items():
-            report.line(
-                pdf, f"{key:>30s}: {str(value):30s}", font="courier"
-            )
+            report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
         report.subtitle(pdf, "Risk Summary")
         for key in (
@@ -512,9 +503,7 @@ class InstanceBasedAttack(Attack):
             "match_fraction",
         ):
             value = metrics.get(key, "N/A")
-            report.line(
-                pdf, f"{key:>30s}: {str(value):30s}", font="courier"
-            )
+            report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
         # Example matches
         example_matches = instance_data.get("example_matches", [])
