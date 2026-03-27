@@ -392,6 +392,13 @@ class Target:
 
     def _save_array(self, path: str, target: dict, attr_name: str) -> None:
         """Save numpy array as pickle."""
+        # When a dataset module is provided the data arrays are re-populated
+        # from it on every load(); serialising them would defeat the purpose
+        # of using a module and cause a re-save to write the full dataset to
+        # disk
+        if self.dataset_module_path and attr_name in ARRAYS:
+            target[f"{attr_name}_path"] = ""
+            return
         arr = getattr(self, attr_name)
         if arr is not None:
             arr_path = os.path.join(path, f"{attr_name}.pkl")

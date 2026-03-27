@@ -103,7 +103,7 @@ def test_sklearn() -> None:
     records = np.array(["a", "b", "c", "a", "c", "b"]).reshape(-1, 1)
     indices = np.array([0, 1, 2, 0, 2, 1])
 
-    le = LabelEncoder().fit_transform(records)
+    le = LabelEncoder().fit_transform(records.ravel())
     assert (target.model.get_label_indices(le) == indices).all()
 
     oh = OneHotEncoder().fit_transform(records)

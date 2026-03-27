@@ -5,6 +5,8 @@ import importlib
 import logging
 import os
 import pickle
+import warnings
+from typing import Any
 
 import numpy as np
 from scipy.stats import shapiro
@@ -163,8 +165,9 @@ def get_n_shadow_models(shadow_path: str) -> int:
 def get_p_normal(samples: np.ndarray) -> float:
     """Test whether a set of samples is normally distributed."""
     p_normal: float = np.nan
-    if np.nanvar(samples) > EPS:
-        with contextlib.suppress(ValueError):
+    if len(samples) >= 8 and np.nanvar(samples) > EPS:
+        with contextlib.suppress(ValueError), warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             _, p_normal = shapiro(samples)
     return p_normal
 

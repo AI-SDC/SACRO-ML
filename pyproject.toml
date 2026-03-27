@@ -169,6 +169,7 @@ docstring-code-line-length = 80
 "examples/**/*" = ["ANN"]
 "user_stories/**/*" = ["ANN"]
 "tests/**/*" = ["S101", "PLR2004", "ANN"]
+"tests/conftest.py" = ["ARG001"]
 "sacroml/attacks/structural_attack.py" = ["PLR2004"]
 "sacroml/safemodel/classifiers/new_model_template.py" = ["C901"]
 
@@ -197,4 +198,9 @@ ignore-words-list = [
     "worstcase",
     "WorstCase",
     "worst-case",
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:This process.*use of fork:DeprecationWarning:multiprocess",
 ]
