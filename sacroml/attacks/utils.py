@@ -39,24 +39,22 @@ def check_and_update_dataset(target: Target) -> Target:
     ):
         return target
 
-    y_train_new = []
     classes = list(target.model.get_classes())
-    for y in target.y_train:
-        y_train_new.append(classes.index(y))
-    target.y_train = np.array(y_train_new, int)
+    class_to_idx = {c: i for i, c in enumerate(classes)}
+
+    target.y_train = np.array([class_to_idx[y] for y in target.y_train], dtype=int)
     logger.info(
         "new y_train has values and counts: %s",
         np.unique(target.y_train, return_counts=True),
     )
-    ok_pos = []
-    y_test_new = []
-    for i, y in enumerate(target.y_test):
-        if y in classes:
-            ok_pos.append(i)
-            y_test_new.append(classes.index(y))
-    if len(y_test_new) != len(target.X_test):  # pragma: no cover
+
+    class_set = set(classes)
+    ok_pos = [i for i, y in enumerate(target.y_test) if y in class_set]
+    target.y_test = np.array(
+        [class_to_idx[target.y_test[i]] for i in ok_pos], dtype=int
+    )
+    if len(ok_pos) != len(target.X_test):  # pragma: no cover
         target.X_test = target.X_test[ok_pos, :]
-    target.y_test = np.array(y_test_new, int)
     logger.info(
         "new y_test has values and counts: %s",
         np.unique(target.y_test, return_counts=True),
@@ -192,6 +190,104 @@ def logit(p: float) -> float:
     p = min(p, 1 - EPS)
     p = max(p, EPS)
     return np.log(p / (1 - p))
+
+
+def extract_true_label_probs(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Extract the probability assigned to each row's true label.
+
+    Parameters
+    ----------
+    probas : np.ndarray
+        Predicted probabilities with one row per example.
+    labels : np.ndarray
+        Integer-encoded labels aligned with the probability columns.
+
+    Returns
+    -------
+    np.ndarray
+        The true-label probability for each row.
+    """
+    if probas.ndim != 2:
+        raise ValueError("Expected probas to be a 2D array.")
+
+    labels = np.asarray(labels, dtype=int)
+    if probas.shape[0] != labels.shape[0]:
+        raise ValueError("Expected probas and labels to have the same number of rows.")
+
+    if np.any(labels < 0) or np.any(labels >= probas.shape[1]):
+        raise ValueError("Labels must index valid probability columns.")
+
+    rows = np.arange(labels.shape[0])
+    return probas[rows, labels]
+
+
+def qmia_hinge_score(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Return the QMIA hinge score: logit(p_y) - max_{y' != y} logit(p_{y'}).
+
+    Called "hinge" because it compares the true-class logit against the
+    strongest competing class, not just logit(p_y) alone. This is the
+    paper's general multiclass formula (Bertran et al., NeurIPS 2023)
+    and works for any number of classes C >= 2.
+
+    Parameters
+    ----------
+    probas : np.ndarray
+        Predicted probabilities with shape ``(n_rows, C)`` where C >= 2.
+    labels : np.ndarray
+        Integer-encoded labels with values in ``{0, ..., C-1}``.
+
+    Returns
+    -------
+    np.ndarray
+        One QMIA hinge score per input row.
+    """
+    if probas.ndim != 2 or probas.shape[1] < 2:
+        raise ValueError("QMIA hinge score expects probability rows with >= 2 columns.")
+
+    labels = np.asarray(labels, dtype=int)
+    n_samples = probas.shape[0]
+
+    clipped = np.clip(probas, EPS, 1 - EPS)
+    all_logits = np.log(clipped / (1 - clipped))
+
+    rows = np.arange(n_samples)
+    true_logits = all_logits[rows, labels]
+
+    masked = all_logits.copy()
+    masked[rows, labels] = -np.inf
+    max_wrong_logits = masked.max(axis=1)
+
+    return true_logits - max_wrong_logits
+
+
+def membership_labels(n_train: int, n_test: int) -> np.ndarray:
+    """Return membership labels for concatenated train and test rows."""
+    return np.hstack((np.ones(n_train, dtype=int), np.zeros(n_test, dtype=int)))
+
+
+def margins_to_two_column_probs(margins: np.ndarray) -> np.ndarray:
+    """Convert member-vs-non-member margins into shape ``(n_rows, 2)``.
+
+    Parameters
+    ----------
+    margins : np.ndarray
+        Continuous QMIA margins, where positive values favour membership.
+
+    Returns
+    -------
+    np.ndarray
+        Two-column array ``[p_non_member, p_member]``.
+
+    Notes
+    -----
+    The sigmoid transform is only used to adapt QMIA margins to the existing
+    binary membership metrics API. These values are monotone score proxies, not
+    calibrated posterior membership probabilities.
+    """
+    margins = np.asarray(margins, dtype=float)
+    clipped = np.clip(margins, -60.0, 60.0)
+    member_prob = 1.0 / (1.0 + np.exp(-clipped))
+    return np.column_stack((1.0 - member_prob, member_prob))
 
 
 def get_class_by_name(class_path: str):
