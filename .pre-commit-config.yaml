@@ -4,6 +4,11 @@
 # Or to run every time you commit: pre-commit install
 # To update this file: pre-commit autoupdate
 
+ci:
+  autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+  autoupdate_schedule: monthly
+
 repos:
 
   # Standard hooks
@@ -21,7 +26,7 @@ repos:
 
   # Check for spelling
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
         exclude: >
@@ -32,7 +37,7 @@ repos:
 
   # Ruff, the Python auto-correcting linter/formatter written in Rust
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.7
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]

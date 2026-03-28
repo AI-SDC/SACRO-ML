@@ -122,10 +122,34 @@ STRUCTURAL_GLOSSARY = {
 }
 
 
+def _sanitise_floats(obj: Any) -> Any:
+    """Recursively replace non-finite floats with None.
+
+    Parameters
+    ----------
+    obj : Any
+        Object to sanitise.
+
+    Returns
+    -------
+    Any
+        Sanitised object with non-finite floats replaced by None.
+    """
+    if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
+        return None
+    if isinstance(obj, np.ndarray):
+        return _sanitise_floats(obj.tolist())
+    if isinstance(obj, dict):
+        return {k: _sanitise_floats(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitise_floats(v) for v in obj]
+    return obj
+
+
 def write_json(output: dict, dest: str) -> None:
     """Write attack report to JSON."""
     attack_formatter = GenerateJSONModule(dest + ".json")
-    attack_report: str = json.dumps(output, cls=CustomJSONEncoder)
+    attack_report: str = json.dumps(_sanitise_floats(output), cls=CustomJSONEncoder)
     attack_name: str = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 
@@ -214,6 +238,7 @@ def _roc_plot_single(metrics: dict, save_name: str) -> None:
     plt.xlabel("False Positive Rate")
     plt.tight_layout()
     plt.savefig(save_name)
+    plt.close()
 
 
 def _roc_plot(metrics: dict, save_name: str) -> None:
@@ -241,6 +266,7 @@ def _roc_plot(metrics: dict, save_name: str) -> None:
     plt.tight_layout()
     plt.grid()
     plt.savefig(save_name)
+    plt.close()
 
 
 def create_mia_report(attack_output: dict) -> FPDF:
