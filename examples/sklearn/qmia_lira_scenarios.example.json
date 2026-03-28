@@ -1,0 +1,16 @@
+[
+  {
+    "name": "small_easy",
+    "n_samples": 240,
+    "n_features": 8,
+    "class_sep": 1.25,
+    "random_state": 7
+  },
+  {
+    "name": "medium_harder",
+    "n_samples": 600,
+    "n_features": 16,
+    "class_sep": 0.9,
+    "random_state": 13
+  }
+]
