@@ -371,6 +371,7 @@ def plot_categorical_risk(res: dict, path: str = "") -> None:
     plt.tight_layout()
     filename = os.path.join(path, "cat_risk.png")
     fig.savefig(filename, pad_inches=0, bbox_inches="tight")
+    plt.close(fig)
     logger.debug("Saved categorical risk plot: %s", filename)
 
 
@@ -416,6 +417,7 @@ def plot_categorical_fraction(res: dict, path: str = "") -> None:
     plt.tight_layout()
     filename = os.path.join(path, "cat_frac.png")
     fig.savefig(filename, pad_inches=0, bbox_inches="tight")
+    plt.close(fig)
     logger.debug("Saved categorical fraction plot: %s", filename)
 
 
