@@ -522,3 +522,66 @@ def create_lr_report(output: dict) -> FPDF:
         if os.path.exists(file):
             os.remove(file)
     return pdf
+
+
+def create_qmia_report(output: dict) -> FPDF:
+    """Make a quantile regression membership inference report.
+
+    Parameters
+    ----------
+    output : dict
+        Dictionary with the following items:
+
+        metadata : dict
+            Dictionary of metadata.
+
+        attack_experiment_logger : dict
+            Dictionary containing ``attack_instance_logger`` with a single
+            metrics dictionary for the QMIA attack.
+
+    Returns
+    -------
+    pdf : fpdf.FPDF
+        fpdf document object.
+    """
+    mia_metrics = [
+        v
+        for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
+    ][0]
+    metadata = output["metadata"]
+
+    path: str = metadata["attack_params"]["output_dir"]
+    dest_log_roc = os.path.join(path, "log_roc.png")
+    _roc_plot_single(mia_metrics, dest_log_roc)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_xy(0, 0)
+    title(pdf, "Quantile Regression Attack Report")
+    subtitle(pdf, "Introduction")
+    subtitle(pdf, "Metadata")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+        font="courier",
+    )
+    for key, value in metadata["attack_params"].items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    for key, value in metadata["global_metrics"].items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    subtitle(pdf, "Metrics")
+    sub_metrics_dict = {
+        key: val for key, val in mia_metrics.items() if isinstance(val, float)
+    }
+    for key, value in sub_metrics_dict.items():
+        val = MAPPINGS[key](value) if key in MAPPINGS else value
+        line(pdf, f"{key:>30s}: {val:.4f}", font="courier")
+
+    pdf.add_page()
+    subtitle(pdf, "ROC Curve")
+    pdf.image(dest_log_roc, x=None, y=None, w=0, h=140, type="", link="")
+
+    # clean up
+    if os.path.exists(dest_log_roc):
+        os.remove(dest_log_roc)
+    return pdf
