@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pytest
 from sklearn.datasets import make_classification
@@ -16,8 +18,6 @@ from sacroml.attacks.utils import (
     membership_labels,
     qmia_hinge_score,
 )
-
-pytest.importorskip("catboost")
 
 
 @pytest.fixture(name="qmia_binary_target")
@@ -59,7 +59,7 @@ def fixture_qmia_binary_target() -> Target:
 
 @pytest.fixture(name="qmia_multiclass_target")
 def fixture_qmia_multiclass_target() -> Target:
-    """Return a multiclass target rejected by the binary-only QMIA v1 path."""
+    """Return a multiclass target for QMIA."""
     X, y = make_classification(
         n_samples=180,
         n_features=8,
@@ -155,16 +155,15 @@ def test_qmia_runs_on_binary_tabular_target(qmia_binary_target, tmp_path):
     attack_obj = QMIAAttack(
         output_dir=str(tmp_path / "qmia"),
         write_report=False,
-        catboost_params={"iterations": 20, "depth": 3},
     )
 
     output = attack_obj.attack(qmia_binary_target)
 
     assert output["metadata"]["attack_name"] == "QMIA Attack"
-    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-    assert 0 <= metrics["TPR"] <= 1
-    assert 0 <= metrics["FPR"] <= 1
-    assert 0 <= metrics["AUC"] <= 1
+    m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert 0 <= m["TPR"] <= 1
+    assert 0 <= m["FPR"] <= 1
+    assert 0 <= m["AUC"] <= 1
 
 
 def test_qmia_metadata_contains_alpha_and_mode(qmia_binary_target, tmp_path):
@@ -173,18 +172,14 @@ def test_qmia_metadata_contains_alpha_and_mode(qmia_binary_target, tmp_path):
         output_dir=str(tmp_path / "qmia"),
         write_report=False,
         alpha=0.1,
-        use_gaussian=True,
-        catboost_params={"iterations": 20, "depth": 3},
     )
 
     output = attack_obj.attack(qmia_binary_target)
     metadata = output["metadata"]
 
     assert metadata["attack_params"]["alpha"] == 0.1
-    assert metadata["attack_params"]["use_gaussian"]
-    assert metadata["global_metrics"]["regressor_mode"] == "gaussian_uncertainty"
-    assert metadata["global_metrics"]["qmia_score"] == "hinge_logit"
-    assert metadata["global_metrics"]["public_slice"] == "target.X_test"
+    assert "AUC_sig" in metadata["global_metrics"]
+    assert "TPR" in metadata["global_metrics"]
 
 
 def test_qmia_attack_instance_logger_shape(qmia_binary_target, tmp_path):
@@ -193,12 +188,11 @@ def test_qmia_attack_instance_logger_shape(qmia_binary_target, tmp_path):
         output_dir=str(tmp_path / "qmia"),
         write_report=False,
         report_individual=True,
-        catboost_params={"iterations": 20, "depth": 3},
     )
 
     output = attack_obj.attack(qmia_binary_target)
-    logger = output["attack_experiment_logger"]["attack_instance_logger"]
-    instance = logger["instance_0"]
+    instance_logger = output["attack_experiment_logger"]["attack_instance_logger"]
+    instance = instance_logger["instance_0"]
 
     assert "TPR" in instance
     assert "FPR" in instance
@@ -206,22 +200,6 @@ def test_qmia_attack_instance_logger_shape(qmia_binary_target, tmp_path):
     assert "member_prob" in instance["individual"]
     assert "threshold" in instance["individual"]
     assert "margin" in instance["individual"]
-
-
-def test_qmia_use_gaussian_false_runs(qmia_binary_target, tmp_path):
-    """QMIA should support the direct quantile fallback path."""
-    attack_obj = QMIAAttack(
-        output_dir=str(tmp_path / "qmia"),
-        write_report=False,
-        use_gaussian=False,
-        catboost_params={"iterations": 20, "depth": 3},
-    )
-
-    output = attack_obj.attack(qmia_binary_target)
-    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-
-    assert output["metadata"]["global_metrics"]["regressor_mode"] == "direct_quantile"
-    assert 0 <= metrics["AUC"] <= 1
 
 
 def test_qmia_invalid_alpha_raises(qmia_binary_target, tmp_path):
@@ -237,14 +215,13 @@ def test_qmia_multiclass_target_runs(qmia_multiclass_target, tmp_path):
     attack_obj = QMIAAttack(
         output_dir=str(tmp_path / "qmia"),
         write_report=False,
-        catboost_params={"iterations": 20, "depth": 3},
     )
 
     output = attack_obj.attack(qmia_multiclass_target)
 
     assert output
-    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-    assert 0 <= metrics["AUC"] <= 1
+    m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert 0 <= m["AUC"] <= 1
 
 
 def test_qmia_public_fpr_tracks_alpha(qmia_binary_target, tmp_path):
@@ -254,10 +231,73 @@ def test_qmia_public_fpr_tracks_alpha(qmia_binary_target, tmp_path):
         output_dir=str(tmp_path / "qmia"),
         write_report=False,
         alpha=alpha,
-        catboost_params={"iterations": 25, "depth": 3},
     )
 
     output = attack_obj.attack(qmia_binary_target)
-    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
-    assert abs(metrics["observed_public_fpr"] - alpha) < 0.2
+    assert abs(m["observed_public_fpr"] - alpha) < 0.2
+
+
+def test_qmia_get_params_includes_p_thresh():
+    """Get_params should return all constructor arguments including p_thresh."""
+    attack_obj = QMIAAttack(alpha=0.05, p_thresh=0.01, n_estimators=50)
+    params = attack_obj.get_params()
+    assert params["alpha"] == 0.05
+    assert params["p_thresh"] == 0.01
+    assert params["n_estimators"] == 50
+    assert "output_dir" in params
+    assert "write_report" in params
+
+
+def test_qmia_str():
+    """__str__ should return 'QMIA Attack'."""
+    assert str(QMIAAttack()) == "QMIA Attack"
+
+
+def test_qmia_construct_metadata_global_metrics(qmia_binary_target, tmp_path):
+    """_construct_metadata should populate AUC significance and key metrics."""
+    attack_obj = QMIAAttack(
+        output_dir=str(tmp_path / "qmia"),
+        write_report=False,
+        p_thresh=0.05,
+    )
+
+    output = attack_obj.attack(qmia_binary_target)
+    gm = output["metadata"]["global_metrics"]
+
+    assert "alpha" in gm
+    assert "p_thresh" in gm
+    assert gm["p_thresh"] == 0.05
+    assert "AUC_sig" in gm
+    assert "null_auc_3sd_range" in gm
+    assert "TPR" in gm
+    assert "FPR" in gm
+    assert "Advantage" in gm
+
+
+def test_qmia_make_pdf(qmia_binary_target, tmp_path):
+    """Write_report=True should produce report.json and report.pdf."""
+    out_dir = str(tmp_path / "qmia_pdf")
+    attack_obj = QMIAAttack(output_dir=out_dir, write_report=True)
+
+    output = attack_obj.attack(qmia_binary_target)
+
+    assert output
+    assert os.path.isfile(os.path.join(out_dir, "report.pdf"))
+    assert os.path.isfile(os.path.join(out_dir, "report.json"))
+
+
+def test_qmia_attack_signal_direction(qmia_binary_target, tmp_path):
+    """AUC should exceed 0.5, confirming the attack distinguishes members."""
+    attack_obj = QMIAAttack(
+        output_dir=str(tmp_path / "qmia"),
+        write_report=False,
+    )
+
+    output = attack_obj.attack(qmia_binary_target)
+    instance = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+
+    assert instance["AUC"] > 0.5
