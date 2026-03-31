@@ -75,38 +75,29 @@ For more information, see the [examples](examples/).
 
 ## QMIA: Quantile Regression Membership Inference Attack
 
-QMIA implements the attack from [Bertran et al. (NeurIPS 2023)](https://arxiv.org/abs/2307.03694). It trains a single CatBoost quantile regressor on non-member data to learn per-sample membership thresholds — no shadow models required.
+QMIA implements the attack from [Bertran et al. (NeurIPS 2023)](https://arxiv.org/abs/2307.03694). It trains a histogram-based quantile regressor (`HistGradientBoostingRegressor`) on non-member data to learn per-sample membership thresholds — no shadow models required.
 
 ```python
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
 
 target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-attack = QMIAAttack(alpha=0.01, use_gaussian=True, output_dir=”output_qmia”)
+attack = QMIAAttack(alpha=0.01, output_dir=”output_qmia”)
 attack.attack(target)
 ```
 
 Key features:
 
 * **Multiclass support** via the full hinge score: `logit(p_y) - max_{y'!=y} logit(p_{y'})`
-* **Two modes**: Gaussian uncertainty (`use_gaussian=True`) and direct quantile
 * **Q conditioned on (x, y)** — the regressor learns thresholds per sample and label
-* **FPR control** — observed FPR stays at 0.005-0.018 (vs 0.25-0.53 for LiRA)
+* **FPR control** — the quantile level (1 - alpha) calibrates the false-positive rate on non-members
 
 ### Benchmarking
 
 Run the full benchmark comparing QMIA against WorstCase and LiRA:
 
 ```bash
-.venv/bin/python examples/sklearn/benchmark_qmia_full.py
-```
-
-Or use the Makefile targets for quick benchmarks:
-
-```bash
-make qmia-bench          # default synthetic scenarios
-make qmia-bench-smoke    # fast smoke test
-make qmia-bench-sklearn  # sklearn dataset presets
+python examples/sklearn/benchmark_qmia_full.py
 ```
 
 ## Documentation
