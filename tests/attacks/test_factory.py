@@ -12,8 +12,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from sacroml.attacks.factory import create_attack, run_attacks
-from sacroml.attacks.target import Target
 from sacroml.attacks.qmia_attack import QMIAAttack
+from sacroml.attacks.target import Target
 from sacroml.config.attack import _get_attack
 
 
@@ -90,8 +90,6 @@ def test_factory(monkeypatch, get_target):
 
 def test_factory_qmia(monkeypatch, tmp_path):
     """Test attack factory wiring for QMIA."""
-    pytest.importorskip("catboost")
-
     attack_obj = create_attack("qmia")
     assert isinstance(attack_obj, QMIAAttack)
 
@@ -105,7 +103,6 @@ def test_factory_qmia(monkeypatch, tmp_path):
     monkeypatch.setattr("builtins.input", lambda _: mock_input)
     attacks = [_get_attack("qmia")]
     attacks[0]["params"]["output_dir"] = str(output_dir)
-    attacks[0]["params"]["catboost_params"] = {"iterations": 20, "depth": 3}
 
     with open(attack_filename, "w", encoding="utf-8") as fp:
         yaml.dump({"attacks": attacks}, fp)

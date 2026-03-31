@@ -155,6 +155,3 @@ dmypy.json
 target_*/
 output_*/
 data/
-
-# CatBoost training artifacts
-catboost_info/
