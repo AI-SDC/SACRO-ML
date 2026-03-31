@@ -3,9 +3,14 @@
 Scalable Membership Inference Attacks via Quantile Regression.
 Bertran et al., NeurIPS 2023. https://arxiv.org/abs/2307.03694
 
-Trains a quantile regressor on non-member hinge scores to learn per-sample
-membership thresholds.  A sample is predicted as a member when its observed
-score exceeds the predicted threshold.
+Trains a histogram-based quantile regressor on non-member hinge scores to
+learn per-sample membership thresholds.  A sample is predicted as a member
+when its observed score exceeds the predicted threshold.
+
+Uses ``HistGradientBoostingRegressor`` rather than ``GradientBoostingRegressor``
+for its histogram-based splitting algorithm, which is up to 70x faster on
+large datasets with equivalent attack quality (see
+``examples/sklearn/benchmark_qmia_regressor.py``).
 """
 
 from __future__ import annotations
@@ -14,7 +19,7 @@ import logging
 
 import numpy as np
 from fpdf import FPDF
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
 
 from sacroml import metrics
 from sacroml.attacks import report, utils
@@ -40,7 +45,7 @@ class QMIAAttack(Attack):
         write_report: bool = True,
         alpha: float = 0.01,
         p_thresh: float = 0.05,
-        n_estimators: int = 100,
+        max_iter: int = 100,
         random_state: int = 0,
         report_individual: bool = False,
     ) -> None:
@@ -56,8 +61,8 @@ class QMIAAttack(Attack):
             Target false-positive rate for the public non-member distribution.
         p_thresh : float
             P-value threshold for AUC significance reporting.
-        n_estimators : int
-            Number of boosting stages for the quantile regressor.
+        max_iter : int
+            Maximum number of boosting iterations for the quantile regressor.
         random_state : int
             Random seed for the QMIA regressor.
         report_individual : bool
@@ -66,11 +71,10 @@ class QMIAAttack(Attack):
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.alpha: float = alpha
         self.p_thresh: float = p_thresh
-        self.n_estimators: int = n_estimators
+        self.max_iter: int = max_iter
         self.random_state: int = random_state
         self.report_individual: bool = report_individual
-        self.quantile_model: GradientBoostingRegressor | None = None
-        self.result: dict = {}
+        self.quantile_model: HistGradientBoostingRegressor | None = None
 
     def __str__(self) -> str:
         """Return the name of the attack."""
@@ -90,8 +94,14 @@ class QMIAAttack(Attack):
         bool
             True if the target has a model and data.
         """
-        if not (target.has_model() and target.has_data()):
-            logger.warning("QMIA requires a model and train/test data.")
+        if not (
+            target.has_model()
+            and target.has_data()
+            and hasattr(target.model, "predict_proba")
+        ):
+            logger.warning(
+                "QMIA requires a model with predict_proba and train/test data."
+            )
             return False
         return True
 
@@ -108,12 +118,13 @@ class QMIAAttack(Attack):
         train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
         test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
 
-        # Train quantile regressor at level (1 - alpha) on non-member scores
+        # Train quantile regressor on non-member scores; quantile = 1 - alpha
+        # so that alpha% of non-members exceed their own threshold (target FPR).
         x_test_with_y = np.column_stack((target.X_test, target.y_test))
-        self.quantile_model = GradientBoostingRegressor(
+        self.quantile_model = HistGradientBoostingRegressor(
             loss="quantile",
-            alpha=1.0 - self.alpha,
-            n_estimators=self.n_estimators,
+            quantile=1.0 - self.alpha,
+            max_iter=self.max_iter,
             random_state=self.random_state,
         )
         self.quantile_model.fit(x_test_with_y, test_scores)
@@ -133,14 +144,14 @@ class QMIAAttack(Attack):
 
         if self.report_individual:
             margins = combined_scores - thresholds
-            self.result = {
+            individual = {
                 "score": combined_scores.tolist(),
                 "threshold": thresholds.tolist(),
                 "margin": margins.tolist(),
                 "member_prob": y_pred_proba[:, 1].tolist(),
                 "member": y_membership.tolist(),
             }
-            self.attack_metrics[0]["individual"] = self.result
+            self.attack_metrics[0]["individual"] = individual
 
         output = self._make_report(target)
         self._write_report(output)
