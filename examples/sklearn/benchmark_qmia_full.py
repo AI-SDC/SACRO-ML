@@ -1,10 +1,14 @@
 """Full QMIA benchmark with formatted tables.
 
-Compares QMIA (Gaussian + Direct) against WorstCase and LiRA across
-binary, multiclass, real, and synthetic datasets at multiple scales.
+Compares QMIA against WorstCase and LiRA across binary, multiclass, real,
+and synthetic datasets at multiple scales.
 
 Usage:
     .venv/bin/python examples/sklearn/benchmark_qmia_full.py
+
+Note:
+    This script is superseded by ``benchmark_qmia_regressor.py`` which
+    includes TPR@FPR comparisons. Kept for backwards compatibility.
 """
 
 from __future__ import annotations
@@ -27,8 +31,6 @@ from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 logging.disable(logging.CRITICAL)
 warnings.filterwarnings("ignore")
-
-CB_PARAMS = {"iterations": 50, "depth": 4}
 
 
 def _make_target(x, y, name):
@@ -67,13 +69,13 @@ def _run(cls, tgt, **kw):
 
 def _v(val):
     if val is None or (isinstance(val, float) and np.isnan(val)):
-        return "—"
+        return "-"
     return f"{val:.3f}"
 
 
 def _vt(val):
     if val is None:
-        return "—"
+        return "-"
     return f"{val:.2f}s"
 
 
@@ -111,14 +113,7 @@ def _run_all():
         n = feat.shape[0]
 
         cfgs = [
-            ("QMIA-G", QMIAAttack, {
-                "use_gaussian": True,
-                "catboost_params": CB_PARAMS,
-            }),
-            ("QMIA-D", QMIAAttack, {
-                "use_gaussian": False,
-                "catboost_params": CB_PARAMS,
-            }),
+            ("QMIA", QMIAAttack, {}),
             ("WorstCase", WorstCaseAttack, {"n_reps": 3}),
         ]
         if nc == 2:
@@ -161,16 +156,12 @@ def _print_tables(results):
     real = [s for s in sns if not s.startswith("n=")]
     binary = [s for s in sns if s.startswith("n=") and "C=" not in s]
     multi = [s for s in sns if "C=" in s]
-    attacks = [
-        "QMIA-G", "QMIA-D", "WorstCase",
-        "LiRA-10", "LiRA-50", "LiRA-100",
-    ]
+    attacks = ["QMIA", "WorstCase", "LiRA-10", "LiRA-50", "LiRA-100"]
 
     # AUC
     print("\n### AUC Comparison\n")
     h = (
-        f"{'Dataset':<28} {'Gaussian':>9} {'Direct':>9}"
-        f" {'WorstCase':>10}"
+        f"{'Dataset':<28} {'QMIA':>9} {'WorstCase':>10}"
         f" {'LiRA-10':>9} {'LiRA-50':>9} {'LiRA-100':>9}"
     )
     print(h)
@@ -187,9 +178,8 @@ def _print_tables(results):
             vals = [_v(_g(results, s, a, "auc")) for a in attacks]
             print(
                 f"  {s:<26}"
-                f" {vals[0]:>9} {vals[1]:>9}"
-                f" {vals[2]:>10}"
-                f" {vals[3]:>9} {vals[4]:>9} {vals[5]:>9}"
+                f" {vals[0]:>9} {vals[1]:>10}"
+                f" {vals[2]:>9} {vals[3]:>9} {vals[4]:>9}"
             )
         print()
 
@@ -197,7 +187,7 @@ def _print_tables(results):
     print("\n### FPR Control (lower = better)\n")
     h = (
         f"{'Dataset':<28}"
-        f" {'QMIA-G':>8} {'QMIA-D':>8} {'Worst':>8}"
+        f" {'QMIA':>8} {'Worst':>8}"
         f" {'LiRA-10':>8} {'LiRA-50':>8} {'LiRA-100':>8}"
     )
     print(h)
@@ -206,15 +196,15 @@ def _print_tables(results):
         vals = [_v(_g(results, s, a, "fpr")) for a in attacks]
         print(
             f"  {s:<26}"
-            f" {vals[0]:>8} {vals[1]:>8} {vals[2]:>8}"
-            f" {vals[3]:>8} {vals[4]:>8} {vals[5]:>8}"
+            f" {vals[0]:>8} {vals[1]:>8}"
+            f" {vals[2]:>8} {vals[3]:>8} {vals[4]:>8}"
         )
 
     # Speed
     print("\n\n### Speed (seconds)\n")
     h = (
         f"{'Dataset':<28}"
-        f" {'Gaussian':>9} {'Direct':>9} {'WorstCase':>10}"
+        f" {'QMIA':>9} {'WorstCase':>10}"
         f" {'LiRA-10':>9} {'LiRA-50':>9} {'LiRA-100':>9}"
     )
     print(h)
@@ -223,39 +213,8 @@ def _print_tables(results):
         vals = [_vt(_g(results, s, a, "time")) for a in attacks]
         print(
             f"  {s:<26}"
-            f" {vals[0]:>9} {vals[1]:>9}"
-            f" {vals[2]:>10}"
-            f" {vals[3]:>9} {vals[4]:>9} {vals[5]:>9}"
-        )
-
-    # Gaussian vs Direct
-    print("\n\n### Gaussian vs Direct Mode\n")
-    h = (
-        f"{'Dataset':<28}"
-        f" {'G-AUC':>7} {'G-FPR':>7} {'G-Time':>7}"
-        f" {'D-AUC':>7} {'D-FPR':>7} {'D-Time':>7}"
-        f" {'Winner':<10}"
-    )
-    print(h)
-    print("\u2500" * len(h))
-    for s in sns:
-        ga = _g(results, s, "QMIA-G", "auc")
-        da = _g(results, s, "QMIA-D", "auc")
-        if ga is None or da is None:
-            continue
-        gf = _g(results, s, "QMIA-G", "fpr")
-        gt = _g(results, s, "QMIA-G", "time")
-        df = _g(results, s, "QMIA-D", "fpr")
-        dt = _g(results, s, "QMIA-D", "time")
-        winner = (
-            "Gaussian" if ga > da + 0.005
-            else ("Direct" if da > ga + 0.005 else "Tie")
-        )
-        print(
-            f"  {s:<26}"
-            f" {_v(ga):>7} {_v(gf):>7} {gt:>6.2f}s"
-            f" {_v(da):>7} {_v(df):>7} {dt:>6.2f}s"
-            f" {winner:<10}"
+            f" {vals[0]:>9} {vals[1]:>10}"
+            f" {vals[2]:>9} {vals[3]:>9} {vals[4]:>9}"
         )
 
     n_scenarios = len(sns)

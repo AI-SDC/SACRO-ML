@@ -1,8 +1,7 @@
 """Reproducible QMIA-vs-LiRA benchmark runner.
 
 This script benchmarks:
-- QMIA (Gaussian uncertainty mode)
-- QMIA (direct quantile mode)
+- QMIA (HistGradientBoostingRegressor quantile regression)
 - LiRA with one or more shadow-model counts
 
 It uses synthetic binary tabular datasets by default, and can also benchmark
@@ -135,7 +134,7 @@ def _load_sklearn_dataset(name: str) -> tuple[Any, Any, str]:
         return X, y, "breast_cancer"
     if name == "wine_binary":
         X, y = load_wine(return_X_y=True, as_frame=False)
-        # QMIA v1 is binary-only, so we stage wine as one-vs-rest.
+        # Stage wine as one-vs-rest for binary comparison.
         y_binary = (y == 0).astype(int)
         return X, y_binary, "wine_binary_class0_vs_rest"
     raise ValueError(
@@ -209,12 +208,7 @@ def _write_outputs(
             "rf_estimators": args.rf_estimators,
             "test_size": args.test_size,
             "qmia_alpha": args.qmia_alpha,
-            "qmia_iterations": args.qmia_iterations,
-            "qmia_depth": args.qmia_depth,
-            "qmia_learning_rate": args.qmia_learning_rate,
-            "qmia_l2_leaf_reg": args.qmia_l2_leaf_reg,
-            "qmia_subsample": args.qmia_subsample,
-            "qmia_catboost_params_json": args.qmia_catboost_params_json,
+            "qmia_max_iter": args.qmia_max_iter,
             "lira_shadow_models": args.lira_shadow_models,
         },
         "scenarios": [asdict(scenario) for scenario in scenarios],
@@ -330,25 +324,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--rf-estimators", type=int, default=50)
     parser.add_argument("--test-size", type=float, default=0.4)
     parser.add_argument("--qmia-alpha", type=float, default=0.01)
-    parser.add_argument("--qmia-iterations", type=int, default=20)
-    parser.add_argument("--qmia-depth", type=int, default=3)
-    parser.add_argument("--qmia-learning-rate", type=float, default=0.05)
-    parser.add_argument("--qmia-l2-leaf-reg", type=float, default=3.0)
-    parser.add_argument(
-        "--qmia-subsample",
-        type=float,
-        default=0.8,
-        help="CatBoost subsample used for stronger tuning sweeps.",
-    )
-    parser.add_argument(
-        "--qmia-catboost-params-json",
-        type=str,
-        default=None,
-        help=(
-            "Optional JSON object merged into CatBoost params for QMIA runs. "
-            "Example: '{\"min_data_in_leaf\":20,\"bagging_temperature\":1.0}'"
-        ),
-    )
+    parser.add_argument("--qmia-max-iter", type=int, default=100)
     parser.add_argument(
         "--out-json",
         type=str,
@@ -369,16 +345,6 @@ def main() -> None:
     out_json = Path(args.out_json)
     out_csv = Path(args.out_csv) if args.out_csv else None
     scenarios: list[Scenario] = _load_scenarios(args) if args.dataset_source == "synthetic" else []
-
-    qmia_params = {
-        "iterations": args.qmia_iterations,
-        "depth": args.qmia_depth,
-        "learning_rate": args.qmia_learning_rate,
-        "l2_leaf_reg": args.qmia_l2_leaf_reg,
-        "subsample": args.qmia_subsample,
-    }
-    if args.qmia_catboost_params_json is not None:
-        qmia_params.update(json.loads(args.qmia_catboost_params_json))
 
     rows: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="qmia_lira_bench_") as tmpdir:
@@ -408,28 +374,12 @@ def main() -> None:
             rows.append(
                 _benchmark_attack(
                     case_name,
-                    "qmia_gaussian",
+                    "qmia",
                     QMIAAttack(
-                        output_dir=str(temp_base / f"{case_name}_qmia_gaussian"),
+                        output_dir=str(temp_base / f"{case_name}_qmia"),
                         write_report=False,
                         alpha=args.qmia_alpha,
-                        use_gaussian=True,
-                        catboost_params=qmia_params,
-                        random_state=case_random_state,
-                    ),
-                    target,
-                )
-            )
-            rows.append(
-                _benchmark_attack(
-                    case_name,
-                    "qmia_quantile",
-                    QMIAAttack(
-                        output_dir=str(temp_base / f"{case_name}_qmia_quantile"),
-                        write_report=False,
-                        alpha=args.qmia_alpha,
-                        use_gaussian=False,
-                        catboost_params=qmia_params,
+                        max_iter=args.qmia_max_iter,
                         random_state=case_random_state,
                     ),
                     target,

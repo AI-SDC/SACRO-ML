@@ -241,11 +241,11 @@ def test_qmia_public_fpr_tracks_alpha(qmia_binary_target, tmp_path):
 
 def test_qmia_get_params_includes_p_thresh():
     """Get_params should return all constructor arguments including p_thresh."""
-    attack_obj = QMIAAttack(alpha=0.05, p_thresh=0.01, n_estimators=50)
+    attack_obj = QMIAAttack(alpha=0.05, p_thresh=0.01, max_iter=50)
     params = attack_obj.get_params()
     assert params["alpha"] == 0.05
     assert params["p_thresh"] == 0.01
-    assert params["n_estimators"] == 50
+    assert params["max_iter"] == 50
     assert "output_dir" in params
     assert "write_report" in params
 
@@ -286,6 +286,17 @@ def test_qmia_make_pdf(qmia_binary_target, tmp_path):
     assert output
     assert os.path.isfile(os.path.join(out_dir, "report.pdf"))
     assert os.path.isfile(os.path.join(out_dir, "report.json"))
+
+
+def test_qmia_attackable_rejects_model_without_predict_proba():
+    """attackable() should reject a target whose model lacks predict_proba."""
+    from unittest.mock import MagicMock
+
+    target = MagicMock(spec=Target)
+    target.has_model.return_value = True
+    target.has_data.return_value = True
+    target.model = MagicMock(spec=[])  # no predict_proba
+    assert not QMIAAttack.attackable(target)
 
 
 def test_qmia_attack_signal_direction(qmia_binary_target, tmp_path):

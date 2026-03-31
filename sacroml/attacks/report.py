@@ -81,6 +81,16 @@ MIA_GLOSSARY = {
     "ACC": "The proportion of predictions that the attacker makes that are correct.",
 }
 
+QMIA_INTRODUCTION = (
+    "This report summarises a Quantile Membership Inference Attack (QMIA) "
+    "based on Bertran et al., NeurIPS 2023 (arXiv:2307.03694). A quantile "
+    "regressor is trained on the non-member (test) set to learn a per-sample "
+    "threshold for the hinge confidence score. A sample is predicted as a "
+    "training-set member when its observed score exceeds the predicted "
+    "threshold. The attack is calibrated so that the false-positive rate on "
+    "non-members approximates the target alpha."
+)
+
 STRUCTURAL_INTRODUCTION = (
     "This report provides a summary of a series of 'static' structural "
     "attacks. These attacks do not require training a separate attack model, "
@@ -559,6 +569,7 @@ def create_qmia_report(output: dict) -> FPDF:
     pdf.set_xy(0, 0)
     title(pdf, "Quantile Regression Attack Report")
     subtitle(pdf, "Introduction")
+    line(pdf, QMIA_INTRODUCTION)
     subtitle(pdf, "Metadata")
     line(
         pdf,
