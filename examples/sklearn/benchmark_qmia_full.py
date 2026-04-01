@@ -40,10 +40,16 @@ def _make_target(x, y, name):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(x_tr, y_tr)
     target = Target(
-        model=model, dataset_name=name,
-        X_train=x_tr, y_train=y_tr, X_test=x_te, y_test=y_te,
-        X_train_orig=x_tr, y_train_orig=y_tr,
-        X_test_orig=x_te, y_test_orig=y_te,
+        model=model,
+        dataset_name=name,
+        X_train=x_tr,
+        y_train=y_tr,
+        X_test=x_te,
+        y_test=y_te,
+        X_train_orig=x_tr,
+        y_train_orig=y_tr,
+        X_test_orig=x_te,
+        y_test_orig=y_te,
     )
     for i in range(x.shape[1]):
         target.add_feature(f"V{i}", [i], "float")
@@ -59,9 +65,7 @@ def _run(cls, tgt, **kw):
         elapsed = time.perf_counter() - t0
         if not out:
             return None, elapsed
-        m = out["attack_experiment_logger"][
-            "attack_instance_logger"
-        ]["instance_0"]
+        m = out["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
         return m, elapsed
     finally:
         shutil.rmtree(d, ignore_errors=True)
@@ -83,22 +87,29 @@ def _build_scenarios():
     bc_x, bc_y = load_breast_cancer(return_X_y=True)
     scenarios = [("Breast Cancer (569)", bc_x, bc_y)]
     for n, d, c, sep in [
-        (500, 10, 2, 1.5), (1000, 20, 2, 1.0),
-        (2000, 30, 2, 0.8), (5000, 50, 2, 0.7),
-        (10000, 50, 2, 0.5), (20000, 50, 2, 0.4),
-        (500, 10, 3, 1.5), (1000, 20, 5, 1.0),
-        (2000, 30, 5, 0.8), (5000, 50, 5, 0.6),
+        (500, 10, 2, 1.5),
+        (1000, 20, 2, 1.0),
+        (2000, 30, 2, 0.8),
+        (5000, 50, 2, 0.7),
+        (10000, 50, 2, 0.5),
+        (20000, 50, 2, 0.4),
+        (500, 10, 3, 1.5),
+        (1000, 20, 5, 1.0),
+        (2000, 30, 5, 0.8),
+        (5000, 50, 5, 0.6),
         (10000, 50, 10, 0.5),
     ]:
         feat, lab = make_classification(
-            n_samples=n, n_features=d, n_informative=d // 2,
-            n_redundant=0, n_classes=c, n_clusters_per_class=1,
-            class_sep=sep, random_state=42,
+            n_samples=n,
+            n_features=d,
+            n_informative=d // 2,
+            n_redundant=0,
+            n_classes=c,
+            n_clusters_per_class=1,
+            class_sep=sep,
+            random_state=42,
         )
-        tag = (
-            f"n={n}, d={d}, C={c}" if c > 2
-            else f"n={n}, d={d}, sep={sep}"
-        )
+        tag = f"n={n}, d={d}, C={c}" if c > 2 else f"n={n}, d={d}, sep={sep}"
         scenarios.append((tag, feat, lab))
     return scenarios
 
@@ -119,10 +130,13 @@ def _run_all():
         if nc == 2:
             for ns in [10, 50, 100]:
                 if n <= max(5000, ns * 100):
-                    cfgs.append((
-                        f"LiRA-{ns}", LIRAAttack,
-                        {"n_shadow_models": ns},
-                    ))
+                    cfgs.append(
+                        (
+                            f"LiRA-{ns}",
+                            LIRAAttack,
+                            {"n_shadow_models": ns},
+                        )
+                    )
 
         for aname, acls, akw in cfgs:
             m, t = _run(acls, tgt, **akw)
@@ -137,9 +151,7 @@ def _run_all():
                     ),
                     "tpr1": m.get("TPR@0.01", float("nan")),
                     "tpr01": m.get("TPR@0.001", float("nan")),
-                    "pfpr": m.get(
-                        "observed_public_fpr", float("nan")
-                    ),
+                    "pfpr": m.get("observed_public_fpr", float("nan")),
                     "time": round(t, 2),
                 }
 

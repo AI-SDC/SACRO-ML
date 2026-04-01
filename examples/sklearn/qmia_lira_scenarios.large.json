@@ -1,16 +1,16 @@
 [
-  {
-    "name": "large_balanced",
-    "n_samples": 3000,
-    "n_features": 32,
-    "class_sep": 1.0,
-    "random_state": 21
-  },
-  {
-    "name": "xlarge_harder",
-    "n_samples": 8000,
-    "n_features": 64,
-    "class_sep": 0.8,
-    "random_state": 29
-  }
+    {
+        "name": "large_balanced",
+        "n_samples": 3000,
+        "n_features": 32,
+        "class_sep": 1.0,
+        "random_state": 21
+    },
+    {
+        "name": "xlarge_harder",
+        "n_samples": 8000,
+        "n_features": 64,
+        "class_sep": 0.8,
+        "random_state": 29
+    }
 ]
