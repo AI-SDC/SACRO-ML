@@ -176,53 +176,33 @@ def _g(results, sn, an, field):
     return r[field] if r else None
 
 
+def _print_section(results, sns, attacks, title, field, fmt_fn=_v):
+    """Print a single comparison table section."""
+    print(f"\n\n### {title}\n")
+    h = f"{'Dataset':<35} {'QMIA':>8} {'Worst':>8} {'LiRA-10':>8} {'LiRA-50':>8}"
+    print(h)
+    print("-" * len(h))
+    for s in sns:
+        vals = [fmt_fn(_g(results, s, a, field)) for a in attacks]
+        print(f"  {s:<33} {vals[0]:>8} {vals[1]:>8} {vals[2]:>8} {vals[3]:>8}")
+
+
 def _print_tables(results):
     """Print formatted comparison tables."""
     sns = list(dict.fromkeys(k[0] for k in results))
     attacks = ["QMIA", "WorstCase", "LiRA-10", "LiRA-50"]
 
-    # AUC Comparison
-    print("\n### AUC Comparison\n")
-    h = f"{'Dataset':<35} {'QMIA':>8} {'Worst':>8} {'LiRA-10':>8} {'LiRA-50':>8}"
-    print(h)
-    print("-" * len(h))
-    for s in sns:
-        vals = [_v(_g(results, s, a, "auc")) for a in attacks]
-        print(f"  {s:<33} {vals[0]:>8} {vals[1]:>8} {vals[2]:>8} {vals[3]:>8}")
-
-    # TPR at fixed FPR levels (fair comparison across attacks)
+    _print_section(results, sns, attacks, "AUC Comparison", "auc")
     for fpr_key, label in [
-        ("tpr@0.1", "TPR @ FPR=0.1"),
-        ("tpr@0.01", "TPR @ FPR=0.01"),
-        ("tpr@0.001", "TPR @ FPR=0.001"),
+        ("tpr@0.1", "TPR @ FPR=0.1 (higher = better)"),
+        ("tpr@0.01", "TPR @ FPR=0.01 (higher = better)"),
+        ("tpr@0.001", "TPR @ FPR=0.001 (higher = better)"),
     ]:
-        print(f"\n\n### {label} (higher = better)\n")
-        h = f"{'Dataset':<35} {'QMIA':>8} {'Worst':>8} {'LiRA-10':>8} {'LiRA-50':>8}"
-        print(h)
-        print("-" * len(h))
-        for s in sns:
-            vals = [_v(_g(results, s, a, fpr_key)) for a in attacks]
-            print(
-                f"  {s:<33} {vals[0]:>8} {vals[1]:>8} {vals[2]:>8} {vals[3]:>8}"
-            )
-
-    # FPR Control
-    print("\n\n### FPR at default threshold (lower = better)\n")
-    h = f"{'Dataset':<35} {'QMIA':>8} {'Worst':>8} {'LiRA-10':>8} {'LiRA-50':>8}"
-    print(h)
-    print("-" * len(h))
-    for s in sns:
-        vals = [_v(_g(results, s, a, "fpr")) for a in attacks]
-        print(f"  {s:<33} {vals[0]:>8} {vals[1]:>8} {vals[2]:>8} {vals[3]:>8}")
-
-    # Speed
-    print("\n\n### Speed (seconds)\n")
-    h = f"{'Dataset':<35} {'QMIA':>8} {'Worst':>8} {'LiRA-10':>8} {'LiRA-50':>8}"
-    print(h)
-    print("-" * len(h))
-    for s in sns:
-        vals = [_vt(_g(results, s, a, "time")) for a in attacks]
-        print(f"  {s:<33} {vals[0]:>8} {vals[1]:>8} {vals[2]:>8} {vals[3]:>8}")
+        _print_section(results, sns, attacks, label, fpr_key)
+    _print_section(
+        results, sns, attacks, "FPR at default threshold (lower = better)", "fpr"
+    )
+    _print_section(results, sns, attacks, "Speed (seconds)", "time", fmt_fn=_vt)
 
     # Full detail
     print("\n\n### Full Results\n")

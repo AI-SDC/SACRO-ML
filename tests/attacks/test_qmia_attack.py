@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -289,9 +290,7 @@ def test_qmia_make_pdf(qmia_binary_target, tmp_path):
 
 
 def test_qmia_attackable_rejects_model_without_predict_proba():
-    """attackable() should reject a target whose model lacks predict_proba."""
-    from unittest.mock import MagicMock
-
+    """Attackable() should reject a target whose model lacks predict_proba."""
     target = MagicMock(spec=Target)
     target.has_model.return_value = True
     target.has_data.return_value = True

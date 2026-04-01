@@ -81,7 +81,9 @@ def _build_target_from_arrays(
         random_state=random_state,
     )
 
-    model = RandomForestClassifier(n_estimators=rf_estimators, random_state=random_state)
+    model = RandomForestClassifier(
+        n_estimators=rf_estimators, random_state=random_state
+    )
     model.fit(X_train, y_train)
 
     target = Target(
@@ -138,8 +140,7 @@ def _load_sklearn_dataset(name: str) -> tuple[Any, Any, str]:
         y_binary = (y == 0).astype(int)
         return X, y_binary, "wine_binary_class0_vs_rest"
     raise ValueError(
-        "Unsupported sklearn dataset preset. Use one of: "
-        "breast_cancer,wine_binary"
+        "Unsupported sklearn dataset preset. Use one of: breast_cancer,wine_binary"
     )
 
 
@@ -218,7 +219,7 @@ def _write_outputs(
 
     if out_csv is not None:
         out_csv.parent.mkdir(parents=True, exist_ok=True)
-        fieldnames: list[str] = sorted({key for row in results for key in row.keys()})
+        fieldnames: list[str] = sorted({key for row in results for key in row})
         with out_csv.open("w", encoding="utf-8", newline="") as fp:
             writer = csv.DictWriter(fp, fieldnames=fieldnames)
             writer.writeheader()
@@ -268,11 +269,19 @@ def _print_summary(rows: list[dict[str, Any]]) -> None:
     _print_table("### AUC Comparison", rows, scenarios, attacks, "AUC", _v)
     _print_table(
         "\n### FPR Control (lower = better)",
-        rows, scenarios, attacks, "FPR", _v,
+        rows,
+        scenarios,
+        attacks,
+        "FPR",
+        _v,
     )
     _print_table(
         "\n### Speed (seconds)",
-        rows, scenarios, attacks, "seconds", _vt,
+        rows,
+        scenarios,
+        attacks,
+        "seconds",
+        _vt,
     )
     print(f"\nTotal: {len(rows)} runs across {len(scenarios)} scenarios")
 
@@ -344,7 +353,9 @@ def main() -> None:
     args = parse_args()
     out_json = Path(args.out_json)
     out_csv = Path(args.out_csv) if args.out_csv else None
-    scenarios: list[Scenario] = _load_scenarios(args) if args.dataset_source == "synthetic" else []
+    scenarios: list[Scenario] = (
+        _load_scenarios(args) if args.dataset_source == "synthetic" else []
+    )
 
     rows: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="qmia_lira_bench_") as tmpdir:
@@ -367,10 +378,11 @@ def main() -> None:
                     rf_estimators=args.rf_estimators,
                     test_size=args.test_size,
                 )
-                benchmark_cases.append((resolved_name, target, args.dataset_random_state))
+                benchmark_cases.append(
+                    (resolved_name, target, args.dataset_random_state)
+                )
 
         for case_name, target, case_random_state in benchmark_cases:
-
             rows.append(
                 _benchmark_attack(
                     case_name,
