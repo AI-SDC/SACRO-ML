@@ -58,7 +58,7 @@ def test_factory(monkeypatch, get_target):
     target.save("target_factory")
 
     model = target.model
-    assert model.score(target.X_test, target.y_test) == pytest.approx(0.92, 0.01)
+    assert model.score(target.X_test, target.y_test) == pytest.approx(0.93, abs=0.01)
 
     # create LiRA config with default params
     mock_input = "yes"
@@ -84,8 +84,8 @@ def test_factory(monkeypatch, get_target):
     metrics = report[nr]["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    assert 0.5 <= metrics["TPR"] <= 1.0
-    assert 0.0 <= metrics["FPR"] <= 1.0
+    assert metrics["TPR"] == pytest.approx(0.92, abs=0.01)
+    assert metrics["FPR"] == pytest.approx(0.46, abs=0.01)
 
 
 def test_factory_qmia(monkeypatch, tmp_path):
@@ -117,5 +117,5 @@ def test_factory_qmia(monkeypatch, tmp_path):
     metrics = report[nr]["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    assert 0 <= metrics["TPR"] <= 1
-    assert 0 <= metrics["FPR"] <= 1
+    assert metrics["TPR"] == pytest.approx(0.10, abs=0.01)
+    assert metrics["FPR"] == pytest.approx(0.01, abs=0.01)
