@@ -21,7 +21,9 @@ def _load_rows(path: Path) -> list[dict[str, Any]]:
         )
     payload = json.loads(path.read_text(encoding="utf-8"))
     if "results" not in payload:
-        raise ValueError("Expected a benchmark JSON payload with a top-level 'results'.")
+        raise ValueError(
+            "Expected a benchmark JSON payload with a top-level 'results'."
+        )
     return payload["results"]
 
 
@@ -67,12 +69,17 @@ def _format_row(row: dict[str, Any]) -> str:
 
 def _print_table(rows: list[dict[str, Any]]) -> None:
     headers = ("attack", "secs", "AUC", "Adv", "TPR", "FPR", "AUC/sec")
-    attack_width = max(len(headers[0]), *(len(str(r.get("attack", "unknown"))) for r in rows))
+    attack_width = max(
+        len(headers[0]),
+        *(len(str(r.get("attack", "unknown"))) for r in rows),
+    )
     print(
         f"  {'#':>2}  {headers[0]:<{attack_width}}  {headers[1]:>8}  {headers[2]:>8}  "
         f"{headers[3]:>8}  {headers[4]:>8}  {headers[5]:>8}  {headers[6]:>10}"
     )
-    print(f"  {'-' * 2}  {'-' * attack_width}  {'-' * 8}  {'-' * 8}  {'-' * 8}  {'-' * 8}  {'-' * 8}  {'-' * 10}")
+    sep = f"  {'-' * 2}  {'-' * attack_width}"
+    sep += f"  {'-' * 8}" * 5 + f"  {'-' * 10}"
+    print(sep)
     sorted_rows = sorted(rows, key=lambda r: float(r.get("AUC", 0.0)), reverse=True)
     for idx, row in enumerate(sorted_rows, start=1):
         attack = str(row.get("attack", "unknown"))
@@ -101,6 +108,7 @@ def _print_scenario_summary(scenario: str, scenario_rows: list[dict[str, Any]]) 
 
 
 def summarize(path: Path, title: str | None = None) -> None:
+    """Summarize a single benchmark JSON file."""
     rows = _load_rows(path)
     grouped = _group_by_scenario(rows)
 
@@ -115,6 +123,7 @@ def summarize(path: Path, title: str | None = None) -> None:
 
 
 def summarize_multiple(paths: list[Path]) -> None:
+    """Summarize multiple benchmark JSON files with a combined view."""
     for idx, path in enumerate(paths, start=1):
         summarize(path, title=f"Summary {idx}/{len(paths)}")
         if idx < len(paths):
@@ -134,6 +143,7 @@ def summarize_multiple(paths: list[Path]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "benchmark_json",
@@ -145,6 +155,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Entry point for the summarize script."""
     args = parse_args()
     try:
         paths = [Path(path) for path in args.benchmark_json]
