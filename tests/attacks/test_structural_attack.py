@@ -241,7 +241,7 @@ def test_dt_disclosive():
 def test_adaboost_nondisclosive():
     """Test for nondisclosive adaboost classifier."""
     param_dict_adasafe = {
-        "n_estimators": 2,
+        "n_estimators": 5,
         "estimator": DecisionTreeClassifier(**kwargs_dtsafe),
     }
     target = get_target("adaboost", **param_dict_adasafe)

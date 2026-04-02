@@ -7,12 +7,13 @@ mpl.use("Agg")
 import contextlib
 import os
 import shutil
+import types
 from datetime import date
 
 import numpy as np
 import pytest
 import sklearn
-from sklearn.datasets import fetch_openml, make_classification
+from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -107,15 +108,70 @@ def _cleanup():
             os.remove(file)
 
 
+def _generate_nursery_data(n_samples=2000, random_state=1):
+    """Generate synthetic categorical data mimicking the nursery dataset.
+
+    Uses make_classification to create a learnable classification problem,
+    then discretises continuous features into categories matching the
+    OpenML nursery dataset (data_id=26) structure so that one-hot encoding
+    yields the same column layout.
+    """
+    feature_specs = [
+        ("parents", ["great_pret", "pretentious", "usual"]),
+        (
+            "has_nurs",
+            ["critical", "less_proper", "proper", "slightly_prob", "very_crit"],
+        ),
+        ("form", ["complete", "foster", "other", "others"]),
+        ("children", ["1", "2", "3", "more"]),
+        ("housing", ["convenient", "less_proper", "slightly_prob"]),
+        ("finance", ["convenient", "inconv"]),
+        ("social", ["non_prob", "slightly_prob", "very_recom"]),
+        ("health", ["not_recom", "priority", "recommended"]),
+    ]
+    target_classes = ["not_recom", "priority", "spec_prior", "very_recom"]
+
+    n_features = len(feature_specs)
+    n_classes = len(target_classes)
+
+    x_cont, y_int = make_classification(
+        n_samples=n_samples,
+        n_features=n_features,
+        n_informative=n_features,
+        n_redundant=0,
+        n_classes=n_classes,
+        n_clusters_per_class=1,
+        class_sep=2.0,
+        random_state=random_state,
+    )
+
+    # Discretise each continuous feature into categories via percentile binning
+    feature_names = []
+    columns = []
+    for i, (name, categories) in enumerate(feature_specs):
+        feature_names.append(name)
+        n_cats = len(categories)
+        percentiles = np.linspace(0, 100, n_cats + 1)[1:-1]
+        bins = np.percentile(x_cont[:, i], percentiles)
+        bin_indices = np.digitize(x_cont[:, i], bins)
+        columns.append(np.array([categories[idx] for idx in bin_indices]))
+
+    data = np.column_stack(columns)
+    target = np.array([target_classes[idx] for idx in y_int])
+
+    return types.SimpleNamespace(data=data, target=target, feature_names=feature_names)
+
+
 @pytest.fixture
 def get_target(request) -> Target:
     """Return a target object with test data and fitted model.
 
-    Uses a randomly sampled 10+10% of the nursery data set.
+    Uses synthetic categorical data generated with make_classification,
+    discretised to match the nursery dataset structure.
     """
     model: sklearn.BaseEstimator = request.param
 
-    nursery_data = fetch_openml(data_id=26, as_frame=True)
+    nursery_data = _generate_nursery_data()
     x = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
     # change labels from recommend to priority for the two odd cases
