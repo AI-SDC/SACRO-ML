@@ -29,11 +29,8 @@ repos:
     rev: v2.4.2
     hooks:
       - id: codespell
-        exclude: >
-            (?x)^(
-                .*\.svg|
-                .*\.ipynb
-            )$
+        additional_dependencies: [tomli]
+        args: ["--toml", "pyproject.toml"]
 
   # Ruff, the Python auto-correcting linter/formatter written in Rust
   - repo: https://github.com/astral-sh/ruff-pre-commit
