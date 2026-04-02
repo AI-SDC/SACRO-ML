@@ -96,7 +96,7 @@ class Attack(ABC):
         if self.write_report:
             logger.info("Writing report: %s.json %s.pdf", dest, dest)
             report.write_json(output, dest)
-            pdf_report = self._make_pdf(output)
+            pdf_report: FPDF | None = self._make_pdf(output)
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
 
@@ -107,7 +107,7 @@ class Attack(ABC):
     @classmethod
     def _get_param_names(cls) -> list[str]:
         """Get parameter names."""
-        init_signature = inspect.signature(cls.__init__)
+        init_signature: inspect.Signature = inspect.signature(cls.__init__)
         return [
             p.name
             for p in init_signature.parameters.values()
