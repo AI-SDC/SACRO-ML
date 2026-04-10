@@ -18,6 +18,7 @@ from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
 from __future__ import annotations
 
 import logging
+import os
 
 import numpy as np
 from fpdf import FPDF
@@ -37,6 +38,8 @@ EPS: float = 1e-16  # Used to avoid numerical issues
 
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
+
+    _json_exclude_keys = Attack._json_exclude_keys | frozenset({"individual"})
 
     def __init__(
         self,
@@ -353,6 +356,17 @@ class LIRAAttack(Attack):
             self.result["score"] = [score[1] for score in mia_scores]
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
+
+            # Save individual results to compressed binary file
+            npz_filename = "lira_individual.npz"
+            npz_path = os.path.join(self.output_dir, npz_filename)
+            np.savez_compressed(
+                npz_path,
+                y_pred_proba=y_pred_proba,
+                y_test=mia_labels,
+                **{k: np.asarray(v) for k, v in self.result.items()},
+            )
+            self.attack_metrics[-1]["individual_file"] = npz_filename
 
     def _get_mean_std(
         self, confidences: list[float], global_std: float

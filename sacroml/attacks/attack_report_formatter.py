@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import pathlib
 import pprint
@@ -12,6 +13,8 @@ from datetime import date
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+
+logger = logging.getLogger(__name__)
 
 
 def cleanup_files_for_release(
@@ -402,11 +405,22 @@ class LogLogROCModule(AnalysisModule):
 
                 # Compute average ROC
                 base_fpr = np.linspace(0, 1, 1000)
-                metrics = self.report[k]["attack_experiment_logger"][
-                    "attack_instance_logger"
-                ].values()
-                all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
+                # Filter out instances without ROC data (new format)
+                metrics = [
+                    m
+                    for m in self.report[k]["attack_experiment_logger"][
+                        "attack_instance_logger"
+                    ].values()
+                    if "fpr" in m and "tpr" in m
+                ]
+                if not metrics:
+                    logger.warning(
+                        "ROC data not found in JSON; skipping log-log ROC plot"
+                    )
+                    plt.close()
+                    continue
 
+                all_tpr = np.zeros((len(metrics), len(base_fpr)), float)
                 for i, metric_set in enumerate(metrics):
                     all_tpr[i, :] = np.interp(
                         base_fpr, metric_set["fpr"], metric_set["tpr"]

@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 class Attack(ABC):
     """Abstract Base class to represent an attack."""
 
+    _json_exclude_keys: frozenset[str] = frozenset({"fpr", "tpr", "roc_thresh"})
+
     def __init__(self, output_dir: str = "outputs", write_report: bool = True) -> None:
         """Instantiate an attack.
 
@@ -95,7 +97,7 @@ class Attack(ABC):
         dest: str = os.path.join(self.output_dir, "report")
         if self.write_report:
             logger.info("Writing report: %s.json %s.pdf", dest, dest)
-            report.write_json(output, dest)
+            report.write_json(output, dest, exclude_keys=self._json_exclude_keys)
             pdf_report = self._make_pdf(output)
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
