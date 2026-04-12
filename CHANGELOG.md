@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+Changes:
+*   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
+    NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
+    (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample
+    membership thresholds. A sample is predicted as a member when its observed score
+    exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
+    architecture knowledge required. Registered in the attack factory as `"qmia"`.
+
 ## Version 1.4.3 (Jan 29, 2026)
 
 Changes:

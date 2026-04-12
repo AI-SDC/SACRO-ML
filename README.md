@@ -12,7 +12,7 @@ An increasing body of work has shown that [machine learning](https://en.wikipedi
 The `sacroml` package is a collection of tools and resources for managing the [statistical disclosure control](https://en.wikipedia.org/wiki/Statistical_disclosure_control) (SDC) of trained ML models. In particular, it provides:
 
 * A **safemodel** package that extends commonly used ML models to provide *ante-hoc* SDC by assessing the theoretical risk posed by the training regime (such as hyperparameter, dataset, and architecture combinations) *before* (potentially) costly model fitting is performed. In addition, it ensures that best practice is followed with respect to privacy, e.g., using [differential privacy](https://en.wikipedia.org/wiki/Differential_privacy) optimisers where available. For large models and datasets, *ante-hoc* analysis has the potential for significant time and cost savings by helping to avoid wasting resources training models that are likely to be found to be disclosive after running intensive *post-hoc* analysis.
-* An **attacks** package that provides *post-hoc* SDC by assessing the empirical disclosure risk of a classification model through a variety of simulated attacks *after* training. It provides an integrated suite of attacks with a common application programming interface (API) and is designed to support the inclusion of additional state-of-the-art attacks as they become available. In addition to membership inference attacks (MIA) such as the likelihood ratio attack ([LiRA](https://doi.org/10.1109/SP46214.2022.9833649)) and attribute inference, the package provides novel [structural attacks](https://arxiv.org/abs/2502.09396) that report cheap-to-compute metrics, which can serve as indicators of model disclosiveness after model fitting, but before needing to run more computationally expensive MIAs.
+* An **attacks** package that provides *post-hoc* SDC by assessing the empirical disclosure risk of a classification model through a variety of simulated attacks *after* training. It provides an integrated suite of attacks with a common application programming interface (API) and is designed to support the inclusion of additional state-of-the-art attacks as they become available. In addition to membership inference attacks (MIA) such as the likelihood ratio attack ([LiRA](https://doi.org/10.1109/SP46214.2022.9833649)), quantile regression MIA ([QMIA](https://arxiv.org/abs/2307.03694)), and attribute inference, the package provides novel [structural attacks](https://arxiv.org/abs/2502.09396) that report cheap-to-compute metrics, which can serve as indicators of model disclosiveness after model fitting, but before needing to run more computationally expensive MIAs.
 * Summaries of the results are written in a simple human-readable report.
 
 Classification models from [scikit-learn](https://scikit-learn.org) (including those implementing `sklearn.base.BaseEstimator`) and [PyTorch](https://pytorch.org) are broadly supported within the package. Some attacks can still be run if only [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files of the model predicted probabilities are supplied, e.g., if the model was produced in another language. See the [examples](examples) for further information.
@@ -72,6 +72,33 @@ attack.attack(target)
 ```
 
 For more information, see the [examples](examples/).
+
+## QMIA: Quantile Regression Membership Inference Attack
+
+QMIA implements the attack from [Bertran et al. (NeurIPS 2023)](https://arxiv.org/abs/2307.03694). It trains a histogram-based quantile regressor (`HistGradientBoostingRegressor`) on non-member data to learn per-sample membership thresholds — no shadow models required.
+
+```python
+from sacroml.attacks.qmia_attack import QMIAAttack
+from sacroml.attacks.target import Target
+
+target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+attack = QMIAAttack(alpha=0.01, output_dir=”output_qmia”)
+attack.attack(target)
+```
+
+Key features:
+
+* **Multiclass support** via the full hinge score: `logit(p_y) - max_{y'!=y} logit(p_{y'})`
+* **Q conditioned on (x, y)** — the regressor learns thresholds per sample and label
+* **FPR control** — the quantile level (1 - alpha) calibrates the false-positive rate on non-members
+
+### Benchmarking
+
+Run the full benchmark comparing QMIA against WorstCase and LiRA:
+
+```bash
+python examples/sklearn/benchmark_qmia_full.py
+```
 
 ## Documentation
 
