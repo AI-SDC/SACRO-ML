@@ -233,7 +233,16 @@ class MetaAttack(Attack):
         "qmia": "member_prob",
     }
     """Maps attack name → key inside the ``"individual"`` dict that holds
-    the per-record membership score in [0, 1]."""
+    the per-record membership score.
+
+    For LiRA (default ``offline`` mode) the ``"score"`` field stores
+    ``norm.cdf(logit, out_mean, out_std)`` — the CDF of the record's
+    logit under the non-member distribution.  High values mean the logit
+    is unusually high for a non-member, i.e. evidence **for** membership.
+    The ``_DummyClassifier.predict`` convention confirms: member when
+    ``score > 0.5``.  Non-default Carlini modes may produce scores outside
+    [0, 1]; these are clipped during extraction.
+    """
 
     @staticmethod
     def _extract_mia_scores(attack_obj: Attack, name: str) -> list[float]:
@@ -259,7 +268,10 @@ class MetaAttack(Attack):
         # Both place the "individual" dict in attack_metrics[N].
         for metrics_dict in attack_obj.attack_metrics:
             if "individual" in metrics_dict:
-                return metrics_dict["individual"][field]
+                scores = metrics_dict["individual"][field]
+                # Clip to [0, 1]: default offline mode is already bounded,
+                # but Carlini modes can produce unbounded log-likelihood ratios.
+                return [max(0.0, min(1.0, s)) for s in scores]
 
         raise RuntimeError(
             f"{name} attack did not produce individual scores. "
@@ -358,7 +370,7 @@ class MetaAttack(Attack):
                 cd_stack = np.array([r["class_disclosure"] for r in reps])
                 sg_stack = np.array([r["smallgroup_risk"] for r in reps])
 
-                k_vals = np.mean(k_stack, axis=0).tolist()
+                k_vals = np.round(np.mean(k_stack, axis=0)).astype(int).tolist()
                 cd_vals = (np.mean(cd_stack, axis=0) > 0.5).tolist()
                 sg_vals = (np.mean(sg_stack, axis=0) > 0.5).tolist()
 
@@ -387,12 +399,13 @@ class MetaAttack(Attack):
             ).tolist()
 
         # n_vulnerable: count of attacks flagging each record.
+        # Use truthiness (not identity) so numpy bools are handled correctly.
         vuln_cols = [c for c in data if c.endswith("_vuln")]
         n_vuln = np.zeros(n_total)
         for col in vuln_cols:
             vals = data[col]
             for i, v in enumerate(vals):
-                if v is True:
+                if v:
                     n_vuln[i] += 1
         data["n_vulnerable"] = n_vuln.astype(int).tolist()
 
