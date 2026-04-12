@@ -135,22 +135,29 @@ class MetaAttack(Attack):
 
         For each attack specification the method:
         1. Runs the sub-attack *n_reps* times, each in an isolated subdirectory.
-        2. Collects the returned attack objects (scores extracted in Stage 3).
+        2. Extracts per-record scores from each run.
         """
-        # {name: [attack_obj_rep0, attack_obj_rep1, ...]}
-        self._sub_attack_objects: dict[str, list[Attack]] = {}
+        # {name: [[scores_rep0], [scores_rep1], ...]}  for MIA
+        # {name: [{"k_anonymity": [...], ...}, ...]}   for structural
+        mia_scores: dict[str, list[list[float]]] = {}
+        structural_scores: dict[str, list[dict]] = {}
 
         for name, params, n_reps in self.attacks:
-            self._sub_attack_objects[name] = []
             for rep in range(n_reps):
                 logger.info(
                     "Running %s (rep %d/%d)", name, rep + 1, n_reps
                 )
                 attack_obj = self._run_sub_attack(name, params, target, rep)
-                self._sub_attack_objects[name].append(attack_obj)
 
-        # Stages 3-5 will add: score extraction, DataFrame, metrics, report.
-        raise NotImplementedError("Stage 3")
+                if name in self.MIA_ATTACKS:
+                    scores = self._extract_mia_scores(attack_obj, name)
+                    mia_scores.setdefault(name, []).append(scores)
+                else:
+                    scores = self._extract_structural_scores(attack_obj)
+                    structural_scores.setdefault(name, []).append(scores)
+
+        # Stages 4-5 will add: DataFrame construction, metrics, report.
+        raise NotImplementedError("Stage 4")
 
     # ------------------------------------------------------------------
     # Sub-attack execution
@@ -199,6 +206,70 @@ class MetaAttack(Attack):
         attack_obj = create_attack(name, **sub_params)
         attack_obj.attack(target)
         return attack_obj
+
+    # ------------------------------------------------------------------
+    # Score extraction
+    # ------------------------------------------------------------------
+
+    _MIA_SCORE_FIELDS: dict[str, str] = {
+        "lira": "score",
+        "qmia": "member_prob",
+    }
+    """Maps attack name → key inside the ``"individual"`` dict that holds
+    the per-record membership score in [0, 1]."""
+
+    @staticmethod
+    def _extract_mia_scores(attack_obj: Attack, name: str) -> list[float]:
+        """Return per-record membership scores from a completed MIA attack.
+
+        Parameters
+        ----------
+        attack_obj : Attack
+            A LiRA or QMIA attack instance after ``.attack()`` has run
+            with ``report_individual=True``.
+        name : str
+            Attack name (``"lira"`` or ``"qmia"``), used to look up the
+            correct score field.
+
+        Returns
+        -------
+        list[float]
+            One score per record (train then test), values in [0, 1].
+        """
+        field = MetaAttack._MIA_SCORE_FIELDS[name]
+
+        # LiRA stores metrics as a list; QMIA also uses a list.
+        # Both place the "individual" dict in attack_metrics[N].
+        for metrics_dict in attack_obj.attack_metrics:
+            if "individual" in metrics_dict:
+                return metrics_dict["individual"][field]
+
+        raise RuntimeError(
+            f"{name} attack did not produce individual scores. "
+            f"Ensure report_individual=True was set."
+        )
+
+    @staticmethod
+    def _extract_structural_scores(attack_obj: Attack) -> dict:
+        """Return per-record structural risk indicators.
+
+        Reads directly from the ``record_level_results`` dataclass, which
+        is always populated regardless of ``report_individual``.
+
+        Returns
+        -------
+        dict
+            Keys: ``"k_anonymity"`` (list[int]),
+            ``"class_disclosure"`` (list[bool]),
+            ``"smallgroup_risk"`` (list[bool]).
+            Length = number of training records.
+        """
+        rlr = attack_obj.record_level_results
+        return {
+            "k_anonymity": rlr.k_anonymity,
+            "class_disclosure": rlr.class_disclosure,
+            "smallgroup_risk": rlr.smallgroup_risk,
+        }
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return metrics in the standard report structure."""
