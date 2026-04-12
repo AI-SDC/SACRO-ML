@@ -10,7 +10,6 @@ Usage::
 
 import logging
 
-import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -56,8 +55,8 @@ if __name__ == "__main__":
     # --- Run MetaAttack ---
     meta = MetaAttack(
         attacks=[
-            ("qmia", {}, 2),           # QMIA with 2 repetitions
-            ("structural", {}),         # Structural (single run)
+            ("qmia", {}, 2),  # QMIA with 2 repetitions
+            ("structural", {}),  # Structural (single run)
         ],
         mia_threshold=0.5,
         output_dir=output_dir,
@@ -94,10 +93,9 @@ if __name__ == "__main__":
 
     # Top-10 most vulnerable training records by MIA mean
     if "mia_mean" in df.columns:
-        top10 = (
-            df[df["is_member"] == 1]
-            .nlargest(10, "mia_mean")[["mia_mean", "mia_gmean", "n_vulnerable"]]
-        )
+        top10 = df[df["is_member"] == 1].nlargest(10, "mia_mean")[
+            ["mia_mean", "mia_gmean", "n_vulnerable"]
+        ]
         print("\n=== Top 10 Most Vulnerable Training Records ===")
         print(top10.to_string())
 

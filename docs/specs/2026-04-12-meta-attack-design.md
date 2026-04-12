@@ -1,8 +1,8 @@
 # MetaAttack Design Spec
 
-**Issue:** #428  
-**Branch:** `428-meta-attack`  
-**Date:** 2026-04-12  
+**Issue:** #428
+**Branch:** `428-meta-attack`
+**Date:** 2026-04-12
 **Target:** JMLR publication
 
 ## Problem

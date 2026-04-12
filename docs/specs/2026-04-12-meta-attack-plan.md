@@ -1,6 +1,6 @@
 # MetaAttack Implementation Plan
 
-**Spec:** `docs/specs/2026-04-12-meta-attack-design.md`  
+**Spec:** `docs/specs/2026-04-12-meta-attack-design.md`
 **Branch:** `428-meta-attack`
 
 ---
