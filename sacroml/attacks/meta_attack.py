@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from fpdf import FPDF
 
+from sacroml import metrics
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
 
@@ -168,8 +169,21 @@ class MetaAttack(Attack):
             n_train, n_test, mia_scores, structural_scores
         )
 
-        # Stage 5 will add: global metrics and report generation.
-        raise NotImplementedError("Stage 5")
+        # Compute global metrics using the aggregated MIA mean as a
+        # membership predictor.  If no MIA attacks were run (structural
+        # only), store a summary dict without standard MIA metrics.
+        self._compute_global_metrics(n_train, n_test)
+
+        output = self._make_report(target)
+        self._write_report(output)
+
+        # Save the vulnerability matrix as CSV alongside the JSON report.
+        if self.write_report:
+            csv_path = os.path.join(self.output_dir, "vulnerability_matrix.csv")
+            self.vulnerability_df.to_csv(csv_path)
+            logger.info("Saved vulnerability matrix to %s", csv_path)
+
+        return output
 
     # ------------------------------------------------------------------
     # Sub-attack execution
@@ -418,9 +432,79 @@ class MetaAttack(Attack):
         )
         return df
 
+    # ------------------------------------------------------------------
+    # Global metrics and reporting
+    # ------------------------------------------------------------------
+
+    def _compute_global_metrics(self, n_train: int, n_test: int) -> None:
+        """Compute meta-attack global metrics from the vulnerability DataFrame.
+
+        When MIA attacks are present, uses ``mia_mean`` as a membership
+        predictor and calls :func:`~sacroml.metrics.get_metrics` to obtain
+        AUC, TPR, Advantage, etc.  When only structural attacks were run,
+        stores a summary dict without standard MIA metrics.
+        """
+        df = self.vulnerability_df
+        membership = np.array([1] * n_train + [0] * n_test)
+
+        if "mia_mean" in df.columns:
+            mia_means = df["mia_mean"].values
+            y_pred_proba = np.column_stack([1 - mia_means, mia_means])
+            self.attack_metrics = [
+                metrics.get_metrics(y_pred_proba, membership)
+            ]
+        else:
+            # Structural only — no membership probability to evaluate.
+            n_vuln_train = int(
+                df.loc[df["is_member"] == 1, "n_vulnerable"].sum()
+            )
+            self.attack_metrics = [
+                {
+                    "n_train": n_train,
+                    "n_test": n_test,
+                    "n_vulnerable_train": n_vuln_train,
+                }
+            ]
+
+    def _construct_metadata(self) -> None:
+        """Add meta-attack specific fields to the report metadata."""
+        super()._construct_metadata()
+        m = self.attack_metrics[0]
+        gm = self.metadata["global_metrics"]
+
+        gm["mia_threshold"] = self.mia_threshold
+        gm["k_threshold"] = self.k_threshold
+        gm["n_records"] = len(self.vulnerability_df)
+
+        if "AUC" in m:
+            gm["AUC"] = m["AUC"]
+            gm["TPR"] = m["TPR"]
+            gm["Advantage"] = m["Advantage"]
+
+        df = self.vulnerability_df
+        n_all = int((df["n_vulnerable"] == df["n_vulnerable"].max()).sum())
+        gm["n_vulnerable_all_attacks"] = n_all
+
     def _get_attack_metrics_instances(self) -> dict:
-        """Return metrics in the standard report structure."""
-        raise NotImplementedError("Stage 5")  # implemented in later commit
+        """Return metrics structured for the JSON report.
+
+        Includes the standard metrics dict, a ``sub_attacks`` summary,
+        and the full vulnerability DataFrame under ``individual``.
+        """
+        instance = dict(self.attack_metrics[0])
+
+        # Sub-attack summary: name → {n_reps, ...}
+        instance["sub_attacks"] = {
+            name: {"n_reps": n_reps}
+            for name, _, n_reps in self.attacks
+        }
+
+        # Serialise the vulnerability DataFrame as dict-of-lists.
+        instance["individual"] = self.vulnerability_df.to_dict(orient="list")
+
+        return {
+            "attack_instance_logger": {"instance_0": instance},
+        }
 
     def _make_pdf(self, output: dict) -> FPDF | None:
         """Return ``None`` — PDF generation is not yet implemented."""
