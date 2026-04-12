@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 
-import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import make_classification
@@ -13,7 +12,6 @@ from sklearn.model_selection import train_test_split
 
 from sacroml.attacks.meta_attack import MetaAttack
 from sacroml.attacks.target import Target
-
 
 # ------------------------------------------------------------------
 # Fixtures
@@ -229,7 +227,9 @@ def test_meta_report_structure(meta_target, tmp_path):
     assert "k_threshold" in metadata["global_metrics"]
     assert "n_vulnerable_all_attacks" in metadata["global_metrics"]
 
-    instance = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    instance = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
     assert "sub_attacks" in instance
     assert "individual" in instance
     assert "qmia" in instance["sub_attacks"]

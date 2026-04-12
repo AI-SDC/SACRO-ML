@@ -121,9 +121,7 @@ class MetaAttack(Attack):
                 )
 
             if not isinstance(n_reps, int) or n_reps < 1:
-                raise ValueError(
-                    f"n_reps must be a positive integer, got {n_reps!r}"
-                )
+                raise ValueError(f"n_reps must be a positive integer, got {n_reps!r}")
 
             specs.append((name, dict(params), n_reps))
         return specs
@@ -151,9 +149,7 @@ class MetaAttack(Attack):
 
         for name, params, n_reps in self.attacks:
             for rep in range(n_reps):
-                logger.info(
-                    "Running %s (rep %d/%d)", name, rep + 1, n_reps
-                )
+                logger.info("Running %s (rep %d/%d)", name, rep + 1, n_reps)
                 attack_obj = self._run_sub_attack(name, params, target, rep)
 
                 if name in self.MIA_ATTACKS:
@@ -366,9 +362,7 @@ class MetaAttack(Attack):
 
             data[col_mean] = np.mean(scores_array, axis=0).tolist()
             data[col_std] = np.std(scores_array, axis=0).tolist()
-            data[col_cons] = np.mean(
-                scores_array > self.mia_threshold, axis=0
-            ).tolist()
+            data[col_cons] = np.mean(scores_array > self.mia_threshold, axis=0).tolist()
             data[col_vuln] = [m > self.mia_threshold for m in data[col_mean]]
 
             mia_mean_cols.append(col_mean)
@@ -450,14 +444,10 @@ class MetaAttack(Attack):
         if "mia_mean" in df.columns:
             mia_means = df["mia_mean"].values
             y_pred_proba = np.column_stack([1 - mia_means, mia_means])
-            self.attack_metrics = [
-                metrics.get_metrics(y_pred_proba, membership)
-            ]
+            self.attack_metrics = [metrics.get_metrics(y_pred_proba, membership)]
         else:
             # Structural only — no membership probability to evaluate.
-            n_vuln_train = int(
-                df.loc[df["is_member"] == 1, "n_vulnerable"].sum()
-            )
+            n_vuln_train = int(df.loc[df["is_member"] == 1, "n_vulnerable"].sum())
             self.attack_metrics = [
                 {
                     "n_train": n_train,
@@ -495,8 +485,7 @@ class MetaAttack(Attack):
 
         # Sub-attack summary: name → {n_reps, ...}
         instance["sub_attacks"] = {
-            name: {"n_reps": n_reps}
-            for name, _, n_reps in self.attacks
+            name: {"n_reps": n_reps} for name, _, n_reps in self.attacks
         }
 
         # Serialise the vulnerability DataFrame as dict-of-lists.
