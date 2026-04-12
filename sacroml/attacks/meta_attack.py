@@ -13,6 +13,7 @@ Reference: AI-SDC/SACRO-ML#428
 
 from __future__ import annotations
 
+import copy
 import logging
 import os
 
@@ -22,6 +23,7 @@ from fpdf import FPDF
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -93,6 +95,9 @@ class MetaAttack(Attack):
             :pyattr:`SUPPORTED_ATTACKS`, or if *n_reps* is not a positive
             integer.
         """
+        if not attacks:
+            raise ValueError("attacks must contain at least one entry.")
+
         specs: list[tuple[str, dict, int]] = []
         for entry in attacks:
             if len(entry) == 2:
@@ -191,7 +196,7 @@ class MetaAttack(Attack):
         """
         from sacroml.attacks.factory import create_attack
 
-        sub_params = dict(params)
+        sub_params = copy.deepcopy(params)
 
         # Force per-record reporting on MIA attacks.
         # Structural always computes record_level_results regardless.
@@ -204,7 +209,12 @@ class MetaAttack(Attack):
         sub_params["write_report"] = False
 
         attack_obj = create_attack(name, **sub_params)
-        attack_obj.attack(target)
+        result = attack_obj.attack(target)
+        if not result:
+            raise RuntimeError(
+                f"Sub-attack '{name}' (run {run_idx}) produced no results. "
+                f"The target may not be attackable by this attack type."
+            )
         return attack_obj
 
     # ------------------------------------------------------------------
