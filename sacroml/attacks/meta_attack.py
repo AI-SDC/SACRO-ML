@@ -17,6 +17,7 @@ import copy
 import logging
 import os
 
+import numpy as np
 import pandas as pd
 from fpdf import FPDF
 
@@ -161,8 +162,14 @@ class MetaAttack(Attack):
                     scores = self._extract_structural_scores(attack_obj)
                     structural_scores.setdefault(name, []).append(scores)
 
-        # Stages 4-5 will add: DataFrame construction, metrics, report.
-        raise NotImplementedError("Stage 4")
+        n_train = len(target.X_train)
+        n_test = len(target.X_test)
+        self.vulnerability_df = self._build_dataframe(
+            n_train, n_test, mia_scores, structural_scores
+        )
+
+        # Stage 5 will add: global metrics and report generation.
+        raise NotImplementedError("Stage 5")
 
     # ------------------------------------------------------------------
     # Sub-attack execution
@@ -280,6 +287,123 @@ class MetaAttack(Attack):
             "class_disclosure": rlr.class_disclosure,
             "smallgroup_risk": rlr.smallgroup_risk,
         }
+
+    # ------------------------------------------------------------------
+    # DataFrame construction
+    # ------------------------------------------------------------------
+
+    _EPS: float = 1e-10
+    """Small constant to avoid log(0) in geometric mean computation."""
+
+    def _build_dataframe(
+        self,
+        n_train: int,
+        n_test: int,
+        mia_scores: dict[str, list[list[float]]],
+        structural_scores: dict[str, list[dict]],
+    ) -> pd.DataFrame:
+        """Assemble the per-record vulnerability DataFrame.
+
+        Parameters
+        ----------
+        n_train, n_test : int
+            Number of training / test records in the Target.
+        mia_scores : dict
+            ``{name: [scores_rep0, scores_rep1, ...]}`` where each
+            ``scores_repN`` is a list of floats with length
+            ``n_train + n_test``.
+        structural_scores : dict
+            ``{name: [dict_rep0, dict_rep1, ...]}`` where each dict has
+            keys ``k_anonymity``, ``class_disclosure``, ``smallgroup_risk``
+            with lists of length ``n_train``.
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        n_total = n_train + n_test
+        data: dict[str, list] = {}
+
+        data["is_member"] = [1] * n_train + [0] * n_test
+
+        # --- Level 1: within-attack aggregation ---
+
+        mia_mean_cols: list[str] = []
+
+        for name, reps in mia_scores.items():
+            scores_array = np.array(reps)  # shape: (n_reps, n_total)
+
+            col_mean = f"{name}_mean"
+            col_std = f"{name}_std"
+            col_cons = f"{name}_consistency"
+            col_vuln = f"{name}_vuln"
+
+            data[col_mean] = np.mean(scores_array, axis=0).tolist()
+            data[col_std] = np.std(scores_array, axis=0).tolist()
+            data[col_cons] = np.mean(
+                scores_array > self.mia_threshold, axis=0
+            ).tolist()
+            data[col_vuln] = [m > self.mia_threshold for m in data[col_mean]]
+
+            mia_mean_cols.append(col_mean)
+
+        for name, reps in structural_scores.items():
+            if len(reps) == 1:
+                k_vals = reps[0]["k_anonymity"]
+                cd_vals = reps[0]["class_disclosure"]
+                sg_vals = reps[0]["smallgroup_risk"]
+            else:
+                # Average k-anonymity across reps; majority vote for booleans.
+                k_stack = np.array([r["k_anonymity"] for r in reps])
+                cd_stack = np.array([r["class_disclosure"] for r in reps])
+                sg_stack = np.array([r["smallgroup_risk"] for r in reps])
+
+                k_vals = np.mean(k_stack, axis=0).tolist()
+                cd_vals = (np.mean(cd_stack, axis=0) > 0.5).tolist()
+                sg_vals = (np.mean(sg_stack, axis=0) > 0.5).tolist()
+
+            # Pad with NaN/None for test records (structural is train-only).
+            nan_pad = [float("nan")] * n_test
+            none_pad = [None] * n_test
+
+            data["struct_k"] = list(k_vals) + nan_pad
+            data["struct_cd"] = list(cd_vals) + none_pad
+            data["struct_sg"] = list(sg_vals) + none_pad
+            data["struct_vuln"] = [
+                (k < self.k_threshold or cd or sg)
+                for k, cd, sg in zip(k_vals, cd_vals, sg_vals)
+            ] + none_pad
+
+        # --- Level 2: cross-attack aggregation ---
+
+        if mia_mean_cols:
+            mia_means = np.column_stack(
+                [data[col] for col in mia_mean_cols]
+            )  # shape: (n_total, n_mia_attacks)
+
+            data["mia_mean"] = np.mean(mia_means, axis=1).tolist()
+            data["mia_gmean"] = np.exp(
+                np.mean(np.log(mia_means + self._EPS), axis=1)
+            ).tolist()
+
+        # n_vulnerable: count of attacks flagging each record.
+        vuln_cols = [c for c in data if c.endswith("_vuln")]
+        n_vuln = np.zeros(n_total)
+        for col in vuln_cols:
+            vals = data[col]
+            for i, v in enumerate(vals):
+                if v is True:
+                    n_vuln[i] += 1
+        data["n_vulnerable"] = n_vuln.astype(int).tolist()
+
+        df = pd.DataFrame(data)
+        df.index = [f"record_{i}" for i in range(n_total)]
+        df.index.name = "record"
+
+        logger.info(
+            "Vulnerability matrix: %d records, %d columns", len(df), len(df.columns)
+        )
+        return df
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return metrics in the standard report structure."""
