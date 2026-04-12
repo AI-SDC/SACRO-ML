@@ -14,6 +14,7 @@ Reference: AI-SDC/SACRO-ML#428
 from __future__ import annotations
 
 import logging
+import os
 
 import pandas as pd
 from fpdf import FPDF
@@ -130,8 +131,74 @@ class MetaAttack(Attack):
         return target.has_model() and target.has_data()
 
     def _attack(self, target: Target) -> dict:
-        """Run all sub-attacks and aggregate per-record vulnerabilities."""
-        raise NotImplementedError("Stage 2")  # implemented in next commit
+        """Run all sub-attacks and aggregate per-record vulnerabilities.
+
+        For each attack specification the method:
+        1. Runs the sub-attack *n_reps* times, each in an isolated subdirectory.
+        2. Collects the returned attack objects (scores extracted in Stage 3).
+        """
+        # {name: [attack_obj_rep0, attack_obj_rep1, ...]}
+        self._sub_attack_objects: dict[str, list[Attack]] = {}
+
+        for name, params, n_reps in self.attacks:
+            self._sub_attack_objects[name] = []
+            for rep in range(n_reps):
+                logger.info(
+                    "Running %s (rep %d/%d)", name, rep + 1, n_reps
+                )
+                attack_obj = self._run_sub_attack(name, params, target, rep)
+                self._sub_attack_objects[name].append(attack_obj)
+
+        # Stages 3-5 will add: score extraction, DataFrame, metrics, report.
+        raise NotImplementedError("Stage 3")
+
+    # ------------------------------------------------------------------
+    # Sub-attack execution
+    # ------------------------------------------------------------------
+
+    def _run_sub_attack(
+        self,
+        name: str,
+        params: dict,
+        target: Target,
+        run_idx: int,
+    ) -> Attack:
+        """Create, execute, and return a single sub-attack instance.
+
+        Parameters
+        ----------
+        name : str
+            Attack name as registered in the factory (e.g. ``"lira"``).
+        params : dict
+            Constructor keyword arguments for the sub-attack.
+        target : Target
+            The shared target all sub-attacks are evaluated against.
+        run_idx : int
+            Repetition index, used to create an isolated output subdirectory.
+
+        Returns
+        -------
+        Attack
+            The sub-attack instance after ``.attack(target)`` has been called.
+            Per-record scores are accessible on the returned object.
+        """
+        from sacroml.attacks.factory import create_attack
+
+        sub_params = dict(params)
+
+        # Force per-record reporting on MIA attacks.
+        # Structural always computes record_level_results regardless.
+        if name in MetaAttack.MIA_ATTACKS:
+            sub_params["report_individual"] = True
+
+        # Isolate each run in its own subdirectory under self.output_dir.
+        sub_dir = os.path.join(self.output_dir, f"{name}_run{run_idx}")
+        sub_params["output_dir"] = sub_dir
+        sub_params["write_report"] = False
+
+        attack_obj = create_attack(name, **sub_params)
+        attack_obj.attack(target)
+        return attack_obj
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return metrics in the standard report structure."""
