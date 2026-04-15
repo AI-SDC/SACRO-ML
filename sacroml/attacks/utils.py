@@ -145,7 +145,7 @@ def get_shadow_model(shadow_path: str, idx: int) -> tuple[Any, np.ndarray, np.nd
         model = pickle.load(f)
     with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
         indices_train = pickle.load(f)
-    with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
+    with open(os.path.join(path, "indices_test.pkl"), "rb") as f:
         indices_test = pickle.load(f)
     return model, indices_train, indices_test
 
