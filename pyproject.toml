@@ -188,6 +188,7 @@ files = [
 ]
 
 [tool.codespell]
+skip = "*.svg,*.ipynb"
 ignore-words-list = [
     "SOM",
     "fpr",
