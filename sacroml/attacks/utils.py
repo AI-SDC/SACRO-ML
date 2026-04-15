@@ -31,12 +31,21 @@ def check_and_update_dataset(target: Target) -> Target:
     are not in the training set.
     """
     if (
-        not isinstance(target.model.model, BaseEstimator)
-        or target.y_train is None
+        target.y_train is None
         or target.y_test is None
         or target.X_train is None
         or target.X_test is None
     ):
+        return target
+    if not isinstance(target.model.model, BaseEstimator):
+        logger.warning(
+            "Target model is not a scikit-learn BaseEstimator (got %s); "
+            "class-index remapping skipped. Downstream attacks that use "
+            "predict_proba column indices (e.g. QMIA) may produce wrong "
+            "hinge scores if y_train/y_test values don't already match "
+            "model.classes_ positions.",
+            type(target.model.model).__name__,
+        )
         return target
 
     classes = list(target.model.get_classes())
