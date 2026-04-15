@@ -114,6 +114,11 @@ class QMIAAttack(Attack):
 
         proba_train = target.model.predict_proba(target.X_train)
         proba_test = target.model.predict_proba(target.X_test)
+        if not (np.isfinite(proba_train).all() and np.isfinite(proba_test).all()):
+            raise ValueError(
+                "target.model.predict_proba returned non-finite values; "
+                "QMIA cannot score rows with NaN/Inf probabilities."
+            )
 
         train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
         test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
