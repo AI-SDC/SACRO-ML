@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 import matplotlib.pyplot as plt
 import multiprocess as mp
@@ -91,7 +92,7 @@ class AttributeAttack(Attack):
         """
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
-        output: dict = self._make_report(target)
+        output: dict[str, Any] = self._make_report(target)
         self._write_report(output)
         return output
 

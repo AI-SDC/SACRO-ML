@@ -8,6 +8,7 @@ import os
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import Any
 
 from fpdf import FPDF
 
@@ -72,7 +73,7 @@ class Attack(ABC):
     def _make_pdf(self, output: dict) -> FPDF | None:
         """Create PDF report."""
 
-    def _make_report(self, target: Target) -> dict:
+    def _make_report(self, target: Target) -> dict[str, Any]:
         """Create attack report."""
         logger.info("Generating report")
         self._construct_metadata()
@@ -82,7 +83,7 @@ class Attack(ABC):
             self.metadata["target_model_params"] = target.model.model_params
             self.metadata["target_train_params"] = target.model.train_params
 
-        output: dict = {
+        output: dict[str, Any] = {
             "log_id": str(uuid.uuid4()),
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             "metadata": self.metadata,

@@ -18,6 +18,7 @@ from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import numpy as np
 from fpdf import FPDF
@@ -141,7 +142,7 @@ class LIRAAttack(Attack):
             target.model.predict_proba(target.X_test),
         )
         # create the report
-        output: dict = self._make_report(target)
+        output: dict[str, Any] = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report

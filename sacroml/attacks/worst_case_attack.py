@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable
+from typing import Any
 
 import numpy as np
 from fpdf import FPDF
@@ -147,13 +148,13 @@ class WorstCaseAttack(Attack):
             test_correct=test_c,
         )
         # create the report
-        output: dict = self._make_report(target)
+        output: dict[str, Any] = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report
         return output
 
-    def _make_report(self, target: Target) -> dict:
+    def _make_report(self, target: Target) -> dict[str, Any]:
         """Create attack report."""
         output = super()._make_report(target)
         output["dummy_attack_experiments_logger"] = (
