@@ -400,9 +400,7 @@ def test_qmia_metrics_include_calibration_ok(
     )
 
     output: dict = attack_obj.attack(qmia_binary_target)
-    m: dict = output["attack_experiment_logger"]["attack_instance_logger"][
-        "instance_0"
-    ]
+    m: dict = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
     assert "calibration_ok" in m
     assert isinstance(m["calibration_ok"], bool)
@@ -427,9 +425,7 @@ def test_qmia_warns_on_miscalibration(
         # crosses the threshold → obs_fpr ≈ 1.0, far from any realistic alpha.
         return np.linspace(-100.0, -99.0, len(X))
 
-    monkeypatch.setattr(
-        HistGradientBoostingRegressor, "predict", very_low_predict
-    )
+    monkeypatch.setattr(HistGradientBoostingRegressor, "predict", very_low_predict)
     caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
 
     attack_obj: QMIAAttack = QMIAAttack(
@@ -439,9 +435,7 @@ def test_qmia_warns_on_miscalibration(
     )
 
     output: dict = attack_obj.attack(qmia_binary_target)
-    m: dict = output["attack_experiment_logger"]["attack_instance_logger"][
-        "instance_0"
-    ]
+    m: dict = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
     assert m["calibration_ok"] is False
     assert any("calibration deviated" in rec.message for rec in caplog.records)
