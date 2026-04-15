@@ -243,7 +243,9 @@ def test_qmia_public_fpr_tracks_alpha(qmia_binary_target, tmp_path):
     output = attack_obj.attack(qmia_binary_target)
     m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
 
-    assert abs(m["observed_public_fpr"] - alpha) < 0.2
+    # Tight calibration bound — QR-MIA's core claim is that obs_fpr ≈ alpha.
+    # Empirically deviation is under 0.025 for this fixture across alphas.
+    assert abs(m["observed_public_fpr"] - alpha) < 0.05
 
 
 def test_qmia_get_params_includes_p_thresh():
