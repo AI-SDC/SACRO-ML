@@ -429,3 +429,25 @@ def test_qmia_warns_on_miscalibration(
 
     assert m["calibration_ok"] is False
     assert any("calibration deviated" in rec.message for rec in caplog.records)
+
+
+def test_qmia_raises_on_non_finite_predict_proba(
+    qmia_binary_target: Target,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """M1: QMIA must reject NaN/Inf probabilities with a diagnostic ValueError."""
+    original_predict_proba = qmia_binary_target.model.predict_proba
+
+    def nan_predict_proba(X: np.ndarray) -> np.ndarray:
+        out = original_predict_proba(X).copy()
+        out[0, 0] = np.nan
+        return out
+
+    monkeypatch.setattr(qmia_binary_target.model, "predict_proba", nan_predict_proba)
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_nan"), write_report=False
+    )
+
+    with pytest.raises(ValueError, match="non-finite"):
+        attack_obj.attack(qmia_binary_target)
