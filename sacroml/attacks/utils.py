@@ -192,35 +192,6 @@ def logit(p: float) -> float:
     return np.log(p / (1 - p))
 
 
-def extract_true_label_probs(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
-    """Extract the probability assigned to each row's true label.
-
-    Parameters
-    ----------
-    probas : np.ndarray
-        Predicted probabilities with one row per example.
-    labels : np.ndarray
-        Integer-encoded labels aligned with the probability columns.
-
-    Returns
-    -------
-    np.ndarray
-        The true-label probability for each row.
-    """
-    if probas.ndim != 2:
-        raise ValueError("Expected probas to be a 2D array.")
-
-    labels = np.asarray(labels, dtype=int)
-    if probas.shape[0] != labels.shape[0]:
-        raise ValueError("Expected probas and labels to have the same number of rows.")
-
-    if np.any(labels < 0) or np.any(labels >= probas.shape[1]):
-        raise ValueError("Labels must index valid probability columns.")
-
-    rows = np.arange(labels.shape[0])
-    return probas[rows, labels]
-
-
 def qmia_hinge_score(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
     """Return the QMIA hinge score: logit(p_y) - max_{y' != y} logit(p_{y'}).
 

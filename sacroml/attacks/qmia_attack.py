@@ -161,7 +161,7 @@ class QMIAAttack(Attack):
         obs_fpr: float = float(np.mean(y_pred_proba[len(train_scores) :, 1] > 0.0))
         self.attack_metrics[0]["observed_public_fpr"] = obs_fpr
 
-        # QR-MIA's core calibration claim: obs_fpr on the public slice should track alpha.
+        # QR-MIA's core calibration claim: obs_fpr should track alpha.
         fpr_tolerance: float = max(2.0 * self.alpha, 0.05)
         calibration_ok: bool = abs(obs_fpr - self.alpha) <= fpr_tolerance
         self.attack_metrics[0]["calibration_ok"] = calibration_ok
