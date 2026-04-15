@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import os
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
 from sklearn.datasets import make_classification
+from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
@@ -135,13 +138,27 @@ def test_membership_labels():
 
 def test_margins_to_two_column_probs():
     """QMIA margin conversion should preserve ordering and a 2-column shape."""
-    margins = np.array([-2.0, 0.0, 2.0])
+    margins: np.ndarray = np.array([-2.0, 0.0, 2.0])
 
-    probs = margins_to_two_column_probs(margins)
+    probs: np.ndarray = margins_to_two_column_probs(margins)
 
     assert probs.shape == (3, 2)
-    np.testing.assert_allclose(probs.sum(axis=1), np.ones(3))
+    # Column 0 is the non-member score (negated margin), column 1 the member score.
+    np.testing.assert_allclose(probs[:, 0], -margins)
+    np.testing.assert_allclose(probs[:, 1], margins)
+    # argmax selects column 1 iff margin > 0 (member prediction).
+    np.testing.assert_array_equal(np.argmax(probs, axis=1), np.array([0, 0, 1]))
+
+
+def test_margins_to_two_column_probs_preserves_tail_order():
+    """Large margins must remain rank-distinguishable (no sigmoid saturation)."""
+    margins: np.ndarray = np.array([100.0, 200.0, 300.0])
+
+    probs: np.ndarray = margins_to_two_column_probs(margins)
+
+    # With a sigmoid+float64 clip, all three would collapse to 1.0 and tie.
     assert probs[0, 1] < probs[1, 1] < probs[2, 1]
+    assert len(np.unique(probs[:, 1])) == 3
 
 
 def test_qmia_insufficient_target_returns_empty_report(tmp_path):
@@ -311,3 +328,120 @@ def test_qmia_attack_signal_direction(qmia_binary_target, tmp_path):
     ]
 
     assert instance["AUC"] > 0.5
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for C1 (degenerate regressor) and C2 (calibration tracking)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(name="qmia_degenerate_target")
+def fixture_qmia_degenerate_target() -> Target:
+    """Return a target whose hinge scores are identically zero.
+
+    ``DummyClassifier(strategy="uniform")`` returns ``predict_proba=[0.5,0.5]``
+    for every sample, so ``qmia_hinge_score`` collapses to zero and the
+    quantile regressor degenerates to a constant predictor.
+    """
+    X, y = make_classification(
+        n_samples=240,
+        n_features=8,
+        n_informative=4,
+        n_redundant=0,
+        n_repeated=0,
+        n_classes=2,
+        class_sep=1.25,
+        random_state=7,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, stratify=y, random_state=7
+    )
+    model: DummyClassifier = DummyClassifier(strategy="uniform", random_state=7)
+    model.fit(X_train, y_train)
+    target: Target = Target(
+        model=model,
+        dataset_name="qmia_dummy_uniform",
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train,
+        y_train_orig=y_train,
+        X_test_orig=X_test,
+        y_test_orig=y_test,
+    )
+    for idx in range(X.shape[1]):
+        target.add_feature(f"V{idx}", [idx], "float")
+    return target
+
+
+def test_qmia_raises_on_degenerate_regressor(
+    qmia_degenerate_target: Target, tmp_path: Path
+) -> None:
+    """C1: QMIA must raise when the quantile regressor collapses to a constant."""
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_degen"),
+        write_report=False,
+        alpha=0.01,
+    )
+
+    with pytest.raises(RuntimeError, match="degenerated to a near-constant"):
+        attack_obj.attack(qmia_degenerate_target)
+
+
+def test_qmia_metrics_include_calibration_ok(
+    qmia_binary_target: Target, tmp_path: Path
+) -> None:
+    """C2: every QMIA metrics dict must expose a calibration_ok boolean flag."""
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_calib"),
+        write_report=False,
+        alpha=0.2,
+    )
+
+    output: dict = attack_obj.attack(qmia_binary_target)
+    m: dict = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+
+    assert "calibration_ok" in m
+    assert isinstance(m["calibration_ok"], bool)
+
+
+def test_qmia_warns_on_miscalibration(
+    qmia_binary_target: Target,
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """C2: QMIA must warn and set calibration_ok=False when obs_fpr drifts.
+
+    Forces adversarial thresholds (all zeros) so every sample with a positive
+    hinge score is predicted member. On a healthy target this pushes
+    observed_public_fpr far above alpha, exercising the C2 warning path.
+    """
+    from sklearn.ensemble import HistGradientBoostingRegressor
+
+    def very_low_predict(self, X: np.ndarray) -> np.ndarray:
+        # Small variance to clear C1; all-negative so every positive score
+        # crosses the threshold → obs_fpr ≈ 1.0, far from any realistic alpha.
+        return np.linspace(-100.0, -99.0, len(X))
+
+    monkeypatch.setattr(
+        HistGradientBoostingRegressor, "predict", very_low_predict
+    )
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
+
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_miscal"),
+        write_report=False,
+        alpha=0.01,
+    )
+
+    output: dict = attack_obj.attack(qmia_binary_target)
+    m: dict = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+
+    assert m["calibration_ok"] is False
+    assert any("calibration deviated" in rec.message for rec in caplog.records)

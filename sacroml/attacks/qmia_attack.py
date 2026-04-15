@@ -134,13 +134,46 @@ class QMIAAttack(Attack):
         combined_x_with_y = np.column_stack((combined_x, combined_y))
         combined_scores = np.hstack((train_scores, test_scores))
         thresholds = self.quantile_model.predict(combined_x_with_y)
-        y_membership = utils.membership_labels(len(train_scores), len(test_scores))
-        y_pred_proba = self._compute_membership_probs(combined_scores, thresholds)
+
+        # HGBR silently returns a constant predictor on degenerate inputs;
+        # catch that here so the attack cannot report a plausible-but-wrong AUC.
+        threshold_spread: float = float(np.std(thresholds))
+        score_spread: float = float(np.std(test_scores))
+        if threshold_spread < max(1e-10, 1e-6 * score_spread):
+            raise RuntimeError(
+                "QMIA quantile regressor degenerated to a near-constant "
+                f"predictor (threshold std={threshold_spread:.3e}, score "
+                f"std={score_spread:.3e}). Likely causes: target model "
+                "produces uniform hinge scores (e.g., DummyClassifier), "
+                "non-member set too small, or target output lacks "
+                "information. Attack cannot produce meaningful results."
+            )
+
+        y_membership: np.ndarray = utils.membership_labels(
+            len(train_scores), len(test_scores)
+        )
+        y_pred_proba: np.ndarray = self._compute_membership_probs(
+            combined_scores, thresholds
+        )
 
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_membership)]
-        self.attack_metrics[0]["observed_public_fpr"] = float(
-            np.mean(y_pred_proba[len(train_scores) :, 1] >= 0.5)
-        )
+        # Non-member predictions from the public slice: "member" = margin > 0.
+        obs_fpr: float = float(np.mean(y_pred_proba[len(train_scores) :, 1] > 0.0))
+        self.attack_metrics[0]["observed_public_fpr"] = obs_fpr
+
+        # QR-MIA's core calibration claim: obs_fpr on the public slice should track alpha.
+        fpr_tolerance: float = max(2.0 * self.alpha, 0.05)
+        calibration_ok: bool = abs(obs_fpr - self.alpha) <= fpr_tolerance
+        self.attack_metrics[0]["calibration_ok"] = calibration_ok
+        if not calibration_ok:
+            logger.warning(
+                "QMIA calibration deviated from target: "
+                "observed_public_fpr=%.4f vs alpha=%.4f (tolerance=%.4f). "
+                "Attack results may be unreliable.",
+                obs_fpr,
+                self.alpha,
+                fpr_tolerance,
+            )
 
         if self.report_individual:
             margins = combined_scores - thresholds

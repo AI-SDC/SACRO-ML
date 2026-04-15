@@ -276,18 +276,18 @@ def margins_to_two_column_probs(margins: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Two-column array ``[p_non_member, p_member]``.
+        Two-column array ``[non_member_score, member_score]``.
 
     Notes
     -----
-    The sigmoid transform is only used to adapt QMIA margins to the existing
-    binary membership metrics API. These values are monotone score proxies, not
-    calibrated posterior membership probabilities.
+    Returns the raw margins (negated for the non-member column). ``get_metrics``
+    uses ``argmax`` for the confusion matrix and the second column as a
+    rank-ordered score for ROC metrics — both are rank-preserving, so no
+    sigmoid is needed. Applying one saturates any margin above ~37 to exactly
+    1.0 in float64 and collapses the TPR@low-FPR tail into ties.
     """
     margins = np.asarray(margins, dtype=float)
-    clipped = np.clip(margins, -60.0, 60.0)
-    member_prob = 1.0 / (1.0 + np.exp(-clipped))
-    return np.column_stack((1.0 - member_prob, member_prob))
+    return np.column_stack((-margins, margins))
 
 
 def get_class_by_name(class_path: str):
