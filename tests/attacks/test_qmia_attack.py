@@ -11,13 +11,12 @@ import numpy as np
 import pytest
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.utils import (
-    extract_true_label_probs,
     margins_to_two_column_probs,
     membership_labels,
     qmia_hinge_score,
@@ -93,16 +92,6 @@ def fixture_qmia_multiclass_target() -> Target:
         X_test_orig=X_test,
         y_test_orig=y_test,
     )
-
-
-def test_extract_true_label_probs():
-    """True-label probability extraction should follow the label indices."""
-    probas = np.array([[0.8, 0.2], [0.3, 0.7], [0.6, 0.4]])
-    labels = np.array([0, 1, 0])
-
-    values = extract_true_label_probs(probas, labels)
-
-    np.testing.assert_allclose(values, np.array([0.8, 0.7, 0.6]))
 
 
 def test_qmia_hinge_score():
@@ -418,9 +407,8 @@ def test_qmia_warns_on_miscalibration(
     hinge score is predicted member. On a healthy target this pushes
     observed_public_fpr far above alpha, exercising the C2 warning path.
     """
-    from sklearn.ensemble import HistGradientBoostingRegressor
 
-    def very_low_predict(self, X: np.ndarray) -> np.ndarray:
+    def very_low_predict(_self, X: np.ndarray) -> np.ndarray:
         # Small variance to clear C1; all-negative so every positive score
         # crosses the threshold → obs_fpr ≈ 1.0, far from any realistic alpha.
         return np.linspace(-100.0, -99.0, len(X))
