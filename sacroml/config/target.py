@@ -165,7 +165,7 @@ def _get_params() -> dict[str, Any]:
     print("Enter hyperparameter names and values.")
     print("Type 'done' as the name when you're finished.")
     while True:
-        name = prompt("Hyperparameter name (or 'done' to finish): ").strip()
+        name: str = prompt("Hyperparameter name (or 'done' to finish): ").strip()
         if name.lower() == "done":
             break
         if not name:
@@ -285,19 +285,19 @@ def prompt_for_target() -> None:
         sys.exit()
 
     # Check target directory exists and create as necessary
-    target_dir = "target"
-    path = utils.check_dir(target_dir)
+    target_dir: str = "target"
+    path: str = utils.check_dir(target_dir)
 
     # Get model and training information
-    model_type = _get_model_type()
-    model_path = _get_model_path()
+    model_type: str = _get_model_type()
+    model_path: str = _get_model_path()
 
     if model_type == "PytorchModel":
-        model_module_path = _get_model_module_path()
-        model_name = _get_model_name(path=model_module_path)
-        model_params = _get_model_params()
-        train_module_path = _get_train_module_path()
-        train_params = _get_train_params()
+        model_module_path: str = _get_model_module_path()
+        model_name: str = _get_model_name(path=model_module_path)
+        model_params: dict = _get_model_params()
+        train_module_path: str = _get_train_module_path()
+        train_params: dict = _get_train_params()
         try:  # Create a new model
             model = create_model(model_module_path, model_name, model_params)
             print("Successfully created a new model using supplied class.")

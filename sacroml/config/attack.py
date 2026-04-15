@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import yaml
 from prompt_toolkit import prompt
@@ -35,7 +36,7 @@ def _prompt_for_params(params: dict) -> None:
 
 def _get_attack(name: str) -> dict:
     """Get an attack configuration."""
-    params = _get_defaults(name)
+    params: dict[str, Any] = _get_defaults(name)
     if not utils.get_bool("Use all defaults?"):
         _prompt_for_params(params)
     return {"name": name, "params": params}
@@ -49,7 +50,7 @@ def _prompt_for_attacks() -> list[dict]:
     while utils.get_bool("Would you like to add an attack?"):
         while True:
             print(f"Attacks available: {', '.join(names)}")
-            name = prompt("Which attack?: ", completer=completer)
+            name: str = prompt("Which attack?: ", completer=completer)
             if name in names:
                 attack = _get_attack(name)
                 attacks.append(attack)
@@ -64,8 +65,8 @@ def _default_config() -> list[dict]:
     attacks: list[dict] = []
     names: list[str] = list(factory.registry.keys())
     for name in names:
-        params = _get_defaults(name)
-        attack = {"name": name, "params": params}
+        params: dict[str, Any] = _get_defaults(name)
+        attack: dict[str, Any] = {"name": name, "params": params}
         attacks.append(attack)
     return attacks
 
@@ -82,7 +83,7 @@ def prompt_for_attack() -> None:
         attacks = _prompt_for_attacks()
 
     # write to file
-    filename = "attack.yaml"
+    filename: str = "attack.yaml"
     with open(filename, "w", encoding="utf-8") as fp:
         yaml.dump({"attacks": attacks}, fp)
     print(f"{filename} has been generated.")

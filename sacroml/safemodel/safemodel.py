@@ -282,7 +282,7 @@ class SafeModel:
 
     def __get_constraints(self) -> dict:
         """Get constraints relevant to the model type from the a read-only file."""
-        rules = {}
+        rules: dict = {}
         rule_path = pathlib.Path(__file__).with_name("rules.json")
         with open(rule_path, encoding="utf-8") as json_file:
             parsed = json.load(json_file)
@@ -594,7 +594,7 @@ class SafeModel:
         msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
         msg_post, disclosive_post = self.posthoc_check()
         # prepare results
-        output = {
+        output: dict[str, Any] = {
             "researcher": self.researcher,
             "model_type": self.model_type,
             "details": msg_prel,
