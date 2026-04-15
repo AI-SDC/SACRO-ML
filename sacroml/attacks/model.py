@@ -6,6 +6,7 @@ import importlib
 import os
 import sys
 from abc import ABC, abstractmethod
+from typing import Any
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -311,7 +312,7 @@ def create_model(
         raise ValueError(f"Failed to create new model using supplied class: {e}") from e
 
 
-def create_dataset(dataset_module_path: str, dataset_name: str) -> object:
+def create_dataset(dataset_module_path: str, dataset_name: str) -> Any:
     """Return a new dataset from a code path.
 
     Parameters

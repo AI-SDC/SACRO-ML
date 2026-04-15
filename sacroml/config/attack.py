@@ -14,7 +14,7 @@ from sacroml.config import utils
 from sacroml.version import __version__
 
 
-def _get_defaults(name: str) -> dict:
+def _get_defaults(name: str) -> dict[str, Any]:
     """Return an attack parameters and their defaults."""
     attack = factory.create_attack(name)
     return attack.get_params()
