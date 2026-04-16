@@ -125,12 +125,16 @@ class QMIAAttack(Attack):
 
         # Train quantile regressor on non-member scores; quantile = 1 - alpha
         # so that alpha% of non-members exceed their own threshold (target FPR).
+        # Early stopping cuts fit time ~20-40% on large n; below 1000 the 10%
+        # validation split is too noisy and can stop training too early.
         x_test_with_y = np.column_stack((target.X_test, target.y_test))
+        use_early_stopping: bool = len(test_scores) >= 1000
         self.quantile_model = HistGradientBoostingRegressor(
             loss="quantile",
             quantile=1.0 - self.alpha,
             max_iter=self.max_iter,
             random_state=self.random_state,
+            early_stopping=use_early_stopping,
         )
         self.quantile_model.fit(x_test_with_y, test_scores)
 
