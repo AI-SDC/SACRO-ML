@@ -199,7 +199,7 @@ class SklearnModel(Model):
         """
         return self.model.classes_
 
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs: object) -> Model:
         """Set the parameters of this model.
 
         Parameters
