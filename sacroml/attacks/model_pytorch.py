@@ -420,7 +420,7 @@ def train_model(
 
     Parameters
     ----------
-    model : Any
+    model : torch.nn.Module
         Model to train.
     train_module_path : str
         Path to Python code containing a train function.
@@ -431,7 +431,7 @@ def train_model(
 
     Returns
     -------
-    Any
+    torch.nn.Module
         Trained model.
     """
     try:
