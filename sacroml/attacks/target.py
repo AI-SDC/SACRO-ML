@@ -66,8 +66,7 @@ class Target:
 
     Attributes
     ----------
-    model : SklearnModel | PytorchModel | sklearn.base.BaseEstimator |
-        torch.nn.Module | None
+    model : ModelLike
         Trained target model.
     model_path : str
         Path to a saved model.
