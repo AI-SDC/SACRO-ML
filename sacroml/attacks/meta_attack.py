@@ -71,7 +71,7 @@ class MetaAttack(Attack):
         self.mia_threshold: float = mia_threshold
 
         if k_threshold is None:
-            from acro import ACRO
+            from acro import ACRO  # noqa: PLC0415
 
             self.k_threshold: int = ACRO("default").config["safe_threshold"]
         else:
@@ -211,7 +211,7 @@ class MetaAttack(Attack):
             The sub-attack instance after ``.attack(target)`` has been called.
             Per-record scores are accessible on the returned object.
         """
-        from sacroml.attacks.factory import create_attack
+        from sacroml.attacks.factory import create_attack  # noqa: PLC0415
 
         sub_params = copy.deepcopy(params)
 
@@ -367,7 +367,7 @@ class MetaAttack(Attack):
 
             mia_mean_cols.append(col_mean)
 
-        for name, reps in structural_scores.items():
+        for _name, reps in structural_scores.items():
             if len(reps) == 1:
                 k_vals = reps[0]["k_anonymity"]
                 cd_vals = reps[0]["class_disclosure"]
@@ -391,7 +391,7 @@ class MetaAttack(Attack):
             data["struct_sg"] = list(sg_vals) + none_pad
             data["struct_vuln"] = [
                 (k < self.k_threshold or cd or sg)
-                for k, cd, sg in zip(k_vals, cd_vals, sg_vals)
+                for k, cd, sg in zip(k_vals, cd_vals, sg_vals, strict=True)
             ] + none_pad
 
         # --- Level 2: cross-attack aggregation ---
@@ -442,7 +442,7 @@ class MetaAttack(Attack):
         membership = np.array([1] * n_train + [0] * n_test)
 
         if "mia_mean" in df.columns:
-            mia_means = df["mia_mean"].values
+            mia_means = df["mia_mean"].to_numpy()
             y_pred_proba = np.column_stack([1 - mia_means, mia_means])
             self.attack_metrics = [metrics.get_metrics(y_pred_proba, membership)]
         else:
@@ -495,9 +495,10 @@ class MetaAttack(Attack):
             "attack_instance_logger": {"instance_0": instance},
         }
 
-    def _make_pdf(self, output: dict) -> FPDF | None:
+    def _make_pdf(self, output: dict) -> FPDF | None:  # noqa: ARG002
         """Return ``None`` — PDF generation is not yet implemented."""
         return None
 
     def __str__(self) -> str:
+        """Return a human-readable name for this attack."""
         return "Meta Attack"

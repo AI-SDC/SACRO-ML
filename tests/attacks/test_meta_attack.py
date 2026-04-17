@@ -238,7 +238,7 @@ def test_meta_report_structure(meta_target, tmp_path):
 
 def test_meta_factory_integration(meta_target, tmp_path):
     """MetaAttack should be invocable via the attack factory."""
-    from sacroml.attacks.factory import attack
+    from sacroml.attacks.factory import attack  # noqa: PLC0415
 
     output = attack(
         target=meta_target,
