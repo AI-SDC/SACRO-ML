@@ -594,7 +594,7 @@ class SafeModel:
         msg_prel, disclosive_prel = self.preliminary_check(verbose=False)
         msg_post, disclosive_post = self.posthoc_check()
         # prepare results
-        output: dict = {
+        output: dict[str, Any] = {
             "researcher": self.researcher,
             "model_type": self.model_type,
             "details": msg_prel,
@@ -616,7 +616,7 @@ class SafeModel:
         now = datetime.datetime.now()
         self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
         output["timestamp"] = self.timestamp
-        data = [output]
+        data: list[dict] = [output]
         # save output
         if target is None:
             target = Target(model=self)
@@ -646,7 +646,7 @@ class SafeModel:
             Metadata results.
         """
         try:
-            params = {"output_dir": output_dir}
+            params: dict[str, str] = {"output_dir": output_dir}
             output = attack(target=target, attack_name=attack_name, **params)
             metadata = output.get("metadata", {})
 

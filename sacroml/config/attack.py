@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import yaml
 from prompt_toolkit import prompt
@@ -13,7 +14,7 @@ from sacroml.config import utils
 from sacroml.version import __version__
 
 
-def _get_defaults(name: str) -> dict:
+def _get_defaults(name: str) -> dict[str, Any]:
     """Return an attack parameters and their defaults."""
     attack = factory.create_attack(name)
     return attack.get_params()
@@ -35,7 +36,7 @@ def _prompt_for_params(params: dict) -> None:
 
 def _get_attack(name: str) -> dict:
     """Get an attack configuration."""
-    params: dict = _get_defaults(name)
+    params: dict[str, Any] = _get_defaults(name)
     if not utils.get_bool("Use all defaults?"):
         _prompt_for_params(params)
     return {"name": name, "params": params}
@@ -64,8 +65,8 @@ def _default_config() -> list[dict]:
     attacks: list[dict] = []
     names: list[str] = list(factory.registry.keys())
     for name in names:
-        params: dict = _get_defaults(name)
-        attack: dict = {"name": name, "params": params}
+        params: dict[str, Any] = _get_defaults(name)
+        attack: dict[str, Any] = {"name": name, "params": params}
         attacks.append(attack)
     return attacks
 
