@@ -71,7 +71,7 @@ def get_reporting_string(**kwargs: dict) -> str:
 
     # A dictionary of f-strings follows
 
-    report_string = {
+    report_string: dict[str, str] = {
         "NULL": (""),
         "less_than_min_value": (
             f"- parameter {inter_params['key']} = {inter_params['cur_val']}"
