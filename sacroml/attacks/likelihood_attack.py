@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 import numpy as np
 from fpdf import FPDF
@@ -92,14 +93,14 @@ class LIRAAttack(Attack):
                 self.result["in_mean"] = []
                 self.result["in_std"] = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the name of the attack."""
         return "LiRA Attack"
 
     @classmethod
     def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with LIRAAttack."""
-        required_methods = [
+        required_methods: list[str] = [
             "clone",
             "predict_proba",
             "predict",
@@ -131,7 +132,7 @@ class LIRAAttack(Attack):
             Attack report.
         """
         # prepare
-        shadow_clf = target.model.clone()
+        shadow_clf: Model = target.model.clone()
         target = utils.check_and_update_dataset(target)
         # execute attack
         self._run(
@@ -144,7 +145,7 @@ class LIRAAttack(Attack):
             target.model.predict_proba(target.X_test),
         )
         # create the report
-        output = self._make_report(target)
+        output: dict[str, Any] = self._make_report(target)
         # write the report
         self._write_report(output)
         # return the report
@@ -243,10 +244,12 @@ class LIRAAttack(Attack):
                 self.shadow_path, model_idx
             )
             # map a class to a column
-            class_map = {c: i for i, c in enumerate(shadow_clf.get_classes())}
+            class_map: dict[int, int] = {
+                c: i for i, c in enumerate(shadow_clf.get_classes())
+            }
             # generate shadow confidences
-            shadow_confidences = shadow_clf.predict_proba(combined_x_train)
-            indices_train = set(indices_train)
+            shadow_confidences: np.ndarray = shadow_clf.predict_proba(combined_x_train)
+            train_set: set[int] = set(indices_train)
             for i, conf in enumerate(shadow_confidences):
                 # logit of the correct class
                 label = class_map.get(combined_y_train[i], -1)
@@ -254,7 +257,7 @@ class LIRAAttack(Attack):
                 # absent from the training set. In these cases label will be -1 and
                 # we include logit(0) instead of discarding
                 logit = utils.logit(0) if label < 0 else utils.logit(conf[label])
-                if i not in indices_train:
+                if i not in train_set:
                     out_conf[i].append(logit)
                 else:
                     in_conf[i].append(logit)
@@ -435,10 +438,10 @@ class LIRAAttack(Attack):
     class _DummyClassifier:
         """A Dummy Classifier to allow this code to work with get_metrics."""
 
-        def predict(self, X_test):
+        def predict(self, X_test: np.ndarray) -> np.ndarray:
             """Return an array of 1/0 depending on value in second column."""
             return 1 * (X_test[:, 1] > 0.5)
 
-        def predict_proba(self, X_test):
+        def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
             """Simply return the X_test."""
             return X_test
