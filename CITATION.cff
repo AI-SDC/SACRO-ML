@@ -63,6 +63,10 @@ authors:
     given-names: Hasaan
     affiliation: University of the West of England
     orcid: https://orcid.org/0009-0009-2443-3015
+  - family-names: Shamy
+    given-names: A. D.
+    affiliation: University of the West of England
+    orcid: https://orcid.org/0009-0009-6921-3040
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7080279

@@ -31,12 +31,21 @@ def check_and_update_dataset(target: Target) -> Target:
     are not in the training set.
     """
     if (
-        not isinstance(target.model.model, BaseEstimator)
-        or target.y_train is None
+        target.y_train is None
         or target.y_test is None
         or target.X_train is None
         or target.X_test is None
     ):
+        return target
+    if not isinstance(target.model.model, BaseEstimator):
+        logger.warning(
+            "Target model is not a scikit-learn BaseEstimator (got %s); "
+            "class-index remapping skipped. Downstream attacks that use "
+            "predict_proba column indices (e.g. QMIA) may produce wrong "
+            "hinge scores if y_train/y_test values don't already match "
+            "model.classes_ positions.",
+            type(target.model.model).__name__,
+        )
         return target
 
     classes = list(target.model.get_classes())
@@ -192,35 +201,6 @@ def logit(p: float) -> float:
     return np.log(p / (1 - p))
 
 
-def extract_true_label_probs(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
-    """Extract the probability assigned to each row's true label.
-
-    Parameters
-    ----------
-    probas : np.ndarray
-        Predicted probabilities with one row per example.
-    labels : np.ndarray
-        Integer-encoded labels aligned with the probability columns.
-
-    Returns
-    -------
-    np.ndarray
-        The true-label probability for each row.
-    """
-    if probas.ndim != 2:
-        raise ValueError("Expected probas to be a 2D array.")
-
-    labels = np.asarray(labels, dtype=int)
-    if probas.shape[0] != labels.shape[0]:
-        raise ValueError("Expected probas and labels to have the same number of rows.")
-
-    if np.any(labels < 0) or np.any(labels >= probas.shape[1]):
-        raise ValueError("Labels must index valid probability columns.")
-
-    rows = np.arange(labels.shape[0])
-    return probas[rows, labels]
-
-
 def qmia_hinge_score(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
     """Return the QMIA hinge score: logit(p_y) - max_{y' != y} logit(p_{y'}).
 
@@ -276,18 +256,18 @@ def margins_to_two_column_probs(margins: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Two-column array ``[p_non_member, p_member]``.
+        Two-column array ``[non_member_score, member_score]``.
 
     Notes
     -----
-    The sigmoid transform is only used to adapt QMIA margins to the existing
-    binary membership metrics API. These values are monotone score proxies, not
-    calibrated posterior membership probabilities.
+    Returns the raw margins (negated for the non-member column). ``get_metrics``
+    uses ``argmax`` for the confusion matrix and the second column as a
+    rank-ordered score for ROC metrics — both are rank-preserving, so no
+    sigmoid is needed. Applying one saturates any margin above ~37 to exactly
+    1.0 in float64 and collapses the TPR@low-FPR tail into ties.
     """
     margins = np.asarray(margins, dtype=float)
-    clipped = np.clip(margins, -60.0, 60.0)
-    member_prob = 1.0 / (1.0 + np.exp(-clipped))
-    return np.column_stack((1.0 - member_prob, member_prob))
+    return np.column_stack((-margins, margins))
 
 
 def get_class_by_name(class_path: str):
