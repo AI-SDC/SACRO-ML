@@ -360,16 +360,16 @@ class LIRAAttack(Attack):
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
 
-            # Save individual results to compressed binary file
-            npz_filename = "lira_individual.npz"
-            npz_path = os.path.join(self.output_dir, npz_filename)
-            np.savez_compressed(
-                npz_path,
-                y_pred_proba=y_pred_proba,
-                y_test=mia_labels,
-                **{k: np.asarray(v) for k, v in self.result.items()},
-            )
-            self.attack_metrics[-1]["individual_file"] = npz_filename
+            if self.write_report:
+                npz_filename = "lira_individual.npz"
+                npz_path = os.path.join(self.output_dir, npz_filename)
+                np.savez_compressed(
+                    npz_path,
+                    y_pred_proba=y_pred_proba,
+                    y_test=mia_labels,
+                    **{k: np.asarray(v) for k, v in self.result.items()},
+                )
+                self.attack_metrics[-1]["individual_file"] = npz_filename
 
     def _get_mean_std(
         self, confidences: list[float], global_std: float
