@@ -82,7 +82,7 @@ from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
 
 target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-attack = QMIAAttack(alpha=0.01, output_dir=”output_qmia”)
+attack = QMIAAttack(alpha=0.01, output_dir="output_qmia")
 attack.attack(target)
 ```
 
