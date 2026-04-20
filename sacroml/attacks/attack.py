@@ -8,6 +8,7 @@ import os
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import Any
 
 from fpdf import FPDF
 
@@ -72,7 +73,7 @@ class Attack(ABC):
     def _make_pdf(self, output: dict) -> FPDF | None:
         """Create PDF report."""
 
-    def _make_report(self, target: Target) -> dict:
+    def _make_report(self, target: Target) -> dict[str, Any]:
         """Create attack report."""
         logger.info("Generating report")
         self._construct_metadata()
@@ -82,7 +83,7 @@ class Attack(ABC):
             self.metadata["target_model_params"] = target.model.model_params
             self.metadata["target_train_params"] = target.model.train_params
 
-        output: dict = {
+        output: dict[str, Any] = {
             "log_id": str(uuid.uuid4()),
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             "metadata": self.metadata,
@@ -96,7 +97,7 @@ class Attack(ABC):
         if self.write_report:
             logger.info("Writing report: %s.json %s.pdf", dest, dest)
             report.write_json(output, dest)
-            pdf_report = self._make_pdf(output)
+            pdf_report: FPDF | None = self._make_pdf(output)
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
 
@@ -107,7 +108,7 @@ class Attack(ABC):
     @classmethod
     def _get_param_names(cls) -> list[str]:
         """Get parameter names."""
-        init_signature = inspect.signature(cls.__init__)
+        init_signature: inspect.Signature = inspect.signature(cls.__init__)
         return [
             p.name
             for p in init_signature.parameters.values()
