@@ -157,7 +157,7 @@ def write_json(output: dict, dest: str) -> None:
 class CustomJSONEncoder(json.JSONEncoder):
     """JSON encoder that can cope with numpy arrays, etc."""
 
-    def default(self, o: Any):
+    def default(self, o: object) -> object:
         """If an object is an np.ndarray, convert to list."""
         if isinstance(o, np.ndarray):
             return o.tolist()
@@ -295,7 +295,7 @@ def create_mia_report(attack_output: dict) -> FPDF:
             "attack_instance_logger"
         ].items()
     ]
-    metadata = attack_output["metadata"]
+    metadata: dict = attack_output["metadata"]
 
     path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")
@@ -477,7 +477,7 @@ def create_lr_report(output: dict) -> FPDF:
         v
         for _, v in output["attack_experiment_logger"]["attack_instance_logger"].items()
     ][0]
-    metadata = output["metadata"]
+    metadata: dict = output["metadata"]
 
     path: str = metadata["attack_params"]["output_dir"]
     dest_log_roc = os.path.join(path, "log_roc.png")

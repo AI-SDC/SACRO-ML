@@ -95,7 +95,7 @@ target-version = "py310"
 extend-include = ["*.ipynb"]
 
 lint.select = [
-#  "ANN", # flake8-annotations
+  "ANN", # flake8-annotations
   "ARG", # flake8-unused-arguments
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
@@ -141,12 +141,13 @@ exclude = [
 ]
 
 lint.ignore = [
+    "ANN401", # allow Any where interface is dynamic
     "EM101",   # raw-string-in-exception
     "EM102",   # f-string-in-exception
     "PLC0206", # dict-index-missing-items
     "S101",    # allow asserts
     "S301",    # allow pickle
-    "PD901",   # allow df for dataframe names
+#   "PD901",   # allow df for dataframe names
 ]
 
 [tool.ruff.lint.pep8-naming]
@@ -165,12 +166,26 @@ docstring-code-format = true
 docstring-code-line-length = 80
 
 [tool.ruff.lint.extend-per-file-ignores]
+"examples/**/*" = ["ANN"]
 "user_stories/**/*" = ["ANN"]
 "tests/**/*" = ["S101", "PLR2004", "ANN"]
 "tests/conftest.py" = ["ARG001"]
 "sacroml/attacks/structural_attack.py" = ["PLR2004"]
 "sacroml/safemodel/classifiers/new_model_template.py" = ["C901"]
 
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+files = [
+    "sacroml/__init__.py",
+    "sacroml/attacks/__init__.py",
+    "sacroml/attacks/data.py",
+    "sacroml/config/__init__.py",
+    "sacroml/config/utils.py",
+    "sacroml/metrics.py",
+    "sacroml/safemodel/__init__.py",
+    "sacroml/version.py",
+]
 
 [tool.codespell]
 skip = "*.svg,*.ipynb"

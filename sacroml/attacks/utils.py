@@ -6,7 +6,6 @@ import logging
 import os
 import pickle
 import warnings
-from typing import Any
 
 import numpy as np
 from scipy.stats import shapiro
@@ -39,8 +38,8 @@ def check_and_update_dataset(target: Target) -> Target:
     ):
         return target
 
-    y_train_new = []
-    classes = list(target.model.get_classes())
+    y_train_new: list[int] = []
+    classes: list[int] = list(target.model.get_classes())
     for y in target.y_train:
         y_train_new.append(classes.index(y))
     target.y_train = np.array(y_train_new, int)
@@ -48,8 +47,8 @@ def check_and_update_dataset(target: Target) -> Target:
         "new y_train has values and counts: %s",
         np.unique(target.y_train, return_counts=True),
     )
-    ok_pos = []
-    y_test_new = []
+    ok_pos: list[int] = []
+    y_test_new: list[int] = []
     for i, y in enumerate(target.y_test):
         if y in classes:
             ok_pos.append(i)
@@ -123,7 +122,7 @@ def train_shadow_models(
 def save_shadow_model(
     shadow_path: str,
     idx: int,
-    model: Any,
+    model: Model,
     indices_train: np.ndarray,
     indices_test: np.ndarray,
 ) -> None:
@@ -138,15 +137,17 @@ def save_shadow_model(
         pickle.dump(indices_test, f)
 
 
-def get_shadow_model(shadow_path: str, idx: int) -> tuple[Any, np.ndarray, np.ndarray]:
+def get_shadow_model(
+    shadow_path: str, idx: int
+) -> tuple[Model, np.ndarray, np.ndarray]:
     """Return a shadow model and indices previously saved."""
     path: str = os.path.normpath(f"{shadow_path}/{idx}")
     with open(os.path.join(path, "model.pkl"), "rb") as f:
-        model = pickle.load(f)
+        model: Model = pickle.load(f)
     with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-        indices_train = pickle.load(f)
+        indices_train: np.ndarray = pickle.load(f)
     with open(os.path.join(path, "indices_test.pkl"), "rb") as f:
-        indices_test = pickle.load(f)
+        indices_test: np.ndarray = pickle.load(f)
     return model, indices_train, indices_test
 
 
@@ -189,13 +190,15 @@ def logit(p: float) -> float:
     instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
     defaults at 1e-16.
     """
-    p = min(p, 1 - EPS)
+    p: float = min(p, 1 - EPS)
     p = max(p, EPS)
     return np.log(p / (1 - p))
 
 
-def get_class_by_name(class_path: str):
+def get_class_by_name(class_path: str) -> type[object]:
     """Return a class given its name."""
+    module_path: str
+    class_name: str
     module_path, class_name = class_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
