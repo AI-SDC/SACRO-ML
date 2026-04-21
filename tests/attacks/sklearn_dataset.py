@@ -15,13 +15,14 @@ from sacroml.attacks.data import SklearnDataHandler
 random_state = 1
 
 
-def _generate_nursery_data(n_samples=2000, random_state=1):
+def _generate_nursery_data(n_samples=12960, random_state=1):
     """Generate synthetic categorical data mimicking the nursery dataset.
 
     Uses make_classification to create a learnable classification problem,
     then discretises continuous features into categories matching the
     OpenML nursery dataset (data_id=26) structure so that one-hot encoding
-    yields the same column layout.
+    yields the same column layout. The default ``n_samples`` matches the
+    size of the real nursery dataset (12960).
     """
     feature_specs = [
         ("parents", ["great_pret", "pretentious", "usual"]),
