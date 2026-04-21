@@ -7,6 +7,8 @@ import yaml
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.meta_attack import MetaAttack
+from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
@@ -18,6 +20,8 @@ logger = logging.getLogger(__name__)
 registry: dict[str, type[Attack]] = {
     "attribute": AttributeAttack,
     "lira": LIRAAttack,
+    "meta": MetaAttack,
+    "qmia": QMIAAttack,
     "structural": StructuralAttack,
     "worstcase": WorstCaseAttack,
 }
