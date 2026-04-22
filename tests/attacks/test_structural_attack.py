@@ -40,7 +40,9 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
         random_state=12345,
     )
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     # these types should be handled
     if modeltype == "dt":
@@ -241,7 +243,7 @@ def test_dt_disclosive():
 def test_adaboost_nondisclosive():
     """Test for nondisclosive adaboost classifier."""
     param_dict_adasafe = {
-        "n_estimators": 2,
+        "n_estimators": 5,
         "estimator": DecisionTreeClassifier(**kwargs_dtsafe),
     }
     target = get_target("adaboost", **param_dict_adasafe)
