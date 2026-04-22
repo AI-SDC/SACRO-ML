@@ -37,6 +37,7 @@ folders = [
     "fit2.tf",
     "outputs",
     "output_attribute",
+    "outputs_instance_based",
     "output_lira",
     "output_pytorch",
     "output_sklearn",
