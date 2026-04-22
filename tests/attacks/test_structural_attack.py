@@ -40,7 +40,9 @@ def get_target(modeltype: str, **kwparams: dict) -> Target:
         random_state=12345,
     )
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     # these types should be handled
     if modeltype == "dt":

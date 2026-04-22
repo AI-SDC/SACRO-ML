@@ -7,7 +7,6 @@ mpl.use("Agg")
 import contextlib
 import os
 import shutil
-import types
 from datetime import date
 
 import numpy as np
@@ -19,6 +18,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.target import Target
+from tests.attacks.sklearn_dataset import _generate_nursery_data
 
 np.random.seed(1)
 
@@ -106,62 +106,6 @@ def _cleanup():
     for file in files:
         with contextlib.suppress(Exception):
             os.remove(file)
-
-
-def _generate_nursery_data(n_samples=12960, random_state=1):
-    """Generate synthetic categorical data mimicking the nursery dataset.
-
-    Uses make_classification to create a learnable classification problem,
-    then discretises continuous features into categories matching the
-    OpenML nursery dataset (data_id=26) structure so that one-hot encoding
-    yields the same column layout. The default ``n_samples`` matches the
-    size of the real nursery dataset (12960) so that downstream tests see
-    the same numpy RNG footprint as when ``fetch_openml`` was used.
-    """
-    feature_specs = [
-        ("parents", ["great_pret", "pretentious", "usual"]),
-        (
-            "has_nurs",
-            ["critical", "less_proper", "proper", "slightly_prob", "very_crit"],
-        ),
-        ("form", ["complete", "foster", "other", "others"]),
-        ("children", ["1", "2", "3", "more"]),
-        ("housing", ["convenient", "less_proper", "slightly_prob"]),
-        ("finance", ["convenient", "inconv"]),
-        ("social", ["non_prob", "slightly_prob", "very_recom"]),
-        ("health", ["not_recom", "priority", "recommended"]),
-    ]
-    target_classes = ["not_recom", "priority", "spec_prior", "very_recom"]
-
-    n_features = len(feature_specs)
-    n_classes = len(target_classes)
-
-    x_cont, y_int = make_classification(
-        n_samples=n_samples,
-        n_features=n_features,
-        n_informative=n_features,
-        n_redundant=0,
-        n_classes=n_classes,
-        n_clusters_per_class=1,
-        class_sep=1.6,
-        random_state=random_state,
-    )
-
-    # Discretise each continuous feature into categories via percentile binning
-    feature_names = []
-    columns = []
-    for i, (name, categories) in enumerate(feature_specs):
-        feature_names.append(name)
-        n_cats = len(categories)
-        percentiles = np.linspace(0, 100, n_cats + 1)[1:-1]
-        bins = np.percentile(x_cont[:, i], percentiles)
-        bin_indices = np.digitize(x_cont[:, i], bins)
-        columns.append(np.array([categories[idx] for idx in bin_indices]))
-
-    data = np.column_stack(columns)
-    target = np.array([target_classes[idx] for idx in y_int])
-
-    return types.SimpleNamespace(data=data, target=target, feature_names=feature_names)
 
 
 @pytest.fixture
