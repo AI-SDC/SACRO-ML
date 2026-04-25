@@ -18,7 +18,6 @@ from the two distributions. That is, the (log) PDF of pr_in minus pr_out.
 from __future__ import annotations
 
 import logging
-import os
 from typing import Any
 
 import numpy as np
@@ -40,7 +39,7 @@ EPS: float = 1e-16  # Used to avoid numerical issues
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
 
-    _json_exclude_keys = Attack._json_exclude_keys | frozenset({"individual"})
+    _individual_npz_prefix = "lira"
 
     def __init__(
         self,
@@ -359,17 +358,15 @@ class LIRAAttack(Attack):
             self.result["score"] = [score[1] for score in mia_scores]
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
+            # Cached for `_individual_extras`; included in the .npz so the
+            # ROC can be recomputed from stored data.
+            self._y_pred_proba = y_pred_proba
+            self._mia_labels = mia_labels
 
-            if self.write_report:
-                npz_filename = "lira_individual.npz"
-                npz_path = os.path.join(self.output_dir, npz_filename)
-                np.savez_compressed(
-                    npz_path,
-                    y_pred_proba=y_pred_proba,
-                    y_test=mia_labels,
-                    **{k: np.asarray(v) for k, v in self.result.items()},
-                )
-                self.attack_metrics[-1]["individual_file"] = npz_filename
+    def _individual_extras(self, instance_key: str) -> dict[str, np.ndarray]:
+        """Return arrays needed to recompute the ROC from the stored .npz."""
+        del instance_key
+        return {"y_pred_proba": self._y_pred_proba, "y_test": self._mia_labels}
 
     def _get_mean_std(
         self, confidences: list[float], global_std: float

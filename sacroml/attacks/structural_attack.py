@@ -337,6 +337,8 @@ class StructuralAttack(Attack):
        (partitions of decision space with some groups below the cell count threshold)
     """
 
+    _individual_npz_prefix = "structural"
+
     def __init__(
         self,
         output_dir: str = "outputs",

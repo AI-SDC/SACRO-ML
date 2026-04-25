@@ -133,29 +133,27 @@ def test_lira_individual_npz_and_json(lira_classifier_setup):
     )
     output = lira.attack(target)
 
-    # Check .npz file was created
-    npz_path = os.path.join(output_dir, "lira_individual.npz")
+    instance = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+    npz_filename = instance["individual_file"]
+    assert npz_filename.startswith("lira_individual_")
+    assert npz_filename.endswith("_instance_0.npz")
+
+    npz_path = os.path.join(output_dir, npz_filename)
     assert os.path.exists(npz_path)
 
-    # Check .npz contains expected arrays
     data = np.load(npz_path)
     assert "y_pred_proba" in data
     assert "y_test" in data
     assert "score" in data
     assert "member" in data
 
-    # Check individual_file is stored in metrics (relative filename)
-    instance = output["attack_experiment_logger"]["attack_instance_logger"][
-        "instance_0"
-    ]
-    assert instance["individual_file"] == "lira_individual.npz"
-
     # Check JSON file does not contain fpr/tpr/roc_thresh/individual
     json_path = os.path.join(output_dir, "report.json")
     with open(json_path, encoding="utf-8") as fp:
         json_data = json.load(fp)
 
-    # Find the LiRA attack entry in the JSON
     lira_key = [k for k in json_data if k.startswith("LiRA")][0]
     json_instance = json_data[lira_key]["attack_experiment_logger"][
         "attack_instance_logger"
@@ -164,7 +162,42 @@ def test_lira_individual_npz_and_json(lira_classifier_setup):
     assert "tpr" not in json_instance
     assert "roc_thresh" not in json_instance
     assert "individual" not in json_instance
-    assert json_instance["individual_file"] == "lira_individual.npz"
+    assert json_instance["individual_file"] == npz_filename
+
+
+def test_lira_two_runs_same_dir_no_clobber(lira_classifier_setup):
+    """Two LiRA runs into the same output_dir keep distinct .npz files."""
+    target = lira_classifier_setup
+    output_dir = "test_output_lira_two_runs"
+
+    lira_a = LIRAAttack(
+        output_dir=output_dir,
+        write_report=True,
+        n_shadow_models=20,
+        mode="offline",
+        report_individual=True,
+    )
+    lira_b = LIRAAttack(
+        output_dir=output_dir,
+        write_report=True,
+        n_shadow_models=20,
+        mode="offline-carlini",
+        report_individual=True,
+    )
+
+    out_a = lira_a.attack(target)
+    out_b = lira_b.attack(target)
+
+    fname_a = out_a["attack_experiment_logger"]["attack_instance_logger"]["instance_0"][
+        "individual_file"
+    ]
+    fname_b = out_b["attack_experiment_logger"]["attack_instance_logger"]["instance_0"][
+        "individual_file"
+    ]
+
+    assert fname_a != fname_b
+    assert os.path.exists(os.path.join(output_dir, fname_a))
+    assert os.path.exists(os.path.join(output_dir, fname_b))
 
 
 def test_lira_multiclass(get_target_multiclass):
