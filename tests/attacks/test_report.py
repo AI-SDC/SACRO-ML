@@ -88,3 +88,64 @@ def test_write_json_sanitises_non_finite_floats():
     assert inner["d_normal"] == pytest.approx(1.5)
     assert inner["BaNaNa"] == "BaNaNa"
     assert inner["array"] == [1.0, None, None]
+
+
+def test_strip_keys():
+    """Test _strip_keys removes specified keys without mutating the original."""
+    original = {
+        "metadata": {"attack_name": "test"},
+        "instance_0": {
+            "AUC": 0.8,
+            "fpr": [0.0, 0.5, 1.0],
+            "tpr": [0.0, 0.9, 1.0],
+            "roc_thresh": [1.0, 0.5, 0.0],
+        },
+    }
+    exclude = frozenset({"fpr", "tpr", "roc_thresh"})
+    result = report._strip_keys(original, exclude)
+
+    # Excluded keys are removed
+    assert "fpr" not in result["instance_0"]
+    assert "tpr" not in result["instance_0"]
+    assert "roc_thresh" not in result["instance_0"]
+
+    # Other keys are preserved
+    assert result["instance_0"]["AUC"] == 0.8
+    assert result["metadata"]["attack_name"] == "test"
+
+    # Original dict is not mutated
+    assert "fpr" in original["instance_0"]
+    assert "tpr" in original["instance_0"]
+    assert "roc_thresh" in original["instance_0"]
+
+
+def test_write_json_excludes_large_arrays():
+    """Test write_json strips excluded keys from JSON output."""
+    metrics = {
+        "AUC": 0.75,
+        "fpr": np.linspace(0, 1, 100).tolist(),
+        "tpr": np.linspace(0, 1, 100).tolist(),
+        "roc_thresh": np.linspace(1, 0, 100).tolist(),
+    }
+    output = {
+        "metadata": {"attack_name": "test_attack"},
+        "attack_experiment_logger": {
+            "attack_instance_logger": {"instance_0": metrics},
+        },
+    }
+    exclude = frozenset({"fpr", "tpr", "roc_thresh"})
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dest = os.path.join(tmpdir, "report")
+        report.write_json(output, dest, exclude_keys=exclude)
+        path = dest + ".json"
+        with open(path, encoding="utf-8") as fp:
+            data = json.load(fp)
+
+    instance = data["test_attack"]["attack_experiment_logger"][
+        "attack_instance_logger"
+    ]["instance_0"]
+    assert "fpr" not in instance
+    assert "tpr" not in instance
+    assert "roc_thresh" not in instance
+    assert instance["AUC"] == pytest.approx(0.75)

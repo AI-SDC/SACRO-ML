@@ -39,6 +39,8 @@ EPS: float = 1e-16  # Used to avoid numerical issues
 class LIRAAttack(Attack):
     """The main LiRA Attack class."""
 
+    _individual_npz_prefix = "lira"
+
     def __init__(
         self,
         output_dir: str = "outputs",
@@ -356,6 +358,15 @@ class LIRAAttack(Attack):
             self.result["score"] = [score[1] for score in mia_scores]
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
+            # Cached for `_individual_extras`; included in the .npz so the
+            # ROC can be recomputed from stored data.
+            self._y_pred_proba = y_pred_proba
+            self._mia_labels = mia_labels
+
+    def _individual_extras(self, instance_key: str) -> dict[str, np.ndarray]:
+        """Return arrays needed to recompute the ROC from the stored .npz."""
+        del instance_key
+        return {"y_pred_proba": self._y_pred_proba, "y_test": self._mia_labels}
 
     def _get_mean_std(
         self, confidences: list[float], global_std: float

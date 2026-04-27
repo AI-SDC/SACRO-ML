@@ -146,10 +146,51 @@ def _sanitise_floats(obj: Any) -> Any:
     return obj
 
 
-def write_json(output: dict, dest: str) -> None:
-    """Write attack report to JSON."""
+def _strip_keys(obj: Any, exclude_keys: frozenset[str]) -> Any:
+    """Recursively remove specified keys from nested dicts.
+
+    Creates new containers so the original object is not mutated.
+
+    Parameters
+    ----------
+    obj : Any
+        Object to filter.
+    exclude_keys : frozenset[str]
+        Set of dictionary keys to exclude.
+
+    Returns
+    -------
+    Any
+        Filtered object with specified keys removed.
+    """
+    if isinstance(obj, dict):
+        return {
+            k: _strip_keys(v, exclude_keys)
+            for k, v in obj.items()
+            if k not in exclude_keys
+        }
+    if isinstance(obj, list):
+        return [_strip_keys(v, exclude_keys) for v in obj]
+    return obj
+
+
+def write_json(
+    output: dict, dest: str, exclude_keys: frozenset[str] = frozenset()
+) -> None:
+    """Write attack report to JSON.
+
+    Parameters
+    ----------
+    output : dict
+        Attack output dictionary.
+    dest : str
+        Destination path (without extension).
+    exclude_keys : frozenset[str]
+        Keys to exclude from the JSON output to reduce file size.
+    """
+    filtered = _strip_keys(output, exclude_keys) if exclude_keys else output
     attack_formatter = GenerateJSONModule(dest + ".json")
-    attack_report: str = json.dumps(_sanitise_floats(output), cls=CustomJSONEncoder)
+    attack_report: str = json.dumps(_sanitise_floats(filtered), cls=CustomJSONEncoder)
     attack_name: str = output["metadata"]["attack_name"]
     attack_formatter.add_attack_output(attack_report, attack_name)
 
