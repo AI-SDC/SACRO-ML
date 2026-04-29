@@ -44,21 +44,27 @@ def _safe_auc_per_sec(row: dict[str, Any]) -> float:
     return auc / seconds if seconds > 0 else float("-inf")
 
 
-def _pick_fastest(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Return the row with the smallest ``seconds`` value."""
+def _pick_fastest(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return the row with the smallest ``seconds``, or ``None`` if none eligible."""
     eligible = [r for r in rows if "seconds" in r]
+    if not eligible:
+        return None
     return min(eligible, key=lambda r: float(r["seconds"]))
 
 
-def _pick_best_auc(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Return the row with the largest ``AUC`` value."""
+def _pick_best_auc(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return the row with the largest ``AUC`` value, or ``None`` if none eligible."""
     eligible = [r for r in rows if "AUC" in r]
+    if not eligible:
+        return None
     return max(eligible, key=lambda r: float(r["AUC"]))
 
 
-def _pick_best_auc_per_sec(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Return the row with the highest AUC-per-second ratio."""
+def _pick_best_auc_per_sec(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return the row with the best AUC-per-second, or ``None`` if none eligible."""
     eligible = [r for r in rows if "AUC" in r and "seconds" in r]
+    if not eligible:
+        return None
     return max(eligible, key=_safe_auc_per_sec)
 
 
@@ -109,9 +115,13 @@ def _print_scenario_summary(scenario: str, scenario_rows: list[dict[str, Any]]) 
     fastest = _pick_fastest(scenario_rows)
     best_auc = _pick_best_auc(scenario_rows)
     best_auc_per_sec = _pick_best_auc_per_sec(scenario_rows)
-    print(f"  Fastest:         {_format_row(fastest)}")
-    print(f"  Best AUC:        {_format_row(best_auc)}")
-    print(f"  Best AUC / sec:  {_format_row(best_auc_per_sec)}")
+    none_msg = "no successful runs"
+    fastest_str = _format_row(fastest) if fastest else none_msg
+    best_auc_str = _format_row(best_auc) if best_auc else none_msg
+    best_per_sec_str = _format_row(best_auc_per_sec) if best_auc_per_sec else none_msg
+    print(f"  Fastest:         {fastest_str}")
+    print(f"  Best AUC:        {best_auc_str}")
+    print(f"  Best AUC / sec:  {best_per_sec_str}")
     print("  Leaderboard (sorted by AUC):")
     _print_table(scenario_rows)
 

@@ -460,6 +460,7 @@ def _plot_lira_individuals(metrics: dict, dest: str) -> None:
 
     plt.tight_layout()
     plt.savefig(dest)
+    plt.close()
 
 
 def create_lr_report(output: dict) -> FPDF:
