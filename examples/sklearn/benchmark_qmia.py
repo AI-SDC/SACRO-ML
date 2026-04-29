@@ -19,6 +19,7 @@ import argparse
 import csv
 import json
 import logging
+import sys
 import tempfile
 import time
 import warnings
@@ -84,10 +85,24 @@ def _build_target(
     rf_estimators: int,
     test_size: float,
 ) -> Target:
-    """Build a Target from feature/label arrays."""
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, stratify=y, random_state=random_state
-    )
+    """Build a Target from feature/label arrays.
+
+    Falls back to a non-stratified split if the data is too small or
+    imbalanced for stratify=y to satisfy.
+    """
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, stratify=y, random_state=random_state
+        )
+    except ValueError:
+        print(
+            f"  Warning: stratified split failed for {name!r}; "
+            f"falling back to random split.",
+            file=sys.stderr,
+        )
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, stratify=None, random_state=random_state
+        )
     model = RandomForestClassifier(
         n_estimators=rf_estimators, random_state=random_state
     )
@@ -156,25 +171,53 @@ def _load_scenarios(args: argparse.Namespace) -> list[Scenario]:
     return [Scenario(**item) for item in payload]
 
 
+def _failed_row(
+    scenario_name: str, attack_name: str, elapsed: float, status: str
+) -> dict[str, Any]:
+    """Build a row representing a failed/skipped attack run."""
+    return {
+        "scenario": scenario_name,
+        "attack": attack_name,
+        "seconds": round(elapsed, 6),
+        "status": status,
+    }
+
+
 def _run_attack(
     scenario_name: str, attack_name: str, attack: Any, target: Target
 ) -> dict[str, Any]:
-    """Run one attack and return timing + key metrics, or ``status: failed``."""
+    """Run one attack and return a row of timing + metrics, or a failure row.
+
+    Successful runs return a row with metric fields (``AUC``, ``TPR``, ...).
+    Skipped or failed runs return a row with a single ``status`` string
+    describing why (no metric fields).
+    """
     started = time.perf_counter()
     output = attack.attack(target)
     elapsed = time.perf_counter() - started
 
-    if not output or output.get("status") == "failed":
-        return {
-            "scenario": scenario_name,
-            "attack": attack_name,
-            "seconds": round(elapsed, 6),
-            "status": output.get("status", "not_attackable_or_empty")
-            if output
-            else "not_attackable_or_empty",
-        }
+    if not output:
+        return _failed_row(
+            scenario_name, attack_name, elapsed, "not_attackable_or_empty"
+        )
 
-    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    if output.get("status") == "failed":
+        return _failed_row(
+            scenario_name,
+            attack_name,
+            elapsed,
+            output.get("fail_reason", "attack reported failed status"),
+        )
+
+    try:
+        metrics = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+    except (KeyError, TypeError):
+        return _failed_row(
+            scenario_name, attack_name, elapsed, "unexpected_output_structure"
+        )
+
     row: dict[str, Any] = {
         "scenario": scenario_name,
         "attack": attack_name,

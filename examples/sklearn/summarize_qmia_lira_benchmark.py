@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -182,8 +183,9 @@ def main() -> None:
             summarize(paths[0])
         else:
             summarize_multiple(paths)
-    except FileNotFoundError as error:
-        print(error)
+    except (FileNotFoundError, ValueError) as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
