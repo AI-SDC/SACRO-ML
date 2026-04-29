@@ -14,6 +14,8 @@ for its histogram-based splitting algorithm, which is faster on large datasets.
 from __future__ import annotations
 
 import logging
+import uuid
+from datetime import datetime
 
 import numpy as np
 from fpdf import FPDF
@@ -23,6 +25,7 @@ from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
+from sacroml.version import __version__
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -113,10 +116,16 @@ class QMIAAttack(Attack):
         proba_train = target.model.predict_proba(target.X_train)
         proba_test = target.model.predict_proba(target.X_test)
         if not (np.isfinite(proba_train).all() and np.isfinite(proba_test).all()):
-            raise ValueError(
+            output = self._make_failed_output(
+                target,
                 "target.model.predict_proba returned non-finite values; "
-                "QMIA cannot score rows with NaN/Inf probabilities."
+                "QMIA cannot score rows with NaN/Inf probabilities.",
             )
+            try:
+                self._write_report(output)
+            except OSError:
+                logger.warning("Could not write failed report.")
+            return output
 
         train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
         test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
@@ -147,14 +156,20 @@ class QMIAAttack(Attack):
         threshold_spread: float = float(np.std(thresholds))
         score_spread: float = float(np.std(test_scores))
         if threshold_spread < max(1e-10, 1e-6 * score_spread):
-            raise RuntimeError(
+            output = self._make_failed_output(
+                target,
                 "QMIA quantile regressor degenerated to a near-constant "
                 f"predictor (threshold std={threshold_spread:.3e}, score "
                 f"std={score_spread:.3e}). Likely causes: target model "
                 "produces uniform hinge scores (e.g., DummyClassifier), "
                 "non-member set too small, or target output lacks "
-                "information. Attack cannot produce meaningful results."
+                "information. Attack cannot produce meaningful results.",
             )
+            try:
+                self._write_report(output)
+            except OSError:
+                logger.warning("Could not write failed report.")
+            return output
 
         y_membership: np.ndarray = utils.membership_labels(
             len(train_scores), len(test_scores)
@@ -194,6 +209,7 @@ class QMIAAttack(Attack):
             self.attack_metrics[0]["individual"] = individual
 
         output = self._make_report(target)
+        output["status"] = "success"
         self._write_report(output)
         return output
 
@@ -203,6 +219,26 @@ class QMIAAttack(Attack):
         """Convert QMIA margins into [p_non_member, p_member] rows."""
         margins = np.asarray(scores - thresholds, dtype=float)
         return utils.margins_to_two_column_probs(margins)
+
+    def _make_failed_output(self, target: Target, fail_reason: str) -> dict:
+        """Build output dict for an attack that could not produce results."""
+        self.metadata = {
+            "sacroml_version": __version__,
+            "attack_name": str(self),
+            "attack_params": self.get_params(),
+            "global_metrics": {},
+        }
+        if target.model is not None:
+            self.metadata["target_model"] = target.model.model_name
+            self.metadata["target_model_params"] = target.model.model_params
+            self.metadata["target_train_params"] = target.model.train_params
+        return {
+            "log_id": str(uuid.uuid4()),
+            "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "metadata": self.metadata,
+            "status": "failed",
+            "fail_reason": fail_reason,
+        }
 
     def _construct_metadata(self) -> None:
         """Construct the metadata object."""
@@ -233,4 +269,12 @@ class QMIAAttack(Attack):
 
     def _make_pdf(self, output: dict) -> FPDF:
         """Create PDF report."""
+        if output.get("status") == "failed":
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_xy(0, 0)
+            report.title(pdf, "Quantile Regression Attack Report")
+            report.subtitle(pdf, "Attack Status: Failed")
+            report.line(pdf, output.get("fail_reason", "Unknown reason."))
+            return pdf
         return report.create_qmia_report(output)

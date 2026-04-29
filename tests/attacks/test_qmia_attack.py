@@ -166,6 +166,7 @@ def test_qmia_runs_on_binary_tabular_target(qmia_binary_target, tmp_path):
 
     output = attack_obj.attack(qmia_binary_target)
 
+    assert output["status"] == "success"
     assert output["metadata"]["attack_name"] == "QMIA Attack"
     m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert 0 <= m["TPR"] <= 1
@@ -297,6 +298,19 @@ def test_qmia_make_pdf(qmia_binary_target, tmp_path):
     assert os.path.isfile(os.path.join(out_dir, "report.json"))
 
 
+def test_qmia_failed_run_writes_report(qmia_degenerate_target, tmp_path):
+    """Failed QMIA run with write_report=True should produce JSON and PDF."""
+    out_dir = str(tmp_path / "qmia_failed_report")
+    attack_obj = QMIAAttack(output_dir=out_dir, write_report=True)
+
+    output = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "metadata" in output
+    assert os.path.isfile(os.path.join(out_dir, "report.json"))
+    assert os.path.isfile(os.path.join(out_dir, "report.pdf"))
+
+
 def test_qmia_attackable_rejects_model_without_predict_proba():
     """Attackable() should reject a target whose model lacks predict_proba."""
     target = MagicMock(spec=Target)
@@ -366,18 +380,21 @@ def fixture_qmia_degenerate_target() -> Target:
     return target
 
 
-def test_qmia_raises_on_degenerate_regressor(
+def test_qmia_reports_failure_on_degenerate_regressor(
     qmia_degenerate_target: Target, tmp_path: Path
 ) -> None:
-    """C1: QMIA must raise when the quantile regressor collapses to a constant."""
+    """C1: QMIA must report failure when the quantile regressor collapses."""
     attack_obj: QMIAAttack = QMIAAttack(
         output_dir=str(tmp_path / "qmia_degen"),
         write_report=False,
         alpha=0.01,
     )
 
-    with pytest.raises(RuntimeError, match="degenerated to a near-constant"):
-        attack_obj.attack(qmia_degenerate_target)
+    output: dict = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "degenerated to a near-constant" in output["fail_reason"]
+    assert "attack_experiment_logger" not in output
 
 
 def test_qmia_metrics_include_calibration_ok(
@@ -431,12 +448,12 @@ def test_qmia_warns_on_miscalibration(
     assert any("calibration deviated" in rec.message for rec in caplog.records)
 
 
-def test_qmia_raises_on_non_finite_predict_proba(
+def test_qmia_reports_failure_on_non_finite_predict_proba(
     qmia_binary_target: Target,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """M1: QMIA must reject NaN/Inf probabilities with a diagnostic ValueError."""
+    """M1: QMIA must report failure when predict_proba returns NaN/Inf."""
     original_predict_proba = qmia_binary_target.model.predict_proba
 
     def nan_predict_proba(X: np.ndarray) -> np.ndarray:
@@ -449,5 +466,8 @@ def test_qmia_raises_on_non_finite_predict_proba(
         output_dir=str(tmp_path / "qmia_nan"), write_report=False
     )
 
-    with pytest.raises(ValueError, match="non-finite"):
-        attack_obj.attack(qmia_binary_target)
+    output: dict = attack_obj.attack(qmia_binary_target)
+
+    assert output["status"] == "failed"
+    assert "non-finite" in output["fail_reason"]
+    assert "attack_experiment_logger" not in output
