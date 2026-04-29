@@ -34,6 +34,7 @@ warnings.filterwarnings("ignore")
 
 
 def _make_target(x, y, name):
+    """Build a Target from feature/label arrays."""
     x_tr, x_te, y_tr, y_te = train_test_split(
         x, y, test_size=0.4, stratify=y, random_state=42
     )
@@ -57,6 +58,7 @@ def _make_target(x, y, name):
 
 
 def _run(cls, tgt, **kw):
+    """Run a single attack and return ``(metrics_dict, elapsed_seconds)``."""
     d = tempfile.mkdtemp()
     try:
         obj = cls(output_dir=d, write_report=False, **kw)
@@ -72,18 +74,21 @@ def _run(cls, tgt, **kw):
 
 
 def _v(val):
+    """Format a metric value (missing or NaN values render as "—")."""
     if val is None or (isinstance(val, float) and np.isnan(val)):
-        return "-"
+        return "—"
     return f"{val:.3f}"
 
 
 def _vt(val):
+    """Format a wall-time value in seconds (missing values render as "—")."""
     if val is None:
-        return "-"
+        return "—"
     return f"{val:.2f}s"
 
 
 def _build_scenarios():
+    """Generate benchmark scenarios of increasing size and complexity."""
     bc_x, bc_y = load_breast_cancer(return_X_y=True)
     scenarios = [("Breast Cancer (569)", bc_x, bc_y)]
     for n, d, c, sep in [
@@ -115,6 +120,7 @@ def _build_scenarios():
 
 
 def _run_all():
+    """Run every attack across every scenario and collect their metrics."""
     scenarios = _build_scenarios()
     results = {}
 
@@ -159,11 +165,13 @@ def _run_all():
 
 
 def _g(results, sn, an, field):
+    """Look up ``field`` for the ``(scenario, attack)`` pair, or ``None``."""
     r = results.get((sn, an))
     return r[field] if r else None
 
 
 def _print_tables(results):
+    """Print AUC, FPR-control and runtime comparison tables to stdout."""
     sns = list(dict.fromkeys(k[0] for k in results))
     real = [s for s in sns if not s.startswith("n=")]
     binary = [s for s in sns if s.startswith("n=") and "C=" not in s]

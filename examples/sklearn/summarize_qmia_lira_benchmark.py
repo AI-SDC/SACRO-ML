@@ -15,6 +15,7 @@ from typing import Any
 
 
 def _load_rows(path: Path) -> list[dict[str, Any]]:
+    """Load benchmark result rows from a benchmark JSON file."""
     if not path.exists():
         raise FileNotFoundError(
             f"Benchmark JSON not found: {path}. Run the benchmark first."
@@ -28,6 +29,7 @@ def _load_rows(path: Path) -> list[dict[str, Any]]:
 
 
 def _group_by_scenario(rows: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Group rows by their ``scenario`` field, preserving insertion order."""
     grouped: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         scenario = row.get("scenario", "unknown")
@@ -36,27 +38,32 @@ def _group_by_scenario(rows: list[dict[str, Any]]) -> dict[str, list[dict[str, A
 
 
 def _safe_auc_per_sec(row: dict[str, Any]) -> float:
+    """Return AUC divided by seconds, or ``-inf`` for non-positive seconds."""
     seconds = float(row.get("seconds", 0.0))
     auc = float(row.get("AUC", 0.0))
     return auc / seconds if seconds > 0 else float("-inf")
 
 
 def _pick_fastest(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return the row with the smallest ``seconds`` value."""
     eligible = [r for r in rows if "seconds" in r]
     return min(eligible, key=lambda r: float(r["seconds"]))
 
 
 def _pick_best_auc(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return the row with the largest ``AUC`` value."""
     eligible = [r for r in rows if "AUC" in r]
     return max(eligible, key=lambda r: float(r["AUC"]))
 
 
 def _pick_best_auc_per_sec(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return the row with the highest AUC-per-second ratio."""
     eligible = [r for r in rows if "AUC" in r and "seconds" in r]
     return max(eligible, key=_safe_auc_per_sec)
 
 
 def _format_row(row: dict[str, Any]) -> str:
+    """Format a single result row for one-line summary display."""
     attack = row.get("attack", "unknown")
     seconds = float(row.get("seconds", float("nan")))
     auc = float(row.get("AUC", float("nan")))
@@ -68,6 +75,7 @@ def _format_row(row: dict[str, Any]) -> str:
 
 
 def _print_table(rows: list[dict[str, Any]]) -> None:
+    """Print a leaderboard of rows sorted by descending AUC."""
     headers = ("attack", "secs", "AUC", "Adv", "TPR", "FPR", "AUC/sec")
     attack_width = max(
         len(headers[0]),
@@ -96,6 +104,7 @@ def _print_table(rows: list[dict[str, Any]]) -> None:
 
 
 def _print_scenario_summary(scenario: str, scenario_rows: list[dict[str, Any]]) -> None:
+    """Print per-scenario winners (fastest, best AUC, best AUC/sec) and leaderboard."""
     print(f"\nScenario: {scenario} (runs: {len(scenario_rows)})")
     fastest = _pick_fastest(scenario_rows)
     best_auc = _pick_best_auc(scenario_rows)

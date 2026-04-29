@@ -60,6 +60,7 @@ DEFAULT_SCENARIOS = [
 
 
 def _parse_int_list(value: str) -> list[int]:
+    """Parse a comma-separated string into a list of ints."""
     return [int(item.strip()) for item in value.split(",") if item.strip()]
 
 
@@ -145,6 +146,7 @@ def _load_sklearn_dataset(name: str) -> tuple[Any, Any, str]:
 
 
 def _parse_name_list(value: str) -> list[str]:
+    """Parse a comma-separated string into a list of trimmed names."""
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
@@ -227,18 +229,21 @@ def _write_outputs(
 
 
 def _v(val: float | None) -> str:
+    """Format a metric value (missing or NaN values render as "—")."""
     if val is None or (isinstance(val, float) and val != val):
         return "\u2014"
     return f"{val:.3f}"
 
 
 def _vt(val: float | None) -> str:
+    """Format a wall-time value in seconds (missing values render as "—")."""
     if val is None:
         return "\u2014"
     return f"{val:.2f}s"
 
 
 def _lookup(rows, scen, atk, field):
+    """Find a row's ``field`` by ``(scenario, attack)``, or ``None``."""
     for r in rows:
         if r["scenario"] == scen and r["attack"] == atk:
             return r.get(field)

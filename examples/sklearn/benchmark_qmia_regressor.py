@@ -120,14 +120,16 @@ def _build_scenarios():
 
 
 def _v(val):
+    """Format a metric value (missing or NaN values render as "—")."""
     if val is None or (isinstance(val, float) and np.isnan(val)):
-        return "-"
+        return "—"
     return f"{val:.3f}"
 
 
 def _vt(val):
+    """Format a wall-time value in seconds (missing values render as "—")."""
     if val is None:
-        return "-"
+        return "—"
     return f"{val:.2f}s"
 
 
@@ -172,6 +174,7 @@ def _run_all():
 
 
 def _g(results, sn, an, field):
+    """Look up ``field`` for the ``(scenario, attack)`` pair, or ``None``."""
     r = results.get((sn, an))
     return r[field] if r else None
 
