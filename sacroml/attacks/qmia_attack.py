@@ -184,7 +184,12 @@ class QMIAAttack(Attack):
         self.attack_metrics[0]["observed_public_fpr"] = obs_fpr
 
         # QR-MIA's core calibration claim: obs_fpr should track alpha.
-        fpr_tolerance: float = max(2.0 * self.alpha, 0.05)
+        # Tolerance is the 95% binomial CI half-width, so a calibrated attack
+        # passes ~95% of the time and a badly miscalibrated one fires reliably.
+        n_test: int = len(test_scores)
+        fpr_tolerance: float = 1.96 * float(
+            np.sqrt(self.alpha * (1.0 - self.alpha) / n_test)
+        )
         calibration_ok: bool = abs(obs_fpr - self.alpha) <= fpr_tolerance
         self.attack_metrics[0]["calibration_ok"] = calibration_ok
         if not calibration_ok:
