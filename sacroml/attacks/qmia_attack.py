@@ -8,9 +8,7 @@ learn per-sample membership thresholds.  A sample is predicted as a member
 when its observed score exceeds the predicted threshold.
 
 Uses ``HistGradientBoostingRegressor`` rather than ``GradientBoostingRegressor``
-for its histogram-based splitting algorithm, which is up to 70x faster on
-large datasets with equivalent attack quality (see
-``examples/sklearn/benchmark_qmia_regressor.py``).
+for its histogram-based splitting algorithm, which is faster on large datasets.
 """
 
 from __future__ import annotations
@@ -124,7 +122,7 @@ class QMIAAttack(Attack):
         test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
 
         # Train quantile regressor on non-member scores; quantile = 1 - alpha
-        # so that alpha% of non-members exceed their own threshold (target FPR).
+        # so that a fraction alpha of non-members exceed their own threshold.
         # Early stopping cuts fit time ~20-40% on large n; below 1000 the 10%
         # validation split is too noisy and can stop training too early.
         x_test_with_y = np.column_stack((target.X_test, target.y_test))
