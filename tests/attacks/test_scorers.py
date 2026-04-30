@@ -59,6 +59,12 @@ def test_resolve_scorer_unknown_string_raises():
         resolve_scorer("not_a_real_scorer")
 
 
+def test_resolve_scorer_non_string_non_callable_raises():
+    """A non-string, non-callable input raises ValueError."""
+    with pytest.raises(ValueError, match="callable or a string"):
+        resolve_scorer(123)
+
+
 def test_score_from_metrics_bogus_key_raises(fitted_rf):
     """A bogus key raises KeyError whose message lists the available keys."""
     clf, X, y = fitted_rf
