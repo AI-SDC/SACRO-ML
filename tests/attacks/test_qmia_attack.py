@@ -16,6 +16,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
+from sacroml.attacks import utils
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.utils import (
@@ -561,3 +562,99 @@ def test_qmia_reports_failure_on_non_finite_predict_proba(
     assert output["status"] == "failed"
     assert "non-finite" in output["fail_reason"]
     assert "attack_experiment_logger" not in output
+
+
+def test_qmia_hinge_score_rejects_one_column_proba() -> None:
+    """Qmia_hinge_score must reject probas with fewer than 2 columns."""
+    with pytest.raises(ValueError, match=">= 2 columns"):
+        qmia_hinge_score(np.array([[0.5], [0.5]]), np.array([0, 0]))
+
+
+def test_check_and_update_dataset_returns_early_with_missing_data() -> None:
+    """Pass the target through when any of the data arrays is missing."""
+    target = MagicMock(spec=Target)
+    target.y_train = None
+    target.y_test = np.array([0, 1])
+    target.X_train = np.zeros((2, 3))
+    target.X_test = np.zeros((2, 3))
+
+    assert utils.check_and_update_dataset(target) is target
+
+
+def test_check_and_update_dataset_warns_on_non_base_estimator(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Warn and pass through when target.model.model is not a sklearn estimator."""
+    target = MagicMock(spec=Target)
+    target.X_train = np.zeros((2, 3))
+    target.y_train = np.array([0, 1])
+    target.X_test = np.zeros((2, 3))
+    target.y_test = np.array([0, 1])
+    target.model = MagicMock()
+    target.model.model = object()  # not a sklearn BaseEstimator
+
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.utils")
+    result = utils.check_and_update_dataset(target)
+
+    assert result is target
+    assert any(
+        "not a scikit-learn BaseEstimator" in rec.message for rec in caplog.records
+    )
+
+
+def test_qmia_failed_non_finite_handles_oserror_on_write_report(
+    qmia_binary_target: Target,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """OSError during failed-report write on the non-finite path must not propagate."""
+    original_predict_proba = qmia_binary_target.model.predict_proba
+
+    def nan_predict_proba(X: np.ndarray) -> np.ndarray:
+        out = original_predict_proba(X).copy()
+        out[0, 0] = np.nan
+        return out
+
+    monkeypatch.setattr(qmia_binary_target.model, "predict_proba", nan_predict_proba)
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_nan_oserror"), write_report=True
+    )
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(attack_obj, "_write_report", boom)
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
+
+    output: dict = attack_obj.attack(qmia_binary_target)
+
+    assert output["status"] == "failed"
+    assert "non-finite" in output["fail_reason"]
+    assert any("Could not write failed report" in rec.message for rec in caplog.records)
+
+
+def test_qmia_failed_degenerate_handles_oserror_on_write_report(
+    qmia_degenerate_target: Target,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """OSError during failed-report write on the degenerate path must not propagate."""
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_degen_oserror"),
+        write_report=True,
+        alpha=0.01,
+    )
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(attack_obj, "_write_report", boom)
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
+
+    output: dict = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "degenerated to a near-constant" in output["fail_reason"]
+    assert any("Could not write failed report" in rec.message for rec in caplog.records)
