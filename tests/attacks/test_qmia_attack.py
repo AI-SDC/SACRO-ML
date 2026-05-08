@@ -12,7 +12,9 @@ import pytest
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestClassifier
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
@@ -333,6 +335,94 @@ def test_qmia_attack_signal_direction(qmia_binary_target, tmp_path):
     ]
 
     assert instance["AUC"] > 0.5
+
+
+def test_qmia_predicts_canaries(tmp_path):
+    """QMIA should flag label-flipped 'canary' training rows as members.
+
+    Selects training rows nearest a decision boundary (lowest 9-NN
+    same-class confidence) and flips their labels. With ``bootstrap=False``
+    every tree fits every row, so the model memorises these mislabeled
+    rows and their hinge scores blow up. The attack should then assign
+    them member_probs well above genuine non-members (the test set).
+    Default RF with bootstrap=True only shows each row to ~63% of trees,
+    which dilutes the canary signal — bootstrap=False is what makes the
+    memorisation visible.
+    """
+    n_canaries = 8
+    X, y = make_classification(
+        n_samples=400,
+        n_features=10,
+        n_informative=6,
+        n_redundant=0,
+        n_classes=2,
+        class_sep=1.0,
+        random_state=0,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, stratify=y, random_state=0
+    )
+
+    knn = KNeighborsClassifier(n_neighbors=9).fit(X_train, y_train)
+    own_class_proba = knn.predict_proba(X_train)[np.arange(len(y_train)), y_train]
+    canary_idx = np.argsort(own_class_proba)[:n_canaries]
+
+    y_train_flipped = y_train.copy()
+    y_train_flipped[canary_idx] = 1 - y_train_flipped[canary_idx]
+
+    model = RandomForestClassifier(n_estimators=100, bootstrap=False, random_state=0)
+    model.fit(X_train, y_train_flipped)
+
+    target = Target(
+        model=model,
+        dataset_name="qmia_canaries",
+        X_train=X_train,
+        y_train=y_train_flipped,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train,
+        y_train_orig=y_train_flipped,
+        X_test_orig=X_test,
+        y_test_orig=y_test,
+    )
+    for idx in range(X.shape[1]):
+        target.add_feature(f"V{idx}", [idx], "float")
+
+    attack_obj = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_canaries"),
+        write_report=False,
+        report_individual=True,
+        random_state=0,
+    )
+    output = attack_obj.attack(target)
+
+    assert output["status"] == "success"
+    individual = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]["individual"]
+    member_prob = np.asarray(individual["member_prob"])
+
+    n_train = len(y_train_flipped)
+    canary_mp = member_prob[canary_idx]
+    test_mp = member_prob[n_train:]
+
+    # AUC of canaries (positives) vs genuine non-members (negatives).
+    # >> 0.5 confirms QMIA flags the deliberately memorised rows correctly.
+    y_score = np.concatenate([canary_mp, test_mp])
+    y_true = np.concatenate([np.ones_like(canary_mp), np.zeros_like(test_mp)])
+    canary_vs_test_auc = roc_auc_score(y_true, y_score)
+    assert canary_vs_test_auc > 0.9, (
+        f"QMIA failed to distinguish memorised canaries from non-members: "
+        f"AUC={canary_vs_test_auc:.3f}"
+    )
+
+    # Most canaries should land above the 90th percentile of test scores.
+    test_p90 = np.percentile(test_mp, 90)
+    n_above_p90 = int((canary_mp > test_p90).sum())
+    assert n_above_p90 >= n_canaries - 1, (
+        f"Only {n_above_p90}/{n_canaries} canaries exceed the test 90th "
+        f"percentile ({test_p90:.3f}); canary scores: {sorted(canary_mp.tolist())}"
+    )
 
 
 # ---------------------------------------------------------------------------
