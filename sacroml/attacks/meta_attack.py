@@ -277,15 +277,25 @@ class MetaAttack(Attack):
     # Existing-report scanning
     # ------------------------------------------------------------------
 
-    def _scan_existing_reports(  # noqa: C901
+    def _scan_existing_reports(
         self,
     ) -> tuple[dict[str, list[list[float]]], dict[str, list[dict]]]:
-        """Scan *report_dir* for attack ``report.json`` files and extract scores.
+        """Scan *report_dir* for cached attack scores.
 
-        Searches every immediate subdirectory of *report_dir* for a file
-        named ``report.json``.  The attack type is identified from the
-        ``metadata.attack_name`` field; individual per-record scores are
-        extracted from ``attack_experiment_logger["attack_instance_logger"]``.
+        Supports two on-disk layouts:
+
+        1. **Canonical single-file layout**, ``{report_dir}/report.json``,
+           where each individual attack has appended its own
+           ``"AttackName_<uuid>"`` section via :class:`GenerateJSONModule`.
+           This is the layout produced when LiRA, QMIA, and Structural are
+           run separately with the same ``output_dir``.
+        2. **Subdirectory-per-attack layout**, ``{report_dir}/<sub>/report.json``,
+           where each sub-attack has its own ``report.json``.
+
+        Both layouts are scanned, so a mixed setup also works.  The attack
+        type is identified from the ``metadata.attack_name`` field; individual
+        per-record scores are extracted from
+        ``attack_experiment_logger["attack_instance_logger"]``.
 
         Returns
         -------
@@ -300,6 +310,12 @@ class MetaAttack(Attack):
             logger.warning("report_dir %r does not exist.", self.report_dir)
             return mia_scores, structural_scores
 
+        # Layout 1: top-level canonical report.json
+        top_level = os.path.join(self.report_dir, "report.json")
+        if os.path.isfile(top_level):
+            self._extract_from_report_file(top_level, mia_scores, structural_scores)
+
+        # Layout 2: subdirectory-per-attack
         try:
             entries = sorted(os.scandir(self.report_dir), key=lambda e: e.name)
         except OSError as exc:
@@ -311,45 +327,57 @@ class MetaAttack(Attack):
         for entry in entries:
             if not entry.is_dir():
                 continue
-            report_path = os.path.join(entry.path, "report.json")
-            if not os.path.isfile(report_path):
+            sub_report = os.path.join(entry.path, "report.json")
+            if not os.path.isfile(sub_report):
                 continue
-
-            try:
-                with open(report_path) as fh:
-                    report_data = json.load(fh)
-            except (OSError, json.JSONDecodeError) as exc:
-                logger.warning("Could not read %s (%s); skipping.", report_path, exc)
-                continue
-
-            # report.json top-level keys follow '<str(attack)>_<log_id>' format
-            # (e.g. 'LiRA Attack_<uuid>'), as written by report.write_json.
-            # Iterating values() avoids parsing the key format.
-            for attack_data in report_data.values():
-                if not isinstance(attack_data, dict):
-                    continue
-                attack_name = attack_data.get("metadata", {}).get("attack_name", "")
-                key = self._REPORT_NAME_TO_KEY.get(attack_name)
-                if key is None:
-                    logger.debug(
-                        "Unrecognised attack_name %r in %s; skipping.",
-                        attack_name,
-                        report_path,
-                    )
-                    continue
-
-                scores = self._extract_scores_from_report(attack_data, key)
-                if scores is None:
-                    continue
-
-                if key in self.MIA_ATTACKS:
-                    mia_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
-                else:
-                    structural_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
-
-                logger.info("Loaded existing %s results from %s.", key, report_path)
+            self._extract_from_report_file(sub_report, mia_scores, structural_scores)
 
         return mia_scores, structural_scores
+
+    def _extract_from_report_file(
+        self,
+        report_path: str,
+        mia_scores: dict[str, list[list[float]]],
+        structural_scores: dict[str, list[dict]],
+    ) -> None:
+        """Parse one ``report.json`` file, accumulating scores in place.
+
+        Iterates every top-level ``"AttackName_<uuid>"`` section, identifies
+        the attack via :attr:`_REPORT_NAME_TO_KEY`, and extends the matching
+        dict (``mia_scores`` or ``structural_scores``).  Unrecognised
+        attack names are skipped with a debug log; unreadable files are
+        skipped with a warning.
+        """
+        try:
+            with open(report_path) as fh:
+                report_data = json.load(fh)
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning("Could not read %s (%s); skipping.", report_path, exc)
+            return
+
+        for attack_data in report_data.values():
+            if not isinstance(attack_data, dict):
+                continue
+            attack_name = attack_data.get("metadata", {}).get("attack_name", "")
+            key = self._REPORT_NAME_TO_KEY.get(attack_name)
+            if key is None:
+                logger.debug(
+                    "Unrecognised attack_name %r in %s; skipping.",
+                    attack_name,
+                    report_path,
+                )
+                continue
+
+            scores = self._extract_scores_from_report(attack_data, key)
+            if scores is None:
+                continue
+
+            if key in self.MIA_ATTACKS:
+                mia_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
+            else:
+                structural_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
+
+            logger.info("Loaded existing %s results from %s.", key, report_path)
 
     def _extract_scores_from_report(  # noqa: C901
         self, report_data: dict, key: str

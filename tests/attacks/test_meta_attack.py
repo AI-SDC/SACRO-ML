@@ -782,6 +782,66 @@ def test_meta_pdf_written_to_report_dir_by_default(meta_target, tmp_path):
     assert os.path.getsize(pdf_path) > 0
 
 
+def test_meta_use_existing_reads_canonical_single_file(meta_target, tmp_path):
+    """use_existing_only reads the canonical top-level report.json (multi-section)."""
+    n_train = len(meta_target.X_train)
+    n_test = len(meta_target.X_test)
+    n_total = n_train + n_test
+
+    qmia_scores = [0.7] * n_train + [0.3] * n_test
+    struct_kvals = [3] * n_train
+    struct_cd = [False] * n_train
+    struct_sg = [False] * n_train
+
+    report_dir = tmp_path / "rep"
+    report_dir.mkdir()
+    canonical = {
+        "QMIA Attack_qmia-uuid": {
+            "metadata": {"attack_name": "QMIA Attack"},
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "instance_0": {"individual": {"member_prob": qmia_scores}}
+                }
+            },
+        },
+        "Structural Attack_struct-uuid": {
+            "metadata": {"attack_name": "Structural Attack"},
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "instance_0": {
+                        "individual": {
+                            "k_anonymity": struct_kvals,
+                            "class_disclosure": struct_cd,
+                            "smallgroup_risk": struct_sg,
+                        }
+                    }
+                }
+            },
+        },
+    }
+    (report_dir / "report.json").write_text(json.dumps(canonical))
+
+    meta = MetaAttack(
+        attacks=[("qmia", {}), ("structural", {})],
+        behaviour="use_existing_only",
+        report_dir=str(report_dir),
+        output_dir=str(tmp_path / "meta_out"),
+        write_report=False,
+        k_threshold=10,
+    )
+    meta.attack(meta_target)
+
+    df = meta.vulnerability_df
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == n_total
+    # QMIA scores were 0.7 for train, > 0.5 threshold ⇒ qmia_vuln True
+    assert df.loc[df["is_member"] == 1, "qmia_vuln"].all()
+    # k_anonymity 3 < k_threshold 10 ⇒ struct_vuln True for train
+    assert df.loc[df["is_member"] == 1, "struct_vuln"].all()
+    # Test records get NaN in structural columns
+    assert df.loc[df["is_member"] == 0, "struct_k"].isna().all()
+
+
 def test_meta_appends_to_existing_report_json(meta_target, tmp_path):
     """Default mode appends to existing report.json, keeps prior sections."""
     rep_dir = tmp_path / "rep"

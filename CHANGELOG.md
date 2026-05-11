@@ -13,8 +13,11 @@ Changes:
     present). Outputs `vulnerability_matrix.csv` alongside the standard JSON report.
     By default appends the MetaAttack section to an existing `report_dir/report.json`
     (set `keep_separate=True` for a standalone file). PDF report includes a bar chart
-    of records grouped by the number of attacks flagging them. Registered in the
-    attack factory as `"meta"`.
+    of records grouped by the number of attacks flagging them. `use_existing_only`
+    and `fill_missing` scan both the canonical single-file `report_dir/report.json`
+    (multi-section, as produced when individual attacks append to the same file)
+    and any subdirectory-per-attack layout. Registered in the attack factory as
+    `"meta"`.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
     (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample
