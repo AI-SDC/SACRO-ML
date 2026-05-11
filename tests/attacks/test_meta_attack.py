@@ -708,3 +708,106 @@ def test_meta_struct_vuln_flagged_by_smallgroup_risk(meta_target, tmp_path):
     ]
     df = meta._build_dataframe(n_train, n_test, {}, {"structural": reps})
     assert df.loc[df["is_member"] == 1, "struct_vuln"].all()
+
+
+# ------------------------------------------------------------------
+# keep_separate / append-to-existing-report.json tests
+# ------------------------------------------------------------------
+
+
+def test_meta_keep_separate_default_writes_to_report_dir(meta_target, tmp_path):
+    """Default ``keep_separate=False`` writes report.json to ``report_dir``."""
+    out_dir = str(tmp_path / "out")
+    rep_dir = str(tmp_path / "rep")
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=out_dir,
+        report_dir=rep_dir,
+        write_report=True,
+        k_threshold=10,
+    )
+    meta.attack(meta_target)
+
+    assert os.path.isfile(os.path.join(rep_dir, "report.json"))
+    assert not os.path.isfile(os.path.join(out_dir, "report.json"))
+    assert os.path.isfile(os.path.join(out_dir, "vulnerability_matrix.csv"))
+
+
+def test_meta_keep_separate_true_writes_to_output_dir(meta_target, tmp_path):
+    """``keep_separate=True`` writes report.json to ``output_dir`` (base behaviour)."""
+    out_dir = str(tmp_path / "out")
+    rep_dir = str(tmp_path / "rep")
+    os.makedirs(rep_dir, exist_ok=True)
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=out_dir,
+        report_dir=rep_dir,
+        write_report=True,
+        keep_separate=True,
+        k_threshold=10,
+    )
+    meta.attack(meta_target)
+
+    assert os.path.isfile(os.path.join(out_dir, "report.json"))
+    assert not os.path.isfile(os.path.join(rep_dir, "report.json"))
+
+
+def test_meta_make_pdf_returns_fpdf(meta_target, tmp_path):
+    """``_make_pdf`` should return an FPDF instance, not None."""
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+        k_threshold=10,
+    )
+    output = meta.attack(meta_target)
+    pdf = meta._make_pdf(output)
+    assert pdf is not None
+
+
+def test_meta_pdf_written_to_report_dir_by_default(meta_target, tmp_path):
+    """With default keep_separate=False, report.pdf lands in report_dir."""
+    out_dir = str(tmp_path / "out")
+    rep_dir = str(tmp_path / "rep")
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=out_dir,
+        report_dir=rep_dir,
+        write_report=True,
+        k_threshold=10,
+    )
+    meta.attack(meta_target)
+    pdf_path = os.path.join(rep_dir, "report.pdf")
+    assert os.path.isfile(pdf_path)
+    assert os.path.getsize(pdf_path) > 0
+
+
+def test_meta_appends_to_existing_report_json(meta_target, tmp_path):
+    """Default mode appends to existing report.json, keeps prior sections."""
+    rep_dir = tmp_path / "rep"
+    rep_dir.mkdir()
+    existing = {
+        "LiRA Attack_abc123": {
+            "metadata": {"attack_name": "LiRA Attack", "log_id": "abc123"},
+            "fake_payload": True,
+        }
+    }
+    existing_path = rep_dir / "report.json"
+    existing_path.write_text(json.dumps(existing))
+
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "out"),
+        report_dir=str(rep_dir),
+        write_report=True,
+        k_threshold=10,
+    )
+    meta.attack(meta_target)
+
+    with open(existing_path) as f:
+        data = json.load(f)
+
+    assert "LiRA Attack_abc123" in data
+    assert data["LiRA Attack_abc123"]["fake_payload"] is True
+    meta_keys = [k for k in data if k.startswith("Meta Attack_")]
+    assert len(meta_keys) == 1

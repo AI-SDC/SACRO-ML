@@ -597,3 +597,105 @@ def create_qmia_report(output: dict) -> FPDF:
     if os.path.exists(dest_log_roc):
         os.remove(dest_log_roc)
     return pdf
+
+
+def _draw_n_vulnerable_histogram(n_vulnerable: list, output_dir: str) -> str:
+    """Draw a bar chart of records grouped by number of attacks flagging them.
+
+    Parameters
+    ----------
+    n_vulnerable : list
+        Per-record count of attacks that flagged each record.
+    output_dir : str
+        Directory in which to save the temporary PNG.
+
+    Returns
+    -------
+    str
+        Path to the saved PNG.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    dest = os.path.join(output_dir, "_meta_n_vulnerable.png")
+    max_n = max(n_vulnerable) if n_vulnerable else 0
+    bins = list(range(max_n + 2))
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.hist(
+        n_vulnerable, bins=bins, color="#2e5cb8", edgecolor="white", align="left"
+    )
+    ax.set_xlabel("Number of attacks flagging the record")
+    ax.set_ylabel("Number of records")
+    ax.set_xticks(list(range(max_n + 1)))
+    plt.tight_layout()
+    fig.savefig(dest)
+    plt.close(fig)
+    return dest
+
+
+def create_meta_report(output: dict) -> FPDF:
+    """Make a MetaAttack PDF report.
+
+    Includes title, attack parameters, global metrics, a per-sub-attack
+    summary, and a bar chart of records grouped by the number of attacks
+    that flagged them.
+
+    Parameters
+    ----------
+    output : dict
+        MetaAttack output dictionary, with ``metadata`` and
+        ``attack_experiment_logger`` keys.
+
+    Returns
+    -------
+    fpdf.FPDF
+        Populated FPDF document.
+    """
+    metadata: dict = output["metadata"]
+    instance = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+    sub_attacks: dict = instance.get("sub_attacks", {})
+    individual: dict = instance.get("individual", {})
+    output_dir: str = metadata.get("attack_params", {}).get("output_dir", "outputs")
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_xy(0, 0)
+    title(pdf, "Meta Attack Report")
+
+    subtitle(pdf, "Metadata")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata.get('sacroml_version', '')):30s}",
+        font="courier",
+    )
+    for key, value in metadata.get("attack_params", {}).items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+    subtitle(pdf, "Global metrics")
+    for key, value in metadata.get("global_metrics", {}).items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+    if sub_attacks:
+        subtitle(pdf, "Sub-attack summary")
+        for name, sub in sub_attacks.items():
+            auc = sub.get("AUC")
+            if isinstance(auc, (int, float)) and np.isfinite(auc):
+                auc_str = f"{auc:.4f}"
+            else:
+                auc_str = "N/A"
+            line(
+                pdf,
+                f"{name:>30s}: AUC={auc_str}, n_reps={sub.get('n_reps', 1)}",
+                font="courier",
+            )
+
+    n_vulnerable = individual.get("n_vulnerable")
+    if n_vulnerable:
+        chart_path = _draw_n_vulnerable_histogram(n_vulnerable, output_dir)
+        pdf.add_page()
+        subtitle(pdf, "Records by number of attacks flagging them")
+        pdf.image(chart_path, x=None, y=None, w=0, h=120, type="", link="")
+        if os.path.exists(chart_path):
+            os.remove(chart_path)
+
+    return pdf

@@ -73,6 +73,13 @@ class MetaAttack(Attack):
         Directory for all outputs (sub-attack subdirectories, report, CSV).
     write_report : bool
         Whether to write JSON report and CSV to disk.
+    keep_separate : bool
+        Controls JSON output location.  ``False`` (default) appends the
+        MetaAttack section to ``{report_dir}/report.json`` so it joins any
+        sub-attack reports already there, matching the project convention.
+        ``True`` writes a separate ``{output_dir}/report.json`` like the
+        base class.  The CSV (``vulnerability_matrix.csv``) and PDF always
+        follow the JSON output location.
     """
 
     SUPPORTED_ATTACKS: set[str] = {"lira", "qmia", "structural"}
@@ -117,6 +124,7 @@ class MetaAttack(Attack):
         k_threshold: int | None = None,
         output_dir: str = "outputs",
         write_report: bool = True,
+        keep_separate: bool = False,
     ) -> None:
         super().__init__(output_dir=output_dir, write_report=write_report)
         # MetaAttack does not use shadow models; remove the empty directory
@@ -137,6 +145,7 @@ class MetaAttack(Attack):
             )
         self.behaviour: str = behaviour
         self.report_dir: str = report_dir if report_dir is not None else output_dir
+        self.keep_separate: bool = keep_separate
 
         self.mia_threshold: float = mia_threshold
 
@@ -729,8 +738,20 @@ class MetaAttack(Attack):
         }
 
     def _write_report(self, output: dict) -> None:
-        """Write JSON report and vulnerability matrix CSV."""
-        super()._write_report(output)
+        """Write JSON report, PDF, and vulnerability matrix CSV.
+
+        By default, append the MetaAttack section to
+        ``{report_dir}/report.json`` so it joins any sub-attack reports
+        already there.  With ``keep_separate=True``, fall back to the base
+        class behaviour and write a standalone ``{output_dir}/report.json``.
+        The CSV always lands in ``{output_dir}/vulnerability_matrix.csv``.
+        """
+        if self.write_report:
+            if self.keep_separate:
+                super()._write_report(output)
+            else:
+                self._write_to_report_dir(output)
+
         if self.write_report and self.vulnerability_df is not None:
             csv_path = os.path.join(self.output_dir, "vulnerability_matrix.csv")
             try:
@@ -744,9 +765,34 @@ class MetaAttack(Attack):
                     exc_info=True,
                 )
 
-    def _make_pdf(self, output: dict) -> FPDF | None:  # noqa: ARG002
-        """Return ``None`` — PDF generation is not yet implemented."""
-        return None
+    def _write_to_report_dir(self, output: dict) -> None:
+        """Append MetaAttack JSON (and write PDF) to ``{report_dir}``.
+
+        Uses ``report.write_json`` which appends to an existing
+        ``report.json`` if present (via ``GenerateJSONModule``).
+        """
+        from sacroml.attacks import report  # noqa: PLC0415
+
+        os.makedirs(self.report_dir, exist_ok=True)
+        dest: str = os.path.join(self.report_dir, "report")
+        logger.info("Appending report: %s.json", dest)
+        report.write_json(output, dest)
+        pdf_report = self._make_pdf(output)
+        if pdf_report is not None:
+            report.write_pdf(dest, pdf_report)
+
+    def _make_pdf(self, output: dict) -> FPDF | None:
+        """Build the MetaAttack PDF report.
+
+        Delegates to :func:`sacroml.attacks.report.create_meta_report` for
+        consistency with the other attacks (see ``create_lr_report``,
+        ``create_mia_report``).  The report contains title, attack
+        parameters, global metrics, a per-sub-attack summary, and a bar
+        chart of records grouped by the number of attacks flagging them.
+        """
+        from sacroml.attacks import report  # noqa: PLC0415
+
+        return report.create_meta_report(output)
 
     def __str__(self) -> str:
         """Return a human-readable name for this attack."""

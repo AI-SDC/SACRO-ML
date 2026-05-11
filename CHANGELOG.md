@@ -11,7 +11,10 @@ Changes:
     `report.json` files without re-running — critical for attacks such as LiRA that may
     take weeks on large model grids), and `'fill_missing'` (run only attacks not already
     present). Outputs `vulnerability_matrix.csv` alongside the standard JSON report.
-    Registered in the attack factory as `"meta"`.
+    By default appends the MetaAttack section to an existing `report_dir/report.json`
+    (set `keep_separate=True` for a standalone file). PDF report includes a bar chart
+    of records grouped by the number of attacks flagging them. Registered in the
+    attack factory as `"meta"`.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
     (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample
