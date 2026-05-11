@@ -12,8 +12,11 @@ import pytest
 from sklearn.datasets import make_classification
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestClassifier
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
+from sacroml.attacks import utils
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.utils import (
@@ -166,6 +169,7 @@ def test_qmia_runs_on_binary_tabular_target(qmia_binary_target, tmp_path):
 
     output = attack_obj.attack(qmia_binary_target)
 
+    assert output["status"] == "success"
     assert output["metadata"]["attack_name"] == "QMIA Attack"
     m = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert 0 <= m["TPR"] <= 1
@@ -297,6 +301,19 @@ def test_qmia_make_pdf(qmia_binary_target, tmp_path):
     assert os.path.isfile(os.path.join(out_dir, "report.json"))
 
 
+def test_qmia_failed_run_writes_report(qmia_degenerate_target, tmp_path):
+    """Failed QMIA run with write_report=True should produce JSON and PDF."""
+    out_dir = str(tmp_path / "qmia_failed_report")
+    attack_obj = QMIAAttack(output_dir=out_dir, write_report=True)
+
+    output = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "metadata" in output
+    assert os.path.isfile(os.path.join(out_dir, "report.json"))
+    assert os.path.isfile(os.path.join(out_dir, "report.pdf"))
+
+
 def test_qmia_attackable_rejects_model_without_predict_proba():
     """Attackable() should reject a target whose model lacks predict_proba."""
     target = MagicMock(spec=Target)
@@ -319,6 +336,94 @@ def test_qmia_attack_signal_direction(qmia_binary_target, tmp_path):
     ]
 
     assert instance["AUC"] > 0.5
+
+
+def test_qmia_predicts_canaries(tmp_path):
+    """QMIA should flag label-flipped 'canary' training rows as members.
+
+    Selects training rows nearest a decision boundary (lowest 9-NN
+    same-class confidence) and flips their labels. With ``bootstrap=False``
+    every tree fits every row, so the model memorises these mislabeled
+    rows and their hinge scores blow up. The attack should then assign
+    them member_probs well above genuine non-members (the test set).
+    Default RF with bootstrap=True only shows each row to ~63% of trees,
+    which dilutes the canary signal — bootstrap=False is what makes the
+    memorisation visible.
+    """
+    n_canaries = 8
+    X, y = make_classification(
+        n_samples=400,
+        n_features=10,
+        n_informative=6,
+        n_redundant=0,
+        n_classes=2,
+        class_sep=1.0,
+        random_state=0,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, stratify=y, random_state=0
+    )
+
+    knn = KNeighborsClassifier(n_neighbors=9).fit(X_train, y_train)
+    own_class_proba = knn.predict_proba(X_train)[np.arange(len(y_train)), y_train]
+    canary_idx = np.argsort(own_class_proba)[:n_canaries]
+
+    y_train_flipped = y_train.copy()
+    y_train_flipped[canary_idx] = 1 - y_train_flipped[canary_idx]
+
+    model = RandomForestClassifier(n_estimators=100, bootstrap=False, random_state=0)
+    model.fit(X_train, y_train_flipped)
+
+    target = Target(
+        model=model,
+        dataset_name="qmia_canaries",
+        X_train=X_train,
+        y_train=y_train_flipped,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train,
+        y_train_orig=y_train_flipped,
+        X_test_orig=X_test,
+        y_test_orig=y_test,
+    )
+    for idx in range(X.shape[1]):
+        target.add_feature(f"V{idx}", [idx], "float")
+
+    attack_obj = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_canaries"),
+        write_report=False,
+        report_individual=True,
+        random_state=0,
+    )
+    output = attack_obj.attack(target)
+
+    assert output["status"] == "success"
+    individual = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]["individual"]
+    member_prob = np.asarray(individual["member_prob"])
+
+    n_train = len(y_train_flipped)
+    canary_mp = member_prob[canary_idx]
+    test_mp = member_prob[n_train:]
+
+    # AUC of canaries (positives) vs genuine non-members (negatives).
+    # >> 0.5 confirms QMIA flags the deliberately memorised rows correctly.
+    y_score = np.concatenate([canary_mp, test_mp])
+    y_true = np.concatenate([np.ones_like(canary_mp), np.zeros_like(test_mp)])
+    canary_vs_test_auc = roc_auc_score(y_true, y_score)
+    assert canary_vs_test_auc > 0.9, (
+        f"QMIA failed to distinguish memorised canaries from non-members: "
+        f"AUC={canary_vs_test_auc:.3f}"
+    )
+
+    # Most canaries should land above the 90th percentile of test scores.
+    test_p90 = np.percentile(test_mp, 90)
+    n_above_p90 = int((canary_mp > test_p90).sum())
+    assert n_above_p90 >= n_canaries - 1, (
+        f"Only {n_above_p90}/{n_canaries} canaries exceed the test 90th "
+        f"percentile ({test_p90:.3f}); canary scores: {sorted(canary_mp.tolist())}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -366,18 +471,21 @@ def fixture_qmia_degenerate_target() -> Target:
     return target
 
 
-def test_qmia_raises_on_degenerate_regressor(
+def test_qmia_reports_failure_on_degenerate_regressor(
     qmia_degenerate_target: Target, tmp_path: Path
 ) -> None:
-    """C1: QMIA must raise when the quantile regressor collapses to a constant."""
+    """C1: QMIA must report failure when the quantile regressor collapses."""
     attack_obj: QMIAAttack = QMIAAttack(
         output_dir=str(tmp_path / "qmia_degen"),
         write_report=False,
         alpha=0.01,
     )
 
-    with pytest.raises(RuntimeError, match="degenerated to a near-constant"):
-        attack_obj.attack(qmia_degenerate_target)
+    output: dict = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "degenerated to a near-constant" in output["fail_reason"]
+    assert "attack_experiment_logger" not in output
 
 
 def test_qmia_metrics_include_calibration_ok(
@@ -431,12 +539,12 @@ def test_qmia_warns_on_miscalibration(
     assert any("calibration deviated" in rec.message for rec in caplog.records)
 
 
-def test_qmia_raises_on_non_finite_predict_proba(
+def test_qmia_reports_failure_on_non_finite_predict_proba(
     qmia_binary_target: Target,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """M1: QMIA must reject NaN/Inf probabilities with a diagnostic ValueError."""
+    """M1: QMIA must report failure when predict_proba returns NaN/Inf."""
     original_predict_proba = qmia_binary_target.model.predict_proba
 
     def nan_predict_proba(X: np.ndarray) -> np.ndarray:
@@ -449,5 +557,104 @@ def test_qmia_raises_on_non_finite_predict_proba(
         output_dir=str(tmp_path / "qmia_nan"), write_report=False
     )
 
-    with pytest.raises(ValueError, match="non-finite"):
-        attack_obj.attack(qmia_binary_target)
+    output: dict = attack_obj.attack(qmia_binary_target)
+
+    assert output["status"] == "failed"
+    assert "non-finite" in output["fail_reason"]
+    assert "attack_experiment_logger" not in output
+
+
+def test_qmia_hinge_score_rejects_one_column_proba() -> None:
+    """Qmia_hinge_score must reject probas with fewer than 2 columns."""
+    with pytest.raises(ValueError, match=">= 2 columns"):
+        qmia_hinge_score(np.array([[0.5], [0.5]]), np.array([0, 0]))
+
+
+def test_check_and_update_dataset_returns_early_with_missing_data() -> None:
+    """Pass the target through when any of the data arrays is missing."""
+    target = MagicMock(spec=Target)
+    target.y_train = None
+    target.y_test = np.array([0, 1])
+    target.X_train = np.zeros((2, 3))
+    target.X_test = np.zeros((2, 3))
+
+    assert utils.check_and_update_dataset(target) is target
+
+
+def test_check_and_update_dataset_warns_on_non_base_estimator(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Warn and pass through when target.model.model is not a sklearn estimator."""
+    target = MagicMock(spec=Target)
+    target.X_train = np.zeros((2, 3))
+    target.y_train = np.array([0, 1])
+    target.X_test = np.zeros((2, 3))
+    target.y_test = np.array([0, 1])
+    target.model = MagicMock()
+    target.model.model = object()  # not a sklearn BaseEstimator
+
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.utils")
+    result = utils.check_and_update_dataset(target)
+
+    assert result is target
+    assert any(
+        "not a scikit-learn BaseEstimator" in rec.message for rec in caplog.records
+    )
+
+
+def test_qmia_failed_non_finite_handles_oserror_on_write_report(
+    qmia_binary_target: Target,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """OSError during failed-report write on the non-finite path must not propagate."""
+    original_predict_proba = qmia_binary_target.model.predict_proba
+
+    def nan_predict_proba(X: np.ndarray) -> np.ndarray:
+        out = original_predict_proba(X).copy()
+        out[0, 0] = np.nan
+        return out
+
+    monkeypatch.setattr(qmia_binary_target.model, "predict_proba", nan_predict_proba)
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_nan_oserror"), write_report=True
+    )
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(attack_obj, "_write_report", boom)
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
+
+    output: dict = attack_obj.attack(qmia_binary_target)
+
+    assert output["status"] == "failed"
+    assert "non-finite" in output["fail_reason"]
+    assert any("Could not write failed report" in rec.message for rec in caplog.records)
+
+
+def test_qmia_failed_degenerate_handles_oserror_on_write_report(
+    qmia_degenerate_target: Target,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """OSError during failed-report write on the degenerate path must not propagate."""
+    attack_obj: QMIAAttack = QMIAAttack(
+        output_dir=str(tmp_path / "qmia_degen_oserror"),
+        write_report=True,
+        alpha=0.01,
+    )
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(attack_obj, "_write_report", boom)
+    caplog.set_level(logging.WARNING, logger="sacroml.attacks.qmia_attack")
+
+    output: dict = attack_obj.attack(qmia_degenerate_target)
+
+    assert output["status"] == "failed"
+    assert "degenerated to a near-constant" in output["fail_reason"]
+    assert any("Could not write failed report" in rec.message for rec in caplog.records)
