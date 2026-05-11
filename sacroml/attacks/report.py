@@ -619,9 +619,7 @@ def _draw_n_vulnerable_histogram(n_vulnerable: list, output_dir: str) -> str:
     max_n = max(n_vulnerable) if n_vulnerable else 0
     bins = list(range(max_n + 2))
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.hist(
-        n_vulnerable, bins=bins, color="#2e5cb8", edgecolor="white", align="left"
-    )
+    ax.hist(n_vulnerable, bins=bins, color="#2e5cb8", edgecolor="white", align="left")
     ax.set_xlabel("Number of attacks flagging the record")
     ax.set_ylabel("Number of records")
     ax.set_xticks(list(range(max_n + 1)))
