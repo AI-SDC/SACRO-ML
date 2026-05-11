@@ -783,7 +783,7 @@ def test_meta_pdf_written_to_report_dir_by_default(meta_target, tmp_path):
 
 
 def test_meta_use_existing_reads_canonical_single_file(meta_target, tmp_path):
-    """use_existing_only reads the canonical top-level report.json (multi-section)."""
+    """Use_existing_only reads the canonical top-level report.json (multi-section)."""
     n_train = len(meta_target.X_train)
     n_test = len(meta_target.X_test)
     n_total = n_train + n_test
