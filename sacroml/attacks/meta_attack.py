@@ -46,6 +46,40 @@ from sacroml.attacks.target import Target
 logger = logging.getLogger(__name__)
 
 
+SUPPORTED_ATTACKS: set[str] = {"lira", "qmia", "structural"}
+"""Attacks that expose per-record vulnerability scores."""
+
+MIA_ATTACKS: set[str] = {"lira", "qmia"}
+"""Subset of supported attacks that produce membership-inference scores."""
+
+BEHAVIOUR_RUN_ALL: str = "run_all"
+BEHAVIOUR_USE_EXISTING: str = "use_existing_only"
+BEHAVIOUR_FILL_MISSING: str = "fill_missing"
+
+# Maps the human-readable attack_name stored in report metadata → factory key.
+# Keys must match the __str__() return value of each corresponding attack class.
+# Values must be a subset of SUPPORTED_ATTACKS.
+_REPORT_NAME_TO_KEY: dict[str, str] = {
+    "LiRA Attack": "lira",
+    "QMIA Attack": "qmia",
+    "Structural Attack": "structural",
+}
+
+_MIA_SCORE_FIELDS: dict[str, str] = {
+    "lira": "score",
+    "qmia": "member_prob",
+}
+"""Maps factory key → field name inside ``attack_metrics[N]["individual"]``.
+
+Used only by :meth:`MetaAttack._extract_mia_scores` (the live-attack path).
+The disk-reading path (:meth:`MetaAttack._extract_scores_from_report`) uses
+the same field names but looks them up directly rather than via this mapping.
+"""
+
+_EPS: float = 1e-10
+"""Small constant to avoid log(0) in geometric mean computation."""
+
+
 class MetaAttack(Attack):
     """Aggregate per-record vulnerability across multiple privacy attacks.
 
@@ -53,7 +87,7 @@ class MetaAttack(Attack):
     ----------
     attacks : list[tuple]
         Each entry is ``(name, params)`` or ``(name, params, n_reps)``.
-        *name* must be one of :attr:`SUPPORTED_ATTACKS`.
+        *name* must be one of :data:`SUPPORTED_ATTACKS`.
         *params* is a dict of keyword arguments forwarded to the sub-attack
         constructor.  *n_reps* (default 1) is the number of independent
         repetitions; useful for stochastic attacks like LiRA.
@@ -82,39 +116,6 @@ class MetaAttack(Attack):
         follow the JSON output location.
     """
 
-    SUPPORTED_ATTACKS: set[str] = {"lira", "qmia", "structural"}
-    """Attacks that expose per-record vulnerability scores."""
-
-    MIA_ATTACKS: set[str] = {"lira", "qmia"}
-    """Subset of supported attacks that produce membership-inference scores."""
-
-    BEHAVIOUR_RUN_ALL: str = "run_all"
-    BEHAVIOUR_USE_EXISTING: str = "use_existing_only"
-    BEHAVIOUR_FILL_MISSING: str = "fill_missing"
-
-    # Maps the human-readable attack_name stored in report metadata → factory key.
-    # Keys must match the __str__() return value of each corresponding attack class.
-    # Values must be a subset of SUPPORTED_ATTACKS.
-    _REPORT_NAME_TO_KEY: dict[str, str] = {
-        "LiRA Attack": "lira",
-        "QMIA Attack": "qmia",
-        "Structural Attack": "structural",
-    }
-
-    _MIA_SCORE_FIELDS: dict[str, str] = {
-        "lira": "score",
-        "qmia": "member_prob",
-    }
-    """Maps factory key → field name inside ``attack_metrics[N]["individual"]``.
-
-    Used only by :meth:`_extract_mia_scores` (the live-attack path).
-    The disk-reading path (:meth:`_extract_scores_from_report`) uses the same
-    field names but looks them up directly rather than via this mapping.
-    """
-
-    _EPS: float = 1e-10
-    """Small constant to avoid log(0) in geometric mean computation."""
-
     def __init__(
         self,
         attacks: list[tuple | list],
@@ -135,9 +136,9 @@ class MetaAttack(Attack):
         self.attacks: list[tuple[str, dict, int]] = self._parse_attacks(attacks)
 
         valid = {
-            self.BEHAVIOUR_RUN_ALL,
-            self.BEHAVIOUR_USE_EXISTING,
-            self.BEHAVIOUR_FILL_MISSING,
+            BEHAVIOUR_RUN_ALL,
+            BEHAVIOUR_USE_EXISTING,
+            BEHAVIOUR_FILL_MISSING,
         }
         if behaviour not in valid:
             raise ValueError(
@@ -158,7 +159,7 @@ class MetaAttack(Attack):
 
         self.vulnerability_df: pd.DataFrame | None = None
 
-        unknown = set(self._REPORT_NAME_TO_KEY.values()) - self.SUPPORTED_ATTACKS
+        unknown = set(_REPORT_NAME_TO_KEY.values()) - SUPPORTED_ATTACKS
         if unknown:
             raise RuntimeError(
                 f"_REPORT_NAME_TO_KEY references unsupported attacks: {unknown}. "
@@ -180,7 +181,7 @@ class MetaAttack(Attack):
         ------
         ValueError
             If a tuple has the wrong length, if *name* is not in
-            :attr:`SUPPORTED_ATTACKS`, or if *n_reps* is not a positive
+            :data:`SUPPORTED_ATTACKS`, or if *n_reps* is not a positive
             integer.
         """
         if not attacks:
@@ -199,11 +200,11 @@ class MetaAttack(Attack):
                     f"got entry of length {len(entry)}: {entry}"
                 )
 
-            if name not in MetaAttack.SUPPORTED_ATTACKS:
+            if name not in SUPPORTED_ATTACKS:
                 raise ValueError(
                     f"Unsupported attack: '{name}'. MetaAttack requires "
                     f"per-record scores. Supported: "
-                    f"{sorted(MetaAttack.SUPPORTED_ATTACKS)}"
+                    f"{sorted(SUPPORTED_ATTACKS)}"
                 )
 
             if not isinstance(n_reps, int) or n_reps < 1:
@@ -240,14 +241,14 @@ class MetaAttack(Attack):
         existing_mia: dict[str, list[list[float]]] = {}
         existing_struct: dict[str, list[dict]] = {}
 
-        if self.behaviour != self.BEHAVIOUR_RUN_ALL:
+        if self.behaviour != BEHAVIOUR_RUN_ALL:
             existing_mia, existing_struct = self._scan_existing_reports()
 
         # Step 2: Populate score dicts — start from existing, then run new ones.
         mia_scores: dict[str, list[list[float]]] = dict(existing_mia)
         structural_scores: dict[str, list[dict]] = dict(existing_struct)
 
-        if self.behaviour != self.BEHAVIOUR_USE_EXISTING:
+        if self.behaviour != BEHAVIOUR_USE_EXISTING:
             self._run_new_attacks(
                 target, existing_mia, existing_struct, mia_scores, structural_scores
             )
@@ -343,7 +344,7 @@ class MetaAttack(Attack):
         """Parse one ``report.json`` file, accumulating scores in place.
 
         Iterates every top-level ``"AttackName_<uuid>"`` section, identifies
-        the attack via :attr:`_REPORT_NAME_TO_KEY`, and extends the matching
+        the attack via :data:`_REPORT_NAME_TO_KEY`, and extends the matching
         dict (``mia_scores`` or ``structural_scores``).  Unrecognised
         attack names are skipped with a debug log; unreadable files are
         skipped with a warning.
@@ -359,7 +360,7 @@ class MetaAttack(Attack):
             if not isinstance(attack_data, dict):
                 continue
             attack_name = attack_data.get("metadata", {}).get("attack_name", "")
-            key = self._REPORT_NAME_TO_KEY.get(attack_name)
+            key = _REPORT_NAME_TO_KEY.get(attack_name)
             if key is None:
                 logger.debug(
                     "Unrecognised attack_name %r in %s; skipping.",
@@ -372,7 +373,7 @@ class MetaAttack(Attack):
             if scores is None:
                 continue
 
-            if key in self.MIA_ATTACKS:
+            if key in MIA_ATTACKS:
                 mia_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
             else:
                 structural_scores.setdefault(key, []).extend(scores)  # type: ignore[arg-type]
@@ -480,7 +481,7 @@ class MetaAttack(Attack):
         deterministic.
         """
         for name, params, n_reps in self.attacks:
-            if self.behaviour == self.BEHAVIOUR_FILL_MISSING and (
+            if self.behaviour == BEHAVIOUR_FILL_MISSING and (
                 name in existing_mia or name in existing_struct
             ):
                 logger.info(
@@ -503,7 +504,7 @@ class MetaAttack(Attack):
                 if attack_obj is None:
                     continue
 
-                if name in self.MIA_ATTACKS:
+                if name in MIA_ATTACKS:
                     scores = self._extract_mia_scores(attack_obj, name)
                     if scores is not None:
                         mia_scores.setdefault(name, []).append(scores)
@@ -567,7 +568,7 @@ class MetaAttack(Attack):
         Returns ``None`` and logs a warning when individual scores are absent,
         rather than raising an exception.
         """
-        field = MetaAttack._MIA_SCORE_FIELDS[name]
+        field = _MIA_SCORE_FIELDS[name]
 
         for metrics_dict in attack_obj.attack_metrics:
             scores = metrics_dict.get("individual", {}).get(field)
@@ -676,7 +677,7 @@ class MetaAttack(Attack):
 
             data["mia_mean"] = np.mean(mia_means, axis=1).tolist()
             data["mia_gmean"] = np.exp(
-                np.mean(np.log(mia_means + self._EPS), axis=1)
+                np.mean(np.log(mia_means + _EPS), axis=1)
             ).tolist()
 
         vuln_cols = [c for c in data if c.endswith("_vuln")]
