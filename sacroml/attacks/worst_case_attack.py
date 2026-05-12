@@ -144,7 +144,11 @@ class WorstCaseAttack(Attack):
             attack_model_param_grid
         )
         self.search_type: str = search_type
+        if not isinstance(search_n_iter, int) or search_n_iter < 1:
+            msg = f"search_n_iter must be a positive integer; got {search_n_iter!r}."
+            raise ValueError(msg)
         self.search_n_iter: int = search_n_iter
+        resolve_scorer(tuning_metric)
         self.tuning_metric: str | Callable = tuning_metric
         self.dummy_attack_metrics: list = []
         self._tuned_params: dict | None = None
@@ -313,6 +317,19 @@ class WorstCaseAttack(Attack):
         # instantiate attack model
         return model(**params) if params is not None else model()
 
+    def _make_rep_splitter(self, random_state: int) -> StratifiedShuffleSplit:
+        """Splitter used by both the tuning search and the rep loop.
+
+        Both call sites must produce byte-identical folds for the
+        "tuning counts toward n_reps" property to hold; centralising
+        construction here prevents the two from drifting.
+        """
+        return StratifiedShuffleSplit(
+            n_splits=self.n_reps,
+            test_size=self.test_prop,
+            random_state=random_state,
+        )
+
     def _resolve_param_grid(self) -> dict | list[dict] | None:
         """Return the parameter grid, or ``None`` if tuning is disabled."""
         grid = self.attack_model_param_grid
@@ -355,11 +372,7 @@ class WorstCaseAttack(Attack):
                 f"at least 2 folds; got n_reps={self.n_reps}."
             )
             raise ValueError(msg)
-        splitter = StratifiedShuffleSplit(
-            n_splits=self.n_reps,
-            test_size=self.test_prop,
-            random_state=random_state,
-        )
+        splitter = self._make_rep_splitter(random_state)
         scorer = resolve_scorer(self.tuning_metric)
         base_estimator = self._get_attack_model()
         if self.search_type == "grid":
@@ -407,9 +420,15 @@ class WorstCaseAttack(Attack):
                 strict=True,
             )
         ]
+        best_idx = int(np.flatnonzero(cv_results["rank_test_score"] == 1)[0])
+        best_candidate_per_fold_scores = [
+            float(cv_results[f"split{i}_test_score"][best_idx])
+            for i in range(self.n_reps)
+        ]
         self._tuning_info = {
             "best_params": dict(search.best_params_),
             "best_score": float(search.best_score_),
+            "best_candidate_per_fold_scores": best_candidate_per_fold_scores,
             "tuning_metric": (
                 self.tuning_metric
                 if isinstance(self.tuning_metric, str)
@@ -485,11 +504,7 @@ class WorstCaseAttack(Attack):
         if self._tuned_params is not None:
             # Use the same CV splits the search ran over so the "reps" and
             # the "tuning CV folds" coincide (the tuning counts toward n_reps).
-            splitter = StratifiedShuffleSplit(
-                n_splits=self.n_reps,
-                test_size=self.test_prop,
-                random_state=split[0],
-            )
+            splitter = self._make_rep_splitter(split[0])
             fold_splits = list(splitter.split(mi_x, mi_y))
         else:
             # Legacy path: variable random states per rep (one resample each).

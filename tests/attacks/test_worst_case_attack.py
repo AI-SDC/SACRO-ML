@@ -222,6 +222,10 @@ def test_tuning_default_grid(common_setup):
     # The candidate with rank 1 should carry the reported best_params.
     best_candidate = next(c for c in tuning["cv_results"] if c["rank_test_score"] == 1)
     assert best_candidate["params"] == tuning["best_params"]
+    # Per-fold scores for the winner: one per rep, all finite floats.
+    per_fold = tuning["best_candidate_per_fold_scores"]
+    assert len(per_fold) == 3
+    assert all(isinstance(s, float) for s in per_fold)
 
 
 def test_tuning_custom_grid_reused_by_dummies(common_setup):
@@ -320,6 +324,20 @@ def test_tuning_invalid_search_type_raises(common_setup):
     )
     with pytest.raises(ValueError, match="Unknown search_type"):
         attack_obj.attack(target)
+
+
+def test_init_rejects_bad_search_n_iter():
+    """`search_n_iter` must be a positive integer."""
+    with pytest.raises(ValueError, match="search_n_iter"):
+        worst_case_attack.WorstCaseAttack(search_n_iter=0)
+    with pytest.raises(ValueError, match="search_n_iter"):
+        worst_case_attack.WorstCaseAttack(search_n_iter=-1)
+
+
+def test_init_rejects_bad_tuning_metric():
+    """An unknown `tuning_metric` string fails at construction, not at fit."""
+    with pytest.raises(ValueError, match="Unknown scorer"):
+        worst_case_attack.WorstCaseAttack(tuning_metric="not-a-real-metric")
 
 
 def test_no_tuning_leaves_metadata_clean(common_setup):
