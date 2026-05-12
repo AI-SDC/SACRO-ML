@@ -72,7 +72,7 @@ _GLOSSARY = {
     ),
     "Match Fraction": (
         "The proportion of stored instances that exactly match a training "
-        "data point. A high match fraction confirms data leakage."
+        "data point. A non-zero match fraction confirms data leakage."
     ),
 }
 
