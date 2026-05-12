@@ -1,0 +1,304 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SacroML Attack Report",
+  "description": "A nested, attack-agnostic schema for SacroML attack reports. Includes human-readable catalogs (metrics, parameters, attack categories, attacks).",
+  "type": "object",
+
+  "properties": {
+    "report_schema_version": {
+      "type": "string"
+    },
+
+    "metric_catalog": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "metrics": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Za-z0-9_@.eE+\\-]+$": {
+              "$ref": "#/$defs/MetricDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "pattern_metrics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PatternMetricDefinition" }
+        }
+      },
+      "required": ["version", "metrics"],
+      "additionalProperties": false
+    },
+
+    "parameter_catalog": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "parameters": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Za-z0-9_\\-]+$": {
+              "$ref": "#/$defs/ParameterDefinition"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["version", "parameters"],
+      "additionalProperties": false
+    },
+
+    "attack_category_catalog": {
+      "type": "object",
+      "description": "Human-readable definitions of high-level attack categories.",
+      "properties": {
+        "version": { "type": "string" },
+        "categories": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Za-z0-9_\\-]+$": {
+              "$ref": "#/$defs/AttackCategoryDefinition"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["version", "categories"],
+      "additionalProperties": false
+    },
+
+    "attack_catalog": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "attacks": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Za-z0-9 _\\-]+$": {
+              "$ref": "#/$defs/AttackKindDefinition"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["attacks"],
+      "additionalProperties": false
+    },
+
+    "attacks": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z0-9 _\\-]+$": {
+          "type": "object",
+          "properties": {
+            "log_id": { "type": "string" },
+            "log_time": { "type": "string" },
+
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "sacroml_version": { "type": "string" },
+                "attack_name": { "type": "string" },
+                "attack_params": { "type": "object", "additionalProperties": true },
+                "global_metrics": {
+                  "type": "object",
+                  "additionalProperties": { "type": ["number", "string", "boolean", "null"] }
+                },
+                "baseline_global_metrics": {
+                  "type": "object",
+                  "additionalProperties": { "type": ["number", "string", "boolean", "null"] }
+                },
+                "target_model": { "type": "string" },
+                "target_model_params": { "type": "object", "additionalProperties": true },
+                "target_train_params": { "type": "object", "additionalProperties": true }
+              },
+              "required": [
+                "sacroml_version",
+                "attack_name",
+                "attack_params",
+                "global_metrics"
+              ],
+              "additionalProperties": false
+            },
+
+            "attack_experiment_logger": {
+              "type": "object",
+              "properties": {
+                "attack_instance_logger": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^instance_[0-9]+$": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "oneOf": [
+                          { "type": "number" },
+                          { "type": "string" },
+                          { "type": "array", "items": { "type": "number" } },
+                          { "type": "null" }
+                        ]
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": ["attack_instance_logger"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["log_id", "log_time", "metadata", "attack_experiment_logger"],
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+
+  "required": [
+    "metric_catalog",
+    "parameter_catalog",
+    "attack_category_catalog",
+    "attack_catalog",
+    "attacks"
+  ],
+  "additionalProperties": false,
+
+  "$defs": {
+    
+  "AttackCategoryDefinition": {
+    "type": "object",
+    "description": "Human-readable definition of an attack category, including report ordering.",
+    "properties": {
+      "label": {
+        "type": "string",
+        "description": "Human-readable category label."
+      },
+      "description": {
+        "type": "string",
+        "description": "Explanation of what this category represents."
+      },
+      "order": {
+        "type": "integer",
+        "description": "Defines the order in which this category should be presented in reports (lower first)."
+      }
+    },
+    "required": ["label", "description", "order"],
+    "additionalProperties": false
+  },
+
+"AttackKindDefinition": {
+  "type": "object",
+  "description": "Attack kind definition with category, key metrics, and obligatory attack-specific parameter declarations.",
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Human-readable attack name."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what the attack does."
+    },
+    "attack_category": {
+      "type": "string",
+      "description": "Key into attack_category_catalog.categories."
+    },
+    "key_metrics": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "attack_params": {
+      "type": "object",
+      "description": "Human-readable declarations of all parameters supported by this attack kind.",
+      "patternProperties": {
+        "^[A-Za-z0-9_\\-]+$": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["label", "description"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "label",
+    "description",
+    "attack_category",
+    "key_metrics",
+    "attack_params"
+  ],
+  "additionalProperties": false
+},
+
+
+"MetricDefinition": {
+  "type": "object",
+  "description": "Human-readable description of a metric.",
+  "properties": {
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "units": {
+      "type": ["string", "null"]
+    },
+    "higher_is_better": {
+      "type": ["boolean", "null"]
+    },
+    "category": {
+      "type": ["string", "null"]
+    },
+    "typical_range": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        { "type": "null" }
+      ]
+    },
+    "allowed_aggregations": {
+      "type": "array",
+      "description": "List of aggregation operations that are valid and meaningful for this metric.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "sum",
+          "mean",
+          "min",
+          "max",
+          "median",
+          "stddev",
+          "var",
+          "quantile",
+          "count"
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "notes": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["label", "description", "allowed_aggregations"],
+  "additionalProperties": false
+}
+,
+    "PatternMetricDefinition": { "type": "object", "additionalProperties": true },
+    "ParameterDefinition": { "type": "object", "additionalProperties": true }
+  }
+}
