@@ -36,6 +36,9 @@ logger = logging.getLogger(__name__)
 SVM_TYPES = (SVC, NuSVC, SVR, NuSVR, OneClassSVM)
 KNN_TYPES = (KNeighborsClassifier, KNeighborsRegressor)
 
+N_EXAMPLES = 10  # default number of matching examples included in the report
+N_FEATURE_PREVIEW = 10  # number of feature values shown per example match
+
 _INTRODUCTION = (
     "This report provides the results of an instance-based model data "
     "leakage check. Some model types -- notably Support Vector Machines "
@@ -109,7 +112,7 @@ class InstanceBasedAttack(Attack):
         self,
         output_dir: str = "outputs",
         write_report: bool = True,
-        n_examples: int = 10,
+        n_examples: int = N_EXAMPLES,
         atol: float = 1e-8,
     ) -> None:
         """Construct an instance-based model attack.
@@ -219,7 +222,7 @@ class InstanceBasedAttack(Attack):
             if matched:
                 n_matched += 1
                 if len(example_matches) < self.n_examples:
-                    n_preview = min(5, stored_row.shape[0])
+                    n_preview = min(N_FEATURE_PREVIEW, stored_row.shape[0])
                     example_matches.append(
                         {
                             "stored_index": i,
