@@ -58,6 +58,7 @@ if __name__ == "__main__":
             ("qmia", {}, 2),  # QMIA with 2 repetitions
             ("structural", {}),  # Structural (single run)
         ],
+        behaviour="run_all",  # alternatives: "use_existing_only", "fill_missing"
         mia_threshold=0.5,
         output_dir=output_dir,
     )
