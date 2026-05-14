@@ -334,10 +334,15 @@ def test_init_rejects_bad_search_n_iter():
         worst_case_attack.WorstCaseAttack(search_n_iter=-1)
 
 
-def test_init_rejects_bad_tuning_metric():
-    """An unknown `tuning_metric` string fails at construction, not at fit."""
-    with pytest.raises(ValueError, match="Unknown scorer"):
-        worst_case_attack.WorstCaseAttack(tuning_metric="not-a-real-metric")
+def test_init_bad_tuning_metric_falls_back_to_auc(caplog):
+    """An unknown `tuning_metric` warns and falls back to AUC at construction."""
+    with caplog.at_level("WARNING", logger="sacroml.attacks.worst_case_attack"):
+        attack_obj = worst_case_attack.WorstCaseAttack(
+            tuning_metric="not-a-real-metric"
+        )
+    assert attack_obj.tuning_metric == "AUC"
+    assert callable(attack_obj._resolved_tuning_scorer)
+    assert any("not-a-real-metric" in rec.message for rec in caplog.records)
 
 
 def test_no_tuning_leaves_metadata_clean(common_setup):

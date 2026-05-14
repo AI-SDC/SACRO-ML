@@ -44,6 +44,14 @@ _DEFAULT_PARAM_GRIDS: dict[str, dict[str, list]] = {
     },
 }
 
+# Default hyperparameters used when attack_model is RandomForestClassifier
+# and the user did not supply `attack_model_params`.
+_DEFAULT_RF_PARAMS: dict[str, object] = {
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "max_depth": 5,
+}
+
 
 class WorstCaseAttack(Attack):
     """Worst case attack."""
@@ -148,8 +156,17 @@ class WorstCaseAttack(Attack):
             msg = f"search_n_iter must be a positive integer; got {search_n_iter!r}."
             raise ValueError(msg)
         self.search_n_iter: int = search_n_iter
-        resolve_scorer(tuning_metric)
-        self.tuning_metric: str | Callable = tuning_metric
+        try:
+            self._resolved_tuning_scorer: str | Callable = resolve_scorer(tuning_metric)
+            self.tuning_metric: str | Callable = tuning_metric
+        except ValueError as exc:
+            logger.warning(
+                "Invalid tuning_metric %r (%s); falling back to 'AUC'.",
+                tuning_metric,
+                exc,
+            )
+            self.tuning_metric = "AUC"
+            self._resolved_tuning_scorer = resolve_scorer("AUC")
         self.dummy_attack_metrics: list = []
         self._tuned_params: dict | None = None
         self._tuning_info: dict | None = None
@@ -305,16 +322,14 @@ class WorstCaseAttack(Attack):
         if self._tuned_params is not None:
             return model(**self._tuned_params)
         params: dict[str, object] | None = self.attack_model_params
-        if (  # set custom default parameters for RF attack model
-            self.attack_model == "sklearn.ensemble.RandomForestClassifier"
-            and self.attack_model_params is None
+        # set custom default parameters for RF attack model
+        if (
+            params is None
+            and self.attack_model == "sklearn.ensemble.RandomForestClassifier"
         ):
-            params = {
-                "min_samples_split": 20,
-                "min_samples_leaf": 10,
-                "max_depth": 5,
-            }
-        # instantiate attack model
+            params = _DEFAULT_RF_PARAMS
+        # Fallthrough: only reached when attack_model is not RF AND the user
+        # did not supply attack_model_params -- instantiate with sklearn defaults.
         return model(**params) if params is not None else model()
 
     def _make_rep_splitter(self, random_state: int) -> StratifiedShuffleSplit:
@@ -373,7 +388,7 @@ class WorstCaseAttack(Attack):
             )
             raise ValueError(msg)
         splitter = self._make_rep_splitter(random_state)
-        scorer = resolve_scorer(self.tuning_metric)
+        scorer = self._resolved_tuning_scorer
         base_estimator = self._get_attack_model()
         if self.search_type == "grid":
             search = GridSearchCV(
