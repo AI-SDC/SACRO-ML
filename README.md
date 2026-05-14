@@ -100,6 +100,25 @@ Run the full benchmark comparing QMIA against WorstCase and LiRA:
 python examples/sklearn/benchmark_qmia_full.py
 ```
 
+## MetaAttack: Unified Per-Record Vulnerability Aggregation
+
+`MetaAttack` runs multiple privacy attacks (LiRA, QMIA, Structural) on the same target and aggregates their per-record results into a single vulnerability DataFrame.  Three operating modes are supported via the `behaviour` parameter:
+
+* **`'run_all'`** (default) — run every specified attack from scratch.
+* **`'use_existing_only'`** — read per-record scores from pre-existing `report.json` files without re-running anything.  Useful when expensive attacks such as LiRA have already been run.
+* **`'fill_missing'`** — load existing results and run only the attacks not yet present.
+
+```python
+from sacroml.attacks.meta_attack import MetaAttack
+from sacroml.attacks.target import Target
+
+target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+meta = MetaAttack(attacks=[("lira", {}), ("qmia", {}), ("structural", {})], output_dir="output_meta")
+meta.attack(target)
+```
+
+The vulnerability matrix is saved as `vulnerability_matrix.csv` in `output_dir`.
+
 ## Documentation
 
 See [API documentation](https://ai-sdc.github.io/SACRO-ML/).
