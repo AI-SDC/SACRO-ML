@@ -41,6 +41,7 @@ from fpdf import FPDF
 
 from sacroml import metrics
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.constants import DEFAULT_MIA_THRESHOLD, EPS_META
 from sacroml.attacks.target import Target
 
 logger = logging.getLogger(__name__)
@@ -75,9 +76,6 @@ Used only by :meth:`MetaAttack._extract_mia_scores` (the live-attack path).
 The disk-reading path (:meth:`MetaAttack._extract_scores_from_report`) uses
 the same field names but looks them up directly rather than via this mapping.
 """
-
-_EPS: float = 1e-10
-"""Small constant to avoid log(0) in geometric mean computation."""
 
 
 class MetaAttack(Attack):
@@ -121,7 +119,7 @@ class MetaAttack(Attack):
         attacks: list[tuple | list],
         behaviour: str = "run_all",
         report_dir: str | None = None,
-        mia_threshold: float = 0.5,
+        mia_threshold: float = DEFAULT_MIA_THRESHOLD,
         k_threshold: int | None = None,
         output_dir: str = "outputs",
         write_report: bool = True,
@@ -677,7 +675,7 @@ class MetaAttack(Attack):
 
             data["mia_mean"] = np.mean(mia_means, axis=1).tolist()
             data["mia_gmean"] = np.exp(
-                np.mean(np.log(mia_means + _EPS), axis=1)
+                np.mean(np.log(mia_means + EPS_META), axis=1)
             ).tolist()
 
         vuln_cols = [c for c in data if c.endswith("_vuln")]
