@@ -3,17 +3,23 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import numpy as np
 from fpdf import FPDF
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    GridSearchCV,
+    RandomizedSearchCV,
+    StratifiedShuffleSplit,
+    train_test_split,
+)
 
 from sacroml import metrics
 from sacroml.attacks import report
+from sacroml.attacks._scorers import resolve_scorer
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
 from sacroml.attacks.utils import get_class_by_name
@@ -22,6 +28,29 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 P_THRESH = 0.05
+
+_DEFAULT_PARAM_GRIDS: dict[str, dict[str, list]] = {
+    "sklearn.ensemble.RandomForestClassifier": {
+        "min_samples_split": [2, 10, 20],
+        "min_samples_leaf": [1, 5, 10],
+        "max_depth": [None, 5, 10],
+    },
+    "sklearn.neural_network.MLPClassifier": {
+        "hidden_layer_sizes": [(50,), (100,), (50, 50)],
+        "alpha": [1e-4, 1e-3, 1e-2],
+    },
+    "sklearn.linear_model.LogisticRegression": {
+        "C": [0.01, 0.1, 1.0, 10.0],
+    },
+}
+
+# Default hyperparameters used when attack_model is RandomForestClassifier
+# and the user did not supply `attack_model_params`.
+_DEFAULT_RF_PARAMS: dict[str, object] = {
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "max_depth": 5,
+}
 
 
 class WorstCaseAttack(Attack):
@@ -42,6 +71,10 @@ class WorstCaseAttack(Attack):
         sort_probs: bool = True,
         attack_model: str = "sklearn.ensemble.RandomForestClassifier",
         attack_model_params: dict[str, object] | None = None,
+        attack_model_param_grid: dict | list[dict] | str | None = None,
+        search_type: str = "grid",
+        search_n_iter: int = 10,
+        tuning_metric: str | Callable = "AUC",
     ) -> None:
         """Construct an object to execute a worst case attack.
 
@@ -82,6 +115,26 @@ class WorstCaseAttack(Attack):
         attack_model_params : dict or None
             Dictionary of hyperparameters for the `attack_model`
             such as `min_sample_split`, `min_samples_leaf`, etc.
+        attack_model_param_grid : dict, list[dict], "default", or None
+            If ``None`` (default) no tuning is performed and behaviour
+            matches earlier versions. If ``"default"``, a built-in grid for
+            the configured ``attack_model`` is used (see
+            ``_DEFAULT_PARAM_GRIDS``). Otherwise pass a sklearn-style grid
+            (a dict or list of dicts).
+        search_type : str
+            ``"grid"`` (default) or ``"random"`` to select between
+            :class:`~sklearn.model_selection.GridSearchCV` and
+            :class:`~sklearn.model_selection.RandomizedSearchCV`. Ignored
+            when ``attack_model_param_grid`` is ``None``.
+        search_n_iter : int
+            Number of parameter settings sampled when
+            ``search_type='random'``. Ignored otherwise.
+        tuning_metric : str or callable
+            Scoring metric used by the search. Defaults to ``"AUC"``.
+            Accepts any key in
+            :data:`sacroml.attacks._scorers.SCORERS`, any sklearn scoring
+            string, or a custom callable following the sklearn
+            ``(estimator, X, y)`` protocol.
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_reps: int = n_reps
@@ -95,7 +148,28 @@ class WorstCaseAttack(Attack):
         self.sort_probs: bool = sort_probs
         self.attack_model: str = attack_model
         self.attack_model_params: dict[str, object] | None = attack_model_params
+        self.attack_model_param_grid: dict | list[dict] | str | None = (
+            attack_model_param_grid
+        )
+        self.search_type: str = search_type
+        if not isinstance(search_n_iter, int) or search_n_iter < 1:
+            msg = f"search_n_iter must be a positive integer; got {search_n_iter!r}."
+            raise ValueError(msg)
+        self.search_n_iter: int = search_n_iter
+        try:
+            self._resolved_tuning_scorer: str | Callable = resolve_scorer(tuning_metric)
+            self.tuning_metric: str | Callable = tuning_metric
+        except ValueError as exc:
+            logger.warning(
+                "Invalid tuning_metric %r (%s); falling back to 'AUC'.",
+                tuning_metric,
+                exc,
+            )
+            self.tuning_metric = "AUC"
+            self._resolved_tuning_scorer = resolve_scorer("AUC")
         self.dummy_attack_metrics: list = []
+        self._tuned_params: dict | None = None
+        self._tuning_info: dict | None = None
 
     def __str__(self) -> str:
         """Return name of attack."""
@@ -239,21 +313,152 @@ class WorstCaseAttack(Attack):
         return (mi_x, mi_y)
 
     def _get_attack_model(self) -> BaseEstimator:
-        """Return an instantiated attack model."""
-        # load attack model module and get class
+        """Return an instantiated attack model.
+
+        After tuning has run, ``self._tuned_params`` is preferred over
+        the constructor-supplied ``attack_model_params``.
+        """
         model = get_class_by_name(self.attack_model)
+        if self._tuned_params is not None:
+            return model(**self._tuned_params)
         params: dict[str, object] | None = self.attack_model_params
-        if (  # set custom default parameters for RF attack model
-            self.attack_model == "sklearn.ensemble.RandomForestClassifier"
-            and self.attack_model_params is None
+        # set custom default parameters for RF attack model
+        if (
+            params is None
+            and self.attack_model == "sklearn.ensemble.RandomForestClassifier"
         ):
-            params = {
-                "min_samples_split": 20,
-                "min_samples_leaf": 10,
-                "max_depth": 5,
-            }
-        # instantiate attack model
+            params = _DEFAULT_RF_PARAMS
+        # Fallthrough: only reached when attack_model is not RF AND the user
+        # did not supply attack_model_params -- instantiate with sklearn defaults.
         return model(**params) if params is not None else model()
+
+    def _make_rep_splitter(self, random_state: int) -> StratifiedShuffleSplit:
+        """Splitter used by both the tuning search and the rep loop.
+
+        Both call sites must produce byte-identical folds for the
+        "tuning counts toward n_reps" property to hold; centralising
+        construction here prevents the two from drifting.
+        """
+        return StratifiedShuffleSplit(
+            n_splits=self.n_reps,
+            test_size=self.test_prop,
+            random_state=random_state,
+        )
+
+    def _resolve_param_grid(self) -> dict | list[dict] | None:
+        """Return the parameter grid, or ``None`` if tuning is disabled."""
+        grid = self.attack_model_param_grid
+        if grid is None:
+            return None
+        if isinstance(grid, str):
+            if grid == "default":
+                if self.attack_model not in _DEFAULT_PARAM_GRIDS:
+                    available = sorted(_DEFAULT_PARAM_GRIDS.keys())
+                    msg = (
+                        f"No default param grid for attack_model "
+                        f"{self.attack_model!r}; defaults are available for: "
+                        f"{available}. Pass an explicit grid instead."
+                    )
+                    raise ValueError(msg)
+                return _DEFAULT_PARAM_GRIDS[self.attack_model]
+            msg = (
+                "attack_model_param_grid must be a dict, list of dicts, "
+                f'"default", or None; got string {grid!r}.'
+            )
+            raise ValueError(msg)
+        return grid
+
+    def _tune_if_needed(
+        self, mi_x: np.ndarray, mi_y: np.ndarray, random_state: int
+    ) -> None:
+        """Run the tuning search if a grid is configured.
+
+        A no-op when tuning has already been performed on this instance,
+        so dummy-attack repetitions reuse the params found by the real run.
+        """
+        if self._tuned_params is not None:
+            return
+        grid = self._resolve_param_grid()
+        if grid is None:
+            return
+        if self.n_reps < 2:
+            msg = (
+                "Tuning requires n_reps >= 2 because cross-validation needs "
+                f"at least 2 folds; got n_reps={self.n_reps}."
+            )
+            raise ValueError(msg)
+        splitter = self._make_rep_splitter(random_state)
+        scorer = self._resolved_tuning_scorer
+        base_estimator = self._get_attack_model()
+        if self.search_type == "grid":
+            search = GridSearchCV(
+                base_estimator,
+                grid,
+                cv=splitter,
+                scoring=scorer,
+                refit=False,
+                n_jobs=1,
+            )
+        elif self.search_type == "random":
+            search = RandomizedSearchCV(
+                base_estimator,
+                grid,
+                n_iter=self.search_n_iter,
+                cv=splitter,
+                scoring=scorer,
+                refit=False,
+                random_state=random_state,
+                n_jobs=1,
+            )
+        else:
+            msg = (
+                f"Unknown search_type {self.search_type!r}; "
+                "expected 'grid' or 'random'."
+            )
+            raise ValueError(msg)
+        logger.info("Tuning attack model via %s search over %s", self.search_type, grid)
+        search.fit(mi_x, mi_y)
+        self._tuned_params = dict(search.best_params_)
+        cv_results = search.cv_results_
+        candidates: list[dict] = [
+            {
+                "params": dict(params),
+                "mean_test_score": float(mean),
+                "std_test_score": float(std),
+                "rank_test_score": int(rank),
+            }
+            for params, mean, std, rank in zip(
+                cv_results["params"],
+                cv_results["mean_test_score"],
+                cv_results["std_test_score"],
+                cv_results["rank_test_score"],
+                strict=True,
+            )
+        ]
+        best_idx = int(np.flatnonzero(cv_results["rank_test_score"] == 1)[0])
+        best_candidate_per_fold_scores = [
+            float(cv_results[f"split{i}_test_score"][best_idx])
+            for i in range(self.n_reps)
+        ]
+        self._tuning_info = {
+            "best_params": dict(search.best_params_),
+            "best_score": float(search.best_score_),
+            "best_candidate_per_fold_scores": best_candidate_per_fold_scores,
+            "tuning_metric": (
+                self.tuning_metric
+                if isinstance(self.tuning_metric, str)
+                else getattr(self.tuning_metric, "__name__", repr(self.tuning_metric))
+            ),
+            "search_type": self.search_type,
+            "param_grid": grid,
+            "n_candidates": len(candidates),
+            "cv_results": candidates,
+        }
+        logger.info(
+            "Tuning best_params=%s best_score=%.4f",
+            self._tuned_params,
+            search.best_score_,
+        )
 
     def _get_reproducible_split(self) -> list:
         """Return a list of splits."""
@@ -308,20 +513,33 @@ class WorstCaseAttack(Attack):
             proba_train, proba_test, train_correct, test_correct
         )
 
-        mia_metrics: list[dict] = []
         split = self._get_reproducible_split()
+        self._tune_if_needed(mi_x, mi_y, random_state=split[0])
 
-        for rep in range(self.n_reps):
-            logger.info("Rep %d of %d split %d", rep + 1, self.n_reps, split[rep])
+        if self._tuned_params is not None:
+            # Use the same CV splits the search ran over so the "reps" and
+            # the "tuning CV folds" coincide (the tuning counts toward n_reps).
+            splitter = self._make_rep_splitter(split[0])
+            fold_splits = list(splitter.split(mi_x, mi_y))
+        else:
+            # Legacy path: variable random states per rep (one resample each).
+            indices = np.arange(len(mi_y))
+            fold_splits = [
+                train_test_split(
+                    indices,
+                    test_size=self.test_prop,
+                    stratify=mi_y,
+                    random_state=split[rep],
+                    shuffle=True,
+                )
+                for rep in range(self.n_reps)
+            ]
 
-            mi_train_x, mi_test_x, mi_train_y, mi_test_y = train_test_split(
-                mi_x,
-                mi_y,
-                test_size=self.test_prop,
-                stratify=mi_y,
-                random_state=split[rep],
-                shuffle=True,
-            )
+        mia_metrics: list[dict] = []
+        for rep, (train_idx, test_idx) in enumerate(fold_splits):
+            logger.info("Rep %d of %d", rep + 1, self.n_reps)
+            mi_train_x, mi_test_x = mi_x[train_idx], mi_x[test_idx]
+            mi_train_y, mi_test_y = mi_y[train_idx], mi_y[test_idx]
 
             attack_classifier = self._get_attack_model()
             attack_classifier.fit(mi_train_x, mi_train_y)
@@ -466,6 +684,8 @@ class WorstCaseAttack(Attack):
         self.metadata["baseline_global_metrics"] = self._get_global_metrics(
             self._unpack_dummy_attack_metrics_experiments_instances()
         )
+        if self._tuning_info is not None:
+            self.metadata["tuning"] = self._tuning_info
 
     def _unpack_dummy_attack_metrics_experiments_instances(self) -> list:
         """Construct the metadata object after attacks."""
