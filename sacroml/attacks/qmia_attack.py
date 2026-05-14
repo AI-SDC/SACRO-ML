@@ -40,6 +40,8 @@ class QMIAAttack(Attack):
     then the margin between the observed score and the predicted threshold.
     """
 
+    _npz_prefix = "qmia"
+
     def __init__(
         self,
         output_dir: str = "outputs",
@@ -179,6 +181,10 @@ class QMIAAttack(Attack):
         )
 
         self.attack_metrics = [metrics.get_metrics(y_pred_proba, y_membership)]
+        # Cached unconditionally so `_predictions_extras` can always emit a
+        # predictions .npz for ROC recompute, independent of `report_individual`.
+        self._y_pred_proba = y_pred_proba
+        self._y_membership = y_membership
         # Non-member predictions from the public slice: "member" = margin > 0.
         obs_fpr: float = float(np.mean(y_pred_proba[len(train_scores) :, 1] > 0.0))
         self.attack_metrics[0]["observed_public_fpr"] = obs_fpr
@@ -264,6 +270,13 @@ class QMIAAttack(Attack):
         self.metadata["global_metrics"]["TPR"] = m["TPR"]
         self.metadata["global_metrics"]["FPR"] = m["FPR"]
         self.metadata["global_metrics"]["Advantage"] = m["Advantage"]
+
+    def _predictions_extras(self, instance_key: str) -> dict[str, np.ndarray]:
+        """Return arrays needed to recompute the ROC from the stored .npz."""
+        del instance_key
+        if not hasattr(self, "_y_pred_proba"):
+            return {}
+        return {"y_pred_proba": self._y_pred_proba, "y_test": self._y_membership}
 
     def _get_attack_metrics_instances(self) -> dict:
         """Construct per-instance attack metrics."""

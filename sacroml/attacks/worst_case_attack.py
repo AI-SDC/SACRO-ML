@@ -27,6 +27,8 @@ P_THRESH = 0.05
 class WorstCaseAttack(Attack):
     """Worst case attack."""
 
+    _npz_prefix = "worstcase"
+
     def __init__(
         self,
         output_dir: str = "outputs",
@@ -96,6 +98,11 @@ class WorstCaseAttack(Attack):
         self.attack_model: str = attack_model
         self.attack_model_params: dict[str, object] | None = attack_model_params
         self.dummy_attack_metrics: list = []
+        # Per-rep cache of (y_pred_proba, y_test) from the attack model, keyed
+        # by the same `instance_X` keys used in the JSON. Read by
+        # `_predictions_extras` to write a predictions .npz for each rep so the
+        # ROC stays recoverable even without the stripped fpr/tpr arrays.
+        self._predictions_cache: dict[str, dict[str, np.ndarray]] = {}
 
     def __str__(self) -> str:
         """Return name of attack."""
@@ -184,6 +191,7 @@ class WorstCaseAttack(Attack):
             proba_test,
             train_correct=train_correct,
             test_correct=test_correct,
+            cache_predictions=True,
         )
         self.attack_metrics = attack_metric_dict["mia_metrics"]
 
@@ -289,6 +297,7 @@ class WorstCaseAttack(Attack):
         proba_test: np.ndarray,
         train_correct: np.ndarray = None,
         test_correct: np.ndarray = None,
+        cache_predictions: bool = False,
     ) -> dict:
         """Run actual attack reps from train and test predictions.
 
@@ -298,6 +307,11 @@ class WorstCaseAttack(Attack):
             Predictions from the model on training (in-sample) data.
         proba_test : np.ndarray
             Predictions from the model on testing (out-of-sample) data.
+        cache_predictions : bool
+            If True, record each rep's `(y_pred_proba, y_test)` into
+            ``self._predictions_cache`` so a predictions .npz can be written
+            for ROC recompute. Only the real (non-dummy) attack should pass
+            True.
 
         Returns
         -------
@@ -328,6 +342,12 @@ class WorstCaseAttack(Attack):
 
             y_pred_proba = attack_classifier.predict_proba(mi_test_x)
             mia_metrics.append(metrics.get_metrics(y_pred_proba, mi_test_y))
+
+            if cache_predictions:
+                self._predictions_cache[f"instance_{rep}"] = {
+                    "y_pred_proba": y_pred_proba,
+                    "y_test": mi_test_y,
+                }
 
             if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
@@ -483,6 +503,10 @@ class WorstCaseAttack(Attack):
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
+
+    def _predictions_extras(self, instance_key: str) -> dict[str, np.ndarray]:
+        """Return cached `(y_pred_proba, y_test)` for the given rep."""
+        return self._predictions_cache.get(instance_key, {})
 
     def _get_dummy_attack_metrics_experiments_instances(self) -> dict:
         """Construct the metadata object after attacks."""

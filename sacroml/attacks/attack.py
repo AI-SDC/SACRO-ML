@@ -26,14 +26,17 @@ class Attack(ABC):
     # Keys stripped from JSON output for every attack. Large arrays
     # (fpr/tpr/roc_thresh) bloat reports without adding info beyond AUC; the
     # `individual` block is per-record data that we externalise to a compressed
-    # .npz file (see `_individual_npz_prefix`).
+    # .npz file (see `_npz_prefix`).
     _json_exclude_keys: frozenset[str] = frozenset(
         {"fpr", "tpr", "roc_thresh", "individual"}
     )
 
-    # Subclasses opt in to externalising per-record `individual` data to a
-    # compressed .npz file by setting a non-empty prefix (e.g. "lira").
-    _individual_npz_prefix: str = ""
+    # Subclasses opt in to externalising arrays to compressed .npz files by
+    # setting a non-empty prefix (e.g. "lira"). Two file kinds share the prefix:
+    # `<prefix>_predictions_*.npz` (always written when `_predictions_extras`
+    # returns non-empty) and `<prefix>_individual_*.npz` (written when the
+    # instance carries an `individual` block).
+    _npz_prefix: str = ""
 
     def __init__(self, output_dir: str = "outputs", write_report: bool = True) -> None:
         """Instantiate an attack.
@@ -109,14 +112,53 @@ class Attack(ABC):
         return output
 
     def _individual_extras(self, instance_key: str) -> dict[str, np.ndarray]:
-        """Return extra arrays to include in the .npz alongside `individual`.
+        """Return extra arrays to include in the per-record `individual` .npz.
 
-        Override in subclasses that need to persist arrays not part of the
-        per-record `individual` block (e.g. LiRA's `y_pred_proba`/`y_test`
-        used for ROC recomputation).
+        Override in subclasses that want to persist arrays alongside the
+        `individual` block but that aren't themselves part of it.
         """
         del instance_key
         return {}
+
+    def _predictions_extras(self, instance_key: str) -> dict[str, np.ndarray]:
+        """Return arrays needed to recompute the ROC for one instance.
+
+        Override in subclasses that produce membership predictions
+        (typically ``y_pred_proba`` and ``y_test``). Returning a non-empty
+        dict causes a ``<prefix>_predictions_<id>_<key>.npz`` to be written
+        regardless of whether per-record `individual` data is also reported,
+        so downstream tools can always reconstruct the ROC curve. The
+        default returns ``{}`` (no predictions file).
+        """
+        del instance_key
+        return {}
+
+    def _externalise_predictions(self, output: dict) -> None:
+        """Write per-instance prediction arrays to compressed .npz files.
+
+        For each instance under `attack_experiment_logger.attack_instance_logger`,
+        call `_predictions_extras` and, if it returns any arrays, write them to
+        a compressed .npz and add a `predictions_file` pointer on the instance.
+
+        This is independent of `report_individual` — the predictions file is
+        written whenever an attack supplies them, so the ROC stays recoverable
+        from disk even when per-record data is omitted from the JSON for size.
+        """
+        if not self._npz_prefix:
+            return
+        instances = output.get("attack_experiment_logger", {}).get(
+            "attack_instance_logger", {}
+        )
+        for key, inst in instances.items():
+            extras = self._predictions_extras(key)
+            if not extras:
+                continue
+            arrays: dict[str, np.ndarray] = {
+                k: np.asarray(v) for k, v in extras.items()
+            }
+            fname = f"{self._npz_prefix}_predictions_{self._instance_id[:8]}_{key}.npz"
+            np.savez_compressed(os.path.join(self.output_dir, fname), **arrays)
+            inst["predictions_file"] = fname
 
     def _externalise_individual(self, output: dict) -> None:
         """Write per-record `individual` blocks to compressed .npz files.
@@ -128,7 +170,7 @@ class Attack(ABC):
         block stays in memory (used by PDF generation and meta-attack); it is
         stripped from the JSON via `_json_exclude_keys`.
         """
-        if not self._individual_npz_prefix:
+        if not self._npz_prefix:
             return
         instances = output.get("attack_experiment_logger", {}).get(
             "attack_instance_logger", {}
@@ -142,10 +184,7 @@ class Attack(ABC):
                 k: np.asarray(v) for k, v in individual.items()
             }
             arrays.update({k: np.asarray(v) for k, v in extras.items()})
-            fname = (
-                f"{self._individual_npz_prefix}_individual_"
-                f"{self._instance_id[:8]}_{key}.npz"
-            )
+            fname = f"{self._npz_prefix}_individual_{self._instance_id[:8]}_{key}.npz"
             np.savez_compressed(os.path.join(self.output_dir, fname), **arrays)
             inst["individual_file"] = fname
 
@@ -154,6 +193,7 @@ class Attack(ABC):
         dest: str = os.path.join(self.output_dir, "report")
         if self.write_report:
             logger.info("Writing report: %s.json %s.pdf", dest, dest)
+            self._externalise_predictions(output)
             self._externalise_individual(output)
             report.write_json(output, dest, exclude_keys=self._json_exclude_keys)
             pdf_report: FPDF | None = self._make_pdf(output)

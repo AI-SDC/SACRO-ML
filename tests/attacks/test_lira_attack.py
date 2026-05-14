@@ -119,7 +119,7 @@ def test_lira_attack(lira_classifier_setup, mode, expect_error, fix_variance):
 
 
 def test_lira_individual_npz_and_json(lira_classifier_setup):
-    """Test that individual results are saved to .npz and excluded from JSON."""
+    """Test that individual + predictions are saved to .npz and excluded from JSON."""
     target = lira_classifier_setup
     output_dir = "test_output_lira"
     lira = LIRAAttack(
@@ -136,20 +136,28 @@ def test_lira_individual_npz_and_json(lira_classifier_setup):
     instance = output["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
-    npz_filename = instance["individual_file"]
-    assert npz_filename.startswith("lira_individual_")
-    assert npz_filename.endswith("_instance_0.npz")
 
-    npz_path = os.path.join(output_dir, npz_filename)
-    assert os.path.exists(npz_path)
+    # Predictions .npz: y_pred_proba/y_test for ROC recompute.
+    predictions_filename = instance["predictions_file"]
+    assert predictions_filename.startswith("lira_predictions_")
+    assert predictions_filename.endswith("_instance_0.npz")
+    predictions_path = os.path.join(output_dir, predictions_filename)
+    assert os.path.exists(predictions_path)
+    predictions = np.load(predictions_path)
+    assert "y_pred_proba" in predictions
+    assert "y_test" in predictions
 
-    data = np.load(npz_path)
-    assert "y_pred_proba" in data
-    assert "y_test" in data
-    assert "score" in data
-    assert "member" in data
+    # Individual .npz: per-record scores (only when report_individual=True).
+    individual_filename = instance["individual_file"]
+    assert individual_filename.startswith("lira_individual_")
+    assert individual_filename.endswith("_instance_0.npz")
+    individual_path = os.path.join(output_dir, individual_filename)
+    assert os.path.exists(individual_path)
+    individual = np.load(individual_path)
+    assert "score" in individual
+    assert "member" in individual
 
-    # Check JSON file does not contain fpr/tpr/roc_thresh/individual
+    # Check JSON file does not contain fpr/tpr/roc_thresh/individual.
     json_path = os.path.join(output_dir, "report.json")
     with open(json_path, encoding="utf-8") as fp:
         json_data = json.load(fp)
@@ -162,7 +170,38 @@ def test_lira_individual_npz_and_json(lira_classifier_setup):
     assert "tpr" not in json_instance
     assert "roc_thresh" not in json_instance
     assert "individual" not in json_instance
-    assert json_instance["individual_file"] == npz_filename
+    assert json_instance["individual_file"] == individual_filename
+    assert json_instance["predictions_file"] == predictions_filename
+
+
+def test_lira_predictions_written_without_report_individual(lira_classifier_setup):
+    """Predictions .npz is written even when report_individual=False.
+
+    Guards against losing the ROC curve when individual records aren't
+    reported: y_pred_proba/y_test must still be persisted so the ROC can
+    be reconstructed downstream.
+    """
+    target = lira_classifier_setup
+    output_dir = "test_output_lira_predictions_only"
+    lira = LIRAAttack(
+        output_dir=output_dir,
+        write_report=True,
+        n_shadow_models=20,
+        mode="offline",
+        report_individual=False,
+    )
+    output = lira.attack(target)
+
+    instance = output["attack_experiment_logger"]["attack_instance_logger"][
+        "instance_0"
+    ]
+    assert "individual_file" not in instance
+    predictions_filename = instance["predictions_file"]
+    assert predictions_filename.startswith("lira_predictions_")
+    predictions_path = os.path.join(output_dir, predictions_filename)
+    predictions = np.load(predictions_path)
+    assert "y_pred_proba" in predictions
+    assert "y_test" in predictions
 
 
 def test_lira_two_runs_same_dir_no_clobber(lira_classifier_setup):
