@@ -80,6 +80,11 @@ class Target:
         Path to module containing training function.
     train_params : dict or None
         Hyperparameters for training the model.
+    batch_size : int or None
+        Batch size used to train the original target model. Threaded to
+        PyTorch model (re)training and inference. Should match the original
+        training batch size since it materially affects attack model fidelity
+        (e.g. shadow models). When None, PyTorch defaults to 32.
     dataset_name : str
         The name of the dataset.
     dataset_module_path : str
@@ -122,6 +127,7 @@ class Target:
     model_params: dict | None = None
     train_module_path: str = ""
     train_params: dict | None = None
+    batch_size: int | None = None
 
     # Dataset attributes
     dataset_name: str = ""
@@ -165,6 +171,10 @@ class Target:
                 train_params=self.train_params,
             )
         if isinstance(model, torch.nn.Module):
+            # Resolve None -> 32 silently here: _wrap_model() runs per Target
+            # construction (and once per shadow model in LiRA), so warning here
+            # would spam the log. The unspecified-batch-size warning instead
+            # fires exactly once at load time in _load_model().
             return PytorchModel(
                 model=model,
                 model_path=self.model_path,
@@ -173,6 +183,7 @@ class Target:
                 model_params=self.model_params,
                 train_module_path=self.train_module_path,
                 train_params=self.train_params,
+                batch_size=self.batch_size if self.batch_size is not None else 32,
             )
         if isinstance(model, (SklearnModel, PytorchModel)):
             return model
@@ -373,6 +384,12 @@ class Target:
             }
         )
 
+        # batch_size is Target-level metadata, persisted as a top-level scalar
+        # (not nested in train_params, which is forwarded verbatim as kwargs to
+        # the user's train() function).
+        if isinstance(self.model, PytorchModel):
+            target["batch_size"] = self.model.batch_size
+
         # Copy module files
         if self.model_module_path:
             shutil.copy2(self.model_module_path, os.path.join(path, "model.py"))
@@ -422,14 +439,36 @@ class Target:
         model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[
             model_type
         ]
-        self.model = model_class.load(
-            model_path=os.path.join(path, target.get("model_path", "")),
-            model_module_path=os.path.join(path, target.get("model_module_path", "")),
-            model_name=target.get("model_name", ""),
-            model_params=target.get("model_params", {}),
-            train_module_path=os.path.join(path, target.get("train_module_path", "")),
-            train_params=target.get("train_params", {}),
-        )
+        load_kwargs: dict[str, object] = {
+            "model_path": os.path.join(path, target.get("model_path", "")),
+            "model_module_path": os.path.join(
+                path, target.get("model_module_path", "")
+            ),
+            "model_name": target.get("model_name", ""),
+            "model_params": target.get("model_params", {}),
+            "train_module_path": os.path.join(
+                path, target.get("train_module_path", "")
+            ),
+            "train_params": target.get("train_params", {}),
+        }
+
+        # batch_size only applies to PyTorch models. _load_model() is called
+        # exactly once per Target.load(), so emitting the warning here (rather
+        # than in _wrap_model(), which runs per shadow model) guarantees it
+        # fires exactly once for an old target.yaml lacking the key. No dedupe
+        # flag or warnings filter is needed.
+        if model_class is PytorchModel:
+            if "batch_size" not in target:
+                logger.warning(
+                    "Saved target has no recorded batch_size; defaulting to "
+                    "32. This may not match the original training batch size "
+                    "and can materially affect attack model fidelity "
+                    "(e.g. shadow models in LiRA)."
+                )
+            load_kwargs["batch_size"] = target.get("batch_size", 32)
+            self.batch_size = target.get("batch_size", 32)
+
+        self.model = model_class.load(**load_kwargs)
         logger.info("Loaded: %s : %s", model_type, target.get("model_name", ""))
 
     def _load_array(self, path: str, target: dict, attr_name: str) -> None:

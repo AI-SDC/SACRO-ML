@@ -35,9 +35,16 @@ if __name__ == "__main__":
     # Create data splits
     indices_train, indices_test = data_handler.get_train_test_indices()
 
-    # Get dataloaders
-    train_loader = data_handler.get_dataloader(dataset, indices_train, shuffle=True)
-    test_loader = data_handler.get_dataloader(dataset, indices_test, shuffle=False)
+    # Get dataloaders. The batch size is made explicit here so the same value
+    # can be recorded on the Target below; it materially affects attack model
+    # fidelity (e.g. shadow models), so it must match the training batch size.
+    batch_size = 32
+    train_loader = data_handler.get_dataloader(
+        dataset, indices_train, batch_size=batch_size, shuffle=True
+    )
+    test_loader = data_handler.get_dataloader(
+        dataset, indices_test, batch_size=batch_size, shuffle=False
+    )
 
     logging.info("Defining the model")
 
@@ -69,6 +76,7 @@ if __name__ == "__main__":
         model_params=model_params,  # Must match all required in model constructor
         train_module_path="train.py",
         train_params=train_params,  # Must match all required in the train function
+        batch_size=batch_size,  # Should match the training batch size
         dataset_module_path="dataset.py",
         dataset_name="Cifar10",  # Must match the class name in dataset module
         indices_train=indices_train,

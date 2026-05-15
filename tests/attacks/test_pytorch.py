@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import logging
+
+import numpy as np
 import torch
+import yaml
 
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
@@ -137,3 +141,108 @@ def test_pytorch() -> None:
     indices = tgt.model.get_label_indices(tgt.y_test)
     for i in range(len(tgt.y_test)):
         assert testloss[i] == 1.0 - predictions[i][indices[i]]
+
+
+def _make_target(batch_size: int | None) -> Target:
+    """Build a small wrapped PyTorch Target for batch_size tests."""
+    handler = Synthetic()
+    dataset = handler.get_dataset()
+    indices_train, indices_test = handler.get_train_test_indices()
+    train_loader = handler.get_dataloader(dataset, indices_train)
+
+    model_params = {"x_dim": 4, "y_dim": 4, "n_units": 1000}
+    train_params = {"epochs": 1, "learning_rate": 0.001, "momentum": 0.9}
+    model = OverfitNet(**model_params)
+    train(model, train_loader, **train_params)
+
+    return Target(
+        model=model,
+        model_module_path="tests/attacks/pytorch_model.py",
+        model_params=model_params,
+        train_module_path="tests/attacks/pytorch_train.py",
+        train_params=train_params,
+        batch_size=batch_size,
+        dataset_module_path="tests/attacks/pytorch_dataset.py",
+        dataset_name="Synthetic",
+        indices_train=indices_train,
+        indices_test=indices_test,
+    )
+
+
+def test_batch_size_roundtrip() -> None:
+    """An explicit batch_size survives Target.save() / load()."""
+    target = _make_target(batch_size=64)
+    assert target.model.batch_size == 64
+
+    target_path = "target_pytorch_bs"
+    target.save(target_path)
+
+    # Top-level scalar in target.yaml, not nested inside train_params.
+    with open(f"{target_path}/target.yaml", encoding="utf-8") as f:
+        saved = yaml.safe_load(f)
+    assert saved["batch_size"] == 64
+    assert "batch_size" not in saved.get("train_params", {})
+
+    tgt = Target()
+    tgt.load(target_path)
+    assert tgt.batch_size == 64
+    assert tgt.model.batch_size == 64
+
+
+def test_batch_size_defaults_to_32_when_unset() -> None:
+    """An unset batch_size resolves to 32 on the wrapped model (no warning)."""
+    target = _make_target(batch_size=None)
+    assert target.model.batch_size == 32
+
+    target_path = "target_pytorch_bs_none"
+    target.save(target_path)
+    # A freshly-saved target records the resolved value (32), not None.
+    with open(f"{target_path}/target.yaml", encoding="utf-8") as f:
+        saved = yaml.safe_load(f)
+    assert saved["batch_size"] == 32
+
+
+def test_batch_size_backcompat_old_yaml(caplog) -> None:
+    """A hand-crafted old target.yaml lacking batch_size loads as 32 and warns.
+
+    This deliberately writes the yaml by hand (rather than saving a Target
+    with batch_size=None) because the absent-key path is distinct from the
+    resolved-to-32 save path.
+    """
+    target = _make_target(batch_size=128)
+    target_path = "target_pytorch_old"
+    target.save(target_path)
+
+    yaml_path = f"{target_path}/target.yaml"
+    with open(yaml_path, encoding="utf-8") as f:
+        saved = yaml.safe_load(f)
+    del saved["batch_size"]
+    assert "batch_size" not in saved
+    with open(yaml_path, "w", encoding="utf-8") as f:
+        yaml.dump(saved, f, default_flow_style=False, sort_keys=False)
+
+    tgt = Target()
+    with caplog.at_level(logging.WARNING, logger="sacroml.attacks.target"):
+        tgt.load(target_path)
+
+    assert tgt.model.batch_size == 32
+    warnings = [
+        r
+        for r in caplog.records
+        if "no recorded batch_size" in r.message and r.levelno == logging.WARNING
+    ]
+    assert len(warnings) == 1
+
+
+def test_fit_batch_size_override_warns(caplog) -> None:
+    """Fit() warns when an explicit batch_size differs from the recorded one."""
+    target = _make_target(batch_size=16)
+    handler = Synthetic()
+    X = np.asarray(handler.X, dtype=np.float64)
+    y = np.asarray(handler.y, dtype=np.int64)
+
+    with caplog.at_level(logging.WARNING, logger="sacroml.attacks.model_pytorch"):
+        target.model.fit(X, y, batch_size=8)
+
+    warnings = [r for r in caplog.records if "differs from the target" in r.message]
+    assert len(warnings) == 1
