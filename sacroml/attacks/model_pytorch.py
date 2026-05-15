@@ -30,6 +30,7 @@ class PytorchModel(Model):
         model_params: dict | None = None,
         train_module_path: str = "",
         train_params: dict | None = None,
+        batch_size: int = 32,
     ) -> None:
         """Instantiate a target model.
 
@@ -49,6 +50,10 @@ class PytorchModel(Model):
             Path (including extension) of Python module containing train function.
         train_params : dict | None
             Hyperparameters for training the model.
+        batch_size : int
+            Batch size used to (re)train and run inference on the model. Should
+            match the batch size used to train the original target model, since
+            it materially affects attack model fidelity (e.g. shadow models).
         """
         super().__init__(
             model=model,
@@ -59,6 +64,7 @@ class PytorchModel(Model):
             train_module_path=train_module_path,
             train_params=train_params,
         )
+        self.batch_size: int = batch_size
 
     def get_generalisation_error(
         self,
@@ -150,7 +156,9 @@ class PytorchModel(Model):
         # Create a dataloader
         X_tensor = torch.from_numpy(X).float()
         dataset = TensorDataset(X_tensor)
-        dataloader: DataLoader = DataLoader(dataset, batch_size=32, shuffle=False)
+        dataloader: DataLoader = DataLoader(
+            dataset, batch_size=self.batch_size, shuffle=False
+        )
 
         # Compute predictions
         all_preds = []
@@ -165,7 +173,9 @@ class PytorchModel(Model):
         self.model.to("cpu")
         return all_preds.numpy().astype(np.float64)
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> PytorchModel:
+    def fit(
+        self, X: np.ndarray, y: np.ndarray, batch_size: int | None = None
+    ) -> PytorchModel:
         """Fit a model from scratch.
 
         Parameters
@@ -174,18 +184,36 @@ class PytorchModel(Model):
             Features of the samples to be fitted.
         y : np.ndarray
             Labels of the samples to be fitted.
+        batch_size : int | None
+            Optional override for the batch size. When ``None`` (default) the
+            batch size recorded on the model is used. When supplied and it
+            differs from the recorded batch size a warning is emitted, since a
+            mismatch can materially affect attack model fidelity.
 
         Returns
         -------
         self
             Fitted model.
         """
+        fit_batch_size: int = self.batch_size
+        if batch_size is not None and batch_size != self.batch_size:
+            logger.warning(
+                "fit() called with batch_size=%d which differs from the "
+                "target's recorded batch_size=%d; this can materially affect "
+                "attack model fidelity (e.g. shadow models).",
+                batch_size,
+                self.batch_size,
+            )
+            fit_batch_size = batch_size
+
         #  Create a new model using the provided model class
         self.model = create_model(
             self.model_module_path, self.model_name, self.model_params
         )
         # Create a dataloader
-        dataloader: DataLoader = numpy_to_dataloader(X, y, batch_size=32, shuffle=True)
+        dataloader: DataLoader = numpy_to_dataloader(
+            X, y, batch_size=fit_batch_size, shuffle=True
+        )
         #  Fit using the provided train function
         return train_model(
             self.model, self.train_module_path, self.train_params, dataloader
@@ -209,6 +237,7 @@ class PytorchModel(Model):
             model_params=self.model_params,
             train_module_path=self.train_module_path,
             train_params=self.train_params,
+            batch_size=self.batch_size,
         )
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
@@ -231,7 +260,9 @@ class PytorchModel(Model):
         # Create a dataloader
         X_tensor = torch.from_numpy(X).float()
         dataset = TensorDataset(X_tensor)
-        dataloader: DataLoader = DataLoader(dataset, batch_size=32, shuffle=False)
+        dataloader: DataLoader = DataLoader(
+            dataset, batch_size=self.batch_size, shuffle=False
+        )
 
         # Compute the probabilities
         all_probs = []
@@ -331,6 +362,7 @@ class PytorchModel(Model):
         model_params: dict,
         train_module_path: str,
         train_params: dict,
+        batch_size: int = 32,
     ) -> PytorchModel:
         """Load the model from persistent storage.
 
@@ -348,6 +380,8 @@ class PytorchModel(Model):
             Path (including extension) of Python module containing train function.
         train_params : dict
             Hyperparameters for training the model.
+        batch_size : int
+            Batch size used to (re)train and run inference on the model.
 
         Returns
         -------
@@ -371,6 +405,7 @@ class PytorchModel(Model):
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,
+            batch_size=batch_size,
         )
 
 
