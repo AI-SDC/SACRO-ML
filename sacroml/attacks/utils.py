@@ -6,7 +6,6 @@ import logging
 import os
 import pickle
 import warnings
-from typing import Any
 
 import numpy as np
 from scipy.stats import shapiro
@@ -31,32 +30,39 @@ def check_and_update_dataset(target: Target) -> Target:
     are not in the training set.
     """
     if (
-        not isinstance(target.model.model, BaseEstimator)
-        or target.y_train is None
+        target.y_train is None
         or target.y_test is None
         or target.X_train is None
         or target.X_test is None
     ):
         return target
+    if not isinstance(target.model.model, BaseEstimator):
+        logger.warning(
+            "Target model is not a scikit-learn BaseEstimator (got %s); "
+            "class-index remapping skipped. Downstream attacks that use "
+            "predict_proba column indices (e.g. QMIA) may produce wrong "
+            "hinge scores if y_train/y_test values don't already match "
+            "model.classes_ positions.",
+            type(target.model.model).__name__,
+        )
+        return target
 
-    y_train_new = []
     classes = list(target.model.get_classes())
-    for y in target.y_train:
-        y_train_new.append(classes.index(y))
-    target.y_train = np.array(y_train_new, int)
+    class_to_idx = {c: i for i, c in enumerate(classes)}
+
+    target.y_train = np.array([class_to_idx[y] for y in target.y_train], dtype=int)
     logger.info(
         "new y_train has values and counts: %s",
         np.unique(target.y_train, return_counts=True),
     )
-    ok_pos = []
-    y_test_new = []
-    for i, y in enumerate(target.y_test):
-        if y in classes:
-            ok_pos.append(i)
-            y_test_new.append(classes.index(y))
-    if len(y_test_new) != len(target.X_test):  # pragma: no cover
+
+    class_set = set(classes)
+    ok_pos = [i for i, y in enumerate(target.y_test) if y in class_set]
+    target.y_test = np.array(
+        [class_to_idx[target.y_test[i]] for i in ok_pos], dtype=int
+    )
+    if len(ok_pos) != len(target.X_test):  # pragma: no cover
         target.X_test = target.X_test[ok_pos, :]
-    target.y_test = np.array(y_test_new, int)
     logger.info(
         "new y_test has values and counts: %s",
         np.unique(target.y_test, return_counts=True),
@@ -123,7 +129,7 @@ def train_shadow_models(
 def save_shadow_model(
     shadow_path: str,
     idx: int,
-    model: Any,
+    model: Model,
     indices_train: np.ndarray,
     indices_test: np.ndarray,
 ) -> None:
@@ -138,15 +144,17 @@ def save_shadow_model(
         pickle.dump(indices_test, f)
 
 
-def get_shadow_model(shadow_path: str, idx: int) -> tuple[Any, np.ndarray, np.ndarray]:
+def get_shadow_model(
+    shadow_path: str, idx: int
+) -> tuple[Model, np.ndarray, np.ndarray]:
     """Return a shadow model and indices previously saved."""
     path: str = os.path.normpath(f"{shadow_path}/{idx}")
     with open(os.path.join(path, "model.pkl"), "rb") as f:
-        model = pickle.load(f)
+        model: Model = pickle.load(f)
     with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-        indices_train = pickle.load(f)
-    with open(os.path.join(path, "indices_train.pkl"), "rb") as f:
-        indices_test = pickle.load(f)
+        indices_train: np.ndarray = pickle.load(f)
+    with open(os.path.join(path, "indices_test.pkl"), "rb") as f:
+        indices_test: np.ndarray = pickle.load(f)
     return model, indices_train, indices_test
 
 
@@ -189,13 +197,84 @@ def logit(p: float) -> float:
     instabilities. This code thresholds `p` at `EPS` and `1 - EPS` where `EPS`
     defaults at 1e-16.
     """
-    p = min(p, 1 - EPS)
+    p: float = min(p, 1 - EPS)
     p = max(p, EPS)
     return np.log(p / (1 - p))
 
 
-def get_class_by_name(class_path: str):
+def qmia_hinge_score(probas: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Return the QMIA hinge score: logit(p_y) - max_{y' != y} logit(p_{y'}).
+
+    Called "hinge" because it compares the true-class logit against the
+    strongest competing class, not just logit(p_y) alone. This is the
+    paper's general multiclass formula (Bertran et al., NeurIPS 2023)
+    and works for any number of classes C >= 2.
+
+    Parameters
+    ----------
+    probas : np.ndarray
+        Predicted probabilities with shape ``(n_rows, C)`` where C >= 2.
+    labels : np.ndarray
+        Integer-encoded labels with values in ``{0, ..., C-1}``.
+
+    Returns
+    -------
+    np.ndarray
+        One QMIA hinge score per input row.
+    """
+    if probas.ndim != 2 or probas.shape[1] < 2:
+        raise ValueError("QMIA hinge score expects probability rows with >= 2 columns.")
+
+    labels = np.asarray(labels, dtype=int)
+    n_samples = probas.shape[0]
+
+    clipped = np.clip(probas, EPS, 1 - EPS)
+    all_logits = np.log(clipped / (1 - clipped))
+
+    rows = np.arange(n_samples)
+    true_logits = all_logits[rows, labels]
+
+    masked = all_logits.copy()
+    masked[rows, labels] = -np.inf
+    max_wrong_logits = masked.max(axis=1)
+
+    return true_logits - max_wrong_logits
+
+
+def membership_labels(n_train: int, n_test: int) -> np.ndarray:
+    """Return membership labels for concatenated train and test rows."""
+    return np.hstack((np.ones(n_train, dtype=int), np.zeros(n_test, dtype=int)))
+
+
+def margins_to_two_column_probs(margins: np.ndarray) -> np.ndarray:
+    """Convert member-vs-non-member margins into shape ``(n_rows, 2)``.
+
+    Parameters
+    ----------
+    margins : np.ndarray
+        Continuous QMIA margins, where positive values favour membership.
+
+    Returns
+    -------
+    np.ndarray
+        Two-column array ``[non_member_score, member_score]``.
+
+    Notes
+    -----
+    Returns the raw margins (negated for the non-member column). ``get_metrics``
+    uses ``argmax`` for the confusion matrix and the second column as a
+    rank-ordered score for ROC metrics — both are rank-preserving, so no
+    sigmoid is needed. Applying one saturates any margin above ~37 to exactly
+    1.0 in float64 and collapses the TPR@low-FPR tail into ties.
+    """
+    margins = np.asarray(margins, dtype=float)
+    return np.column_stack((-margins, margins))
+
+
+def get_class_by_name(class_path: str) -> type[object]:
     """Return a class given its name."""
+    module_path: str
+    class_name: str
     module_path, class_name = class_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, class_name)

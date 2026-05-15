@@ -4,9 +4,11 @@ import logging
 
 import yaml
 
+from sacroml.attacks.attack import Attack
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.instance_based_attack import InstanceBasedAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
@@ -15,25 +17,26 @@ from sacroml.version import __version__
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-registry: dict = {
+registry: dict[str, type[Attack]] = {
     "attribute": AttributeAttack,
     "instance_based": InstanceBasedAttack,
     "lira": LIRAAttack,
+    "qmia": QMIAAttack,
     "structural": StructuralAttack,
     "worstcase": WorstCaseAttack,
 }
 
 
-def create_attack(attack_name: str, **kwargs: dict) -> None:
+def create_attack(attack_name: str, **kwargs: object) -> Attack:
     """Instantiate an attack."""
     if attack_name in registry:
         return registry[attack_name](**kwargs)
     raise ValueError(f"Unknown Attack: {attack_name}")  # pragma: no cover
 
 
-def attack(target: Target, attack_name: str, **kwargs: dict) -> dict:
+def attack(target: Target, attack_name: str, **kwargs: object) -> dict[str, object]:
     """Create and execute an attack on a target."""
-    attack_obj = create_attack(attack_name, **kwargs)
+    attack_obj: Attack = create_attack(attack_name, **kwargs)
     return attack_obj.attack(target)
 
 
@@ -49,18 +52,18 @@ def run_attacks(target_dir: str, attack_filename: str) -> None:
     """
     logger.info("sacroml version %s", __version__)
     logger.info("Preparing Target")
-    target = Target()
+    target: Target = Target()
     target.load(target_dir)
 
     logger.info("Preparing Attacks")
     with open(attack_filename, encoding="utf-8") as f:
-        config = yaml.safe_load(f)
+        config: dict[str, object] = yaml.safe_load(f)
 
     logger.info("Running Attacks")
 
     for attack_cfg in config["attacks"]:
-        name = attack_cfg["name"]
-        params = attack_cfg["params"]
+        name: str = attack_cfg["name"]
+        params: dict[str, object] = attack_cfg["params"]
         attack(target=target, attack_name=name, **params)
 
     logger.info("Finished running attacks")

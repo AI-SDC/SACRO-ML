@@ -17,7 +17,7 @@ class Model(ABC):
 
     def __init__(
         self,
-        model: Any,
+        model: object,
         model_path: str = "",
         model_module_path: str = "",
         model_name: str = "",
@@ -44,7 +44,7 @@ class Model(ABC):
         train_params : dict | None
             Hyperparameters for training the model.
         """
-        self.model: Any = model
+        self.model: object = model
         self.model_path: str = model_path
         self.model_module_path: str = model_module_path
         self.model_name: str = model_name
@@ -196,7 +196,7 @@ class Model(ABC):
         """
 
     @abstractmethod
-    def set_params(self, **kwargs) -> Model:
+    def set_params(self, **kwargs: object) -> Model:
         """Set the parameters of this model.
 
         Parameters
@@ -265,7 +265,9 @@ class Model(ABC):
         """
 
 
-def create_model(model_module_path: str, model_name: str, model_params: dict) -> Any:
+def create_model(
+    model_module_path: str, model_name: str, model_params: dict[str, object]
+) -> object:
     """Return a new model from a code path.
 
     Parameters

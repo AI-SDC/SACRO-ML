@@ -12,12 +12,13 @@ from datetime import date
 import numpy as np
 import pytest
 import sklearn
-from sklearn.datasets import fetch_openml, make_classification
+from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from sacroml.attacks.target import Target
+from tests.attacks.sklearn_dataset import _generate_nursery_data
 
 np.random.seed(1)
 
@@ -112,11 +113,12 @@ def _cleanup():
 def get_target(request) -> Target:
     """Return a target object with test data and fitted model.
 
-    Uses a randomly sampled 10+10% of the nursery data set.
+    Uses synthetic categorical data generated with make_classification,
+    discretised to match the nursery dataset structure.
     """
     model: sklearn.BaseEstimator = request.param
 
-    nursery_data = fetch_openml(data_id=26, as_frame=True)
+    nursery_data = _generate_nursery_data()
     x = np.asarray(nursery_data.data, dtype=str)
     y = np.asarray(nursery_data.target, dtype=str)
     # change labels from recommend to priority for the two odd cases
@@ -163,8 +165,9 @@ def get_target(request) -> Target:
     y_test = label_enc.transform(y_test_orig)
 
     # add dummy continuous valued attribute from N(0.5,0.05)
-    dummy_tr = 0.5 + 0.05 * np.random.randn(X_train.shape[0])
-    dummy_te = 0.5 + 0.05 * np.random.randn(X_test.shape[0])
+    rng = np.random.RandomState(1)
+    dummy_tr = 0.5 + 0.05 * rng.randn(X_train.shape[0])
+    dummy_te = 0.5 + 0.05 * rng.randn(X_test.shape[0])
     dummy_tr = dummy_tr.reshape(-1, 1)
     dummy_te = dummy_te.reshape(-1, 1)
 
