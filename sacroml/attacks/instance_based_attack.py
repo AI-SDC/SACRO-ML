@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import asdict, dataclass
+from typing import Any
 
 import numpy as np
 from fpdf import FPDF
@@ -154,7 +155,7 @@ class InstanceBasedAttack(Attack):
         return True
 
     @staticmethod
-    def _unwrap_model(model):
+    def _unwrap_model(model: Any) -> tuple[Any, Any]:
         """Extract the final estimator and preprocessor from a Pipeline.
 
         Returns
