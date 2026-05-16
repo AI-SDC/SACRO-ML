@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 import unittest
 
+import numpy as np
 import pytest
 
 from sacroml.attacks.attack_report_formatter import (
@@ -510,6 +512,56 @@ class TestLogLogROCModule(unittest.TestCase):
 
         assert output_file_1 in returned
         assert output_file_2 in returned
+
+    def test_loglog_roc_missing_keys(self):
+        """Test LogLogROCModule skips gracefully when fpr/tpr are absent."""
+        json_formatted = get_test_report()
+        # Remove ROC data from all instances (new format)
+        for instance in json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].values():
+            instance.pop("fpr", None)
+            instance.pop("tpr", None)
+
+        f = LogLogROCModule(json_formatted, output_folder=".")
+        returned = f.process_dict()
+        # Should not produce any plot files
+        assert returned == "Log plot(s) saved to []"
+
+    def test_loglog_roc_from_sidecar_npz(self):
+        """LogLogROCModule reloads ROC arrays from an externalised .npz."""
+        json_formatted = get_test_report()
+        instance = next(
+            iter(
+                json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].values()
+            )
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Replace inline fpr/tpr with a sidecar pointer, as write_json does.
+            # All instances share one dict in this fixture, so one .npz covers
+            # them.
+            fname = "report_arrays_instance.npz"
+            np.savez_compressed(
+                os.path.join(tmpdir, fname),
+                fpr=np.array(instance.pop("fpr")),
+                tpr=np.array(instance.pop("tpr")),
+            )
+            instance["arrays_file"] = fname
+
+            f = LogLogROCModule(json_formatted, output_folder=tmpdir)
+            returned = f.process_dict()
+
+            out_file = os.path.join(
+                tmpdir,
+                f"{json_formatted['log_id']}-"
+                f"{json_formatted['metadata']['attack']}.png",
+            )
+            # Plot was produced from the sidecar arrays, not inline fpr/tpr.
+            assert os.path.exists(out_file)
+            assert "1024-WorstCase.png" in returned
 
     def test_print(self):
         """Test the LogLogROCModule printing."""

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib
+import json
+import os
 import sys
 from unittest.mock import Mock, patch
 
@@ -698,3 +700,38 @@ def test_dt_disclosive_xor_reporting():
         assert inst[metric], f"instance metric {metric} should be True"
 
     assert inst["individual"]["k_anonymity"] == [2, 1, 2, 2, 1, 2]
+
+
+def test_structural_individual_externalised(tmp_path):
+    """Structural's per-record block is written to .npz and stripped from JSON."""
+    target_dtsafe = get_target_xor("dt", reps=20, **kwargs_dtsafe)
+
+    outputdir = str(tmp_path / "structural_out")
+    attack = sa.StructuralAttack(
+        report_individual=True,
+        output_dir=outputdir,
+        write_report=True,
+    )
+    output = attack.attack(target_dtsafe)
+
+    # In-memory output keeps the individual block (used by PDF / meta-attack).
+    inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert "individual" in inst
+
+    json_path = os.path.join(outputdir, "report.json")
+    with open(json_path, encoding="utf-8") as fp:
+        json_data = json.load(fp)
+    # tmp_path gives a fresh dir, so this is the only report entry; select it
+    # by the attack's own log_id all the same.
+    structural_key = f"{output['metadata']['attack_name']}_{output['log_id']}"
+    json_inst = json_data[structural_key]["attack_experiment_logger"][
+        "attack_instance_logger"
+    ]["instance_0"]
+    assert "individual" not in json_inst
+
+    npz_filename = json_inst["arrays_file"]
+    assert npz_filename.endswith("_instance_0.npz")
+    npz_path = os.path.join(outputdir, npz_filename)
+    assert os.path.exists(npz_path)
+    with np.load(npz_path) as data:
+        assert "individual.k_anonymity" in data
