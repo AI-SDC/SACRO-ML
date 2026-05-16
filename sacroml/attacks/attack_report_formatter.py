@@ -391,6 +391,42 @@ class LogLogROCModule(AnalysisModule):
         self.output_folder = output_folder
         self.include_mean = include_mean
 
+    def _resolve_roc(self, instance: dict) -> dict | None:
+        """Return an instance's ROC arrays, loading the sidecar if needed.
+
+        ROC arrays are externalised from the JSON to a compressed ``.npz``
+        (see ``report._externalise_arrays``). If they are not present inline
+        (legacy reports), they are loaded from the ``arrays_file`` pointer,
+        looked up first relative to ``output_folder`` and then to the
+        working directory.
+
+        Parameters
+        ----------
+        instance : dict
+            A single ``attack_instance_logger`` entry.
+
+        Returns
+        -------
+        dict | None
+            A mapping containing ``fpr`` and ``tpr``, or ``None`` when no
+            ROC data can be found for the instance.
+        """
+        if "fpr" in instance and "tpr" in instance:
+            return instance
+        arrays_file = instance.get("arrays_file")
+        if not arrays_file:
+            return None
+        candidates = [arrays_file]
+        if self.output_folder is not None:
+            candidates.insert(0, os.path.join(self.output_folder, arrays_file))
+        path = next((p for p in candidates if os.path.exists(p)), None)
+        if path is None:
+            return None
+        with np.load(path) as data:
+            if "fpr" in data and "tpr" in data:
+                return {"fpr": data["fpr"], "tpr": data["tpr"]}
+        return None
+
     def process_dict(self) -> str:
         """Create a roc plot for multiple repetitions."""
         log_plot_names = []
@@ -403,19 +439,20 @@ class LogLogROCModule(AnalysisModule):
                 plt.figure(figsize=(8, 8))
                 plt.plot([0, 1], [0, 1], "k--")
 
-                # Compute average ROC
+                # Compute average ROC. ROC arrays may be inline (legacy
+                # reports) or externalised to a sidecar .npz (new format).
                 base_fpr = np.linspace(0, 1, 1000)
-                # Filter out instances without ROC data (new format)
                 metrics = [
-                    m
+                    resolved
                     for m in self.report[k]["attack_experiment_logger"][
                         "attack_instance_logger"
                     ].values()
-                    if "fpr" in m and "tpr" in m
+                    if (resolved := self._resolve_roc(m)) is not None
                 ]
                 if not metrics:
                     logger.warning(
-                        "ROC data not found in JSON; skipping log-log ROC plot"
+                        "ROC data not found in JSON or sidecar; "
+                        "skipping log-log ROC plot"
                     )
                     plt.close()
                     continue

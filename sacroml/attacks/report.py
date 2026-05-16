@@ -184,10 +184,71 @@ def _strip_keys(obj: Any, exclude_keys: frozenset[str]) -> Any:
     return obj
 
 
+# Per-instance arrays moved out of the JSON into a sidecar .npz. These are
+# already computed and sitting in the in-memory report at write time, so they
+# are externalised generically here -- no attack needs to cache anything.
+_EXTERNALISE_ARRAY_KEYS: tuple[str, ...] = ("fpr", "tpr", "roc_thresh")
+
+
+def _externalise_arrays(output: dict, dest: str) -> dict[str, str]:
+    """Move large per-instance arrays out of the JSON into compressed .npz.
+
+    For each instance under ``attack_experiment_logger.attack_instance_logger``,
+    write its ROC arrays (``fpr``/``tpr``/``roc_thresh``) and any per-record
+    ``individual`` block to a single compressed ``.npz`` next to the JSON, and
+    return ``{instance_key: filename}`` pointers. ``output`` is not mutated, so
+    PDF generation (which runs afterwards) still sees the full arrays in memory.
+
+    Parameters
+    ----------
+    output : dict
+        Attack output dictionary.
+    dest : str
+        Destination path (without extension); the .npz files are written
+        alongside it.
+
+    Returns
+    -------
+    dict[str, str]
+        Mapping of instance key to the relative .npz filename written.
+    """
+    dest_dir: str = os.path.dirname(dest) or "."
+    base: str = os.path.basename(dest) or "report"
+    # log_id is the attack's stable per-instance uuid; including it keeps two
+    # runs (or two attacks) writing into the same directory from clobbering.
+    log_id: str = str(output.get("log_id", ""))[:8]
+    instances: dict = output.get("attack_experiment_logger", {}).get(
+        "attack_instance_logger", {}
+    )
+    pointers: dict[str, str] = {}
+    for inst_key, inst in instances.items():
+        if not isinstance(inst, dict):
+            continue
+        arrays: dict[str, np.ndarray] = {}
+        for key in _EXTERNALISE_ARRAY_KEYS:
+            if inst.get(key) is not None:
+                arrays[key] = np.asarray(inst[key])
+        individual = inst.get("individual")
+        if isinstance(individual, dict):
+            for ind_key, ind_val in individual.items():
+                arrays[f"individual.{ind_key}"] = np.asarray(ind_val)
+        if not arrays:
+            continue
+        suffix: str = f"_{log_id}" if log_id else ""
+        fname: str = f"{base}_arrays{suffix}_{inst_key}.npz"
+        np.savez_compressed(os.path.join(dest_dir, fname), **arrays)
+        pointers[inst_key] = fname
+    return pointers
+
+
 def write_json(
     output: dict, dest: str, exclude_keys: frozenset[str] = frozenset()
 ) -> None:
     """Write attack report to JSON.
+
+    When ``exclude_keys`` is non-empty, the large per-instance arrays it names
+    are first externalised to a sidecar ``.npz`` (see ``_externalise_arrays``),
+    then stripped from the JSON and replaced with an ``arrays_file`` pointer.
 
     Parameters
     ----------
@@ -198,7 +259,17 @@ def write_json(
     exclude_keys : frozenset[str]
         Keys to exclude from the JSON output to reduce file size.
     """
-    filtered = _strip_keys(output, exclude_keys) if exclude_keys else output
+    if exclude_keys:
+        pointers = _externalise_arrays(output, dest)
+        filtered = _strip_keys(output, exclude_keys)
+        instances = filtered.get("attack_experiment_logger", {}).get(
+            "attack_instance_logger", {}
+        )
+        for inst_key, fname in pointers.items():
+            if inst_key in instances:
+                instances[inst_key]["arrays_file"] = fname
+    else:
+        filtered = output
     attack_formatter = GenerateJSONModule(dest + ".json")
     attack_report: str = json.dumps(_sanitise_floats(filtered), cls=CustomJSONEncoder)
     attack_name: str = output["metadata"]["attack_name"]

@@ -126,26 +126,43 @@ def test_write_json_excludes_large_arrays():
         "fpr": np.linspace(0, 1, 100).tolist(),
         "tpr": np.linspace(0, 1, 100).tolist(),
         "roc_thresh": np.linspace(1, 0, 100).tolist(),
+        "individual": {"score": [0.1, 0.9], "member": [0, 1]},
     }
     output = {
+        "log_id": "abcdef1234567890",
         "metadata": {"attack_name": "test_attack"},
         "attack_experiment_logger": {
             "attack_instance_logger": {"instance_0": metrics},
         },
     }
-    exclude = frozenset({"fpr", "tpr", "roc_thresh"})
+    exclude = frozenset({"fpr", "tpr", "roc_thresh", "individual"})
 
     with tempfile.TemporaryDirectory() as tmpdir:
         dest = os.path.join(tmpdir, "report")
         report.write_json(output, dest, exclude_keys=exclude)
-        path = dest + ".json"
-        with open(path, encoding="utf-8") as fp:
+        with open(dest + ".json", encoding="utf-8") as fp:
             data = json.load(fp)
 
-    instance = data["test_attack"]["attack_experiment_logger"][
-        "attack_instance_logger"
-    ]["instance_0"]
-    assert "fpr" not in instance
-    assert "tpr" not in instance
-    assert "roc_thresh" not in instance
-    assert instance["AUC"] == pytest.approx(0.75)
+        # GenerateJSONModule keys the entry by "<attack_name>_<log_id>".
+        attack_key = next(k for k in data if k.startswith("test_attack"))
+        instance = data[attack_key]["attack_experiment_logger"][
+            "attack_instance_logger"
+        ]["instance_0"]
+        assert "fpr" not in instance
+        assert "tpr" not in instance
+        assert "roc_thresh" not in instance
+        assert "individual" not in instance
+        assert instance["AUC"] == pytest.approx(0.75)
+
+        # The stripped arrays are recoverable from the sidecar .npz.
+        arrays_file = instance["arrays_file"]
+        assert arrays_file.endswith("_instance_0.npz")
+        with np.load(os.path.join(tmpdir, arrays_file)) as arrays:
+            assert arrays["fpr"].shape == (100,)
+            assert list(arrays["individual.member"]) == [0, 1]
+
+    # write_json must not mutate the caller's in-memory output.
+    assert (
+        "fpr"
+        in output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    )

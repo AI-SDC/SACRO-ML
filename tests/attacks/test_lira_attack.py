@@ -58,6 +58,22 @@ def fixture_lira_classifier_setup():
     return target
 
 
+def _json_instance_for(output_dir: str, output: dict, instance: str = "instance_0"):
+    """Return one instance from the just-written report.json entry.
+
+    ``report.json`` is append-only (GenerateJSONModule keys each entry
+    ``"<attack_name>_<log_id>"``), so the entry is selected by the attack's
+    own log_id rather than by position, keeping the test robust to a reused
+    output directory.
+    """
+    with open(os.path.join(output_dir, "report.json"), encoding="utf-8") as fp:
+        json_data = json.load(fp)
+    key = f"{output['metadata']['attack_name']}_{output['log_id']}"
+    return json_data[key]["attack_experiment_logger"]["attack_instance_logger"][
+        instance
+    ]
+
+
 @pytest.mark.parametrize(
     ("mode", "expect_error"),
     [
@@ -118,8 +134,12 @@ def test_lira_attack(lira_classifier_setup, mode, expect_error, fix_variance):
     assert 0 <= metrics["FPR"] <= 1
 
 
-def test_lira_individual_npz_and_json(lira_classifier_setup):
-    """Test that individual + predictions are saved to .npz and excluded from JSON."""
+def test_lira_arrays_externalised_and_json(lira_classifier_setup):
+    """ROC + individual arrays are externalised to .npz and stripped from JSON.
+
+    The already-computed arrays are written to a single sidecar by the
+    generic report writer; no per-attack caching is involved.
+    """
     target = lira_classifier_setup
     output_dir = "test_output_lira"
     lira = LIRAAttack(
@@ -133,53 +153,39 @@ def test_lira_individual_npz_and_json(lira_classifier_setup):
     )
     output = lira.attack(target)
 
+    # In-memory output is untouched so PDF generation still has the arrays.
     instance = output["attack_experiment_logger"]["attack_instance_logger"][
         "instance_0"
     ]
+    assert "fpr" in instance
+    assert "individual" in instance
 
-    # Predictions .npz: y_pred_proba/y_test for ROC recompute.
-    predictions_filename = instance["predictions_file"]
-    assert predictions_filename.startswith("lira_predictions_")
-    assert predictions_filename.endswith("_instance_0.npz")
-    predictions_path = os.path.join(output_dir, predictions_filename)
-    assert os.path.exists(predictions_path)
-    predictions = np.load(predictions_path)
-    assert "y_pred_proba" in predictions
-    assert "y_test" in predictions
-
-    # Individual .npz: per-record scores (only when report_individual=True).
-    individual_filename = instance["individual_file"]
-    assert individual_filename.startswith("lira_individual_")
-    assert individual_filename.endswith("_instance_0.npz")
-    individual_path = os.path.join(output_dir, individual_filename)
-    assert os.path.exists(individual_path)
-    individual = np.load(individual_path)
-    assert "score" in individual
-    assert "member" in individual
-
-    # Check JSON file does not contain fpr/tpr/roc_thresh/individual.
-    json_path = os.path.join(output_dir, "report.json")
-    with open(json_path, encoding="utf-8") as fp:
-        json_data = json.load(fp)
-
-    lira_key = [k for k in json_data if k.startswith("LiRA")][0]
-    json_instance = json_data[lira_key]["attack_experiment_logger"][
-        "attack_instance_logger"
-    ]["instance_0"]
+    # JSON drops the big keys and carries an arrays_file pointer instead.
+    json_instance = _json_instance_for(output_dir, output)
     assert "fpr" not in json_instance
     assert "tpr" not in json_instance
     assert "roc_thresh" not in json_instance
     assert "individual" not in json_instance
-    assert json_instance["individual_file"] == individual_filename
-    assert json_instance["predictions_file"] == predictions_filename
+
+    arrays_filename = json_instance["arrays_file"]
+    assert arrays_filename.endswith("_instance_0.npz")
+    arrays_path = os.path.join(output_dir, arrays_filename)
+    assert os.path.exists(arrays_path)
+    with np.load(arrays_path) as arrays:
+        # ROC arrays and the per-record individual block share one sidecar.
+        assert "fpr" in arrays
+        assert "tpr" in arrays
+        assert "roc_thresh" in arrays
+        assert "individual.score" in arrays
+        assert "individual.member" in arrays
 
 
-def test_lira_predictions_written_without_report_individual(lira_classifier_setup):
-    """Predictions .npz is written even when report_individual=False.
+def test_lira_roc_externalised_without_report_individual(lira_classifier_setup):
+    """ROC arrays are still externalised when report_individual=False.
 
     Guards against losing the ROC curve when individual records aren't
-    reported: y_pred_proba/y_test must still be persisted so the ROC can
-    be reconstructed downstream.
+    reported: fpr/tpr/roc_thresh must still be persisted to the sidecar so
+    the curve stays recoverable downstream.
     """
     target = lira_classifier_setup
     output_dir = "test_output_lira_predictions_only"
@@ -192,16 +198,16 @@ def test_lira_predictions_written_without_report_individual(lira_classifier_setu
     )
     output = lira.attack(target)
 
-    instance = output["attack_experiment_logger"]["attack_instance_logger"][
-        "instance_0"
-    ]
-    assert "individual_file" not in instance
-    predictions_filename = instance["predictions_file"]
-    assert predictions_filename.startswith("lira_predictions_")
-    predictions_path = os.path.join(output_dir, predictions_filename)
-    predictions = np.load(predictions_path)
-    assert "y_pred_proba" in predictions
-    assert "y_test" in predictions
+    json_instance = _json_instance_for(output_dir, output)
+    assert "fpr" not in json_instance
+    assert "individual" not in json_instance
+
+    arrays_filename = json_instance["arrays_file"]
+    with np.load(os.path.join(output_dir, arrays_filename)) as arrays:
+        assert "fpr" in arrays
+        assert "tpr" in arrays
+        # No individual block was requested, so none is stored.
+        assert not any(k.startswith("individual.") for k in arrays)
 
 
 def test_lira_two_runs_same_dir_no_clobber(lira_classifier_setup):
@@ -227,14 +233,13 @@ def test_lira_two_runs_same_dir_no_clobber(lira_classifier_setup):
     out_a = lira_a.attack(target)
     out_b = lira_b.attack(target)
 
-    fname_a = out_a["attack_experiment_logger"]["attack_instance_logger"]["instance_0"][
-        "individual_file"
-    ]
-    fname_b = out_b["attack_experiment_logger"]["attack_instance_logger"]["instance_0"][
-        "individual_file"
-    ]
+    # Filenames embed each attack's stable log_id, so the runs don't clobber.
+    fname_a = _json_instance_for(output_dir, out_a)["arrays_file"]
+    fname_b = _json_instance_for(output_dir, out_b)["arrays_file"]
 
     assert fname_a != fname_b
+    assert out_a["log_id"][:8] in fname_a
+    assert out_b["log_id"][:8] in fname_b
     assert os.path.exists(os.path.join(output_dir, fname_a))
     assert os.path.exists(os.path.join(output_dir, fname_b))
 

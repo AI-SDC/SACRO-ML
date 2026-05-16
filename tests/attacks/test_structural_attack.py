@@ -714,22 +714,24 @@ def test_structural_individual_externalised(tmp_path):
     )
     output = attack.attack(target_dtsafe)
 
+    # In-memory output keeps the individual block (used by PDF / meta-attack).
     inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
-    npz_filename = inst["individual_file"]
-    assert npz_filename.startswith("structural_individual_")
-    assert npz_filename.endswith("_instance_0.npz")
-
-    npz_path = os.path.join(outputdir, npz_filename)
-    assert os.path.exists(npz_path)
-    data = np.load(npz_path)
-    assert "k_anonymity" in data
+    assert "individual" in inst
 
     json_path = os.path.join(outputdir, "report.json")
     with open(json_path, encoding="utf-8") as fp:
         json_data = json.load(fp)
-    structural_key = [k for k in json_data if k.startswith("Structural")][0]
+    # tmp_path gives a fresh dir, so this is the only report entry; select it
+    # by the attack's own log_id all the same.
+    structural_key = f"{output['metadata']['attack_name']}_{output['log_id']}"
     json_inst = json_data[structural_key]["attack_experiment_logger"][
         "attack_instance_logger"
     ]["instance_0"]
     assert "individual" not in json_inst
-    assert json_inst["individual_file"] == npz_filename
+
+    npz_filename = json_inst["arrays_file"]
+    assert npz_filename.endswith("_instance_0.npz")
+    npz_path = os.path.join(outputdir, npz_filename)
+    assert os.path.exists(npz_path)
+    with np.load(npz_path) as data:
+        assert "individual.k_anonymity" in data
