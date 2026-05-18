@@ -80,6 +80,11 @@ class Target:
         Path to module containing training function.
     train_params : dict or None
         Hyperparameters for training the model.
+    batch_size : int or None
+        Batch size used to train the original target model. Threaded to
+        PyTorch model (re)training and inference. Should match the original
+        training batch size since it materially affects attack model fidelity
+        (e.g. shadow models). When None, PyTorch defaults to 32.
     dataset_name : str
         The name of the dataset.
     dataset_module_path : str
@@ -122,6 +127,7 @@ class Target:
     model_params: dict | None = None
     train_module_path: str = ""
     train_params: dict | None = None
+    batch_size: int | None = None
 
     # Dataset attributes
     dataset_name: str = ""
@@ -173,6 +179,7 @@ class Target:
                 model_params=self.model_params,
                 train_module_path=self.train_module_path,
                 train_params=self.train_params,
+                batch_size=self.batch_size if self.batch_size is not None else 32,
             )
         if isinstance(model, (SklearnModel, PytorchModel)):
             return model
@@ -373,6 +380,9 @@ class Target:
             }
         )
 
+        if isinstance(self.model, PytorchModel):
+            target["batch_size"] = self.model.batch_size
+
         # Copy module files
         if self.model_module_path:
             shutil.copy2(self.model_module_path, os.path.join(path, "model.py"))
@@ -422,14 +432,31 @@ class Target:
         model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[
             model_type
         ]
-        self.model = model_class.load(
-            model_path=os.path.join(path, target.get("model_path", "")),
-            model_module_path=os.path.join(path, target.get("model_module_path", "")),
-            model_name=target.get("model_name", ""),
-            model_params=target.get("model_params", {}),
-            train_module_path=os.path.join(path, target.get("train_module_path", "")),
-            train_params=target.get("train_params", {}),
-        )
+        load_kwargs: dict[str, object] = {
+            "model_path": os.path.join(path, target.get("model_path", "")),
+            "model_module_path": os.path.join(
+                path, target.get("model_module_path", "")
+            ),
+            "model_name": target.get("model_name", ""),
+            "model_params": target.get("model_params", {}),
+            "train_module_path": os.path.join(
+                path, target.get("train_module_path", "")
+            ),
+            "train_params": target.get("train_params", {}),
+        }
+
+        if model_class is PytorchModel:
+            if "batch_size" not in target:
+                logger.warning(
+                    "Saved target has no recorded batch_size; defaulting to "
+                    "32. This may not match the original training batch size "
+                    "and can materially affect attack model fidelity "
+                    "(e.g. shadow models in LiRA)."
+                )
+            load_kwargs["batch_size"] = target.get("batch_size", 32)
+            self.batch_size = target.get("batch_size", 32)
+
+        self.model = model_class.load(**load_kwargs)
         logger.info("Loaded: %s : %s", model_type, target.get("model_name", ""))
 
     def _load_array(self, path: str, target: dict, attr_name: str) -> None:
