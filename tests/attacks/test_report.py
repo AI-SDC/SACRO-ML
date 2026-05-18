@@ -201,7 +201,9 @@ def test_externalise_arrays_skips_non_dict_and_empty_instances():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         dest = os.path.join(tmpdir, "report")
-        pointers = report._externalise_arrays(output, dest)
+        pointers = report._externalise_arrays(
+            output, dest, frozenset({"fpr", "tpr", "roc_thresh"})
+        )
 
         # Only the instance that actually has arrays gets a sidecar pointer.
         assert set(pointers) == {"has_arrays"}

@@ -184,20 +184,22 @@ def _strip_keys(obj: Any, exclude_keys: frozenset[str]) -> Any:
     return obj
 
 
-# Per-instance arrays moved out of the JSON into a sidecar .npz. These are
-# already computed and sitting in the in-memory report at write time, so they
-# are externalised generically here -- no attack needs to cache anything.
-_EXTERNALISE_ARRAY_KEYS: tuple[str, ...] = ("fpr", "tpr", "roc_thresh")
-
-
-def _externalise_arrays(output: dict, dest: str) -> dict[str, str]:
+def _externalise_arrays(
+    output: dict, dest: str, exclude_keys: frozenset[str]
+) -> dict[str, str]:
     """Move large per-instance arrays out of the JSON into compressed .npz.
 
     For each instance under ``attack_experiment_logger.attack_instance_logger``,
-    write its ROC arrays (``fpr``/``tpr``/``roc_thresh``) and any per-record
-    ``individual`` block to a single compressed ``.npz`` next to the JSON, and
-    return ``{instance_key: filename}`` pointers. ``output`` is not mutated, so
-    PDF generation (which runs afterwards) still sees the full arrays in memory.
+    write the values of ``exclude_keys`` -- the same keys about to be stripped
+    from the JSON -- to a single compressed ``.npz`` next to the JSON, and
+    return ``{instance_key: filename}`` pointers. A key whose value is a nested
+    dict (e.g. the per-record ``individual`` block) is flattened, storing each
+    field under a ``key.field`` name. ``output`` is not mutated, so PDF
+    generation (which runs afterwards) still sees the full arrays in memory.
+
+    Driving externalisation off the same ``exclude_keys`` set keeps a single
+    source of truth: any key removed from the JSON is guaranteed a home in the
+    sidecar, with no second list to keep in sync.
 
     Parameters
     ----------
@@ -206,6 +208,8 @@ def _externalise_arrays(output: dict, dest: str) -> dict[str, str]:
     dest : str
         Destination path (without extension); the .npz files are written
         alongside it.
+    exclude_keys : frozenset[str]
+        Per-instance keys to externalise (the same set stripped from the JSON).
 
     Returns
     -------
@@ -225,13 +229,17 @@ def _externalise_arrays(output: dict, dest: str) -> dict[str, str]:
         if not isinstance(inst, dict):
             continue
         arrays: dict[str, np.ndarray] = {}
-        for key in _EXTERNALISE_ARRAY_KEYS:
-            if inst.get(key) is not None:
-                arrays[key] = np.asarray(inst[key])
-        individual = inst.get("individual")
-        if isinstance(individual, dict):
-            for ind_key, ind_val in individual.items():
-                arrays[f"individual.{ind_key}"] = np.asarray(ind_val)
+        for key in exclude_keys:
+            val = inst.get(key)
+            if val is None:
+                continue
+            if isinstance(val, dict):
+                # Nested per-record block (e.g. `individual`): flatten each
+                # field under a `key.field` name so it round-trips from the npz.
+                for sub_key, sub_val in val.items():
+                    arrays[f"{key}.{sub_key}"] = np.asarray(sub_val)
+            else:
+                arrays[key] = np.asarray(val)
         if not arrays:
             continue
         suffix: str = f"_{log_id}" if log_id else ""
@@ -260,7 +268,7 @@ def write_json(
         Keys to exclude from the JSON output to reduce file size.
     """
     if exclude_keys:
-        pointers = _externalise_arrays(output, dest)
+        pointers = _externalise_arrays(output, dest, exclude_keys)
         filtered = _strip_keys(output, exclude_keys)
         instances = filtered.get("attack_experiment_logger", {}).get(
             "attack_instance_logger", {}
