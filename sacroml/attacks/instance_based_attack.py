@@ -15,10 +15,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import asdict, dataclass
-from typing import Any
 
 import numpy as np
 from fpdf import FPDF
+from sklearn.base import BaseEstimator
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR, NuSVC, NuSVR, OneClassSVM
 
@@ -155,7 +155,7 @@ class InstanceBasedAttack(Attack):
         return True
 
     @staticmethod
-    def _unwrap_model(model: Any) -> tuple[Any, Any]:
+    def _unwrap_model(model: BaseEstimator) -> tuple[BaseEstimator, Pipeline | None]:
         """Extract the final estimator and preprocessor from a Pipeline.
 
         Returns
