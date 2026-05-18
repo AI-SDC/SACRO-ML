@@ -166,3 +166,43 @@ def test_write_json_excludes_large_arrays():
         "fpr"
         in output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     )
+
+
+def test_strip_keys_recurses_into_lists():
+    """Test _strip_keys filters dicts nested inside lists."""
+    original = {
+        "items": [
+            {"AUC": 0.5, "fpr": [0.0, 1.0]},
+            {"AUC": 0.6, "fpr": [0.1, 0.9]},
+            "scalar",
+        ]
+    }
+    result = report._strip_keys(original, frozenset({"fpr"}))
+
+    assert result["items"][0] == {"AUC": 0.5}
+    assert result["items"][1] == {"AUC": 0.6}
+    assert result["items"][2] == "scalar"
+    # Original list contents are untouched.
+    assert "fpr" in original["items"][0]
+
+
+def test_externalise_arrays_skips_non_dict_and_empty_instances():
+    """Test _externalise_arrays ignores non-dict and array-free instances."""
+    output = {
+        "log_id": "abcdef1234567890",
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "not_a_dict": "skip me",
+                "no_arrays": {"AUC": 0.5},
+                "has_arrays": {"fpr": [0.0, 1.0], "tpr": [0.0, 1.0]},
+            },
+        },
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dest = os.path.join(tmpdir, "report")
+        pointers = report._externalise_arrays(output, dest)
+
+        # Only the instance that actually has arrays gets a sidecar pointer.
+        assert set(pointers) == {"has_arrays"}
+        assert os.path.exists(os.path.join(tmpdir, pointers["has_arrays"]))

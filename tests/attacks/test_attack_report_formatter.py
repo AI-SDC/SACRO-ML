@@ -563,6 +563,43 @@ class TestLogLogROCModule(unittest.TestCase):
             assert os.path.exists(out_file)
             assert "1024-WorstCase.png" in returned
 
+    def test_loglog_roc_sidecar_file_missing(self):
+        """LogLogROCModule skips when the arrays_file pointer is dangling."""
+        json_formatted = get_test_report()
+        for instance in json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].values():
+            instance.pop("fpr", None)
+            instance.pop("tpr", None)
+            instance["arrays_file"] = "does_not_exist.npz"
+
+        f = LogLogROCModule(json_formatted, output_folder=".")
+        returned = f.process_dict()
+        assert returned == "Log plot(s) saved to []"
+
+    def test_loglog_roc_sidecar_npz_without_roc(self):
+        """LogLogROCModule skips when the sidecar .npz lacks fpr/tpr."""
+        json_formatted = get_test_report()
+        instance = next(
+            iter(
+                json_formatted["WorstCaseAttack"]["attack_experiment_logger"][
+                    "attack_instance_logger"
+                ].values()
+            )
+        )
+        instance.pop("fpr", None)
+        instance.pop("tpr", None)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = "report_arrays_instance.npz"
+            # Sidecar exists but holds unrelated arrays only.
+            np.savez_compressed(os.path.join(tmpdir, fname), other=np.array([1, 2, 3]))
+            instance["arrays_file"] = fname
+
+            f = LogLogROCModule(json_formatted, output_folder=tmpdir)
+            returned = f.process_dict()
+            assert returned == "Log plot(s) saved to []"
+
     def test_print(self):
         """Test the LogLogROCModule printing."""
         json_formatted = get_test_report()
