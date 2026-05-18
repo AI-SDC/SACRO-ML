@@ -35,9 +35,7 @@ if __name__ == "__main__":
     # Create data splits
     indices_train, indices_test = data_handler.get_train_test_indices()
 
-    # Get dataloaders. The batch size is made explicit here so the same value
-    # can be recorded on the Target below; it materially affects attack model
-    # fidelity (e.g. shadow models), so it must match the training batch size.
+    # Made explicit so the same value can be recorded on the Target below.
     batch_size = 32
     train_loader = data_handler.get_dataloader(
         dataset, indices_train, batch_size=batch_size, shuffle=True

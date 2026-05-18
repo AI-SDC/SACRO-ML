@@ -171,10 +171,6 @@ class Target:
                 train_params=self.train_params,
             )
         if isinstance(model, torch.nn.Module):
-            # Resolve None -> 32 silently here: _wrap_model() runs per Target
-            # construction (and once per shadow model in LiRA), so warning here
-            # would spam the log. The unspecified-batch-size warning instead
-            # fires exactly once at load time in _load_model().
             return PytorchModel(
                 model=model,
                 model_path=self.model_path,
@@ -384,9 +380,6 @@ class Target:
             }
         )
 
-        # batch_size is Target-level metadata, persisted as a top-level scalar
-        # (not nested in train_params, which is forwarded verbatim as kwargs to
-        # the user's train() function).
         if isinstance(self.model, PytorchModel):
             target["batch_size"] = self.model.batch_size
 
@@ -452,11 +445,6 @@ class Target:
             "train_params": target.get("train_params", {}),
         }
 
-        # batch_size only applies to PyTorch models. _load_model() is called
-        # exactly once per Target.load(), so emitting the warning here (rather
-        # than in _wrap_model(), which runs per shadow model) guarantees it
-        # fires exactly once for an old target.yaml lacking the key. No dedupe
-        # flag or warnings filter is needed.
         if model_class is PytorchModel:
             if "batch_size" not in target:
                 logger.warning(
