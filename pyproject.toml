@@ -46,6 +46,7 @@ dependencies = [
     "dictdiffer",
     "torch",
     "prompt-toolkit",
+    "jsonschema",
 ]
 
 [tool.setuptools.dynamic]
@@ -87,6 +88,7 @@ packages = {find = {exclude = ["docs*", "examples*", "tests*", "user_stories*"]}
 
 [tool.setuptools.package-data]
 "sacroml.safemodel" = ["rules.json"]
+"sacroml.reporting" = ["*.json"]
 
 [tool.ruff]
 indent-width = 4
