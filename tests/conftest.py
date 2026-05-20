@@ -164,8 +164,9 @@ def get_target(request) -> Target:
     y_test = label_enc.transform(y_test_orig)
 
     # add dummy continuous valued attribute from N(0.5,0.05)
-    dummy_tr = 0.5 + 0.05 * np.random.randn(X_train.shape[0])
-    dummy_te = 0.5 + 0.05 * np.random.randn(X_test.shape[0])
+    rng = np.random.RandomState(1)
+    dummy_tr = 0.5 + 0.05 * rng.randn(X_train.shape[0])
+    dummy_te = 0.5 + 0.05 * rng.randn(X_test.shape[0])
     dummy_tr = dummy_tr.reshape(-1, 1)
     dummy_te = dummy_te.reshape(-1, 1)
 
