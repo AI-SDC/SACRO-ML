@@ -1,0 +1,61 @@
+# {{ report.project_name }}
+
+_{{ report.author }}_  
+_Generated on {{ report.timestamp }}_
+
+
+{{ report.project_blurb }}
+
+## Recommendations
+
+{{ report.recommendations }}
+
+{% for category in report.categories.values()|sort(attribute="order") %}
+## {{ category.label }}
+
+{{ category.description }}
+
+{% for attack_type in report.attack_types.values() if attack_type.category == category %}
+### {{ attack_type.label }}
+
+{{ attack_type.description }}
+
+{% for experiment in report.experiments.values() if experiment.attack_type == attack_type %}
+
+#### {{ experiment.id }}
+
+{{ experiment.description or "" }}
+
+| Parameter | Key | Value | Description |
+|----------|-----|-------|-------------|
+{% for p in experiment.parameters.values() -%}
+| **{{ p.parameter.label }}** | `{{ p.parameter.name }}` | **{{ p.value }}** | {{ p.parameter.description or "—" }} |
+{% endfor %}
+
+
+| Global Metric | Key | Value | Description |
+|----------|-----|-------|-------------|
+{% for gm in experiment.global_metrics.values() -%}
+| **{{ gm.metric.label }}** | `{{ gm.metric.name }}` | **{{ gm.value }}** | {{ gm.metric.description or "—" }} |
+{% endfor %}
+
+
+| Aggregate Metric | Mean | Min | Max | Variance | Description |
+|--------|------|-----|-----|----------|-------------|
+{% for am in experiment.aggregate_metrics.values() -%}
+| **{{ am.metric.label }}** | {{ am.value.get("mean", "—") }} | {{ am.value.get("min", "—") }} | {{ am.value.get("max", "—") }} | {{ am.value.get("var", "—") }} | {{ am.metric.description or "—" }} |
+{% endfor %}
+
+
+{% for vis in experiment.visualisations %}
+##### {{ vis.title }}
+
+![{{ vis.title }}]({{ vis.plot_path() }})
+
+<p><em>{{ vis.caption }}</em></p>
+{% endfor %}
+
+
+{% endfor %}
+{% endfor %}
+{% endfor %}
