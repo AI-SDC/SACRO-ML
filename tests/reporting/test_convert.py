@@ -9,6 +9,7 @@ import pytest
 
 from sacroml.main import main
 from sacroml.reporting import ConversionResult, convert_report, convert_report_file
+from sacroml.reporting.convert import _is_curve_violation
 
 FIXTURES = Path(__file__).parent / "fixtures"
 DOCS_EXAMPLES = Path(__file__).parents[2] / "docs" / "source" / "attacks"
@@ -206,6 +207,162 @@ def test_cli_convert_report(
     assert exc.value.code == 0
     assert out.is_file()
     assert "schema-valid" in capsys.readouterr().out
+
+
+def test_defensive_normalisation_paths() -> None:
+    """Malformed legacy inputs hit every defensive normalisation branch."""
+    legacy = {
+        "report_schema_version": "0.9",
+        "WorstCase attack/with!chars_xyz": {
+            "log_id": 12345,
+            "log_time": 17181920,
+            "metadata": {
+                "attack_name": "WorstCase attack",
+                "attack_params": "not a dict",
+                "global_metrics": "not a dict",
+                "target_model": 42,
+                "target_model_params": "not a dict",
+                "target_train_params": "not a dict",
+            },
+            "attack_experiment_logger": "not a dict",
+        },
+    }
+    result = convert_report(legacy)
+    assert "WorstCase attack_with_chars_xyz" in result.report["attacks"]
+    converted = result.report["attacks"]["WorstCase attack_with_chars_xyz"]
+    meta = converted["metadata"]
+    assert meta["attack_params"] == {}
+    assert meta["global_metrics"] == {}
+    assert meta["target_model"] == "42"
+    assert meta["target_model_params"] == {}
+    assert meta["target_train_params"] == {}
+    assert isinstance(converted["log_time"], str)
+    assert converted["attack_experiment_logger"]["attack_instance_logger"] == {}
+    assert any("renamed to" in w for w in result.warnings)
+
+
+def test_non_dict_instance_logger_becomes_empty() -> None:
+    """A non-dict ``attack_instance_logger`` is replaced with an empty one."""
+    legacy = {
+        "WorstCase attack_qq": {
+            "log_id": "qq",
+            "log_time": "now",
+            "metadata": {
+                "sacroml_version": "1.0",
+                "attack_name": "WorstCase attack",
+                "attack_params": {},
+                "global_metrics": {"AUC": 0.5},
+            },
+            "attack_experiment_logger": {"attack_instance_logger": "not a dict"},
+        }
+    }
+    result = convert_report(legacy)
+    logger = result.report["attacks"]["WorstCase attack_qq"][
+        "attack_experiment_logger"
+    ]["attack_instance_logger"]
+    assert logger == {}
+
+
+def test_instance_key_collision_during_renaming() -> None:
+    """Renaming a non-conforming key bumps past an existing matching key."""
+    legacy = {
+        "LiRA Attack_zz": {
+            "log_id": "zz",
+            "log_time": "now",
+            "metadata": {
+                "sacroml_version": "1.0",
+                "attack_name": "LiRA Attack",
+                "attack_params": {},
+                "global_metrics": {"AUC": 0.5},
+            },
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "weird": {"AUC": 0.1},
+                    "instance_0": {"AUC": 0.2},
+                }
+            },
+        }
+    }
+    result = convert_report(legacy)
+    logger = result.report["attacks"]["LiRA Attack_zz"]["attack_experiment_logger"][
+        "attack_instance_logger"
+    ]
+    assert set(logger) == {"instance_0", "instance_1"}
+
+
+def test_already_wrapped_with_non_dict_experiment() -> None:
+    """An already-wrapped report whose experiment isn't a dict is skipped."""
+    result = convert_report(
+        {"attacks": {"BogusAttack_xx": "not a dict"}}, validate=False
+    )
+    assert result.report["attacks"] == {}
+    assert any("was not an object" in w for w in result.warnings)
+
+
+def test_non_curve_schema_error_is_reported() -> None:
+    """An instance metric with an object value yields a real schema error."""
+    legacy = {
+        "LiRA Attack_yy": {
+            "log_id": "yy",
+            "log_time": "now",
+            "metadata": {
+                "sacroml_version": "1.0",
+                "attack_name": "LiRA Attack",
+                "attack_params": {},
+                "global_metrics": {"AUC": 0.5},
+            },
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "instance_0": {"AUC": {"unexpected": "object"}}
+                }
+            },
+        }
+    }
+    result = convert_report(legacy)
+    assert not result.is_valid
+    assert result.schema_errors
+
+
+class _FakeError:
+    """Minimal stand-in for ``jsonschema.exceptions.ValidationError``."""
+
+    def __init__(self, path: list) -> None:
+        self.absolute_path = path
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ["attacks"],  # path < 6
+        ["other", "exp", "attack_experiment_logger", "ail", "i0", "AUC"],
+        ["attacks", "exp", "wrong", "ail", "i0", "AUC"],
+        ["attacks", "exp", "attack_experiment_logger", "wrong", "i0", "AUC"],
+        [
+            "attacks",
+            "exp",
+            "attack_experiment_logger",
+            "attack_instance_logger",
+            "i0",
+            0,
+        ],
+    ],
+)
+def test_is_curve_violation_rejects_unrelated_paths(path: list) -> None:
+    """Errors outside the instance-metric path are never curve violations."""
+    assert _is_curve_violation(_FakeError(path), {"attacks": {}}) is False
+
+
+def test_is_curve_violation_handles_missing_lookup() -> None:
+    """A well-shaped path with no matching value is not a curve violation."""
+    path = [
+        "attacks",
+        "missing_exp",
+        "attack_experiment_logger",
+        "attack_instance_logger",
+        "instance_0",
+        "AUC",
+    ]
+    assert _is_curve_violation(_FakeError(path), {"attacks": {}}) is False
 
 
 def test_cli_convert_report_missing_input(
