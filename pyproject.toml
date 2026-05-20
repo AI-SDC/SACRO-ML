@@ -88,7 +88,10 @@ packages = {find = {exclude = ["docs*", "examples*", "tests*", "user_stories*"]}
 
 [tool.setuptools.package-data]
 "sacroml.safemodel" = ["rules.json"]
-"sacroml.reporting" = ["*.json"]
+"sacroml.reporting" = [
+    "sacroml_attack_report.schema.json",
+    "catalog_definitions.json",
+]
 
 [tool.ruff]
 indent-width = 4
