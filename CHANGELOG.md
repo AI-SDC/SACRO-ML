@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 Changes:
+*   Refactor: Name `InstanceBasedAttack`'s default floating-point matching tolerance as the module-level constant `INSTANCE_MATCH_ATOL = 1e-8` ([#454](https://github.com/AI-SDC/SACRO-ML/issues/454)). `StructuralAttack` is intentionally not changed because it uses exact `np.unique` equality on deterministic `predict_proba` outputs and does not need a tolerance.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
     (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample

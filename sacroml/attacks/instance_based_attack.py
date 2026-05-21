@@ -40,6 +40,20 @@ KNN_TYPES = (KNeighborsClassifier, KNeighborsRegressor)
 N_EXAMPLES = 10  # default number of matching examples included in the report
 N_FEATURE_PREVIEW = 10  # number of feature values shown per example match
 
+INSTANCE_MATCH_ATOL: float = 1e-8
+"""Absolute tolerance for matching stored instances to training rows.
+
+Used by :func:`numpy.allclose` so that stored support vectors (or kNN
+neighbours) that differ from the original training row only by floating
+point rounding (~1e-16 per element) still count as matches.
+
+Kept local to this module rather than a shared constants module: see
+issue #454. ``StructuralAttack`` does not use a numerical tolerance
+because its equivalence classes come from :func:`numpy.unique` on
+deterministic ``predict_proba`` outputs, where identical inputs produce
+bit-identical outputs and exact equality is the right semantics.
+"""
+
 _INTRODUCTION = (
     "This report provides the results of an instance-based model data "
     "leakage check. Some model types -- notably Support Vector Machines "
@@ -114,7 +128,7 @@ class InstanceBasedAttack(Attack):
         output_dir: str = "outputs",
         write_report: bool = True,
         n_examples: int = N_EXAMPLES,
-        atol: float = 1e-8,
+        atol: float = INSTANCE_MATCH_ATOL,
     ) -> None:
         """Construct an instance-based model attack.
 

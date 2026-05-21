@@ -12,7 +12,10 @@ from sklearn.svm import SVC, SVR, NuSVC
 from sklearn.tree import DecisionTreeClassifier
 
 from sacroml.attacks.factory import create_attack
-from sacroml.attacks.instance_based_attack import InstanceBasedAttack
+from sacroml.attacks.instance_based_attack import (
+    INSTANCE_MATCH_ATOL,
+    InstanceBasedAttack,
+)
 from sacroml.attacks.target import Target
 from sacroml.safemodel.classifiers.dp_svc import DPSVC
 
@@ -288,6 +291,12 @@ class TestConfiguration:
         assert params["n_examples"] == 5
         assert params["atol"] == 1e-6
         assert params["output_dir"] == "outputs_instance_based"
+
+    def test_default_atol_is_module_constant(self):
+        """Default atol matches INSTANCE_MATCH_ATOL, see issue #454."""
+        attack = InstanceBasedAttack(write_report=False)
+        assert attack.atol == INSTANCE_MATCH_ATOL
+        assert INSTANCE_MATCH_ATOL == 1e-8
 
     def test_factory_registration(self):
         """Test attack is registered in the factory."""
