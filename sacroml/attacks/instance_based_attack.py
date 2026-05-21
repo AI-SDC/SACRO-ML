@@ -18,18 +18,13 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 from fpdf import FPDF
-from sklearn.base import BaseEstimator
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR, NuSVC, NuSVR, OneClassSVM
-
-try:
-    from sklearn.pipeline import Pipeline
-except ImportError:  # pragma: no cover
-    Pipeline = None
 
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
+from sacroml.attacks.utils import unwrap_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -168,24 +163,6 @@ class InstanceBasedAttack(Attack):
             return False
         return True
 
-    @staticmethod
-    def _unwrap_model(model: BaseEstimator) -> tuple[BaseEstimator, Pipeline | None]:
-        """Extract the final estimator and preprocessor from a Pipeline.
-
-        Returns
-        -------
-        tuple
-            (final_estimator, preprocessor_pipeline_or_None)
-            If the model is a Pipeline with preprocessing steps, returns
-            a Pipeline of just the preprocessing steps so X_train can be
-            transformed to the same space as the stored instances.
-        """
-        if Pipeline is not None and isinstance(model, Pipeline):
-            final_estimator = model.steps[-1][1]
-            preprocessor = Pipeline(model.steps[:-1]) if len(model.steps) > 1 else None
-            return final_estimator, preprocessor
-        return model, None
-
     def _compare_instances(
         self,
         stored_instances: np.ndarray,
@@ -303,7 +280,7 @@ class InstanceBasedAttack(Attack):
         dict
             Attack report dictionary.
         """
-        raw_model, preprocessor = self._unwrap_model(target.model.model)
+        raw_model, preprocessor = unwrap_model(target.model.model)
         model_type = type(raw_model).__name__
 
         is_svm = isinstance(raw_model, SVM_TYPES)
