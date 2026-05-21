@@ -25,38 +25,9 @@ def _run_convert_report(args: argparse.Namespace) -> int:
         return 1
 
     result = convert_report_file(args.input, args.output, validate=not args.no_validate)
-
     print(f"Converted '{args.input}' -> '{args.output}'")
-    for dim, summary in result.coverage.items():
-        print(
-            f"  {dim}: {len(summary['covered'])} catalogued, "
-            f"{len(summary['missing'])} uncatalogued"
-        )
-
-    if result.warnings:
-        print(f"\nWarnings ({len(result.warnings)}):")
-        for warning in result.warnings:
-            print(f"  - {warning}")
-
-    if result.curve_warnings:
-        print(
-            f"\nCurve-array notices ({len(result.curve_warnings)}): "
-            "fpr/tpr/roc_thresh arrays are passed through unchanged and do "
-            "not strictly validate yet."
-        )
-        for warning in result.curve_warnings:
-            print(f"  - {warning}")
-
-    if result.schema_errors:
-        print(f"\nSchema errors ({len(result.schema_errors)}):")
-        for error in result.schema_errors:
-            print(f"  - {error}")
-        print("\nConverted report is NOT schema-valid.")
-        return 1
-
-    if not args.no_validate:
-        print("\nConverted report is schema-valid.")
-    return 0
+    print(result.summary(validated=not args.no_validate))
+    return 0 if result.is_valid else 1
 
 
 def main() -> None:

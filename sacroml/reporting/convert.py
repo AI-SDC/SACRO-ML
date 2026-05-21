@@ -106,6 +106,55 @@ class ConversionResult:
         """
         return not self.schema_errors
 
+    def summary_dict(self) -> dict[str, Any]:
+        """Return a machine-readable summary of the conversion outcome."""
+        return {
+            "is_valid": self.is_valid,
+            "warnings": len(self.warnings),
+            "curve_warnings": len(self.curve_warnings),
+            "schema_errors": len(self.schema_errors),
+            "coverage": {
+                dim: {
+                    "covered": len(summary["covered"]),
+                    "missing": len(summary["missing"]),
+                }
+                for dim, summary in self.coverage.items()
+            },
+        }
+
+    def summary(self, *, validated: bool = True) -> str:
+        """Return a human-readable, multi-line summary of the conversion.
+
+        Parameters
+        ----------
+        validated : bool, default True
+            Whether schema validation was performed; controls the final
+            "schema-valid" / "NOT schema-valid" line.
+        """
+        lines: list[str] = []
+        for dim, summary in self.coverage.items():
+            lines.append(
+                f"  {dim}: {len(summary['covered'])} catalogued, "
+                f"{len(summary['missing'])} uncatalogued"
+            )
+        if self.warnings:
+            lines.append(f"\nWarnings ({len(self.warnings)}):")
+            lines.extend(f"  - {w}" for w in self.warnings)
+        if self.curve_warnings:
+            lines.append(
+                f"\nCurve-array notices ({len(self.curve_warnings)}): "
+                "fpr/tpr/roc_thresh arrays are passed through unchanged and "
+                "do not strictly validate yet."
+            )
+            lines.extend(f"  - {w}" for w in self.curve_warnings)
+        if self.schema_errors:
+            lines.append(f"\nSchema errors ({len(self.schema_errors)}):")
+            lines.extend(f"  - {e}" for e in self.schema_errors)
+            lines.append("\nConverted report is NOT schema-valid.")
+        elif validated:
+            lines.append("\nConverted report is schema-valid.")
+        return "\n".join(lines)
+
 
 def _load_catalog_definitions() -> dict[str, Any]:
     """Load the bundled common catalog definitions."""
@@ -177,17 +226,15 @@ def _normalise_instance_logger(
     for key, value in logger.items():
         if _INSTANCE_KEY_RE.match(key):
             normalised[key] = value
-        else:
-            new_key = f"instance_{next_index}"
-            while new_key in logger or new_key in normalised:
-                next_index += 1
-                new_key = f"instance_{next_index}"
-            normalised[new_key] = value
-            warnings.append(
-                f"Experiment '{exp_key}': instance key '{key}' did not match "
-                f"'instance_<n>'; renamed to '{new_key}'."
-            )
+            continue
+        while (new_key := f"instance_{next_index}") in logger or new_key in normalised:
+            next_index += 1
+        normalised[new_key] = value
         next_index += 1
+        warnings.append(
+            f"Experiment '{exp_key}': instance key '{key}' did not match "
+            f"'instance_<n>'; renamed to '{new_key}'."
+        )
     return normalised
 
 
@@ -289,14 +336,13 @@ def _diff(
 ) -> tuple[list[str], list[str]]:
     """Split ``seen`` names into catalogued (covered) and missing."""
     patterns = patterns or []
-
-    def catalogued(name: str) -> bool:
-        if name in explicit:
-            return True
-        return any(p.match(name) for p in patterns)
-
-    missing = sorted(n for n in seen if not catalogued(n))
-    covered = sorted(seen - set(missing))
+    covered: list[str] = []
+    missing: list[str] = []
+    for name in sorted(seen):
+        if name in explicit or any(p.match(name) for p in patterns):
+            covered.append(name)
+        else:
+            missing.append(name)
     return covered, missing
 
 

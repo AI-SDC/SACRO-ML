@@ -382,3 +382,85 @@ def test_cli_convert_report_missing_input(
     with pytest.raises(SystemExit) as exc:
         main()
     assert exc.value.code == 1
+
+
+def test_summary_dict_counts(edge_result: ConversionResult) -> None:
+    """``summary_dict`` reduces the result to plain counts."""
+    summary = edge_result.summary_dict()
+    assert summary["is_valid"] is True
+    assert summary["warnings"] == len(edge_result.warnings)
+    assert summary["curve_warnings"] == len(edge_result.curve_warnings)
+    assert summary["schema_errors"] == 0
+    for dim, counts in summary["coverage"].items():
+        assert counts["covered"] == len(edge_result.coverage[dim]["covered"])
+        assert counts["missing"] == len(edge_result.coverage[dim]["missing"])
+
+
+def test_summary_text_includes_sections(edge_result: ConversionResult) -> None:
+    """``summary`` text surfaces coverage, warnings, curve notices and validity."""
+    text = edge_result.summary()
+    assert "metrics:" in text
+    assert "Warnings (" in text
+    assert "Curve-array notices (" in text
+    assert "Converted report is schema-valid." in text
+
+
+def test_summary_text_when_validation_skipped(
+    edge_result: ConversionResult,
+) -> None:
+    """``validated=False`` suppresses the trailing schema-valid line."""
+    text = edge_result.summary(validated=False)
+    assert "schema-valid" not in text
+
+
+def test_summary_text_for_schema_errors() -> None:
+    """A schema-invalid result includes the NOT schema-valid footer."""
+    legacy = {
+        "LiRA Attack_zz": {
+            "log_id": "zz",
+            "log_time": "now",
+            "metadata": {
+                "sacroml_version": "1.0",
+                "attack_name": "LiRA Attack",
+                "attack_params": {},
+                "global_metrics": {"AUC": 0.5},
+            },
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "instance_0": {"AUC": {"unexpected": "object"}}
+                }
+            },
+        }
+    }
+    result = convert_report(legacy)
+    text = result.summary()
+    assert "Schema errors (" in text
+    assert "NOT schema-valid" in text
+
+
+def test_renamed_instance_keys_are_compact() -> None:
+    """All non-conforming keys get consecutive instance_<n> slots."""
+    legacy = {
+        "LiRA Attack_zz": {
+            "log_id": "zz",
+            "log_time": "now",
+            "metadata": {
+                "sacroml_version": "1.0",
+                "attack_name": "LiRA Attack",
+                "attack_params": {},
+                "global_metrics": {"AUC": 0.5},
+            },
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "first": {"AUC": 0.1},
+                    "second": {"AUC": 0.2},
+                    "third": {"AUC": 0.3},
+                }
+            },
+        }
+    }
+    result = convert_report(legacy)
+    logger = result.report["attacks"]["LiRA Attack_zz"]["attack_experiment_logger"][
+        "attack_instance_logger"
+    ]
+    assert list(logger) == ["instance_0", "instance_1", "instance_2"]
