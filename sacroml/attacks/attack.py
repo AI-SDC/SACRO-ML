@@ -22,6 +22,16 @@ logger = logging.getLogger(__name__)
 class Attack(ABC):
     """Abstract Base class to represent an attack."""
 
+    # Keys removed from the JSON report for every attack. The large arrays they
+    # name (ROC curves and per-record `individual` data) bloat reports without
+    # adding information beyond what the summary metrics already capture. They
+    # are externalised once, generically, to a compressed .npz sidecar at
+    # report-write time (see `report._externalise_arrays`) and replaced with an
+    # `arrays_file` pointer, so no attack needs to cache anything itself.
+    _json_exclude_keys: frozenset[str] = frozenset(
+        {"fpr", "tpr", "roc_thresh", "individual"}
+    )
+
     def __init__(self, output_dir: str = "outputs", write_report: bool = True) -> None:
         """Instantiate an attack.
 
@@ -36,6 +46,10 @@ class Attack(ABC):
         self.write_report: bool = write_report
         self.attack_metrics: dict | list = {}
         self.metadata: dict = {}
+        # Stable per-instance ID used as both the JSON `log_id` and a suffix on
+        # any externalised .npz files, so two runs in the same output_dir don't
+        # clobber each other and the artefacts stay linked.
+        self._instance_id: str = str(uuid.uuid4())
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
@@ -84,7 +98,7 @@ class Attack(ABC):
             self.metadata["target_train_params"] = target.model.train_params
 
         output: dict[str, Any] = {
-            "log_id": str(uuid.uuid4()),
+            "log_id": self._instance_id,
             "log_time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             "metadata": self.metadata,
             "attack_experiment_logger": self._get_attack_metrics_instances(),
@@ -92,11 +106,17 @@ class Attack(ABC):
         return output
 
     def _write_report(self, output: dict) -> None:
-        """Write report as JSON and PDF."""
+        """Write report as JSON and PDF.
+
+        ``write_json`` externalises the large arrays named by
+        ``_json_exclude_keys`` to a sidecar .npz and strips them from the JSON.
+        It does not mutate ``output``, so ``_make_pdf`` below still sees the
+        full in-memory arrays.
+        """
         dest: str = os.path.join(self.output_dir, "report")
         if self.write_report:
             logger.info("Writing report: %s.json %s.pdf", dest, dest)
-            report.write_json(output, dest)
+            report.write_json(output, dest, exclude_keys=self._json_exclude_keys)
             pdf_report: FPDF | None = self._make_pdf(output)
             if pdf_report is not None:
                 report.write_pdf(dest, pdf_report)
