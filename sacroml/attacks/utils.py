@@ -10,7 +10,6 @@ import warnings
 import numpy as np
 from scipy.stats import shapiro
 from sklearn.base import BaseEstimator
-from sklearn.pipeline import Pipeline
 
 from sacroml.attacks.model import Model
 from sacroml.attacks.target import Target
@@ -279,35 +278,3 @@ def get_class_by_name(class_path: str) -> type[object]:
     module_path, class_name = class_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
-
-
-def unwrap_model(
-    model: BaseEstimator,
-) -> tuple[BaseEstimator, Pipeline | None]:
-    """Extract the final estimator and preprocessor from a scikit-learn model.
-
-    If ``model`` is a :class:`sklearn.pipeline.Pipeline`, the final step is
-    returned as the estimator and a new ``Pipeline`` containing the remaining
-    earlier steps is returned as the preprocessor. This allows callers to
-    transform inputs into the same feature space the final estimator was
-    fitted on. If the Pipeline has only one step, no preprocessor exists and
-    ``None`` is returned in its place. Non-Pipeline models are returned
-    unchanged with ``None`` as the preprocessor.
-
-    Parameters
-    ----------
-    model : BaseEstimator
-        A fitted scikit-learn estimator, optionally wrapped in a ``Pipeline``.
-
-    Returns
-    -------
-    tuple[BaseEstimator, Pipeline | None]
-        ``(final_estimator, preprocessor)`` where ``preprocessor`` is a
-        Pipeline of all steps except the last, or ``None`` if the input is
-        not a Pipeline or is a single-step Pipeline.
-    """
-    if isinstance(model, Pipeline):
-        final_estimator = model.steps[-1][1]
-        preprocessor = Pipeline(model.steps[:-1]) if len(model.steps) > 1 else None
-        return final_estimator, preprocessor
-    return model, None

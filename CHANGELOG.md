@@ -10,10 +10,6 @@ Changes:
     membership thresholds. A sample is predicted as a member when its observed score
     exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
     architecture knowledge required. Registered in the attack factory as `"qmia"`.
-*   Refactor: move `unwrap_model` from `InstanceBasedAttack` to `sacroml.attacks.utils`
-    so it can be reused by other attacks that need to split a scikit-learn `Pipeline`
-    into its final estimator and preprocessing stages
-    ([#455](https://github.com/AI-SDC/SACRO-ML/issues/455)).
 
 ## Version 1.4.3 (Jan 29, 2026)
 
