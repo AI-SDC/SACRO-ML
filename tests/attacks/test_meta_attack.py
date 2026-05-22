@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
@@ -12,6 +13,7 @@ from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
+from sacroml.attacks import meta_attack as ma
 from sacroml.attacks.meta_attack import MetaAttack
 from sacroml.attacks.target import Target
 
@@ -871,3 +873,359 @@ def test_meta_appends_to_existing_report_json(meta_target, tmp_path):
     assert data["LiRA Attack_abc123"]["fake_payload"] is True
     meta_keys = [k for k in data if k.startswith("Meta Attack_")]
     assert len(meta_keys) == 1
+
+
+# ------------------------------------------------------------------
+# Construction edge cases
+# ------------------------------------------------------------------
+
+
+@pytest.fixture(name="bare_meta")
+def fixture_bare_meta(tmp_path) -> MetaAttack:
+    """Return a minimal MetaAttack instance for direct unit testing of helpers."""
+    return MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "bare"),
+        write_report=False,
+        k_threshold=10,
+    )
+
+
+def test_meta_k_threshold_defaults_from_acro(tmp_path):
+    """Omitting k_threshold reads the default from the ACRO config."""
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+    )
+    assert isinstance(meta.k_threshold, int)
+    assert meta.k_threshold > 0
+
+
+def test_meta_bad_report_name_mapping(tmp_path, monkeypatch):
+    """A _REPORT_NAME_TO_KEY value outside SUPPORTED_ATTACKS is rejected."""
+    monkeypatch.setitem(ma._REPORT_NAME_TO_KEY, "Bogus Attack", "bogus")
+    with pytest.raises(RuntimeError, match="references unsupported attacks"):
+        MetaAttack(
+            attacks=[("qmia", {})],
+            output_dir=str(tmp_path / "meta"),
+            write_report=False,
+            k_threshold=10,
+        )
+
+
+# ------------------------------------------------------------------
+# _attack early-exit guards
+# ------------------------------------------------------------------
+
+
+def test_meta_missing_xtrain_returns_empty(meta_target, tmp_path):
+    """When the target lacks X_train/X_test, _attack returns an empty report."""
+    scores = [0.6, 0.4, 0.5]
+    mock_report = {
+        "QMIA Attack_test-uuid": {
+            "metadata": {"attack_name": "QMIA Attack"},
+            "attack_experiment_logger": {
+                "attack_instance_logger": {
+                    "instance_0": {"individual": {"member_prob": scores}}
+                }
+            },
+        }
+    }
+    report_dir = str(tmp_path / "existing")
+    sub_dir = os.path.join(report_dir, "qmia_run0")
+    os.makedirs(sub_dir)
+    with open(os.path.join(sub_dir, "report.json"), "w") as fh:
+        json.dump(mock_report, fh)
+
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        behaviour="use_existing_only",
+        report_dir=report_dir,
+        output_dir=str(tmp_path / "meta_out"),
+        write_report=False,
+        k_threshold=10,
+    )
+    # Scores are collected, but the target is missing arrays → empty report.
+    meta_target.X_train = None
+    meta_target.X_test = None
+    assert meta._attack(meta_target) == {}
+
+
+def test_meta_subattack_returns_none_yields_empty(meta_target, tmp_path, monkeypatch):
+    """When every sub-attack returns None, _attack yields an empty report."""
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+        k_threshold=10,
+    )
+    monkeypatch.setattr(meta, "_run_sub_attack", lambda *_a, **_k: None)
+    assert meta.attack(meta_target) == {}
+
+
+# ------------------------------------------------------------------
+# _scan_existing_reports filesystem edge cases
+# ------------------------------------------------------------------
+
+
+def test_meta_scandir_oserror_handled(meta_target, tmp_path, monkeypatch):
+    """An OSError from os.scandir is caught and yields an empty result."""
+    report_dir = tmp_path / "rep"
+    report_dir.mkdir()
+
+    def boom(_path):
+        raise OSError("scandir failed")
+
+    monkeypatch.setattr(ma.os, "scandir", boom)
+
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        behaviour="use_existing_only",
+        report_dir=str(report_dir),
+        output_dir=str(tmp_path / "meta_out"),
+        write_report=False,
+        k_threshold=10,
+    )
+    assert meta.attack(meta_target) == {}
+
+
+def test_meta_subdir_without_report_json_skipped(meta_target, tmp_path):
+    """A subdirectory lacking report.json is skipped without error."""
+    report_dir = tmp_path / "rep"
+    report_dir.mkdir()
+    (report_dir / "empty_sub").mkdir()  # no report.json inside
+
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        behaviour="use_existing_only",
+        report_dir=str(report_dir),
+        output_dir=str(tmp_path / "meta_out"),
+        write_report=False,
+        k_threshold=10,
+    )
+    assert meta.attack(meta_target) == {}
+
+
+# ------------------------------------------------------------------
+# _extract_from_report_file parsing edge cases
+# ------------------------------------------------------------------
+
+
+def test_extract_from_report_file_skips_nondict_and_unknown(bare_meta, tmp_path):
+    """Non-dict sections and unrecognised attack names are skipped."""
+    path = tmp_path / "report.json"
+    data = {
+        "weird_entry": "not a dict",
+        "Mystery Attack_x": {"metadata": {"attack_name": "Mystery Attack"}},
+    }
+    path.write_text(json.dumps(data))
+
+    mia_scores: dict = {}
+    structural_scores: dict = {}
+    bare_meta._extract_from_report_file(str(path), mia_scores, structural_scores)
+    assert mia_scores == {}
+    assert structural_scores == {}
+
+
+# ------------------------------------------------------------------
+# _extract_scores_from_report branches
+# ------------------------------------------------------------------
+
+
+def test_extract_scores_instances_not_dict(bare_meta):
+    """A non-dict attack_instance_logger returns None."""
+    data = {
+        "metadata": {"attack_name": "QMIA Attack"},
+        "attack_experiment_logger": {"attack_instance_logger": ["not", "a", "dict"]},
+    }
+    assert bare_meta._extract_scores_from_report(data, "qmia") is None
+
+
+def test_extract_scores_instance_not_dict(bare_meta):
+    """A non-dict instance value is skipped, yielding None when none remain."""
+    data = {
+        "metadata": {"attack_name": "QMIA Attack"},
+        "attack_experiment_logger": {
+            "attack_instance_logger": {"instance_0": "not a dict"}
+        },
+    }
+    assert bare_meta._extract_scores_from_report(data, "qmia") is None
+
+
+def test_extract_scores_lira_valid(bare_meta):
+    """A valid LiRA report yields clamped per-record scores."""
+    data = {
+        "metadata": {"attack_name": "LiRA Attack"},
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {"individual": {"score": [-0.5, 0.5, 2.0]}}
+            }
+        },
+    }
+    out = bare_meta._extract_scores_from_report(data, "lira")
+    assert out == [[0.0, 0.5, 1.0]]
+
+
+def test_extract_scores_lira_non_numeric(bare_meta):
+    """A non-numeric LiRA score is skipped, yielding None."""
+    data = {
+        "metadata": {"attack_name": "LiRA Attack"},
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {"individual": {"score": ["a", "b"]}}
+            }
+        },
+    }
+    assert bare_meta._extract_scores_from_report(data, "lira") is None
+
+
+def test_extract_scores_qmia_non_numeric(bare_meta):
+    """A non-numeric QMIA score is skipped, yielding None."""
+    data = {
+        "metadata": {"attack_name": "QMIA Attack"},
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {"individual": {"member_prob": ["x", "y"]}}
+            }
+        },
+    }
+    assert bare_meta._extract_scores_from_report(data, "qmia") is None
+
+
+# ------------------------------------------------------------------
+# _run_sub_attack failure paths
+# ------------------------------------------------------------------
+
+
+def test_run_sub_attack_handles_exception(bare_meta, meta_target):
+    """An invalid sub-attack parameter is caught and returns None."""
+    result = bare_meta._run_sub_attack(
+        "qmia", {"definitely_not_a_param": 123}, meta_target, 0
+    )
+    assert result is None
+
+
+def test_run_sub_attack_empty_result(bare_meta, meta_target, monkeypatch):
+    """A sub-attack producing no results returns None."""
+    from sacroml.attacks import factory  # noqa: PLC0415
+
+    class _Stub:
+        def attack(self, _target):
+            return {}
+
+    monkeypatch.setattr(factory, "create_attack", lambda _name, **_kw: _Stub())
+    assert bare_meta._run_sub_attack("qmia", {}, meta_target, 0) is None
+
+
+# ------------------------------------------------------------------
+# _extract_mia_scores / _extract_structural_scores helpers
+# ------------------------------------------------------------------
+
+
+def test_extract_mia_scores_skips_missing_then_reads():
+    """The first metrics dict without scores is skipped; the next is read."""
+    obj = SimpleNamespace(
+        attack_metrics=[{}, {"individual": {"score": [-1.0, 0.3, 5.0]}}]
+    )
+    assert MetaAttack._extract_mia_scores(obj, "lira") == [0.0, 0.3, 1.0]
+
+
+def test_extract_mia_scores_non_numeric():
+    """Non-numeric individual MIA scores return None."""
+    obj = SimpleNamespace(attack_metrics=[{"individual": {"score": ["a", "b"]}}])
+    assert MetaAttack._extract_mia_scores(obj, "lira") is None
+
+
+def test_extract_mia_scores_absent():
+    """A MIA attack with no individual scores returns None."""
+    obj = SimpleNamespace(attack_metrics=[{}])
+    assert MetaAttack._extract_mia_scores(obj, "lira") is None
+
+
+def test_extract_structural_scores_absent():
+    """A structural attack without record_level_results returns None."""
+    obj = SimpleNamespace()
+    assert MetaAttack._extract_structural_scores(obj) is None
+
+
+# ------------------------------------------------------------------
+# Defensive guards: vulnerability_df not yet built
+# ------------------------------------------------------------------
+
+
+def test_compute_global_metrics_requires_df(bare_meta):
+    """_compute_global_metrics raises if vulnerability_df is unset."""
+    with pytest.raises(RuntimeError, match="vulnerability_df"):
+        bare_meta._compute_global_metrics(1, 1)
+
+
+def test_construct_metadata_requires_df(bare_meta):
+    """_construct_metadata raises if vulnerability_df is unset."""
+    with pytest.raises(RuntimeError, match="vulnerability_df"):
+        bare_meta._construct_metadata()
+
+
+def test_get_attack_metrics_instances_requires_df(bare_meta):
+    """_get_attack_metrics_instances raises if vulnerability_df is unset."""
+    with pytest.raises(RuntimeError, match="vulnerability_df"):
+        bare_meta._get_attack_metrics_instances()
+
+
+# ------------------------------------------------------------------
+# CSV write failure is logged, not raised
+# ------------------------------------------------------------------
+
+
+def test_meta_csv_write_failure_logged(meta_target, tmp_path, monkeypatch, caplog):
+    """An OSError while writing the CSV is logged and does not propagate."""
+    meta = MetaAttack(
+        attacks=[("qmia", {})],
+        output_dir=str(tmp_path / "out"),
+        report_dir=str(tmp_path / "rep"),
+        write_report=False,
+        k_threshold=10,
+    )
+    output = meta.attack(meta_target)
+
+    # Re-enable writing, but force the CSV export to fail.
+    meta.write_report = True
+    meta.keep_separate = True  # write JSON/PDF to output_dir; isolate the CSV failure
+
+    def boom(*_a, **_k):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(meta.vulnerability_df, "to_csv", boom)
+
+    with caplog.at_level(logging.ERROR):
+        meta._write_report(output)
+
+    assert any("Failed to write vulnerability matrix" in m for m in caplog.messages)
+
+
+# ------------------------------------------------------------------
+# report.create_meta_report: finite sub-attack AUC branch
+# ------------------------------------------------------------------
+
+
+def test_create_meta_report_with_finite_auc(tmp_path):
+    """Create_meta_report formats a finite sub-attack AUC and draws the chart."""
+    from sacroml.attacks import report  # noqa: PLC0415
+
+    output = {
+        "metadata": {
+            "sacroml_version": "test",
+            "attack_params": {"output_dir": str(tmp_path)},
+            "global_metrics": {"AUC": 0.9},
+        },
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {
+                    "sub_attacks": {"lira": {"n_reps": 1, "AUC": 0.8321}},
+                    "individual": {"n_vulnerable": [0, 1, 2, 1, 0]},
+                }
+            }
+        },
+    }
+    pdf = report.create_meta_report(output)
+    assert pdf is not None
