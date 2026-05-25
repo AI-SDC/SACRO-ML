@@ -1204,7 +1204,7 @@ def test_meta_csv_write_failure_logged(meta_target, tmp_path, monkeypatch, caplo
 
 
 # ------------------------------------------------------------------
-# report.create_meta_report: finite sub-attack AUC branch
+# report.create_meta_report: finite and non-finite sub-attack AUC branches
 # ------------------------------------------------------------------
 
 
@@ -1229,3 +1229,44 @@ def test_create_meta_report_with_finite_auc(tmp_path):
     }
     pdf = report.create_meta_report(output)
     assert pdf is not None
+
+
+def test_create_meta_report_with_nonfinite_auc(monkeypatch, tmp_path):
+    """Render 'N/A' when a sub-attack AUC is non-finite or non-numeric."""
+    from sacroml.attacks import report  # noqa: PLC0415
+
+    captured: list[str] = []
+    original_line = report.line
+
+    def capturing_line(pdf, text, **kwargs):
+        captured.append(text)
+        return original_line(pdf, text, **kwargs)
+
+    monkeypatch.setattr(report, "line", capturing_line)
+
+    output = {
+        "metadata": {
+            "sacroml_version": "test",
+            "attack_params": {"output_dir": str(tmp_path)},
+            "global_metrics": {"AUC": 0.9},
+        },
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {
+                    "sub_attacks": {
+                        "lira_nan": {"n_reps": 1, "AUC": float("nan")},
+                        "qmia_inf": {"n_reps": 1, "AUC": float("inf")},
+                        "structural_neg_inf": {"n_reps": 1, "AUC": float("-inf")},
+                        "non_numeric": {"n_reps": 1, "AUC": "not-a-number"},
+                        "missing_auc": {"n_reps": 1},
+                    },
+                    "individual": {"n_vulnerable": [0, 1, 2, 1, 0]},
+                }
+            }
+        },
+    }
+    pdf = report.create_meta_report(output)
+
+    assert pdf is not None
+    na_lines = [text for text in captured if "AUC=N/A" in text]
+    assert len(na_lines) == 5
