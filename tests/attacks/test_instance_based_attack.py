@@ -1,7 +1,9 @@
 """Tests for InstanceBasedAttack."""
 
+import logging
 import os
 
+import numpy as np
 import pytest
 from sklearn.datasets import make_moons, make_regression
 from sklearn.model_selection import train_test_split
@@ -369,3 +371,91 @@ class TestOutputStructure:
         )
         output = attack.attack(target)
         assert output == {}
+
+
+class TestGracefulDegradation:
+    """Tests for defensive / graceful-degradation paths."""
+
+    def test_unfitted_knn_warns_and_returns_zero(self, caplog):
+        """Unfitted kNN: no _fit_X attribute triggers a warning and zero stored."""
+        X_train = np.array([[0.0, 0.0], [1.0, 1.0]])
+        y_train = np.array([0, 1])
+        unfitted = KNeighborsClassifier(n_neighbors=1)
+        target = Target(
+            model=unfitted,
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_train,
+            y_test=y_train,
+        )
+        attack = InstanceBasedAttack(
+            output_dir="outputs_instance_based", write_report=False
+        )
+        caplog.set_level(
+            logging.WARNING, logger="sacroml.attacks.instance_based_attack"
+        )
+        output = attack.attack(target)
+
+        instance = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+        assert instance["model_type"] == "KNeighborsClassifier"
+        assert instance["n_stored_instances"] == 0
+        assert instance["data_leakage_confirmed"] is False
+        assert any("_fit_X" in rec.message for rec in caplog.records)
+
+    def test_feature_dim_mismatch_warns_and_returns(self, caplog):
+        """Stored support vectors and X_train with different feature counts."""
+        X_fit = np.array([[0.0, 0.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
+        y_fit = np.array([0, 1, 0, 1])
+        model = SVC(gamma=0.1).fit(X_fit, y_fit)
+        X_train_mismatch = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
+        y_train = np.array([0, 1])
+        target = Target(
+            model=model,
+            X_train=X_train_mismatch,
+            y_train=y_train,
+            X_test=X_train_mismatch,
+            y_test=y_train,
+        )
+        attack = InstanceBasedAttack(
+            output_dir="outputs_instance_based", write_report=False
+        )
+        caplog.set_level(
+            logging.WARNING, logger="sacroml.attacks.instance_based_attack"
+        )
+        output = attack.attack(target)
+
+        instance = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+        assert instance["n_matched"] == 0
+        assert instance["data_leakage_confirmed"] is False
+        assert instance["details"]["error"] == "Feature dimension mismatch"
+        assert any(
+            "Feature dimension mismatch" in rec.message for rec in caplog.records
+        )
+
+    def test_fallback_search_when_indices_wrong(self):
+        """Wrong support_ index hint forces the fallback brute-force loop."""
+        X_train = np.array([[0.0, 0.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
+        y_train = np.array([0, 1, 0, 1])
+        model = SVC(gamma=0.1).fit(X_train, y_train)
+        model.support_ = np.zeros_like(model.support_)
+        target = Target(
+            model=model,
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_train,
+            y_test=y_train,
+        )
+        attack = InstanceBasedAttack(
+            output_dir="outputs_instance_based", write_report=False
+        )
+        output = attack.attack(target)
+
+        instance = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+        assert instance["data_leakage_confirmed"] is True
+        assert instance["n_matched"] > 0
