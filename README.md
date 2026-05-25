@@ -113,7 +113,11 @@ from sacroml.attacks.meta_attack import MetaAttack
 from sacroml.attacks.target import Target
 
 target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-meta = MetaAttack(attacks=[("lira", {}), ("qmia", {}), ("structural", {})], output_dir="output_meta")
+meta = MetaAttack(
+    attacks=[("lira", {}), ("qmia", {}), ("structural", {})],
+    behaviour="run_all",  # alternatives: "use_existing_only", "fill_missing"
+    output_dir="output_meta",
+)
 meta.attack(target)
 ```
 
