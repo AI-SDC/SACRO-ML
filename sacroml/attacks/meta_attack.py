@@ -67,7 +67,7 @@ _REPORT_NAME_TO_KEY: dict[str, str] = {
 }
 
 _MIA_SCORE_FIELDS: dict[str, str] = {
-    "lira": "score",
+    "lira": "member_prob",
     "qmia": "member_prob",
 }
 """Maps factory key → field name inside ``attack_metrics[N]["individual"]``.
@@ -419,7 +419,7 @@ class MetaAttack(Attack):
                 continue
 
             if key == "lira":
-                raw = individual.get("score")
+                raw = individual.get("member_prob")
                 if raw is not None:
                     try:
                         collected.append([max(0.0, min(1.0, float(s))) for s in raw])

@@ -78,7 +78,7 @@ class LIRAAttack(Attack):
 
         self.result: dict = {}  # individual record results
         if self.report_individual:
-            self.result["score"] = []
+            self.result["member_prob"] = []
             self.result["label"] = []
             self.result["target_logit"] = []
             self.result["out_p_norm"] = []
@@ -353,7 +353,7 @@ class LIRAAttack(Attack):
         self.attack_metrics[-1]["n_normal"] = n_normal / (n_train_rows + n_shadow_rows)
 
         if self.report_individual:
-            self.result["score"] = [score[1] for score in mia_scores]
+            self.result["member_prob"] = [score[1] for score in mia_scores]
             self.result["member"] = mia_labels
             self.attack_metrics[-1]["individual"] = self.result
 

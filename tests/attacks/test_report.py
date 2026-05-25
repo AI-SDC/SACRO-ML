@@ -126,7 +126,7 @@ def test_write_json_excludes_large_arrays():
         "fpr": np.linspace(0, 1, 100).tolist(),
         "tpr": np.linspace(0, 1, 100).tolist(),
         "roc_thresh": np.linspace(1, 0, 100).tolist(),
-        "individual": {"score": [0.1, 0.9], "member": [0, 1]},
+        "individual": {"member_prob": [0.1, 0.9], "member": [0, 1]},
     }
     output = {
         "log_id": "abcdef1234567890",
