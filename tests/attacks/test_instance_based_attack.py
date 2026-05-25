@@ -406,17 +406,15 @@ class TestGracefulDegradation:
 
     def test_feature_dim_mismatch_warns_and_returns(self, caplog):
         """Stored support vectors and X_train with different feature counts."""
-        X_fit = np.array([[0.0, 0.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
-        y_fit = np.array([0, 1, 0, 1])
-        model = SVC(gamma=0.1).fit(X_fit, y_fit)
-        X_train_mismatch = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
-        y_train = np.array([0, 1])
+        X_train = np.array([[0.0, 0.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
+        y_train = np.array([0, 1, 0, 1])
+        model = SVC(gamma=0.1).fit(X_train, y_train)
         target = Target(
             model=model,
-            X_train=X_train_mismatch,
-            y_train=y_train,
-            X_test=X_train_mismatch,
-            y_test=y_train,
+            X_train=np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]),
+            y_train=np.array([0, 1]),
+            X_test=np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]),
+            y_test=np.array([0, 1]),
         )
         attack = InstanceBasedAttack(
             output_dir="outputs_instance_based", write_report=False
