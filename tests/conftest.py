@@ -198,6 +198,74 @@ def get_target(request) -> Target:
     return target
 
 
+@pytest.fixture(name="canary_target")
+def fixture_canary_target() -> tuple[Target, np.ndarray, int]:
+    """Return a Target with deliberately memorised canary training rows.
+
+    Selects training rows nearest a decision boundary (lowest 9-NN
+    same-class confidence) and flips their labels. With ``bootstrap=False``
+    every tree fits every row, so the model memorises these mislabeled
+    rows and their MIA signal blows up. Use for cross-attack canary tests
+    that check whether an attack flags deliberately memorised rows above
+    genuine non-members.
+
+    Returns
+    -------
+    target : Target
+        Wrapped target with the canary-poisoned training set and trained
+        RandomForestClassifier.
+    canary_idx : np.ndarray
+        Indices of the canaries within the training set, so callers can
+        slice the per-record member probability output.
+    n_train : int
+        Size of the training set, so callers can compute the test-record
+        slice as ``member_prob[n_train:]``.
+    """
+    # local import keeps the fixture module-light when not used
+    from sklearn.neighbors import KNeighborsClassifier  # noqa: PLC0415
+
+    n_canaries = 8
+    X, y = make_classification(
+        n_samples=400,
+        n_features=10,
+        n_informative=6,
+        n_redundant=0,
+        n_classes=2,
+        class_sep=1.0,
+        random_state=0,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, stratify=y, random_state=0
+    )
+
+    knn = KNeighborsClassifier(n_neighbors=9).fit(X_train, y_train)
+    own_class_proba = knn.predict_proba(X_train)[np.arange(len(y_train)), y_train]
+    canary_idx = np.argsort(own_class_proba)[:n_canaries]
+
+    y_train_flipped = y_train.copy()
+    y_train_flipped[canary_idx] = 1 - y_train_flipped[canary_idx]
+
+    model = RandomForestClassifier(n_estimators=100, bootstrap=False, random_state=0)
+    model.fit(X_train, y_train_flipped)
+
+    target = Target(
+        model=model,
+        dataset_name="canary_target",
+        X_train=X_train,
+        y_train=y_train_flipped,
+        X_test=X_test,
+        y_test=y_test,
+        X_train_orig=X_train,
+        y_train_orig=y_train_flipped,
+        X_test_orig=X_test,
+        y_test_orig=y_test,
+    )
+    for idx in range(X.shape[1]):
+        target.add_feature(f"V{idx}", [idx], "float")
+
+    return target, canary_idx, len(y_train_flipped)
+
+
 @pytest.fixture
 def get_target_multiclass() -> Target:
     """

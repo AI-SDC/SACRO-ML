@@ -29,6 +29,14 @@ Changes:
     `"member_prob"` (the attack classifier's membership probability) and `"member"`
     (the ground truth label), matching the per-record output convention used by
     `LIRAAttack` and `QMIAAttack`. Arrays are sized to the attack-model test slice.
+*   Tests: Cross-attack canary detection test (`tests/attacks/test_canary_predictions.py`)
+    parametrised over `QMIAAttack` and `LIRAAttack`. Replaces the QMIA-only
+    `test_qmia_predicts_canaries`. Shares a `canary_target` fixture in
+    `tests/conftest.py` that builds a target with label-flipped boundary rows and a
+    `bootstrap=False` RandomForest so the model memorises them. WorstCase is not yet
+    included because its per-record output indexes into an internal `train_test_split`
+    that does not align with original training-set indices; a follow-up will add a
+    dedicated WorstCase canary check.
 
 ## Version 1.4.3 (Jan 29, 2026)
 
