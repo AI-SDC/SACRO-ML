@@ -189,3 +189,49 @@ def test_wc_multiclass(get_target_multiclass):
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert 0 <= metrics["TPR"] <= 1
     assert 0 <= metrics["FPR"] <= 1
+
+
+def test_wc_report_individual_default_off_omits_individual(common_setup):
+    """Default report_individual=False: per-rep dicts have no "individual" key."""
+    target = common_setup
+    attack_obj = worst_case_attack.WorstCaseAttack(
+        n_reps=2,
+        n_dummy_reps=0,
+        p_thresh=0.05,
+        test_prop=0.5,
+        output_dir="test_output_worstcase",
+    )
+    assert attack_obj.report_individual is False
+
+    output = attack_obj.attack(target)
+    instances = output["attack_experiment_logger"]["attack_instance_logger"]
+    for inst in instances.values():
+        assert "individual" not in inst
+
+
+def test_wc_report_individual_on_populates_per_rep_member_prob(common_setup):
+    """Report_individual=True populates per-rep individual member_prob and member."""
+    target = common_setup
+    attack_obj = worst_case_attack.WorstCaseAttack(
+        n_reps=2,
+        n_dummy_reps=0,
+        p_thresh=0.05,
+        test_prop=0.5,
+        output_dir="test_output_worstcase",
+        report_individual=True,
+    )
+
+    output = attack_obj.attack(target)
+    instances = output["attack_experiment_logger"]["attack_instance_logger"]
+    assert len(instances) == 2
+
+    for inst in instances.values():
+        assert "individual" in inst
+        ind = inst["individual"]
+        assert set(ind.keys()) == {"member_prob", "member"}
+        assert len(ind["member_prob"]) == len(ind["member"])
+        assert len(ind["member_prob"]) > 0
+        for prob in ind["member_prob"]:
+            assert 0.0 <= prob <= 1.0
+        for label in ind["member"]:
+            assert label in (0, 1)

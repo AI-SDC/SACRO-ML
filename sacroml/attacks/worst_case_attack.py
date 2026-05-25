@@ -42,6 +42,7 @@ class WorstCaseAttack(Attack):
         sort_probs: bool = True,
         attack_model: str = "sklearn.ensemble.RandomForestClassifier",
         attack_model_params: dict[str, object] | None = None,
+        report_individual: bool = False,
     ) -> None:
         """Construct an object to execute a worst case attack.
 
@@ -82,6 +83,14 @@ class WorstCaseAttack(Attack):
         attack_model_params : dict or None
             Dictionary of hyperparameters for the `attack_model`
             such as `min_sample_split`, `min_samples_leaf`, etc.
+        report_individual : bool
+            Whether to expose per-record membership probabilities in the
+            output. When True, each repetition's metrics dict gains an
+            ``"individual"`` key holding ``"member_prob"`` (the attack
+            classifier's probability of membership for each test sample)
+            and ``"member"`` (the ground truth label). The arrays are
+            sized to the attack-model test slice, not the full target
+            training set.
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_reps: int = n_reps
@@ -95,6 +104,7 @@ class WorstCaseAttack(Attack):
         self.sort_probs: bool = sort_probs
         self.attack_model: str = attack_model
         self.attack_model_params: dict[str, object] | None = attack_model_params
+        self.report_individual: bool = report_individual
         self.dummy_attack_metrics: list = []
 
     def __str__(self) -> str:
@@ -328,6 +338,12 @@ class WorstCaseAttack(Attack):
 
             y_pred_proba = attack_classifier.predict_proba(mi_test_x)
             mia_metrics.append(metrics.get_metrics(y_pred_proba, mi_test_y))
+
+            if self.report_individual:
+                mia_metrics[-1]["individual"] = {
+                    "member_prob": y_pred_proba[:, 1].tolist(),
+                    "member": np.asarray(mi_test_y).tolist(),
+                }
 
             if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR

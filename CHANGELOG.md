@@ -24,6 +24,11 @@ Changes:
     membership thresholds. A sample is predicted as a member when its observed score
     exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
     architecture knowledge required. Registered in the attack factory as `"qmia"`.
+*   Feat: `WorstCaseAttack` now accepts a `report_individual` flag. When enabled, each
+    repetition's metrics dict gains an `"individual"` key holding per-record
+    `"member_prob"` (the attack classifier's membership probability) and `"member"`
+    (the ground truth label), matching the per-record output convention used by
+    `LIRAAttack` and `QMIAAttack`. Arrays are sized to the attack-model test slice.
 
 ## Version 1.4.3 (Jan 29, 2026)
 
