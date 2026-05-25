@@ -360,6 +360,7 @@ class StructuralAttack(Attack):
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.target: Target | None = None
         self.results: StructuralAttackResults | None = None
+        self.record_level_results: StructuralRecordLevelResults | None = None
         self.report_individual = report_individual
 
         # Load risk appetite from ACRO config
@@ -477,11 +478,12 @@ class StructuralAttack(Attack):
             class_disclosure_risk=global_cd,
             smallgroup_risk=global_small,
         )
-        self.record_level_results = StructuralRecordLevelResults(
-            k_anonymity=record_level_kval,
-            class_disclosure=record_level_cd,
-            smallgroup_risk=record_level_small,
-        )
+        if self.report_individual:
+            self.record_level_results = StructuralRecordLevelResults(
+                k_anonymity=record_level_kval,
+                class_disclosure=record_level_cd,
+                smallgroup_risk=record_level_small,
+            )
 
         output = self._make_report(target)
 
@@ -678,7 +680,8 @@ class StructuralAttack(Attack):
         self.attack_metrics = {}
         for key, val in asdict(self.results).items():
             self.attack_metrics[key] = val
-        self.attack_metrics["individual"] = asdict(self.record_level_results)
+        if self.report_individual and self.record_level_results:
+            self.attack_metrics["individual"] = asdict(self.record_level_results)
 
     def _get_attack_metrics_instances(self) -> dict:
         """Return attack metrics. Required by the Attack base class.

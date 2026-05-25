@@ -24,6 +24,9 @@ Changes:
     membership thresholds. A sample is predicted as a member when its observed score
     exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
     architecture knowledge required. Registered in the attack factory as `"qmia"`.
+*   Fix: `StructuralAttack` now respects the `report_individual` flag. Per-record
+    `record_level_results` and `attack_metrics["individual"]` are only populated when the
+    flag is set to `True`, matching the behaviour of `LIRAAttack` and `QMIAAttack`.
 
 ## Version 1.4.3 (Jan 29, 2026)
 
