@@ -175,8 +175,14 @@ def _is_experiment(value: Any) -> bool:
     )
 
 
-def _extract_experiments(data: dict[str, Any], warnings: list[str]) -> dict[str, Any]:
+def _extract_experiments(data: Any, warnings: list[str]) -> dict[str, Any]:
     """Return the experiment mapping, whether the input is flat or wrapped."""
+    if not isinstance(data, dict):
+        warnings.append(
+            f"Top-level report was a {type(data).__name__}, not an object; "
+            "no experiments could be extracted."
+        )
+        return {}
     if isinstance(data.get("attacks"), dict):
         # Already wrapped (idempotent path).
         return dict(data["attacks"])

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 
@@ -24,7 +25,16 @@ def _run_convert_report(args: argparse.Namespace) -> int:
         print(f"Input report not found: {args.input}")
         return 1
 
-    result = convert_report_file(args.input, args.output, validate=not args.no_validate)
+    try:
+        result = convert_report_file(
+            args.input, args.output, validate=not args.no_validate
+        )
+    except json.JSONDecodeError as exc:
+        print(f"Could not parse '{args.input}' as JSON: {exc}")
+        return 1
+    except OSError as exc:
+        print(f"Could not read or write report: {exc}")
+        return 1
     print(f"Converted '{args.input}' -> '{args.output}'")
     print(result.summary(validated=not args.no_validate))
     return 0 if result.is_valid else 1

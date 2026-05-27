@@ -365,6 +365,34 @@ def test_is_curve_violation_handles_missing_lookup() -> None:
     assert _is_curve_violation(_FakeError(path), {"attacks": {}}) is False
 
 
+@pytest.mark.parametrize("payload", [[1, 2, 3], "a string", 42, None])
+def test_non_dict_top_level_yields_empty_report(payload: object) -> None:
+    """A non-object top-level report converts to empty attacks with a warning."""
+    result = convert_report(payload, validate=False)
+    assert result.report["attacks"] == {}
+    assert any("not an object" in w for w in result.warnings)
+
+
+def test_cli_convert_report_malformed_json(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The CLI reports a friendly error and exits 1 on malformed JSON input."""
+    bad = tmp_path / "bad.json"
+    bad.write_text("{ not valid json", encoding="utf-8")
+    out = tmp_path / "out.json"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sacroml", "convert-report", str(bad), str(out)],
+    )
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 1
+    assert "Could not parse" in capsys.readouterr().out
+    assert not out.exists()
+
+
 def test_cli_convert_report_missing_input(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
