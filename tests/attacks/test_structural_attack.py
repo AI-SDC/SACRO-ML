@@ -735,3 +735,40 @@ def test_structural_individual_externalised(tmp_path):
     assert os.path.exists(npz_path)
     with np.load(npz_path) as data:
         assert "individual.k_anonymity" in data
+
+
+def test_structural_report_individual_default_off_omits_individual():
+    """Default report_individual=False: no per-record block populated."""
+    target = get_target("dt", max_depth=1, min_samples_leaf=20, random_state=0)
+    attack = sa.StructuralAttack()
+    assert attack.report_individual is False
+
+    output = attack.attack(target)
+
+    assert attack.record_level_results is None
+    assert "individual" not in attack.attack_metrics
+    inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert "individual" not in inst
+
+
+def test_structural_report_individual_on_populates_individual():
+    """Report_individual=True populates per-record block, one entry per train row."""
+    target = get_target("dt", max_depth=1, min_samples_leaf=20, random_state=0)
+    n_train = len(target.y_train)
+
+    attack = sa.StructuralAttack(report_individual=True)
+    output = attack.attack(target)
+
+    assert attack.record_level_results is not None
+    assert len(attack.record_level_results.k_anonymity) == n_train
+    assert len(attack.record_level_results.class_disclosure) == n_train
+    assert len(attack.record_level_results.smallgroup_risk) == n_train
+
+    assert "individual" in attack.attack_metrics
+    inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert "individual" in inst
+    assert set(inst["individual"].keys()) == {
+        "k_anonymity",
+        "class_disclosure",
+        "smallgroup_risk",
+    }
