@@ -35,9 +35,26 @@ def _run_convert_report(args: argparse.Namespace) -> int:
     except OSError as exc:
         print(f"Could not read or write report: {exc}")
         return 1
+
     print(f"Converted '{args.input}' -> '{args.output}'")
-    print(result.summary(validated=not args.no_validate))
-    return 0 if result.is_valid else 1
+    for dim, missing in result.coverage.items():
+        if missing:
+            print(f"  {len(missing)} uncatalogued {dim.replace('_', ' ')}: {missing}")
+    if result.curve_warnings:
+        print(
+            f"  {len(result.curve_warnings)} curve-array notice(s); "
+            "fpr/tpr/roc_thresh passed through unchanged."
+        )
+    if args.no_validate:
+        return 0
+    if result.is_valid:
+        print("Converted report is schema-valid.")
+        return 0
+    n_errors = len(result.schema_errors)
+    print(f"Converted report is NOT schema-valid ({n_errors} error(s)):")
+    for err in result.schema_errors:
+        print(f"  - {err}")
+    return 1
 
 
 def main() -> None:

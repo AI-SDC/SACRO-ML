@@ -22,10 +22,6 @@ without re-running any attacks:
 The converter:
 
 * wraps the legacy experiments under a top-level ``attacks`` key;
-* normalises experiment metadata so it satisfies the schema (injecting a
-  placeholder ``sacroml_version`` for very old reports, ensuring an
-  ``attack_instance_logger`` exists for instance-less structural attacks,
-  serialising non-scalar ``global_metrics`` values, etc.);
 * injects the four human-readable catalogs (``metric_catalog``,
   ``parameter_catalog``, ``attack_category_catalog``, ``attack_catalog``)
   from the bundled common definitions in
@@ -33,6 +29,13 @@ The converter:
 * **warns** when a metric, parameter, attack or attack category observed in
   the report is not present in the catalogs (conversion still succeeds); and
 * validates the result against the JSON schema.
+
+Two small normalisations keep real-world legacy reports schema-valid: a
+placeholder ``sacroml_version`` is injected when missing, and an empty
+``attack_instance_logger`` is supplied for instance-less attacks (e.g.
+structural attacks). Anything else that does not match the schema -- such as a
+non-scalar metric value or a stray metadata key -- is reported as a schema
+error rather than silently rewritten.
 
 Curve-valued arrays (``fpr`` / ``tpr`` / ``roc_thresh``) are passed through
 unchanged. ``roc_thresh`` legitimately starts with ``null``, which the schema
