@@ -260,7 +260,7 @@ class TestConfiguration:
     """Tests for attack configuration and parameters."""
 
     def test_n_examples_does_not_cap_recorded_matches(self):
-        """n_examples limits report display only, not recorded matches."""
+        """Check that n_examples limits report display only, not recorded matches."""
         target = _make_target_clf(SVC(gamma=0.1))
         attack = InstanceBasedAttack(
             output_dir="outputs_instance_based",
