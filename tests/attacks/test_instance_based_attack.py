@@ -259,20 +259,25 @@ class TestPipeline:
 class TestConfiguration:
     """Tests for attack configuration and parameters."""
 
-    def test_n_examples_limit(self):
-        """Test example matches are capped at n_examples."""
+    def test_n_examples_does_not_cap_recorded_matches(self):
+        """n_examples limits report display only, not recorded matches."""
         target = _make_target_clf(SVC(gamma=0.1))
         attack = InstanceBasedAttack(
             output_dir="outputs_instance_based",
             write_report=False,
-            n_examples=3,
+            n_examples=2,
+            report_individual=True,
         )
         output = attack.attack(target)
 
         instance = output["attack_experiment_logger"]["attack_instance_logger"][
             "instance_0"
         ]
-        assert len(instance["example_matches"]) <= 3
+        individual = instance["individual"]
+        # Every stored instance is recorded despite the small n_examples.
+        assert len(individual["matched"]) == instance["n_stored_instances"]
+        assert instance["n_stored_instances"] > attack.n_examples
+        assert sum(individual["matched"]) == instance["n_matched"]
 
     def test_str_representation(self):
         """Test __str__ returns the attack name."""
@@ -293,6 +298,7 @@ class TestConfiguration:
         assert params["n_examples"] == 5
         assert params["atol"] == 1e-6
         assert params["output_dir"] == "outputs_instance_based"
+        assert params["report_individual"] is False
 
     def test_default_atol_is_module_constant(self):
         """Default atol matches INSTANCE_MATCH_ATOL, see issue #454."""
@@ -342,8 +348,37 @@ class TestOutputStructure:
         assert os.path.exists(os.path.join("outputs_instance_based", "report.json"))
         assert os.path.exists(os.path.join("outputs_instance_based", "report.pdf"))
 
-    def test_example_match_structure(self):
-        """Test example matches contain expected fields."""
+    def test_record_level_individual_structure(self):
+        """Per-record individual block has parallel lists of equal length."""
+        target = _make_target_clf(SVC(gamma=0.1))
+        attack = InstanceBasedAttack(
+            output_dir="outputs_instance_based",
+            write_report=False,
+            report_individual=True,
+        )
+        output = attack.attack(target)
+
+        instance = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+        individual = instance["individual"]
+        for key in ("stored_index", "training_index", "matched", "stored_values"):
+            assert key in individual
+
+        n_stored = instance["n_stored_instances"]
+        assert len(individual["stored_index"]) == n_stored
+        assert len(individual["training_index"]) == n_stored
+        assert len(individual["matched"]) == n_stored
+        assert len(individual["stored_values"]) == n_stored
+        assert isinstance(individual["stored_values"][0], list)
+        # A non-negative training index appears exactly when matched is True.
+        for train_idx, is_match in zip(
+            individual["training_index"], individual["matched"], strict=True
+        ):
+            assert (train_idx >= 0) == is_match
+
+    def test_report_individual_off_by_default(self):
+        """Without report_individual, no per-record block is emitted."""
         target = _make_target_clf(SVC(gamma=0.1))
         attack = InstanceBasedAttack(
             output_dir="outputs_instance_based", write_report=False
@@ -353,15 +388,8 @@ class TestOutputStructure:
         instance = output["attack_experiment_logger"]["attack_instance_logger"][
             "instance_0"
         ]
-        matches = instance["example_matches"]
-        assert len(matches) > 0
-
-        match = matches[0]
-        assert "stored_index" in match
-        assert "training_index" in match
-        assert "stored_values" in match
-        assert "training_values" in match
-        assert isinstance(match["stored_values"], list)
+        assert "individual" not in instance
+        assert "example_matches" not in instance
 
     def test_empty_target_returns_empty(self):
         """Test attack on empty target returns empty dict."""

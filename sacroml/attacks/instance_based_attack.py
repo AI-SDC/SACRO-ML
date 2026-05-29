@@ -14,7 +14,7 @@ This module provides the `InstanceBasedAttack` class, which:
 from __future__ import annotations
 
 import logging
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 import numpy as np
 from fpdf import FPDF
@@ -95,18 +95,34 @@ class InstanceBasedAttackResults:
     """Results of an instance-based model attack."""
 
     model_type: str
-    is_instance_based: bool
-    is_dp_safe: bool
-    n_stored_instances: int
-    n_training_samples: int
-    storage_fraction: float
-    n_matched: int
-    n_checked: int
-    match_fraction: float
-    example_matches: list[dict]
-    data_leakage_confirmed: bool
-    mitigations: list[str]
+    is_instance_based: bool = False
+    is_dp_safe: bool = False
+    n_stored_instances: int = 0
+    n_training_samples: int = 0
+    storage_fraction: float = 0.0
+    n_matched: int = 0
+    n_checked: int = 0
+    match_fraction: float = 0.0
+    data_leakage_confirmed: bool = False
+    mitigations: list[str] = field(default_factory=list)
     details: dict | None = None
+
+
+@dataclass
+class InstanceBasedRecordLevelResults:
+    """Per-stored-instance match outcomes for an instance-based attack.
+
+    Each list is indexed by stored instance (an SVM support vector or a
+    kNN neighbour) and holds one entry per stored instance, matched or
+    not. Stored as parallel lists, consistent with how other attacks
+    expose per-record results, so it can be emitted under the report's
+    ``individual`` key when ``report_individual`` is set.
+    """
+
+    stored_index: list[int]
+    training_index: list[int]  # index into X_train, or -1 if no match
+    matched: list[bool]
+    stored_values: list[list[float]]  # first N_FEATURE_PREVIEW feature values
 
 
 class InstanceBasedAttack(Attack):
@@ -124,6 +140,7 @@ class InstanceBasedAttack(Attack):
         write_report: bool = True,
         n_examples: int = N_EXAMPLES,
         atol: float = INSTANCE_MATCH_ATOL,
+        report_individual: bool = False,
     ) -> None:
         """Construct an instance-based model attack.
 
@@ -134,15 +151,21 @@ class InstanceBasedAttack(Attack):
         write_report : bool
             Whether to generate a JSON and PDF report.
         n_examples : int
-            Maximum number of matching examples to include in the report.
+            Maximum number of matching examples to show in the PDF report.
+            Does not limit how many matches are recorded; all matches are
+            kept in the per-record results.
         atol : float
             Absolute tolerance for floating-point comparison when matching
             stored instances to training data.
+        report_individual : bool
+            Whether to report metrics for each individual record.
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_examples = n_examples
         self.atol = atol
+        self.report_individual: bool = report_individual
         self.results: InstanceBasedAttackResults | None = None
+        self.record_level_results: InstanceBasedRecordLevelResults | None = None
 
     def __str__(self) -> str:
         """Return the name of the attack."""
@@ -168,7 +191,7 @@ class InstanceBasedAttack(Attack):
         stored_instances: np.ndarray,
         stored_indices: np.ndarray | None,
         X_train: np.ndarray,
-    ) -> tuple[int, list[dict]]:
+    ) -> tuple[int, InstanceBasedRecordLevelResults]:
         """Compare stored model instances against training data.
 
         Parameters
@@ -184,15 +207,21 @@ class InstanceBasedAttack(Attack):
         -------
         n_matched : int
             Number of stored instances that match training data.
-        example_matches : list[dict]
-            Details of the first n_examples matches.
+        record_level_results : InstanceBasedRecordLevelResults
+            Per-stored-instance outcomes, one entry per stored instance
+            (matched or not). The matched subset is recoverable via the
+            ``matched`` flags; nothing is truncated here, callers slice
+            for display.
         """
         n_matched = 0
-        example_matches: list[dict] = []
+        stored_index: list[int] = []
+        training_index: list[int] = []
+        matched_flags: list[bool] = []
+        stored_values: list[list[float]] = []
 
         for i, stored_row in enumerate(stored_instances):
             matched = False
-            match_index = None
+            match_index = -1
 
             # Try index-based direct comparison first
             if stored_indices is not None and i < len(stored_indices):
@@ -213,22 +242,20 @@ class InstanceBasedAttack(Attack):
 
             if matched:
                 n_matched += 1
-                if len(example_matches) < self.n_examples:
-                    n_preview = min(N_FEATURE_PREVIEW, stored_row.shape[0])
-                    example_matches.append(
-                        {
-                            "stored_index": i,
-                            "training_index": match_index,
-                            "stored_values": stored_row[:n_preview].tolist(),
-                            "training_values": (
-                                X_train[match_index][:n_preview].tolist()
-                                if match_index is not None
-                                else None
-                            ),
-                        }
-                    )
 
-        return n_matched, example_matches
+            n_preview = min(N_FEATURE_PREVIEW, stored_row.shape[0])
+            stored_index.append(i)
+            training_index.append(match_index)
+            matched_flags.append(matched)
+            stored_values.append(stored_row[:n_preview].tolist())
+
+        record_level_results = InstanceBasedRecordLevelResults(
+            stored_index=stored_index,
+            training_index=training_index,
+            matched=matched_flags,
+            stored_values=stored_values,
+        )
+        return n_matched, record_level_results
 
     def _build_mitigations(
         self, is_svm: bool, is_knn: bool, is_dp_safe: bool
@@ -307,17 +334,7 @@ class InstanceBasedAttack(Attack):
             )
             self.results = InstanceBasedAttackResults(
                 model_type=model_type,
-                is_instance_based=False,
-                is_dp_safe=False,
-                n_stored_instances=0,
                 n_training_samples=n_training,
-                storage_fraction=0.0,
-                n_matched=0,
-                n_checked=0,
-                match_fraction=0.0,
-                example_matches=[],
-                data_leakage_confirmed=False,
-                mitigations=[],
             )
             output = self._make_report(target)
             self._write_report(output)
@@ -354,14 +371,7 @@ class InstanceBasedAttack(Attack):
                 model_type=model_type,
                 is_instance_based=True,
                 is_dp_safe=is_dp_safe,
-                n_stored_instances=0,
                 n_training_samples=n_training,
-                storage_fraction=0.0,
-                n_matched=0,
-                n_checked=0,
-                match_fraction=0.0,
-                example_matches=[],
-                data_leakage_confirmed=False,
                 mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
             )
             output = self._make_report(target)
@@ -385,11 +395,6 @@ class InstanceBasedAttack(Attack):
                 n_stored_instances=n_stored,
                 n_training_samples=n_training,
                 storage_fraction=n_stored / n_training if n_training > 0 else 0.0,
-                n_matched=0,
-                n_checked=0,
-                match_fraction=0.0,
-                example_matches=[],
-                data_leakage_confirmed=False,
                 mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
                 details={"error": "Feature dimension mismatch"},
             )
@@ -398,7 +403,7 @@ class InstanceBasedAttack(Attack):
             return output
 
         # Compare stored instances to training data
-        n_matched, example_matches = self._compare_instances(
+        n_matched, self.record_level_results = self._compare_instances(
             stored_instances, stored_indices, X_train
         )
 
@@ -418,7 +423,6 @@ class InstanceBasedAttack(Attack):
             n_matched=n_matched,
             n_checked=n_stored,
             match_fraction=match_fraction,
-            example_matches=example_matches,
             data_leakage_confirmed=data_leakage_confirmed,
             mitigations=mitigations,
         )
@@ -447,12 +451,12 @@ class InstanceBasedAttack(Attack):
         """Return attack metrics for the report structure."""
         attack_metrics_experiment = {}
         if self.results:
-            attack_metrics_instances = {
-                "instance_0": asdict(self.results),
+            instance_0 = asdict(self.results)
+            if self.report_individual and self.record_level_results is not None:
+                instance_0["individual"] = asdict(self.record_level_results)
+            attack_metrics_experiment["attack_instance_logger"] = {
+                "instance_0": instance_0,
             }
-            attack_metrics_experiment["attack_instance_logger"] = (
-                attack_metrics_instances
-            )
         return attack_metrics_experiment
 
     def _make_pdf(self, output: dict) -> FPDF:
@@ -500,23 +504,29 @@ class InstanceBasedAttack(Attack):
             value = metrics.get(key, "N/A")
             report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
-        # Example matches
-        example_matches = instance_data.get("example_matches", [])
-        if example_matches:
+        # Example matches: slice the first n_examples matched records from
+        # the full per-record results for display only.
+        rlr = self.record_level_results
+        if rlr is not None and any(rlr.matched):
+            matched_positions = [
+                k for k, is_match in enumerate(rlr.matched) if is_match
+            ]
+            shown = matched_positions[: self.n_examples]
             pdf.add_page()
             report.title(pdf, "Example Matches")
             report.line(
                 pdf,
-                f"Showing {len(example_matches)} example(s) of training "
-                "data found stored in the model (first 5 feature values):",
+                f"Showing {len(shown)} of {len(matched_positions)} matched "
+                f"instance(s) found stored in the model (first "
+                f"{N_FEATURE_PREVIEW} feature values):",
             )
-            for i, match in enumerate(example_matches):
+            for display_i, k in enumerate(shown):
                 report.line(
                     pdf,
-                    f"  Match {i + 1}: "
-                    f"stored[{match.get('stored_index', '?')}] "
-                    f"= train[{match.get('training_index', '?')}]  "
-                    f"values: {match.get('stored_values', [])}",
+                    f"  Match {display_i + 1}: "
+                    f"stored[{rlr.stored_index[k]}] "
+                    f"= train[{rlr.training_index[k]}]  "
+                    f"values: {rlr.stored_values[k]}",
                     font="courier",
                     font_size=9,
                 )
