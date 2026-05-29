@@ -9,6 +9,7 @@ import pytest
 
 from sacroml.main import main
 from sacroml.reporting import ConversionResult, convert_report, convert_report_file
+from sacroml.reporting.convert import _is_curve_violation
 
 FIXTURES = Path(__file__).parent / "fixtures"
 DOCS_EXAMPLES = Path(__file__).parents[2] / "docs" / "source" / "attacks"
@@ -128,6 +129,32 @@ def test_curve_array_is_warning_not_error() -> None:
     assert all("roc_thresh" in w for w in result.curve_warnings)
 
 
+class _FakeError:
+    """Minimal stand-in for a jsonschema ValidationError (path only)."""
+
+    def __init__(self, path: list) -> None:
+        self.absolute_path = path
+
+
+_AEL = "attack_experiment_logger"
+_AIL = "attack_instance_logger"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ["attacks"],  # path too short
+        ["other", "e", _AEL, _AIL, "i", "AUC"],  # not the attacks subtree
+        ["attacks", "e", _AEL, "wrong", "i", "AUC"],  # not the instance logger
+        ["attacks", "e", _AEL, _AIL, "i", 0],  # metric name is not a string
+        ["attacks", "x", _AEL, _AIL, "i", "AUC"],  # value not present in report
+    ],
+)
+def test_is_curve_violation_rejects_non_curve_paths(path: list) -> None:
+    """Only a well-formed instance-metric path with a list value is a curve."""
+    assert _is_curve_violation(_FakeError(path), {"attacks": {}}) is False
+
+
 # --- minimal normalisation (load-bearing on real reports) ----------------
 
 
@@ -158,6 +185,20 @@ def test_structural_attack_gets_empty_logger() -> None:
     struct = result.report["attacks"]["Structural Attack_aaaa"]
     assert struct["attack_experiment_logger"]["attack_instance_logger"] == {}
     assert result.is_valid
+
+
+def test_non_dict_instance_logger_becomes_empty() -> None:
+    """A non-dict attack_instance_logger is replaced with an empty one."""
+    legacy = {
+        "LiRA Attack_qq": {
+            "log_id": "qq",
+            "metadata": {"sacroml_version": "1.0", "attack_name": "LiRA Attack"},
+            "attack_experiment_logger": {"attack_instance_logger": "not a dict"},
+        }
+    }
+    result = convert_report(legacy, validate=False)
+    logger = result.report["attacks"]["LiRA Attack_qq"]["attack_experiment_logger"]
+    assert logger["attack_instance_logger"] == {}
 
 
 # --- R4: uncatalogued warnings -------------------------------------------
