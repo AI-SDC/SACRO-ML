@@ -3,6 +3,21 @@
 ## [Unreleased]
 
 Changes:
+*   Feat: `MetaAttack`: aggregate per-record vulnerability across multiple privacy attacks (LiRA,
+    QMIA, Structural) into a unified vulnerability DataFrame with within-attack (mean, std,
+    consistency) and cross-attack (arithmetic/geometric MIA mean, structural flag, total
+    vulnerability count) aggregation. Supports three operating modes via `behaviour`:
+    `'run_all'` (fresh execution), `'use_existing_only'` (collate from pre-existing
+    `report.json` files without re-running — critical for attacks such as LiRA that may
+    take weeks on large model grids), and `'fill_missing'` (run only attacks not already
+    present). Outputs `vulnerability_matrix.csv` alongside the standard JSON report.
+    By default appends the MetaAttack section to an existing `report_dir/report.json`
+    (set `keep_separate=True` for a standalone file). PDF report includes a bar chart
+    of records grouped by the number of attacks flagging them. `use_existing_only`
+    and `fill_missing` scan both the canonical single-file `report_dir/report.json`
+    (multi-section, as produced when individual attacks append to the same file)
+    and any subdirectory-per-attack layout. Registered in the attack factory as
+    `"meta"`.
 *   Refactor: Name `InstanceBasedAttack`'s default floating-point matching tolerance as the module-level constant `INSTANCE_MATCH_ATOL = 1e-8` ([#454](https://github.com/AI-SDC/SACRO-ML/issues/454)). `StructuralAttack` is intentionally not changed because it uses exact `np.unique` equality on deterministic `predict_proba` outputs and does not need a tolerance.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
@@ -14,6 +29,9 @@ Changes:
     so it can be reused by other attacks that need to split a scikit-learn `Pipeline`
     into its final estimator and preprocessing stages
     ([#455](https://github.com/AI-SDC/SACRO-ML/issues/455)).
+*   Fix: `StructuralAttack` now respects the `report_individual` flag. Per-record
+    `record_level_results` and `attack_metrics["individual"]` are only populated when the
+    flag is set to `True`, matching the behaviour of `LIRAAttack` and `QMIAAttack`.
 
 ## Version 1.4.3 (Jan 29, 2026)
 
