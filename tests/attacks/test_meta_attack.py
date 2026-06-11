@@ -1059,7 +1059,7 @@ def test_extract_scores_lira_valid(bare_meta):
         "metadata": {"attack_name": "LiRA Attack"},
         "attack_experiment_logger": {
             "attack_instance_logger": {
-                "instance_0": {"individual": {"score": [-0.5, 0.5, 2.0]}}
+                "instance_0": {"individual": {"member_prob": [-0.5, 0.5, 2.0]}}
             }
         },
     }
@@ -1073,7 +1073,7 @@ def test_extract_scores_lira_non_numeric(bare_meta):
         "metadata": {"attack_name": "LiRA Attack"},
         "attack_experiment_logger": {
             "attack_instance_logger": {
-                "instance_0": {"individual": {"score": ["a", "b"]}}
+                "instance_0": {"individual": {"member_prob": ["a", "b"]}}
             }
         },
     }
@@ -1126,14 +1126,14 @@ def test_run_sub_attack_empty_result(bare_meta, meta_target, monkeypatch):
 def test_extract_mia_scores_skips_missing_then_reads():
     """The first metrics dict without scores is skipped; the next is read."""
     obj = SimpleNamespace(
-        attack_metrics=[{}, {"individual": {"score": [-1.0, 0.3, 5.0]}}]
+        attack_metrics=[{}, {"individual": {"member_prob": [-1.0, 0.3, 5.0]}}]
     )
     assert MetaAttack._extract_mia_scores(obj, "lira") == [0.0, 0.3, 1.0]
 
 
 def test_extract_mia_scores_non_numeric():
     """Non-numeric individual MIA scores return None."""
-    obj = SimpleNamespace(attack_metrics=[{"individual": {"score": ["a", "b"]}}])
+    obj = SimpleNamespace(attack_metrics=[{"individual": {"member_prob": ["a", "b"]}}])
     assert MetaAttack._extract_mia_scores(obj, "lira") is None
 
 
