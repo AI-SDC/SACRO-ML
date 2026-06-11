@@ -176,7 +176,7 @@ def test_lira_arrays_externalised_and_json(lira_classifier_setup):
         assert "fpr" in arrays
         assert "tpr" in arrays
         assert "roc_thresh" in arrays
-        assert "individual.score" in arrays
+        assert "individual.member_prob" in arrays
         assert "individual.member" in arrays
 
 
