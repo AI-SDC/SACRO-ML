@@ -274,10 +274,9 @@ class TestConfiguration:
             "instance_0"
         ]
         individual = instance["individual"]
-        # Every stored instance is recorded despite the small n_examples.
-        assert len(individual["matched"]) == instance["n_stored_instances"]
-        assert instance["n_stored_instances"] > attack.n_examples
-        assert sum(individual["matched"]) == instance["n_matched"]
+        # individual_risk has one entry per training record.
+        assert len(individual["individual_risk"]) == instance["n_training_samples"]
+        assert sum(individual["individual_risk"]) == instance["n_matched"]
 
     def test_str_representation(self):
         """Test __str__ returns the attack name."""
@@ -349,7 +348,7 @@ class TestOutputStructure:
         assert os.path.exists(os.path.join("outputs_instance_based", "report.pdf"))
 
     def test_record_level_individual_structure(self):
-        """Per-record individual block has parallel lists of equal length."""
+        """Per-record individual block has one entry per training record."""
         target = _make_target_clf(SVC(gamma=0.1))
         attack = InstanceBasedAttack(
             output_dir="outputs_instance_based",
@@ -362,20 +361,14 @@ class TestOutputStructure:
             "instance_0"
         ]
         individual = instance["individual"]
-        for key in ("stored_index", "training_index", "matched", "stored_values"):
-            assert key in individual
+        assert "individual_risk" in individual
 
-        n_stored = instance["n_stored_instances"]
-        assert len(individual["stored_index"]) == n_stored
-        assert len(individual["training_index"]) == n_stored
-        assert len(individual["matched"]) == n_stored
-        assert len(individual["stored_values"]) == n_stored
-        assert isinstance(individual["stored_values"][0], list)
-        # A non-negative training index appears exactly when matched is True.
-        for train_idx, is_match in zip(
-            individual["training_index"], individual["matched"], strict=True
-        ):
-            assert (train_idx >= 0) == is_match
+        n_train = instance["n_training_samples"]
+        assert len(individual["individual_risk"]) == n_train
+        # Values are 0 or 1.
+        assert all(v in (0, 1) for v in individual["individual_risk"])
+        # Count of stored training records matches n_matched.
+        assert sum(individual["individual_risk"]) == instance["n_matched"]
 
     def test_report_individual_off_by_default(self):
         """Without report_individual, no per-record block is emitted."""

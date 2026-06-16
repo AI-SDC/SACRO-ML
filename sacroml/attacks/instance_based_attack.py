@@ -33,7 +33,6 @@ SVM_TYPES = (SVC, NuSVC, SVR, NuSVR, OneClassSVM)
 KNN_TYPES = (KNeighborsClassifier, KNeighborsRegressor)
 
 N_EXAMPLES = 10  # default number of matching examples included in the report
-N_FEATURE_PREVIEW = 10  # number of feature values shown per example match
 
 INSTANCE_MATCH_ATOL: float = 1e-8
 """Absolute tolerance for matching stored instances to training rows.
@@ -110,19 +109,14 @@ class InstanceBasedAttackResults:
 
 @dataclass
 class InstanceBasedRecordLevelResults:
-    """Per-stored-instance match outcomes for an instance-based attack.
+    """Per-training-record outcomes for an instance-based attack.
 
-    Each list is indexed by stored instance (an SVM support vector or a
-    kNN neighbour) and holds one entry per stored instance, matched or
-    not. Stored as parallel lists, consistent with how other attacks
-    expose per-record results, so it can be emitted under the report's
-    ``individual`` key when ``report_individual`` is set.
+    Indexed by training record (length == n_training_samples), consistent
+    with StructuralAttack's individual block.  A value of 1 means that
+    training record is stored verbatim inside the model; 0 means it is not.
     """
 
-    stored_index: list[int]
-    training_index: list[int]  # index into X_train, or -1 if no match
-    matched: list[bool]
-    stored_values: list[list[float]]  # first N_FEATURE_PREVIEW feature values
+    individual_risk: list[int]  # 1 if training record is stored in model, else 0
 
 
 class InstanceBasedAttack(Attack):
@@ -206,21 +200,14 @@ class InstanceBasedAttack(Attack):
         Returns
         -------
         n_matched : int
-            Number of stored instances that match training data.
+            Number of stored instances that match a training record.
         record_level_results : InstanceBasedRecordLevelResults
-            Per-stored-instance outcomes, one entry per stored instance
-            (matched or not). The matched subset is recoverable via the
-            ``matched`` flags; nothing is truncated here, callers slice
-            for display.
+            One entry per training record: 1 if that record is stored in
+            the model, 0 otherwise.
         """
-        n_matched = 0
-        stored_index: list[int] = []
-        training_index: list[int] = []
-        matched_flags: list[bool] = []
-        stored_values: list[list[float]] = []
+        individual_risk = np.zeros(len(X_train), dtype=int)
 
         for i, stored_row in enumerate(stored_instances):
-            matched = False
             match_index = -1
 
             # Try index-based direct comparison first
@@ -229,31 +216,21 @@ class InstanceBasedAttack(Attack):
                 if 0 <= idx < len(X_train) and np.allclose(
                     stored_row, X_train[idx], atol=self.atol
                 ):
-                    matched = True
                     match_index = idx
 
             # Fallback: search through training data
-            if not matched:
+            if match_index == -1:
                 for j in range(len(X_train)):
                     if np.allclose(stored_row, X_train[j], atol=self.atol):
-                        matched = True
                         match_index = j
                         break
 
-            if matched:
-                n_matched += 1
+            if match_index != -1:
+                individual_risk[match_index] = 1
 
-            n_preview = min(N_FEATURE_PREVIEW, stored_row.shape[0])
-            stored_index.append(i)
-            training_index.append(match_index)
-            matched_flags.append(matched)
-            stored_values.append(stored_row[:n_preview].tolist())
-
+        n_matched = int(individual_risk.sum())
         record_level_results = InstanceBasedRecordLevelResults(
-            stored_index=stored_index,
-            training_index=training_index,
-            matched=matched_flags,
-            stored_values=stored_values,
+            individual_risk=individual_risk.tolist()
         )
         return n_matched, record_level_results
 
@@ -504,29 +481,24 @@ class InstanceBasedAttack(Attack):
             value = metrics.get(key, "N/A")
             report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
 
-        # Example matches: slice the first n_examples matched records from
-        # the full per-record results for display only.
+        # Example matches: show first n_examples training indices flagged as stored.
         rlr = self.record_level_results
-        if rlr is not None and any(rlr.matched):
-            matched_positions = [
-                k for k, is_match in enumerate(rlr.matched) if is_match
+        if rlr is not None and any(rlr.individual_risk):
+            matched_train_indices = [
+                i for i, risk in enumerate(rlr.individual_risk) if risk
             ]
-            shown = matched_positions[: self.n_examples]
+            shown = matched_train_indices[: self.n_examples]
             pdf.add_page()
             report.title(pdf, "Example Matches")
             report.line(
                 pdf,
-                f"Showing {len(shown)} of {len(matched_positions)} matched "
-                f"instance(s) found stored in the model (first "
-                f"{N_FEATURE_PREVIEW} feature values):",
+                f"Showing {len(shown)} of {len(matched_train_indices)} training "
+                f"record(s) found stored verbatim in the model:",
             )
-            for display_i, k in enumerate(shown):
+            for display_i, train_idx in enumerate(shown):
                 report.line(
                     pdf,
-                    f"  Match {display_i + 1}: "
-                    f"stored[{rlr.stored_index[k]}] "
-                    f"= train[{rlr.training_index[k]}]  "
-                    f"values: {rlr.stored_values[k]}",
+                    f"  Match {display_i + 1}: train[{train_idx}]",
                     font="courier",
                     font_size=9,
                 )
