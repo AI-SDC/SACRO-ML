@@ -75,6 +75,7 @@ class WorstCaseAttack(Attack):
         search_type: str = "grid",
         search_n_iter: int = 10,
         tuning_metric: str | Callable = "AUC",
+        report_individual: bool = False,
     ) -> None:
         """Construct an object to execute a worst case attack.
 
@@ -135,6 +136,14 @@ class WorstCaseAttack(Attack):
             :data:`sacroml.attacks._scorers.SCORERS`, any sklearn scoring
             string, or a custom callable following the sklearn
             ``(estimator, X, y)`` protocol.
+        report_individual : bool
+            Whether to expose per-record membership probabilities in the
+            output. When True, each repetition's metrics dict gains an
+            ``"individual"`` key holding ``"member_prob"`` (the attack
+            classifier's probability of membership for each test sample)
+            and ``"member"`` (the ground truth label). The arrays are
+            sized to the attack-model test slice, not the full target
+            training set.
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_reps: int = n_reps
@@ -167,6 +176,7 @@ class WorstCaseAttack(Attack):
             )
             self.tuning_metric = "AUC"
             self._resolved_tuning_scorer = resolve_scorer("AUC")
+        self.report_individual: bool = report_individual
         self.dummy_attack_metrics: list = []
         self._tuned_params: dict | None = None
         self._tuning_info: dict | None = None
@@ -546,6 +556,12 @@ class WorstCaseAttack(Attack):
 
             y_pred_proba = attack_classifier.predict_proba(mi_test_x)
             mia_metrics.append(metrics.get_metrics(y_pred_proba, mi_test_y))
+
+            if self.report_individual:
+                mia_metrics[-1]["individual"] = {
+                    "member_prob": y_pred_proba[:, 1].tolist(),
+                    "member": np.asarray(mi_test_y).tolist(),
+                }
 
             if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR

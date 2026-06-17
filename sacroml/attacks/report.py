@@ -548,7 +548,7 @@ def _add_log_roc_to_page(log_roc: str = None, pdf_obj: FPDF = None) -> None:
 
 def _plot_lira_individuals(metrics: dict, dest: str) -> None:
     """Create a plot of the individual record LiRA scores."""
-    scores = np.array(metrics["individual"]["score"])
+    scores = np.array(metrics["individual"]["member_prob"])
     member = np.array(metrics["individual"]["member"])
 
     _, axes = plt.subplots(1, 2, figsize=(12.4, 4.8))

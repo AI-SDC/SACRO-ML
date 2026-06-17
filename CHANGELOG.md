@@ -32,6 +32,11 @@ Changes:
 *   Fix: `StructuralAttack` now respects the `report_individual` flag. Per-record
     `record_level_results` and `attack_metrics["individual"]` are only populated when the
     flag is set to `True`, matching the behaviour of `LIRAAttack` and `QMIAAttack`.
+*   Feat: `WorstCaseAttack` now accepts a `report_individual` flag. When enabled, each
+    repetition's metrics dict gains an `"individual"` key holding per-record
+    `"member_prob"` (the attack classifier's membership probability) and `"member"`
+    (the ground truth label), matching the per-record output convention used by
+    `LIRAAttack` and `QMIAAttack`. Arrays are sized to the attack-model test slice.
 
 ## Version 1.4.3 (Jan 29, 2026)
 
