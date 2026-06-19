@@ -551,7 +551,7 @@ def _plot_lira_individuals(metrics: dict, dest: str) -> None:
     scores = np.array(metrics["individual"]["member_prob"])
     member = np.array(metrics["individual"]["member"])
 
-    _, axes = plt.subplots(1, 2, figsize=(12.4, 4.8),sharey=True)
+    _, axes = plt.subplots(1, 2, figsize=(12.4, 4.8), sharey=True)
 
     # members
     mask = member == 1
