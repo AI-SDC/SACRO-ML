@@ -552,7 +552,7 @@ def _plot_lira_individuals(metrics: dict, dest: str) -> None:
     member = np.array(metrics["individual"]["member"])
 
     _, axes = plt.subplots(1, 2, figsize=(12.4, 4.8), sharey=True)
-
+    axes[0].set_ylim(ymin=-0.05, ymax=1.05)
     # members
     mask = member == 1
     y_train = scores[mask]

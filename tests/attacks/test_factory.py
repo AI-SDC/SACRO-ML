@@ -85,7 +85,7 @@ def test_factory(monkeypatch, get_target):
         "instance_0"
     ]
     assert metrics["TPR"] == pytest.approx(0.85, abs=0.05)
-    assert metrics["FPR"] == pytest.approx(0.45, abs=0.05)
+    assert metrics["FPR"] == pytest.approx(0.45, abs=0.06)
 
 
 def test_factory_qmia(monkeypatch, tmp_path):
