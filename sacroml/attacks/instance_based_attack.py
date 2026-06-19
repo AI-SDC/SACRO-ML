@@ -1,0 +1,519 @@
+"""Instance-based model attack.
+
+Detects when instance-based models (SVM, kNN) store training data as part
+of their model parameters (support vectors or neighbors), confirming a
+concrete data leakage pathway.
+
+This module provides the `InstanceBasedAttack` class, which:
+- Checks if a model is an instance-based type (SVM or kNN)
+- Extracts the stored instances (support vectors or neighbors)
+- Compares them to the training data to confirm data leakage
+- Reports matching examples and available mitigations
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import asdict, dataclass, field
+
+import numpy as np
+from fpdf import FPDF
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.svm import SVC, SVR, NuSVC, NuSVR, OneClassSVM
+
+from sacroml.attacks import report
+from sacroml.attacks.attack import Attack
+from sacroml.attacks.target import Target
+from sacroml.attacks.utils import unwrap_model
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+SVM_TYPES = (SVC, NuSVC, SVR, NuSVR, OneClassSVM)
+KNN_TYPES = (KNeighborsClassifier, KNeighborsRegressor)
+
+N_EXAMPLES = 10  # default number of matching examples included in the report
+
+INSTANCE_MATCH_ATOL: float = 1e-8
+"""Absolute tolerance for matching stored instances to training rows.
+
+Used by :func:`numpy.allclose` so that stored support vectors (or kNN
+neighbours) that differ from the original training row only by floating
+point rounding (~1e-16 per element) still count as matches.
+
+Kept local to this module rather than a shared constants module: see
+issue #454. ``StructuralAttack`` does not use a numerical tolerance
+because its equivalence classes come from :func:`numpy.unique` on
+deterministic ``predict_proba`` outputs, where identical inputs produce
+bit-identical outputs and exact equality is the right semantics.
+"""
+
+_INTRODUCTION = (
+    "This report provides the results of an instance-based model data "
+    "leakage check. Some model types -- notably Support Vector Machines "
+    "(SVM) and k-Nearest Neighbours (kNN) -- store training data points "
+    "as part of their fitted model parameters. SVM models store 'support "
+    "vectors' (a subset of training records that define the decision "
+    "boundary), while kNN models store the entire training dataset. "
+    "When such a model is released from a Trusted Research Environment "
+    "(TRE), these stored data points can be directly extracted, "
+    "constituting a concrete data leakage risk.\n This attack extracts "
+    "any stored instances from the model, compares them against the "
+    "original training data, and reports whether matches are found."
+)
+
+_GLOSSARY = {
+    "Support Vectors": (
+        "In SVM models, support vectors are the training data points that "
+        "lie closest to the decision boundary. These are stored verbatim "
+        "inside the fitted model and can be extracted directly."
+    ),
+    "kNN Storage": (
+        "k-Nearest Neighbours models store the entire training dataset "
+        "internally, as predictions are made by finding the k closest "
+        "stored points to a new input."
+    ),
+    "DP Variant": (
+        "A differentially private variant of a model adds calibrated "
+        "noise to break the direct link between stored model parameters "
+        "and the original training data, mitigating the leakage risk."
+    ),
+    "Storage Fraction": (
+        "The proportion of training data points stored inside the model. "
+        "For SVM this is typically a subset; for kNN this is 1.0 (all data)."
+    ),
+    "Match Fraction": (
+        "The proportion of stored instances that exactly match a training "
+        "data point. A non-zero match fraction confirms data leakage."
+    ),
+}
+
+
+@dataclass
+class InstanceBasedAttackResults:
+    """Results of an instance-based model attack."""
+
+    model_type: str
+    is_instance_based: bool = False
+    is_dp_safe: bool = False
+    n_stored_instances: int = 0
+    n_training_samples: int = 0
+    storage_fraction: float = 0.0
+    n_matched: int = 0
+    n_checked: int = 0
+    match_fraction: float = 0.0
+    data_leakage_confirmed: bool = False
+    mitigations: list[str] = field(default_factory=list)
+    details: dict | None = None
+
+
+@dataclass
+class InstanceBasedRecordLevelResults:
+    """Per-training-record outcomes for an instance-based attack.
+
+    Indexed by training record (length == n_training_samples), consistent
+    with StructuralAttack's individual block.  A value of 1 means that
+    training record is stored verbatim inside the model; 0 means it is not.
+    """
+
+    individual_risk: list[int]  # 1 if training record is stored in model, else 0
+
+
+class InstanceBasedAttack(Attack):
+    """Detect training data stored in instance-based model parameters.
+
+    Instance-based models such as SVM and kNN store training data points
+    (support vectors or all neighbors) inside the fitted model. This attack
+    extracts those stored instances, compares them to the training data, and
+    reports whether the model leaks training data.
+    """
+
+    def __init__(
+        self,
+        output_dir: str = "outputs",
+        write_report: bool = True,
+        n_examples: int = N_EXAMPLES,
+        atol: float = INSTANCE_MATCH_ATOL,
+        report_individual: bool = False,
+    ) -> None:
+        """Construct an instance-based model attack.
+
+        Parameters
+        ----------
+        output_dir : str
+            Name of a directory to write outputs.
+        write_report : bool
+            Whether to generate a JSON and PDF report.
+        n_examples : int
+            Maximum number of matching examples to show in the PDF report.
+            Does not limit how many matches are recorded; all matches are
+            kept in the per-record results.
+        atol : float
+            Absolute tolerance for floating-point comparison when matching
+            stored instances to training data.
+        report_individual : bool
+            Whether to report metrics for each individual record.
+        """
+        super().__init__(output_dir=output_dir, write_report=write_report)
+        self.n_examples = n_examples
+        self.atol = atol
+        self.report_individual: bool = report_individual
+        self.results: InstanceBasedAttackResults | None = None
+        self.record_level_results: InstanceBasedRecordLevelResults | None = None
+
+    def __str__(self) -> str:
+        """Return the name of the attack."""
+        return "Instance-Based Model Attack"
+
+    @classmethod
+    def attackable(cls, target: Target) -> bool:
+        """Return whether a target can be assessed with this attack.
+
+        Requires a model and training data. Non-instance-based models are
+        handled gracefully (reported as not applicable).
+        """
+        if not target.has_model():
+            logger.info("target.model is missing, cannot proceed")
+            return False
+        if not target.has_data():
+            logger.info("target data is missing, cannot proceed")
+            return False
+        return True
+
+    def _compare_instances(
+        self,
+        stored_instances: np.ndarray,
+        stored_indices: np.ndarray | None,
+        X_train: np.ndarray,
+    ) -> tuple[int, InstanceBasedRecordLevelResults]:
+        """Compare stored model instances against training data.
+
+        Parameters
+        ----------
+        stored_instances : np.ndarray
+            Data points stored inside the model.
+        stored_indices : np.ndarray or None
+            Indices of stored instances into the original training data.
+        X_train : np.ndarray
+            The training data to compare against.
+
+        Returns
+        -------
+        n_matched : int
+            Number of stored instances that match a training record.
+        record_level_results : InstanceBasedRecordLevelResults
+            One entry per training record: 1 if that record is stored in
+            the model, 0 otherwise.
+        """
+        individual_risk = np.zeros(len(X_train), dtype=int)
+
+        for i, stored_row in enumerate(stored_instances):
+            match_index = -1
+
+            # Try index-based direct comparison first
+            if stored_indices is not None and i < len(stored_indices):
+                idx = int(stored_indices[i])
+                if 0 <= idx < len(X_train) and np.allclose(
+                    stored_row, X_train[idx], atol=self.atol
+                ):
+                    match_index = idx
+
+            # Fallback: search through training data
+            if match_index == -1:
+                for j in range(len(X_train)):
+                    if np.allclose(stored_row, X_train[j], atol=self.atol):
+                        match_index = j
+                        break
+
+            if match_index != -1:
+                individual_risk[match_index] = 1
+
+        n_matched = int(individual_risk.sum())
+        record_level_results = InstanceBasedRecordLevelResults(
+            individual_risk=individual_risk.tolist()
+        )
+        return n_matched, record_level_results
+
+    def _build_mitigations(
+        self, is_svm: bool, is_knn: bool, is_dp_safe: bool
+    ) -> list[str]:
+        """Build the list of available mitigations."""
+        mitigations: list[str] = []
+
+        if is_dp_safe:
+            mitigations.append(
+                "This model uses a DP-safe variant. The stored parameters are "
+                "in a transformed/noisy space and do not directly correspond "
+                "to training data points."
+            )
+
+        if is_svm:
+            mitigations.append(
+                "Use a differentially private SVM variant (e.g., DPSVC from "
+                "sacroml.safemodel) which adds noise to the separating "
+                "hyperplane in a transformed feature space, breaking the "
+                "direct link between support vectors and training data."
+            )
+
+        if is_knn:
+            mitigations.append(
+                "kNN models inherently store all training data. Consider "
+                "using a model type that does not require storing training "
+                "instances (e.g., decision tree, random forest, or neural "
+                "network)."
+            )
+
+        mitigations.append(
+            "By agreement with the TRE, this risk may be deemed 'not "
+            "relevant' for this particular dataset if the data is already "
+            "public or low-sensitivity."
+        )
+
+        return mitigations
+
+    def _attack(self, target: Target) -> dict:
+        """Run the instance-based model attack.
+
+        Parameters
+        ----------
+        target : Target
+            The target object containing the model and data.
+
+        Returns
+        -------
+        dict
+            Attack report dictionary.
+        """
+        raw_model, preprocessor = unwrap_model(target.model.model)
+        model_type = type(raw_model).__name__
+
+        is_svm = isinstance(raw_model, SVM_TYPES)
+        is_knn = isinstance(raw_model, KNN_TYPES)
+        is_instance_based = is_svm or is_knn
+
+        # Lazy import to avoid circular dependency
+        from sacroml.safemodel.classifiers.dp_svc import DPSVC  # noqa: PLC0415
+
+        is_dp_safe = isinstance(raw_model, DPSVC)
+
+        X_train = target.X_train
+        # If model was inside a Pipeline with preprocessing, transform
+        # X_train to the same space as the stored instances
+        if preprocessor is not None:
+            X_train = preprocessor.transform(X_train)
+        n_training = len(X_train)
+
+        if not is_instance_based:
+            logger.info(
+                "Model type %s is not instance-based, no data leakage risk "
+                "from stored instances.",
+                model_type,
+            )
+            self.results = InstanceBasedAttackResults(
+                model_type=model_type,
+                n_training_samples=n_training,
+            )
+            output = self._make_report(target)
+            self._write_report(output)
+            return output
+
+        # Extract stored instances
+        stored_instances = None
+        stored_indices = None
+
+        if is_svm:
+            if hasattr(raw_model, "support_vectors_"):
+                stored_instances = np.asarray(raw_model.support_vectors_)
+                stored_indices = np.asarray(raw_model.support_)
+            else:
+                logger.warning(
+                    "SVM model %s does not have support_vectors_ attribute. "
+                    "It may not be fitted.",
+                    model_type,
+                )
+
+        if is_knn:
+            if hasattr(raw_model, "_fit_X"):
+                stored_instances = np.asarray(raw_model._fit_X)
+                stored_indices = np.arange(len(stored_instances))
+            else:
+                logger.warning(
+                    "kNN model %s does not have _fit_X attribute. "
+                    "It may not be fitted.",
+                    model_type,
+                )
+
+        if stored_instances is None:
+            self.results = InstanceBasedAttackResults(
+                model_type=model_type,
+                is_instance_based=True,
+                is_dp_safe=is_dp_safe,
+                n_training_samples=n_training,
+                mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
+            )
+            output = self._make_report(target)
+            self._write_report(output)
+            return output
+
+        n_stored = len(stored_instances)
+
+        # Check shape compatibility
+        if stored_instances.shape[1] != X_train.shape[1]:
+            logger.warning(
+                "Feature dimension mismatch: stored instances have %d "
+                "features, training data has %d. Cannot compare.",
+                stored_instances.shape[1],
+                X_train.shape[1],
+            )
+            self.results = InstanceBasedAttackResults(
+                model_type=model_type,
+                is_instance_based=True,
+                is_dp_safe=is_dp_safe,
+                n_stored_instances=n_stored,
+                n_training_samples=n_training,
+                storage_fraction=n_stored / n_training if n_training > 0 else 0.0,
+                mitigations=self._build_mitigations(is_svm, is_knn, is_dp_safe),
+                details={"error": "Feature dimension mismatch"},
+            )
+            output = self._make_report(target)
+            self._write_report(output)
+            return output
+
+        # Compare stored instances to training data
+        n_matched, self.record_level_results = self._compare_instances(
+            stored_instances, stored_indices, X_train
+        )
+
+        storage_fraction = n_stored / n_training if n_training > 0 else 0.0
+        match_fraction = n_matched / n_stored if n_stored > 0 else 0.0
+        data_leakage_confirmed = n_matched > 0
+
+        mitigations = self._build_mitigations(is_svm, is_knn, is_dp_safe)
+
+        self.results = InstanceBasedAttackResults(
+            model_type=model_type,
+            is_instance_based=True,
+            is_dp_safe=is_dp_safe,
+            n_stored_instances=n_stored,
+            n_training_samples=n_training,
+            storage_fraction=storage_fraction,
+            n_matched=n_matched,
+            n_checked=n_stored,
+            match_fraction=match_fraction,
+            data_leakage_confirmed=data_leakage_confirmed,
+            mitigations=mitigations,
+        )
+
+        output = self._make_report(target)
+        self._write_report(output)
+        return output
+
+    def _construct_metadata(self) -> None:
+        """Construct the metadata dictionary for reporting."""
+        super()._construct_metadata()
+        if self.results:
+            self.metadata["global_metrics"] = {
+                "model_type": self.results.model_type,
+                "is_instance_based": self.results.is_instance_based,
+                "is_dp_safe": self.results.is_dp_safe,
+                "n_stored_instances": self.results.n_stored_instances,
+                "n_training_samples": self.results.n_training_samples,
+                "storage_fraction": self.results.storage_fraction,
+                "n_matched": self.results.n_matched,
+                "match_fraction": self.results.match_fraction,
+                "data_leakage_confirmed": self.results.data_leakage_confirmed,
+            }
+
+    def _get_attack_metrics_instances(self) -> dict:
+        """Return attack metrics for the report structure."""
+        attack_metrics_experiment = {}
+        if self.results:
+            instance_0 = asdict(self.results)
+            if self.report_individual and self.record_level_results is not None:
+                instance_0["individual"] = asdict(self.record_level_results)
+            attack_metrics_experiment["attack_instance_logger"] = {
+                "instance_0": instance_0,
+            }
+        return attack_metrics_experiment
+
+    def _make_pdf(self, output: dict) -> FPDF:
+        """Create PDF report.
+
+        Returns
+        -------
+        FPDF : A PDF object containing the instance-based attack report.
+        """
+        metadata = output["metadata"]
+        metrics = metadata["global_metrics"]
+        instance_data = output["attack_experiment_logger"]["attack_instance_logger"][
+            "instance_0"
+        ]
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_xy(0, 0)
+
+        report.title(pdf, "Instance-Based Model Attack Report")
+        report.subtitle(pdf, "Introduction")
+        report.line(pdf, _INTRODUCTION)
+
+        report.subtitle(pdf, "Experiment Summary")
+        report.line(
+            pdf,
+            f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+            font="courier",
+        )
+        for key, value in metadata["attack_params"].items():
+            report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+        report.subtitle(pdf, "Risk Summary")
+        for key in (
+            "model_type",
+            "is_instance_based",
+            "is_dp_safe",
+            "data_leakage_confirmed",
+            "n_stored_instances",
+            "n_training_samples",
+            "storage_fraction",
+            "n_matched",
+            "match_fraction",
+        ):
+            value = metrics.get(key, "N/A")
+            report.line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+        # Example matches: show first n_examples training indices flagged as stored.
+        rlr = self.record_level_results
+        if rlr is not None and any(rlr.individual_risk):
+            matched_train_indices = [
+                i for i, risk in enumerate(rlr.individual_risk) if risk
+            ]
+            shown = matched_train_indices[: self.n_examples]
+            pdf.add_page()
+            report.title(pdf, "Example Matches")
+            report.line(
+                pdf,
+                f"Showing {len(shown)} of {len(matched_train_indices)} training "
+                f"record(s) found stored verbatim in the model:",
+            )
+            for display_i, train_idx in enumerate(shown):
+                report.line(
+                    pdf,
+                    f"  Match {display_i + 1}: train[{train_idx}]",
+                    font="courier",
+                    font_size=9,
+                )
+
+        # Mitigations
+        mitigations = instance_data.get("mitigations", [])
+        if mitigations:
+            pdf.add_page()
+            report.title(pdf, "Available Mitigations")
+            for i, mitigation in enumerate(mitigations):
+                report.subtitle(pdf, f"Option {i + 1}")
+                report.line(pdf, mitigation)
+
+        pdf.add_page()
+        report.title(pdf, "Glossary")
+        report._write_dict(pdf, _GLOSSARY)
+
+        return pdf

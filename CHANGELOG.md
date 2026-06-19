@@ -18,12 +18,17 @@ Changes:
     (multi-section, as produced when individual attacks append to the same file)
     and any subdirectory-per-attack layout. Registered in the attack factory as
     `"meta"`.
+*   Refactor: Name `InstanceBasedAttack`'s default floating-point matching tolerance as the module-level constant `INSTANCE_MATCH_ATOL = 1e-8` ([#454](https://github.com/AI-SDC/SACRO-ML/issues/454)). `StructuralAttack` is intentionally not changed because it uses exact `np.unique` equality on deterministic `predict_proba` outputs and does not need a tolerance.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
     (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample
     membership thresholds. A sample is predicted as a member when its observed score
     exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
     architecture knowledge required. Registered in the attack factory as `"qmia"`.
+*   Refactor: move `unwrap_model` from `InstanceBasedAttack` to `sacroml.attacks.utils`
+    so it can be reused by other attacks that need to split a scikit-learn `Pipeline`
+    into its final estimator and preprocessing stages
+    ([#455](https://github.com/AI-SDC/SACRO-ML/issues/455)).
 *   Fix: `StructuralAttack` now respects the `report_individual` flag. Per-record
     `record_level_results` and `attack_metrics["individual"]` are only populated when the
     flag is set to `True`, matching the behaviour of `LIRAAttack` and `QMIAAttack`.
