@@ -19,6 +19,7 @@ The methodology is aligned with SACRO-ML's privacy risk framework.
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 
 import numpy as np
@@ -38,6 +39,7 @@ except ImportError:
 
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.constants import STRUCT_VULN_OR, STRUCT_VULN_RULES
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -94,6 +96,55 @@ Optional additional metadata, such as model-specific notes or thresholds used.
 """
 
 # --- Standalone Helper Functions for Risk Assessment ---
+
+
+def combine_risk_flags(
+    k_anonymity: Sequence[int],
+    class_disclosure: Sequence[bool],
+    smallgroup_risk: Sequence[bool],
+    k_threshold: int,
+    rule: str = STRUCT_VULN_OR,
+) -> list[bool]:
+    """Combine per-record structural risk indicators into overall flags.
+
+    A record has three indicators: k-anonymity below *k_threshold*, class
+    disclosure, and small-group risk.
+
+    Parameters
+    ----------
+    k_anonymity : Sequence[int]
+        Per-record k-anonymity values.
+    class_disclosure : Sequence[bool]
+        Per-record class disclosure indicators.
+    smallgroup_risk : Sequence[bool]
+        Per-record small-group risk indicators.
+    k_threshold : int
+        k-anonymity value below which a record is considered at risk.
+    rule : str
+        ``'or'`` (default) flags a record when any indicator fires;
+        ``'and'`` flags a record only when all indicators fire.
+
+    Returns
+    -------
+    list[bool]
+        One overall vulnerability flag per record.
+
+    Raises
+    ------
+    ValueError
+        If *rule* is unknown or the sequences have mismatched lengths.
+    """
+    if rule not in STRUCT_VULN_RULES:
+        raise ValueError(
+            f"Unknown rule: {rule!r}. Expected one of {sorted(STRUCT_VULN_RULES)}."
+        )
+    combine = any if rule == STRUCT_VULN_OR else all
+    return [
+        combine((k < k_threshold, cd, sg))
+        for k, cd, sg in zip(
+            k_anonymity, class_disclosure, smallgroup_risk, strict=True
+        )
+    ]
 
 
 def get_unnecessary_risk(model: BaseEstimator | torch.nn.Module) -> bool:
