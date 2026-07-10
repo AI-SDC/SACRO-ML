@@ -6,7 +6,8 @@ a unified pandas DataFrame with two-level aggregation:
 
   Level 1 — within-attack: mean, std, and consistency across repeated runs.
   Level 2 — cross-attack:  arithmetic/geometric mean of MIA scores,
-            binary structural flag, and total vulnerability count.
+            binary structural flag (rule selectable via ``struct_vuln_rule``),
+            and total vulnerability count.
 
 Supports three operating modes via the *behaviour* parameter:
 
@@ -41,7 +42,13 @@ from fpdf import FPDF
 
 from sacroml import metrics
 from sacroml.attacks.attack import Attack
-from sacroml.attacks.constants import DEFAULT_MIA_THRESHOLD, EPS_META
+from sacroml.attacks.constants import (
+    DEFAULT_MIA_THRESHOLD,
+    EPS_META,
+    STRUCT_VULN_OR,
+    STRUCT_VULN_RULES,
+)
+from sacroml.attacks.structural_attack import combine_risk_flags
 from sacroml.attacks.target import Target
 
 logger = logging.getLogger(__name__)
@@ -101,6 +108,11 @@ class MetaAttack(Attack):
     k_threshold : int or None
         k-anonymity value below which a record is structurally vulnerable.
         ``None`` reads the default from the ACRO risk-appetite config.
+    struct_vuln_rule : str
+        How per-record structural indicators combine into the
+        ``struct_vuln`` flag.  ``'or'`` (default) flags a record when any
+        indicator fires; ``'and'`` only when all fire.  See
+        :func:`sacroml.attacks.structural_attack.combine_risk_flags`.
     output_dir : str
         Directory for all outputs (sub-attack subdirectories, report, CSV).
     write_report : bool
@@ -121,6 +133,7 @@ class MetaAttack(Attack):
         report_dir: str | None = None,
         mia_threshold: float = DEFAULT_MIA_THRESHOLD,
         k_threshold: int | None = None,
+        struct_vuln_rule: str = STRUCT_VULN_OR,
         output_dir: str = "outputs",
         write_report: bool = True,
         keep_separate: bool = False,
@@ -154,6 +167,13 @@ class MetaAttack(Attack):
             self.k_threshold: int = ACRO("default").config["safe_threshold"]
         else:
             self.k_threshold = k_threshold
+
+        if struct_vuln_rule not in STRUCT_VULN_RULES:
+            raise ValueError(
+                f"Unknown struct_vuln_rule: {struct_vuln_rule!r}. "
+                f"Expected one of {sorted(STRUCT_VULN_RULES)}."
+            )
+        self.struct_vuln_rule: str = struct_vuln_rule
 
         self.vulnerability_df: pd.DataFrame | None = None
 
@@ -663,10 +683,12 @@ class MetaAttack(Attack):
             data["struct_k"] = list(k_vals) + nan_pad
             data["struct_cd"] = list(cd_vals) + none_pad
             data["struct_sg"] = list(sg_vals) + none_pad
-            data["struct_vuln"] = [
-                (k < self.k_threshold or cd or sg)
-                for k, cd, sg in zip(k_vals, cd_vals, sg_vals, strict=True)
-            ] + none_pad
+            data["struct_vuln"] = (
+                combine_risk_flags(
+                    k_vals, cd_vals, sg_vals, self.k_threshold, self.struct_vuln_rule
+                )
+                + none_pad
+            )
 
         # --- Level 2: cross-attack aggregation ---
 
@@ -734,6 +756,7 @@ class MetaAttack(Attack):
 
         gm["mia_threshold"] = self.mia_threshold
         gm["k_threshold"] = self.k_threshold
+        gm["struct_vuln_rule"] = self.struct_vuln_rule
         gm["n_records"] = len(self.vulnerability_df)
 
         if "AUC" in m:

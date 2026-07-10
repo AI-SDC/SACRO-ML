@@ -18,6 +18,12 @@ Changes:
     (multi-section, as produced when individual attacks append to the same file)
     and any subdirectory-per-attack layout. Registered in the attack factory as
     `"meta"`.
+*   Feat: `MetaAttack`: new `struct_vuln_rule` option selecting how per-record
+    structural indicators (k-anonymity below threshold, class disclosure,
+    small-group risk) combine into the `struct_vuln` flag: `'or'` (default,
+    unchanged behaviour) or `'and'`. Combination logic moved to
+    `structural_attack.combine_risk_flags()`
+    ([#464](https://github.com/AI-SDC/SACRO-ML/issues/464)).
 *   Refactor: Name `InstanceBasedAttack`'s default floating-point matching tolerance as the module-level constant `INSTANCE_MATCH_ATOL = 1e-8` ([#454](https://github.com/AI-SDC/SACRO-ML/issues/454)). `StructuralAttack` is intentionally not changed because it uses exact `np.unique` equality on deterministic `predict_proba` outputs and does not need a tolerance.
 *   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
     NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
