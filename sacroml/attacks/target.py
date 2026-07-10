@@ -298,7 +298,7 @@ class Target:
         return self.proba_train is not None and self.proba_test is not None
 
     def get_generalisation_error(self) -> float:
-        """Calculate model generalisation error."""
+        """Calculate the model generalisation gap (test error - train error)."""
         if not (self.has_model() and self.has_data()):
             return np.nan
         return self.model.get_generalisation_error(

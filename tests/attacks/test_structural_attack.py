@@ -641,7 +641,7 @@ def test_dt_nondisclosive_xor_reporting():
 
     for metric in global_only_metrics:
         assert not gm[metric], f"gm[{metric}] should be False"
-    assert round(gm["generalisation_error"], 6) == -0.15625
+    assert round(gm["generalisation_error"], 6) == 0.15625
 
     for metric in both_metrics:
         assert not gm[metric], f"global metric {metric} should be False"
@@ -681,7 +681,7 @@ def test_dt_disclosive_xor_reporting():
         f"gen_error_risk is {myattack_dtunsafe.results.gen_error_risk}"
         f"generalisation error is {myattack_dtunsafe.results.generalisation_error}"
     )
-    assert myattack_dtunsafe.results.generalisation_error == 00
+    assert myattack_dtunsafe.results.generalisation_error == 0
 
     gm = output["metadata"]["global_metrics"]
     inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]

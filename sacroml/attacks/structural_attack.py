@@ -66,9 +66,10 @@ class StructuralAttackResults:
     Attributes
     ----------
     unnecessary_risk (bool) : Risk due to unnecessarily complex model structure.
-    train_acc (float) : target accuracy on test  set
-    test_acc (float) : target accuracy on training  set
-    generalisation_error (float) : The target's generalisation error
+    train_acc (float) : target accuracy on training set
+    test_acc (float) : target accuracy on test set
+    generalisation_error (float) : The target's generalisation gap
+        (test error - train error)
     gen_error_risk (bool) : Risk that train/ test loss distns significantly differ
     dof_risk (bool) : Risk based on degrees of freedom.
     k_anonymity_risk (bool) : Risk based on k-anonymity violations.

@@ -75,7 +75,12 @@ class Model(ABC):
         X_test: np.ndarray,
         y_test: np.ndarray,
     ) -> float:
-        """Return the model generalisation error for a set of samples.
+        """Return the model generalisation gap for a set of samples.
+
+        The generalisation gap is the test error minus the train error,
+        positive when the model performs worse on unseen data (e.g. due to
+        overfitting). Assumes a classification model whose score() returns
+        accuracy, so error = 1 - score(); regression support is deferred (#414).
 
         Parameters
         ----------
@@ -91,7 +96,7 @@ class Model(ABC):
         Returns
         -------
         float
-            Model generalisation error.
+            Model generalisation gap (test error - train error).
         """
 
     @abstractmethod

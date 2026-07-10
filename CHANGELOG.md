@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 Changes:
+*   Fix: the `StructuralAttack` generalisation metric (`generalisation_error`) was inverted and
+    mislabelled; it now reports the generalisation gap (test error minus train error), which is
+    positive when the model overfits. Classification only; regression support is deferred to
+    [#414](https://github.com/AI-SDC/SACRO-ML/issues/414)
+    ([#468](https://github.com/AI-SDC/SACRO-ML/issues/468)).
 *   Feat: `MetaAttack`: aggregate per-record vulnerability across multiple privacy attacks (LiRA,
     QMIA, Structural) into a unified vulnerability DataFrame with within-attack (mean, std,
     consistency) and cross-attack (arithmetic/geometric MIA mean, structural flag, total
