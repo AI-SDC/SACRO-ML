@@ -60,6 +60,7 @@ if __name__ == "__main__":
         ],
         behaviour="run_all",  # alternatives: "use_existing_only", "fill_missing"
         mia_threshold=0.5,
+        # struct_vuln_rule="and" would require all structural indicators to flag
         output_dir=output_dir,
     )
     meta.attack(target)
