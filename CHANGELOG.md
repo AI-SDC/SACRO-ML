@@ -3,40 +3,26 @@
 ## [Unreleased]
 
 Changes:
-*   Feat: `MetaAttack`: aggregate per-record vulnerability across multiple privacy attacks (LiRA,
-    QMIA, Structural) into a unified vulnerability DataFrame with within-attack (mean, std,
-    consistency) and cross-attack (arithmetic/geometric MIA mean, structural flag, total
-    vulnerability count) aggregation. Supports three operating modes via `behaviour`:
-    `'run_all'` (fresh execution), `'use_existing_only'` (collate from pre-existing
-    `report.json` files without re-running — critical for attacks such as LiRA that may
-    take weeks on large model grids), and `'fill_missing'` (run only attacks not already
-    present). Outputs `vulnerability_matrix.csv` alongside the standard JSON report.
-    By default appends the MetaAttack section to an existing `report_dir/report.json`
-    (set `keep_separate=True` for a standalone file). PDF report includes a bar chart
-    of records grouped by the number of attacks flagging them. `use_existing_only`
-    and `fill_missing` scan both the canonical single-file `report_dir/report.json`
-    (multi-section, as produced when individual attacks append to the same file)
-    and any subdirectory-per-attack layout. Registered in the attack factory as
-    `"meta"`.
-*   Refactor: Name `InstanceBasedAttack`'s default floating-point matching tolerance as the module-level constant `INSTANCE_MATCH_ATOL = 1e-8` ([#454](https://github.com/AI-SDC/SACRO-ML/issues/454)). `StructuralAttack` is intentionally not changed because it uses exact `np.unique` equality on deterministic `predict_proba` outputs and does not need a tolerance.
-*   Feat: `QMIAAttack`: membership inference attack via quantile regression (Bertran et al.,
-    NeurIPS 2023, arXiv:2307.03694). Trains a histogram-based quantile regressor
-    (`HistGradientBoostingRegressor`) on non-member hinge scores to learn per-sample
-    membership thresholds. A sample is predicted as a member when its observed score
-    exceeds the predicted threshold at quantile level (1 - alpha). No shadow models or
-    architecture knowledge required. Registered in the attack factory as `"qmia"`.
-*   Refactor: move `unwrap_model` from `InstanceBasedAttack` to `sacroml.attacks.utils`
-    so it can be reused by other attacks that need to split a scikit-learn `Pipeline`
-    into its final estimator and preprocessing stages
-    ([#455](https://github.com/AI-SDC/SACRO-ML/issues/455)).
-*   Fix: `StructuralAttack` now respects the `report_individual` flag. Per-record
-    `record_level_results` and `attack_metrics["individual"]` are only populated when the
-    flag is set to `True`, matching the behaviour of `LIRAAttack` and `QMIAAttack`.
-*   Feat: `WorstCaseAttack` now accepts a `report_individual` flag. When enabled, each
-    repetition's metrics dict gains an `"individual"` key holding per-record
-    `"member_prob"` (the attack classifier's membership probability) and `"member"`
-    (the ground truth label), matching the per-record output convention used by
-    `LIRAAttack` and `QMIAAttack`. Arrays are sized to the attack-model test slice.
+*   Feat: Add `InstanceBasedAttack`: instance-based attack for data leakage in SVM/kNN models ([#431](https://github.com/AI-SDC/SACRO-ML/pull/431))
+*   Feat: Add `QMIAAttack`: quantile regression membership inference attack ([#435](https://github.com/AI-SDC/SACRO-ML/pull/435))
+*   Feat: Add `MetaAttack`: aggregate vulnerability across multiple privacy attacks (LiRA, QMIA, Structural) ([#441](https://github.com/AI-SDC/SACRO-ML/pull/441))
+*   Fix: Record-level vulnerability support in `StructuralAttack` for `report_individual` option ([#460](https://github.com/AI-SDC/SACRO-ML/pull/460))
+*   Feat: Add record-level vulnerability support to `WorstCaseAttack` for `report_individual` option ([#461](https://github.com/AI-SDC/SACRO-ML/pull/461))
+*   Feat: Add support for capturing PyTorch `batch_size` as an optional `Target` parameter ([#453](https://github.com/AI-SDC/SACRO-ML/pull/453))
+*   Feat: Improve the clarity of record-level vulnerability plots for LiRA ([#467](https://github.com/AI-SDC/SACRO-ML/pull/467))
+*   Feat: Add JSON attack report array serialisation to npz files ([#440](https://github.com/AI-SDC/SACRO-ML/pull/440))
+*   Feat: Add sklearn-compatible scorers for MIA metrics ([#446](https://github.com/AI-SDC/SACRO-ML/pull/446))
+*   Refactor: Rename LiRA per-record field from `score` to `member_prob` ([#463](https://github.com/AI-SDC/SACRO-ML/pull/463))
+*   Fix: Replace `NaN` and `Infinity` with `null` in JSON reports ([#421](https://github.com/AI-SDC/SACRO-ML/pull/421))
+*   Fix: Prevent `Target` data arrays being serialised on `save()` when dataset module is provided ([#425](https://github.com/AI-SDC/SACRO-ML/pull/425))
+*   Fix: Read `indices_test.pkl` in `get_shadow_model()` ([#443](https://github.com/AI-SDC/SACRO-ML/pull/443))
+*   Test: Clean up test warnings and resolve matplotlib backend issue ([#429](https://github.com/AI-SDC/SACRO-ML/pull/429))
+*   Test: Replace `fetch_openml()` network call with local data `make_classification()` ([#430](https://github.com/AI-SDC/SACRO-ML/pull/430))
+*   CI: Group dependabot updates ([#432](https://github.com/AI-SDC/SACRO-ML/pull/432))
+*   Chore: Update CI actions ([#417](https://github.com/AI-SDC/SACRO-ML/pull/417), [#418](https://github.com/AI-SDC/SACRO-ML/pull/418), [#419](https://github.com/AI-SDC/SACRO-ML/pull/419), [#433](https://github.com/AI-SDC/SACRO-ML/pull/433))
+*   Chore: Update pre-commit hooks ([#409](https://github.com/AI-SDC/SACRO-ML/pull/409), [#427](https://github.com/AI-SDC/SACRO-ML/pull/427), [#438](https://github.com/AI-SDC/SACRO-ML/pull/438), [#448](https://github.com/AI-SDC/SACRO-ML/pull/448), [#465](https://github.com/AI-SDC/SACRO-ML/pull/465))
+*   Chore: Enable pre-commit `prek` compatibility ([#436](https://github.com/AI-SDC/SACRO-ML/pull/436))
+*   Chore: Enforce type hints across attacks, config, and safemodel modules ([#422](https://github.com/AI-SDC/SACRO-ML/pull/422))
 
 ## Version 1.4.3 (Jan 29, 2026)
 
