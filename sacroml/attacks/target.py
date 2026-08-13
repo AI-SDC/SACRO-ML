@@ -297,11 +297,11 @@ class Target:
         """Return whether the target has all probability data."""
         return self.proba_train is not None and self.proba_test is not None
 
-    def get_generalisation_error(self) -> float:
+    def get_generalisation_gap(self) -> float:
         """Calculate the model generalisation gap (test error - train error)."""
         if not (self.has_model() and self.has_data()):
             return np.nan
-        return self.model.get_generalisation_error(
+        return self.model.get_generalisation_gap(
             self.X_train, self.y_train, self.X_test, self.y_test
         )
 
@@ -315,7 +315,7 @@ class Target:
             "dataset_name": self.dataset_name,
             "dataset_module_path": self.dataset_module_path,
             "features": self.features,
-            "generalisation_error": self.get_generalisation_error(),
+            "generalisation_gap": self.get_generalisation_gap(),
             "safemodel": self.safemodel,
         }
 
