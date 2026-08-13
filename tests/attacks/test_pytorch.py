@@ -121,7 +121,7 @@ def test_pytorch() -> None:
     assert metrics["AUC"] > 0
 
     # Test generalisation gap: positive when test error exceeds train error
-    res = tgt.model.get_generalisation_error(
+    res = tgt.model.get_generalisation_gap(
         tgt.X_train, tgt.y_train, tgt.X_test, tgt.y_test
     )
     assert res > 0

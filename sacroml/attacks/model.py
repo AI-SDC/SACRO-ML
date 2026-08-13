@@ -68,7 +68,7 @@ class Model(ABC):
         return np.array(indices.flatten())[0]
 
     @abstractmethod
-    def get_generalisation_error(
+    def get_generalisation_gap(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
@@ -80,7 +80,7 @@ class Model(ABC):
         The generalisation gap is the test error minus the train error,
         positive when the model performs worse on unseen data (e.g. due to
         overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred (#414).
+        accuracy, so error = 1 - score(); regression support is deferred.
 
         Parameters
         ----------

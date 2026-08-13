@@ -94,7 +94,7 @@ def test_sklearn() -> None:
     assert metrics["AUC"] > 0
 
     # Test generalisation gap: positive when test error exceeds train error
-    res = target.model.get_generalisation_error(
+    res = target.model.get_generalisation_gap(
         target.X_train, target.y_train, target.X_test, target.y_test
     )
     assert res > 0
