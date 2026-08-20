@@ -1,26 +1,30 @@
 # Changelog
 
-## [Unreleased]
+## Version 2.0.0 (Aug 20, 2026)
 
 Changes:
 *   Feat: Add `InstanceBasedAttack`: instance-based attack for data leakage in SVM/kNN models ([#431](https://github.com/AI-SDC/SACRO-ML/pull/431))
 *   Feat: Add `QMIAAttack`: quantile regression membership inference attack ([#435](https://github.com/AI-SDC/SACRO-ML/pull/435))
 *   Feat: Add `MetaAttack`: aggregate vulnerability across multiple privacy attacks (LiRA, QMIA, Structural) ([#441](https://github.com/AI-SDC/SACRO-ML/pull/441))
-*   Fix: Record-level vulnerability support in `StructuralAttack` for `report_individual` option ([#460](https://github.com/AI-SDC/SACRO-ML/pull/460))
 *   Feat: Add record-level vulnerability support to `WorstCaseAttack` for `report_individual` option ([#461](https://github.com/AI-SDC/SACRO-ML/pull/461))
 *   Feat: Add support for capturing PyTorch `batch_size` as an optional `Target` parameter ([#453](https://github.com/AI-SDC/SACRO-ML/pull/453))
 *   Feat: Improve the clarity of record-level vulnerability plots for LiRA ([#467](https://github.com/AI-SDC/SACRO-ML/pull/467))
 *   Feat: Add JSON attack report array serialisation to npz files ([#440](https://github.com/AI-SDC/SACRO-ML/pull/440))
 *   Feat: Add sklearn-compatible scorers for MIA metrics ([#446](https://github.com/AI-SDC/SACRO-ML/pull/446))
-*   Refactor: Rename LiRA per-record field from `score` to `member_prob` ([#463](https://github.com/AI-SDC/SACRO-ML/pull/463))
+*   Fix: Record-level vulnerability support in `StructuralAttack` for `report_individual` option ([#460](https://github.com/AI-SDC/SACRO-ML/pull/460))
+*   Fix: Metrics report TPR at low-FPRs in percentages by default ([#480](https://github.com/AI-SDC/SACRO-ML/pull/480))
+*   Fix: Report generalisation gap instead of inverted accuracy gap ([#472](https://github.com/AI-SDC/SACRO-ML/pull/472))
 *   Fix: Replace `NaN` and `Infinity` with `null` in JSON reports ([#421](https://github.com/AI-SDC/SACRO-ML/pull/421))
 *   Fix: Prevent `Target` data arrays being serialised on `save()` when dataset module is provided ([#425](https://github.com/AI-SDC/SACRO-ML/pull/425))
 *   Fix: Read `indices_test.pkl` in `get_shadow_model()` ([#443](https://github.com/AI-SDC/SACRO-ML/pull/443))
+*   Refactor: Rename LiRA per-record field from `score` to `member_prob` ([#463](https://github.com/AI-SDC/SACRO-ML/pull/463))
+*   Docs: Add AI policy and update contribution guide ([#478](https://github.com/AI-SDC/SACRO-ML/pull/478))
+*   Docs: Move QMIA/Meta attacks documentation to API docs ([#481](https://github.com/AI-SDC/SACRO-ML/pull/481))
 *   Test: Clean up test warnings and resolve matplotlib backend issue ([#429](https://github.com/AI-SDC/SACRO-ML/pull/429))
 *   Test: Replace `fetch_openml()` network call with local data `make_classification()` ([#430](https://github.com/AI-SDC/SACRO-ML/pull/430))
 *   CI: Group dependabot updates ([#432](https://github.com/AI-SDC/SACRO-ML/pull/432))
-*   Chore: Update CI actions ([#417](https://github.com/AI-SDC/SACRO-ML/pull/417), [#418](https://github.com/AI-SDC/SACRO-ML/pull/418), [#419](https://github.com/AI-SDC/SACRO-ML/pull/419), [#433](https://github.com/AI-SDC/SACRO-ML/pull/433))
-*   Chore: Update pre-commit hooks ([#409](https://github.com/AI-SDC/SACRO-ML/pull/409), [#427](https://github.com/AI-SDC/SACRO-ML/pull/427), [#438](https://github.com/AI-SDC/SACRO-ML/pull/438), [#448](https://github.com/AI-SDC/SACRO-ML/pull/448), [#465](https://github.com/AI-SDC/SACRO-ML/pull/465))
+*   Chore: Update CI actions ([#417](https://github.com/AI-SDC/SACRO-ML/pull/417), [#418](https://github.com/AI-SDC/SACRO-ML/pull/418), [#419](https://github.com/AI-SDC/SACRO-ML/pull/419), [#433](https://github.com/AI-SDC/SACRO-ML/pull/433), [#474](https://github.com/AI-SDC/SACRO-ML/pull/474))
+*   Chore: Update pre-commit hooks ([#409](https://github.com/AI-SDC/SACRO-ML/pull/409), [#427](https://github.com/AI-SDC/SACRO-ML/pull/427), [#438](https://github.com/AI-SDC/SACRO-ML/pull/438), [#448](https://github.com/AI-SDC/SACRO-ML/pull/448), [#465](https://github.com/AI-SDC/SACRO-ML/pull/465), [#471](https://github.com/AI-SDC/SACRO-ML/pull/471))
 *   Chore: Enable pre-commit `prek` compatibility ([#436](https://github.com/AI-SDC/SACRO-ML/pull/436))
 *   Chore: Enforce type hints across attacks, config, and safemodel modules ([#422](https://github.com/AI-SDC/SACRO-ML/pull/422))
 
