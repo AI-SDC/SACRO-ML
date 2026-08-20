@@ -37,7 +37,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "acro==0.4.11",
+    "acro==1.0.1",
     "fpdf",
     "pypdf",
     "multiprocess",
