@@ -1,0 +1,1289 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sacroml.attacks.meta_attack &#8212; SACRO-ML 2.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=17306193" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sacroml/attacks/meta_attack';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">SACRO-ML 2.0.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../introduction.html">
+    Welcome to SACRO-ML
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../support.html">
+    What SACRO-ML Supports
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sacroml.attacks.meta_attack</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sacroml.attacks.meta_attack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Meta-attack: aggregate per-record vulnerability across multiple privacy attacks.</span>
+
+<span class="sd">Runs multiple privacy attacks (LiRA, QMIA, Structural) on the same Target,</span>
+<span class="sd">extracts per-record vulnerability scores from each, and aggregates them into</span>
+<span class="sd">a unified pandas DataFrame with two-level aggregation:</span>
+
+<span class="sd">* Level 1 — within-attack: Mean, std, and consistency across repeated runs.</span>
+<span class="sd">* Level 2 — cross-attack: Arithmetic/geometric mean of MIA scores,</span>
+<span class="sd">  binary structural flag, and total vulnerability count.</span>
+
+<span class="sd">Supports three operating modes via the *behaviour* parameter:</span>
+
+<span class="sd">``&#39;run_all&#39;`` (default)</span>
+<span class="sd">    Run every specified attack from scratch.</span>
+
+<span class="sd">``&#39;use_existing_only&#39;``</span>
+<span class="sd">    Read per-record scores from existing ``report.json`` files in</span>
+<span class="sd">    *report_dir*; no new attacks are executed. Use when attacks were</span>
+<span class="sd">    already run (possibly at great computational cost) and you only want</span>
+<span class="sd">    to collate their results.</span>
+
+<span class="sd">``&#39;fill_missing&#39;``</span>
+<span class="sd">    Load any attacks already present in *report_dir* and run only those</span>
+<span class="sd">    not yet found. Saves redundant computation when some attacks have</span>
+<span class="sd">    been run but others have not.</span>
+
+<span class="sd">The vulnerability matrix is saved as ``vulnerability_matrix.csv`` in ``output_dir``.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    from sacroml.attacks.meta_attack import MetaAttack</span>
+<span class="sd">    from sacroml.attacks.target import Target</span>
+
+<span class="sd">    target = Target(</span>
+<span class="sd">        model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test</span>
+<span class="sd">    )</span>
+<span class="sd">    meta = MetaAttack(</span>
+<span class="sd">        attacks=[(&quot;lira&quot;, {}), (&quot;qmia&quot;, {}), (&quot;structural&quot;, {})],</span>
+<span class="sd">        behaviour=&quot;run_all&quot;,  # alternatives: &quot;use_existing_only&quot;, &quot;fill_missing&quot;</span>
+<span class="sd">        output_dir=&quot;output_meta&quot;,</span>
+<span class="sd">    )</span>
+<span class="sd">    meta.attack(target)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+
+<span class="kn">from</span> <span class="nn">sacroml</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.attack</span> <span class="kn">import</span> <span class="n">Attack</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.constants</span> <span class="kn">import</span> <span class="n">DEFAULT_MIA_THRESHOLD</span><span class="p">,</span> <span class="n">EPS_META</span>
+<span class="kn">from</span> <span class="nn">sacroml.attacks.target</span> <span class="kn">import</span> <span class="n">Target</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">SUPPORTED_ATTACKS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lira&quot;</span><span class="p">,</span> <span class="s2">&quot;qmia&quot;</span><span class="p">,</span> <span class="s2">&quot;structural&quot;</span><span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Attacks that expose per-record vulnerability scores.&quot;&quot;&quot;</span>
+
+<span class="n">MIA_ATTACKS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lira&quot;</span><span class="p">,</span> <span class="s2">&quot;qmia&quot;</span><span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Subset of supported attacks that produce membership-inference scores.&quot;&quot;&quot;</span>
+
+<span class="n">BEHAVIOUR_RUN_ALL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;run_all&quot;</span>
+<span class="n">BEHAVIOUR_USE_EXISTING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;use_existing_only&quot;</span>
+<span class="n">BEHAVIOUR_FILL_MISSING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fill_missing&quot;</span>
+
+<span class="c1"># Maps the human-readable attack_name stored in report metadata → factory key.</span>
+<span class="c1"># Keys must match the __str__() return value of each corresponding attack class.</span>
+<span class="c1"># Values must be a subset of SUPPORTED_ATTACKS.</span>
+<span class="n">_REPORT_NAME_TO_KEY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;LiRA Attack&quot;</span><span class="p">:</span> <span class="s2">&quot;lira&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QMIA Attack&quot;</span><span class="p">:</span> <span class="s2">&quot;qmia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Structural Attack&quot;</span><span class="p">:</span> <span class="s2">&quot;structural&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_MIA_SCORE_FIELDS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;lira&quot;</span><span class="p">:</span> <span class="s2">&quot;member_prob&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;qmia&quot;</span><span class="p">:</span> <span class="s2">&quot;member_prob&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Maps factory key → field name inside ``attack_metrics[N][&quot;individual&quot;]``.</span>
+
+<span class="sd">Used only by :meth:`MetaAttack._extract_mia_scores` (the live-attack path).</span>
+<span class="sd">The disk-reading path (:meth:`MetaAttack._extract_scores_from_report`) uses</span>
+<span class="sd">the same field names but looks them up directly rather than via this mapping.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="MetaAttack">
+<a class="viewcode-back" href="../../../attacks/meta.html#sacroml.attacks.meta_attack.MetaAttack">[docs]</a>
+<span class="k">class</span> <span class="nc">MetaAttack</span><span class="p">(</span><span class="n">Attack</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aggregate per-record vulnerability across multiple privacy attacks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attacks : list[tuple]</span>
+<span class="sd">        Each entry is ``(name, params)`` or ``(name, params, n_reps)``.</span>
+<span class="sd">        *name* must be one of :data:`SUPPORTED_ATTACKS`.</span>
+<span class="sd">        *params* is a dict of keyword arguments forwarded to the sub-attack</span>
+<span class="sd">        constructor.  *n_reps* (default 1) is the number of independent</span>
+<span class="sd">        repetitions; useful for stochastic attacks like LiRA.</span>
+<span class="sd">    behaviour : str</span>
+<span class="sd">        ``&#39;run_all&#39;`` (default), ``&#39;use_existing_only&#39;``, or</span>
+<span class="sd">        ``&#39;fill_missing&#39;``.  See module docstring for details.</span>
+<span class="sd">    report_dir : str or None</span>
+<span class="sd">        Directory to scan for existing attack ``report.json`` files when</span>
+<span class="sd">        *behaviour* is ``&#39;use_existing_only&#39;`` or ``&#39;fill_missing&#39;``.</span>
+<span class="sd">        Defaults to *output_dir* when not provided.</span>
+<span class="sd">    mia_threshold : float</span>
+<span class="sd">        Score above which a record is flagged as MIA-vulnerable.</span>
+<span class="sd">    k_threshold : int or None</span>
+<span class="sd">        k-anonymity value below which a record is structurally vulnerable.</span>
+<span class="sd">        ``None`` reads the default from the ACRO risk-appetite config.</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Directory for all outputs (sub-attack subdirectories, report, CSV).</span>
+<span class="sd">    write_report : bool</span>
+<span class="sd">        Whether to write JSON report and CSV to disk.</span>
+<span class="sd">    keep_separate : bool</span>
+<span class="sd">        Controls JSON output location.  ``False`` (default) appends the</span>
+<span class="sd">        MetaAttack section to ``{report_dir}/report.json`` so it joins any</span>
+<span class="sd">        sub-attack reports already there, matching the project convention.</span>
+<span class="sd">        ``True`` writes a separate ``{output_dir}/report.json`` like the</span>
+<span class="sd">        base class.  The CSV (``vulnerability_matrix.csv``) and PDF always</span>
+<span class="sd">        follow the JSON output location.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MetaAttack.__init__">
+<a class="viewcode-back" href="../../../attacks/meta.html#sacroml.attacks.meta_attack.MetaAttack.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">attacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span><span class="p">],</span>
+        <span class="n">behaviour</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;run_all&quot;</span><span class="p">,</span>
+        <span class="n">report_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mia_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_MIA_THRESHOLD</span><span class="p">,</span>
+        <span class="n">k_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="n">write_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">keep_separate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">write_report</span><span class="o">=</span><span class="n">write_report</span><span class="p">)</span>
+        <span class="c1"># MetaAttack does not use shadow models; remove the empty directory</span>
+        <span class="c1"># created by the base class so the output directory stays clean.</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">OSError</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shadow_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_attacks</span><span class="p">(</span><span class="n">attacks</span><span class="p">)</span>
+
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">BEHAVIOUR_RUN_ALL</span><span class="p">,</span>
+            <span class="n">BEHAVIOUR_USE_EXISTING</span><span class="p">,</span>
+            <span class="n">BEHAVIOUR_FILL_MISSING</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">behaviour</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown behaviour: </span><span class="si">{</span><span class="n">behaviour</span><span class="si">!r}</span><span class="s2">. Expected one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">behaviour</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">behaviour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">report_dir</span> <span class="k">if</span> <span class="n">report_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_separate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">keep_separate</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mia_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">mia_threshold</span>
+
+        <span class="k">if</span> <span class="n">k_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">acro</span> <span class="kn">import</span> <span class="n">ACRO</span>  <span class="c1"># noqa: PLC0415</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">k_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ACRO</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;safe_threshold&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k_threshold</span> <span class="o">=</span> <span class="n">k_threshold</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_REPORT_NAME_TO_KEY</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">-</span> <span class="n">SUPPORTED_ATTACKS</span>
+        <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;_REPORT_NAME_TO_KEY references unsupported attacks: </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Update SUPPORTED_ATTACKS or fix the mapping.&quot;</span>
+            <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Validation</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_attacks</span><span class="p">(</span><span class="n">attacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalise and validate the *attacks* specification.</span>
+
+<span class="sd">        Accepts 2-tuples ``(name, params)`` — *n_reps* defaults to 1 — or</span>
+<span class="sd">        3-tuples ``(name, params, n_reps)``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If a tuple has the wrong length, if *name* is not in</span>
+<span class="sd">            :data:`SUPPORTED_ATTACKS`, or if *n_reps* is not a positive</span>
+<span class="sd">            integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attacks</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attacks must contain at least one entry.&quot;</span><span class="p">)</span>
+
+        <span class="n">specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">attacks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">entry</span>
+                <span class="n">n_reps</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">n_reps</span> <span class="o">=</span> <span class="n">entry</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected (name, params) or (name, params, n_reps), &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;got entry of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_ATTACKS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported attack: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;. MetaAttack requires &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;per-record scores. Supported: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_ATTACKS</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_reps</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n_reps</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_reps must be a positive integer, got </span><span class="si">{</span><span class="n">n_reps</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="n">n_reps</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">specs</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Abstract method implementations</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MetaAttack.attackable">
+<a class="viewcode-back" href="../../../attacks/meta.html#sacroml.attacks.meta_attack.MetaAttack.attackable">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attackable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether *target* can be assessed with the meta-attack.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">has_model</span><span class="p">()</span> <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run sub-attacks (or read existing) and aggregate per-record vulnerabilities.</span>
+
+<span class="sd">        Behaviour is controlled by ``self.behaviour``:</span>
+
+<span class="sd">        - ``&#39;run_all&#39;``: run every attack fresh.</span>
+<span class="sd">        - ``&#39;use_existing_only&#39;``: scan *report_dir* for report.json files;</span>
+<span class="sd">          extract scores without running any new attack.</span>
+<span class="sd">        - ``&#39;fill_missing&#39;``: load existing results from *report_dir*,</span>
+<span class="sd">          run only those not already present.</span>
+
+<span class="sd">        Returns an empty dict ``{}`` when no scores are available — this can</span>
+<span class="sd">        happen when no valid ``report.json`` files are found in</span>
+<span class="sd">        ``&#39;use_existing_only&#39;`` mode, or when all sub-attacks fail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Step 1: Load existing results when not running entirely from scratch.</span>
+        <span class="n">existing_mia</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">existing_struct</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">behaviour</span> <span class="o">!=</span> <span class="n">BEHAVIOUR_RUN_ALL</span><span class="p">:</span>
+            <span class="n">existing_mia</span><span class="p">,</span> <span class="n">existing_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan_existing_reports</span><span class="p">()</span>
+
+        <span class="c1"># Step 2: Populate score dicts — start from existing, then run new ones.</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">existing_mia</span><span class="p">)</span>
+        <span class="n">structural_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">existing_struct</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">behaviour</span> <span class="o">!=</span> <span class="n">BEHAVIOUR_USE_EXISTING</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_new_attacks</span><span class="p">(</span>
+                <span class="n">target</span><span class="p">,</span> <span class="n">existing_mia</span><span class="p">,</span> <span class="n">existing_struct</span><span class="p">,</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mia_scores</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">structural_scores</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No vulnerability scores collected; returning empty report.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">X_train</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">target</span><span class="o">.</span><span class="n">X_test</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Target is missing X_train or X_test; returning empty report.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">n_train</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="n">n_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">X_test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_dataframe</span><span class="p">(</span>
+            <span class="n">n_train</span><span class="p">,</span> <span class="n">n_test</span><span class="p">,</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_global_metrics</span><span class="p">(</span><span class="n">n_train</span><span class="p">,</span> <span class="n">n_test</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_report</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Existing-report scanning</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_scan_existing_reports</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scan *report_dir* for cached attack scores.</span>
+
+<span class="sd">        Supports two on-disk layouts:</span>
+
+<span class="sd">        1. **Canonical single-file layout**, ``{report_dir}/report.json``,</span>
+<span class="sd">           where each individual attack has appended its own</span>
+<span class="sd">           ``&quot;AttackName_&lt;uuid&gt;&quot;`` section via :class:`GenerateJSONModule`.</span>
+<span class="sd">           This is the layout produced when LiRA, QMIA, and Structural are</span>
+<span class="sd">           run separately with the same ``output_dir``.</span>
+<span class="sd">        2. **Subdirectory-per-attack layout**, ``{report_dir}/&lt;sub&gt;/report.json``,</span>
+<span class="sd">           where each sub-attack has its own ``report.json``.</span>
+
+<span class="sd">        Both layouts are scanned, so a mixed setup also works.  The attack</span>
+<span class="sd">        type is identified from the ``metadata.attack_name`` field; individual</span>
+<span class="sd">        per-record scores are extracted from</span>
+<span class="sd">        ``attack_experiment_logger[&quot;attack_instance_logger&quot;]``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[dict, dict]</span>
+<span class="sd">            ``(mia_scores, structural_scores)`` with the same structure used</span>
+<span class="sd">            internally by :meth:`_attack`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">structural_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;report_dir </span><span class="si">%r</span><span class="s2"> does not exist.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span>
+
+        <span class="c1"># Layout 1: top-level canonical report.json</span>
+        <span class="n">top_level</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">,</span> <span class="s2">&quot;report.json&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">top_level</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extract_from_report_file</span><span class="p">(</span><span class="n">top_level</span><span class="p">,</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span><span class="p">)</span>
+
+        <span class="c1"># Layout 2: subdirectory-per-attack</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot scan report_dir </span><span class="si">%r</span><span class="s2">: </span><span class="si">%s</span><span class="s2">; skipping.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">,</span> <span class="n">exc</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">sub_report</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;report.json&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">sub_report</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extract_from_report_file</span><span class="p">(</span><span class="n">sub_report</span><span class="p">,</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mia_scores</span><span class="p">,</span> <span class="n">structural_scores</span>
+
+    <span class="k">def</span> <span class="nf">_extract_from_report_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">report_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+        <span class="n">structural_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse one ``report.json`` file, accumulating scores in place.</span>
+
+<span class="sd">        Iterates every top-level ``&quot;AttackName_&lt;uuid&gt;&quot;`` section, identifies</span>
+<span class="sd">        the attack via :data:`_REPORT_NAME_TO_KEY`, and extends the matching</span>
+<span class="sd">        dict (``mia_scores`` or ``structural_scores``).  Unrecognised</span>
+<span class="sd">        attack names are skipped with a debug log; unreadable files are</span>
+<span class="sd">        skipped with a warning.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">report_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not read </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span> <span class="n">report_path</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">attack_data</span> <span class="ow">in</span> <span class="n">report_data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attack_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">attack_name</span> <span class="o">=</span> <span class="n">attack_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attack_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">_REPORT_NAME_TO_KEY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attack_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Unrecognised attack_name </span><span class="si">%r</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">; skipping.&quot;</span><span class="p">,</span>
+                    <span class="n">attack_name</span><span class="p">,</span>
+                    <span class="n">report_path</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_scores_from_report</span><span class="p">(</span><span class="n">attack_data</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">scores</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">MIA_ATTACKS</span><span class="p">:</span>
+                <span class="n">mia_scores</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">structural_scores</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded existing </span><span class="si">%s</span><span class="s2"> results from </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">report_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_scores_from_report</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">report_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract per-record scores from a parsed report dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        report_data : dict</span>
+<span class="sd">            A single attack entry from a parsed ``report.json`` file — the dict</span>
+<span class="sd">            value under one ``&#39;AttackName_&lt;uuid&gt;&#39;`` top-level key. Expected keys:</span>
+<span class="sd">            ``&#39;metadata&#39;``, ``&#39;attack_experiment_logger&#39;``.</span>
+<span class="sd">        key : str</span>
+<span class="sd">            Factory key (``&#39;lira&#39;``, ``&#39;qmia&#39;``, or ``&#39;structural&#39;``).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[list[float]] | list[dict] | None</span>
+<span class="sd">            One entry per instance found in the report, in the format expected</span>
+<span class="sd">            by :meth:`_build_dataframe`, or ``None`` when no individual scores</span>
+<span class="sd">            are present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger_key</span> <span class="o">=</span> <span class="s2">&quot;attack_instance_logger&quot;</span>
+            <span class="n">instances</span> <span class="o">=</span> <span class="n">report_data</span><span class="p">[</span><span class="s2">&quot;attack_experiment_logger&quot;</span><span class="p">][</span><span class="n">logger_key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected dict, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Unexpected report structure for </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">exc</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">collected</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">instances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">individual</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">individual</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;lira&quot;</span><span class="p">:</span>
+                <span class="n">raw</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member_prob&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Non-numeric lira score in report (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span> <span class="n">exc</span>
+                        <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;qmia&quot;</span><span class="p">:</span>
+                <span class="n">raw</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member_prob&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Non-numeric qmia score in report (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span> <span class="n">exc</span>
+                        <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;structural&quot;</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;k_anonymity&quot;</span><span class="p">)</span>
+                <span class="n">cd</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class_disclosure&quot;</span><span class="p">)</span>
+                <span class="n">sg</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smallgroup_risk&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;k_anonymity&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+                            <span class="s2">&quot;class_disclosure&quot;</span><span class="p">:</span> <span class="n">cd</span><span class="p">,</span>
+                            <span class="s2">&quot;smallgroup_risk&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collected</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No individual scores found for </span><span class="si">%s</span><span class="s2"> in report; &quot;</span>
+                <span class="s2">&quot;ensure the attack was run with report_individual=True.&quot;</span><span class="p">,</span>
+                <span class="n">key</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">collected</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Sub-attack execution</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_run_new_attacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
+        <span class="n">existing_mia</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
+        <span class="n">existing_struct</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
+        <span class="n">structural_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute sub-attacks that are not already present and populate score dicts.</span>
+
+<span class="sd">        When ``behaviour`` is ``&#39;fill_missing&#39;``, attacks found in *existing_mia*</span>
+<span class="sd">        or *existing_struct* are skipped.  Structural attacks with ``n_reps &gt; 1``</span>
+<span class="sd">        are clamped to a single run (a warning is logged) because they are</span>
+<span class="sd">        deterministic.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">n_reps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attacks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">behaviour</span> <span class="o">==</span> <span class="n">BEHAVIOUR_FILL_MISSING</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">name</span> <span class="ow">in</span> <span class="n">existing_mia</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">existing_struct</span>
+            <span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Skipping </span><span class="si">%s</span><span class="s2"> - already present in </span><span class="si">%r</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">effective_n_reps</span> <span class="o">=</span> <span class="n">n_reps</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;structural&quot;</span> <span class="ow">and</span> <span class="n">n_reps</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Structural attack is deterministic; n_reps=</span><span class="si">%d</span><span class="s2"> requested &quot;</span>
+                    <span class="s2">&quot;but all repetitions will be identical. Running once only.&quot;</span><span class="p">,</span>
+                    <span class="n">n_reps</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">effective_n_reps</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">effective_n_reps</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running </span><span class="si">%s</span><span class="s2"> (rep </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">rep</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">effective_n_reps</span><span class="p">)</span>
+                <span class="n">attack_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_sub_attack</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">attack_obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">MIA_ATTACKS</span><span class="p">:</span>
+                    <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_mia_scores</span><span class="p">(</span><span class="n">attack_obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">scores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">mia_scores</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">scores_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_structural_scores</span><span class="p">(</span><span class="n">attack_obj</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">scores_struct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">structural_scores</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores_struct</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_run_sub_attack</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span>
+        <span class="n">run_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Attack</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create, execute, and return a single sub-attack instance.</span>
+
+<span class="sd">        Returns ``None`` and logs a warning if the sub-attack produces no</span>
+<span class="sd">        results, rather than raising an exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">sacroml.attacks.factory</span> <span class="kn">import</span> <span class="n">create_attack</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="n">sub_params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="n">sub_params</span><span class="p">[</span><span class="s2">&quot;report_individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">sub_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_run</span><span class="si">{</span><span class="n">run_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sub_params</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_dir</span>
+        <span class="n">sub_params</span><span class="p">[</span><span class="s2">&quot;write_report&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">attack_obj</span> <span class="o">=</span> <span class="n">create_attack</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">attack_obj</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AssertionError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Sub-attack &#39;</span><span class="si">%s</span><span class="s2">&#39; (run </span><span class="si">%d</span><span class="s2">) failed with </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">run_idx</span><span class="p">,</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="n">exc</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Sub-attack &#39;</span><span class="si">%s</span><span class="s2">&#39; (run </span><span class="si">%d</span><span class="s2">) produced no results; skipping.&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">run_idx</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">attack_obj</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Score extraction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_extract_mia_scores</span><span class="p">(</span><span class="n">attack_obj</span><span class="p">:</span> <span class="n">Attack</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return per-record membership scores from a completed MIA attack.</span>
+
+<span class="sd">        Returns ``None`` and logs a warning when individual scores are absent,</span>
+<span class="sd">        rather than raising an exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">_MIA_SCORE_FIELDS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">metrics_dict</span> <span class="ow">in</span> <span class="n">attack_obj</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">metrics_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">scores</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">]</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> attack has non-numeric individual scores (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">exc</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> attack did not produce individual scores. &quot;</span>
+            <span class="s2">&quot;Ensure report_individual=True was set.&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_extract_structural_scores</span><span class="p">(</span><span class="n">attack_obj</span><span class="p">:</span> <span class="n">Attack</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return per-record structural risk indicators, or ``None`` on failure.</span>
+
+<span class="sd">        Reads directly from the ``record_level_results`` dataclass, which is</span>
+<span class="sd">        populated after a successful attack run regardless of ``report_individual``.</span>
+<span class="sd">        Returns ``None`` and logs a warning when results are unavailable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rlr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attack_obj</span><span class="p">,</span> <span class="s2">&quot;record_level_results&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rlr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Structural attack has no record_level_results; skipping.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;k_anonymity&quot;</span><span class="p">:</span> <span class="n">rlr</span><span class="o">.</span><span class="n">k_anonymity</span><span class="p">,</span>
+            <span class="s2">&quot;class_disclosure&quot;</span><span class="p">:</span> <span class="n">rlr</span><span class="o">.</span><span class="n">class_disclosure</span><span class="p">,</span>
+            <span class="s2">&quot;smallgroup_risk&quot;</span><span class="p">:</span> <span class="n">rlr</span><span class="o">.</span><span class="n">smallgroup_risk</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># DataFrame construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_build_dataframe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_train</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_test</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mia_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+        <span class="n">structural_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble the per-record vulnerability DataFrame.&quot;&quot;&quot;</span>
+        <span class="n">n_total</span> <span class="o">=</span> <span class="n">n_train</span> <span class="o">+</span> <span class="n">n_test</span>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;is_member&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_train</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_test</span>
+
+        <span class="c1"># --- Level 1: within-attack aggregation ---</span>
+
+        <span class="n">mia_mean_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">reps</span> <span class="ow">in</span> <span class="n">mia_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">scores_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span>  <span class="c1"># shape: (n_reps, n_total)</span>
+
+            <span class="n">col_mean</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_mean&quot;</span>
+            <span class="n">col_std</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_std&quot;</span>
+            <span class="n">col_cons</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_consistency&quot;</span>
+            <span class="n">col_vuln</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_vuln&quot;</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="n">col_mean</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col_std</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">scores_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col_cons</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores_array</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mia_threshold</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col_vuln</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mia_threshold</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">col_mean</span><span class="p">]]</span>
+
+            <span class="n">mia_mean_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_mean</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">reps</span> <span class="ow">in</span> <span class="n">structural_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">k_vals</span> <span class="o">=</span> <span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;k_anonymity&quot;</span><span class="p">]</span>
+                <span class="n">cd_vals</span> <span class="o">=</span> <span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;class_disclosure&quot;</span><span class="p">]</span>
+                <span class="n">sg_vals</span> <span class="o">=</span> <span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;smallgroup_risk&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">k_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;k_anonymity&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">])</span>
+                <span class="n">cd_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;class_disclosure&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">])</span>
+                <span class="n">sg_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;smallgroup_risk&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">])</span>
+
+                <span class="n">k_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">k_stack</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">cd_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cd_stack</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">sg_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sg_stack</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="n">nan_pad</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">n_test</span>
+            <span class="n">none_pad</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_test</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;struct_k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">k_vals</span><span class="p">)</span> <span class="o">+</span> <span class="n">nan_pad</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;struct_cd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cd_vals</span><span class="p">)</span> <span class="o">+</span> <span class="n">none_pad</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;struct_sg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sg_vals</span><span class="p">)</span> <span class="o">+</span> <span class="n">none_pad</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;struct_vuln&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_threshold</span> <span class="ow">or</span> <span class="n">cd</span> <span class="ow">or</span> <span class="n">sg</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">cd</span><span class="p">,</span> <span class="n">sg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">k_vals</span><span class="p">,</span> <span class="n">cd_vals</span><span class="p">,</span> <span class="n">sg_vals</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">]</span> <span class="o">+</span> <span class="n">none_pad</span>
+
+        <span class="c1"># --- Level 2: cross-attack aggregation ---</span>
+
+        <span class="k">if</span> <span class="n">mia_mean_cols</span><span class="p">:</span>
+            <span class="n">mia_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mia_mean_cols</span><span class="p">])</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mia_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mia_means</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mia_gmean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">mia_means</span> <span class="o">+</span> <span class="n">EPS_META</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">vuln_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_vuln&quot;</span><span class="p">)]</span>
+        <span class="n">n_vuln</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_total</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">vuln_cols</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">n_vuln</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;n_vulnerable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_vuln</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;record_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_total</span><span class="p">)],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;record&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Vulnerability matrix: </span><span class="si">%d</span><span class="s2"> records, </span><span class="si">%d</span><span class="s2"> columns&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Global metrics and reporting</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_compute_global_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_train</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_test</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute meta-attack global metrics from the vulnerability DataFrame.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;_compute_global_metrics called before vulnerability_df was built.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span>
+        <span class="n">membership</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_train</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_test</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;mia_mean&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">mia_means</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mia_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">y_pred_proba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mia_means</span><span class="p">,</span> <span class="n">mia_means</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">metrics</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">y_pred_proba</span><span class="p">,</span> <span class="n">membership</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_vuln_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_member&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n_vulnerable&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;n_train&quot;</span><span class="p">:</span> <span class="n">n_train</span><span class="p">,</span>
+                    <span class="s2">&quot;n_test&quot;</span><span class="p">:</span> <span class="n">n_test</span><span class="p">,</span>
+                    <span class="s2">&quot;n_vulnerable_train&quot;</span><span class="p">:</span> <span class="n">n_vuln_train</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_construct_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add meta-attack specific fields to the report metadata.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;_construct_metadata called before vulnerability_df was built.&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_construct_metadata</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">gm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;global_metrics&quot;</span><span class="p">]</span>
+
+        <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;mia_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mia_threshold</span>
+        <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;k_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_threshold</span>
+        <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;n_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;AUC&quot;</span> <span class="ow">in</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;AUC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;AUC&quot;</span><span class="p">]</span>
+            <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;TPR&quot;</span><span class="p">]</span>
+            <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;Advantage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;Advantage&quot;</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span>
+        <span class="n">n_vuln_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_vuln&quot;</span><span class="p">)])</span>
+        <span class="n">n_all</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;n_vulnerable&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_vuln_cols</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">if</span> <span class="n">n_vuln_cols</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">gm</span><span class="p">[</span><span class="s2">&quot;n_vulnerable_all_attacks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_all</span>
+
+    <span class="k">def</span> <span class="nf">_get_attack_metrics_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return metrics structured for the JSON report.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;_get_attack_metrics_instances called before&quot;</span>
+                <span class="s2">&quot; vulnerability_df was built.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attack_metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">instance</span><span class="p">[</span><span class="s2">&quot;sub_attacks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;n_reps&quot;</span><span class="p">:</span> <span class="n">n_reps</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">n_reps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attacks</span>
+        <span class="p">}</span>
+        <span class="n">instance</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;attack_instance_logger&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;instance_0&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_write_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write JSON report, PDF, and vulnerability matrix CSV.</span>
+
+<span class="sd">        By default, append the MetaAttack section to</span>
+<span class="sd">        ``{report_dir}/report.json`` so it joins any sub-attack reports</span>
+<span class="sd">        already there.  With ``keep_separate=True``, fall back to the base</span>
+<span class="sd">        class behaviour and write a standalone ``{output_dir}/report.json``.</span>
+<span class="sd">        The CSV always lands in ``{output_dir}/vulnerability_matrix.csv``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_report</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_separate</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_write_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_to_report_dir</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_report</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">csv_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;vulnerability_matrix.csv&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vulnerability_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved vulnerability matrix to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to write vulnerability matrix to </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">csv_path</span><span class="p">,</span>
+                    <span class="n">exc</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_to_report_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append MetaAttack JSON (and write PDF) to ``{report_dir}``.</span>
+
+<span class="sd">        Uses ``report.write_json`` which appends to an existing</span>
+<span class="sd">        ``report.json`` if present (via ``GenerateJSONModule``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_dir</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Appending report: </span><span class="si">%s</span><span class="s2">.json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">pdf_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_pdf</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pdf_report</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">write_pdf</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">pdf_report</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FPDF</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the MetaAttack PDF report.</span>
+
+<span class="sd">        Delegates to :func:`sacroml.attacks.report.create_meta_report` for</span>
+<span class="sd">        consistency with the other attacks (see ``create_lr_report``,</span>
+<span class="sd">        ``create_mia_report``).  The report contains title, attack</span>
+<span class="sd">        parameters, global metrics, a per-sub-attack summary, and a bar</span>
+<span class="sd">        chart of records grouped by the number of attacks flagging them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">sacroml.attacks</span> <span class="kn">import</span> <span class="n">report</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="k">return</span> <span class="n">report</span><span class="o">.</span><span class="n">create_meta_report</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a human-readable name for this attack.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Meta Attack&quot;</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, GRAIMATTER and SACRO Project Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
