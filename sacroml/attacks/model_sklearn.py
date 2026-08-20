@@ -57,14 +57,19 @@ class SklearnModel(Model):
             train_params=train_params,
         )
 
-    def get_generalisation_error(
+    def get_generalisation_gap(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_test: np.ndarray,
         y_test: np.ndarray,
     ) -> float:
-        """Return the model generalisation error for a set of samples.
+        """Return the model generalisation gap for a set of samples.
+
+        The generalisation gap is the test error minus the train error,
+        positive when the model performs worse on unseen data (e.g. due to
+        overfitting). Assumes a classification model whose score() returns
+        accuracy, so error = 1 - score(); regression support is deferred.
 
         Parameters
         ----------
@@ -80,13 +85,13 @@ class SklearnModel(Model):
         Returns
         -------
         float
-            Model generalisation error.
+            Model generalisation gap (test error - train error).
         """
         if hasattr(self.model, "score"):
             try:
                 train = self.model.score(X_train, y_train)
                 test = self.model.score(X_test, y_test)
-                return test - train
+                return (1.0 - test) - (1.0 - train)
             except sklearn.exceptions.NotFittedError:  # pragma: no cover
                 return np.nan
         return np.nan  # pragma: no cover

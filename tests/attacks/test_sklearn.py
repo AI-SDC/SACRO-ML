@@ -93,11 +93,11 @@ def test_sklearn() -> None:
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert metrics["AUC"] > 0
 
-    # Test generalisation function
-    res = target.model.get_generalisation_error(
+    # Test generalisation gap: positive when test error exceeds train error
+    res = target.model.get_generalisation_gap(
         target.X_train, target.y_train, target.X_test, target.y_test
     )
-    assert res < 0
+    assert res > 0
 
     # test get label indexes
     records = np.array(["a", "b", "c", "a", "c", "b"]).reshape(-1, 1)
