@@ -274,7 +274,7 @@ def test_tuning_random_search_with_alt_scorer(common_setup):
 
     tuning = output["metadata"]["tuning"]
     assert tuning["search_type"] == "random"
-    assert tuning["tuning_metric"] == "TPR@10%"
+    assert tuning["tuning_metric"] == "TPR@0.1%"
     assert tuning["n_candidates"] == 3
 
 
