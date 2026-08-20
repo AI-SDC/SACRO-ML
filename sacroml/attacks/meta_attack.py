@@ -4,30 +4,45 @@ Runs multiple privacy attacks (LiRA, QMIA, Structural) on the same Target,
 extracts per-record vulnerability scores from each, and aggregates them into
 a unified pandas DataFrame with two-level aggregation:
 
-  Level 1 — within-attack: mean, std, and consistency across repeated runs.
-  Level 2 — cross-attack:  arithmetic/geometric mean of MIA scores,
-            binary structural flag, and total vulnerability count.
+* Level 1 — within-attack: Mean, std, and consistency across repeated runs.
+* Level 2 — cross-attack: Arithmetic/geometric mean of MIA scores,
+  binary structural flag, and total vulnerability count.
 
 Supports three operating modes via the *behaviour* parameter:
 
-  ``'run_all'`` (default)
-      Run every specified attack from scratch.
+``'run_all'`` (default)
+    Run every specified attack from scratch.
 
-  ``'use_existing_only'``
-      Read per-record scores from existing ``report.json`` files in
-      *report_dir*; no new attacks are executed.  Use when attacks were
-      already run (possibly at great computational cost) and you only want
-      to collate their results.
+``'use_existing_only'``
+    Read per-record scores from existing ``report.json`` files in
+    *report_dir*; no new attacks are executed. Use when attacks were
+    already run (possibly at great computational cost) and you only want
+    to collate their results.
 
-  ``'fill_missing'``
-      Load any attacks already present in *report_dir* and run only those
-      not yet found.  Saves redundant computation when some attacks have
-      been run but others have not.
+``'fill_missing'``
+    Load any attacks already present in *report_dir* and run only those
+    not yet found. Saves redundant computation when some attacks have
+    been run but others have not.
 
-Reference: AI-SDC/SACRO-ML#428
+The vulnerability matrix is saved as ``vulnerability_matrix.csv`` in ``output_dir``.
+
+Example
+-------
+.. code-block:: python
+
+    from sacroml.attacks.meta_attack import MetaAttack
+    from sacroml.attacks.target import Target
+
+    target = Target(
+        model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test
+    )
+    meta = MetaAttack(
+        attacks=[("lira", {}), ("qmia", {}), ("structural", {})],
+        behaviour="run_all",  # alternatives: "use_existing_only", "fill_missing"
+        output_dir="output_meta",
+    )
+    meta.attack(target)
 """
-
-from __future__ import annotations
 
 import contextlib
 import copy
