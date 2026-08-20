@@ -26,8 +26,8 @@ Scorer = Callable[[BaseEstimator, np.ndarray, np.ndarray], float]
 
 _SCORER_KEYS: tuple[str, ...] = (
     "AUC",
-    "TPR@0.1",
-    "TPR@0.001",
+    "TPR@0.1%",
+    "TPR@0.001%",
     "FDIF01",
     "FDIF02",
     "Advantage",

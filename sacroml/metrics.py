@@ -39,7 +39,7 @@ def _tpr_at_fpr(
     y_true: Iterable[float],
     y_score: Iterable[float],
     fpr: float = 0.001,
-    fpr_perc: bool = False,
+    fpr_perc: bool = True,
 ) -> float:
     """Compute the TPR at a fixed FPR.
 
@@ -53,9 +53,11 @@ def _tpr_at_fpr(
     y_score : Iterable[float]
         predicted score
     fpr : float
-        false positive rate at which to compute true positive rate
+        false positive rate at which to compute true positive rate.
+        Interpreted as a percentage by default (e.g. 0.1 means 0.1%% FPR),
+        following the Carlini et al. (2022) reporting convention.
     fpr_perc : bool
-        if the fpr is defined as a percentage
+        if the fpr is defined as a percentage (default True)
 
     Returns
     -------
@@ -324,7 +326,7 @@ def get_metrics(
     fpr_vals = [0.5, 0.2, 0.1, 0.01, 0.001, 0.00001]
     for fpr in fpr_vals:
         tpr = _tpr_at_fpr(y_test, y_pred_proba, fpr=fpr)
-        name = f"TPR@{fpr}"
+        name = f"TPR@{fpr:g}%"
         metrics[name] = tpr
 
     fpr, tpr, roc_thresh = roc_curve(y_test, y_pred_proba)
