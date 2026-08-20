@@ -322,8 +322,8 @@ def get_metrics(
     # Add some things useful for debugging / filtering
     metrics["pred_prob_var"] = y_pred_proba.var()
 
-    # TPR at various FPR (percentages, following Carlini et al. 2022)
-    fpr_vals = [50, 20, 10, 1, 0.1, 0.001]
+    # TPR at various FPR
+    fpr_vals = [0.5, 0.2, 0.1, 0.01, 0.001, 0.00001]
     for fpr in fpr_vals:
         tpr = _tpr_at_fpr(y_test, y_pred_proba, fpr=fpr)
         name = f"TPR@{fpr:g}%"

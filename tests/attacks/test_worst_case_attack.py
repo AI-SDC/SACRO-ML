@@ -268,7 +268,7 @@ def test_tuning_random_search_with_alt_scorer(common_setup):
         attack_model_param_grid=grid,
         search_type="random",
         search_n_iter=3,
-        tuning_metric="TPR@10%",
+        tuning_metric="TPR@0.1%",
     )
     output = attack_obj.attack(target)
 
