@@ -135,7 +135,8 @@
                           { "type": "number" },
                           { "type": "string" },
                           { "type": "array", "items": { "type": "number" } },
-                          { "type": "null" }
+                          { "type": "null" },
+                          { "type": "boolean" }
                         ]
                       }
                     }
