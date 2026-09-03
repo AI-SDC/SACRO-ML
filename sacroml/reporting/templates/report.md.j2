@@ -28,7 +28,7 @@ _Generated on {{ report.timestamp }}_
 
 | Parameter | Key | Value | Description |
 |----------|-----|-------|-------------|
-{% for p in experiment.parameters.values() -%}
+{% for p in experiment.parameters.values() if p.parameter -%}
 | **{{ p.parameter.label }}** | `{{ p.parameter.name }}` | **{{ p.value }}** | {{ p.parameter.description or "—" }} |
 {% endfor %}
 
