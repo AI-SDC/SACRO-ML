@@ -27,7 +27,7 @@ from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 @pytest.fixture
 def regression_target():
-    """A fitted regressor with continuous targets and unequal split sizes."""
+    """Fit a regressor with continuous targets and unequal split sizes."""
     rng = np.random.default_rng(414)
     x = rng.normal(size=(400, 3))
     y = 2 * x[:, 0] + x[:, 1] ** 2 + rng.normal(size=400) * (0.2 + abs(x[:, 0]))
@@ -260,7 +260,7 @@ def test_attribute_regression_identifies_categorical_values(tmp_path):
 
 @pytest.mark.parametrize("value", [-2.0, 2.0])
 def test_attribute_regression_numeric_bounds(value):
-    """Nearest predictions bound relevant numeric features, including negative values."""
+    """Nearest predictions bound relevant numeric features, including negative values."""  # noqa: E501
     x = np.array([[a, b] for a in np.linspace(-3, 3, 11) for b in (0.0, 1.0)])
     model = SklearnModel(LinearRegression().fit(x, 2 * x[:, 0]))
     sample = np.array([value, 0.5])
@@ -303,7 +303,7 @@ def test_qmia_nonfinite_regression_fails_explicitly(
 ):
     """A model returning NaN cannot produce a successful risk report."""
     monkeypatch.setattr(
-        regression_target.model, "get_losses", lambda x, y: np.full(len(x), np.nan)
+        regression_target.model, "get_losses", lambda x, _: np.full(len(x), np.nan)
     )
     output = QMIAAttack(output_dir=str(tmp_path), write_report=False).attack(
         regression_target
