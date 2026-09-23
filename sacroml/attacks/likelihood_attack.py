@@ -76,6 +76,7 @@ class LIRAAttack(Attack):
         self.fix_variance: bool = fix_variance
         self.report_individual: bool = report_individual
 
+        self._is_regression = False
         self.result: dict = {}  # individual record results
         if self.report_individual:
             self.result["member_prob"] = []
@@ -131,15 +132,30 @@ class LIRAAttack(Attack):
         # prepare
         shadow_clf: Model = target.model.clone()
         target = utils.check_and_update_dataset(target)
+        self._is_regression = target.model.is_regression
+        if self._is_regression:
+            train_predictions = -np.log(
+                target.model.get_losses(target.X_train, target.y_train) + EPS
+            )[:, None]
+            test_predictions = -np.log(
+                target.model.get_losses(target.X_test, target.y_test) + EPS
+            )[:, None]
+            if self.report_individual:
+                self.result["target_signal"] = self.result.pop("target_logit", [])
+        else:
+            if self.report_individual and "target_signal" in self.result:
+                self.result["target_logit"] = self.result.pop("target_signal")
+            train_predictions = target.model.predict_proba(target.X_train)
+            test_predictions = target.model.predict_proba(target.X_test)
         # execute attack
         self._run(
             shadow_clf,
             target.X_train,
             target.y_train,
-            target.model.predict_proba(target.X_train),
+            train_predictions,
             target.X_test,
             target.y_test,
-            target.model.predict_proba(target.X_test),
+            test_predictions,
         )
         # create the report
         output: dict[str, Any] = self._make_report(target)
@@ -240,6 +256,14 @@ class LIRAAttack(Attack):
             shadow_clf, indices_train, _ = utils.get_shadow_model(
                 self.shadow_path, model_idx
             )
+            if shadow_clf.is_regression:
+                signals = -np.log(
+                    shadow_clf.get_losses(combined_x_train, combined_y_train) + EPS
+                )
+                train_set = set(indices_train)
+                for i, signal in enumerate(signals):
+                    (in_conf if i in train_set else out_conf)[i].append(float(signal))
+                continue
             # map a class to a column
             class_map: dict[int, int] = {
                 c: i for i, c in enumerate(shadow_clf.get_classes())
@@ -276,7 +300,11 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         for i, label in enumerate(combined_y_train):
-            logit: float = utils.logit(combined_target_preds[i, label])
+            logit: float = (
+                float(combined_target_preds[i, 0])
+                if self._is_regression
+                else utils.logit(combined_target_preds[i, label])
+            )
 
             out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
             in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
@@ -298,7 +326,8 @@ class LIRAAttack(Attack):
             if self.report_individual:
                 out_p_norm: float = utils.get_p_normal(np.array(out_conf[i]))
                 self.result["label"].append(label)
-                self.result["target_logit"].append(logit)
+                signal_key = "target_signal" if self._is_regression else "target_logit"
+                self.result[signal_key].append(logit)
                 self.result["out_p_norm"].append(out_p_norm)
                 self.result["out_prob"].append(pr_out)
                 self.result["out_mean"].append(out_mean)
