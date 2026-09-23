@@ -25,10 +25,14 @@ import numpy as np
 from acro import ACRO
 from fpdf import FPDF
 from scipy.stats import ks_2samp
-from sklearn.base import BaseEstimator
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.base import BaseEstimator, is_regressor
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from xgboost.sklearn import XGBClassifier
 
 try:
@@ -36,7 +40,7 @@ try:
 except ImportError:
     torch = None
 
-from sacroml.attacks import report
+from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.target import Target
 
@@ -54,8 +58,8 @@ class StructuralRecordLevelResults:
     """Dataclass to store record-level outcomes for structural attack."""
 
     k_anonymity: list[int]
-    class_disclosure: list[bool]
-    smallgroup_risk: list[bool]
+    class_disclosure: list[bool | None]
+    smallgroup_risk: list[bool | None]
 
 
 @dataclass
@@ -78,15 +82,15 @@ class StructuralAttackResults:
     details (dict | None) : Optional additional metadata.
     """
 
-    test_acc: float
-    train_acc: float
+    test_acc: float | None
+    train_acc: float | None
     generalisation_gap: float
     gen_error_risk: bool
-    unnecessary_risk: bool
-    dof_risk: bool
+    unnecessary_risk: bool | None
+    dof_risk: bool | None
     k_anonymity_risk: bool
-    class_disclosure_risk: bool
-    smallgroup_risk: bool
+    class_disclosure_risk: bool | None
+    smallgroup_risk: bool | None
     details: dict | None = None
 
 
@@ -234,16 +238,18 @@ def get_model_param_count(model: BaseEstimator | torch.nn.Module) -> int:
     """
     if torch is not None and isinstance(model, torch.nn.Module):
         return _get_model_param_count_torch(model)
-    if isinstance(model, DecisionTreeClassifier):
+    if isinstance(model, DecisionTreeClassifier | DecisionTreeRegressor):
         return _get_model_param_count_dt(model)
-    if isinstance(model, RandomForestClassifier):
+    if isinstance(model, RandomForestClassifier | RandomForestRegressor):
         return _get_model_param_count_rf(model)
     if isinstance(model, AdaBoostClassifier):
         return _get_model_param_count_ada(model)
     if isinstance(model, XGBClassifier):
         return _get_model_param_count_xgb(model)
-    if isinstance(model, MLPClassifier):
+    if isinstance(model, MLPClassifier | MLPRegressor):
         return _get_model_param_count_mlp(model)
+    if is_regressor(model) and hasattr(model, "coef_"):
+        return int(np.size(model.coef_) + np.size(model.intercept_))
     logger.warning(
         "Parameter counting not implemented for model type %s", type(model).__name__
     )
@@ -264,7 +270,9 @@ def _get_model_param_count_torch(model: torch.nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def _get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
+def _get_tree_parameter_count(
+    dtree: DecisionTreeClassifier | DecisionTreeRegressor,
+) -> int:
     """Read the tree structure and return the number of learned parameters."""
     n_nodes: int = dtree.tree_.node_count
     is_leaf: np.ndarray = dtree.tree_.children_left == dtree.tree_.children_right
@@ -272,15 +280,20 @@ def _get_tree_parameter_count(dtree: DecisionTreeClassifier) -> int:
     n_internal_nodes: int = n_nodes - n_leaves
     # 2 params (feature, threshold) per internal node
     # (n_classes - 1) params per leaf node for the probability distribution
-    return 2 * n_internal_nodes + n_leaves * (dtree.n_classes_ - 1)
+    outputs = dtree.n_outputs_ if is_regressor(dtree) else dtree.n_classes_ - 1
+    return 2 * n_internal_nodes + n_leaves * outputs
 
 
-def _get_model_param_count_dt(model: DecisionTreeClassifier) -> int:
+def _get_model_param_count_dt(
+    model: DecisionTreeClassifier | DecisionTreeRegressor,
+) -> int:
     """Return the number of trained DecisionTreeClassifier parameters."""
     return _get_tree_parameter_count(model)
 
 
-def _get_model_param_count_rf(model: RandomForestClassifier) -> int:
+def _get_model_param_count_rf(
+    model: RandomForestClassifier | RandomForestRegressor,
+) -> int:
     """Return the number of trained RandomForestClassifier parameters."""
     return sum(_get_tree_parameter_count(member) for member in model.estimators_)
 
@@ -309,7 +322,7 @@ def _get_model_param_count_xgb(model: XGBClassifier) -> int:
     return 2 * n_internal_nodes + (model.n_classes_ - 1) * n_leaves + n_trees
 
 
-def _get_model_param_count_mlp(model: MLPClassifier) -> int:
+def _get_model_param_count_mlp(model: MLPClassifier | MLPRegressor) -> int:
     """Return the number of trained MLPClassifier parameters."""
     weights = model.coefs_
     biases = model.intercepts_
@@ -428,6 +441,8 @@ class StructuralAttack(Attack):
         self.target = target
         model: BaseEstimator | torch.nn.Module = target.model.model
 
+        if target.model.is_regression:
+            target.model.get_losses(target.X_train, target.y_train)
         # Calculate equivalence classes, which are needed for several checks
         eqclass_probas, eqclass_inv_indices, eqclass_counts = (
             self._calculate_equivalence_classes()
@@ -440,8 +455,11 @@ class StructuralAttack(Attack):
 
         # Run different risk assessments, some just return  global value
 
-        test_acc = self.target.model.score(self.target.X_test, self.target.y_test)
-        train_acc = self.target.model.score(self.target.X_train, self.target.y_train)
+        if target.model.is_regression:
+            test_acc, train_acc = None, None
+        else:
+            test_acc = target.model.score(target.X_test, target.y_test)
+            train_acc = target.model.score(target.X_train, target.y_train)
 
         generalisation_gap = self.target.model.get_generalisation_gap(
             self.target.X_train,
@@ -452,20 +470,26 @@ class StructuralAttack(Attack):
         gen_error_risk = self._assess_generalisation_gap_risk()
         dof_risk = self._assess_dof_risk()
 
-        unnecessary_risk = get_unnecessary_risk(model)
+        unnecessary_risk = (
+            None if target.model.is_regression else get_unnecessary_risk(model)
+        )
 
         # Run assessments that return global value and one for each training record
         global_krisk, record_level_kval = self._assess_k_anonymity_risk(
             eqclass_inv_indices, eqclass_counts
         )
 
-        global_cd, record_level_cd = self._assess_class_disclosure_risk(
-            eqclass_probas, eqclass_inv_indices
-        )
-
-        global_small, record_level_small = self._assess_smallgroup_risk(
-            eqclass_probas, eqclass_inv_indices, eqclass_counts
-        )
+        if target.model.is_regression:
+            global_cd, global_small = None, None
+            record_level_cd = [None] * num_samples
+            record_level_small = [None] * num_samples
+        else:
+            global_cd, record_level_cd = self._assess_class_disclosure_risk(
+                eqclass_probas, eqclass_inv_indices
+            )
+            global_small, record_level_small = self._assess_smallgroup_risk(
+                eqclass_probas, eqclass_inv_indices, eqclass_counts
+            )
 
         # make storage for results
         self.results = StructuralAttackResults(
@@ -515,7 +539,7 @@ class StructuralAttack(Attack):
         pval = ks_2samp_results.pvalue
         return pval < ALPHA
 
-    def _assess_dof_risk(self) -> bool:
+    def _assess_dof_risk(self) -> bool | None:
         """Assess risk based on Residual Degrees of Freedom.
 
         Returns
@@ -526,7 +550,11 @@ class StructuralAttack(Attack):
         n_features = self.target.X_train.shape[1]
         n_samples = self.target.X_train.shape[0]
         model: BaseEstimator | torch.nn.Module = self.target.model.model
+        if self.target.model.is_regression:
+            model, _ = utils.unwrap_model(model)
         n_params = get_model_param_count(model)
+        if self.target.model.is_regression and n_params == 0:
+            return None
 
         if n_params < n_features:
             logger.info(
@@ -633,7 +661,7 @@ class StructuralAttack(Attack):
             holds count of members in eacgh equivalence class
         """
         model: BaseEstimator | torch.nn.Module = self.target.model.model
-        if isinstance(model, DecisionTreeClassifier):
+        if isinstance(model, DecisionTreeClassifier | DecisionTreeRegressor):
             return self._dt_get_equivalence_classes()
         return self._get_equivalence_classes_from_probas()
 
@@ -652,12 +680,22 @@ class StructuralAttack(Attack):
 
         # get prediction probabilities for each leaf
         # this means equiv_classes may not be unique in this case (e.g. XOR problem)
-        equiv_classes = self.target.model.predict_proba(self.target.X_train[indices])
+        if self.target.model.is_regression:
+            equiv_classes = self.target.model.predict(
+                self.target.X_train[indices]
+            ).reshape(-1, 1)
+        else:
+            equiv_classes = self.target.model.predict_proba(
+                self.target.X_train[indices]
+            )
         return equiv_classes, inv_indices, counts
 
     def _get_equivalence_classes_from_probas(self) -> tuple:
         """Get equivalence classes based on predicted probabilities."""
-        y_probs = self.target.model.predict_proba(self.target.X_train)
+        if self.target.model.is_regression:
+            y_probs = self.target.model.predict(self.target.X_train).reshape(-1, 1)
+        else:
+            y_probs = self.target.model.predict_proba(self.target.X_train)
         return np.unique(y_probs, axis=0, return_inverse=True, return_counts=True)
 
     def _construct_metadata(self) -> None:
@@ -676,10 +714,22 @@ class StructuralAttack(Attack):
         self.metadata["attack_params"].update(attack_specific_output)
         if self.results:
             self.metadata["global_metrics"] = asdict(self.results)
+            if self.target.model.is_regression:
+                metrics = self.metadata["global_metrics"]
+                for split in ("train", "test"):
+                    metrics.pop(f"{split}_acc")
+                    metrics[f"{split}_mse"] = float(
+                        np.mean(
+                            self.target.model.get_losses(
+                                getattr(self.target, f"X_{split}"),
+                                getattr(self.target, f"y_{split}"),
+                            )
+                        )
+                    )
 
         # Save global and record-level results in the attack metrics
         self.attack_metrics = {}
-        for key, val in asdict(self.results).items():
+        for key, val in self.metadata["global_metrics"].items():
             self.attack_metrics[key] = val
         if self.report_individual and self.record_level_results:
             self.attack_metrics["individual"] = asdict(self.record_level_results)
@@ -696,7 +746,9 @@ class StructuralAttack(Attack):
         attack_metrics_experiment = {}
         attack_metrics_instances = {}
         if self.results:
-            attack_metrics_instances["instance_0"] = asdict(self.results)
+            attack_metrics_instances["instance_0"] = dict(
+                self.metadata["global_metrics"]
+            )
             if self.report_individual and self.record_level_results:
                 individuals = {"individual": asdict(self.record_level_results)}
                 attack_metrics_instances["instance_0"].update(individuals)
