@@ -133,6 +133,7 @@ class LIRAAttack(Attack):
         shadow_clf: Model = target.model.clone()
         target = utils.check_and_update_dataset(target)
         self._is_regression = target.model.is_regression
+        self.result = {key: [] for key in self.result}
         if self._is_regression:
             train_predictions = -np.log(
                 target.model.get_losses(target.X_train, target.y_train) + EPS

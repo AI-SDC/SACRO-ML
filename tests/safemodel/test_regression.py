@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import make_pipeline
@@ -260,7 +260,7 @@ def test_attribute_regression_identifies_categorical_values(tmp_path):
 
 @pytest.mark.parametrize("value", [-2.0, 2.0])
 def test_attribute_regression_numeric_bounds(value):
-    """Nearest predictions bound relevant numeric features, including negative values."""  # noqa: E501
+    """Bound numeric features using nearest predictions, including negative values."""
     x = np.array([[a, b] for a in np.linspace(-3, 3, 11) for b in (0.0, 1.0)])
     model = SklearnModel(LinearRegression().fit(x, 2 * x[:, 0]))
     sample = np.array([value, 0.5])
@@ -328,3 +328,72 @@ def test_regression_pipeline_losses_and_clone(regression_target):
     )
     expected = (model.predict(target.X_test) - target.y_test) ** 2
     np.testing.assert_allclose(clone.get_losses(target.X_test, target.y_test), expected)
+
+
+@pytest.mark.parametrize("memberset", [True, False])
+def test_categorical_regression_inference(memberset):
+    """Infer a relevant feature and abstain when an irrelevant feature gives ties."""
+    x = np.array([[a, b] for a in (0.0, 1.0, 2.0) for b in (0.0, 1.0)])
+    y = 2 * x[:, 0] + 0.25
+    target = Target(
+        model=LinearRegression().fit(x, y),
+        X_train=x,
+        X_test=x[::-1],
+        X_train_orig=x,
+        X_test_orig=x[::-1],
+    )
+    target.add_feature("signal", [0], "int")
+    target.add_feature("irrelevant", [1], "int")
+
+    signal = attribute_attack._infer(target, 0, 0, memberset)
+    irrelevant = attribute_attack._infer(target, 1, 0, memberset)
+
+    assert signal[:2] == (6, 6)
+    assert irrelevant[:2] == (0, 0)
+    assert signal[2] == pytest.approx(100 / 3)
+    assert signal[3:] == (3, 6)
+    assert irrelevant[2:] == (50.0, 2, 6)
+
+
+def test_lira_reuse_after_regression(regression_target, tmp_path):
+    """Reusing LiRA reports only the current target's labels and prediction signals."""
+    target = regression_target
+    attack = LIRAAttack(
+        output_dir=str(tmp_path),
+        write_report=False,
+        n_shadow_models=12,
+        report_individual=True,
+    )
+    regression_output = attack.attack(target)
+    regression_individual = instance(regression_output)["individual"]
+    assert "target_signal" in regression_individual
+
+    train_y = (target.y_train > 0).astype(int)
+    test_y = (target.y_test > 0).astype(int)
+    classifier = Target(
+        model=LogisticRegression().fit(target.X_train, train_y),
+        X_train=target.X_train,
+        X_test=target.X_test,
+        y_train=train_y,
+        y_test=test_y,
+    )
+    shadow_path = tmp_path / "classifier_shadows"
+    shadow_path.mkdir()
+    attack.shadow_path = str(shadow_path)
+    output = attack.attack(classifier)
+    individual = instance(output)["individual"]
+
+    labels = np.concatenate((train_y, test_y))
+    probabilities = classifier.model.predict_proba(
+        np.vstack((target.X_train, target.X_test))
+    )
+    expected = [
+        utils.logit(row[label])
+        for row, label in zip(probabilities, labels, strict=True)
+    ]
+    assert "target_signal" not in individual
+    np.testing.assert_array_equal(individual["label"], labels)
+    np.testing.assert_allclose(individual["target_logit"], expected)
+    assert len(individual["member_prob"]) == len(labels)
+    assert len(regression_individual["target_signal"]) == len(labels)
+    assert "target_logit" not in regression_individual
