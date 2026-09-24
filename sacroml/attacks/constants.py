@@ -32,3 +32,22 @@ Used as the ``mia_threshold`` default for
 :class:`~sacroml.attacks.meta_attack.MetaAttack` so the value can be
 referenced symbolically from tests, examples, and documentation.
 """
+
+STRUCT_VULN_OR: str = "or"
+"""Combination rule: a record is structurally vulnerable when ANY indicator
+fires (k-anonymity below threshold, class disclosure, or small-group risk).
+
+The cautious default: over-flagging is safer than under-flagging in
+disclosure control.
+"""
+
+STRUCT_VULN_AND: str = "and"
+"""Combination rule: a record is structurally vulnerable only when ALL
+indicators fire.
+"""
+
+STRUCT_VULN_RULES: frozenset[str] = frozenset({STRUCT_VULN_OR, STRUCT_VULN_AND})
+"""Valid values for :func:`sacroml.attacks.structural_attack.combine_risk_flags`
+and the ``struct_vuln_rule`` parameter of
+:class:`~sacroml.attacks.meta_attack.MetaAttack`.
+"""

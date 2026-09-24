@@ -712,6 +712,69 @@ def test_meta_struct_vuln_flagged_by_smallgroup_risk(meta_target, tmp_path):
     assert df.loc[df["is_member"] == 1, "struct_vuln"].all()
 
 
+def test_meta_struct_vuln_and_rule_requires_all_indicators(meta_target, tmp_path):
+    """AND rule flags only records where all three indicators fire."""
+    n_train = len(meta_target.X_train)
+    n_test = len(meta_target.X_test)
+    meta = MetaAttack(
+        attacks=[("structural", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+        k_threshold=5,
+        struct_vuln_rule="and",
+    )
+    # record 0 fires all three indicators; later records miss at least one
+    reps = [
+        {
+            "k_anonymity": [3] * n_train,
+            "class_disclosure": [True] * n_train,
+            "smallgroup_risk": [True] + [False] * (n_train - 1),
+        }
+    ]
+    df = meta._build_dataframe(n_train, n_test, {}, {"structural": reps})
+    train_flags = df.loc[df["is_member"] == 1, "struct_vuln"].tolist()
+    assert train_flags[0] is True
+    assert all(flag is False for flag in train_flags[1:])
+    assert df.loc[df["is_member"] == 0, "struct_vuln"].isna().all()
+
+
+def test_meta_struct_vuln_rule_default_is_or(tmp_path):
+    """Default struct_vuln_rule is 'or', preserving existing behaviour."""
+    meta = MetaAttack(
+        attacks=[("structural", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+        k_threshold=5,
+    )
+    assert meta.struct_vuln_rule == "or"
+
+
+def test_meta_invalid_struct_vuln_rule_raises(tmp_path):
+    """Constructing MetaAttack with an unknown rule fails fast."""
+    with pytest.raises(ValueError, match="struct_vuln_rule"):
+        MetaAttack(
+            attacks=[("structural", {})],
+            output_dir=str(tmp_path / "meta"),
+            write_report=False,
+            k_threshold=5,
+            struct_vuln_rule="xor",
+        )
+
+
+def test_meta_struct_vuln_rule_in_report_metadata(meta_target, tmp_path):
+    """The chosen rule is recorded in global_metrics and attack_params."""
+    meta = MetaAttack(
+        attacks=[("structural", {})],
+        output_dir=str(tmp_path / "meta"),
+        write_report=False,
+        k_threshold=5,
+        struct_vuln_rule="and",
+    )
+    output = meta.attack(meta_target)
+    assert output["metadata"]["global_metrics"]["struct_vuln_rule"] == "and"
+    assert output["metadata"]["attack_params"]["struct_vuln_rule"] == "and"
+
+
 # ------------------------------------------------------------------
 # keep_separate / append-to-existing-report.json tests
 # ------------------------------------------------------------------

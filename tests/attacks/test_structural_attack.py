@@ -772,3 +772,58 @@ def test_structural_report_individual_on_populates_individual():
         "class_disclosure",
         "smallgroup_risk",
     }
+
+
+# ------------------------------------------------------------------
+# combine_risk_flags
+# ------------------------------------------------------------------
+
+
+def test_combine_risk_flags_or_flags_any_indicator():
+    """OR rule flags a record when any single indicator fires."""
+    k_vals = [3, 10, 10, 10]
+    cd_vals = [False, True, False, False]
+    sg_vals = [False, False, True, False]
+    flags = sa.combine_risk_flags(k_vals, cd_vals, sg_vals, 5, rule="or")
+    assert flags == [True, True, True, False]
+
+
+def test_combine_risk_flags_or_is_default_rule():
+    """Omitting rule gives OR behaviour."""
+    flags = sa.combine_risk_flags([3, 10], [False, False], [False, False], 5)
+    assert flags == [True, False]
+
+
+def test_combine_risk_flags_and_requires_all_indicators():
+    """AND rule flags only records where every indicator fires."""
+    k_vals = [3, 3, 3, 10, 10]
+    cd_vals = [True, True, False, True, False]
+    sg_vals = [True, False, True, True, False]
+    flags = sa.combine_risk_flags(k_vals, cd_vals, sg_vals, 5, rule="and")
+    assert flags == [True, False, False, False, False]
+
+
+def test_combine_risk_flags_k_equal_threshold_not_at_risk():
+    """K equal to k_threshold is not a violation under either rule."""
+    assert sa.combine_risk_flags([5], [False], [False], 5, rule="or") == [False]
+    assert sa.combine_risk_flags([5], [True], [True], 5, rule="and") == [False]
+
+
+def test_combine_risk_flags_unknown_rule_raises():
+    """An unknown rule raises ValueError naming the valid options."""
+    with pytest.raises(ValueError, match="Unknown rule") as excinfo:
+        sa.combine_risk_flags([3], [True], [True], 5, rule="xor")
+    assert "'and'" in str(excinfo.value)
+    assert "'or'" in str(excinfo.value)
+
+
+def test_combine_risk_flags_length_mismatch_raises():
+    """Mismatched sequence lengths raise ValueError via strict zip."""
+    with pytest.raises(ValueError, match=r"zip\(\)"):
+        sa.combine_risk_flags([3, 4], [True], [True, False], 5, rule="or")
+
+
+def test_combine_risk_flags_empty_returns_empty():
+    """Empty inputs give an empty flag list under both rules."""
+    assert sa.combine_risk_flags([], [], [], 5, rule="or") == []
+    assert sa.combine_risk_flags([], [], [], 5, rule="and") == []
