@@ -20,10 +20,10 @@ DISPLAY_METRICS = [
     "Advantage",
     "FDIF01",
     "PDIF01",
-    "TPR@0.1",
-    "TPR@0.01",
-    "TPR@0.001",
-    "TPR@1e-05",
+    "TPR@0.1%",
+    "TPR@0.01%",
+    "TPR@0.001%",
+    "TPR@1e-05%",
 ]
 
 MAPPINGS = {"PDIF01": lambda x: np.exp(-x)}

@@ -9,6 +9,8 @@ Examples showing how to run the code can be found in the examples folder.
    likelihood
    worst_case
    structural
+   qmia
+   meta
    attribute
    target
    data

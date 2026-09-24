@@ -110,20 +110,35 @@ class TestFPRatTPR(unittest.TestCase):
     """Test code that computes TPR at fixed FPR."""
 
     def test_tpr(self):
-        """Test tpr at fpr."""
+        """Test tpr at fpr using explicit raw rates (fpr_perc=False)."""
         y_true = TRUE_CLASS
         y_score = PREDICTED_PROBS[:, 1]
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0, fpr_perc=False)
+        assert tpr == pytest.approx(2 / 3)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.001, fpr_perc=False)
+        assert tpr == pytest.approx(2 / 3)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.1, fpr_perc=False)
+        assert tpr == pytest.approx(2 / 3)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.4, fpr_perc=False)
+        assert tpr == pytest.approx(1)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=1.0, fpr_perc=False)
+        assert tpr == pytest.approx(1)
+
+    def test_tpr_perc_default(self):
+        """Test tpr at fpr with default fpr_perc=True (Carlini et al. 2022)."""
+        y_true = TRUE_CLASS
+        y_score = PREDICTED_PROBS[:, 1]
+        # fpr=0 as a percentage is 0% FPR (same as raw 0)
         tpr = _tpr_at_fpr(y_true, y_score, fpr=0)
         assert tpr == pytest.approx(2 / 3)
-        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.001)
+        # fpr=10 means 10% FPR (raw 0.1)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=10)
         assert tpr == pytest.approx(2 / 3)
-        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.1)
-        assert tpr == pytest.approx(2 / 3)
-        tpr = _tpr_at_fpr(y_true, y_score, fpr=0.4)
+        # fpr=40 means 40% FPR (raw 0.4)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=40)
         assert tpr == pytest.approx(1)
-        tpr = _tpr_at_fpr(y_true, y_score, fpr=1.0)
-        assert tpr == pytest.approx(1)
-        tpr = _tpr_at_fpr(y_true, y_score, fpr_perc=True, fpr=100.0)
+        # fpr=100 means 100% FPR (raw 1.0)
+        tpr = _tpr_at_fpr(y_true, y_score, fpr=100)
         assert tpr == pytest.approx(1)
 
 

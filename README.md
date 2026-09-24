@@ -73,56 +73,6 @@ attack.attack(target)
 
 For more information, see the [examples](examples/).
 
-## QMIA: Quantile Regression Membership Inference Attack
-
-QMIA implements the attack from [Bertran et al. (NeurIPS 2023)](https://arxiv.org/abs/2307.03694). It trains a histogram-based quantile regressor (`HistGradientBoostingRegressor`) on non-member data to learn per-sample membership thresholds — no shadow models required.
-
-```python
-from sacroml.attacks.qmia_attack import QMIAAttack
-from sacroml.attacks.target import Target
-
-target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-attack = QMIAAttack(alpha=0.01, output_dir="output_qmia")
-attack.attack(target)
-```
-
-Key features:
-
-* **Multiclass support** via the full hinge score: `logit(p_y) - max_{y'!=y} logit(p_{y'})`
-* **Q conditioned on (x, y)** — the regressor learns thresholds per sample and label
-* **FPR control** — the quantile level (1 - alpha) calibrates the false-positive rate on non-members
-
-### Benchmarking
-
-Run the full benchmark comparing QMIA against WorstCase and LiRA:
-
-```bash
-python examples/sklearn/benchmark_qmia_full.py
-```
-
-## MetaAttack: Unified Per-Record Vulnerability Aggregation
-
-`MetaAttack` runs multiple privacy attacks (LiRA, QMIA, Structural) on the same target and aggregates their per-record results into a single vulnerability DataFrame.  Three operating modes are supported via the `behaviour` parameter:
-
-* **`'run_all'`** (default) — run every specified attack from scratch.
-* **`'use_existing_only'`** — read per-record scores from pre-existing `report.json` files without re-running anything.  Useful when expensive attacks such as LiRA have already been run.
-* **`'fill_missing'`** — load existing results and run only the attacks not yet present.
-
-```python
-from sacroml.attacks.meta_attack import MetaAttack
-from sacroml.attacks.target import Target
-
-target = Target(model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-meta = MetaAttack(
-    attacks=[("lira", {}), ("qmia", {}), ("structural", {})],
-    behaviour="run_all",  # alternatives: "use_existing_only", "fill_missing"
-    output_dir="output_meta",
-)
-meta.attack(target)
-```
-
-The vulnerability matrix is saved as `vulnerability_matrix.csv` in `output_dir`.
-
 ## Documentation
 
 See [API documentation](https://ai-sdc.github.io/SACRO-ML/).

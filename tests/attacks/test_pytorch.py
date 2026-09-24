@@ -120,11 +120,11 @@ def test_pytorch() -> None:
     metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
     assert metrics["AUC"] > 0
 
-    # Test generalisation function
-    res = tgt.model.get_generalisation_error(
+    # Test generalisation gap: positive when test error exceeds train error
+    res = tgt.model.get_generalisation_gap(
         tgt.X_train, tgt.y_train, tgt.X_test, tgt.y_test
     )
-    assert res < 0
+    assert res > 0
 
     # Test score function
     res = tgt.model.score(tgt.X_test, tgt.y_test)

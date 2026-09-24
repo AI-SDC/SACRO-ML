@@ -268,13 +268,13 @@ def test_tuning_random_search_with_alt_scorer(common_setup):
         attack_model_param_grid=grid,
         search_type="random",
         search_n_iter=3,
-        tuning_metric="TPR@0.1",
+        tuning_metric="TPR@0.1%",
     )
     output = attack_obj.attack(target)
 
     tuning = output["metadata"]["tuning"]
     assert tuning["search_type"] == "random"
-    assert tuning["tuning_metric"] == "TPR@0.1"
+    assert tuning["tuning_metric"] == "TPR@0.1%"
     assert tuning["n_candidates"] == 3
 
 

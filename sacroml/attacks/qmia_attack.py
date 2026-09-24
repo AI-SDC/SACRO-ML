@@ -4,14 +4,39 @@ Scalable Membership Inference Attacks via Quantile Regression.
 Bertran et al., NeurIPS 2023. https://arxiv.org/abs/2307.03694
 
 Trains a histogram-based quantile regressor on non-member hinge scores to
-learn per-sample membership thresholds.  A sample is predicted as a member
+learn per-sample membership thresholds. A sample is predicted as a member
 when its observed score exceeds the predicted threshold.
 
 Uses ``HistGradientBoostingRegressor`` rather than ``GradientBoostingRegressor``
 for its histogram-based splitting algorithm, which is faster on large datasets.
-"""
 
-from __future__ import annotations
+Key Features
+------------
+* Multiclass support via full hinge score:
+  ``logit(p_y) - max_{y'!=y} logit(p_{y'})``
+* Q conditioned on (x, y): The regressor learns thresholds per sample and label.
+* FPR control: The quantile level ``(1 - alpha)`` calibrates the
+  false-positive rate on non-members.
+
+Benchmarking
+------------
+Run the full benchmark comparing QMIA against WorstCase and LiRA::
+
+    python examples/sklearn/benchmark_qmia_full.py
+
+Example
+-------
+.. code-block:: python
+
+    from sacroml.attacks.qmia_attack import QMIAAttack
+    from sacroml.attacks.target import Target
+
+    target = Target(
+        model=model, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test
+    )
+    attack = QMIAAttack(alpha=0.01, output_dir="output_qmia")
+    attack.attack(target)
+"""
 
 import logging
 import uuid

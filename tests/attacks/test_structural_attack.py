@@ -631,7 +631,7 @@ def test_dt_nondisclosive_xor_reporting():
 
     assert not myattack_dtsafe.results.gen_error_risk, (
         f"gen_error_risk is {myattack_dtsafe.results.gen_error_risk}"
-        f"generalisation error is {myattack_dtsafe.results.generalisation_error}"
+        f"generalisation gap is {myattack_dtsafe.results.generalisation_gap}"
     )
 
     gm = output["metadata"]["global_metrics"]
@@ -641,7 +641,7 @@ def test_dt_nondisclosive_xor_reporting():
 
     for metric in global_only_metrics:
         assert not gm[metric], f"gm[{metric}] should be False"
-    assert round(gm["generalisation_error"], 6) == -0.15625
+    assert round(gm["generalisation_gap"], 6) == 0.15625
 
     for metric in both_metrics:
         assert not gm[metric], f"global metric {metric} should be False"
@@ -679,9 +679,9 @@ def test_dt_disclosive_xor_reporting():
 
     assert not myattack_dtunsafe.results.gen_error_risk, (
         f"gen_error_risk is {myattack_dtunsafe.results.gen_error_risk}"
-        f"generalisation error is {myattack_dtunsafe.results.generalisation_error}"
+        f"generalisation gap is {myattack_dtunsafe.results.generalisation_gap}"
     )
-    assert myattack_dtunsafe.results.generalisation_error == 00
+    assert myattack_dtunsafe.results.generalisation_gap == 0
 
     gm = output["metadata"]["global_metrics"]
     inst = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
@@ -694,7 +694,7 @@ def test_dt_disclosive_xor_reporting():
     for metric in global_only_metrics:
         assert gm[metric], f"gm[{metric}] should be True"
     assert not gm["gen_error_risk"], f"gen_error_risk is {gm['gen_error_risk']}"
-    assert round(gm["generalisation_error"], 6) == 0.0
+    assert round(gm["generalisation_gap"], 6) == 0.0
     for metric in both_metrics:
         assert gm[metric], f"global metric {metric} should be True"
         assert inst[metric], f"instance metric {metric} should be True"

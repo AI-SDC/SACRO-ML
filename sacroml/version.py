@@ -1,3 +1,3 @@
 """SACRO-ML version number."""
 
-__version__ = "1.4.3"
+__version__ = "2.0.0"
