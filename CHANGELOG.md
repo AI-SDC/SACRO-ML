@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.0.1 (Sep 25, 2026)
+
+CHanges:
+*   Chore: Loosen acro dependency cap to <2
+
 ## Version 2.0.0 (Aug 20, 2026)
 
 Changes:
