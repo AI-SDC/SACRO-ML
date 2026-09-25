@@ -665,12 +665,18 @@ class MetaAttack(Attack):
                 sg_vals = reps[0]["smallgroup_risk"]
             else:
                 k_stack = np.array([r["k_anonymity"] for r in reps])
-                cd_stack = np.array([r["class_disclosure"] for r in reps])
-                sg_stack = np.array([r["smallgroup_risk"] for r in reps])
+                cd_stack = np.array([r["class_disclosure"] for r in reps], dtype=float)
+                sg_stack = np.array([r["smallgroup_risk"] for r in reps], dtype=float)
 
                 k_vals = np.round(np.mean(k_stack, axis=0)).astype(int).tolist()
-                cd_vals = (np.mean(cd_stack, axis=0) > 0.5).tolist()
-                sg_vals = (np.mean(sg_stack, axis=0) > 0.5).tolist()
+                cd_vals = [
+                    None if np.isnan(v) else bool(v > 0.5)
+                    for v in np.mean(cd_stack, axis=0)
+                ]
+                sg_vals = [
+                    None if np.isnan(v) else bool(v > 0.5)
+                    for v in np.mean(sg_stack, axis=0)
+                ]
 
             nan_pad = [float("nan")] * n_test
             none_pad = [None] * n_test
@@ -679,7 +685,7 @@ class MetaAttack(Attack):
             data["struct_cd"] = list(cd_vals) + none_pad
             data["struct_sg"] = list(sg_vals) + none_pad
             data["struct_vuln"] = [
-                (k < self.k_threshold or cd or sg)
+                bool(k < self.k_threshold or cd or sg)
                 for k, cd, sg in zip(k_vals, cd_vals, sg_vals, strict=True)
             ] + none_pad
 

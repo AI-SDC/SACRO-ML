@@ -90,6 +90,9 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
+        if target.model.is_regression:
+            target.model.get_losses(target.X_train, target.y_train)
+            target.model.get_losses(target.X_test, target.y_test)
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
         output: dict[str, Any] = self._make_report(target)
@@ -236,6 +239,13 @@ def _infer(
     samples: np.ndarray = target.X_train if memberset else target.X_test
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
+        if target.model.is_regression:
+            distances = np.abs(target.model.predict(x).reshape(-1) - y_values[i])
+            best = np.flatnonzero(np.isclose(distances, distances.min()))
+            if len(best) == 1:
+                total += 1
+                correct += int(np.array_equal(x[best[0]], samples[i]))
+            continue
         confidence: np.ndarray = target.model.predict_proba(x)
         conf: list[float] = []  # confidences for each possible value with correct label
         attr: list[
@@ -517,6 +527,10 @@ def _get_bounds_risk_for_sample(
     bool
         Whether the quantitative feature is at risk for the sample.
     """
+    if target_model.is_regression:
+        return _get_regression_bounds_risk(
+            target_model, feat_id, feat_min, feat_max, sample, protection_limit, feat_n
+        )
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
     # get known label
@@ -549,6 +563,29 @@ def _get_bounds_risk_for_sample(
         and actual_probs[label] == peak
         and lower_bound >= (1 - protection_limit) * actual_value
         and upper_bound <= (1 + protection_limit) * actual_value
+    )
+
+
+def _get_regression_bounds_risk(
+    model: Model,
+    feature: int,
+    minimum: float,
+    maximum: float,
+    sample: np.ndarray,
+    protection_limit: float,
+    n_values: int,
+) -> bool:
+    """Bound an attribute using predictions closest to the known numeric output."""
+    values = np.linspace(minimum, maximum, n_values)
+    candidates = np.repeat(sample[None, :], n_values, axis=0)
+    candidates[:, feature] = values
+    known = model.predict(sample[None, :]).reshape(-1)[0]
+    distances = np.abs(model.predict(candidates).reshape(-1) - known)
+    closest = values[np.isclose(distances, distances.min())]
+    tolerance = protection_limit * abs(sample[feature])
+    return bool(
+        closest.min() >= sample[feature] - tolerance
+        and closest.max() <= sample[feature] + tolerance
     )
 
 
