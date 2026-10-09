@@ -57,6 +57,11 @@ class SklearnModel(Model):
             train_params=train_params,
         )
 
+    @property
+    def is_regression(self) -> bool:
+        """Identify sklearn regressors, including pipelines."""
+        return sklearn.base.is_regressor(self.model)
+
     def get_generalisation_gap(
         self,
         X_train: np.ndarray,
@@ -68,8 +73,8 @@ class SklearnModel(Model):
 
         The generalisation gap is the test error minus the train error,
         positive when the model performs worse on unseen data (e.g. due to
-        overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred.
+        overfitting). Regression uses mean squared error; classification
+        uses error = 1 - accuracy.
 
         Parameters
         ----------
@@ -89,6 +94,11 @@ class SklearnModel(Model):
         """
         if hasattr(self.model, "score"):
             try:
+                if self.is_regression:
+                    return float(
+                        np.mean(self.get_losses(X_test, y_test))
+                        - np.mean(self.get_losses(X_train, y_train))
+                    )
                 train = self.model.score(X_train, y_train)
                 test = self.model.score(X_test, y_test)
                 return (1.0 - test) - (1.0 - train)
@@ -109,8 +119,16 @@ class SklearnModel(Model):
         Returns
         -------
         np.array
-            array of losses (1.0 - proba value for correct label)
+            Squared errors for single-output regression, or
+            1.0 minus the correct-label probability for classification.
         """
+        if self.is_regression:
+            predictions = np.asarray(self.predict(data))
+            labels = np.asarray(labels)
+            shapes = ((len(data),), (len(data), 1))
+            if predictions.shape not in shapes or labels.shape not in shapes:
+                raise ValueError("Regression attacks require a single output per row.")
+            return (predictions.reshape(-1) - labels.reshape(-1)) ** 2
         labelidxs = self.get_label_indices(labels)
         numrows = len(data)
         allprobs = self.model.predict_proba(data)

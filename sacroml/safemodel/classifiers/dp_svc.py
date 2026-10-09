@@ -72,6 +72,7 @@ class DPSVC(SVC):
         self.classes_ = [0, 1]
         self.intercept = None
         self.noisy_weights = None
+        self.kernel = "rbf"  # DPSVC only supports RBF kernel
         self.set_params(**kwargs)
 
     def phi_hat(self, input_vector: np.ndarray) -> np.ndarray:

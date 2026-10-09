@@ -56,6 +56,11 @@ class Model(ABC):
             self.model_name = type(self.model).__name__
             self.model_type = type(self).__name__
 
+    @property
+    def is_regression(self) -> bool:
+        """Return whether this wrapper represents a regression model."""
+        return False
+
     def get_label_indices(self, labels: np.ndarray | csr_matrix) -> np.array:
         """Get array of col_ids for true labels."""
         if isinstance(labels, np.ndarray):
@@ -79,8 +84,7 @@ class Model(ABC):
 
         The generalisation gap is the test error minus the train error,
         positive when the model performs worse on unseen data (e.g. due to
-        overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred.
+        overfitting). The error measure depends on the model's task.
 
         Parameters
         ----------
@@ -113,7 +117,7 @@ class Model(ABC):
         Returns
         -------
         np.array
-            array of losses (1.0 - proba value for correct label)
+            Per-record losses as defined by the concrete model wrapper.
         """
 
     @abstractmethod

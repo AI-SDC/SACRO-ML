@@ -107,7 +107,8 @@ class WorstCaseAttack(Attack):
             Proportion of data to use as a test set for the attack model.
         include_model_correct_feature : bool
             Inclusion of additional feature to hold whether or not the target model
-            made a correct prediction for each example.
+            made a correct prediction for each example. For regression, the
+            additional feature is squared prediction error instead.
         sort_probs : bool
             Whether to sort combined preds (from training and test)
             to have highest probabilities in the first column.
@@ -177,6 +178,7 @@ class WorstCaseAttack(Attack):
             self.tuning_metric = "AUC"
             self._resolved_tuning_scorer = resolve_scorer("AUC")
         self.report_individual: bool = report_individual
+        self._regression_loss_threshold: float | None = None
         self.dummy_attack_metrics: list = []
         self._tuned_params: dict | None = None
         self._tuning_info: dict | None = None
@@ -211,13 +213,22 @@ class WorstCaseAttack(Attack):
         dict
             Attack report.
         """
+        self._regression_loss_threshold = None
         train_c: np.ndarray | None = None
         test_c: np.ndarray | None = None
         # compute target model probas if possible
         if target.has_model() and target.has_data():  # pragma: no cover
-            proba_train = target.model.predict_proba(target.X_train)
-            proba_test = target.model.predict_proba(target.X_test)
-            if self.include_model_correct_feature:
+            if target.model.is_regression:
+                train_losses = target.model.get_losses(target.X_train, target.y_train)
+                test_losses = target.model.get_losses(target.X_test, target.y_test)
+                proba_train = target.model.predict(target.X_train).reshape(-1, 1)
+                proba_test = target.model.predict(target.X_test).reshape(-1, 1)
+                train_c, test_c = train_losses, test_losses
+                self._regression_loss_threshold = float(np.mean(train_losses))
+            else:
+                proba_train = target.model.predict_proba(target.X_train)
+                proba_test = target.model.predict_proba(target.X_test)
+            if self.include_model_correct_feature and not target.model.is_regression:
                 train_c = 1 * (target.y_train == target.model.predict(target.X_train))
                 test_c = 1 * (target.y_test == target.model.predict(target.X_test))
         # use supplied target model probas if unable to compute
@@ -566,6 +577,8 @@ class WorstCaseAttack(Attack):
             if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
                 yeom_preds = mi_test_x[:, -1]
+                if self._regression_loss_threshold is not None:
+                    yeom_preds = yeom_preds <= self._regression_loss_threshold
                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
                 mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
                 mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)
