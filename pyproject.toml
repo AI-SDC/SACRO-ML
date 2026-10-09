@@ -172,6 +172,7 @@ docstring-code-line-length = 80
 "tests/conftest.py" = ["ARG001"]
 "sacroml/attacks/structural_attack.py" = ["PLR2004"]
 "sacroml/safemodel/classifiers/new_model_template.py" = ["C901"]
+"examples/notebooks/*.ipynb" = ["E402"]
 
 [tool.mypy]
 python_version = "3.10"
