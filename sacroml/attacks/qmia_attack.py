@@ -57,12 +57,13 @@ logger = logging.getLogger(__name__)
 
 
 class QMIAAttack(Attack):
-    """Paper-faithful tabular QMIA attack.
+    """Quantile membership inference for tabular targets.
 
-    This implementation focuses on tabular classification. It fits a quantile
-    regressor on public non-member examples (``X_test``, ``y_test``) to predict
-    a sample-dependent threshold for the hinge score. Membership evidence is
-    then the margin between the observed score and the predicted threshold.
+    It fits a quantile regressor on public non-member examples
+    (``X_test``, ``y_test``) to predict a sample-dependent threshold for
+    classification hinge scores or negative squared regression errors.
+    Membership evidence is then the margin between the observed score and the
+    predicted threshold.
     """
 
     def __init__(
@@ -138,13 +139,17 @@ class QMIAAttack(Attack):
 
         target = utils.check_and_update_dataset(target)
 
-        proba_train = target.model.predict_proba(target.X_train)
-        proba_test = target.model.predict_proba(target.X_test)
+        if target.model.is_regression:
+            proba_train = -target.model.get_losses(target.X_train, target.y_train)
+            proba_test = -target.model.get_losses(target.X_test, target.y_test)
+        else:
+            proba_train = target.model.predict_proba(target.X_train)
+            proba_test = target.model.predict_proba(target.X_test)
         if not (np.isfinite(proba_train).all() and np.isfinite(proba_test).all()):
             output = self._make_failed_output(
                 target,
-                "target.model.predict_proba returned non-finite values; "
-                "QMIA cannot score rows with NaN/Inf probabilities.",
+                "Target predictions or losses contain non-finite values; "
+                "QMIA cannot score rows with NaN/Inf values.",
             )
             try:
                 self._write_report(output)
@@ -152,8 +157,11 @@ class QMIAAttack(Attack):
                 logger.warning("Could not write failed report.")
             return output
 
-        train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
-        test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
+        if target.model.is_regression:
+            train_scores, test_scores = proba_train, proba_test
+        else:
+            train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
+            test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
 
         # Train quantile regressor on non-member scores; quantile = 1 - alpha
         # so that a fraction alpha of non-members exceed their own threshold.
@@ -171,7 +179,7 @@ class QMIAAttack(Attack):
         self.quantile_model.fit(x_test_with_y, test_scores)
 
         combined_x = np.vstack((target.X_train, target.X_test))
-        combined_y = np.hstack((target.y_train, target.y_test))
+        combined_y = np.concatenate((target.y_train, target.y_test), axis=0)
         combined_x_with_y = np.column_stack((combined_x, combined_y))
         combined_scores = np.hstack((train_scores, test_scores))
         thresholds = self.quantile_model.predict(combined_x_with_y)

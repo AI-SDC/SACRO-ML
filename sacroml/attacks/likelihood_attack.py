@@ -80,7 +80,7 @@ class LIRAAttack(Attack):
         if self.report_individual:
             self.result["member_prob"] = []
             self.result["label"] = []
-            self.result["target_logit"] = []
+            self.result["target_signal"] = []
             self.result["out_p_norm"] = []
             self.result["out_prob"] = []
             self.result["out_mean"] = []
@@ -130,16 +130,23 @@ class LIRAAttack(Attack):
         """
         # prepare
         shadow_clf: Model = target.model.clone()
+        self.result = {key: [] for key in self.result}
         target = utils.check_and_update_dataset(target)
+        train_labels, test_labels = target.y_train, target.y_test
+        if not target.model.is_regression:
+            classes = target.model.get_classes()
+            train_labels, test_labels = classes[train_labels], classes[test_labels]
+        train_signals = self._get_signals(target.model, target.X_train, train_labels)
+        test_signals = self._get_signals(target.model, target.X_test, test_labels)
         # execute attack
         self._run(
             shadow_clf,
             target.X_train,
             target.y_train,
-            target.model.predict_proba(target.X_train),
+            train_signals,
             target.X_test,
             target.y_test,
-            target.model.predict_proba(target.X_test),
+            test_signals,
         )
         # create the report
         output: dict[str, Any] = self._make_report(target)
@@ -153,10 +160,10 @@ class LIRAAttack(Attack):
         shadow_clf: Model,
         X_train: np.ndarray,
         y_train: np.ndarray,
-        proba_train: np.ndarray,
+        train_signals: np.ndarray,
         X_test: np.ndarray,
         y_test: np.ndarray,
-        proba_test: np.ndarray,
+        test_signals: np.ndarray,
     ) -> None:
         """Run the likelihood test.
 
@@ -168,14 +175,14 @@ class LIRAAttack(Attack):
             Data that was used to train the target model.
         y_train : np.ndarray
             Labels that were used to train the target model.
-        proba_train : np.ndarray
-            Array of predictions produced by the target model on the training data.
+        train_signals : np.ndarray
+            Array of signals produced by the target model on the training data.
         X_test : np.ndarray
             Data that will be used to train the shadow models.
         y_test : np.ndarray
             Labels that will be used to train the shadow models.
-        proba_test : np.ndarray
-            Array of predictions produced by the target model on the shadow data.
+        test_signals : np.ndarray
+            Array of signals produced by the target model on the shadow data.
         """
         logger.info("Running %s LiRA, fix_variance=%s", self.mode, self.fix_variance)
 
@@ -184,8 +191,8 @@ class LIRAAttack(Attack):
 
         combined_data: dict[str, np.ndarray] = {
             "features": np.vstack((X_train, X_test)),
-            "labels": np.hstack((y_train, y_test)),
-            "predictions": np.vstack((proba_train, proba_test)),
+            "labels": np.concatenate((y_train, y_test), axis=0),
+            "signals": np.concatenate((train_signals, test_signals)),
         }
 
         utils.train_shadow_models(
@@ -203,11 +210,42 @@ class LIRAAttack(Attack):
         )
 
         mia_scores, n_normal = self._compute_scores(
-            combined_data["labels"], combined_data["predictions"], out_conf, in_conf
+            combined_data["labels"], combined_data["signals"], out_conf, in_conf
         )
 
         self._save_attack_metrics(mia_scores, n_train_rows, n_shadow_rows, n_normal)
         logger.info("Finished scenario")
+
+    def _get_signals(
+        self, model: Model, data: np.ndarray, labels: np.ndarray
+    ) -> np.ndarray:
+        """Generate one signal per record for target or shadow models."""
+        if model.is_regression:
+            return self._get_regression_signals(model, data, labels)
+        return self._get_classification_signals(model, data, labels)
+
+    @staticmethod
+    def _get_regression_signals(
+        model: Model, data: np.ndarray, labels: np.ndarray
+    ) -> np.ndarray:
+        """Return negative log-MSE signals, with larger values for smaller errors."""
+        return -np.log(model.get_losses(data, labels) + EPS)
+
+    @staticmethod
+    def _get_classification_signals(
+        model: Model, data: np.ndarray, labels: np.ndarray
+    ) -> np.ndarray:
+        """Return correct-class logits, using logit(0) for absent shadow classes."""
+        class_map = {c: i for i, c in enumerate(model.get_classes())}
+        probabilities = model.predict_proba(data)
+        return np.array(
+            [
+                utils.logit(row[class_map[label]])
+                if label in class_map
+                else utils.logit(0)
+                for row, label in zip(probabilities, labels, strict=True)
+            ]
+        )
 
     def _get_shadow_signals(
         self,
@@ -240,30 +278,16 @@ class LIRAAttack(Attack):
             shadow_clf, indices_train, _ = utils.get_shadow_model(
                 self.shadow_path, model_idx
             )
-            # map a class to a column
-            class_map: dict[int, int] = {
-                c: i for i, c in enumerate(shadow_clf.get_classes())
-            }
-            # generate shadow confidences
-            shadow_confidences: np.ndarray = shadow_clf.predict_proba(combined_x_train)
-            train_set: set[int] = set(indices_train)
-            for i, conf in enumerate(shadow_confidences):
-                # logit of the correct class
-                label = class_map.get(combined_y_train[i], -1)
-                # Occasionally, the random data split will result in classes being
-                # absent from the training set. In these cases label will be -1 and
-                # we include logit(0) instead of discarding
-                logit = utils.logit(0) if label < 0 else utils.logit(conf[label])
-                if i not in train_set:
-                    out_conf[i].append(logit)
-                else:
-                    in_conf[i].append(logit)
+            signals = self._get_signals(shadow_clf, combined_x_train, combined_y_train)
+            train_set = set(indices_train)
+            for i, signal in enumerate(signals):
+                (in_conf if i in train_set else out_conf)[i].append(float(signal))
         return out_conf, in_conf
 
     def _compute_scores(
         self,
         combined_y_train: np.ndarray,
-        combined_target_preds: np.ndarray,
+        combined_target_signals: np.ndarray,
         out_conf: dict[int, list[float]],
         in_conf: dict[int, list[float]],
     ) -> tuple[list[list[float]], int]:
@@ -276,13 +300,13 @@ class LIRAAttack(Attack):
         global_out_std: float = self._get_global_std(out_conf)
 
         for i, label in enumerate(combined_y_train):
-            logit: float = utils.logit(combined_target_preds[i, label])
+            signal = float(combined_target_signals[i])
 
             out_mean, out_std = self._get_mean_std(out_conf[i], global_out_std)
             in_mean, in_std = self._get_mean_std(in_conf[i], global_in_std)
 
             pr_in, pr_out = self._get_probabilities(
-                logit=logit,
+                signal=signal,
                 out_mean=out_mean,
                 out_std=out_std,
                 in_mean=in_mean,
@@ -298,7 +322,7 @@ class LIRAAttack(Attack):
             if self.report_individual:
                 out_p_norm: float = utils.get_p_normal(np.array(out_conf[i]))
                 self.result["label"].append(label)
-                self.result["target_logit"].append(logit)
+                self.result["target_signal"].append(signal)
                 self.result["out_p_norm"].append(out_p_norm)
                 self.result["out_prob"].append(pr_out)
                 self.result["out_mean"].append(out_mean)
@@ -312,7 +336,7 @@ class LIRAAttack(Attack):
 
     def _get_probabilities(
         self,
-        logit: float,
+        signal: float,
         out_mean: float,
         out_std: float,
         in_mean: float,
@@ -321,15 +345,15 @@ class LIRAAttack(Attack):
     ) -> tuple[float, float]:
         """Calculate probabilities based on the selected mode."""
         if mode == "offline":
-            pr_out = norm.cdf(logit, loc=out_mean, scale=out_std + EPS)
+            pr_out = norm.cdf(signal, loc=out_mean, scale=out_std + EPS)
             pr_in = 1 - pr_out
         elif mode == "online-carlini":
-            pr_out = -norm.logpdf(logit, out_mean, out_std + EPS)
-            pr_in = -norm.logpdf(logit, in_mean, in_std + EPS)
+            pr_out = -norm.logpdf(signal, out_mean, out_std + EPS)
+            pr_in = -norm.logpdf(signal, in_mean, in_std + EPS)
             pr_in = pr_in - pr_out
             pr_out = -pr_in
         elif mode == "offline-carlini":
-            pr_out = -norm.logpdf(logit, out_mean, out_std + EPS)
+            pr_out = -norm.logpdf(signal, out_mean, out_std + EPS)
             pr_in = -pr_out
         else:
             raise ValueError(f"Unsupported LiRA mode: {mode}")
