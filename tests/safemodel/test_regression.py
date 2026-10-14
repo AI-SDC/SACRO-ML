@@ -25,12 +25,14 @@ from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
 
 
-@pytest.fixture
-def regression_target():
+@pytest.fixture(params=[1, 2])
+def regression_target(request):
     """Fit a regressor with continuous targets and unequal split sizes."""
     rng = np.random.default_rng(414)
     x = rng.normal(size=(400, 3))
     y = 2 * x[:, 0] + x[:, 1] ** 2 + rng.normal(size=400) * (0.2 + abs(x[:, 0]))
+    if request.param == 2:
+        y = np.column_stack((y, 3 * x[:, 2] - y))
     model = DecisionTreeRegressor(random_state=3).fit(x[:140], y[:140])
     return Target(
         model=model, X_train=x[:140], y_train=y[:140], X_test=x[140:], y_test=y[140:]
@@ -60,23 +62,26 @@ def test_regression_labels_are_preserved(regression_target):
     target = regression_target
     before_train = target.y_train.copy()
     before_test = target.y_test.copy()
-    target.y_train = target.y_train[:, None]
+    if target.y_train.ndim == 1:
+        target.y_train = target.y_train[:, None]
     utils.check_and_update_dataset(target)
     np.testing.assert_array_equal(target.y_train, before_train)
     np.testing.assert_array_equal(target.y_test, before_test)
     assert len(target.X_test) == len(before_test)
 
 
-def test_regression_rejects_multiple_outputs():
-    """Multi-output predictions fail explicitly instead of mixing rows."""
+def test_regression_multiple_output_losses():
+    """Average errors within each record, preserving the output vectors."""
     x = np.arange(12).reshape(6, 2)
     y = np.column_stack((x[:, 0], x[:, 1]))
     model = SklearnModel(LinearRegression().fit(x, y))
-    with pytest.raises(ValueError, match="single output"):
-        model.get_losses(x, y)
+    shifted = y + [2, 4]
+    np.testing.assert_allclose(model.get_losses(x, shifted), np.full(6, 10))
+    assert model.get_generalisation_gap(x, y, x, shifted) == pytest.approx(10)
     target = Target(model=model, X_train=x, X_test=x, y_train=y, y_test=y)
-    with pytest.raises(ValueError, match="single output"):
-        utils.check_and_update_dataset(target)
+    utils.check_and_update_dataset(target)
+    np.testing.assert_array_equal(target.y_train, y)
+    np.testing.assert_array_equal(target.y_test, y)
 
 
 def test_regression_target_roundtrip(regression_target, tmp_path):
@@ -95,7 +100,7 @@ def test_regression_target_roundtrip(regression_target, tmp_path):
 
 @pytest.mark.parametrize("include_error", [False, True])
 def test_worstcase_regression(regression_target, tmp_path, include_error, monkeypatch):
-    """A real membership classifier consumes predictions and optional squared errors."""
+    """The membership classifier always consumes one MSE feature per record."""
     attack = WorstCaseAttack(
         output_dir=str(tmp_path),
         write_report=True,
@@ -116,13 +121,24 @@ def test_worstcase_regression(regression_target, tmp_path, include_error, monkey
     output = attack.attack(regression_target)
     assert output["metadata"]["target_task"] == "regression"
     assert 0 <= instance(output)["AUC"] <= 1
-    assert captured[0].shape == (400, 2 if include_error else 1)
+    assert captured[0].shape == (400, 1)
+    expected = np.concatenate(
+        [
+            regression_target.model.get_losses(
+                regression_target.X_train, regression_target.y_train
+            ),
+            regression_target.model.get_losses(
+                regression_target.X_test, regression_target.y_test
+            ),
+        ]
+    )
+    np.testing.assert_allclose(captured[0][:, 0], expected)
+    assert instance(output)["AUC"] > 0.9
     if include_error:
-        assert instance(output)["AUC"] > 0.9
         assert instance(output)["yeom_tpr"] == 1.0
         assert instance(output)["yeom_fpr"] == 0.0
         np.testing.assert_allclose(
-            captured[0][:140, 1],
+            captured[0][:140, 0],
             regression_target.model.get_losses(
                 regression_target.X_train, regression_target.y_train
             ),
@@ -232,10 +248,13 @@ def test_regression_mlp_parameter_count():
     assert get_model_param_count(model) == 7
 
 
-def test_attribute_regression_identifies_categorical_values(tmp_path):
+@pytest.mark.parametrize("multi_output", [False, True])
+def test_attribute_regression_identifies_categorical_values(tmp_path, multi_output):
     """Recover a contributing attribute but abstain when candidates tie."""
     x = np.array([[a, b] for a in (0.0, 1.0, 2.0) for b in (0.0, 1.0, 2.0)])
     y = 2 * x[:, 0] + 0.25
+    if multi_output:
+        y = np.column_stack((np.zeros(len(x)), y))
     target = Target(
         model=LinearRegression().fit(x, y),
         X_train=x,
@@ -259,10 +278,14 @@ def test_attribute_regression_identifies_categorical_values(tmp_path):
 
 
 @pytest.mark.parametrize("value", [-2.0, 2.0])
-def test_attribute_regression_numeric_bounds(value):
+@pytest.mark.parametrize("multi_output", [False, True])
+def test_attribute_regression_numeric_bounds(value, multi_output):
     """Bound numeric features using nearest predictions, including negative values."""
     x = np.array([[a, b] for a in np.linspace(-3, 3, 11) for b in (0.0, 1.0)])
-    model = SklearnModel(LinearRegression().fit(x, 2 * x[:, 0]))
+    y = 2 * x[:, 0]
+    if multi_output:
+        y = np.column_stack((np.zeros(len(x)), y))
+    model = SklearnModel(LinearRegression().fit(x, y))
     sample = np.array([value, 0.5])
     assert attribute_attack._get_bounds_risk_for_sample(model, 0, -3, 3, sample)
     assert not attribute_attack._get_bounds_risk_for_sample(model, 1, 0, 1, sample)
@@ -326,7 +349,8 @@ def test_regression_pipeline_losses_and_clone(regression_target):
     np.testing.assert_allclose(
         clone.predict(target.X_test), model.predict(target.X_test)
     )
-    expected = (model.predict(target.X_test) - target.y_test) ** 2
+    errors = (model.predict(target.X_test) - target.y_test) ** 2
+    expected = errors if errors.ndim == 1 else errors.mean(axis=1)
     np.testing.assert_allclose(clone.get_losses(target.X_test, target.y_test), expected)
 
 
@@ -368,8 +392,8 @@ def test_lira_reuse_after_regression(regression_target, tmp_path):
     regression_individual = instance(regression_output)["individual"]
     assert "target_signal" in regression_individual
 
-    train_y = (target.y_train > 0).astype(int)
-    test_y = (target.y_test > 0).astype(int)
+    train_y = (target.y_train.reshape(140, -1)[:, 0] > 0).astype(int)
+    test_y = (target.y_test.reshape(260, -1)[:, 0] > 0).astype(int)
     classifier = Target(
         model=LogisticRegression().fit(target.X_train, train_y),
         X_train=target.X_train,
@@ -391,9 +415,47 @@ def test_lira_reuse_after_regression(regression_target, tmp_path):
         utils.logit(row[label])
         for row, label in zip(probabilities, labels, strict=True)
     ]
-    assert "target_signal" not in individual
+    assert "target_logit" not in individual
+    assert output["metadata"]["target_task"] == "classification"
     np.testing.assert_array_equal(individual["label"], labels)
-    np.testing.assert_allclose(individual["target_logit"], expected)
+    np.testing.assert_allclose(individual["target_signal"], expected)
     assert len(individual["member_prob"]) == len(labels)
     assert len(regression_individual["target_signal"]) == len(labels)
     assert "target_logit" not in regression_individual
+
+
+@pytest.mark.parametrize("tree", [False, True])
+def test_structural_groups_prediction_vectors(tmp_path, tree):
+    """Equal components do not merge distinct prediction vectors or split rows."""
+    x = np.arange(4)[:, None]
+    y = np.array([[0, 1], [0, 1], [1, 0], [1, 0]])
+    model = DecisionTreeRegressor() if tree else KNeighborsRegressor(n_neighbors=1)
+    target = Target(model=model.fit(x, y), X_train=x, X_test=x, y_train=y, y_test=y)
+    attack = StructuralAttack(
+        output_dir=str(tmp_path), write_report=False, report_individual=True
+    )
+    output = attack.attack(target)
+    assert instance(output)["individual"]["k_anonymity"] == [2, 2, 2, 2]
+    groups, inverse, counts = attack._calculate_equivalence_classes()
+    assert groups.shape == (2, 2)
+    np.testing.assert_array_equal(groups[inverse], y)
+    np.testing.assert_array_equal(counts, [2, 2])
+
+
+def test_lira_classification_signals_with_missing_class():
+    """Shadow signals use class labels and give absent classes logit(0)."""
+    x = np.arange(6)[:, None]
+    model = SklearnModel(LogisticRegression().fit(x, [2, 2, 2, 7, 7, 7]))
+    labels = np.array([2, 7, 9, 2, 7, 9])
+    probabilities = model.predict_proba(x)
+    expected = [
+        utils.logit(probabilities[0, 0]),
+        utils.logit(probabilities[1, 1]),
+        utils.logit(0),
+        utils.logit(probabilities[3, 0]),
+        utils.logit(probabilities[4, 1]),
+        utils.logit(0),
+    ]
+    np.testing.assert_allclose(
+        LIRAAttack._get_classification_signals(model, x, labels), expected
+    )

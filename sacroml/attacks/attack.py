@@ -91,6 +91,7 @@ class Attack(ABC):
         """Create attack report."""
         logger.info("Generating report")
         self._construct_metadata()
+        self.metadata["target_task"] = "classification"
 
         if target.model is not None:
             self.metadata["target_model"] = target.model.model_name

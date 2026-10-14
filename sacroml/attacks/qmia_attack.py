@@ -179,7 +179,7 @@ class QMIAAttack(Attack):
         self.quantile_model.fit(x_test_with_y, test_scores)
 
         combined_x = np.vstack((target.X_train, target.X_test))
-        combined_y = np.hstack((target.y_train, target.y_test))
+        combined_y = np.concatenate((target.y_train, target.y_test), axis=0)
         combined_x_with_y = np.column_stack((combined_x, combined_y))
         combined_scores = np.hstack((train_scores, test_scores))
         thresholds = self.quantile_model.predict(combined_x_with_y)

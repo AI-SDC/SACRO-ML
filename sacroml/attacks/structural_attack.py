@@ -683,7 +683,7 @@ class StructuralAttack(Attack):
         if self.target.model.is_regression:
             equiv_classes = self.target.model.predict(
                 self.target.X_train[indices]
-            ).reshape(-1, 1)
+            ).reshape(len(indices), -1)
         else:
             equiv_classes = self.target.model.predict_proba(
                 self.target.X_train[indices]
@@ -693,7 +693,9 @@ class StructuralAttack(Attack):
     def _get_equivalence_classes_from_probas(self) -> tuple:
         """Get equivalence classes based on predicted probabilities."""
         if self.target.model.is_regression:
-            y_probs = self.target.model.predict(self.target.X_train).reshape(-1, 1)
+            y_probs = self.target.model.predict(self.target.X_train).reshape(
+                len(self.target.X_train), -1
+            )
         else:
             y_probs = self.target.model.predict_proba(self.target.X_train)
         return np.unique(y_probs, axis=0, return_inverse=True, return_counts=True)

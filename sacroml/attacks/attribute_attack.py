@@ -240,7 +240,8 @@ def _infer(
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
         if target.model.is_regression:
-            distances = np.abs(target.model.predict(x).reshape(-1) - y_values[i])
+            predictions = target.model.predict(x).reshape(len(x), -1)
+            distances = np.linalg.norm(predictions - y_values[i], axis=1)
             best = np.flatnonzero(np.isclose(distances, distances.min()))
             if len(best) == 1:
                 total += 1
@@ -579,8 +580,9 @@ def _get_regression_bounds_risk(
     values = np.linspace(minimum, maximum, n_values)
     candidates = np.repeat(sample[None, :], n_values, axis=0)
     candidates[:, feature] = values
-    known = model.predict(sample[None, :]).reshape(-1)[0]
-    distances = np.abs(model.predict(candidates).reshape(-1) - known)
+    known = model.predict(sample[None, :]).reshape(-1)
+    predictions = model.predict(candidates).reshape(n_values, -1)
+    distances = np.linalg.norm(predictions - known, axis=1)
     closest = values[np.isclose(distances, distances.min())]
     tolerance = protection_limit * abs(sample[feature])
     return bool(

@@ -119,16 +119,13 @@ class SklearnModel(Model):
         Returns
         -------
         np.array
-            Squared errors for single-output regression, or
+            Per-record MSE averaged across regression outputs, or
             1.0 minus the correct-label probability for classification.
         """
         if self.is_regression:
-            predictions = np.asarray(self.predict(data))
-            labels = np.asarray(labels)
-            shapes = ((len(data),), (len(data), 1))
-            if predictions.shape not in shapes or labels.shape not in shapes:
-                raise ValueError("Regression attacks require a single output per row.")
-            return (predictions.reshape(-1) - labels.reshape(-1)) ** 2
+            predictions = np.asarray(self.predict(data)).reshape(len(data), -1)
+            labels = np.asarray(labels).reshape(len(data), -1)
+            return np.mean((predictions - labels) ** 2, axis=1)
         labelidxs = self.get_label_indices(labels)
         numrows = len(data)
         allprobs = self.model.predict_proba(data)

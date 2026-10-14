@@ -107,8 +107,8 @@ class WorstCaseAttack(Attack):
             Proportion of data to use as a test set for the attack model.
         include_model_correct_feature : bool
             Inclusion of additional feature to hold whether or not the target model
-            made a correct prediction for each example. For regression, the
-            additional feature is squared prediction error instead.
+            made a correct prediction for each example. Regression always uses
+            per-record MSE as input; this option also enables its Yeom comparison.
         sort_probs : bool
             Whether to sort combined preds (from training and test)
             to have highest probabilities in the first column.
@@ -221,8 +221,8 @@ class WorstCaseAttack(Attack):
             if target.model.is_regression:
                 train_losses = target.model.get_losses(target.X_train, target.y_train)
                 test_losses = target.model.get_losses(target.X_test, target.y_test)
-                proba_train = target.model.predict(target.X_train).reshape(-1, 1)
-                proba_test = target.model.predict(target.X_test).reshape(-1, 1)
+                proba_train = train_losses[:, None]
+                proba_test = test_losses[:, None]
                 train_c, test_c = train_losses, test_losses
                 self._regression_loss_threshold = float(np.mean(train_losses))
             else:
@@ -323,7 +323,11 @@ class WorstCaseAttack(Attack):
 
         logger.info("Creating MIA data")
 
-        if self.include_model_correct_feature and train_correct is not None:
+        if (
+            self.include_model_correct_feature
+            and train_correct is not None
+            and self._regression_loss_threshold is None
+        ):
             proba_train = np.hstack((proba_train, train_correct[:, None]))
             proba_test = np.hstack((proba_test, test_correct[:, None]))
 
