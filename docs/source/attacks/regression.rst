@@ -2,8 +2,8 @@ Regression targets
 ==================
 
 The attack entry points accept scikit-learn regressors, including pipelines,
-with a single numeric output per record. Construct a ``Target`` with the fitted
-model and the original numeric ``y_train`` and ``y_test``. Do not encode the
+with one or more numeric outputs per record. Construct a ``Target`` with the
+fitted model and the original numeric ``y_train`` and ``y_test``. Do not encode the
 numeric targets as classes or supply fabricated class probabilities.
 
 .. code-block:: python
@@ -17,35 +17,35 @@ numeric targets as classes or supply fabricated class probabilities.
         model=model, X_train=X_train, y_train=y_train,
         X_test=X_test, y_test=y_test,
     )
-    attack = WorstCaseAttack(
-        output_dir="regression_results",
-        include_model_correct_feature=True,
-    )
+    attack = WorstCaseAttack(output_dir="regression_results")
     result = attack.attack(target)
 
 Losses and membership attacks
 -----------------------------
 
-Regression loss is squared prediction error, ``(prediction - target) ** 2``.
+Regression loss is one MSE per record, averaging squared errors across its
+output vector. For one-dimensional targets this is ``(prediction - target) ** 2``.
 The generalisation gap is test MSE minus training MSE. Membership still has two
 classes (member and non-member), so its AUC, TPR and FPR retain their existing
-meaning even though the target model predicts a number.
+meaning even though the target model predicts numeric outputs.
 
-* WorstCase trains its membership classifier on numeric predictions. With
-  ``include_model_correct_feature=True``, the additional feature is squared
-  error. Its Yeom comparison flags errors no greater than the training MSE.
-* LiRA fits its existing shadow-model likelihoods to
-  ``-log(squared_error + 1e-16)`` for both target and shadow models. Larger
-  signals mean smaller errors. Individual regression reports call this field
-  ``target_signal``, not ``target_logit``.
-* QMIA learns quantiles of negative squared error instead of classification
+* WorstCase trains its membership classifier on per-record MSE by default.
+  ``include_model_correct_feature=True`` enables the Yeom comparison, which
+  flags errors no greater than the training MSE, without duplicating the input.
+* LiRA currently fits its shadow-model likelihoods to ``-log(MSE + 1e-16)``
+  for both target and shadow models. Larger signals mean smaller errors.
+  Individual reports use ``target_signal`` for both regression and classification.
+  The choice between log-MSE and raw MSE is pending scientific review; neither
+  transformation guarantees normally distributed signals.
+* QMIA learns quantiles of negative per-record MSE instead of classification
   hinge scores. Its membership margin is the observed signal minus the learned
   quantile threshold.
 
 These are error-based adaptations of the existing attacks. Their effectiveness
 and calibration must be checked on the intended regression dataset; accepting a
 regressor does not establish that a particular attack is well calibrated.
-Classification score calculations are unchanged.
+Classification score calculations are unchanged. Report metadata identifies
+``target_task`` as either ``classification`` or ``regression``.
 
 Attribute inference
 -------------------
@@ -53,7 +53,7 @@ Attribute inference
 The attacker knows the original model prediction, as in the existing
 classification implementation. For categorical attributes, the attack tries
 each candidate and selects the one whose prediction is closest to that known
-numeric output. Numerically tied candidates cause the attack to abstain.
+output vector, using Euclidean distance. Numerically tied candidates cause the attack to abstain.
 For quantitative attributes, it searches the existing candidate grid and checks
 whether all closest candidates lie within the existing protection interval.
 The interval uses the absolute attribute value so negative values are handled.
@@ -65,7 +65,7 @@ Structural and meta attacks
 
 Structural regression reports include train/test MSE, the loss-distribution
 comparison, and k-anonymity groups formed from tree leaves (for a direct decision
-tree) or identical predictions (for other estimators and pipelines). These are
+tree) or identical prediction vectors (for other estimators and pipelines). These are
 exact groups, not tolerance-based groups for near-equal predictions.
 
 Parameter counting supports regression trees, random forests, linear estimators
@@ -83,8 +83,8 @@ regression estimators such as kNN.
 Limits
 ------
 
-This support covers single-output scikit-learn regression. Multi-output targets
-and PyTorch regression are not covered. Existing PyTorch classification is
+This support covers single- and multi-output scikit-learn regression.
+PyTorch regression is not covered. Existing PyTorch classification is
 unchanged. Classification-specific structural criteria require a separately
 agreed definition before they can assess regression models.
 

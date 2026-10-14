@@ -55,9 +55,9 @@ def check_and_update_dataset(target: Target) -> Target:
     if target.model.is_regression:
         for name in ("y_train", "y_test"):
             values = np.asarray(getattr(target, name))
-            if values.ndim > 2 or (values.ndim == 2 and values.shape[1] != 1):
-                raise ValueError("Regression attacks require a single output per row.")
-            setattr(target, name, values.reshape(-1))
+            if values.ndim == 2 and values.shape[1] == 1:
+                values = values.reshape(-1)
+            setattr(target, name, values)
         return target
 
     classes = list(target.model.get_classes())
