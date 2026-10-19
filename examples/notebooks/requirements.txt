@@ -1,0 +1,3 @@
+sacroml==2.0.0
+pdf2image
+notebook

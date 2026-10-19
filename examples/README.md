@@ -62,9 +62,9 @@ The `sacroml` package provides three basic commands:
 
 A collection of user guides can be found in the [`user_stories`](user_stories) folder of this repository. These guides include configurable examples from the perspective of both a researcher and a TRE, with separate scripts for each. Instructions on how to use each of these scripts and which scripts to use are included in the README located in the folder.
 
-## Notebooks
+## SafeModel Notebooks
 
-The `notebooks` folder contains short tutorials on the basic concept of "safe" versions of machine learning algorithms, and examples of some specific algorithms.
+The `safemodel_notebooks` folder contains short tutorials on the basic concept of "safe" versions of machine learning algorithms, and examples of some specific algorithms.
 
 ## Risk Examples
 
