@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+import pytest
+from sklearn.cluster import KMeans
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
@@ -118,3 +121,43 @@ def test_sklearn() -> None:
     indices = target.model.get_label_indices(target.y_test)
     for i in range(len(target.y_test)):
         assert testloss[i] == 1.0 - predictions[i][indices[i]]
+
+
+def test_sklearn_task_infer_classifier() -> None:
+    """Test scikit-learn model_task infer classifier."""
+    model = RandomForestClassifier(bootstrap=False)
+    target = Target(model=model)
+    assert target.model.model_task == ModelTask.CLASSIFIER
+
+
+def test_sklearn_task_infer_regressor() -> None:
+    """Test scikit-learn model_task infer regressor."""
+    model = RandomForestRegressor(bootstrap=False)
+    target = Target(model=model)
+    assert target.model.model_task == ModelTask.REGRESSOR
+
+
+def test_sklearn_task_unsupported() -> None:
+    """Test scikit-learn model_task unsupported."""
+    model = RandomForestRegressor(bootstrap=False)
+    with pytest.raises(ValueError, match="Unsupported model_task"):
+        _ = Target(model=model, model_task="aa")
+
+
+def test_sklearn_task_regressor() -> None:
+    """Test scikit-learn model_task regressor."""
+    model = RandomForestRegressor(bootstrap=False)
+    target = Target(model=model, model_task="regressor")
+    assert target.model.model_task == ModelTask.REGRESSOR
+
+
+def test_sklearn_task_infer_preprocessor() -> None:
+    """Test model_task inferred as preprocessor."""
+    target = Target(model=StandardScaler())
+    assert target.model.model_task == ModelTask.PREPROCESSOR
+
+
+def test_sklearn_task_infer_clusterer() -> None:
+    """Test scikit-learn model_task infer clusterer."""
+    target = Target(model=KMeans(n_clusters=2, random_state=1))
+    assert target.model.model_task == ModelTask.CLUSTERER

@@ -27,7 +27,7 @@ from scipy.stats import norm
 from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -109,10 +109,11 @@ class LIRAAttack(Attack):
             target.has_model()
             and target.has_data()
             and all(hasattr(target.model, method) for method in required_methods)
+            and target.model.model_task == ModelTask.CLASSIFIER
         ):
             return True
 
-        logger.info("WARNING: LiRA requires a loadable model.")
+        logger.info("WARNING: LiRA requires a loadable classifier model.")
         return False
 
     def _attack(self, target: Target) -> dict:
