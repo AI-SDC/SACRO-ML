@@ -16,6 +16,7 @@ import joblib
 from dictdiffer import diff
 
 from sacroml.attacks.factory import attack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.target import Target
 
 from .reporting import get_reporting_string
@@ -619,7 +620,7 @@ class SafeModel:
         data: list[dict] = [output]
         # save output
         if target is None:
-            target = Target(model=self)
+            target = Target(model=self, model_task=ModelTask.CLASSIFIER)
         target.add_safemodel_results(data)
         target.save(path, ext)
 
