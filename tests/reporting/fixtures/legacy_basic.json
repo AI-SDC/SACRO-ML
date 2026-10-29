@@ -1,0 +1,91 @@
+{
+    "WorstCase attack_de2c5fc0-fb0c-4925-ac4d-26662fe7f786": {
+        "log_id": "de2c5fc0-fb0c-4925-ac4d-26662fe7f786",
+        "log_time": "05/11/2025 16:54:34",
+        "metadata": {
+            "sacroml_version": "1.4.0",
+            "attack_name": "WorstCase attack",
+            "attack_params": {
+                "output_dir": "training_artefacts",
+                "write_report": true,
+                "n_reps": 2,
+                "p_thresh": 0.05
+            },
+            "global_metrics": {
+                "null_auc_3sd_range": "0.4629 -> 0.5371",
+                "n_sig_auc_p_vals": 2
+            },
+            "baseline_global_metrics": {
+                "n_sig_auc_p_vals": 0
+            },
+            "target_model": "RandomForestClassifier",
+            "target_model_params": {},
+            "target_train_params": {}
+        },
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {
+                    "TPR": 0.019,
+                    "FPR": 0.007,
+                    "ACC": 0.7,
+                    "AUC": 0.57,
+                    "P_HIGHER_AUC": 3.05e-09,
+                    "FDIF01": 0.64,
+                    "PDIF01": 31.5,
+                    "TPR@0.1": 0.43
+                },
+                "instance_1": {
+                    "TPR": 0.012,
+                    "FPR": 0.004,
+                    "ACC": 0.7,
+                    "AUC": 0.58,
+                    "P_HIGHER_AUC": 1.8e-13,
+                    "FDIF01": 0.57,
+                    "PDIF01": 28.1,
+                    "TPR@0.1": 0.39
+                }
+            }
+        }
+    },
+    "LiRA Attack_4e9b5db3-f93f-43dc-9a67-1035a68b892a": {
+        "log_id": "4e9b5db3-f93f-43dc-9a67-1035a68b892a",
+        "log_time": "05/11/2025 16:55:01",
+        "metadata": {
+            "sacroml_version": "1.4.0",
+            "attack_name": "LiRA Attack",
+            "attack_params": {
+                "output_dir": "training_artefacts",
+                "n_shadow_models": 100,
+                "p_thresh": 0.05
+            },
+            "global_metrics": {
+                "AUC_sig": "Significant at p=0.05"
+            },
+            "target_model": "RandomForestClassifier",
+            "target_model_params": {},
+            "target_train_params": {}
+        },
+        "attack_experiment_logger": {
+            "attack_instance_logger": {
+                "instance_0": {
+                    "TPR": 0.76,
+                    "FPR": 0.49,
+                    "AUC": 0.75,
+                    "P_HIGHER_AUC": 0.0,
+                    "fpr": [
+                        0.0,
+                        0.5,
+                        1.0
+                    ],
+                    "tpr": [
+                        0.0,
+                        0.7,
+                        1.0
+                    ],
+                    "n_pos_test_examples": 398,
+                    "n_neg_test_examples": 171
+                }
+            }
+        }
+    }
+}

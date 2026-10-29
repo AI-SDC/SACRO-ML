@@ -1,0 +1,780 @@
+{
+    "metric_catalog": {
+        "version": "metrics_sacroml_v1",
+        "metrics": {
+            "AUC": {
+                "label": "Area Under ROC Curve",
+                "description": "Measures the ability of the attack to distinguish members from non-members.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "TPR": {
+                "label": "True Positive Rate",
+                "description": "Fraction of true members correctly identified.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "FPR": {
+                "label": "False Positive Rate",
+                "description": "Fraction of non-members incorrectly identified as members.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "risk_score": {
+                "label": "Aggregate Risk Score",
+                "description": "Summary privacy risk score aggregated from multiple attacks.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "summary",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean"
+                ],
+                "notes": "Interpretation depends on aggregation method."
+            },
+            "Advantage": {
+                "label": "Attack advantage",
+                "description": "Difference between true positive rate and false positive rate.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "F1score": {
+                "label": "F1 score",
+                "description": "Harmonic mean of precision and recall.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "ACC": {
+                "label": "Accuracy",
+                "description": "Overall classification accuracy.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "AUC_sig": {
+                "label": "AUC significance",
+                "description": "Statistical significance of AUC relative to baseline.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Qualitative significance annotation."
+            },
+            "PDIF_sig": {
+                "label": "PDIF significance",
+                "description": "Statistical significance of PDIF relative to baseline.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Qualitative significance annotation."
+            },
+            "FAR": {
+                "label": "False Acceptance Rate",
+                "description": "Fraction of non-members incorrectly accepted as members.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "TNR": {
+                "label": "True Negative Rate",
+                "description": "Fraction of non-members correctly identified as non-members.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "PPV": {
+                "label": "Positive Predictive Value",
+                "description": "Probability that an instance predicted as a member is truly a member.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": "Also known as precision."
+            },
+            "NPV": {
+                "label": "Negative Predictive Value",
+                "description": "Probability that an instance predicted as a non-member is truly a non-member.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "FNR": {
+                "label": "False Negative Rate",
+                "description": "Fraction of members incorrectly classified as non-members.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "performance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": null
+            },
+            "P_HIGHER_AUC": {
+                "label": "Probability of Higher AUC",
+                "description": "Estimated probability that the observed AUC exceeds the null or baseline AUC.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "significance",
+                "typical_range": [
+                    0.0,
+                    1.0
+                ],
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max"
+                ],
+                "notes": "Often derived from permutation or bootstrap tests."
+            },
+            "pred_prob_var": {
+                "label": "Prediction Probability Variance",
+                "description": "Variance of predicted membership probabilities.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "diagnostic",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": "Used as a stability or confidence diagnostic."
+            },
+            "null_auc_3sd_range": {
+                "label": "Null AUC \u00b13\u03c3 range",
+                "description": "Expected AUC range under the null hypothesis, defined as \u00b13 standard deviations.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Represented as a string range."
+            },
+            "n_sig_auc_p_vals": {
+                "label": "Number of significant AUC p-values",
+                "description": "Count of repetitions where AUC p-values are statistically significant.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "sum",
+                    "min",
+                    "max"
+                ],
+                "notes": null
+            },
+            "n_sig_auc_p_vals_corrected": {
+                "label": "Number of significant AUC p-values (corrected)",
+                "description": "Count of statistically significant AUC p-values after multiple-testing correction.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "sum",
+                    "min",
+                    "max"
+                ],
+                "notes": null
+            },
+            "n_sig_pdif_vals": {
+                "label": "Number of significant PDIF values",
+                "description": "Count of PDIF values that are statistically significant.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "sum",
+                    "min",
+                    "max"
+                ],
+                "notes": null
+            },
+            "n_sig_pdif_vals_corrected": {
+                "label": "Number of significant PDIF values (corrected)",
+                "description": "Count of statistically significant PDIF values after multiple-testing correction.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "significance",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "sum",
+                    "min",
+                    "max"
+                ],
+                "notes": null
+            },
+            "n_pos_test_examples": {
+                "label": "Number of positive test examples",
+                "description": "Total number of member (positive) examples in the test set.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "dataset",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "min",
+                    "max",
+                    "mean"
+                ],
+                "notes": "Used to contextualise attack performance metrics."
+            },
+            "n_neg_test_examples": {
+                "label": "Number of negative test examples",
+                "description": "Total number of non-member (negative) examples in the test set.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "dataset",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "min",
+                    "max",
+                    "mean"
+                ],
+                "notes": "Used to contextualise attack performance metrics."
+            },
+            "n_normal": {
+                "label": "Number of normal examples",
+                "description": "Number of examples considered normal or non-attacked in the evaluation.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "dataset",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "min",
+                    "max",
+                    "mean"
+                ],
+                "notes": "Interpretation depends on attack context."
+            },
+            "roc_thresh": {
+                "label": "ROC decision thresholds",
+                "description": "Decision thresholds used to compute ROC-based metrics.",
+                "units": null,
+                "higher_is_better": null,
+                "category": "diagnostic",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Typically used only for curve construction and diagnostics."
+            },
+            "dof_risk": {
+                "label": "Dof Risk",
+                "description": "Degrees-of-freedom risk: model is overly complex relative to the training data size.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "structural_risk",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Boolean structural-attack risk flag; True indicates a potential vulnerability."
+            },
+            "k_anonymity_risk": {
+                "label": "K Anonymity Risk",
+                "description": "K-anonymity risk: training records fall into equivalence classes smaller than k.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "structural_risk",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Boolean structural-attack risk flag; True indicates a potential vulnerability."
+            },
+            "class_disclosure_risk": {
+                "label": "Class Disclosure Risk",
+                "description": "Class disclosure risk: outputs may reveal small disclosive groups.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "structural_risk",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Boolean structural-attack risk flag; True indicates a potential vulnerability."
+            },
+            "unnecessary_risk": {
+                "label": "Unnecessary Risk",
+                "description": "Unnecessary risk: hyperparameters set to values associated with higher MIA risk.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "structural_risk",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Boolean structural-attack risk flag; True indicates a potential vulnerability."
+            },
+            "lowvals_cd_risk": {
+                "label": "Lowvals Cd Risk",
+                "description": "Low-values class disclosure risk: class frequency within an equivalence class below a safe threshold.",
+                "units": null,
+                "higher_is_better": false,
+                "category": "structural_risk",
+                "typical_range": null,
+                "allowed_aggregations": [
+                    "count"
+                ],
+                "notes": "Boolean structural-attack risk flag; True indicates a potential vulnerability."
+            }
+        },
+        "pattern_metrics": [
+            {
+                "pattern": "^(fpr|tpr)$",
+                "label_template": "{metric_name} curve",
+                "description": "Curve-valued metric represented as an array of rates evaluated across decision thresholds. Intended for paired use (e.g. fpr vs tpr).",
+                "units": null,
+                "higher_is_better": null,
+                "category": "curve",
+                "allowed_aggregations": [
+                    "min",
+                    "max"
+                ],
+                "notes": "Curve-valued metric. Should not be aggregated directly; use to derive scalar summaries such as AUC."
+            },
+            {
+                "pattern": "^(FMAX|FMIN|FDIF|PDIF)[0-9]+$",
+                "label_template": "{metric_name}",
+                "description": "Threshold-based extremum or difference metric computed at a specified operating point.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "threshold_analysis",
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max"
+                ],
+                "notes": "Metric name suffix indicates the threshold or operating point."
+            },
+            {
+                "pattern": "^TPR@.+$",
+                "label_template": "TPR at threshold {metric_name}",
+                "description": "True Positive Rate evaluated at a specific decision threshold indicated in the metric name.",
+                "units": null,
+                "higher_is_better": true,
+                "category": "performance",
+                "allowed_aggregations": [
+                    "mean",
+                    "min",
+                    "max",
+                    "stddev",
+                    "var"
+                ],
+                "notes": "Metric suffix indicates the decision threshold (e.g. TPR@0.5, TPR@0.1)."
+            }
+        ]
+    },
+    "parameter_catalog": {
+        "version": "params_v1",
+        "parameters": {
+            "n_reps": {
+                "label": "Number of repetitions",
+                "description": "Number of independent repetitions used to estimate variability.",
+                "parameter_scope": "attack",
+                "value_type": "integer",
+                "notes": null
+            },
+            "p_thresh": {
+                "label": "Probability threshold",
+                "description": "Threshold used to decide membership based on predicted probability.",
+                "parameter_scope": "attack",
+                "value_type": "float",
+                "notes": null
+            },
+            "attack_model": {
+                "label": "Attack model class",
+                "description": "Classifier used by the attacker.",
+                "parameter_scope": "attack",
+                "value_type": "string",
+                "notes": null
+            },
+            "n_shadow_models": {
+                "label": "Number of shadow models",
+                "description": "How many shadow models are trained to emulate the target.",
+                "parameter_scope": "attack",
+                "value_type": "integer",
+                "notes": null
+            },
+            "aggregation_method": {
+                "label": "Aggregation method",
+                "description": "Method used to aggregate results from multiple attacks.",
+                "parameter_scope": "attack",
+                "value_type": "string",
+                "notes": null
+            },
+            "mode": {
+                "label": "Execution mode",
+                "description": "Mode in which the attack operates, e.g. offline or online.",
+                "parameter_scope": "attack",
+                "value_type": "string",
+                "notes": null
+            },
+            "fix_variance": {
+                "label": "Fix variance",
+                "description": "Whether to fix variance when estimating likelihood ratios.",
+                "parameter_scope": "attack",
+                "value_type": "boolean",
+                "notes": null
+            },
+            "report_individual": {
+                "label": "Report individual results",
+                "description": "Whether to report per-instance attack results.",
+                "parameter_scope": "attack",
+                "value_type": "boolean",
+                "notes": null
+            },
+            "output_dir": {
+                "label": "Output directory",
+                "description": "Directory in which attack artefacts are written.",
+                "parameter_scope": "global",
+                "value_type": "string",
+                "notes": null
+            },
+            "write_report": {
+                "label": "Write report",
+                "description": "Whether a report should be written to disk.",
+                "parameter_scope": "global",
+                "value_type": "boolean",
+                "notes": null
+            },
+            "reproduce_split": {
+                "label": "Reproduce split seed",
+                "description": "Seed used to reproduce the train/test split.",
+                "parameter_scope": "attack",
+                "value_type": "integer",
+                "notes": null
+            },
+            "n_dummy_reps": {
+                "label": "Number of dummy repetitions",
+                "description": "Number of dummy or null repetitions used for baseline estimation.",
+                "parameter_scope": "attack",
+                "value_type": "integer",
+                "notes": null
+            },
+            "train_beta": {
+                "label": "Training beta",
+                "description": "Beta parameter applied during training phase of the attack.",
+                "parameter_scope": "attack",
+                "value_type": "number",
+                "notes": null
+            },
+            "test_beta": {
+                "label": "Testing beta",
+                "description": "Beta parameter applied during testing phase of the attack.",
+                "parameter_scope": "attack",
+                "value_type": "number",
+                "notes": null
+            },
+            "test_prop": {
+                "label": "Test proportion",
+                "description": "Proportion of data reserved for testing.",
+                "parameter_scope": "training",
+                "value_type": "number",
+                "notes": null
+            },
+            "include_model_correct_feature": {
+                "label": "Include model correctness feature",
+                "description": "Whether a feature indicating model correctness is included.",
+                "parameter_scope": "attack",
+                "value_type": "boolean",
+                "notes": null
+            },
+            "sort_probs": {
+                "label": "Sort probabilities",
+                "description": "Whether predicted probabilities are sorted before analysis.",
+                "parameter_scope": "attack",
+                "value_type": "boolean",
+                "notes": null
+            },
+            "attack_model_params": {
+                "label": "Attack model parameters",
+                "description": "Hyperparameters for the attack model.",
+                "parameter_scope": "attack",
+                "value_type": "object",
+                "notes": "Null indicates default parameters."
+            }
+        }
+    },
+    "attack_category_catalog": {
+        "version": "categories_v1",
+        "categories": {
+            "structural": {
+                "label": "Structural attacks",
+                "description": "Attacks exploiting deterministic or structural properties of the target model.",
+                "order": 10
+            },
+            "probabilistic": {
+                "label": "Probabilistic attacks",
+                "description": "Attacks based on confidence scores or probability distributions.",
+                "order": 20
+            },
+            "meta": {
+                "label": "Meta attacks",
+                "description": "Attacks that combine or summarise the results of multiple other attacks.",
+                "order": 30
+            }
+        }
+    },
+    "attack_catalog": {
+        "version": "attacks_sacroml_v1",
+        "attacks": {
+            "WorstCase attack": {
+                "label": "Worst\u2011Case Membership Inference Attack",
+                "description": "Assumes the attacker has maximal auxiliary knowledge.",
+                "attack_category": "structural",
+                "key_metrics": [
+                    "AUC",
+                    "TPR"
+                ],
+                "attack_params": {
+                    "n_reps": {
+                        "label": "Number of repetitions",
+                        "description": "Independent repetitions of the attack."
+                    },
+                    "p_thresh": {
+                        "label": "Probability threshold",
+                        "description": "Decision threshold for membership prediction."
+                    }
+                }
+            },
+            "ShadowModel attack": {
+                "label": "Shadow Model Attack",
+                "description": "Uses shadow models to approximate the target model\u2019s behaviour.",
+                "attack_category": "probabilistic",
+                "key_metrics": [
+                    "AUC"
+                ],
+                "attack_params": {
+                    "n_shadow_models": {
+                        "label": "Number of shadow models",
+                        "description": "How many shadow models to train."
+                    },
+                    "attack_model": {
+                        "label": "Attack model",
+                        "description": "Classifier trained on shadow model outputs."
+                    }
+                }
+            },
+            "AggregateRisk attack": {
+                "label": "Aggregate Risk Meta\u2011Attack",
+                "description": "Aggregates the outputs of multiple attacks into a single risk score.",
+                "attack_category": "meta",
+                "key_metrics": [
+                    "risk_score"
+                ],
+                "attack_params": {
+                    "aggregation_method": {
+                        "label": "Aggregation method",
+                        "description": "Strategy used to combine individual attack results."
+                    }
+                }
+            },
+            "LiRA Attack": {
+                "label": "Likelihood Ratio Attack (LiRA)",
+                "description": "Membership inference attack based on likelihood ratios derived from shadow models.",
+                "attack_category": "probabilistic",
+                "key_metrics": [
+                    "AUC",
+                    "TPR"
+                ],
+                "attack_params": {
+                    "n_shadow_models": {
+                        "label": "Number of shadow models",
+                        "description": "Number of shadow models used to estimate likelihoods."
+                    },
+                    "p_thresh": {
+                        "label": "Probability threshold",
+                        "description": "Threshold used for membership decision."
+                    },
+                    "mode": {
+                        "label": "Execution mode",
+                        "description": "Whether the attack is run in offline or online mode."
+                    },
+                    "fix_variance": {
+                        "label": "Fix variance",
+                        "description": "Whether variance is fixed when computing likelihood ratios."
+                    },
+                    "report_individual": {
+                        "label": "Report individual",
+                        "description": "Whether to report individual-instance results."
+                    }
+                }
+            },
+            "Structural Attack": {
+                "label": "Structural Attack",
+                "description": "Static analysis of the target model's structure and training data against pre-defined disclosure-risk rules and thresholds.",
+                "attack_category": "structural",
+                "key_metrics": [
+                    "dof_risk",
+                    "k_anonymity_risk",
+                    "class_disclosure_risk"
+                ],
+                "attack_params": {
+                    "output_dir": {
+                        "label": "Output directory",
+                        "description": "Directory in which attack artefacts are written."
+                    }
+                }
+            },
+            "Attribute inference attack": {
+                "label": "Attribute Inference Attack",
+                "description": "Attempts to infer sensitive attribute values of training records from the target model's outputs.",
+                "attack_category": "probabilistic",
+                "key_metrics": [
+                    "risk_score"
+                ],
+                "attack_params": {
+                    "output_dir": {
+                        "label": "Output directory",
+                        "description": "Directory in which attack artefacts are written."
+                    }
+                }
+            }
+        }
+    }
+}
