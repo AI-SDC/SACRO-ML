@@ -73,6 +73,7 @@ class DPSVC(SVC):
         self.intercept = None
         self.noisy_weights = None
         self.set_params(**kwargs)
+        self.kernel = "rbf"
 
     def phi_hat(self, input_vector: np.ndarray) -> np.ndarray:
         """Project a single feature."""
