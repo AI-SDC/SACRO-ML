@@ -74,6 +74,8 @@ class Target:
         Path to module containing model class.
     model_name : str
         Class name of model.
+    model_task : str
+        Model task: regressor, classifier, etc.
     model_params : dict or None
         Hyperparameters for instantiating the model.
     train_module_path : str
@@ -124,6 +126,7 @@ class Target:
     model_path: str = ""
     model_module_path: str = ""
     model_name: str = ""
+    model_task: str = ""
     model_params: dict | None = None
     train_module_path: str = ""
     train_params: dict | None = None
@@ -166,6 +169,7 @@ class Target:
                 model_path=self.model_path,
                 model_module_path=self.model_module_path,
                 model_name=self.model_name,
+                model_task=self.model_task,
                 model_params=self.model_params,
                 train_module_path=self.train_module_path,
                 train_params=self.train_params,
@@ -176,6 +180,7 @@ class Target:
                 model_path=self.model_path,
                 model_module_path=self.model_module_path,
                 model_name=self.model_name,
+                model_task=self.model_task,
                 model_params=self.model_params,
                 train_module_path=self.train_module_path,
                 train_params=self.train_params,
@@ -376,6 +381,7 @@ class Target:
             {
                 "model_type": self.model.model_type,
                 "model_name": self.model.model_name,
+                "model_task": str(self.model.model_task),
                 "model_params": self.model.get_params(),
             }
         )
@@ -429,15 +435,13 @@ class Target:
             logger.info("Cannot load model: %s", model_type)
             return
 
-        model_class: type[SklearnModel] | type[PytorchModel] = MODEL_REGISTRY[
-            model_type
-        ]
         load_kwargs: dict[str, object] = {
             "model_path": os.path.join(path, target.get("model_path", "")),
             "model_module_path": os.path.join(
                 path, target.get("model_module_path", "")
             ),
             "model_name": target.get("model_name", ""),
+            "model_task": target.get("model_task", {}),
             "model_params": target.get("model_params", {}),
             "train_module_path": os.path.join(
                 path, target.get("train_module_path", "")
@@ -445,6 +449,7 @@ class Target:
             "train_params": target.get("train_params", {}),
         }
 
+        model_class = MODEL_REGISTRY[model_type]
         if model_class is PytorchModel:
             if "batch_size" not in target:
                 logger.warning(
@@ -458,6 +463,7 @@ class Target:
 
         self.model = model_class.load(**load_kwargs)
         logger.info("Loaded: %s : %s", model_type, target.get("model_name", ""))
+        logger.info("model_task: %s", self.model.model_task)
 
     def _load_array(self, path: str, target: dict, attr_name: str) -> None:
         """Load array from disk."""

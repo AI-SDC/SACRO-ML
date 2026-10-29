@@ -6,10 +6,19 @@ import importlib
 import os
 import sys
 from abc import ABC, abstractmethod
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
-from scipy.sparse import csr_matrix
+
+
+class ModelTask(StrEnum):
+    """Model tasks."""
+
+    CLASSIFIER = "classifier"
+    REGRESSOR = "regressor"
+    CLUSTERER = "clusterer"
+    TRANSFORMER = "transformer"
 
 
 class Model(ABC):
@@ -21,6 +30,7 @@ class Model(ABC):
         model_path: str = "",
         model_module_path: str = "",
         model_name: str = "",
+        model_task: str = "",
         model_params: dict | None = None,
         train_module_path: str = "",
         train_params: dict | None = None,
@@ -37,6 +47,8 @@ class Model(ABC):
             Path (including extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict | None
             Hyperparameters for instantiating the model.
         train_module_path : str
@@ -48,6 +60,7 @@ class Model(ABC):
         self.model_path: str = model_path
         self.model_module_path: str = model_module_path
         self.model_name: str = model_name
+        self.model_task: str = model_task
         self.model_params: dict = {} if model_params is None else model_params
         self.train_module_path: str = train_module_path
         self.train_params: dict = {} if train_params is None else train_params
@@ -56,7 +69,14 @@ class Model(ABC):
             self.model_name = type(self.model).__name__
             self.model_type = type(self).__name__
 
-    def get_label_indices(self, labels: np.ndarray | csr_matrix) -> np.array:
+            tasks = [t.value for t in ModelTask]
+            if model_task not in tasks:
+                raise ValueError(
+                    f"Unable to create Model with model_task={self.model_task}."
+                    f" Supported tasks: {', '.join(tasks)}"
+                )
+
+    def get_label_indices(self, labels: np.ndarray) -> np.array:
         """Get array of col_ids for true labels."""
         if isinstance(labels, np.ndarray):
             if len(labels.shape) == 1:
@@ -242,6 +262,7 @@ class Model(ABC):
         model_path: str,
         model_module_path: str,
         model_name: str,
+        model_task: str,
         model_params: dict,
         train_module_path: str,
         train_params: dict,
@@ -256,6 +277,8 @@ class Model(ABC):
             Path (including file extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict
             Hyperparameters for instantiating the model.
         train_module_path : str
