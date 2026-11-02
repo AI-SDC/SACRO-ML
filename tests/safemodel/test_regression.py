@@ -18,6 +18,7 @@ from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.instance_based_attack import InstanceBasedAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
 from sacroml.attacks.meta_attack import MetaAttack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.model_sklearn import SklearnModel
 from sacroml.attacks.qmia_attack import QMIAAttack
 from sacroml.attacks.structural_attack import StructuralAttack, get_model_param_count
@@ -92,7 +93,7 @@ def test_regression_target_roundtrip(regression_target, tmp_path):
     target.save(str(tmp_path / "saved"))
     restored = Target()
     restored.load(str(tmp_path / "saved"))
-    assert restored.model.is_regression
+    assert restored.model.model_task == ModelTask.REGRESSOR
     np.testing.assert_allclose(
         restored.model.get_losses(restored.X_test, restored.y_test), expected
     )
@@ -119,7 +120,7 @@ def test_worstcase_regression(regression_target, tmp_path, include_error, monkey
 
     monkeypatch.setattr(attack, "_prepare_attack_data", capture)
     output = attack.attack(regression_target)
-    assert output["metadata"]["target_task"] == "regression"
+    assert output["metadata"]["target_task"] == ModelTask.REGRESSOR
     assert 0 <= instance(output)["AUC"] <= 1
     assert captured[0].shape == (400, 1)
     expected = np.concatenate(
@@ -169,7 +170,7 @@ def test_lira_regression(regression_target, tmp_path, mode):
     np.testing.assert_allclose(individual["target_signal"][:140], expected)
     assert "target_logit" not in individual
     shadow, train, _ = utils.get_shadow_model(str(tmp_path / "shadow_models"), 0)
-    assert shadow.is_regression
+    assert shadow.model_task == ModelTask.REGRESSOR
     assert len(train) == 140
 
 
@@ -297,7 +298,7 @@ def test_meta_regression_repeated_structural(regression_target, tmp_path):
         attacks=[("structural", {}, 2)], output_dir=str(tmp_path), write_report=False
     )
     output = attack.attack(regression_target)
-    assert output["metadata"]["target_task"] == "regression"
+    assert output["metadata"]["target_task"] == ModelTask.REGRESSOR
     df = attack.vulnerability_df
     assert df["struct_cd"].isna().all()
     assert df["struct_sg"].isna().all()
@@ -318,7 +319,7 @@ def test_instance_based_regression(regression_target, tmp_path):
         target
     )
     assert output
-    assert output["metadata"]["target_task"] == "regression"
+    assert output["metadata"]["target_task"] == ModelTask.REGRESSOR
 
 
 def test_qmia_nonfinite_regression_fails_explicitly(
@@ -345,7 +346,7 @@ def test_regression_pipeline_losses_and_clone(regression_target):
     )
     clone = model.clone()
     clone.fit(target.X_train, target.y_train)
-    assert clone.is_regression
+    assert clone.model_task == ModelTask.REGRESSOR
     np.testing.assert_allclose(
         clone.predict(target.X_test), model.predict(target.X_test)
     )
@@ -416,7 +417,7 @@ def test_lira_reuse_after_regression(regression_target, tmp_path):
         for row, label in zip(probabilities, labels, strict=True)
     ]
     assert "target_logit" not in individual
-    assert output["metadata"]["target_task"] == "classification"
+    assert output["metadata"]["target_task"] == ModelTask.CLASSIFIER
     np.testing.assert_array_equal(individual["label"], labels)
     np.testing.assert_allclose(individual["target_signal"], expected)
     assert len(individual["member_prob"]) == len(labels)

@@ -62,6 +62,9 @@ class PytorchModel(Model):
             logger.warning("Assuming 'classifier' model since 'model_task' empty")
             model_task = ModelTask.CLASSIFIER
 
+        if model_task != ModelTask.CLASSIFIER:
+            raise ValueError("Only PyTorch classifiers are currently supported")
+
         super().__init__(
             model=model,
             model_path=model_path,
@@ -114,7 +117,7 @@ class PytorchModel(Model):
         Parameters
         ----------
         data : np.ndarray
-            Features of the records for whicgh losses are required
+            Features of the records for which losses are required
         labels : np.ndarray
             Actual labels
 

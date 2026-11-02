@@ -49,6 +49,7 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.target import Target
 from sacroml.version import __version__
 
@@ -125,6 +126,7 @@ class QMIAAttack(Attack):
             target.has_model()
             and target.has_data()
             and hasattr(target.model, "predict_proba")
+            and target.model.model_task in (ModelTask.REGRESSOR, ModelTask.CLASSIFIER)
         ):
             logger.warning(
                 "QMIA requires a model with predict_proba and train/test data."
@@ -139,12 +141,20 @@ class QMIAAttack(Attack):
 
         target = utils.check_and_update_dataset(target)
 
-        if target.model.is_regression:
+        if target.model.model_task == ModelTask.REGRESSOR:
             proba_train = -target.model.get_losses(target.X_train, target.y_train)
             proba_test = -target.model.get_losses(target.X_test, target.y_test)
-        else:
+            train_scores, test_scores = proba_train, proba_test
+
+        elif target.model.model_task == ModelTask.CLASSIFIER:
             proba_train = target.model.predict_proba(target.X_train)
             proba_test = target.model.predict_proba(target.X_test)
+            train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
+            test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
+
+        else:
+            raise ValueError(f"Unsupported 'model_task': '{target.model.model_task}'")
+
         if not (np.isfinite(proba_train).all() and np.isfinite(proba_test).all()):
             output = self._make_failed_output(
                 target,
@@ -156,12 +166,6 @@ class QMIAAttack(Attack):
             except OSError:
                 logger.warning("Could not write failed report.")
             return output
-
-        if target.model.is_regression:
-            train_scores, test_scores = proba_train, proba_test
-        else:
-            train_scores = utils.qmia_hinge_score(proba_train, target.y_train)
-            test_scores = utils.qmia_hinge_score(proba_test, target.y_test)
 
         # Train quantile regressor on non-member scores; quantile = 1 - alpha
         # so that a fraction alpha of non-members exceed their own threshold.

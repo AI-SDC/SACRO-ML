@@ -12,7 +12,7 @@ from scipy.stats import shapiro
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +38,7 @@ def check_and_update_dataset(target: Target) -> Target:
     ):
         return target
 
-    # Check if model is a sklearn BaseEstimator first (applies to both
-    # regression and classification)
+    # Check if model is a sklearn BaseEstimator first
     if not isinstance(target.model.model, BaseEstimator):
         logger.warning(
             "Target model is not a scikit-learn BaseEstimator (got %s); "
@@ -51,8 +50,7 @@ def check_and_update_dataset(target: Target) -> Target:
         )
         return target
 
-    # Handle regression models
-    if target.model.is_regression:
+    if target.model.model_task == ModelTask.REGRESSOR:
         for name in ("y_train", "y_test"):
             values = np.asarray(getattr(target, name))
             if values.ndim == 2 and values.shape[1] == 1:

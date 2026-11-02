@@ -77,11 +77,6 @@ class Model(ABC):
                 f"Supported: {', '.join(f'{t.value!r}' for t in ModelTask)}"
             ) from None
 
-    @property
-    def is_regression(self) -> bool:
-        """Return whether this wrapper represents a regression model."""
-        return False
-
     def get_label_indices(self, labels: np.ndarray) -> np.array:
         """Get array of col_ids for true labels."""
         if isinstance(labels, np.ndarray):

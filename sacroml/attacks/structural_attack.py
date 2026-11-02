@@ -42,6 +42,7 @@ except ImportError:
 
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -441,8 +442,9 @@ class StructuralAttack(Attack):
         self.target = target
         model: BaseEstimator | torch.nn.Module = target.model.model
 
-        if target.model.is_regression:
+        if target.model.model_task == ModelTask.REGRESSOR:
             target.model.get_losses(target.X_train, target.y_train)
+
         # Calculate equivalence classes, which are needed for several checks
         eqclass_probas, eqclass_inv_indices, eqclass_counts = (
             self._calculate_equivalence_classes()
@@ -455,7 +457,7 @@ class StructuralAttack(Attack):
 
         # Run different risk assessments, some just return  global value
 
-        if target.model.is_regression:
+        if target.model.model_task == ModelTask.REGRESSOR:
             test_acc, train_acc = None, None
         else:
             test_acc = target.model.score(target.X_test, target.y_test)
@@ -470,16 +472,16 @@ class StructuralAttack(Attack):
         gen_error_risk = self._assess_generalisation_gap_risk()
         dof_risk = self._assess_dof_risk()
 
-        unnecessary_risk = (
-            None if target.model.is_regression else get_unnecessary_risk(model)
-        )
+        unnecessary_risk = None
+        if target.model.model_task == ModelTask.CLASSIFIER:
+            unnecessary_risk = get_unnecessary_risk(model)
 
         # Run assessments that return global value and one for each training record
         global_krisk, record_level_kval = self._assess_k_anonymity_risk(
             eqclass_inv_indices, eqclass_counts
         )
 
-        if target.model.is_regression:
+        if target.model.model_task == ModelTask.REGRESSOR:
             global_cd, global_small = None, None
             record_level_cd = [None] * num_samples
             record_level_small = [None] * num_samples
@@ -549,11 +551,14 @@ class StructuralAttack(Attack):
         """
         n_features = self.target.X_train.shape[1]
         n_samples = self.target.X_train.shape[0]
+
         model: BaseEstimator | torch.nn.Module = self.target.model.model
-        if self.target.model.is_regression:
+        if self.target.model.model_task == ModelTask.REGRESSOR:
             model, _ = utils.unwrap_model(model)
+
         n_params = get_model_param_count(model)
-        if self.target.model.is_regression and n_params == 0:
+
+        if self.target.model.model_task == ModelTask.REGRESSOR and n_params == 0:
             return None
 
         if n_params < n_features:
@@ -680,7 +685,7 @@ class StructuralAttack(Attack):
 
         # get prediction probabilities for each leaf
         # this means equiv_classes may not be unique in this case (e.g. XOR problem)
-        if self.target.model.is_regression:
+        if self.target.model.model_task == ModelTask.REGRESSOR:
             equiv_classes = self.target.model.predict(
                 self.target.X_train[indices]
             ).reshape(len(indices), -1)
@@ -692,7 +697,7 @@ class StructuralAttack(Attack):
 
     def _get_equivalence_classes_from_probas(self) -> tuple:
         """Get equivalence classes based on predicted probabilities."""
-        if self.target.model.is_regression:
+        if self.target.model.model_task == ModelTask.REGRESSOR:
             y_probs = self.target.model.predict(self.target.X_train).reshape(
                 len(self.target.X_train), -1
             )
@@ -716,7 +721,7 @@ class StructuralAttack(Attack):
         self.metadata["attack_params"].update(attack_specific_output)
         if self.results:
             self.metadata["global_metrics"] = asdict(self.results)
-            if self.target.model.is_regression:
+            if self.target.model.model_task == ModelTask.REGRESSOR:
                 metrics = self.metadata["global_metrics"]
                 for split in ("train", "test"):
                     metrics.pop(f"{split}_acc")

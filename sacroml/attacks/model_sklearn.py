@@ -65,11 +65,6 @@ class SklearnModel(Model):
             train_params=train_params,
         )
 
-    @property
-    def is_regression(self) -> bool:
-        """Identify sklearn regressors, including pipelines."""
-        return sklearn.base.is_regressor(self.model)
-
     def get_generalisation_gap(
         self,
         X_train: np.ndarray,
@@ -102,16 +97,19 @@ class SklearnModel(Model):
         """
         if hasattr(self.model, "score"):
             try:
-                if self.is_regression:
+                if self.model_task == ModelTask.REGRESSOR:
                     return float(
                         np.mean(self.get_losses(X_test, y_test))
                         - np.mean(self.get_losses(X_train, y_train))
                     )
+
                 train = self.model.score(X_train, y_train)
                 test = self.model.score(X_test, y_test)
                 return (1.0 - test) - (1.0 - train)
+
             except sklearn.exceptions.NotFittedError:  # pragma: no cover
                 return np.nan
+
         return np.nan  # pragma: no cover
 
     def get_losses(self, data: np.ndarray, labels: np.ndarray) -> np.array:
@@ -130,17 +128,21 @@ class SklearnModel(Model):
             Per-record MSE averaged across regression outputs, or
             1.0 minus the correct-label probability for classification.
         """
-        if self.is_regression:
+        if self.model_task == ModelTask.REGRESSOR:
             predictions = np.asarray(self.predict(data)).reshape(len(data), -1)
             labels = np.asarray(labels).reshape(len(data), -1)
             return np.mean((predictions - labels) ** 2, axis=1)
-        labelidxs = self.get_label_indices(labels)
-        numrows = len(data)
-        allprobs = self.model.predict_proba(data)
-        losses = np.zeros(numrows)
-        for i in range(numrows):
-            losses[i] = 1.0 - allprobs[i, labelidxs[i]]
-        return losses
+
+        if self.model_task == ModelTask.CLASSIFIER:
+            labelidxs = self.get_label_indices(labels)
+            numrows = len(data)
+            allprobs = self.model.predict_proba(data)
+            losses = np.zeros(numrows)
+            for i in range(numrows):
+                losses[i] = 1.0 - allprobs[i, labelidxs[i]]
+            return losses
+
+        raise ValueError(f"Unsupported 'model_task': '{self.model_task}'")
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model scores for a set of samples.

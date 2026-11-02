@@ -27,7 +27,7 @@ from scipy.stats import norm
 from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -109,10 +109,11 @@ class LIRAAttack(Attack):
             target.has_model()
             and target.has_data()
             and all(hasattr(target.model, method) for method in required_methods)
+            and target.model.model_task in (ModelTask.CLASSIFIER, ModelTask.REGRESSOR)
         ):
             return True
 
-        logger.info("WARNING: LiRA requires a loadable classifier model.")
+        logger.info("WARNING: LiRA requires a loadable classifier or regression model.")
         return False
 
     def _attack(self, target: Target) -> dict:
@@ -133,11 +134,14 @@ class LIRAAttack(Attack):
         self.result = {key: [] for key in self.result}
         target = utils.check_and_update_dataset(target)
         train_labels, test_labels = target.y_train, target.y_test
-        if not target.model.is_regression:
+
+        if target.model.model_task == ModelTask.CLASSIFIER:
             classes = target.model.get_classes()
             train_labels, test_labels = classes[train_labels], classes[test_labels]
+
         train_signals = self._get_signals(target.model, target.X_train, train_labels)
         test_signals = self._get_signals(target.model, target.X_test, test_labels)
+
         # execute attack
         self._run(
             shadow_clf,
@@ -148,10 +152,13 @@ class LIRAAttack(Attack):
             target.y_test,
             test_signals,
         )
+
         # create the report
         output: dict[str, Any] = self._make_report(target)
+
         # write the report
         self._write_report(output)
+
         # return the report
         return output
 
@@ -220,9 +227,13 @@ class LIRAAttack(Attack):
         self, model: Model, data: np.ndarray, labels: np.ndarray
     ) -> np.ndarray:
         """Generate one signal per record for target or shadow models."""
-        if model.is_regression:
+        if model.model_task == ModelTask.REGRESSOR:
             return self._get_regression_signals(model, data, labels)
-        return self._get_classification_signals(model, data, labels)
+
+        if model.model_task == ModelTask.CLASSIFIER:
+            return self._get_classification_signals(model, data, labels)
+
+        raise ValueError(f"Unsupported 'model_task': '{model.model_task}'")
 
     @staticmethod
     def _get_regression_signals(
