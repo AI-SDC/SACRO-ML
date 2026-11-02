@@ -56,6 +56,8 @@ folders = [
     "test_lira_target",
     "test_output_lira",
     "test_output_sa",
+    "test_output_lira_predictions_only",
+    "test_output_lira_two_runs",
     "test_output_worstcase",
     "test_worstcase_target",
     "tests/test_aia_target",
