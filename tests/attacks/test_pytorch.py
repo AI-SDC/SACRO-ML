@@ -5,11 +5,13 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+import pytest
 import torch
 import yaml
 
 from sacroml.attacks.attribute_attack import AttributeAttack
 from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
@@ -23,6 +25,31 @@ target_dir = "target_pytorch"
 random_state = 2
 torch.manual_seed(random_state)
 torch.cuda.manual_seed_all(random_state)
+
+
+@pytest.fixture
+def pytorch_model() -> OverfitNet:
+    """Return a simple PyTorch model."""
+    model_params = {"x_dim": 4, "y_dim": 4, "n_units": 1000}
+    return OverfitNet(**model_params)
+
+
+def test_pytorch_task_infer_classifier(pytorch_model) -> None:
+    """Test PyTorch model_task infer classifier."""
+    target = Target(model=pytorch_model)
+    assert target.model.model_task == ModelTask.CLASSIFIER
+
+
+def test_pytorch_task_unsupported(pytorch_model) -> None:
+    """Test PyTorch model_task unsupported."""
+    with pytest.raises(ValueError, match="Unsupported model_task"):
+        _ = Target(model=pytorch_model, model_task="aa")
+
+
+def test_pytorch_task_regressor(pytorch_model) -> None:
+    """Test PyTorch model_task regressor."""
+    target = Target(model=pytorch_model, model_task="regressor")
+    assert target.model.model_task == ModelTask.REGRESSOR
 
 
 def test_pytorch() -> None:
