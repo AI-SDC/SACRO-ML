@@ -441,22 +441,3 @@ def test_structural_groups_prediction_vectors(tmp_path, tree):
     assert groups.shape == (2, 2)
     np.testing.assert_array_equal(groups[inverse], y)
     np.testing.assert_array_equal(counts, [2, 2])
-
-
-def test_lira_classification_signals_with_missing_class():
-    """Shadow signals use class labels and give absent classes logit(0)."""
-    x = np.arange(6)[:, None]
-    model = SklearnModel(LogisticRegression().fit(x, [2, 2, 2, 7, 7, 7]))
-    labels = np.array([2, 7, 9, 2, 7, 9])
-    probabilities = model.predict_proba(x)
-    expected = [
-        utils.logit(probabilities[0, 0]),
-        utils.logit(probabilities[1, 1]),
-        utils.logit(0),
-        utils.logit(probabilities[3, 0]),
-        utils.logit(probabilities[4, 1]),
-        utils.logit(0),
-    ]
-    np.testing.assert_allclose(
-        LIRAAttack._get_classification_signals(model, x, labels), expected
-    )

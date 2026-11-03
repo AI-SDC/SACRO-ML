@@ -28,12 +28,13 @@ from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.model import Model, ModelTask
+from sacroml.attacks.signal import get_signals
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-EPS: float = 1e-16  # Used to avoid numerical issues
+EPS: float = utils.EPS
 
 
 class LIRAAttack(Attack):
@@ -48,6 +49,7 @@ class LIRAAttack(Attack):
         mode: str = "offline",
         fix_variance: bool = False,
         report_individual: bool = False,
+        signal: str = "default",
     ) -> None:
         """Construct an object to execute a LiRA attack.
 
@@ -68,6 +70,9 @@ class LIRAAttack(Attack):
             Whether to use the global standard deviation or per record.
         report_individual : bool
             Whether to report metrics for each individual record.
+        signal : str
+            Signal name, or ``"default"`` for the task default (``"logit"`` for
+            classification, ``"log_mse"`` for regression).
         """
         super().__init__(output_dir=output_dir, write_report=write_report)
         self.n_shadow_models: int = n_shadow_models
@@ -75,6 +80,7 @@ class LIRAAttack(Attack):
         self.mode: str = mode
         self.fix_variance: bool = fix_variance
         self.report_individual: bool = report_individual
+        self.signal: str = signal
 
         self.result: dict = {}  # individual record results
         if self.report_individual:
@@ -139,8 +145,12 @@ class LIRAAttack(Attack):
             classes = target.model.get_classes()
             train_labels, test_labels = classes[train_labels], classes[test_labels]
 
-        train_signals = self._get_signals(target.model, target.X_train, train_labels)
-        test_signals = self._get_signals(target.model, target.X_test, test_labels)
+        train_signals = get_signals(
+            model=target.model, X=target.X_train, y=train_labels, signal=self.signal
+        )
+        test_signals = get_signals(
+            model=target.model, X=target.X_test, y=test_labels, signal=self.signal
+        )
 
         # execute attack
         self._run(
@@ -223,41 +233,6 @@ class LIRAAttack(Attack):
         self._save_attack_metrics(mia_scores, n_train_rows, n_shadow_rows, n_normal)
         logger.info("Finished scenario")
 
-    def _get_signals(
-        self, model: Model, data: np.ndarray, labels: np.ndarray
-    ) -> np.ndarray:
-        """Generate one signal per record for target or shadow models."""
-        if model.model_task == ModelTask.REGRESSOR:
-            return self._get_regression_signals(model, data, labels)
-
-        if model.model_task == ModelTask.CLASSIFIER:
-            return self._get_classification_signals(model, data, labels)
-
-        raise ValueError(f"Unsupported 'model_task': '{model.model_task}'")
-
-    @staticmethod
-    def _get_regression_signals(
-        model: Model, data: np.ndarray, labels: np.ndarray
-    ) -> np.ndarray:
-        """Return negative log-MSE signals, with larger values for smaller errors."""
-        return -np.log(model.get_losses(data, labels) + EPS)
-
-    @staticmethod
-    def _get_classification_signals(
-        model: Model, data: np.ndarray, labels: np.ndarray
-    ) -> np.ndarray:
-        """Return correct-class logits, using logit(0) for absent shadow classes."""
-        class_map = {c: i for i, c in enumerate(model.get_classes())}
-        probabilities = model.predict_proba(data)
-        return np.array(
-            [
-                utils.logit(row[class_map[label]])
-                if label in class_map
-                else utils.logit(0)
-                for row, label in zip(probabilities, labels, strict=True)
-            ]
-        )
-
     def _get_shadow_signals(
         self,
         combined_x_train: np.ndarray,
@@ -289,7 +264,12 @@ class LIRAAttack(Attack):
             shadow_clf, indices_train, _ = utils.get_shadow_model(
                 self.shadow_path, model_idx
             )
-            signals = self._get_signals(shadow_clf, combined_x_train, combined_y_train)
+            signals = get_signals(
+                model=shadow_clf,
+                X=combined_x_train,
+                y=combined_y_train,
+                signal=self.signal,
+            )
             train_set = set(indices_train)
             for i, signal in enumerate(signals):
                 (in_conf if i in train_set else out_conf)[i].append(float(signal))
