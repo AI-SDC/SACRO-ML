@@ -8,11 +8,13 @@ This module provides the `StructuralAttack` class, which assesses a trained
 machine learning model for several common structural vulnerabilities.
 
 These include:
+
 - Degrees of freedom risk
 - k-anonymity violations
 - Class disclosure
 - 'Unnecessary Risk' caused by hyper-parameters likely to lead to undue model complexity
-   (not defined for all types of model)
+  (not defined for all types of model)
+
 The methodology is aligned with SACRO-ML's privacy risk framework.
 """
 
