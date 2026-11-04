@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import sklearn
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ class SklearnModel(Model):
         model_path: str = "",
         model_module_path: str = "",
         model_name: str = "",
+        model_task: str = "",
         model_params: dict | None = None,
         train_module_path: str = "",
         train_params: dict | None = None,
@@ -40,6 +41,8 @@ class SklearnModel(Model):
             Path (including extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict | None
             Hyperparameters for instantiating the model.
         train_module_path : str
@@ -47,11 +50,16 @@ class SklearnModel(Model):
         train_params : dict | None
             Hyperparameters for training the model.
         """
+        if not model_task:
+            model_task = self.get_model_task(model)
+            logger.warning(f"Assuming '{model_task}' model since 'model_task' empty")
+
         super().__init__(
             model=model,
             model_path=model_path,
             model_module_path=model_module_path,
             model_name=model_name,
+            model_task=model_task,
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,
@@ -68,8 +76,8 @@ class SklearnModel(Model):
 
         The generalisation gap is the test error minus the train error,
         positive when the model performs worse on unseen data (e.g. due to
-        overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred.
+        overfitting). Regression uses mean squared error; classification
+        uses error = 1 - accuracy.
 
         Parameters
         ----------
@@ -89,11 +97,19 @@ class SklearnModel(Model):
         """
         if hasattr(self.model, "score"):
             try:
+                if self.model_task == ModelTask.REGRESSOR:
+                    return float(
+                        np.mean(self.get_losses(X_test, y_test))
+                        - np.mean(self.get_losses(X_train, y_train))
+                    )
+
                 train = self.model.score(X_train, y_train)
                 test = self.model.score(X_test, y_test)
                 return (1.0 - test) - (1.0 - train)
+
             except sklearn.exceptions.NotFittedError:  # pragma: no cover
                 return np.nan
+
         return np.nan  # pragma: no cover
 
     def get_losses(self, data: np.ndarray, labels: np.ndarray) -> np.array:
@@ -109,15 +125,24 @@ class SklearnModel(Model):
         Returns
         -------
         np.array
-            array of losses (1.0 - proba value for correct label)
+            Per-record MSE averaged across regression outputs, or
+            1.0 minus the correct-label probability for classification.
         """
-        labelidxs = self.get_label_indices(labels)
-        numrows = len(data)
-        allprobs = self.model.predict_proba(data)
-        losses = np.zeros(numrows)
-        for i in range(numrows):
-            losses[i] = 1.0 - allprobs[i, labelidxs[i]]
-        return losses
+        if self.model_task == ModelTask.REGRESSOR:
+            predictions = np.asarray(self.predict(data)).reshape(len(data), -1)
+            labels = np.asarray(labels).reshape(len(data), -1)
+            return np.mean((predictions - labels) ** 2, axis=1)
+
+        if self.model_task == ModelTask.CLASSIFIER:
+            labelidxs = self.get_label_indices(labels)
+            numrows = len(data)
+            allprobs = self.model.predict_proba(data)
+            losses = np.zeros(numrows)
+            for i in range(numrows):
+                losses[i] = 1.0 - allprobs[i, labelidxs[i]]
+            return losses
+
+        raise ValueError(f"Unsupported 'model_task': '{self.model_task}'")
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model scores for a set of samples.
@@ -177,7 +202,7 @@ class SklearnModel(Model):
             A cloned model.
         """
         model: sklearn.base.BaseEstimator = sklearn.base.clone(self.model)
-        return SklearnModel(model)
+        return SklearnModel(model, model_task=self.model_task)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return the model predicted probabilities for a set of samples.
@@ -193,6 +218,30 @@ class SklearnModel(Model):
             Predicted probabilities.
         """
         return self.model.predict_proba(X)
+
+    @staticmethod
+    def get_model_task(model: sklearn.base.BaseEstimator) -> ModelTask:
+        """Return the inferred task of a sklearn model.
+
+        Parameters
+        ----------
+        model : sklearn.base.BaseEstimator
+            Model.
+
+        Returns
+        -------
+        ModelTask
+            The task of the model, e.g., 'classifier'.
+        """
+        if sklearn.base.is_classifier(model):
+            return ModelTask.CLASSIFIER
+        if sklearn.base.is_regressor(model):
+            return ModelTask.REGRESSOR
+        if sklearn.base.is_clusterer(model):
+            return ModelTask.CLUSTERER
+        if hasattr(model, "transform"):
+            return ModelTask.PREPROCESSOR
+        return ModelTask.CLASSIFIER
 
     def get_classes(self) -> np.ndarray:
         """Return the classes the model was trained to predict.
@@ -250,6 +299,7 @@ class SklearnModel(Model):
         model_path: str,
         model_module_path: str,
         model_name: str,
+        model_task: str,
         model_params: dict,
         train_module_path: str,
         train_params: dict,
@@ -264,6 +314,8 @@ class SklearnModel(Model):
             Path (including file extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict
             Hyperparameters for instantiating the model.
         train_module_path : str
@@ -287,6 +339,7 @@ class SklearnModel(Model):
             model_path=model_path,
             model_module_path=model_module_path,
             model_name=model_name,
+            model_task=model_task,
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,

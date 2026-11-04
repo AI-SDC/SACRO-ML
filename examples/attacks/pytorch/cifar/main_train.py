@@ -1,10 +1,10 @@
-"""Train a classifier on synthetic data using sacroml Target and Dataset classes."""
+"""Train a PyTorch classifier on CIFAR10 using sacroml Target and Dataset classes."""
 
 import logging
 
 import torch
-from dataset import Synthetic
-from model import OverfitNet
+from dataset import Cifar10
+from model import Net
 from train import test, train
 
 from sacroml.attacks.target import Target
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     logging.info("Loading dataset")
 
     # Access dataset
-    data_handler = Synthetic()
+    data_handler = Cifar10()
 
     # Get the (preprocessed) dataset
     dataset = data_handler.get_dataset()
@@ -47,22 +47,20 @@ if __name__ == "__main__":
     logging.info("Defining the model")
 
     model_params = {
-        "x_dim": 4,
-        "y_dim": 4,
-        "n_units": 1000,
+        "n_kernel": 5,
     }
     train_params = {
-        "epochs": 1000,
+        "epochs": 100,
         "learning_rate": 0.001,
         "momentum": 0.9,
     }
-    model = OverfitNet(**model_params)
+    model = Net(**model_params)
 
     logging.info("Training the model")
     train(model, train_loader, **train_params)
 
     logging.info("Testing the model")
-    test(model, test_loader)
+    test(model, test_loader, data_handler.classes)
 
     #############################################################################
     # Below shows the use of the Target class to help generate the target_dir/
@@ -74,11 +72,12 @@ if __name__ == "__main__":
         model=model,
         model_module_path="model.py",
         model_params=model_params,  # Must match all required in model constructor
+        model_task="classifier",
         train_module_path="train.py",
         train_params=train_params,  # Must match all required in the train function
         batch_size=batch_size,  # Should match the training batch size
         dataset_module_path="dataset.py",
-        dataset_name="Synthetic",  # Must match the class name in dataset module
+        dataset_name="Cifar10",  # Must match the class name in dataset module
         indices_train=indices_train,
         indices_test=indices_test,
     )

@@ -4,12 +4,12 @@
 
 ```md
 pytorch/
-├── simple/ [Contains a very simple PyTorch example]
+├── classification/ [Contains a simple PyTorch classification example]
 │   ├── dataset.py [Contains example dataset class]
 │   ├── model.py [Contains example model class]
 │   ├── train.py [Contains example training function]
-│   ├── train_pytorch.py [Trains example model and creates the required target_dir/]
-│   └── attack_pytorch.py [Loads the saved model from the target_dir/ and runs attacks]
+│   ├── main_train.py [Trains example model and creates the required target_dir/]
+│   └── main_attack.py [Loads the saved model from the target_dir/ and runs attacks]
 ├── cifar/ [Contains CIFAR10 example with the same structure/files as example above]
 │   └── requirements.txt [Contains additional dependencies for CIFAR dataset]
 └── README.md
@@ -18,8 +18,8 @@ pytorch/
 ## Usage
 
 ```
-$ python -m train_pytorch
-$ python -m attack_pytorch
+$ python main_train
+$ python main_attack
 ```
 
 > [!NOTE]
@@ -31,9 +31,9 @@ $ python -m attack_pytorch
 
 ## Creating Your Own
 
-To run the attacks you must create a `target_dir/` which contains a `target.yaml` that includes all information necessary for loading the model. The easiest way to do this is to use the `Target` class to wrap and save everything as in the `train_pytorch.py` examples. If you have already trained and saved your model, you could produce a small script for loading your model and using the `Target` class to wrap and save it. Alternatively, you may use the CLI interactive prompt `$ sacroml gen-target` instead. As a last option, you may manually create the folder and `target.yaml` (you can start by copying the one produced from the example here).
+To run the attacks you must create a `target_dir/` which contains a `target.yaml` that includes all information necessary for loading the model. The easiest way to do this is to use the `Target` class to wrap and save everything as in the `main_train.py` examples. If you have already trained and saved your model, you could produce a small script for loading your model and using the `Target` class to wrap and save it. Alternatively, you may use the CLI interactive prompt `$ sacroml gen-target` instead. As a last option, you may manually create the folder and `target.yaml` (you can start by copying the one produced from the example here).
 
-Once a suitable target directory has been created `sacroml` attacks can be run using the CLI as well as programmatically as in the `attack_pytorch.py` example. To run the attacks on the CLI, first produce an `attack.yaml` with the interactive prompt `$ sacroml gen-attack` and then run the attacks with `$ sacroml run target_dir/ attack.yaml`
+Once a suitable target directory has been created `sacroml` attacks can be run using the CLI as well as programmatically as in the `main_attack.py` example. To run the attacks on the CLI, first produce an `attack.yaml` with the interactive prompt `$ sacroml gen-attack` and then run the attacks with `$ sacroml run target_dir/ attack.yaml`
 
 1. The `model.py` must contain a PyTorch model class with a constructor.
     * All parameters used by the constructor must be specified under `model_params`.
@@ -52,3 +52,4 @@ Once a suitable target directory has been created `sacroml` attacks can be run u
     * If supplying a `dataset_module_path` the indices must be passed to `indices_train` and `indices_test`.
     * If you do not supply a `dataset_module_path`, you can pass numpy arrays to `X_train`, etc.
 4. The file path to the saved PyTorch model must be specified under `model_path` in the `target.yaml` or the model should be passed to the `Target` object directly.
+5. The model task ("classifier", "regressor") must be specified under `model_task` in the `target.yaml` or passed to the `Target` object directly.

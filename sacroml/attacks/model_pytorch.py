@@ -12,7 +12,7 @@ from torch import cuda
 from torch.nn.functional import softmax
 from torch.utils.data import DataLoader, TensorDataset
 
-from sacroml.attacks.model import Model, create_model
+from sacroml.attacks.model import Model, ModelTask, create_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ class PytorchModel(Model):
         model_path: str = "",
         model_module_path: str = "",
         model_name: str = "",
+        model_task: str = "",
         model_params: dict | None = None,
         train_module_path: str = "",
         train_params: dict | None = None,
@@ -44,6 +45,8 @@ class PytorchModel(Model):
             Path (including extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict | None
             Hyperparameters for instantiating the model.
         train_module_path : str
@@ -55,11 +58,19 @@ class PytorchModel(Model):
             match the batch size used to train the original target model, since
             it materially affects attack model fidelity (e.g. shadow models).
         """
+        if not model_task:
+            logger.warning("Assuming 'classifier' model since 'model_task' empty")
+            model_task = ModelTask.CLASSIFIER
+
+        if model_task != ModelTask.CLASSIFIER:
+            raise ValueError("Only PyTorch classifiers are currently supported")
+
         super().__init__(
             model=model,
             model_path=model_path,
             model_module_path=model_module_path,
             model_name=model_name,
+            model_task=model_task,
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,
@@ -106,7 +117,7 @@ class PytorchModel(Model):
         Parameters
         ----------
         data : np.ndarray
-            Features of the records for whicgh losses are required
+            Features of the records for which losses are required
         labels : np.ndarray
             Actual labels
 
@@ -180,7 +191,7 @@ class PytorchModel(Model):
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, batch_size: int | None = None
-    ) -> PytorchModel:
+    ) -> torch.nn.Module:
         """Fit a model from scratch.
 
         Parameters
@@ -239,6 +250,7 @@ class PytorchModel(Model):
             model_path=self.model_path,
             model_module_path=self.model_module_path,
             model_name=self.model_name,
+            model_task=self.model_task,
             model_params=self.model_params,
             train_module_path=self.train_module_path,
             train_params=self.train_params,
@@ -278,7 +290,7 @@ class PytorchModel(Model):
                 logits = torch.where(  # guard against nans
                     torch.isfinite(logits), logits, torch.zeros_like(logits)
                 )
-                probs = softmax(logits, dim=1)
+                probs = softmax(logits.double(), dim=1)
                 all_probs.append(probs.cpu())
 
         all_probs = torch.cat(all_probs, dim=0)
@@ -319,7 +331,7 @@ class PytorchModel(Model):
                 "No Linear layer found and model has no 'classes' attribute"
             ) from error
 
-    def set_params(self, **kwargs: object) -> PytorchModel:
+    def set_params(self, **kwargs: object) -> torch.nn.Module:
         """Set the parameters of this model.
 
         Parameters
@@ -364,6 +376,7 @@ class PytorchModel(Model):
         model_path: str,
         model_module_path: str,
         model_name: str,
+        model_task: str,
         model_params: dict,
         train_module_path: str,
         train_params: dict,
@@ -379,6 +392,8 @@ class PytorchModel(Model):
             Path (including file extension) of Python module containing model class.
         model_name : str
             Class name of model.
+        model_task : str
+            Model task: regressor, classifier, etc.
         model_params : dict
             Hyperparameters for instantiating the model.
         train_module_path : str
@@ -407,6 +422,7 @@ class PytorchModel(Model):
             model_path=model_path,
             model_module_path=model_module_path,
             model_name=model_name,
+            model_task=model_task,
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,

@@ -512,7 +512,12 @@ def create_structural_report(attack_output: dict) -> FPDF:
 
     subtitle(pdf, "Risk Summary")
     for key, value in metrics.items():
-        risk_status = "Risk Detected" if value else "Not Detected"
+        if value is None:
+            risk_status = "Not assessed"
+        elif key.endswith("_risk"):
+            risk_status = "Risk Detected" if value else "Not Detected"
+        else:
+            risk_status = str(value)
         line(pdf, f"{key:>30s}: {risk_status:30s}", font="courier")
 
     pdf.add_page()
