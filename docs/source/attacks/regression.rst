@@ -79,15 +79,3 @@ MetaAttack preserves those missing assessments, including across repeated
 structural attacks. Its regression structural flag reflects the available
 k-anonymity indicator. Instance-based attacks continue to support their existing
 regression estimators such as kNN.
-
-Limits
-------
-
-This support covers single- and multi-output scikit-learn regression.
-PyTorch regression is not covered. Existing PyTorch classification is
-unchanged. Classification-specific structural criteria require a separately
-agreed definition before they can assess regression models.
-
-Use pipeline targets in memory. The existing ``Target.save()`` YAML format can
-contain estimator objects from pipeline parameters that ``Target.load()`` cannot
-read; that limitation also affects classification pipelines and is unchanged.
