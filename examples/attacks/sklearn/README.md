@@ -9,6 +9,8 @@ sklearn/
 │   │   ├── main_train.py [Trains a model and creates the required target_dir/]
 │   │   └── main_attack.py [Loads the model from the target_dir/ and runs attacks]
 │   └── nursery/ [Contains a scikit-learn example passing a dataset class]
+├── regression/ [Contains scikit-learn regression examples]
+│   └── diabetes/ [Contains a scikit-learn example passing data arrays directly]
 └── README.md
 ```
 
