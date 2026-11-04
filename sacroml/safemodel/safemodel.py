@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-import datetime
+import datetime as dt
 import getpass
 import json
 import logging
@@ -613,7 +613,7 @@ class SafeModel:
                     target, attack_name, path
                 )
         # add timestamp
-        now = datetime.datetime.now()
+        now = dt.datetime.now()
         self.timestamp = str(now.strftime("%Y-%m-%d %H:%M:%S"))
         output["timestamp"] = self.timestamp
         data: list[dict] = [output]
