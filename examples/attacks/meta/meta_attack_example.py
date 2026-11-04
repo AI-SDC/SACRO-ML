@@ -5,7 +5,7 @@ runs MetaAttack to produce a cross-attack vulnerability DataFrame.
 
 Usage::
 
-    python examples/sklearn/meta_attack_example.py
+    python meta_attack_example.py
 """
 
 import logging
