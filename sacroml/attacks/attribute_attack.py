@@ -90,9 +90,6 @@ class AttributeAttack(Attack):
         dict
             Attack report.
         """
-        if target.model.model_task == ModelTask.REGRESSOR:
-            target.model.get_losses(target.X_train, target.y_train)
-            target.model.get_losses(target.X_test, target.y_test)
         logger.info("Running attribute inference attack")
         self.attack_metrics = _attribute_inference(target, self.n_cpu)
         output: dict[str, Any] = self._make_report(target)
