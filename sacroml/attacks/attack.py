@@ -96,6 +96,7 @@ class Attack(ABC):
             self.metadata["target_model"] = target.model.model_name
             self.metadata["target_model_params"] = target.model.model_params
             self.metadata["target_train_params"] = target.model.train_params
+            self.metadata["target_task"] = str(target.model.model_task)
 
         output: dict[str, Any] = {
             "log_id": self._instance_id,

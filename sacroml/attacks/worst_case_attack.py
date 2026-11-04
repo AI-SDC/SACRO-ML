@@ -21,6 +21,7 @@ from sacroml import metrics
 from sacroml.attacks import report
 from sacroml.attacks._scorers import resolve_scorer
 from sacroml.attacks.attack import Attack
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 from sacroml.attacks.utils import get_class_by_name
 
@@ -107,7 +108,8 @@ class WorstCaseAttack(Attack):
             Proportion of data to use as a test set for the attack model.
         include_model_correct_feature : bool
             Inclusion of additional feature to hold whether or not the target model
-            made a correct prediction for each example.
+            made a correct prediction for each example. Regression always uses
+            per-record MSE as input; this option also enables its Yeom comparison.
         sort_probs : bool
             Whether to sort combined preds (from training and test)
             to have highest probabilities in the first column.
@@ -177,6 +179,7 @@ class WorstCaseAttack(Attack):
             self.tuning_metric = "AUC"
             self._resolved_tuning_scorer = resolve_scorer("AUC")
         self.report_individual: bool = report_individual
+        self._regression_loss_threshold: float | None = None
         self.dummy_attack_metrics: list = []
         self._tuned_params: dict | None = None
         self._tuning_info: dict | None = None
@@ -193,6 +196,7 @@ class WorstCaseAttack(Attack):
             target.has_model()
             and target.has_data()
             and all(hasattr(target.model, method) for method in required_methods)
+            and target.model.model_task in (ModelTask.REGRESSOR, ModelTask.CLASSIFIER)
         ) or target.has_probas():
             return True
         logger.info("WARNING: WorstCaseAttack requires more Target details.")
@@ -211,19 +215,34 @@ class WorstCaseAttack(Attack):
         dict
             Attack report.
         """
+        self._regression_loss_threshold = None
         train_c: np.ndarray | None = None
         test_c: np.ndarray | None = None
+        model: Model = target.model
+
         # compute target model probas if possible
-        if target.has_model() and target.has_data():  # pragma: no cover
-            proba_train = target.model.predict_proba(target.X_train)
-            proba_test = target.model.predict_proba(target.X_test)
-            if self.include_model_correct_feature:
-                train_c = 1 * (target.y_train == target.model.predict(target.X_train))
-                test_c = 1 * (target.y_test == target.model.predict(target.X_test))
+        if target.has_model() and target.has_data():
+            if model.model_task == ModelTask.REGRESSOR:
+                train_losses = model.get_losses(target.X_train, target.y_train)
+                test_losses = model.get_losses(target.X_test, target.y_test)
+                proba_train = train_losses[:, None]
+                proba_test = test_losses[:, None]
+                train_c, test_c = target.X_train, target.X_test
+                self._regression_loss_threshold = float(np.mean(train_losses))
+
+            elif model.model_task == ModelTask.CLASSIFIER:
+                proba_train = model.predict_proba(target.X_train)
+                proba_test = model.predict_proba(target.X_test)
+
+                if self.include_model_correct_feature:
+                    train_c = 1 * (target.y_train == model.predict(target.X_train))
+                    test_c = 1 * (target.y_test == model.predict(target.X_test))
+
         # use supplied target model probas if unable to compute
         else:
             proba_train = target.proba_train
             proba_test = target.proba_test
+
         # execute attack
         self.attack_from_preds(
             proba_train,
@@ -231,10 +250,13 @@ class WorstCaseAttack(Attack):
             train_correct=train_c,
             test_correct=test_c,
         )
+
         # create the report
         output: dict[str, Any] = self._make_report(target)
+
         # write the report
         self._write_report(output)
+
         # return the report
         return output
 
@@ -312,7 +334,11 @@ class WorstCaseAttack(Attack):
 
         logger.info("Creating MIA data")
 
-        if self.include_model_correct_feature and train_correct is not None:
+        if (
+            self.include_model_correct_feature
+            and train_correct is not None
+            and self._regression_loss_threshold is None
+        ):
             proba_train = np.hstack((proba_train, train_correct[:, None]))
             proba_test = np.hstack((proba_test, test_correct[:, None]))
 
@@ -566,6 +592,8 @@ class WorstCaseAttack(Attack):
             if self.include_model_correct_feature and train_correct is not None:
                 # Compute the Yeom TPR and FPR
                 yeom_preds = mi_test_x[:, -1]
+                if self._regression_loss_threshold is not None:
+                    yeom_preds = yeom_preds <= self._regression_loss_threshold
                 tn, fp, fn, tp = confusion_matrix(mi_test_y, yeom_preds).ravel()
                 mia_metrics[-1]["yeom_tpr"] = tp / (tp + fn)
                 mia_metrics[-1]["yeom_fpr"] = fp / (fp + tn)

@@ -62,6 +62,9 @@ class PytorchModel(Model):
             logger.warning("Assuming 'classifier' model since 'model_task' empty")
             model_task = ModelTask.CLASSIFIER
 
+        if model_task != ModelTask.CLASSIFIER:
+            raise ValueError("Only PyTorch classifiers are currently supported")
+
         super().__init__(
             model=model,
             model_path=model_path,
@@ -114,7 +117,7 @@ class PytorchModel(Model):
         Parameters
         ----------
         data : np.ndarray
-            Features of the records for whicgh losses are required
+            Features of the records for which losses are required
         labels : np.ndarray
             Actual labels
 
@@ -188,7 +191,7 @@ class PytorchModel(Model):
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, batch_size: int | None = None
-    ) -> PytorchModel:
+    ) -> torch.nn.Module:
         """Fit a model from scratch.
 
         Parameters
@@ -287,7 +290,7 @@ class PytorchModel(Model):
                 logits = torch.where(  # guard against nans
                     torch.isfinite(logits), logits, torch.zeros_like(logits)
                 )
-                probs = softmax(logits, dim=1)
+                probs = softmax(logits.double(), dim=1)
                 all_probs.append(probs.cpu())
 
         all_probs = torch.cat(all_probs, dim=0)
@@ -328,7 +331,7 @@ class PytorchModel(Model):
                 "No Linear layer found and model has no 'classes' attribute"
             ) from error
 
-    def set_params(self, **kwargs: object) -> PytorchModel:
+    def set_params(self, **kwargs: object) -> torch.nn.Module:
         """Set the parameters of this model.
 
         Parameters

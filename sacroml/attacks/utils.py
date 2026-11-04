@@ -12,7 +12,7 @@ from scipy.stats import shapiro
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +37,8 @@ def check_and_update_dataset(target: Target) -> Target:
         or target.X_test is None
     ):
         return target
+
+    # Check if model is a sklearn BaseEstimator first
     if not isinstance(target.model.model, BaseEstimator):
         logger.warning(
             "Target model is not a scikit-learn BaseEstimator (got %s); "
@@ -46,6 +48,14 @@ def check_and_update_dataset(target: Target) -> Target:
             "model.classes_ positions.",
             type(target.model.model).__name__,
         )
+        return target
+
+    if target.model.model_task == ModelTask.REGRESSOR:
+        for name in ("y_train", "y_test"):
+            values = np.asarray(getattr(target, name))
+            if values.ndim == 2 and values.shape[1] == 1:
+                values = values.reshape(-1)
+            setattr(target, name, values)
         return target
 
     classes = list(target.model.get_classes())
@@ -117,7 +127,8 @@ def train_shadow_models(
         indices_test = np.setdiff1d(indices, indices_train)
 
         # Fit the shadow model
-        shadow_clf.set_params(random_state=idx)
+        if "random_state" in shadow_clf.get_params():
+            shadow_clf.set_params(random_state=idx)
         shadow_clf.fit(
             combined_x_train[indices_train, :],
             combined_y_train[indices_train],

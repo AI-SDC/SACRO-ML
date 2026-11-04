@@ -40,16 +40,22 @@ def test_pytorch_task_infer_classifier(pytorch_model) -> None:
     assert target.model.model_task == ModelTask.CLASSIFIER
 
 
+def test_pytorch_task_classifier(pytorch_model) -> None:
+    """Test PyTorch model_task infer classifier."""
+    target = Target(model=pytorch_model, model_task="classifier")
+    assert target.model.model_task == ModelTask.CLASSIFIER
+
+
 def test_pytorch_task_unsupported(pytorch_model) -> None:
     """Test PyTorch model_task unsupported."""
-    with pytest.raises(ValueError, match="Unsupported model_task"):
+    with pytest.raises(ValueError, match="supported"):
         _ = Target(model=pytorch_model, model_task="aa")
 
 
 def test_pytorch_task_regressor(pytorch_model) -> None:
-    """Test PyTorch model_task regressor."""
-    target = Target(model=pytorch_model, model_task="regressor")
-    assert target.model.model_task == ModelTask.REGRESSOR
+    """Test PyTorch model_task regressor - not yet supported."""
+    with pytest.raises(ValueError, match="supported"):
+        _ = Target(model=pytorch_model, model_task="regressor")
 
 
 def test_pytorch() -> None:

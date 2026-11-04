@@ -100,8 +100,7 @@ class Model(ABC):
 
         The generalisation gap is the test error minus the train error,
         positive when the model performs worse on unseen data (e.g. due to
-        overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred.
+        overfitting). The error measure depends on the model's task.
 
         Parameters
         ----------
@@ -134,7 +133,7 @@ class Model(ABC):
         Returns
         -------
         np.array
-            array of losses (1.0 - proba value for correct label)
+            Per-record losses as defined by the concrete model wrapper.
         """
 
     @abstractmethod

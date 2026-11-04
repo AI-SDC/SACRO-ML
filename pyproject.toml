@@ -156,6 +156,7 @@ extend-ignore-names = [
     "X_target_train", "X_shadow_train", "N", "C",
     "X_train_orig", "X_test_orig", "X_orig", "X_transformed",
     "X_encoded", "X_tensor", "X_train_transformed", "X_test_transformed",
+    "Xr", "Xc", "X_"
 ]
 
 [tool.ruff.lint.pydocstyle]

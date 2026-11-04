@@ -15,7 +15,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 from sacroml.attacks import report
 from sacroml.attacks.attack import Attack
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 from sacroml.attacks.target import Target
 
 logging.basicConfig(level=logging.INFO)
@@ -234,13 +234,22 @@ def _infer(
     x_values, y_values, baseline = _get_inference_data(target, feature_id, memberset)
     n_unique: int = len(x_values[1])
     samples: np.ndarray = target.X_train if memberset else target.X_test
+
     for i, x in enumerate(x_values):  # each sample to perform inference on
         # get model confidence scores for all possible values for the sample
+        if target.model.model_task == ModelTask.REGRESSOR:
+            predictions = target.model.predict(x).reshape(len(x), -1)
+            distances = np.linalg.norm(predictions - y_values[i], axis=1)
+            best = np.flatnonzero(np.isclose(distances, distances.min()))
+            if len(best) == 1:
+                total += 1
+                correct += int(np.array_equal(x[best[0]], samples[i]))
+            continue
+
         confidence: np.ndarray = target.model.predict_proba(x)
         conf: list[float] = []  # confidences for each possible value with correct label
-        attr: list[
-            np.ndarray
-        ] = []  # features for each possible value with correct label
+        attr: list[np.ndarray] = []  # features for each value with correct label
+
         # for each possible attribute value,
         # if the label matches the known target model label
         # then store the confidence score and the tested feature vector
@@ -250,11 +259,13 @@ def _infer(
             if this_label == y_values[i]:
                 conf.append(scores)
                 attr.append(x[j])
+
         # is there is a unique maximum confidence score above threshold?
         if _unique_max(conf, threshold):
             total += 1
             if (attr[np.argmax(conf)] == samples[i]).all():
                 correct += 1
+
     logger.debug("Finished attacking feature %d", feature_id)
     return correct, total, baseline, n_unique, len(samples)
 
@@ -517,6 +528,72 @@ def _get_bounds_risk_for_sample(
     bool
         Whether the quantitative feature is at risk for the sample.
     """
+    if target_model.model_task == ModelTask.REGRESSOR:
+        return _get_regression_bounds_risk(
+            target_model=target_model,
+            feat_id=feat_id,
+            feat_min=feat_min,
+            feat_max=feat_max,
+            sample=sample,
+            protection_limit=protection_limit,
+            feat_n=feat_n,
+        )
+
+    if target_model.model_task == ModelTask.CLASSIFIER:
+        return _get_classification_bounds_risk(
+            target_model=target_model,
+            feat_id=feat_id,
+            feat_min=feat_min,
+            feat_max=feat_max,
+            sample=sample,
+            c_min=c_min,
+            protection_limit=protection_limit,
+            feat_n=feat_n,
+        )
+
+    raise ValueError(f"Cannot compute bounds risk for {target_model.model.model_task}")
+
+
+def _get_classification_bounds_risk(
+    target_model: Model,
+    feat_id: int,
+    feat_min: float,
+    feat_max: float,
+    sample: np.ndarray,
+    c_min: float = 0,
+    protection_limit: float = 0.1,
+    feat_n: int = 100,
+) -> bool:
+    """Return whether a quantitative feature is at risk for the sample.
+
+    Returns a bool based on conditions surrounding upper and lower bounds of
+    guesses that would lead to the same model confidence.
+
+    Parameters
+    ----------
+    target_model : Model
+        Trained target model.
+    feat_id : int
+        Index of missing feature.
+    feat_min : float
+        Minimum value of missing feature.
+    feat_max : float
+        Maximum value of missing feature.
+    sample : np.ndarray
+        Original known feature vector.
+    c_min : float
+        Defines the confidence threshold below which we say we don't care.
+    protection_limit : float
+        Lower [upper] bound on estimated value must not be
+        above[below] lower[upper] bounds e.g. 10% of value.
+    feat_n : int
+        Number of attribute values to test per sample.
+
+    Returns
+    -------
+    bool
+        Whether the quantitative feature is at risk for the sample.
+    """
     # attribute values to test - linearly sampled
     x_feat = np.linspace(feat_min, feat_max, feat_n, endpoint=True)
     # get known label
@@ -549,6 +626,30 @@ def _get_bounds_risk_for_sample(
         and actual_probs[label] == peak
         and lower_bound >= (1 - protection_limit) * actual_value
         and upper_bound <= (1 + protection_limit) * actual_value
+    )
+
+
+def _get_regression_bounds_risk(
+    target_model: Model,
+    feat_id: int,
+    feat_min: float,
+    feat_max: float,
+    sample: np.ndarray,
+    protection_limit: float,
+    feat_n: int,
+) -> bool:
+    """Bound an attribute using predictions closest to the known numeric output."""
+    values = np.linspace(feat_min, feat_max, feat_n)
+    candidates = np.repeat(sample[None, :], feat_n, axis=0)
+    candidates[:, feat_id] = values
+    known = target_model.predict(sample[None, :]).reshape(-1)
+    predictions = target_model.predict(candidates).reshape(feat_n, -1)
+    distances = np.linalg.norm(predictions - known, axis=1)
+    closest = values[np.isclose(distances, distances.min())]
+    tolerance = protection_limit * abs(sample[feat_id])
+    return bool(
+        closest.min() >= sample[feat_id] - tolerance
+        and closest.max() <= sample[feat_id] + tolerance
     )
 
 
