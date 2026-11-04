@@ -442,9 +442,6 @@ class StructuralAttack(Attack):
         self.target = target
         model: BaseEstimator | torch.nn.Module = target.model.model
 
-        if target.model.model_task == ModelTask.REGRESSOR:
-            target.model.get_losses(target.X_train, target.y_train)
-
         # Calculate equivalence classes, which are needed for several checks
         eqclass_probas, eqclass_inv_indices, eqclass_counts = (
             self._calculate_equivalence_classes()
