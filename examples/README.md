@@ -4,9 +4,10 @@ This folder contains examples of how to run the code contained in this repositor
 
 ## Contents
 
-* Examples attacking [scikit-learn](attacks/sklearn) models.
-* Examples attacking [PyTorch](attacks/pytorch) models.
-* Examples attacking [unsupported](attacks/unsupported) models where only pre-computed confidences/losses are required.
+* Jupyter [notebook examples](attacks/notebooks) of attack usage.
+* Example scripts attacking [scikit-learn](attacks/sklearn) models.
+* Example scripts attacking [PyTorch](attacks/pytorch) models.
+* Example scripts attacking [unsupported](attacks/unsupported) models where only pre-computed confidences/losses are required.
 * Examples of the [Meta MIA](attacks/meta/) attacks.
 * Examples of the [Quantile Regression MIA](attacks/qmia/) attacks.
 * Examples of [safemodel](safemodel) classes.
