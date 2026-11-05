@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+Changes:
+*   Feat: Add `model_task` (specifying whether a model is a classifier or regressor, etc.) to `Target` and infer it for scikit-learn models ([#488](https://github.com/AI-SDC/SACRO-ML/pull/488))
+*   Feat!: Enable attacks to work with scikit-learn regression models ([#484](https://github.com/AI-SDC/SACRO-ML/pull/484))
+*   Feat: Add initial support for PyTorch regressors ([#494](https://github.com/AI-SDC/SACRO-ML/pull/494))
+*   Fix: Set `DPSVC` `kernel="rbf"` for Python 3.14 ([#490](https://github.com/AI-SDC/SACRO-ML/pull/490))
+*   Docs: Fix various Sphinx issues ([#493](https://github.com/AI-SDC/SACRO-ML/pull/493))
+*   Docs(examples): Reorganise example scripts and notebooks ([#491](https://github.com/AI-SDC/SACRO-ML/pull/491))
+*   Docs(examples): Add PyTorch notebook example ([#485](https://github.com/AI-SDC/SACRO-ML/pull/485))
+*   Docs(examples): add scikit-learn regression example ([#492](https://github.com/AI-SDC/SACRO-ML/pull/492))
+*   CI: Update location of example notebooks for Sphinx
+*   CI: set codecov project coverage target to 90% ([#487](https://github.com/AI-SDC/SACRO-ML/pull/487))
+*   Chore(deps): update pre-commit hooks ([#483](https://github.com/AI-SDC/SACRO-ML/pull/483))
+
 ## Version 2.0.1 (Sep 25, 2026)
 
 CHanges:
