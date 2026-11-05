@@ -5,12 +5,13 @@
 ```md
 pytorch/
 ├── classification/ [Contains a simple PyTorch classification example]
-│   ├── dataset.py [Contains example dataset class]
-│   ├── model.py [Contains example model class]
+│   ├── dataset.py [Contains example dataset handler class]
+│   ├── model.py [Contains example model definition class]
 │   ├── train.py [Contains example training function]
 │   ├── main_train.py [Trains example model and creates the required target_dir/]
 │   └── main_attack.py [Loads the saved model from the target_dir/ and runs attacks]
-├── cifar/ [Contains CIFAR10 example with the same structure/files as example above]
+├── regression/ [Contains regression example with the same structure/files as above]
+├── cifar/ [Contains CIFAR10 example with the same structure/files as above]
 │   └── requirements.txt [Contains additional dependencies for CIFAR dataset]
 └── README.md
 ```

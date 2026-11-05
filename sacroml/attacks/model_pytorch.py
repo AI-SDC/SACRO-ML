@@ -9,7 +9,7 @@ from copy import deepcopy
 import numpy as np
 import torch
 from torch import cuda
-from torch.nn.functional import softmax
+from torch.nn.functional import mse_loss, softmax
 from torch.utils.data import DataLoader, TensorDataset
 
 from sacroml.attacks.model import Model, ModelTask, create_model
@@ -62,8 +62,8 @@ class PytorchModel(Model):
             logger.warning("Assuming 'classifier' model since 'model_task' empty")
             model_task = ModelTask.CLASSIFIER
 
-        if model_task != ModelTask.CLASSIFIER:
-            raise ValueError("Only PyTorch classifiers are currently supported")
+        if model_task not in (ModelTask.CLASSIFIER, ModelTask.REGRESSOR):
+            raise ValueError("Only PyTorch classifiers and regressors are supported")
 
         super().__init__(
             model=model,
@@ -86,11 +86,6 @@ class PytorchModel(Model):
     ) -> float:
         """Return the model generalisation gap for a set of samples.
 
-        The generalisation gap is the test error minus the train error,
-        positive when the model performs worse on unseen data (e.g. due to
-        overfitting). Assumes a classification model whose score() returns
-        accuracy, so error = 1 - score(); regression support is deferred.
-
         Parameters
         ----------
         X_train : np.ndarray
@@ -107,32 +102,43 @@ class PytorchModel(Model):
         float
             Model generalisation gap (test error - train error).
         """
-        train = self.score(X_train, y_train)
-        test = self.score(X_test, y_test)
-        return (1.0 - test) - (1.0 - train)
+        train: float = self.score(X_train, y_train)
+        test: float = self.score(X_test, y_test)
 
-    def get_losses(self, data: np.ndarray, labels: np.ndarray) -> np.array:
-        """Return the losses for a given set of samples.
+        if self.model_task == ModelTask.CLASSIFIER:
+            return (1.0 - test) - (1.0 - train)
+
+        return test - train
+
+    def get_losses(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """Return the per-sample losses for a given set of samples.
 
         Parameters
         ----------
-        data : np.ndarray
-            Features of the records for which losses are required
-        labels : np.ndarray
-            Actual labels
+        X : np.ndarray
+            Features of the records for which losses are required.
+        y : np.ndarray
+            Actual labels (classification) or target values (regression).
 
         Returns
         -------
-        np.array
-            array of losses (1.0 - predicted confidence for correct label)
+        np.ndarray
+            Array of per-sample losses, shape (n_samples,).
+            Classification: 1.0 - predicted probability of the correct label.
+            Regression: squared error (averaged over targets if multi-target).
         """
-        labelidxs = self.get_label_indices(labels)
-        numrows = len(data)
-        allprobs = self.predict_proba(data)
-        losses = np.zeros(numrows)
-        for i in range(numrows):
-            losses[i] = 1.0 - allprobs[i, labelidxs[i]]
-        return losses
+        if self.model_task == ModelTask.CLASSIFIER:
+            label_indices = self.get_label_indices(y)
+            proba = self.predict_proba(X)
+            return 1.0 - proba[np.arange(len(X)), label_indices]
+
+        # MSE
+        y_pred = torch.from_numpy(self.predict(X))
+        y_true = torch.from_numpy(np.asarray(y, dtype=np.float64)).reshape(y_pred.shape)
+        losses = mse_loss(y_pred, y_true, reduction="none")
+        if losses.ndim > 1:
+            losses = losses.mean(dim=1)
+        return losses.numpy()
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """Return the model accuracy for a set of samples.
@@ -147,10 +153,15 @@ class PytorchModel(Model):
         Returns
         -------
         float
-            Model score.
+            Accuracy for classification; mean squared error otherwise.
         """
         y_pred = self.predict(X)
-        return float(np.mean(y_pred == y))
+
+        if self.model_task == ModelTask.CLASSIFIER:
+            return float(np.mean(y_pred == y))
+
+        y = np.asarray(y, dtype=np.float64).reshape(y_pred.shape)
+        return float(np.mean((y_pred - y) ** 2))
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Return the model predictions for a set of samples.
@@ -163,7 +174,8 @@ class PytorchModel(Model):
         Returns
         -------
         np.ndarray
-            Model predictions (label encoding).
+            Model predictions. For classification, the predicted class labels
+            (label encoding); for regression, the predicted target values.
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.to(device)
@@ -181,8 +193,17 @@ class PytorchModel(Model):
         with torch.no_grad():
             for batch in dataloader:
                 x_batch = batch[0].to(device)
-                logits = self.model(x_batch)
-                _, y_pred = torch.max(logits, 1)
+                output = self.model(x_batch)
+
+                if self.model_task == ModelTask.CLASSIFIER:
+                    y_pred = torch.argmax(output, dim=1)
+                elif self.model_task == ModelTask.REGRESSOR:
+                    # Single-target regression: (batch, 1) -> (batch,)
+                    # Multi-target regression keeps shape (batch, n_targets)
+                    y_pred = output.squeeze(-1) if output.shape[-1] == 1 else output
+                else:
+                    raise ValueError(f"Unsupported model task: {self.model_task}")
+
                 all_preds.append(y_pred.cpu())
 
         all_preds = torch.cat(all_preds, dim=0)
@@ -270,6 +291,9 @@ class PytorchModel(Model):
         np.ndarray
             Predicted probabilities.
         """
+        if self.model_task != ModelTask.CLASSIFIER:
+            raise NotImplementedError("predict_proba for classification models only")
+
         device = "cuda:0" if cuda.is_available() else "cpu"
         self.model.to(device)
         self.model.eval()
@@ -448,7 +472,7 @@ def dataloader_to_numpy(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]
     with torch.no_grad():
         for inputs, labels in dataloader:
             all_inputs.append(inputs.cpu().numpy().astype(np.float64))
-            all_labels.append(labels.cpu().numpy().astype(np.int32))
+            all_labels.append(labels.cpu().numpy())
 
     X = np.concatenate(all_inputs, axis=0)
     y = np.concatenate(all_labels, axis=0)
@@ -460,7 +484,9 @@ def numpy_to_dataloader(
 ) -> DataLoader:
     """Convert numpy arrays to PyTorch DataLoader."""
     X_tensor = torch.from_numpy(X).float()
-    y_tensor = torch.from_numpy(y).long()
+
+    y_tensor = torch.from_numpy(y)
+    y_tensor = y_tensor.float() if y_tensor.is_floating_point() else y_tensor.long()
 
     dataset = TensorDataset(X_tensor, y_tensor)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)

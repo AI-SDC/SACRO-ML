@@ -39,7 +39,7 @@ def train(
             optimizer.step()
 
 
-def test(model: nn.Module, dataloader: DataLoader) -> None:
+def score(model: nn.Module, dataloader: DataLoader) -> float:
     """Test model."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -55,4 +55,4 @@ def test(model: nn.Module, dataloader: DataLoader) -> None:
             correct += (predicted == y).sum().item()
             total += y.size(0)
 
-    print(f"Accuracy on test set: {100 * correct / total:.2f}%")
+    return 100 * correct / total

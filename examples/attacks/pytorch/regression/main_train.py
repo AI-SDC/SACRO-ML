@@ -1,0 +1,92 @@
+"""Train a regressor on synthetic data using sacroml Target and Dataset classes."""
+
+import logging
+
+import torch
+from dataset import Synthetic
+from model import OverfitNet
+from train import score, train
+
+from sacroml.attacks.target import Target
+
+target_dir = "target_pytorch"
+random_state = 2
+
+if __name__ == "__main__":
+    torch.manual_seed(random_state)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(random_state)
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info("Found no NVIDIA driver on your system")
+
+    #############################################################################
+    # Dataset loading and model training
+    #############################################################################
+
+    logging.info("Loading dataset")
+
+    # Access dataset
+    data_handler = Synthetic()
+
+    # Get the (preprocessed) dataset
+    dataset = data_handler.get_dataset()
+
+    # Create data splits
+    indices_train, indices_test = data_handler.get_train_test_indices()
+
+    # Made explicit so the same value can be recorded on the Target below.
+    batch_size = 32
+    train_loader = data_handler.get_dataloader(
+        dataset, indices_train, batch_size=batch_size, shuffle=True
+    )
+    test_loader = data_handler.get_dataloader(
+        dataset, indices_test, batch_size=batch_size, shuffle=False
+    )
+
+    logging.info("Defining the model")
+
+    model_params = {
+        "x_dim": 4,
+        "y_dim": 4,
+        "n_units": 1000,
+    }
+    train_params = {
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+    }
+    model = OverfitNet(**model_params)
+
+    logging.info("Training the model")
+    train(model, train_loader, **train_params)
+
+    logging.info("Scoring the model")
+    train_mse = score(model, train_loader)
+    test_mse = score(model, test_loader)
+
+    print(f"MSE on train set: {train_mse:.4f}")
+    print(f"MSE on test set: {test_mse:.4f}")
+
+    #############################################################################
+    # Below shows the use of the Target class to help generate the target_dir/
+    # If you have already saved your model, you can use the CLI target generator.
+    #############################################################################
+
+    logging.info("Wrapping the model and data in a Target object")
+    target = Target(
+        model=model,
+        model_module_path="model.py",
+        model_params=model_params,  # Must match all required in model constructor
+        model_task="regressor",
+        train_module_path="train.py",
+        train_params=train_params,  # Must match all required in the train function
+        batch_size=batch_size,  # Should match the training batch size
+        dataset_module_path="dataset.py",
+        dataset_name="Synthetic",  # Must match the class name in dataset module
+        indices_train=indices_train,
+        indices_test=indices_test,
+    )
+
+    logging.info("Writing Target object to directory: '%s'", target_dir)
+    target.save(target_dir)
