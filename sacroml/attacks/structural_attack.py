@@ -344,14 +344,16 @@ class StructuralAttack(Attack):
     and hyperparameters, aligned with TRE risk appetite for 'traditional' outputs.
 
     Attack pipeline includes checks for:
+
     - Residual Degrees of freedom
     - Complexity risk
-    - and uses Equivalence class analysis to identify risks of:
-       - K-anonymity
-       - Class disclosure:
-       (partitions of decision space with zero probability for some labels)
-       - Reidentification through small groups
-       (partitions of decision space with some groups below the cell count threshold)
+    - Equivalence class analysis, which identifies risks of:
+
+      - K-anonymity
+      - Class disclosure (partitions of decision space with zero probability
+        for some labels)
+      - Reidentification through small groups (partitions of decision space
+        with some groups below the cell count threshold)
     """
 
     def __init__(
