@@ -38,6 +38,14 @@ def check_and_update_dataset(target: Target) -> Target:
     ):
         return target
 
+    if target.model.model_task == ModelTask.REGRESSOR:
+        for name in ("y_train", "y_test"):
+            values = np.asarray(getattr(target, name))
+            if values.ndim == 2 and values.shape[1] == 1:
+                values = values.reshape(-1)
+            setattr(target, name, values)
+        return target
+
     # Check if model is a sklearn BaseEstimator first
     if not isinstance(target.model.model, BaseEstimator):
         logger.warning(
@@ -48,14 +56,6 @@ def check_and_update_dataset(target: Target) -> Target:
             "model.classes_ positions.",
             type(target.model.model).__name__,
         )
-        return target
-
-    if target.model.model_task == ModelTask.REGRESSOR:
-        for name in ("y_train", "y_test"):
-            values = np.asarray(getattr(target, name))
-            if values.ndim == 2 and values.shape[1] == 1:
-                values = values.reshape(-1)
-            setattr(target, name, values)
         return target
 
     classes = list(target.model.get_classes())
@@ -74,6 +74,7 @@ def check_and_update_dataset(target: Target) -> Target:
     )
     if len(ok_pos) != len(target.X_test):  # pragma: no cover
         target.X_test = target.X_test[ok_pos, :]
+
     logger.info(
         "new y_test has values and counts: %s",
         np.unique(target.y_test, return_counts=True),

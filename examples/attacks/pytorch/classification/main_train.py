@@ -5,7 +5,7 @@ import logging
 import torch
 from dataset import Synthetic
 from model import OverfitNet
-from train import test, train
+from train import score, train
 
 from sacroml.attacks.target import Target
 
@@ -62,7 +62,11 @@ if __name__ == "__main__":
     train(model, train_loader, **train_params)
 
     logging.info("Testing the model")
-    test(model, test_loader)
+    train_acc = score(model, train_loader)
+    test_acc = score(model, test_loader)
+
+    print(f"Accuracy on train set: {train_acc:.2f}%")
+    print(f"Accuracy on test set: {test_acc:.2f}%")
 
     #############################################################################
     # Below shows the use of the Target class to help generate the target_dir/

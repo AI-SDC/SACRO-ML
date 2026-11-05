@@ -11,13 +11,14 @@ def train(
     epochs: int,
     learning_rate: float,
     momentum: float,
+    task: str = "classifier",
 ) -> None:
     """Train model."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
 
-    criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+    criterion = nn.MSELoss() if task == "regressor" else nn.CrossEntropyLoss()
 
     model.train()
     for _ in range(epochs):
@@ -26,7 +27,11 @@ def train(
             y = labels.to(device, non_blocking=True)
 
             optimizer.zero_grad()
-            logits = model(X)
-            loss = criterion(logits, y)
+            y_pred = model(X)
+
+            if task == "regressor":
+                y = y.float().reshape(y_pred.shape)
+
+            loss = criterion(y_pred, y)
             loss.backward()
             optimizer.step()

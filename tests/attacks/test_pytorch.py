@@ -15,7 +15,7 @@ from sacroml.attacks.model import ModelTask
 from sacroml.attacks.structural_attack import StructuralAttack
 from sacroml.attacks.target import Target
 from sacroml.attacks.worst_case_attack import WorstCaseAttack
-from tests.attacks.pytorch_dataset import Synthetic
+from tests.attacks.pytorch_dataset import SyntheticClassification, SyntheticRegression
 from tests.attacks.pytorch_model import OverfitNet
 from tests.attacks.pytorch_train import train
 
@@ -41,7 +41,7 @@ def test_pytorch_task_infer_classifier(pytorch_model) -> None:
 
 
 def test_pytorch_task_classifier(pytorch_model) -> None:
-    """Test PyTorch model_task infer classifier."""
+    """Test PyTorch model_task classifier."""
     target = Target(model=pytorch_model, model_task="classifier")
     assert target.model.model_task == ModelTask.CLASSIFIER
 
@@ -53,15 +53,15 @@ def test_pytorch_task_unsupported(pytorch_model) -> None:
 
 
 def test_pytorch_task_regressor(pytorch_model) -> None:
-    """Test PyTorch model_task regressor - not yet supported."""
-    with pytest.raises(ValueError, match="supported"):
-        _ = Target(model=pytorch_model, model_task="regressor")
+    """Test PyTorch model_task regressor."""
+    target = Target(model=pytorch_model, model_task="regressor")
+    assert target.model.model_task == ModelTask.REGRESSOR
 
 
-def test_pytorch() -> None:
-    """Test PyTorch handling."""
+def test_pytorch_classification() -> None:
+    """Test PyTorch classification handling."""
     # Access dataset
-    handler = Synthetic()
+    handler = SyntheticClassification()
 
     # Get the (preprocessed) dataset
     dataset = handler.get_dataset()
@@ -82,6 +82,7 @@ def test_pytorch() -> None:
         "epochs": 10,
         "learning_rate": 0.001,
         "momentum": 0.9,
+        "task": "classifier",
     }
     model = OverfitNet(**model_params)
 
@@ -92,10 +93,11 @@ def test_pytorch() -> None:
         model=model,
         model_module_path="tests/attacks/pytorch_model.py",
         model_params=model_params,
+        model_task=train_params["task"],
         train_module_path="tests/attacks/pytorch_train.py",
         train_params=train_params,
         dataset_module_path="tests/attacks/pytorch_dataset.py",
-        dataset_name="Synthetic",
+        dataset_name="SyntheticClassification",
         indices_train=indices_train,
         indices_test=indices_test,
     )
@@ -178,7 +180,7 @@ def test_pytorch() -> None:
 
 def _make_target(batch_size: int | None) -> Target:
     """Build a small wrapped PyTorch Target for batch_size tests."""
-    handler = Synthetic()
+    handler = SyntheticClassification()
     dataset = handler.get_dataset()
     indices_train, indices_test = handler.get_train_test_indices()
     train_loader = handler.get_dataloader(dataset, indices_train)
@@ -196,7 +198,7 @@ def _make_target(batch_size: int | None) -> Target:
         train_params=train_params,
         batch_size=batch_size,
         dataset_module_path="tests/attacks/pytorch_dataset.py",
-        dataset_name="Synthetic",
+        dataset_name="SyntheticClassification",
         indices_train=indices_train,
         indices_test=indices_test,
     )
@@ -270,7 +272,7 @@ def test_batch_size_backcompat_old_yaml(caplog) -> None:
 def test_fit_batch_size_override_warns(caplog) -> None:
     """Fit() warns when an explicit batch_size differs from the recorded one."""
     target = _make_target(batch_size=16)
-    handler = Synthetic()
+    handler = SyntheticClassification()
     X = np.asarray(handler.X, dtype=np.float64)
     y = np.asarray(handler.y, dtype=np.int64)
 
@@ -279,3 +281,124 @@ def test_fit_batch_size_override_warns(caplog) -> None:
 
     warnings = [r for r in caplog.records if "differs from the target" in r.message]
     assert len(warnings) == 1
+
+
+def test_pytorch_regression() -> None:
+    """Test PyTorch regression handling."""
+    # Access dataset
+    handler = SyntheticRegression()
+
+    # Get the (preprocessed) dataset
+    dataset = handler.get_dataset()
+
+    # Create data splits
+    indices_train, indices_test = handler.get_train_test_indices()
+
+    # Get dataloaders
+    train_loader = handler.get_dataloader(dataset, indices_train)
+
+    # Make and fit model
+    model_params = {
+        "x_dim": 4,
+        "y_dim": 4,
+        "n_units": 1000,
+    }
+    train_params = {
+        "epochs": 10,
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "task": "regressor",
+    }
+    model = OverfitNet(**model_params)
+
+    train(model, train_loader, **train_params)
+
+    # Wrap model and data
+    target = Target(
+        model=model,
+        model_module_path="tests/attacks/pytorch_model.py",
+        model_params=model_params,
+        model_task=train_params["task"],
+        train_module_path="tests/attacks/pytorch_train.py",
+        train_params=train_params,
+        dataset_module_path="tests/attacks/pytorch_dataset.py",
+        dataset_name="SyntheticRegression",
+        indices_train=indices_train,
+        indices_test=indices_test,
+    )
+
+    for i in range(model_params["x_dim"]):
+        target.add_feature(
+            name=f"X{i}",
+            indices=[i],
+            encoding="float",
+        )
+
+    # Test saving and loading
+    target.save(target_dir)
+
+    tgt = Target()
+    tgt.load(target_dir)
+
+    assert tgt.dataset_name == target.dataset_name
+    assert tgt.X_train is not None
+    assert tgt.y_train is not None
+    assert tgt.X_test is not None
+    assert tgt.y_test is not None
+
+    # Test worst case attack
+    attack = WorstCaseAttack(
+        n_reps=10,
+        n_dummy_reps=1,
+        train_beta=5,
+        test_beta=2,
+        p_thresh=0.05,
+        test_prop=0.5,
+        output_dir=output_dir,
+    )
+    output = attack.attack(tgt)
+    assert output
+
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert metrics["AUC"] > 0
+
+    # Test structural attack
+    attack = StructuralAttack(output_dir=output_dir)
+    output = attack.attack(tgt)
+    assert output
+
+    # Test attribute attack
+    attack = AttributeAttack(n_cpu=2, output_dir=output_dir)
+    output = attack.attack(tgt)
+    assert output
+
+    # Test LiRA attack
+    attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
+    output = attack.attack(tgt)
+    assert output
+
+    metrics = output["attack_experiment_logger"]["attack_instance_logger"]["instance_0"]
+    assert metrics["AUC"] > 0
+
+    # Test generalisation gap: positive when test error exceeds train error
+    res = tgt.model.get_generalisation_gap(
+        tgt.X_train, tgt.y_train, tgt.X_test, tgt.y_test
+    )
+    assert res > 0
+
+    # Test score function
+    res = tgt.model.score(tgt.X_test, tgt.y_test)
+    assert res > 0
+
+    # Test predict function
+    res = tgt.model.predict(tgt.X_test)
+    assert len(res) > 0
+
+    # test get_losses
+    loss = tgt.model.get_losses(tgt.X_test, tgt.y_test)
+    y_pred = tgt.model.predict(tgt.X_test)
+    y_true = np.asarray(tgt.y_test, dtype=np.float64).reshape(y_pred.shape)
+    expected = (y_true - y_pred) ** 2
+    if expected.ndim > 1:
+        expected = expected.mean(axis=1)
+    np.testing.assert_allclose(loss, expected)
