@@ -13,7 +13,8 @@ Changes:
 *   Docs(examples): add scikit-learn regression example ([#492](https://github.com/AI-SDC/SACRO-ML/pull/492))
 *   CI: Update location of example notebooks for Sphinx
 *   CI: set codecov project coverage target to 90% ([#487](https://github.com/AI-SDC/SACRO-ML/pull/487))
-*   Chore(deps): update pre-commit hooks ([#483](https://github.com/AI-SDC/SACRO-ML/pull/483))
+*   Chore: Drop Python 3.10 support, add Python 3.15 ([#496](https://github.com/AI-SDC/SACRO-ML/pull/496))
+*   Chore(deps): Update pre-commit hooks ([#483](https://github.com/AI-SDC/SACRO-ML/pull/483))
 
 ## Version 2.0.1 (Sep 25, 2026)
 
