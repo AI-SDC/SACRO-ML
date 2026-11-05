@@ -29,7 +29,6 @@ extensions = [
     "sphinx_issues",
     "sphinx_prompt",
     "pydata_sphinx_theme",
-    "sphinx.ext.autosectionlabel",
     "sphinxcontrib.bibtex",
     "nbsphinx",
     "sphinx_design",
@@ -59,7 +58,7 @@ nbsphinx_execute = "never"
 nbsphinx_allow_errors = True
 nbsphinx_timeout = 60
 
-# -- -------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 numpydoc_class_members_toctree = False
 autodoc_default_options = {
@@ -69,4 +68,13 @@ autodoc_default_options = {
     "special-members": "__init__",
     "undoc-members": True,
     "exclude-members": "__weakref__",
+}
+
+# ---------------------------------------------------------------------------
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "sklearn": ("https://scikit-learn.org/stable/", None),
 }
