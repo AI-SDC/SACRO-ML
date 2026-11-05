@@ -3,7 +3,7 @@
 ## Unreleased
 
 Changes:
-*   Feat: Add `model_task` (specifying whether a model is a classifier or regressor, etc.) to `Target` and infer it for scikit-learn models ([#488](https://github.com/AI-SDC/SACRO-ML/pull/488))
+*   Feat: Add `model_task` (classifier or regressor, etc.) to `Target` and infer it for scikit-learn models ([#488](https://github.com/AI-SDC/SACRO-ML/pull/488))
 *   Feat!: Enable attacks to work with scikit-learn regression models ([#484](https://github.com/AI-SDC/SACRO-ML/pull/484))
 *   Feat: Add initial support for PyTorch regressors ([#494](https://github.com/AI-SDC/SACRO-ML/pull/494))
 *   Fix: Set `DPSVC` `kernel="rbf"` for Python 3.14 ([#490](https://github.com/AI-SDC/SACRO-ML/pull/490))
