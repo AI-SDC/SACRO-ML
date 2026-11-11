@@ -53,7 +53,7 @@ class ThresholdAttack(Attack):
         return "Threshold attack"
 
     @classmethod
-    def attackable(cls, target: Target) -> bool:  # pragma: no cover
+    def attackable(cls, target: Target) -> bool:
         """Return whether a target can be assessed with ThresholdAttack."""
         if (
             target.has_model()
@@ -92,6 +92,8 @@ class ThresholdAttack(Attack):
         else:
             members = target.proba_train
             nonmembers = target.proba_test
+            if members.ndim != 1 or nonmembers.ndim != 1:
+                raise ValueError("ThresholdAttack signals require 1 float per record")
 
         # construct empty metadata
         self._construct_metadata()
