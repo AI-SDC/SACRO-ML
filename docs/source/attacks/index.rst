@@ -8,6 +8,7 @@ Examples showing how to run the code can be found in the examples folder.
 
    regression
    likelihood
+   threshold
    worst_case
    structural
    qmia
