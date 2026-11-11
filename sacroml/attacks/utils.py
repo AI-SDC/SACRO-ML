@@ -323,3 +323,17 @@ def unwrap_model(
         preprocessor = Pipeline(model.steps[:-1]) if len(model.steps) > 1 else None
         return final_estimator, preprocessor
     return model, None
+
+
+def tpr_at_fpr(target: float, fpr: np.ndarray, tpr: np.ndarray) -> float:
+    """Return the TPR at a fixed FPR %."""
+    target_fpr = target / 100
+    return float(np.interp(target_fpr, fpr, tpr))
+
+
+def tnr_at_fnr(target: float, members: np.ndarray, nonmembers: np.ndarray) -> float:
+    """Return the TNR at a fixed FNR %."""
+    # threshold from members, applied to non-members
+    target_fnr = target / 100
+    tau_loss = np.quantile(members, 1 - target_fnr)
+    return (nonmembers > tau_loss).mean()

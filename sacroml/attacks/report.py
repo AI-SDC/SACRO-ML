@@ -100,6 +100,11 @@ STRUCTURAL_INTRODUCTION = (
     "indicates a potential vulnerability that should be investigated."
 )
 
+THRESHOLD_INTRODUCTION = (
+    "This report summarises the results of a simple threshold membership "
+    "inference attack."
+)
+
 STRUCTURAL_GLOSSARY = {
     "dof_risk": (
         "Degrees of Freedom (DoF) Risk: Checks if the model is overly complex "
@@ -821,4 +826,55 @@ def create_meta_report(output: dict) -> FPDF:
         if os.path.exists(chart_path):
             os.remove(chart_path)
 
+    return pdf
+
+
+def create_threshold_report(attack_output: dict) -> FPDF:
+    """Make a threshold attack membership inference report.
+
+    Parameters
+    ----------
+    attack_output : dict
+        Dictionary with the following items:
+
+    Returns
+    -------
+    pdf : fpdf.FPDF
+        fpdf document object
+    """
+    mia_metrics = [
+        v
+        for _, v in attack_output["attack_experiment_logger"][
+            "attack_instance_logger"
+        ].items()
+    ]
+    metadata: dict = attack_output["metadata"]
+
+    path: str = metadata["attack_params"]["output_dir"]
+    dest_log_roc = os.path.join(path, "log_roc.png")
+    _roc_plot(mia_metrics, dest_log_roc)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_xy(0, 0)
+    title(pdf, "Threshold MIA attack result report")
+    subtitle(pdf, "Introduction")
+    line(pdf, THRESHOLD_INTRODUCTION)
+    subtitle(pdf, "Experiment summary")
+    line(
+        pdf,
+        f"{'sacroml_version':>30s}: {str(metadata['sacroml_version']):30s}",
+        font="courier",
+    )
+    for key, value in metadata["attack_params"].items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+    subtitle(pdf, "Metrics")
+    for key, value in metadata["global_metrics"].items():
+        line(pdf, f"{key:>30s}: {str(value):30s}", font="courier")
+
+    _add_log_roc_to_page(dest_log_roc, pdf)
+    line(pdf, LOGROC_CAPTION)
+
+    if os.path.exists(dest_log_roc):
+        os.remove(dest_log_roc)
     return pdf

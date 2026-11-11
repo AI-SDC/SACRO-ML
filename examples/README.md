@@ -35,7 +35,7 @@ To run a programmatic example:
 1. Run the relevant training script.
 2. Run the desired attack script.
 
-For example, from the `attacks/sklearn/cancer/` folder:
+For example, from the `attacks/sklearn/classification/cancer/` folder:
 
 ```
 $ python -m main_train
@@ -48,7 +48,7 @@ $ python -m main_attack
 2. Generate an `attack.yaml` config.
 3. Run the attack CLI tool.
 
-For example, from the `attacks/sklearn/cancer/` folder:
+For example, from the `attacks/sklearn/classification/cancer/` folder:
 
 ```
 $ python -m main_train
