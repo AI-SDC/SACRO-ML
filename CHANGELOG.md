@@ -6,7 +6,7 @@ Changes:
 *   Feat: Add `model_task` (classifier or regressor, etc.) to `Target` and infer it for scikit-learn models ([#488](https://github.com/AI-SDC/SACRO-ML/pull/488))
 *   Feat!: Enable attacks to work with scikit-learn regression models ([#484](https://github.com/AI-SDC/SACRO-ML/pull/484))
 *   Feat: Add initial support for PyTorch regressors ([#494](https://github.com/AI-SDC/SACRO-ML/pull/494))
-*   Feat: Add `ThresholdAttack`: simple threshold MIA ([#498](https://github.com/AI-SDC/SACRO-ML/pull/498))
+*   Feat: Add `ThresholdAttack`: simple threshold MIA ([#498](https://github.com/AI-SDC/SACRO-ML/pull/498), [#500](https://github.com/AI-SDC/SACRO-ML/pull/500))
 *   Fix: Set `DPSVC` `kernel="rbf"` for Python 3.14 ([#490](https://github.com/AI-SDC/SACRO-ML/pull/490))
 *   Docs: Fix various Sphinx issues ([#493](https://github.com/AI-SDC/SACRO-ML/pull/493), [#497](https://github.com/AI-SDC/SACRO-ML/pull/497))
 *   Docs(examples): Reorganise example scripts and notebooks ([#491](https://github.com/AI-SDC/SACRO-ML/pull/491))
