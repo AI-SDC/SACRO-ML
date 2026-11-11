@@ -15,29 +15,6 @@ from sacroml.attacks.likelihood_attack import LIRAAttack
 from sacroml.attacks.target import Target
 
 
-@pytest.fixture(name="dummy_classifier_setup")
-def fixture_dummy_classifier_setup():
-    """Set up common things for DummyClassifier."""
-    dummy = LIRAAttack._DummyClassifier()
-    X = np.array([[0.2, 0.8], [0.7, 0.3]])
-    return dummy, X
-
-
-def test_predict_proba(dummy_classifier_setup):
-    """Test the predict_proba method."""
-    dummy, X = dummy_classifier_setup
-    pred_probs = dummy.predict_proba(X)
-    assert np.array_equal(pred_probs, X)
-
-
-def test_predict(dummy_classifier_setup):
-    """Test the predict method."""
-    dummy, X = dummy_classifier_setup
-    expected_output = np.array([1, 0])
-    pred = dummy.predict(X)
-    assert np.array_equal(pred, expected_output)
-
-
 @pytest.fixture(name="lira_classifier_setup")
 def fixture_lira_classifier_setup():
     """Set up common things for LiRA."""

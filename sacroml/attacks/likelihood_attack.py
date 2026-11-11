@@ -359,12 +359,10 @@ class LIRAAttack(Attack):
         n_normal: int,
     ) -> None:
         """Save attack metrics and individual results."""
-        mia_clf = self._DummyClassifier()
         mia_scores_array = np.array(mia_scores)
         mia_labels = np.array([1] * n_train_rows + [0] * n_shadow_rows)
-        y_pred_proba = mia_clf.predict_proba(mia_scores_array)
 
-        self.attack_metrics = [metrics.get_metrics(y_pred_proba, mia_labels)]
+        self.attack_metrics = [metrics.get_metrics(mia_scores_array, mia_labels)]
         self.attack_metrics[-1]["n_normal"] = n_normal / (n_train_rows + n_shadow_rows)
 
         if self.report_individual:
@@ -435,14 +433,3 @@ class LIRAAttack(Attack):
             attack_metrics_instances["instance_" + str(rep)] = self.attack_metrics[rep]
         attack_metrics_experiment["attack_instance_logger"] = attack_metrics_instances
         return attack_metrics_experiment
-
-    class _DummyClassifier:
-        """A Dummy Classifier to allow this code to work with get_metrics."""
-
-        def predict(self, X_test: np.ndarray) -> np.ndarray:
-            """Return an array of 1/0 depending on value in second column."""
-            return 1 * (X_test[:, 1] > 0.5)
-
-        def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
-            """Simply return the X_test."""
-            return X_test

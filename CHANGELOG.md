@@ -8,12 +8,13 @@ Changes:
 *   Feat: Add initial support for PyTorch regressors ([#494](https://github.com/AI-SDC/SACRO-ML/pull/494))
 *   Feat: Add `ThresholdAttack`: simple threshold MIA ([#498](https://github.com/AI-SDC/SACRO-ML/pull/498), [#500](https://github.com/AI-SDC/SACRO-ML/pull/500))
 *   Fix: Set `DPSVC` `kernel="rbf"` for Python 3.14 ([#490](https://github.com/AI-SDC/SACRO-ML/pull/490))
+*   Refactor: Remove unnecessary legacy code ([#501](https://github.com/AI-SDC/SACRO-ML/pull/501))
 *   Docs: Fix various Sphinx issues ([#493](https://github.com/AI-SDC/SACRO-ML/pull/493), [#497](https://github.com/AI-SDC/SACRO-ML/pull/497))
 *   Docs(examples): Reorganise example scripts and notebooks ([#491](https://github.com/AI-SDC/SACRO-ML/pull/491))
 *   Docs(examples): Add PyTorch notebook example ([#485](https://github.com/AI-SDC/SACRO-ML/pull/485))
-*   Docs(examples): add scikit-learn regression example ([#492](https://github.com/AI-SDC/SACRO-ML/pull/492))
+*   Docs(examples): Add scikit-learn regression example ([#492](https://github.com/AI-SDC/SACRO-ML/pull/492))
 *   CI: Update location of example notebooks for Sphinx
-*   CI: set codecov project coverage target to 90% ([#487](https://github.com/AI-SDC/SACRO-ML/pull/487))
+*   CI: Set codecov project coverage target to 90% ([#487](https://github.com/AI-SDC/SACRO-ML/pull/487))
 *   Chore: Drop Python 3.10 support, add Python 3.15 ([#496](https://github.com/AI-SDC/SACRO-ML/pull/496))
 *   Chore(deps): Update pre-commit hooks ([#483](https://github.com/AI-SDC/SACRO-ML/pull/483))
 
