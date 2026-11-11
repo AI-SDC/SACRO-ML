@@ -1,0 +1,64 @@
+# {{ report.project_name }}
+
+_{{ report.author }}_  
+_Generated on {{ report.timestamp }}_
+
+
+{{ report.project_blurb }}
+
+## Recommendations
+
+{{ report.recommendations }}
+
+## Attacks
+
+The following attack types were run on the target model.
+
+{% for attack_type in report.attack_types.values() %}
+**{{ attack_type.label }}**: {{ attack_type.description }}
+{% endfor %}
+
+Parameter settings for the attacks are shown in the appendix.
+
+## Results
+
+{% for experiment in report.experiments.values() %}
+#### {{ experiment.id }}
+
+{{ experiment.description or "" }}
+| Global Metric | Key | Value | Description |
+|----------|-----|-------|-------------|
+{% for gm in experiment.global_metrics.values() -%}
+| **{{ gm.metric.label }}** | `{{ gm.metric.name }}` | **{{ gm.value }}** | {{ gm.metric.description or "—" }} |
+{% endfor %}
+
+| Aggregate Metric | Mean | Min | Max | Variance | Description |
+|--------|------|-----|-----|----------|-------------|
+{% for am in experiment.aggregate_metrics.values() -%}
+| **{{ am.metric.label }}** | {{ am.value.get("mean", "—") }} | {{ am.value.get("min", "—") }} | {{ am.value.get("max", "—") }} | {{ am.value.get("var", "—") }} | {{ am.metric.description or "—" }} |
+{% endfor %}
+
+{% for vis in experiment.visualisations %}
+##### {{ vis.title }}
+
+![{{ vis.title }}]({{ vis.plot_path() }})
+
+<p><em>{{ vis.caption }}</em></p>
+{% endfor %}
+
+{% endfor %}
+
+
+
+## Appendix
+
+### Parameters
+{% for experiment in report.experiments.values() %}
+#### {{ experiment.id }}
+| Parameter | Key | Value | Description |
+|----------|-----|-------|-------------|
+{% for p in experiment.parameters.values() if p.parameter -%}
+| **{{ p.parameter.label }}** | `{{ p.parameter.name }}` | **{{ p.value }}** | {{ p.parameter.description or "—" }} |
+{% endfor %}
+
+{% endfor %}
