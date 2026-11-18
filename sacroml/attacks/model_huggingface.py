@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from torch.nn.functional import softmax
 
-from sacroml.attacks.model import Model
+from sacroml.attacks.model import Model, ModelTask
 
 
 class HuggingFaceModel(Model):
@@ -36,13 +36,17 @@ class HuggingFaceModel(Model):
         train_module_path: str = "",
         train_params: dict | None = None,
         batch_size: int = 32,
+        model_task: str = "",
     ) -> None:
         """Instantiate a Hugging Face model and its tokenizer."""
+        if model_task and model_task != ModelTask.CLASSIFIER:
+            raise ValueError("Only Hugging Face classifiers are supported.")
         super().__init__(
             model=model,
             model_path=model_path,
             model_module_path=model_module_path,
             model_name=model_name,
+            model_task=ModelTask.CLASSIFIER,
             model_params=model_params,
             train_module_path=train_module_path,
             train_params=train_params,
@@ -236,6 +240,7 @@ class HuggingFaceModel(Model):
         train_module_path: str = "",
         train_params: dict | None = None,
         batch_size: int = 32,
+        model_task: str = "",
     ) -> HuggingFaceModel:
         """Load a sequence-classification model and tokenizer from a directory."""
         try:
@@ -261,6 +266,7 @@ class HuggingFaceModel(Model):
             train_module_path=train_module_path,
             train_params=train_params,
             batch_size=batch_size,
+            model_task=model_task,
         )
 
     def _num_labels(self) -> int:

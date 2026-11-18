@@ -11,6 +11,7 @@ import pytest
 import torch
 
 from sacroml.attacks.likelihood_attack import LIRAAttack
+from sacroml.attacks.model import ModelTask
 from sacroml.attacks.model_huggingface import HuggingFaceModel
 from sacroml.attacks.model_pytorch import PytorchModel
 from sacroml.attacks.target import Target
@@ -69,6 +70,7 @@ def test_target_accepts_huggingface_text_and_token_inputs():
     target = Target(model=FakeHFModel(), tokenizer=FakeTokenizer(), batch_size=1)
 
     assert isinstance(target.model, HuggingFaceModel)
+    assert target.model.model_task == ModelTask.CLASSIFIER
     text = np.array(["hello", "a"])
     token_ids = np.array([[5, 1], [1, 1]], dtype=np.int64)
     assert np.allclose(
@@ -112,6 +114,7 @@ def test_target_huggingface_save_load_round_trip(tmp_path, monkeypatch):
     loaded = Target()
     loaded.load(str(target_path))
     assert isinstance(loaded.model, HuggingFaceModel)
+    assert loaded.model.model_task == ModelTask.CLASSIFIER
     assert loaded.tokenizer is loaded.model.tokenizer
     assert np.allclose(
         loaded.model.predict_proba(np.array(["hello"])),
@@ -138,6 +141,12 @@ def test_target_requires_tokenizer_for_huggingface_model():
 def test_pytorch_model_with_config_and_save_method_is_still_pytorch():
     """Unrelated PyTorch modules with similar APIs keep their existing wrapper."""
     assert isinstance(Target(model=FakeHFModel()).model, PytorchModel)
+
+
+def test_huggingface_rejects_non_classification_task():
+    """The classifier wrapper must not silently accept regression targets."""
+    with pytest.raises(ValueError, match="Only Hugging Face classifiers"):
+        Target(model=FakeHFModel(), tokenizer=FakeTokenizer(), model_task="regressor")
 
 
 def test_tokenized_inputs_use_explicit_attention_mask():

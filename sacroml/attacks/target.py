@@ -17,17 +17,26 @@ import yaml
 
 from sacroml.attacks.data import PyTorchDataHandler, SklearnDataHandler
 from sacroml.attacks.model import create_dataset
+from sacroml.attacks.model_huggingface import HuggingFaceModel
 from sacroml.attacks.model_pytorch import PytorchModel, dataloader_to_numpy
 from sacroml.attacks.model_sklearn import SklearnModel
 
 ModelLike = (
-    SklearnModel | PytorchModel | sklearn.base.BaseEstimator | torch.nn.Module | None
+    SklearnModel
+    | PytorchModel
+    | HuggingFaceModel
+    | sklearn.base.BaseEstimator
+    | torch.nn.Module
+    | None
 )
-WrappedModel = SklearnModel | PytorchModel | None
+WrappedModel = SklearnModel | PytorchModel | HuggingFaceModel | None
 
-MODEL_REGISTRY: dict[str, type[SklearnModel] | type[PytorchModel]] = {
+MODEL_REGISTRY: dict[
+    str, type[SklearnModel] | type[PytorchModel] | type[HuggingFaceModel]
+] = {
     "PytorchModel": PytorchModel,
     "SklearnModel": SklearnModel,
+    "HuggingFaceModel": HuggingFaceModel,
 }
 
 DATA_ATTRIBUTES: list[str] = [
@@ -87,6 +96,7 @@ class Target:
         PyTorch model (re)training and inference. Should match the original
         training batch size since it materially affects attack model fidelity
         (e.g. shadow models). When None, PyTorch defaults to 32.
+        For Hugging Face models it controls inference batching.
     dataset_name : str
         The name of the dataset.
     dataset_module_path : str
@@ -119,6 +129,9 @@ class Target:
         Indices of test set samples.
     safemodel : list
         Results of safemodel disclosure checking.
+    tokenizer : object or None
+        Tokenizer for a Hugging Face sequence-classification model. Saved
+        alongside the model and restored when the target is loaded.
     """
 
     # Model attributes
@@ -153,6 +166,7 @@ class Target:
 
     # Safemodel properties
     safemodel: list = field(default_factory=list)
+    tokenizer: object | None = None
 
     def __post_init__(self) -> None:
         """Initialise the model wrapper after dataclass creation."""
@@ -163,6 +177,35 @@ class Target:
         if model is None:
             return None
 
+        if isinstance(model, HuggingFaceModel):
+            self.tokenizer = model.tokenizer
+            return model
+        if (
+            isinstance(model, torch.nn.Module)
+            and hasattr(model, "config")
+            and callable(getattr(model, "save_pretrained", None))
+            and (
+                self.tokenizer is not None
+                or any(
+                    base.__module__.startswith("transformers.")
+                    for base in type(model).__mro__
+                )
+            )
+        ):
+            if self.tokenizer is None:
+                raise ValueError("A tokenizer is required for a Hugging Face model.")
+            return HuggingFaceModel(
+                model=model,
+                tokenizer=self.tokenizer,
+                model_path=self.model_path,
+                model_module_path=self.model_module_path,
+                model_name=self.model_name,
+                model_task=self.model_task,
+                model_params=self.model_params,
+                train_module_path=self.train_module_path,
+                train_params=self.train_params,
+                batch_size=self.batch_size if self.batch_size is not None else 32,
+            )
         if isinstance(model, sklearn.base.BaseEstimator):
             return SklearnModel(
                 model=model,
@@ -367,7 +410,7 @@ class Target:
         if self.dataset_module_path != "":
             if isinstance(self.model, PytorchModel):
                 self.load_pytorch_dataset()
-            elif isinstance(self.model, SklearnModel):
+            elif isinstance(self.model, (SklearnModel, HuggingFaceModel)):
                 self.load_sklearn_dataset()
             else:  # pragma: no cover
                 logger.warning("Dataset module supplied for unsupported model type.")
@@ -388,6 +431,12 @@ class Target:
 
         if isinstance(self.model, PytorchModel):
             target["batch_size"] = self.model.batch_size
+        if isinstance(self.model, HuggingFaceModel):
+            target["batch_size"] = self.model.batch_size
+            model_path = os.path.join(path, "model")
+            self.model.save(model_path)
+            target["model_path"] = "model"
+            return
 
         # Copy module files
         if self.model_module_path:
@@ -450,7 +499,7 @@ class Target:
         }
 
         model_class = MODEL_REGISTRY[model_type]
-        if model_class is PytorchModel:
+        if model_class in (PytorchModel, HuggingFaceModel):
             if "batch_size" not in target:
                 logger.warning(
                     "Saved target has no recorded batch_size; defaulting to "
@@ -462,6 +511,8 @@ class Target:
             self.batch_size = target.get("batch_size", 32)
 
         self.model = model_class.load(**load_kwargs)
+        if isinstance(self.model, HuggingFaceModel):
+            self.tokenizer = self.model.tokenizer
         logger.info("Loaded: %s : %s", model_type, target.get("model_name", ""))
         logger.info("model_task: %s", self.model.model_task)
 

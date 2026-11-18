@@ -28,6 +28,7 @@ from sacroml import metrics
 from sacroml.attacks import report, utils
 from sacroml.attacks.attack import Attack
 from sacroml.attacks.model import Model, ModelTask
+from sacroml.attacks.model_huggingface import HuggingFaceModel
 from sacroml.attacks.signal import get_signals
 from sacroml.attacks.target import Target
 
@@ -103,6 +104,12 @@ class LIRAAttack(Attack):
     @classmethod
     def attackable(cls, target: Target) -> bool:  # pragma: no cover
         """Return whether a target can be assessed with LIRAAttack."""
+        if isinstance(target.model, HuggingFaceModel):
+            logger.warning(
+                "LiRA requires shadow-model training, which is not supported "
+                "for Hugging Face models."
+            )
+            return False
         required_methods: list[str] = [
             "clone",
             "predict_proba",

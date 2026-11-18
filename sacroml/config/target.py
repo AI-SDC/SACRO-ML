@@ -14,6 +14,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter, WordCompleter
 
 from sacroml.attacks.model import create_model
+from sacroml.attacks.model_huggingface import HuggingFaceModel
 from sacroml.attacks.model_pytorch import PytorchModel
 from sacroml.attacks.model_sklearn import SklearnModel
 from sacroml.attacks.target import MODEL_REGISTRY, Target
@@ -136,12 +137,12 @@ def _get_model_module_path() -> str:
     return path
 
 
-def _get_model_path() -> str:
+def _get_model_path(allow_directory: bool = False) -> str:
     """Prompt user for path to a saved fitted model."""
     while True:
-        msg = "Enter the saved model path including the full filename: "
+        msg = "Enter the saved model path: "
         path = prompt(msg, completer=PathCompleter())
-        if os.path.isfile(path):
+        if os.path.isfile(path) or (allow_directory and os.path.isdir(path)):
             break
         print("File does not exist. Please try again.")
     return path
@@ -226,7 +227,7 @@ def _get_dataset_module_path(target: Target) -> None:
 def _get_dataset_module(target: Target) -> None:
     """Prompt user for dataset module information."""
     # Check dataset loading is supported for this model
-    models = (PytorchModel, SklearnModel)
+    models = (PytorchModel, SklearnModel, HuggingFaceModel)
     if not isinstance(target.model, models):
         print(f"Dataset modules only support {models} models currently.")
         print("Please try again.")
@@ -240,7 +241,7 @@ def _get_dataset_module(target: Target) -> None:
     # Test loading the dataset
     if isinstance(target.model, PytorchModel):
         target.load_pytorch_dataset()
-    elif isinstance(target.model, SklearnModel):
+    elif isinstance(target.model, (SklearnModel, HuggingFaceModel)):
         target.load_sklearn_dataset()
 
     # Avoid copying data to the target folder
@@ -290,7 +291,7 @@ def prompt_for_target() -> None:
 
     # Get model and training information
     model_type: str = _get_model_type()
-    model_path: str = _get_model_path()
+    model_path: str = _get_model_path(allow_directory=model_type == "HuggingFaceModel")
 
     if model_type == "PytorchModel":
         model_module_path: str = _get_model_module_path()
@@ -315,6 +316,9 @@ def prompt_for_target() -> None:
             train_module_path=train_module_path,
             train_params=train_params,
         )
+    elif model_type == "HuggingFaceModel":
+        model = HuggingFaceModel.load(model_path=model_path)
+        target = Target(model=model)
     else:
         try:  # Load the saved model
             model = _load_model(model_path)
