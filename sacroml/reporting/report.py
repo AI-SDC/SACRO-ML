@@ -27,10 +27,7 @@ from sacroml.reporting.models import (
 
 
 from sacroml.reporting.visualisations import (
-    ROCPlot,
-    QuantitativeRiskPlot,
-    CategoricalRiskPlot,
-    CategoricalFractionPlot,
+    ROCPlot
 )
 
 NON_METRIC_FIELDS = {"details"}
