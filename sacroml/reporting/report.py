@@ -315,7 +315,7 @@ class Report:
         figures_dir = os.path.join(output_dir, "figures")
         os.makedirs(figures_dir, exist_ok=True)
 
-        visualisation_classes = [ROCPlot, QuantitativeRiskPlot, CategoricalRiskPlot, CategoricalFractionPlot]
+        visualisation_classes = [ROCPlot]
 
         for experiment in self.experiments.values():
             experiment.visualisations = []
@@ -374,3 +374,5 @@ class Report:
             report=self,
             output_dir=output_dir,
         )
+    
+    
