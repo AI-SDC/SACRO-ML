@@ -19,7 +19,9 @@ if __name__ == "__main__":
     attack.attack(target)
 
     logging.info("Running LiRA attack")
-    attack = LIRAAttack(n_shadow_models=100, output_dir=output_dir)
+    attack = LIRAAttack(
+        n_shadow_models=100, mode="online-carlini", output_dir=output_dir
+    )
     attack.attack(target)
 
     logging.info("Report available in directory: '%s'", output_dir)

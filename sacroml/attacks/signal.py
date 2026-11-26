@@ -9,12 +9,13 @@ Current signals
 ---------------
 - Classification: ``logit`` -> logit(p_y), the correct-class logit.
 - Regression: ``log_mse`` -> -log(per-record MSE).
+- Preprocessors: ``recon_mse`` -> -log(per-record reconstruction MSE).
 
 Adding a signal
 ---------------
 Write a function with signature ``(model, X, y) -> np.ndarray`` and
-register it in ``CLASSIFICATION_SIGNALS`` or ``REGRESSION_SIGNALS``. It is then
-selectable by name via ``get_signals(..., signal="<name>")``.
+register it in ``CLASSIFICATION_SIGNALS`` or ``REGRESSION_SIGNALS``, etc.
+It is then selectable by name via ``get_signals(..., signal="<name>")``.
 
 Label convention
 ----------------
@@ -53,18 +54,27 @@ def _regression_log_mse(model: Model, X: np.ndarray, y: np.ndarray) -> np.ndarra
     return -np.log(model.get_losses(X, y) + EPS)
 
 
+def _preprocessor_log_mse(model: Model, X: np.ndarray, _: None) -> np.ndarray:
+    """Return reconstruction-MSE signals, with larger values for smaller errors."""
+    recons = model.model.inverse_transform(model.model.transform(X))
+    return -np.log(np.mean((X - recons) ** 2, axis=1) + EPS)
+
+
 Signal = Callable[[Model, np.ndarray, np.ndarray], np.ndarray]
 CLASSIFICATION_SIGNALS: dict[str, Signal] = {"logit": _classification_logit}
 REGRESSION_SIGNALS: dict[str, Signal] = {"log_mse": _regression_log_mse}
+PREPROCESSOR_SIGNALS: dict[str, Signal] = {"recon_mse": _preprocessor_log_mse}
 
 _REGISTRIES: dict[ModelTask, dict[str, Signal]] = {
     ModelTask.CLASSIFIER: CLASSIFICATION_SIGNALS,
     ModelTask.REGRESSOR: REGRESSION_SIGNALS,
+    ModelTask.PREPROCESSOR: PREPROCESSOR_SIGNALS,
 }
 
 _DEFAULTS: dict[ModelTask, str] = {
     ModelTask.CLASSIFIER: "logit",
     ModelTask.REGRESSOR: "log_mse",
+    ModelTask.PREPROCESSOR: "recon_mse",
 }
 
 
