@@ -157,3 +157,5 @@ output_*/
 data/
 
 examples/notebooks/*.py
+dp_output_pca/
+dp_target_pca/
