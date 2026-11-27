@@ -56,10 +56,14 @@ class ThresholdAttack(Attack):
     def attackable(cls, target: Target) -> bool:
         """Return whether a target can be assessed with ThresholdAttack."""
         if (
-            target.has_model()
-            and target.has_data()
-            and target.model.model_task in (ModelTask.REGRESSOR, ModelTask.CLASSIFIER)
-        ) or target.has_probas():
+            (
+                target.has_model()
+                and target.has_data()
+                and target.get_task() in (ModelTask.REGRESSOR, ModelTask.CLASSIFIER)
+            )
+            or (target.get_task() == ModelTask.PREPROCESSOR and target.has_feats())
+            or target.has_probas()
+        ):
             return True
         logger.info("WARNING: ThresholdAttack requires more Target details.")
         return False
@@ -78,16 +82,24 @@ class ThresholdAttack(Attack):
             Attack report.
         """
         # compute target model signals if possible
-        if target.has_model() and target.has_data():
+        if target.has_model() and (
+            target.has_data()
+            or (target.get_task() == ModelTask.PREPROCESSOR and target.has_feats())
+        ):
             members = get_signals(
                 model=target.model,
                 X=target.X_train,
-                y=target.y_train,
+                y=target.y_train if target.has_data() else None,
                 signal=self.signal,
             )
+
             nonmembers = get_signals(
-                model=target.model, X=target.X_test, y=target.y_test, signal=self.signal
+                model=target.model,
+                X=target.X_test,
+                y=target.y_test if target.has_data() else None,
+                signal=self.signal,
             )
+
         # use supplied target model probas if unable to compute
         else:
             members = target.proba_train

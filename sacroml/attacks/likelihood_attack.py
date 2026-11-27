@@ -115,7 +115,12 @@ class LIRAAttack(Attack):
             target.has_model()
             and target.has_data()
             and all(hasattr(target.model, method) for method in required_methods)
-            and target.model.model_task in (ModelTask.CLASSIFIER, ModelTask.REGRESSOR)
+            and target.get_task() in (ModelTask.CLASSIFIER, ModelTask.REGRESSOR)
+        ) or (
+            target.has_model()
+            and target.get_task() == ModelTask.PREPROCESSOR
+            and hasattr(target.model.model, "transform")
+            and target.has_feats()
         ):
             return True
 
@@ -141,7 +146,12 @@ class LIRAAttack(Attack):
         target = utils.check_and_update_dataset(target)
         train_labels, test_labels = target.y_train, target.y_test
 
-        if target.model.model_task == ModelTask.CLASSIFIER:
+        if target.get_task() == ModelTask.PREPROCESSOR:
+            # labels are not used for preprocessors, so for compatibility use zeros
+            train_labels = np.zeros((target.X_train.shape[0], 1))
+            test_labels = np.zeros((target.X_test.shape[0], 1))
+
+        elif target.get_task() == ModelTask.CLASSIFIER:
             classes = target.model.get_classes()
             train_labels, test_labels = classes[train_labels], classes[test_labels]
 
@@ -154,13 +164,13 @@ class LIRAAttack(Attack):
 
         # execute attack
         self._run(
-            shadow_clf,
-            target.X_train,
-            target.y_train,
-            train_signals,
-            target.X_test,
-            target.y_test,
-            test_signals,
+            shadow_clf=shadow_clf,
+            X_train=target.X_train,
+            y_train=train_labels,
+            train_signals=train_signals,
+            X_test=target.X_test,
+            y_test=test_labels,
+            test_signals=test_signals,
         )
 
         # create the report

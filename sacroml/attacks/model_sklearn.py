@@ -191,6 +191,7 @@ class SklearnModel(Model):
         self
             Fitted model.
         """
+        self.model = sklearn.base.clone(self.model)
         return self.model.fit(X, y)
 
     def clone(self) -> Model:

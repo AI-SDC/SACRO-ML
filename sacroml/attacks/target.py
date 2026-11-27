@@ -279,6 +279,10 @@ class Target:
         """Add safemodel disclosure checking results."""
         self.safemodel = data
 
+    def get_task(self) -> str | None:
+        """Return the model task."""
+        return self.model.model_task if self.model is not None else None
+
     def has_model(self) -> bool:
         """Return whether the target has a loaded model."""
         return self.model is not None and self.model.model is not None
@@ -286,6 +290,11 @@ class Target:
     def has_data(self) -> bool:
         """Return whether the target has all processed data."""
         attrs: list[str] = ["X_train", "y_train", "X_test", "y_test"]
+        return all(getattr(self, attr) is not None for attr in attrs)
+
+    def has_feats(self) -> bool:
+        """Return whether the target has feature data."""
+        attrs: list[str] = ["X_train", "X_test"]
         return all(getattr(self, attr) is not None for attr in attrs)
 
     def has_raw_data(self) -> bool:
