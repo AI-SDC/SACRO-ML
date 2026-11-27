@@ -1,0 +1,507 @@
+{
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "id": "b0feddf2-7437-4548-8add-f07822e2792d",
+            "metadata": {
+                "tags": []
+            },
+            "source": [
+                "# Risk of cancer prediction for patients with multiple disorders\n",
+                "\n",
+                "Scientists have created a model to predict the risk of suffering cancer for people who suffer multiple disorders. This model is expected to save lives.\n",
+                "\n",
+                "The same scientist published the details of their research, how the model was built and a detailed description of the data (e.g., the health conditions investigated), the NHS board where the data was collected. The data was deidentified and was not released as it is confidential patient information, and any leak might break existing legislation.\n",
+                "\n",
+                "The researchers balanced the benefits and potential risks of the model realease, and it was decided that overall, there is a clear benefit for the population for the model to be made public.\n",
+                "\n",
+                "What they didn\u2019t realise, is that the NHS board in question is home to a famous Member of Parliament (MP). This famous MP is a former Prime Minister, and it is of public knowledge he suffered from cancer. Also, it is straightforward for anyone to do an online search and find some other details for this individual (age etc).\n",
+                "\n",
+                "## Attribute Inference\n",
+                "\n",
+                "We will use this example to demonstrate an _attribute inference_ attack. In such an attack, an attacker has access to some information about a particular individual but not all, and attempts to use the model to fill in the gaps in their knowledge. In this particular example, some aspects of the MPs health are public knowledgey. We will use that information, and a trained model, to find out information particular to this individual that is not in the public domain, and should remain in the TRE."
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "33ffc813-c9e5-43c7-8a32-2bb2aed3b5f5",
+            "metadata": {},
+            "source": [
+                "## Let's get hands on with this example.\n",
+                "\n",
+                "The following code imports some standard libraries that we will need."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 1,
+            "id": "63720e84-26f9-4763-9f20-18bad396ba4b",
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "import random\n",
+                "from itertools import product\n",
+                "\n",
+                "import numpy as np\n",
+                "\n",
+                "np.random.seed(1234)\n",
+                "random.seed(12345)\n",
+                "\n",
+                "import pandas as pd\n",
+                "from scipy.stats import poisson\n",
+                "from sklearn.svm import SVC"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "9c7acbc2-1970-4259-90b9-dda459bf85a4",
+            "metadata": {
+                "tags": []
+            },
+            "source": [
+                "## Create the original model\n",
+                "\n",
+                "We are assuming that a model is trained within a TRE on real data. However, we do not have access to real data, so we will randomly generate some realistic looking data.\n",
+                "\n",
+                "In particular, we will generate data for 200 people: 100 cancer patients, and 100 non-cancer patients. Our MP will be one of the patients in the cancer set.\n",
+                "\n",
+                "For each patient, we generate six values that in reality would be extracted from their electronic health records:\n",
+                "1. `diabetes` -- whether or not the patient suffers from diabetes (1 = yes, 0 = no)\n",
+                "1. `asthma` -- whether or not the patient suffers from asthma (1 = yes, 0 = no)\n",
+                "1. `bmi_group` -- the BMI group in which the patient falls (1, 2, 3, or 4)\n",
+                "1. `blood_pressure` -- the blood pressure group in which the patient falls (0, 1, 2, 3, 4, or 5)\n",
+                "1. `smoker` -- whether or not the patient is a smoker (1 = yes, 0 = no)\n",
+                "1. `age` -- the patient's age\n",
+                "\n",
+                "Each patient is also associated with a value to indicate whether they are in the cancer group (1) or non-cancer (0).\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 2,
+            "id": "2f94ec62-eefa-4859-acba-6ccb29f4ebb2",
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# 1 is cancer, 0 is no cancer, this is our label and what we want to predict.\n",
+                "cancer = [1] * 99 + [0] * 100\n",
+                "\n",
+                "df = pd.DataFrame()\n",
+                "\n",
+                "# diabetes 0 no, 1 yes\n",
+                "df[\"diabetes\"] = [[1, 0][random.random() > 0.7] for n in range(99)] + [\n",
+                "    [1, 0][random.random() > 0.2] for n in range(100)\n",
+                "]\n",
+                "\n",
+                "# asthma 0 no, 1 yes\n",
+                "df[\"asthma\"] = [[1, 0][random.random() > 0.7] for n in range(99)] + [\n",
+                "    [1, 0][random.random() > 0.5] for n in range(100)\n",
+                "]\n",
+                "\n",
+                "# bmi group 1 under, 2 normal, 3 overweight, 4 obese\n",
+                "df[\"bmi_group\"] = [\n",
+                "    random.choices([1, 2, 3, 4], weights=[0.5, 5, 7, 5], k=1)[0] for n in range(99)\n",
+                "] + [random.choices([1, 2, 3, 4], weights=[1, 7, 4, 1], k=1)[0] for n in range(100)]\n",
+                "\n",
+                "# blood pressure 0 is low, 1 is normal, 5 is extremly high\n",
+                "df[\"blood_pressure\"] = [\n",
+                "    random.choices([0, 1, 2, 3, 4, 5], weights=[0.5, 1, 5, 6, 1, 0.5], k=1)[0]\n",
+                "    for n in range(99)\n",
+                "] + [\n",
+                "    random.choices([0, 1, 2, 3, 4, 5], weights=[0.5, 5, 5, 1, 1, 0.5], k=1)[0]\n",
+                "    for n in range(100)\n",
+                "]\n",
+                "\n",
+                "# smoker 0 is non smoker, 1 is smoker\n",
+                "df[\"smoker\"] = [[1, 0][random.random() > 0.8] for n in range(99)] + [\n",
+                "    [1, 0][random.random() > 0.2] for n in range(100)\n",
+                "]\n",
+                "\n",
+                "# age\n",
+                "x = np.arange(20, 90)\n",
+                "pmf = poisson.pmf(x, 72)\n",
+                "age = [random.choices(x, weights=pmf, k=1)[0] for n in range(99)]\n",
+                "x = np.arange(20, 90)\n",
+                "pmf = poisson.pmf(x, 55)\n",
+                "age2 = [random.choices(x, weights=pmf, k=1)[0] for n in range(100)]\n",
+                "df[\"age\"] = age + age2\n",
+                "\n",
+                "# Add the data of your MP\n",
+                "cancer = cancer + [1]\n",
+                "\n",
+                "# add new row to end of DataFrame\n",
+                "# the order of the list indicates in order diabetes, asthma, bmi_group, blood_pressure, smoker, age\n",
+                "df.loc[len(df.index)] = [1, 1, 3, 2, 1, 62]"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "011f7237",
+            "metadata": {},
+            "source": [
+                "This looks like the kind of data that might exist within a TRE. Here's the first few rows:"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 3,
+            "id": "978b6754",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "   diabetes  asthma  bmi_group  blood_pressure  smoker  age\n",
+                        "0         1       0          4               3       1   72\n",
+                        "1         1       1          2               3       0   83\n",
+                        "2         0       0          4               3       1   63\n",
+                        "3         1       1          4               3       0   77\n",
+                        "4         1       1          4               2       1   87\n"
+                    ]
+                }
+            ],
+            "source": [
+                "print(df.head())"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "65a2663c",
+            "metadata": {},
+            "source": [
+                "Our MP is the final row of the data, here are their values:"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 4,
+            "id": "34992ca0",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "diabetes           1\n",
+                        "asthma             1\n",
+                        "bmi_group          3\n",
+                        "blood_pressure     2\n",
+                        "smoker             1\n",
+                        "age               62\n",
+                        "Name: 199, dtype: int64\n"
+                    ]
+                }
+            ],
+            "source": [
+                "print(df.iloc[199, :])"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "dace3d79-78bc-4fb8-a1ae-2d8587c663b2",
+            "metadata": {},
+            "source": [
+                "## Model training\n",
+                "\n",
+                "The researcher trained a particular machine learning model called a Support Vector Machine (SVM). This is a very popular model for tasks in which we want to assign things (in this case patients) to groups (in this case cancer v non-cancer). The attribute inference attack we will perform is not unique to SVMs, we just use them as a popular example.\n",
+                "\n",
+                "Training the model is very straightforward -- just a couple of lines of code (the details are not important)."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 5,
+            "id": "d5500d7b",
+            "metadata": {},
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": [
+                            "SVC(C=1, gamma=3, probability=True,\n",
+                            "    random_state=RandomState(MT19937) at 0x2C05FDD5240)"
+                        ]
+                    },
+                    "execution_count": 5,
+                    "metadata": {},
+                    "output_type": "execute_result"
+                }
+            ],
+            "source": [
+                "# Train a model\n",
+                "prng = np.random.RandomState(12)\n",
+                "svc = SVC(C=1, gamma=3, probability=True, random_state=prng)\n",
+                "svc.fit(df, cancer)"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "418f7fa2",
+            "metadata": {},
+            "source": [
+                "The trained model can be used to make predictions about new individuals. Given data for an individual, it will produce two scores (probabilities). The first is how likely they are to belong to the non-cancer group (higher = more likely) and the second how likely they are to belong to the cancer group. The scores are always positive, and sum to 1.\n",
+                "\n",
+                "For example, if we have an individual who has diabetes, has asthma, has a bmi group of 1, blood pressure of 5. is a non-smoker and is 42 years old, we can use the model to predict whether or not they should belong in the cancer or non-cancer groups:"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 6,
+            "id": "e21f2890",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "non-cancer score = 0.49\n",
+                        "cancer score = 0.51\n"
+                    ]
+                }
+            ],
+            "source": [
+                "test_example = pd.DataFrame(\n",
+                "    {\n",
+                "        \"diabetes\": 1,\n",
+                "        \"asthma\": 1,\n",
+                "        \"bmi_group\": 1,\n",
+                "        \"blood_pressure\": 5,\n",
+                "        \"smoker\": 1,\n",
+                "        \"age\": 72,\n",
+                "    },\n",
+                "    index=[1],\n",
+                ")\n",
+                "predictions = svc.predict_proba(test_example)\n",
+                "print(f\"non-cancer score = {predictions[0][0]:.2f}\")\n",
+                "print(f\"cancer score = {predictions[0][1]:.2f}\")"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "79712b01",
+            "metadata": {},
+            "source": [
+                "## The attack\n",
+                "\n",
+                "We now assume the role of the attacker. The attacker is allowed to make predictions as we have just done.\n",
+                "\n",
+                "As we are interested in a famous individual, some information is available in the public domain. In particular, the attacker knows the following:\n",
+                "- The MP is a smoker\n",
+                "- The MP is aged 62\n",
+                "- The MP has diabetes\n",
+                "- The MP has asthma\n",
+                "\n",
+                "The attacker does not know the MP's `bmi_group` or `blood_pressure` and it is those that they are trying to determine through the attack.\n",
+                "\n",
+                "The attacker does know the possible values that these two variables can take -- `bmi_group` is 1, 2, 3, or 4 and `blood_pressure` is 0, 1, 2, 3, 4, or 5.\n",
+                "\n",
+                "### How does the attack work?\n",
+                "\n",
+                "Recall that when we used the model to make predictions, the model provided two scores -- the cancer and non-cancer scores. The more extreme these scores become (e.g one is close to 1 and the other to 0 (recall that they have to add up to 1)), the more _confident_ the model is in assigning that example. It is not uncommon for models to have higher confidence for examples that they were trained on than examples that they haven't seen before. It is this property that the attacker will make use of.\n",
+                "\n",
+                "In particular, the attacker will query the model with the known values and all combinations of the unknown values (i.e. in total, they will make $4\\times 6 = 24$ queries for the four bmi groups and 6 blood pressure values). For each query, the attacker will record the score for the cancer group. The attacker will assume that the higher this score (i.e. the more confident the model), the more likely that the values are correct. Note that we used the confidence in the cancer group (rather than non-cancer) because the attacker _knows_ that the MP had cancer and would therefore have been in the cancer group.\n",
+                "\n",
+                "The following code goes through all values and computes the model's predictions.\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 7,
+            "id": "dc88f314",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "<itertools.product object at 0x000002C060E51240>\n"
+                    ]
+                }
+            ],
+            "source": [
+                "feature_vals = {\n",
+                "    \"diabetes\": [1],\n",
+                "    \"asthma\": [1],\n",
+                "    \"bmi_group\": [1, 2, 3, 4],\n",
+                "    \"blood_pressure\": [0, 1, 2, 3, 4, 5],\n",
+                "    \"smoker\": [1],\n",
+                "    \"age\": [62],\n",
+                "}\n",
+                "\n",
+                "all_combinations = product(*feature_vals.values())\n",
+                "print(all_combinations)\n",
+                "g = {}\n",
+                "for _, combination in enumerate(all_combinations):\n",
+                "    # Turn this particular combination into a dictionary\n",
+                "    g[_] = {n: v for n, v in zip(feature_vals.keys(), combination)}\n",
+                "attack_inputs = pd.DataFrame(g).T\n",
+                "\n",
+                "probs = svc.predict_proba(attack_inputs)\n",
+                "\n",
+                "# Add the prob cancer to the dataframe\n",
+                "attack_values = attack_inputs.copy()\n",
+                "attack_values[\"confidence\"] = probs[:, 1]\n",
+                "sorted_attack_values = attack_values.sort_values(by=\"confidence\", ascending=False)[\n",
+                "    [\"bmi_group\", \"blood_pressure\", \"confidence\"]\n",
+                "]"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "50564216",
+            "metadata": {},
+            "source": [
+                "The attacker now has a handy table of all possible values of the unknown variables for the MP and the confidence that the model gives each one. Here are the five values with the highest confidence:"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 8,
+            "id": "12a1a069",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "    bmi_group  blood_pressure  confidence\n",
+                        "14          3               2    0.938385\n",
+                        "8           2               2    0.577007\n",
+                        "9           2               3    0.545445\n",
+                        "15          3               3    0.542361\n",
+                        "20          4               2    0.542322\n"
+                    ]
+                }
+            ],
+            "source": [
+                "print(sorted_attack_values.head())"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "df7d15d1",
+            "metadata": {},
+            "source": [
+                "The attacker can see that there is a combination that has a _much_ higher confidence that the others -- when `bmi_group = 3` and `blood_pressure = 2`, the model places the example in the cancer group with a very high score (0.95), whereas the next highest score is 0.53. To the attacker, this is very strong evidence that the first example were the values that the model was trained on (i.e. are the correct values) and the others have not been seen by the model before.\n",
+                "\n",
+                "The attacker can therefore confidently predict that these are the correct values. And, if they did so, they would be correct. This represents a breah from the TRE -- the MPs bmi group and blood pressure constitute personal information that shouldn't be allowed out of the TRE."
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "5c3692e3",
+            "metadata": {},
+            "source": [
+                "## Mitigation\n",
+                "\n",
+                "An important question for TREs is how can an attack like this be mitigated?\n",
+                "\n",
+                "When our researcher trained the SVM, they configured it by setting a particular parameter (`gamma`) to the value 3. Tuning this parameter can lead to a model that is much less susceptible to attack. For example, let's re-train the model, but this time with `gamma = 0.1` and try the attack again:"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": 9,
+            "id": "41927b12",
+            "metadata": {},
+            "outputs": [
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "text": [
+                        "    bmi_group  blood_pressure  confidence\n",
+                        "15          3               3    0.863876\n",
+                        "21          4               3    0.847483\n",
+                        "9           2               3    0.835714\n",
+                        "14          3               2    0.834142\n",
+                        "20          4               2    0.812857\n",
+                        "8           2               2    0.803217\n",
+                        "22          4               4    0.798077\n",
+                        "16          3               4    0.797924\n",
+                        "3           1               3    0.767166\n",
+                        "10          2               4    0.754672\n",
+                        "2           1               2    0.727526\n",
+                        "23          4               5    0.686306\n",
+                        "4           1               4    0.684278\n",
+                        "13          3               1    0.683948\n",
+                        "19          4               1    0.676913\n",
+                        "17          3               5    0.654893\n",
+                        "7           2               1    0.638978\n",
+                        "11          2               5    0.593411\n",
+                        "1           1               1    0.559613\n",
+                        "5           1               5    0.534109\n",
+                        "18          4               0    0.500000\n",
+                        "12          3               0    0.473850\n",
+                        "6           2               0    0.421279\n",
+                        "0           1               0    0.378039\n"
+                    ]
+                }
+            ],
+            "source": [
+                "svc = SVC(C=1, gamma=0.1, probability=True)\n",
+                "svc.fit(df, cancer)\n",
+                "probs = svc.predict_proba(attack_inputs)\n",
+                "\n",
+                "# Add the prob cancer to the dataframe\n",
+                "attack_values = attack_inputs.copy()\n",
+                "attack_values[\"confidence\"] = probs[:, 1]\n",
+                "sorted_attack_values = attack_values.sort_values(by=\"confidence\", ascending=False)[\n",
+                "    [\"bmi_group\", \"blood_pressure\", \"confidence\"]\n",
+                "]\n",
+                "print(sorted_attack_values.head(n=24))"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "5e6a7823",
+            "metadata": {},
+            "source": [
+                "The attacker now sees a very different picture - there is no single combination that for which the model is much more confident than others. The attacker can therefore not make any clear prediction about these values -- the model is much safer. "
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "67474576-080f-4f35-ad14-f7f8067541d0",
+            "metadata": {},
+            "source": [
+                "## Conclusions\n",
+                "\n",
+                "With this example, we have demonstrated how an attacker who has some information about an individual in the model's training set and is allowed to query the model can potentially learn information about that individual. This is known as an _attribute inference_ attack, and it makes use of the fact that under some configurations, models can be more confident on examples they've seen during training than on examples that they haven't.\n",
+                "\n",
+                "The susceptibility of a model to attack depends, to a significant degree, on their configuration. In the case of an SVM, changing the `gamma` parameter can control how safe the model is. Although the details of an SVM's `gamma` parameter are not important, it's important to see how small changes in a model's configuration can have dramatic changes in their vulnerability. "
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "id": "bd973a30",
+            "metadata": {},
+            "source": []
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3.9.4 ('venv': venv)",
+            "language": "python",
+            "name": "python3"
+        },
+        "language_info": {
+            "codemirror_mode": {
+                "name": "ipython",
+                "version": 3
+            },
+            "file_extension": ".py",
+            "mimetype": "text/x-python",
+            "name": "python",
+            "nbconvert_exporter": "python",
+            "pygments_lexer": "ipython3",
+            "version": "3.9.4"
+        },
+        "vscode": {
+            "interpreter": {
+                "hash": "fcca1ce0a591990538c4a1a2cbe16853d718e2332b5914ea18ddb1937a418955"
+            }
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 5
+}
