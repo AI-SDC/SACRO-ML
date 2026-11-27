@@ -6,7 +6,7 @@ Glossary and definitions
 Actors
 --------
 *Trusted research environment:*
-    A trusted research environment (TRE) sometimes called a ‘data enclave’, ‘research data centre’, 'secure data environments (SDEs)' or ‘safe haven’ is an analytical environment where the researchers working on the data have substantial freedom to work with detailed row-level data (see below) but are prevented from importing or releasing data without permission, and typically are subject to a monitoring and a significant degree of access control.
+    It is an a safe analytical environment where the researchers working on sensitive data that follows the Five Safes Principles. TRE users have substantial freedom, but are prevented from importing or releasing data without permission, and typically are subject to a monitoring and a significant degree of access control. A TRE sometimes called a ‘Data Enclave’, ‘Research Data Centre’, 'Secure Data Environments (SDEs)', ‘Safe Haven’, 'Secure Processing Environment (SPE)', 'Secure Executing Environment (SEE)' amongst others. There are some differences on how they work in practice.
 
 *Researchers:*
     Someone who has permission to use a TRE and has access to data within that TRE. For this work, researchers are assumed to be interested in building machine learning (ML) models that they will then wish to remove from the TRE. We use the term “researchers” to mean researchers who could be academic or from a commercial or government setting – all of whom could be training ML models to develop a solution in the public interest.
